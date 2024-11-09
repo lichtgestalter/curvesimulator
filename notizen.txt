@@ -1,3 +1,6 @@
+NEXT: configfile als Funktionsparameter übergeben, statt als Programmparameter
+
+
 left view (top view when i=90°):   projection (x,y,z) -> (x,z), order = -y (minus y-axis points to viewer)
 right view (edge view when i=90°): projection (x,y,z) -> (x,y), order =  z       (z-axis points to viewer)
 

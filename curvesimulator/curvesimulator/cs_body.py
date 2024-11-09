@@ -1,7 +1,7 @@
 import math
 import numpy as np
 
-from cs_physics import CurveSimPhysics
+from .cs_physics import CurveSimPhysics
 
 
 # noinspection NonAsciiCharacters,PyPep8Naming,PyUnusedLocal
@@ -125,7 +125,7 @@ class CurveSimBody:
         Returns also true anomaly, eccentric anomaly, mean anomaly and the time of periapsis."""
         a, e, i, Ω, ω, ϖ, L = self.a, self.e, self.i, self.Ω, self.ω, self.ϖ, self.L  # for readability of formulas
         ma, ea, nu, T, t, mu = self.ma, self.ea, self.nu, self.T, self.t, self.mu  # for readability of formulas
-
+        print("hej, chatgpt")
         # Calculate ω if necessary
         if ω is None and ϖ is not None and Ω is not None:
             ω = ϖ - Ω

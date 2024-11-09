@@ -1,3 +1,14 @@
+"""
+Visualisiert die Punkte aus debug_file.txt.
+Dieses enthält fuer jeden Satz Kepler-Parameter (a, e, i, Ω, ϖ) fuer
+verschiedene L (Startpunkte auf der Ellipse), den Startpunkt des Orbits.
+
+Funktioniert im Gegensatz zu debug1.py auch fuer mehrere Orbits (z.B. mit verschiedenen Werten fuer Ω)
+und die Orbits werden in einer Reihe von Bildern aus verschiedenen Perpektiven gezeigt.
+
+Bereits hier zeigt sich ein Fehler in der Ellipsenlage fuer Ω > 0 Grad.
+Das bedeutet, der Bug wirkt sich bereits auf den Startpunkt aus, also auf die ersten 3 Parameter des State Vector.
+"""
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
@@ -69,7 +80,7 @@ def main():
         plot_points(axs, x_lists, y_lists, z_lists, params_list)
         plot_planes(axs, 0.2, -80, 80)  # show the x=0, y=0 and z=0 plane as transparent polygons
         plt.tight_layout()
-        fig.savefig(params_list[0] + f" el={elev} az={azim}.png")
+        fig.savefig("debug/CGPT Formeln/" + params_list[0] + f" el={elev} az={azim}.png")
         plt.show()
 
 

@@ -9,7 +9,7 @@ class CurveSimParameters:
         # Read config file
         self.standard_sections = ["Astronomical Constants", "Video", "Plot", "Scale", "Debug"]
         config = configparser.ConfigParser(inline_comment_prefixes='#')
-        self.configfilename = CurveSimParameters.find_and_check_config_file(default="curvesim.ini", standard_sections=self.standard_sections)
+        self.configfilename = CurveSimParameters.find_and_check_config_file(default="curvesimulator.ini", standard_sections=self.standard_sections)
         config.read(self.configfilename)
 
         # [Astronomical Constants]
