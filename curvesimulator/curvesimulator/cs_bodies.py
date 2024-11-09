@@ -5,9 +5,6 @@ import matplotlib
 import matplotlib.animation
 import numpy as np
 
-# import cs_body as csb
-# import cs_lightcurve as csl
-# import cs_physics as csp
 from curvesimulator.cs_body import CurveSimBody
 from curvesimulator.cs_lightcurve import CurveSimLightcurve
 from curvesimulator.cs_physics import CurveSimPhysics
