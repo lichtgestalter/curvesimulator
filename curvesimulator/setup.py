@@ -2,16 +2,13 @@ from setuptools import setup, find_packages
 
 setup(
     name="curvesimulator",
-    version="0.1.5",
+    version="0.1.8",
     packages=find_packages(),
     install_requires=[
         # List your dependencies here
         "numpy",
         "matplotlib",
         "configparser",
-        # "math",
-        # "time",
-        # "sys",
     ],
     author="Uli Scheuss",
     description="Curvesimulator calculates the movements and eclipses of celestial bodies and produces a video of this and of the resulting lightcurve.",

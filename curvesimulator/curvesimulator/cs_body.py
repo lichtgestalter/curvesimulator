@@ -1,7 +1,8 @@
 import math
 import numpy as np
 
-from .cs_physics import CurveSimPhysics
+# import cs_physics as csp
+from curvesimulator.cs_physics import CurveSimPhysics
 
 
 # noinspection NonAsciiCharacters,PyPep8Naming,PyUnusedLocal

@@ -5,9 +5,12 @@ import matplotlib
 import matplotlib.animation
 import numpy as np
 
-from .cs_body import CurveSimBody
-from .cs_lightcurve import CurveSimLightcurve
-from .cs_physics import CurveSimPhysics
+# import cs_body as csb
+# import cs_lightcurve as csl
+# import cs_physics as csp
+from curvesimulator.cs_body import CurveSimBody
+from curvesimulator.cs_lightcurve import CurveSimLightcurve
+from curvesimulator.cs_physics import CurveSimPhysics
 
 
 class CurveSimBodies(list):
@@ -28,27 +31,27 @@ class CurveSimBodies(list):
         for section in config.sections():
             if section not in p.standard_sections:  # section describes a physical object
                 self.append(CurveSimBody(p=p,
-                                         name=section,
-                                         body_type=config.get(section, "body_type"),
-                                         mass=eval(config.get(section, "mass")),
-                                         radius=eval(config.get(section, "radius")),
-                                         luminosity=None if config.get(section, "luminosity", fallback=None) is None else eval(config.get(section, "luminosity")),
-                                         startposition=config.get(section, "startposition", fallback=None),
-                                         velocity=config.get(section, "velocity", fallback=None),
-                                         a=None if config.get(section, "a", fallback=None) is None else eval(config.get(section, "a")),  # a bit long-winded because eval() cannot handle None
-                                         e=None if config.get(section, "e", fallback=None) is None else eval(config.get(section, "e")),
-                                         i=None if config.get(section, "i", fallback=None) is None else eval(config.get(section, "i")),
-                                         Ω=None if config.get(section, "longitude_of_ascending_node", fallback=None) is None else eval(config.get(section, "longitude_of_ascending_node")),
-                                         ω=None if config.get(section, "argument_of_periapsis", fallback=None) is None else eval(config.get(section, "argument_of_periapsis")),
-                                         ϖ=None if config.get(section, "longitude_of_periapsis", fallback=None) is None else eval(config.get(section, "longitude_of_periapsis")),
-                                         L=None if config.get(section, "L", fallback=None) is None else eval(config.get(section, "L")),
-                                         ma=None if config.get(section, "ma", fallback=None) is None else eval(config.get(section, "ma")),
-                                         ea=None if config.get(section, "ea", fallback=None) is None else eval(config.get(section, "ea")),
-                                         nu=None if config.get(section, "nu", fallback=None) is None else eval(config.get(section, "nu")),
-                                         T=None if config.get(section, "T", fallback=None) is None else eval(config.get(section, "T")),
-                                         t=None if config.get(section, "t", fallback=None) is None else eval(config.get(section, "t")),
-                                         beta=eval(config.get(section, "beta")),
-                                         color=tuple([eval(x) for x in config.get(section, "color").split(",")])))
+                                                 name=section,
+                                                 body_type=config.get(section, "body_type"),
+                                                 mass=eval(config.get(section, "mass")),
+                                                 radius=eval(config.get(section, "radius")),
+                                                 luminosity=None if config.get(section, "luminosity", fallback=None) is None else eval(config.get(section, "luminosity")),
+                                                 startposition=config.get(section, "startposition", fallback=None),
+                                                 velocity=config.get(section, "velocity", fallback=None),
+                                                 a=None if config.get(section, "a", fallback=None) is None else eval(config.get(section, "a")),  # a bit long-winded because eval() cannot handle None
+                                                 e=None if config.get(section, "e", fallback=None) is None else eval(config.get(section, "e")),
+                                                 i=None if config.get(section, "i", fallback=None) is None else eval(config.get(section, "i")),
+                                                 Ω=None if config.get(section, "longitude_of_ascending_node", fallback=None) is None else eval(config.get(section, "longitude_of_ascending_node")),
+                                                 ω=None if config.get(section, "argument_of_periapsis", fallback=None) is None else eval(config.get(section, "argument_of_periapsis")),
+                                                 ϖ=None if config.get(section, "longitude_of_periapsis", fallback=None) is None else eval(config.get(section, "longitude_of_periapsis")),
+                                                 L=None if config.get(section, "L", fallback=None) is None else eval(config.get(section, "L")),
+                                                 ma=None if config.get(section, "ma", fallback=None) is None else eval(config.get(section, "ma")),
+                                                 ea=None if config.get(section, "ea", fallback=None) is None else eval(config.get(section, "ea")),
+                                                 nu=None if config.get(section, "nu", fallback=None) is None else eval(config.get(section, "nu")),
+                                                 T=None if config.get(section, "T", fallback=None) is None else eval(config.get(section, "T")),
+                                                 t=None if config.get(section, "t", fallback=None) is None else eval(config.get(section, "t")),
+                                                 beta=eval(config.get(section, "beta")),
+                                                 color=tuple([eval(x) for x in config.get(section, "color").split(",")])))
         # Checking parameters of physical bodies
         if len(self) < 1:
             raise Exception("No physical bodies specified.")

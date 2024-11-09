@@ -14,9 +14,17 @@
 # Just open an issue on https://github.com/lichtgestalter/curvesim/issues to get my attention :)
 import math
 
-from .cs_animation import CurveSimAnimation
-from .cs_bodies import CurveSimBodies
-from .cs_parameters import CurveSimParameters
+# import cs_animation as csa
+# from .cs_animation import CurveSimAnimation
+# import cs_bodies as csbb
+# import cs_parameters as csp
+
+# from .cs_animation import CurveSimAnimation
+# from .cs_bodies import CurveSimBodies
+# from .cs_parameters import CurveSimParameters
+from curvesimulator.cs_animation import CurveSimAnimation
+from curvesimulator.cs_bodies import CurveSimBodies
+from curvesimulator.cs_parameters import CurveSimParameters
 
 # If you run this script in a jupyter notebook, uncomment the next 2 lines in order to provide the name of your config file.
 # import sys
