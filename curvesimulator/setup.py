@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="curvesimulator",
-    version="0.1.8",
+    version="0.1.91",
     packages=find_packages(),
     install_requires=[
         # List your dependencies here
