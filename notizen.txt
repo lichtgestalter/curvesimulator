@@ -1,12 +1,3 @@
-Notiz How2 Package management:
-    Define Windows environment variables TWINE_USERNAME (__token__) and TWINE_PASSWORD (API token).
-    __init__.py in curvesimulator-Ordner erstellen, damit Python curvesimulator als Package erkennt.
-    setup.py erstellen, um die Library zu bauen und auf PyPI hochzuladen.
-    python setup.py sdist bdist_wheel  # Erzeugt dist/curvesimulator-0.1.0-py3-none-any.whl und dist/curvesimulator-0.1.0.tar.gz
-    twine upload dist/*  # Lädt die Dateien auf PyPI hoch
-    pip install --upgrade --no-deps --force-reinstall curvesimulator  # Installiert die Dateien von PyPI und erzwingt ein Update der Library
-    You will maybe have to use the last line 2 times because the cashed version is used the first time.
-
 NEXT: configfile als Funktionsparameter übergeben, statt als Programmparameter
 
 
