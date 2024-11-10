@@ -6,7 +6,6 @@ class CurveSimParameters:
     def __init__(self, config_file):
         """Read program parameters and properties of the physical bodies from config file."""
         self.configfilename = config_file
-        print("hello")
         self.standard_sections = ["Astronomical Constants", "Video", "Plot", "Scale", "Debug"]  # These sections must be present in the config file.
         config = configparser.ConfigParser(inline_comment_prefixes='#')  # Inline comments in the config file start with "#".
         CurveSimParameters.find_and_check_config_file(config_file, standard_sections=self.standard_sections)

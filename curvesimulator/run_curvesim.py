@@ -1,4 +1,12 @@
-# run_curvesim.py
 from curvesimulator.curvesim import curvesim
 
-parameters, bodies, lightcurve = curvesim(config_file="../configurations/SolarSystem.ini")
+def main():
+    # parameters, bodies = debug_print_points()
+    parameters, bodies, lightcurve = curvesim(config_file="../configurations/SolarSystem.ini")
+    print(parameters)
+    print(bodies)
+    print(lightcurve)
+
+
+if __name__ == '__main__':
+    main()
