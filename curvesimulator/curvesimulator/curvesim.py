@@ -12,19 +12,19 @@
 #
 # Your questions and comments are welcome.
 # Just open an issue on https://github.com/lichtgestalter/curvesim/issues to get my attention :)
+
 import math
 
-from curvesimulator.cs_animation import CurveSimAnimation
-from curvesimulator.cs_bodies import CurveSimBodies
-from curvesimulator.cs_parameters import CurveSimParameters
+from .cs_animation import CurveSimAnimation
+from .cs_bodies import CurveSimBodies
+from .cs_parameters import CurveSimParameters
+# from curvesimulator.cs_animation import CurveSimAnimation
+# from curvesimulator.cs_bodies import CurveSimBodies
+# from curvesimulator.cs_parameters import CurveSimParameters
 
-# If you run this script in a jupyter notebook, uncomment the next 2 lines in order to provide the name of your config file.
-# import sys
-# sys.argv[1] = "provide_your_config_file_name_here.ini"
 
-
-def curvesim():
-    parameters = CurveSimParameters()  # Read program parameters from config file.
+def curvesim(config_file):
+    parameters = CurveSimParameters(config_file)  # Read program parameters from config file.
     bodies = CurveSimBodies(parameters)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
     lightcurve = bodies.calc_physics(parameters)  # Calculate body positions and the resulting lightcurve.
     CurveSimAnimation(parameters, bodies, lightcurve)  # Create the video
@@ -47,11 +47,11 @@ def debug_print_points():
 
 
 def main():
-    parameters, bodies, lightcurve = curvesim()
     # parameters, bodies = debug_print_points()
+    parameters, bodies, lightcurve = curvesim(config_file="../configurations/SolarSystem.ini")
     print(parameters)
     print(bodies)
-    # print(lightcurve)
+    print(lightcurve)
 
 
 if __name__ == '__main__':
