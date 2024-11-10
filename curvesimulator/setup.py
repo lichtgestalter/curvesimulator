@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="curvesimulator",
-    version="0.1.91",
+    version="0.2.0",
     packages=find_packages(),
     install_requires=[
         # List your dependencies here
@@ -11,7 +11,7 @@ setup(
         "configparser",
     ],
     author="Uli Scheuss",
-    description="Curvesimulator calculates the movements and eclipses of celestial bodies and produces a video of this and of the resulting lightcurve.",
+    description="Curvesimulator calculates the movements and eclipses of celestial bodies and produces a video of the moving bodies and of the resulting lightcurve.",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     url="https://github.com/lichtgestalter/curvesimulator",

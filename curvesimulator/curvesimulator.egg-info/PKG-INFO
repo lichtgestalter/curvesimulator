@@ -1,7 +1,7 @@
 Metadata-Version: 2.1
 Name: curvesimulator
-Version: 0.1.8
-Summary: Curvesimulator calculates the movements and eclipses of celestial bodies and produces a video of this and of the resulting lightcurve.
+Version: 0.2.0
+Summary: Curvesimulator calculates the movements and eclipses of celestial bodies and produces a video of the moving bodies and of the resulting lightcurve.
 Home-page: https://github.com/lichtgestalter/curvesimulator
 Author: Uli Scheuss
 Classifier: Programming Language :: Python :: 3
