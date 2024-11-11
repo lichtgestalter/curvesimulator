@@ -1,17 +1,21 @@
-# curvesim
+# curvesimulator
 A Star System and Lightcurve Simulator<br>
 <br>
-Curvesim produces a video of the movements and eclipses of celestial bodies and of the resulting lightcurve.<br>
+Curvesimulator produces a video of the movements and eclipses of celestial bodies and of the resulting lightcurve.<br>
 <br>
-Curvesim is fast and the videos use little disk space. A video takes about the same time to produce as its playing time and uses less than 0.5 MB disc space per minute.<br>
+Curvesimulator is fast and the videos use little disk space. A video takes about the same time to produce as its playing time and uses less than 0.5 MB disc space per minute.<br>
 <br>
 Specify mass, radius, orbital elements and other properties of some stars and planets in a configuration file.<br>
-Then run "curvesim.py <configfilename>" to produce the video.
+Then run this code to produce the video:
+```python
+from curvesimulator.curvesim import curvesim
+parameters, bodies, lightcurve = curvesim("MyConfigFileName.ini")
+```
 The video shows simultanously a view of the star system from the top and from the side and
 the lightcurve of the system's total luminosity over time.<br>
 <br>
 Usually you do not need to look at or even modify the python code. Instead control the program's
-outcome with the config file. The meaning of all program parameters is documented in the config file.<br>
+outcome with the config file. The meaning of all program parameters is documented in the example config file (see folder 'configurations').<br>
 <br>
 Curvesim uses ffmpeg to convert the data into a video. <br> 
 Download ffmpeg from https://www.ffmpeg.org/download.html. <br>
