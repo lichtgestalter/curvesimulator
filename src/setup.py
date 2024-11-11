@@ -15,7 +15,7 @@ with open(readme_path, "r", encoding="utf-8") as fh:
 
 setup(
     name="curvesimulator",
-    version="0.2.4",
+    version="0.2.5",
     packages=find_packages(),
     install_requires=[
         # List your dependencies here
