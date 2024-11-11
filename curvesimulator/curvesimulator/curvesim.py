@@ -23,7 +23,7 @@ from .cs_bodies import CurveSimBodies
 from .cs_parameters import CurveSimParameters
 
 
-def curvesim(config_file):
+def curvesim(config_file=""):
     parameters = CurveSimParameters(config_file)  # Read program parameters from config file.
     bodies = CurveSimBodies(parameters)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
     lightcurve = bodies.calc_physics(parameters)  # Calculate body positions and the resulting lightcurve.
@@ -31,9 +31,9 @@ def curvesim(config_file):
     return parameters, bodies, lightcurve
 
 
-def debug_print_points():
+def debug_print_points(config_file=""):
     # Just for debugging purposes, because something in the initial state vector is wrong.
-    parameters = CurveSimParameters()  # Read program parameters from config file.
+    parameters = CurveSimParameters(config_file)  # Read program parameters from config file.
     for _L in parameters.debug_L:
         bodies = CurveSimBodies(parameters, debug_L=_L)  # Initialize the physical bodies, calculate their state vectors and generate their patches for the animation
         bodies[1].positions[0] /= 2273900000.0  # bodies[0] is the sun, bodies[1] is the test planet

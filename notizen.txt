@@ -1,5 +1,6 @@
 NEXT:
     Update readme.md
+    Verzeichnisstruktur überarbeiten
     Statevectorfunktionen nochmal vergleichen
     Package jetzt in pycharm sichtbar?
 
