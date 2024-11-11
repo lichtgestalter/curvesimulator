@@ -1,4 +1,9 @@
 # curvesimulator
+[![PyPI version](https://badge.fury.io/py/curvesimulator.svg)](https://badge.fury.io/py/curvesimulator)
+[![Python Versions](https://img.shields.io/pypi/pyversions/curvesimulator.svg)](https://pypi.org/project/curvesimulator/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+<br>
 A Star System and Lightcurve Simulator<br>
 <br>
 Curvesimulator produces a video of the movements and eclipses of celestial bodies and of the resulting lightcurve.<br>

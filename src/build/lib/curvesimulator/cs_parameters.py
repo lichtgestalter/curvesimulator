@@ -1,12 +1,11 @@
 import configparser
-
+import sys
 
 class CurveSimParameters:
 
     def __init__(self, config_file):
         """Read program parameters and properties of the physical bodies from config file."""
         self.configfilename = config_file
-        print("hello")
         self.standard_sections = ["Astronomical Constants", "Video", "Plot", "Scale", "Debug"]  # These sections must be present in the config file.
         config = configparser.ConfigParser(inline_comment_prefixes='#')  # Inline comments in the config file start with "#".
         CurveSimParameters.find_and_check_config_file(config_file, standard_sections=self.standard_sections)
@@ -93,8 +92,9 @@ class CurveSimParameters:
         if len(config.read(config_file)) < 1:  # does opening the config file fail?
             print(red + f'Config file {config_file} not found. ' + reset)
             print(red + f'Provide the config file name as the argument of the function curvesim. ' + reset)
-            exit(1)
+            print(red + f'More information on https://github.com/lichtgestalter/curvesimulator ' + reset)
+            sys.exit(1)
         for section in standard_sections:  # Does the config file contain all standard sections?
             if section not in config.sections():
                 print(red + f'Section {section} missing in config file.' + reset)
-                exit(2)
+                sys.exit(2)
