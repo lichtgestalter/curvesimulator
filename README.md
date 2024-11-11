@@ -24,6 +24,6 @@ outcome with the config file. The meaning of all program parameters is documente
 <br>
 Curvesim uses ffmpeg to convert the data into a video. <br> 
 Download ffmpeg from https://www.ffmpeg.org/download.html. <br>
-Extract the zip file and (on Windows) add "<yourdriveandpath>\FFmpeg\bin" to the environment variable PATH.<br>
+Extract the zip file and (on Windows) add "yourdriveandpath\FFmpeg\bin" to the environment variable PATH.<br>
 <br>
 For questions and comments just open an issue on https://github.com/lichtgestalter/curvesim/issues to get my attention :)<br>

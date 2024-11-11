@@ -1,13 +1,14 @@
+# Short version:
 # from curvesimulator.curvesim import curvesim
-# parameters, bodies, lightcurve = curvesim("MyConfigFileName.ini")
+# curvesim("MyConfigFileName.ini")
 
 
+# Long version:
 from curvesimulator import curvesim
 
 def main():
     # parameters, bodies = debug_print_points()
     parameters, bodies, lightcurve = curvesim(config_file="../configurations/SolarSystem.ini")
-    # parameters, bodies, lightcurve = curvesim()
     print(parameters)
     print(bodies)
     print(lightcurve)

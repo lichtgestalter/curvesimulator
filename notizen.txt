@@ -1,5 +1,4 @@
 NEXT:
-    Auch Zuhause curvesim als oberstes Verzeichnis!
     Update readme.md
     Statevectorfunktionen nochmal vergleichen
 
@@ -39,12 +38,6 @@ right view (edge view when i=90°): projection (x,y,z) -> (x,y), order =  z     
     Video erzeugen, was hoffentlich dem ursprünglichen Video mit geschätzten Startpos/Startvelocity ähnelt.
 
 später:
-    Bei mir hat ein "waagerechter" Standard-Orbit die Inklination 0°. Bei Exoplaneten ist aber 90° üblich. Anpassen?
-        Referenz-Ebene steht bei Exoplaneten senkrecht zur Sichtlinie Erde->Exoplanet.
-        0° Inklination entspricht also meiner Top-View.
-        Entspricht 90° meiner Eclipse-View? Dann wäre ja alles gut?
-        https://de.wikipedia.org/wiki/Bahnneigung
-        [IST ERLEDIGT, GLAUBE ICH]
 
     Limb darkening auf die anscheinend übliche Darstellung mit einem linearen Parameter und einem quadratischen Parameter umstellen.
     (Achtung, es gibt 2 Definitionen!)
