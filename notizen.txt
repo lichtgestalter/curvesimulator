@@ -1,6 +1,6 @@
 NEXT:
-    Update readme.md (import statement stimmt vielleicht nicht)
     Auch Zuhause curvesim als oberstes Verzeichnis!
+    Update readme.md
     Statevectorfunktionen nochmal vergleichen
 
 left view (top view when i=90°):   projection (x,y,z) -> (x,z), order = -y (minus y-axis points to viewer)
