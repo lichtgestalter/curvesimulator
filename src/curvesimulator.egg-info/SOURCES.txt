@@ -1,0 +1,15 @@
+README.md
+setup.py
+curvesimulator/__init__.py
+curvesimulator/cs_animation.py
+curvesimulator/cs_bodies.py
+curvesimulator/cs_body.py
+curvesimulator/cs_lightcurve.py
+curvesimulator/cs_parameters.py
+curvesimulator/cs_physics.py
+curvesimulator/curvesim.py
+curvesimulator.egg-info/PKG-INFO
+curvesimulator.egg-info/SOURCES.txt
+curvesimulator.egg-info/dependency_links.txt
+curvesimulator.egg-info/requires.txt
+curvesimulator.egg-info/top_level.txt
