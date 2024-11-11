@@ -8,7 +8,7 @@ Curvesimulator is fast and the videos use little disk space. A video takes about
 Specify mass, radius, orbital elements and other properties of some stars and planets in a configuration file.<br>
 Then run this code to produce the video:
 ```python
-from curvesimulator.curvesim import curvesim
+from curvesimulator import curvesim
 parameters, bodies, lightcurve = curvesim("MyConfigFileName.ini")
 ```
 The video shows simultanously a view of the star system from the top and from the side and

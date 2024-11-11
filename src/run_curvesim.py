@@ -2,7 +2,7 @@
 # parameters, bodies, lightcurve = curvesim("MyConfigFileName.ini")
 
 
-from curvesimulator.curvesim import curvesim
+from curvesimulator import curvesim
 
 def main():
     # parameters, bodies = debug_print_points()

@@ -1,8 +1,7 @@
 NEXT:
-    Update readme.md
-    Verzeichnisstruktur überarbeiten
+    Update readme.md (import statement stimmt vielleicht nicht)
+    Auch Zuhause curvesim als oberstes Verzeichnis!
     Statevectorfunktionen nochmal vergleichen
-    Package jetzt in pycharm sichtbar?
 
 left view (top view when i=90°):   projection (x,y,z) -> (x,z), order = -y (minus y-axis points to viewer)
 right view (edge view when i=90°): projection (x,y,z) -> (x,y), order =  z       (z-axis points to viewer)
