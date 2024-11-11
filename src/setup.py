@@ -1,11 +1,21 @@
+import os
 from setuptools import setup, find_packages
 
-with open("../README.md", "r", encoding="utf-8") as fh:
+# Get the directory containing this file
+current_directory = os.path.abspath(os.path.dirname(__file__))
+
+# remove the src directory from the path
+current_directory = os.path.dirname(current_directory)
+
+# Construct the path to the README file
+readme_path = os.path.join(current_directory, 'README.md')
+
+with open(readme_path, "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
     name="curvesimulator",
-    version="0.2.3",
+    version="0.2.4",
     packages=find_packages(),
     install_requires=[
         # List your dependencies here
@@ -15,7 +25,8 @@ setup(
     ],
     author="Uli Scheuss",
     description="Curvesimulator calculates the movements and eclipses of celestial bodies and produces a video of the moving bodies and of the resulting lightcurve.",
-    long_description=open("README.md").read(),
+    long_description=long_description,
+    # long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     url="https://github.com/lichtgestalter/curvesimulator",
     classifiers=[
