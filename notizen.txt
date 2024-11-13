@@ -1,5 +1,5 @@
 NEXT:
-    Statevector schoen ausdrucken (z.B. x y z als AU)
+    Statevector und die anderen Parameter schoen ausdrucken (z.B. x y z als AU)
     Update readme.md
 
 left view (top view when i=90°):   projection (x,y,z) -> (x,z), order = -y (minus y-axis points to viewer)

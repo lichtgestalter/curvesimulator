@@ -45,6 +45,19 @@ class CurveSimPhysics:
         raise RuntimeError("Kepler's equation solver did not converge.")
 
     @staticmethod
+    def kepler_equation_root_chatgpt2(e, ma, ea_guess=0.0, tolerance=1e-10, max_steps=50):
+        """Calculate the root of the Kepler Equation with the Newton–Raphson method."""
+        ea = ea_guess
+        for _ in range(max_steps):
+            f = ea - e * math.sin(ea) - ma
+            f_prime = 1 - e * math.cos(ea)
+            ea_next = ea - f / f_prime
+            if abs(ea_next - ea) < tolerance:
+                return ea_next
+            ea = ea_next
+        raise RuntimeError("Kepler equation did not converge")
+
+    @staticmethod
     def kepler_equation_root_copilot(e, ma, ea_guess=0.0, tolerance=1e-10, max_steps=50):
         """Calculate the root of the Kepler Equation with the Newton–Raphson method.
             e: eccentricity, ma: mean anomaly [rad], ea_guess: eccentric anomaly [rad]. ea_guess=ma is a good start."""
