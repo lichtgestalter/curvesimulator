@@ -246,6 +246,53 @@ class CurveSimBody:
         dz = z * h * e / (r * p) * math.sin(nu) + h / r * math.sin(i) * math.cos(ω + nu)  # 7b: velocity component z
         return np.array([x, y, z]), np.array([dx, dy, dz]), nu, ma, ea, T  # state vectors
 
+    def keplerian_elements_to_state_vectors_perplexity(self):
+        a, e, i, Ω, ω, ϖ, L = self.a, self.e, self.i, self.Ω, self.ω, self.ϖ, self.L
+        ma, ea, nu, T, t, mu = self.ma, self.ea, self.nu, self.T, self.t, self.mu
+
+        if ω is None and ϖ is not None and Ω is not None:
+            ω = ϖ - Ω
+        if ma is None and L is not None and ϖ is not None:
+            ma = L - ϖ
+
+        if ea is not None:
+            nu = 2 * math.atan(math.sqrt((1 + e) / (1 - e)) * math.tan(ea / 2))
+            ma = ea - e * math.sin(ea)
+        else:
+            if nu is not None:
+                ea = 2 * math.atan(math.sqrt((1 - e) / (1 + e)) * math.tan(nu / 2))
+                ma = ea - e * math.sin(ea)
+            else:
+                if ma is not None:
+                    ea = CurveSimPhysics.kepler_equation_root_perplexity(e, ma, ea_guess=ma)
+                    nu = 2 * math.atan(math.sqrt((1 + e) / (1 - e)) * math.tan(ea / 2))
+                else:
+                    if T is not None:
+                        n = math.sqrt(mu / a ** 3)
+                        ma = n * (t - T)
+                        ea = CurveSimPhysics.kepler_equation_root_perplexity(e, ma, ea_guess=ma)
+                        nu = 2 * math.atan(math.sqrt((1 + e) / (1 - e)) * math.tan(ea / 2))
+                    else:
+                        raise Exception("nu or ma or ea or T has to be provided to keplerian_elements_to_state_vectors()")
+
+        n = math.sqrt(mu / a ** 3)
+        T = t - ma / n
+
+        ma += n * (t - T)
+        ea = CurveSimPhysics.kepler_equation_root_perplexity(e, ma, ea_guess=ma)
+        nu = 2 * math.atan(math.sqrt((1 + e) / (1 - e)) * math.tan(ea / 2))
+        r = a * (1 - e * math.cos(ea))
+        h = math.sqrt(mu * a * (1 - e ** 2))
+        x = r * (math.cos(Ω) * math.cos(ω + nu) - math.sin(Ω) * math.sin(ω + nu) * math.cos(i))
+        y = r * (math.sin(Ω) * math.cos(ω + nu) + math.cos(Ω) * math.sin(ω + nu) * math.cos(i))
+        z = r * math.sin(i) * math.sin(ω + nu)
+        p = a * (1 - e ** 2)
+        dx = (x * h * e / (r * p)) * math.sin(nu) - (h / r) * (math.cos(Ω) * math.sin(ω + nu) + math.sin(Ω) * math.cos(ω + nu) * math.cos(i))
+        dy = (y * h * e / (r * p)) * math.sin(nu) - (h / r) * (math.sin(Ω) * math.sin(ω + nu) - math.cos(Ω) * math.cos(ω + nu) * math.cos(i))
+        dz = (z * h * e / (r * p)) * math.sin(nu) + (h / r) * math.sin(i) * math.cos(ω + nu)
+
+        return np.array([x, y, z]), np.array([dx, dy, dz]), nu, ma, ea, T
+
     def keplerian_elements_to_state_vectors(self):
         """Calculates the state vectors (position and velocity) from Keplerian Orbit Elements.
         Returns also true anomaly, eccentric anomaly, mean anomaly and the time of periapsis.
@@ -310,11 +357,12 @@ class CurveSimBody:
         self.mu = CurveSimPhysics.gravitational_parameter(bodies, p.g)  # is the same for all bodies in the system, because they are orbiting a common barycenter
         if self.velocity is None:  # State vectors are not in config file. So they will be calculated from Kepler orbit parameters instead.
             print("State Vector Alternatives:")
-            print("vanilla  ", self.keplerian_elements_to_state_vectors())
-            print("debug    ", self.keplerian_elements_to_state_vectors_debug())
-            print("debug_new", self.keplerian_elements_to_state_vectors_debug_new())
-            print("chat_gpt ", self.keplerian_elements_to_state_vectors_chatgpt())
-            print("copilot  ", self.keplerian_elements_to_state_vectors_copilot())
+            print("vanilla   ", self.keplerian_elements_to_state_vectors())
+            print("debug     ", self.keplerian_elements_to_state_vectors_debug())
+            print("debug_new ", self.keplerian_elements_to_state_vectors_debug_new())
+            print("chat_gpt  ", self.keplerian_elements_to_state_vectors_chatgpt())
+            print("copilot   ", self.keplerian_elements_to_state_vectors_copilot())
+            print("perplexity", self.keplerian_elements_to_state_vectors_perplexity())
             print("Using vanilla version.")
             pos, vel, *_ = self.keplerian_elements_to_state_vectors()
             self.positions[0] = np.array(pos, dtype=float)  # [m] initial position

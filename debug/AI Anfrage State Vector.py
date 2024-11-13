@@ -64,7 +64,7 @@
 #     """Calculate the root of the Kepler Equation with the Newton–Raphson method.
 #         e: eccentricity, ma: mean anomaly [rad], ea_guess: eccentric anomaly [rad]. ea_guess=ma is a good start."""
 #     return kepler_root
-#
+
 #
 # # Antwort Copilot ------------------
 #
@@ -138,3 +138,63 @@
 #         if abs(delta_ea) < tolerance:
 #             return ea
 #     raise RuntimeError("Solution for Kepler's Equation did not converge.")
+
+
+# # Antwort perplexity ------------------
+
+def keplerian_elements_to_state_vectors_perplexity(self):
+    a, e, i, Ω, ω, ϖ, L = self.a, self.e, self.i, self.Ω, self.ω, self.ϖ, self.L
+    ma, ea, nu, T, t, mu = self.ma, self.ea, self.nu, self.T, self.t, self.mu
+
+    if ω is None and ϖ is not None and Ω is not None:
+        ω = ϖ - Ω
+    if ma is None and L is not None and ϖ is not None:
+        ma = L - ϖ
+
+    if ea is not None:
+        nu = 2 * math.atan(math.sqrt((1 + e) / (1 - e)) * math.tan(ea / 2))
+        ma = ea - e * math.sin(ea)
+    else:
+        if nu is not None:
+            ea = 2 * math.atan(math.sqrt((1 - e) / (1 + e)) * math.tan(nu / 2))
+            ma = ea - e * math.sin(ea)
+        else:
+            if ma is not None:
+                ea = kepler_equation_root_perplexity(e, ma, ea_guess=ma)
+                nu = 2 * math.atan(math.sqrt((1 + e) / (1 - e)) * math.tan(ea / 2))
+            else:
+                if T is not None:
+                    n = math.sqrt(mu / a**3)
+                    ma = n * (t - T)
+                    ea = kepler_equation_root_perplexity(e, ma, ea_guess=ma)
+                    nu = 2 * math.atan(math.sqrt((1 + e) / (1 - e)) * math.tan(ea / 2))
+                else:
+                    raise Exception("nu or ma or ea or T has to be provided to keplerian_elements_to_state_vectors()")
+
+    n = math.sqrt(mu / a**3)
+    T = t - ma / n
+
+    ma += n * (t - T)
+    ea = kepler_equation_root_perplexity(e, ma, ea_guess=ma)
+    nu = 2 * math.atan(math.sqrt((1 + e) / (1 - e)) * math.tan(ea / 2))
+    r = a * (1 - e * math.cos(ea))
+    h = math.sqrt(mu * a * (1 - e**2))
+    x = r * (math.cos(Ω) * math.cos(ω + nu) - math.sin(Ω) * math.sin(ω + nu) * math.cos(i))
+    y = r * (math.sin(Ω) * math.cos(ω + nu) + math.cos(Ω) * math.sin(ω + nu) * math.cos(i))
+    z = r * math.sin(i) * math.sin(ω + nu)
+    p = a * (1 - e**2)
+    dx = (x * h * e / (r * p)) * math.sin(nu) - (h / r) * (math.cos(Ω) * math.sin(ω + nu) + math.sin(Ω) * math.cos(ω + nu) * math.cos(i))
+    dy = (y * h * e / (r * p)) * math.sin(nu) - (h / r) * (math.sin(Ω) * math.sin(ω + nu) - math.cos(Ω) * math.cos(ω + nu) * math.cos(i))
+    dz = (z * h * e / (r * p)) * math.sin(nu) + (h / r) * math.sin(i) * math.cos(ω + nu)
+
+    return np.array([x, y, z]), np.array([dx, dy, dz]), nu, ma, ea, T
+
+def kepler_equation_root_perplexity(e, ma, ea_guess=0.0, tolerance=1e-10, max_steps=50):
+    ea = ea_guess
+    for _ in range(max_steps):
+        f = ea - e * math.sin(ea) - ma
+        if abs(f) < tolerance:
+            return ea
+        df = 1 - e * math.cos(ea)
+        ea = ea - f / df
+    raise Exception("Kepler equation root finding did not converge")

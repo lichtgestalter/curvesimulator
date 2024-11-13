@@ -58,6 +58,17 @@ class CurveSimPhysics:
         raise RuntimeError("Solution for Kepler's Equation did not converge.")
 
     @staticmethod
+    def kepler_equation_root_perplexity(e, ma, ea_guess=0.0, tolerance=1e-10, max_steps=50):
+        ea = ea_guess
+        for _ in range(max_steps):
+            f = ea - e * math.sin(ea) - ma
+            if abs(f) < tolerance:
+                return ea
+            df = 1 - e * math.cos(ea)
+            ea = ea - f / df
+        raise Exception("Kepler equation root finding did not converge")
+
+    @staticmethod
     def kepler_equation_root_debug(e, ma, ea_guess=0.0, tolerance=1e-10, max_steps=50):
         """
         Alternative Method for calculating the root of the Kepler Equation from source
