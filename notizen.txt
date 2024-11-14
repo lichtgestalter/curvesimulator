@@ -1,4 +1,5 @@
 NEXT:
+    parameter debugging mode fuer curvesim einbauen
     Statevector und die anderen Parameter schoen ausdrucken (z.B. x y z als AU)
     Update readme.md
 
