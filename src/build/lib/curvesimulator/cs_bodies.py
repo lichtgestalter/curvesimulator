@@ -66,7 +66,7 @@ class CurveSimBodies(list):
                     raise Exception(f'{body.name} has invalid color value {c}.')
             if debug_L >= 0 and body.name == "Test":
                 body.L = debug_L/180.0 * math.pi
-            body.calc_state_vectors(p, self)
+            body.calc_state_vector(p, self)
         self.generate_patches(p)
 
     def __repr__(self):

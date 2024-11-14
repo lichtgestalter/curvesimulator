@@ -3,6 +3,22 @@ import numpy as np
 
 from curvesimulator.cs_physics import CurveSimPhysics
 
+#
+# class StateVector:
+#     def __init__(self, position, velocity):
+#         """
+#         Initialize the state vector with position and velocity.
+#
+#         Args:
+#             position (np.array): Position vector [x, y, z].
+#             velocity (np.array): Velocity vector [vx, vy, vz].
+#         """
+#         self.position = np.array(position, dtype=float)
+#         self.velocity = np.array(velocity, dtype=float)
+#
+#     def __repr__(self):
+#         return f'StateVector(position={self.position}, velocity={self.velocity})'
+
 
 # noinspection NonAsciiCharacters,PyPep8Naming,PyUnusedLocal
 class CurveSimBody:
@@ -62,7 +78,7 @@ class CurveSimBody:
         return f'CurveSimBody: {self.name}'
 
     # noinspection NonAsciiCharacters,PyPep8Naming,PyUnusedLocal
-    def keplerian_elements_to_state_vectors_debug_new(self):
+    def keplerian_elements_to_state_vector_debug_new(self):
         """
         Version of keplerian_elements_to_state_vectors() using alternative formulas from source [f] instead of [b] for the initial position.
         [f]: https://www.researchgate.net/publication/232203657_Orbital_Ephemerides_of_the_Sun_Moon_and_Planets, Section 8.10
@@ -95,7 +111,7 @@ class CurveSimBody:
         dz = (z * h * e / (r * p)) * math.sin(nu) + (h / r) * (math.cos(ω + nu) * math.sin(i))  # 7b: velocity component z
         return np.array([x, y, z]), np.array([dx, dy, dz]), nu, ma, ea, T  # state vectors
 
-    def keplerian_elements_to_state_vectors_debug(self):
+    def keplerian_elements_to_state_vector_debug(self):
         """
         Shortened version of keplerian_elements_to_state_vectors()
         for the case where L, ϖ and Ω are known.
@@ -120,7 +136,7 @@ class CurveSimBody:
         dz = (z * h * e / (r * p)) * math.sin(nu) + (h / r) * (math.cos(ω + nu) * math.sin(i))  # 7b: velocity component z
         return np.array([x, y, z]), np.array([dx, dy, dz]), nu, ma, ea, T  # state vectors
 
-    def keplerian_elements_to_state_vectors_chatgpt(self):
+    def keplerian_elements_to_state_vector_chatgpt(self):
         """Calculates the state vectors (position and velocity) from Keplerian Orbit Elements.
         Returns also true anomaly, eccentric anomaly, mean anomaly and the time of periapsis."""
         a, e, i, Ω, ω, ϖ, L = self.a, self.e, self.i, self.Ω, self.ω, self.ϖ, self.L  # for readability of formulas
@@ -191,7 +207,7 @@ class CurveSimBody:
 
         return np.array([x, y, z]), np.array([dx, dy, dz]), nu, ma, ea, T  # state vectors
 
-    def keplerian_elements_to_state_vectors_chatgpt2(self):
+    def keplerian_elements_to_state_vector_chatgpt2(self):
         """Calculates the state vectors (position and velocity) from Keplerian Orbit Elements.
         Returns also true anomaly, eccentric anomaly, mean anomaly, and the time of periapsis."""
         a, e, i, Ω, ω, ϖ, L = self.a, self.e, self.i, self.Ω, self.ω, self.ϖ, self.L  # for readability of formulas
@@ -252,7 +268,7 @@ class CurveSimBody:
 
         return np.array([x, y, z]), np.array([dx, dy, dz]), nu, ma, ea, T  # state vectors
 
-    def keplerian_elements_to_state_vectors_copilot(self):
+    def keplerian_elements_to_state_vector_copilot(self):
         """Calculates the state vectors (position and velocity) from Keplerian Orbit Elements.
         Returns also true anomaly, eccentric anomaly, mean anomaly and the time of periapsis.
         [a]: https://web.archive.org/web/20160418175843/https://ccar.colorado.edu/asen5070/handouts/cart2kep2002.pdf
@@ -307,7 +323,7 @@ class CurveSimBody:
         dz = z * h * e / (r * p) * math.sin(nu) + h / r * math.sin(i) * math.cos(ω + nu)  # 7b: velocity component z
         return np.array([x, y, z]), np.array([dx, dy, dz]), nu, ma, ea, T  # state vectors
 
-    def keplerian_elements_to_state_vectors_perplexity(self):
+    def keplerian_elements_to_state_vector_perplexity(self):
         a, e, i, Ω, ω, ϖ, L = self.a, self.e, self.i, self.Ω, self.ω, self.ϖ, self.L
         ma, ea, nu, T, t, mu = self.ma, self.ea, self.nu, self.T, self.t, self.mu
 
@@ -354,7 +370,7 @@ class CurveSimBody:
 
         return np.array([x, y, z]), np.array([dx, dy, dz]), nu, ma, ea, T
 
-    def keplerian_elements_to_state_vectors_gemini(self):
+    def keplerian_elements_to_state_vector_gemini(self):
         """Calculates the state vectors (position and velocity) from Keplerian Orbit Elements.
         Returns also true anomaly, eccentric anomaly, mean anomaly and the time of periapsis.
         [a]: https://web.archive.org/web/20160418175843/https://ccar.colorado.edu/asen5070/handouts/cart2kep2002.pdf
@@ -441,8 +457,7 @@ class CurveSimBody:
 
         return np.array([r[0], r[1], r[2]]), np.array([v[0], v[1], v[2]]), nu, ma, ea, T  # state vectors
 
-
-    def keplerian_elements_to_state_vectors(self):
+    def keplerian_elements_to_state_vector(self):
         """Calculates the state vectors (position and velocity) from Keplerian Orbit Elements.
         Returns also true anomaly, eccentric anomaly, mean anomaly and the time of periapsis.
         [a]: https://web.archive.org/web/20160418175843/https://ccar.colorado.edu/asen5070/handouts/cart2kep2002.pdf
@@ -501,21 +516,46 @@ class CurveSimBody:
         dz = (z * h * e / (r * p)) * math.sin(nu) + (h / r) * (math.cos(ω + nu) * math.sin(i))  # 7b: velocity component z
         return np.array([x, y, z]), np.array([dx, dy, dz]), nu, ma, ea, T  # state vectors
 
-    def calc_state_vectors(self, p, bodies):
+    @staticmethod
+    def debug_state_vector(name, func):
+        au = 1.495978707e11  # astronomical unit [m]
+        spy = 365 * 24 * 60 * 60  # seconds per year
+        pos, vel, nu, ma, ea, T = func()
+        if nu is None:
+            nu = 0
+        if ma is None:
+            ma = 0
+        if ea is None:
+            ea = 0
+        if T is None:
+            T = 0
+
+        print(f'{name:10s} x {pos[0]/au:5.2f} y {pos[1]/au:5.2f} z {pos[2]/au:5.2f} dx {vel[0]/au*spy:5.2f} dy {vel[1]/au*spy:5.2f} dz {vel[2]/au*spy:5.2f}  nu {math.degrees(nu):6.2f}  ma {math.degrees(ma):6.2f}  ea {math.degrees(ea):6.2f}  T {T/spy:6.2f}')
+
+
+    def calc_state_vector(self, p, bodies):
         """Get initial position and velocity of the physical body self."""
         self.mu = CurveSimPhysics.gravitational_parameter(bodies, p.g)  # is the same for all bodies in the system, because they are orbiting a common barycenter
         if self.velocity is None:  # State vectors are not in config file. So they will be calculated from Kepler orbit parameters instead.
             print("State Vector Alternatives:")
-            print("vanilla   ", self.keplerian_elements_to_state_vectors())
-            print("debug     ", self.keplerian_elements_to_state_vectors_debug())
-            print("debug_new ", self.keplerian_elements_to_state_vectors_debug_new())
-            print("chat_gpt  ", self.keplerian_elements_to_state_vectors_chatgpt())
-            print("chat_gpt2 ", self.keplerian_elements_to_state_vectors_chatgpt2())
-            print("copilot   ", self.keplerian_elements_to_state_vectors_copilot())
-            print("perplexity", self.keplerian_elements_to_state_vectors_perplexity())
-            print("gemini    ", self.keplerian_elements_to_state_vectors_gemini())
+            self.debug_state_vector("vanilla", self.keplerian_elements_to_state_vector)
+            self.debug_state_vector("debug", self.keplerian_elements_to_state_vector_debug)
+            self.debug_state_vector("debug_new", self.keplerian_elements_to_state_vector_debug_new)
+            self.debug_state_vector("chat_gpt", self.keplerian_elements_to_state_vector_chatgpt)
+            self.debug_state_vector("chat_gpt2", self.keplerian_elements_to_state_vector_chatgpt2)
+            self.debug_state_vector("copilot", self.keplerian_elements_to_state_vector_copilot)
+            self.debug_state_vector("perplexity", self.keplerian_elements_to_state_vector_perplexity)
+            self.debug_state_vector("gemini", self.keplerian_elements_to_state_vector_gemini)
+            # print("vanilla   ", self.keplerian_elements_to_state_vector())
+            # print("debug     ", self.keplerian_elements_to_state_vector_debug())
+            # print("debug_new ", self.keplerian_elements_to_state_vector_debug_new())
+            # print("chat_gpt  ", self.keplerian_elements_to_state_vector_chatgpt())
+            # print("chat_gpt2 ", self.keplerian_elements_to_state_vector_chatgpt2())
+            # print("copilot   ", self.keplerian_elements_to_state_vector_copilot())
+            # print("perplexity", self.keplerian_elements_to_state_vector_perplexity())
+            # print("gemini    ", self.keplerian_elements_to_state_vector_gemini())
             print("Using vanilla version.")
-            pos, vel, *_ = self.keplerian_elements_to_state_vectors()
+            pos, vel, *_ = self.keplerian_elements_to_state_vector()
             self.positions[0] = np.array(pos, dtype=float)  # [m] initial position
             self.velocity = np.array(vel, dtype=float)  # [m/s] initial velocity
 

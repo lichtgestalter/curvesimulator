@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# When testing, do not run this file directly, but run_curvesim.py (in the parent directory) instead.
+# When testing, do not run this file directly, but try_curvesim.py (in the parent directory) instead.
 
 # Curvesim - A Star System Lightcurve Simulator
 # Curvesim calculates the movements and eclipses of celestial bodies and produces a video of this.
