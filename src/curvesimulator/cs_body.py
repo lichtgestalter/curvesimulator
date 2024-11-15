@@ -530,7 +530,7 @@ class CurveSimBody:
         if T is None:
             T = 0
 
-        print(f'{name:10s} x {pos[0]/au:5.2f} y {pos[1]/au:5.2f} z {pos[2]/au:5.2f} dx {vel[0]/au*spy:5.2f} dy {vel[1]/au*spy:5.2f} dz {vel[2]/au*spy:5.2f}  nu {math.degrees(nu):6.2f}  ma {math.degrees(ma):6.2f}  ea {math.degrees(ea):6.2f}  T {T/spy:6.2f}')
+        print(f'{name:10s} x {pos[0]/au:5.2f} y {pos[1]/au:5.2f} z {pos[2]/au:5.2f} v {np.linalg.norm(vel)/au*spy:5.2f} dx {vel[0]/au*spy:5.2f} dy {vel[1]/au*spy:5.2f} dz {vel[2]/au*spy:5.2f}  nu {math.degrees(nu):6.2f}  ma {math.degrees(ma):6.2f}  ea {math.degrees(ea):6.2f}  T {T/spy:6.2f}')
 
 
     def calc_state_vector(self, p, bodies):
