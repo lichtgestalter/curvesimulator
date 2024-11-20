@@ -3,6 +3,8 @@ NEXT:
     Update readme.md
     Plattform fuer Dokumentation finden: Github Wiki? Github Pages? Readthedocs? Sphinx?
         https://github.com/lichtgestalter/curvesimulator/wiki
+        https://docs.github.com/en/communities/documenting-your-project-with-wikis/about-wikis
+        https://almanac.io/blog/github-wiki-examples-templates
     Oeffentliche Dokumentation erstellen. Zumindest ein Stub.
     Link zur (noch nicht existierenden Dokumentation) als Icon im Readme.md einbauen.
 

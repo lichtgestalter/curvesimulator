@@ -3,7 +3,9 @@ import numpy as np
 
 from curvesimulator.cs_physics import CurveSimPhysics
 
-#
+# debugging_mode = True
+debugging_mode = False
+
 # class StateVector:
 #     def __init__(self, position, velocity):
 #         """
@@ -537,25 +539,19 @@ class CurveSimBody:
         """Get initial position and velocity of the physical body self."""
         self.mu = CurveSimPhysics.gravitational_parameter(bodies, p.g)  # is the same for all bodies in the system, because they are orbiting a common barycenter
         if self.velocity is None:  # State vectors are not in config file. So they will be calculated from Kepler orbit parameters instead.
-            print("State Vector Alternatives:")
-            self.debug_state_vector("vanilla", self.keplerian_elements_to_state_vector)
-            self.debug_state_vector("debug", self.keplerian_elements_to_state_vector_debug)
-            self.debug_state_vector("debug_new", self.keplerian_elements_to_state_vector_debug_new)
-            self.debug_state_vector("chat_gpt", self.keplerian_elements_to_state_vector_chatgpt)
-            self.debug_state_vector("chat_gpt2", self.keplerian_elements_to_state_vector_chatgpt2)
-            self.debug_state_vector("copilot", self.keplerian_elements_to_state_vector_copilot)
-            self.debug_state_vector("perplexity", self.keplerian_elements_to_state_vector_perplexity)
-            self.debug_state_vector("gemini", self.keplerian_elements_to_state_vector_gemini)
-            # print("vanilla   ", self.keplerian_elements_to_state_vector())
-            # print("debug     ", self.keplerian_elements_to_state_vector_debug())
-            # print("debug_new ", self.keplerian_elements_to_state_vector_debug_new())
-            # print("chat_gpt  ", self.keplerian_elements_to_state_vector_chatgpt())
-            # print("chat_gpt2 ", self.keplerian_elements_to_state_vector_chatgpt2())
-            # print("copilot   ", self.keplerian_elements_to_state_vector_copilot())
-            # print("perplexity", self.keplerian_elements_to_state_vector_perplexity())
-            # print("gemini    ", self.keplerian_elements_to_state_vector_gemini())
-            print("Using vanilla version.")
-            pos, vel, *_ = self.keplerian_elements_to_state_vector()
+            if debugging_mode:
+                print("State Vector Alternatives:")
+                self.debug_state_vector("vanilla", self.keplerian_elements_to_state_vector)
+                self.debug_state_vector("debug", self.keplerian_elements_to_state_vector_debug)
+                self.debug_state_vector("debug_new", self.keplerian_elements_to_state_vector_debug_new)
+                self.debug_state_vector("chat_gpt", self.keplerian_elements_to_state_vector_chatgpt)
+                self.debug_state_vector("chat_gpt2", self.keplerian_elements_to_state_vector_chatgpt2)
+                self.debug_state_vector("copilot", self.keplerian_elements_to_state_vector_copilot)
+                self.debug_state_vector("perplexity", self.keplerian_elements_to_state_vector_perplexity)
+                self.debug_state_vector("gemini", self.keplerian_elements_to_state_vector_gemini)
+            state_vector_function = self.keplerian_elements_to_state_vector
+            print(f'Using state vector function {state_vector_function.__name__}')
+            pos, vel, *_ = state_vector_function()
             self.positions[0] = np.array(pos, dtype=float)  # [m] initial position
             self.velocity = np.array(vel, dtype=float)  # [m/s] initial velocity
 
