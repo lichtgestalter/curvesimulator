@@ -7,42 +7,16 @@ NEXT:
     Link zur (noch nicht existierenden Dokumentation) als Icon im Readme.md einbauen.
 
 
-    Debugging:
-        Fuer nichttriviale Orbits (z.B. i=90, ϖ=0, aber Ω!=0) liegt die Ellipse anders als in https://orbitalmechanics.info/ (oder auch Geogebra?) !!!
-        Die Form der Ellipse ist vermutlich auch nur fuer Ω=0 korrekt.
-        Ich habe keplerian_elements_to_state_vectors() zu keplerian_elements_to_state_vectors_debug() vereinfacht.
-        Ich habe eine altenative Berechnungsmethode aus einem anderen Paper in keplerian_elements_to_state_vectors_debug_new() implementiert.
-            Diese produziert die gleichen Fehler :(
-        Veraenderungen von ϖ werden sowohl fuer i=90 und i=45 korrekt berechnet.
-        Das einzige Problem ist vermutllich Ω!=0.
-        Alternative Berechnung fuer Startposition (state vector) aus Quelle [f] in keplerian_elements_to_state_vectors_debug_new liefert fuer Ω!=0 genau den gleichen Fehler wie die urspruengliche Berechnung!
-        Alternative Berechnung fuer ea (eccentric anomaly) aus Quelle [f] in keplerian_elements_to_state_vectors_debug_new liefert fuer Ω!=0 genau den gleichen Fehler wie die urspruengliche Berechnung!
-        Schoene Darstellung von Orbits abhaengig von Kepler-Parametern zum vergleichen: https://orbitalmechanics.info/
-    next:   Ist die alternative Berechnung bei Variation von ϖ und i bei Ω=0 ebenfalls korrekt?
+    Notizen fuer Doku
+        left view (top view when i=90°):   projection (x,y,z) -> (x,z), order = -y (minus y-axis points to viewer)
+        right view (edge view when i=90°): projection (x,y,z) -> (x,y), order =  z       (z-axis points to viewer)
 
-        Bahn betrachten, die der Startpunkt mit L = 180 Grad fuer verschiedene Ω beschreibt und mit https://orbitalmechanics.info/ vergleichen.
-            Dadurch Idee fuer Formelkorrektur=?
-
-
-
-    Beispielvideos zur Erklärung der Parameter machen (oder geogebra nutzen)
-        Folgende Erklaerungen sind vermutlich fehlerhaft.
-        Vergleiche mit https://orbitalmechanics.info/
-        Left (neue Topview):
-            ϖ (longitude of periapsis) 0° ist rechts von der Sonne, 90° hinter der Sonne
-        Right (neue Eclipseview):
-            Inclination 90°: Edgeview, 80°: Planet ist unterhalb und vor der Sonne, sowie oberhalb und hinter der Sonne.
-            Ω (Longitude of ascending node) 15°: Planet zieht von links unten nach rechts oben
-                vor der Sonne mit einer Steigung von 15° gegenüber der Horizontalen vorbei
 
     Aus Kapitel 6.1 von Noras 3-Stern-System die Kepler-Parameter für TIC470710327_new.ini extrahieren.
     Video erzeugen, was hoffentlich dem ursprünglichen Video mit geschätzten Startpos/Startvelocity ähnelt.
 
-später:
-
     Limb darkening auf die anscheinend übliche Darstellung mit einem linearen Parameter und einem quadratischen Parameter umstellen.
     (Achtung, es gibt 2 Definitionen!)
-
 
     Orbit parameter input:
         Exoplaneten-Paper und -Datenbanken studieren: Welche Bahnparameter werden angegeben? Welche muss ich berechnen? Welche einfach festlegen?
@@ -82,6 +56,34 @@ später:
         Farbe des Sterns abhängig von RV varieren?
 
 
+    Debugging State Vector Calculation:
+        Fuer nichttriviale Orbits (z.B. i=90, ϖ=0, aber Ω!=0) liegt die Ellipse anders als in https://orbitalmechanics.info/ (oder auch Geogebra?) !!!
+        Die Form der Ellipse ist vermutlich auch nur fuer Ω=0 korrekt.
+        Ich habe keplerian_elements_to_state_vectors() zu keplerian_elements_to_state_vectors_debug() vereinfacht.
+        Ich habe eine altenative Berechnungsmethode aus einem anderen Paper in keplerian_elements_to_state_vectors_debug_new() implementiert.
+            Diese produziert die gleichen Fehler :(
+        Veraenderungen von ϖ werden sowohl fuer i=90 und i=45 korrekt berechnet.
+        Das einzige Problem ist vermutllich Ω!=0.
+        Alternative Berechnung fuer Startposition (state vector) aus Quelle [f] in keplerian_elements_to_state_vectors_debug_new liefert fuer Ω!=0 genau den gleichen Fehler wie die urspruengliche Berechnung!
+        Alternative Berechnung fuer ea (eccentric anomaly) aus Quelle [f] in keplerian_elements_to_state_vectors_debug_new liefert fuer Ω!=0 genau den gleichen Fehler wie die urspruengliche Berechnung!
+        Schoene Darstellung von Orbits abhaengig von Kepler-Parametern zum vergleichen: https://orbitalmechanics.info/
+
+        next:   Ist die alternative Berechnung bei Variation von ϖ und i bei Ω=0 ebenfalls korrekt?
+
+        Bahn betrachten, die der Startpunkt mit L = 180 Grad fuer verschiedene Ω beschreibt und mit https://orbitalmechanics.info/ vergleichen.
+            Dadurch Idee fuer Formelkorrektur=?
+
+
+        Beispielvideos zur Erklärung der Parameter machen (oder geogebra nutzen)
+            Folgende Erklaerungen sind vermutlich fehlerhaft.
+            Vergleiche mit https://orbitalmechanics.info/
+            Left (neue Topview):
+                ϖ (longitude of periapsis) 0° ist rechts von der Sonne, 90° hinter der Sonne
+            Right (neue Eclipseview):
+                Inclination 90°: Edgeview, 80°: Planet ist unterhalb und vor der Sonne, sowie oberhalb und hinter der Sonne.
+                Ω (Longitude of ascending node) 15°: Planet zieht von links unten nach rechts oben
+                    vor der Sonne mit einer Steigung von 15° gegenüber der Horizontalen vorbei
+
 
 Open items from zoom call 29.03.2022:
     Done: light curve x-axis has now days or other sensible unit (can be configured)
@@ -113,7 +115,3 @@ Questions for next zoom call:
     Where do astronomers gather? Is https://astronomy.stackexchange.com/ the best place to ask questions?
     Is there a community of astronomers specialized in exoplanets that would be welcoming to a dabbling layman like me?
 
-
-Notizen
-    left view (top view when i=90°):   projection (x,y,z) -> (x,z), order = -y (minus y-axis points to viewer)
-    right view (edge view when i=90°): projection (x,y,z) -> (x,y), order =  z       (z-axis points to viewer)
