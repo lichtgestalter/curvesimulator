@@ -1,9 +1,10 @@
 NEXT:
     parameter debugging mode fuer curvesim einbauen?
     Update readme.md
-
-left view (top view when i=90°):   projection (x,y,z) -> (x,z), order = -y (minus y-axis points to viewer)
-right view (edge view when i=90°): projection (x,y,z) -> (x,y), order =  z       (z-axis points to viewer)
+    Plattform fuer Dokumentation finden: Github Wiki? Github Pages? Readthedocs? Sphinx?
+        https://github.com/lichtgestalter/curvesimulator/wiki
+    Oeffentliche Dokumentation erstellen. Zumindest ein Stub.
+    Link zur (noch nicht existierenden Dokumentation) als Icon im Readme.md einbauen.
 
 
     Debugging:
@@ -111,3 +112,8 @@ Questions for next zoom call:
                 Find a prof?
     Where do astronomers gather? Is https://astronomy.stackexchange.com/ the best place to ask questions?
     Is there a community of astronomers specialized in exoplanets that would be welcoming to a dabbling layman like me?
+
+
+Notizen
+    left view (top view when i=90°):   projection (x,y,z) -> (x,z), order = -y (minus y-axis points to viewer)
+    right view (edge view when i=90°): projection (x,y,z) -> (x,y), order =  z       (z-axis points to viewer)
