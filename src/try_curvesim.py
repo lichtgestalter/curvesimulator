@@ -1,8 +1,8 @@
 # Short version:
 # from curvesimulator.curvesim import curvesim
 # curvesim("MyConfigFileName.ini")
-
-
+#
+#
 # Long version:
 # from curvesimulator import curvesim
 #

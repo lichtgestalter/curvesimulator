@@ -1,5 +1,4 @@
 NEXT:
-    parameter debugging mode fuer curvesim einbauen?
     Update readme.md
     Plattform fuer Dokumentation finden: Github Wiki? Github Pages? Readthedocs? Sphinx?
         https://github.com/lichtgestalter/curvesimulator/wiki
