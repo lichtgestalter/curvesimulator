@@ -1,5 +1,5 @@
 NEXT:
-    Update readme.md
+    Update readme.md (sieht auf pypi jetzt doof aus!)
     Plattform fuer Dokumentation finden: Github Wiki? Github Pages? Readthedocs? Sphinx?
         https://github.com/lichtgestalter/curvesimulator/wiki
         https://docs.github.com/en/communities/documenting-your-project-with-wikis/about-wikis
