@@ -8,8 +8,8 @@ A Star System and Lightcurve Simulator<br>
 <br>
 Curvesimulator produces a video of the movements and eclipses of celestial bodies and of the resulting lightcurve.<br>
 <br>
-Check the documentation on curvesimulator's 
-[GitHub Wiki](https://github.com/lichtgestalter/curvesimulator/wiki)
+
+Check the documentation on the [GitHub Wiki](https://github.com/lichtgestalter/curvesimulator/wiki).
 <br>
 
 Curvesimulator is fast and the videos use little disk space. A video takes about the same time to produce as its playing time and uses less than 0.5 MB disc space per minute.<br>
