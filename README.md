@@ -14,9 +14,9 @@ the lightcurve of the system's total luminosity over time.
 Check the documentation on the [GitHub Wiki](https://github.com/lichtgestalter/curvesimulator/wiki).
 
 Run just 2 lines of python code to produce the video.
-Specify the physical properties of some stars and planets and their orbits in a 
-configuration file. The meaning of all configuration parameters 
-is documented in the wiki and in an example config file.
+Specify the physical properties of the stars and planets in your system and some details of the video you 
+want to make in a configuration file. The meaning of all configuration parameters is documented in the wiki 
+and in an example config file.
 
 Curvesimulator is fast and the videos use little disk space. A video takes about the same time 
 to produce as its playing time and uses less than 0.5 MB disc space per minute.
