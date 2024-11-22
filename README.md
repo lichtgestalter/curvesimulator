@@ -13,19 +13,18 @@ the lightcurve of the system's total luminosity over time.
 
 Check the documentation on the [GitHub Wiki](https://github.com/lichtgestalter/curvesimulator/wiki).
 
-Curvesimulator is fast and the videos use little disk space. A video takes about the same time 
-to produce as its playing time and uses less than 0.5 MB disc space per minute.
-
 Run just 2 lines of python code to produce the video.
-Specify mass, radius, orbital elements and other properties of some stars and planets in a 
+Specify the physical properties of some stars and planets and their orbits in a 
 configuration file. The meaning of all configuration parameters 
 is documented in the wiki and in an example config file.
 
+Curvesimulator is fast and the videos use little disk space. A video takes about the same time 
+to produce as its playing time and uses less than 0.5 MB disc space per minute.
+
 Curvesim uses ffmpeg to convert the data into a video. 
-Download ffmpeg from https://www.ffmpeg.org/download.html.
+Download ffmpeg from [ffmpeg.org](https://www.ffmpeg.org/download.html).
 Extract the downloaded zip file and (on Windows) add "yourdriveandpath\FFmpeg\bin" to the 
 environment variable PATH.
 
-For questions and comments just open an issue on https://github.com/lichtgestalter/curvesim/issues to 
-get my attention :)
+For questions and comments open an issue on [GitHub](https://github.com/lichtgestalter/curvesim/issues).
 
