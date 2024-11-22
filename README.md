@@ -1,6 +1,5 @@
 # curvesimulator
-[![GitHub Wiki](https://img.shields.io/badge/docs-Wiki-red)
-](https://github.com/lichtgestalter/curvesimulator/wiki)
+[![GitHub Wiki](https://img.shields.io/badge/docs-Wiki-red)](https://github.com/lichtgestalter/curvesimulator/wiki)
 [![PyPI version](https://badge.fury.io/py/curvesimulator.svg)](https://badge.fury.io/py/curvesimulator)
 [![Python Versions](https://img.shields.io/pypi/pyversions/curvesimulator.svg)](https://pypi.org/project/curvesimulator/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
