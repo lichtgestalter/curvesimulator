@@ -1,17 +1,17 @@
-# curvesimulator
+# Curvesimulator
 [![GitHub Wiki](https://img.shields.io/badge/docs-Wiki-red)](https://github.com/lichtgestalter/curvesimulator/wiki)
 [![PyPI version](https://badge.fury.io/py/curvesimulator.svg)](https://badge.fury.io/py/curvesimulator)
 [![Python Versions](https://img.shields.io/pypi/pyversions/curvesimulator.svg)](https://pypi.org/project/curvesimulator/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A Star System and Lightcurve Simulator
+CurveSimulator: A Star System and Lightcurve Simulator
 
-Curvesimulator produces a video of the movements and eclipses of celestial bodies and of the 
+Curvesimulator generates a video of the movements and eclipses of celestial bodies and the 
 resulting lightcurve.
-The video shows simultanously a view of the star system from the top and from the side and
+The video simultanously displays a view of the star system from the top and from the side alongside
 the lightcurve of the system's total luminosity over time.
 
-Run just 2 lines of python code to produce the video.
+It takes just 2 lines of python code to produce the video.
 Specify the physical properties of the stars and planets in your system and some details of the video you 
 want to make in a configuration file. The meaning of all configuration parameters is documented in curvesimulator's 
 [wiki](https://github.com/lichtgestalter/curvesimulator/wiki) and in an example config file.
