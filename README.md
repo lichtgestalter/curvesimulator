@@ -20,7 +20,7 @@ Curvesimulator is fast and the videos use little disk space. A video takes about
 to produce as its playing time and uses less than 0.5 MB disc space per minute.
 
 Curvesim uses ffmpeg to convert the data into a video. 
-Download ffmpeg from [ffmpeg.org](https://www.ffmpeg.org/download.html).
+Download an executable version of ffmpeg from [ffmpeg.org](https://www.ffmpeg.org/download.html).
 Extract the downloaded zip file and (on Windows) add "yourdriveandpath\FFmpeg\bin" to the 
 environment variable PATH.
 
