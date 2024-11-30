@@ -7,7 +7,7 @@
 # from curvesimulator import curvesim
 #
 # def main():
-#     parameters, bodies, lightcurve = curvesim(config_file="../configurations/SolarSystem.ini")
+#     parameters, bodies, lightcurve = curvesim(config_file="../configurations/MyFirstConfigFile.ini")
 #     print(parameters)
 #     print(bodies)
 #     print(lightcurve)
@@ -20,7 +20,7 @@ from curvesimulator import curvesim
 
 def main():
     # parameters, bodies = debug_print_points()
-    parameters, bodies, lightcurve = curvesim(config_file="../configurations/SolarSystem.ini")
+    parameters, bodies, lightcurve = curvesim(config_file="../configurations/MyFirstConfigFile.ini")
     print(parameters)
     print(bodies)
     print(lightcurve)
