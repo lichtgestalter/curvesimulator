@@ -1,6 +1,5 @@
 NEXT:
-    Link zur (noch nicht existierenden Dokumentation) als Icon im Readme.md einbauen.
-    GitHub Wiki
+    GitHub Wiki: Doku Config File
 
 
 
