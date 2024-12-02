@@ -6,22 +6,6 @@ from curvesimulator.cs_physics import CurveSimPhysics
 # debugging_mode = True
 debugging_mode = False
 
-# class StateVector:
-#     def __init__(self, position, velocity):
-#         """
-#         Initialize the state vector with position and velocity.
-#
-#         Args:
-#             position (np.array): Position vector [x, y, z].
-#             velocity (np.array): Velocity vector [vx, vy, vz].
-#         """
-#         self.position = np.array(position, dtype=float)
-#         self.velocity = np.array(velocity, dtype=float)
-#
-#     def __repr__(self):
-#         return f'StateVector(position={self.position}, velocity={self.velocity})'
-
-
 # noinspection NonAsciiCharacters,PyPep8Naming,PyUnusedLocal
 class CurveSimBody:
 
