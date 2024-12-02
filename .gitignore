@@ -1,7 +1,8 @@
 /.idea
 /.ipynb_checkpoints
-/src/dist/
-/animations/testing.mp4
 /__pychache
 /src/curvesimulator/__pychache
+/src/dist/
 /src/MyFirstVideo.mp4
+/animations/testing.mp4
+/animations/MyFirstVideo.mp4
