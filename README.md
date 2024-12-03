@@ -3,6 +3,7 @@
 [![PyPI version](https://badge.fury.io/py/curvesimulator.svg)](https://badge.fury.io/py/curvesimulator)
 [![Python Versions](https://img.shields.io/pypi/pyversions/curvesimulator.svg)](https://pypi.org/project/curvesimulator/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![PyPI Downloads](https://static.pepy.tech/badge/curvesimulator)
 
 CurveSimulator: A Star System and Lightcurve Simulator
 
