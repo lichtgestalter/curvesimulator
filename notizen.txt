@@ -43,7 +43,7 @@ VERSION 1.0.0 veroeffentlichen !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         Example systems: https://arxiv.org/pdf/2204.02539.pdf
 
     Radial velocity:
-        Extraplot als PNG-file speichern: Lightcurve und die Geschwindigkeit in Beobachterrichtung (y-Achse) für jeden Stern.
+        Extraplot im Video oder als PNG-file speichern: Lightcurve und die Geschwindigkeit in Beobachterrichtung (y-Achse) für jeden Stern.
         Plot radial velocity (movement of star to/from viewer). Provides a check if the simulation is realistic.
         Farbe des Sterns abhängig von RV varieren?
 
