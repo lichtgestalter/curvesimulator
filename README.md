@@ -14,18 +14,12 @@ the lightcurve of the system's total luminosity over time.
 
 It takes just 2 lines of python code to produce the video.
 
-In a configuration file, specify the physical properties of the stars and planets in your system. 
-Also, provide some parameters of the video you want to make.
-The meaning of all configuration parameters is documented in CurveSimulator's 
-[wiki](https://github.com/lichtgestalter/curvesimulator/wiki) and in an example config file.
-
 CurveSimulator is fast and the videos use little disk space. A video takes about the same time 
 to produce as its playing time and uses less than 0.5 MB disc space per minute.
 
-CurveSimulator uses ffmpeg to convert the data into a video. 
-Download an executable version of ffmpeg from [ffmpeg.org](https://www.ffmpeg.org/download.html).
-Extract the downloaded zip file and (on Windows) add "yourdriveandpath\FFmpeg\bin" to the 
-environment variable PATH.
+In a configuration file, specify the physical properties of the stars and planets in your system. 
+Also, provide some parameters of the video you want to make.
 
-For questions and comments open an issue on [GitHub](https://github.com/lichtgestalter/curvesimulator/issues).
+Get started quickly by having a look at CurveSimulator's 
+[wiki](https://github.com/lichtgestalter/curvesimulator/wiki).
 
