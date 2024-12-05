@@ -1,13 +1,7 @@
 NEXT:
-    GitHub Wiki: Doku Config File
-    Customizing your repository's social media preview https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/customizing-your-repositorys-social-media-preview
-
     Limb darkening
         auf die anscheinend übliche Darstellung mit einem linearen Parameter und einem quadratischen Parameter umstellen.
         (Achtung, es gibt 2 Definitionen!)
-
-    Aus Kapitel 6.1 von Noras 3-Stern-System die Kepler-Parameter für TIC470710327_new.ini extrahieren.
-    Video erzeugen, was hoffentlich dem ursprünglichen Video mit geschätzten Startpos/Startvelocity ähnelt.
 
     Orbit parameter input:
         Exoplaneten-Paper und -Datenbanken studieren: Welche Bahnparameter werden angegeben? Welche muss ich berechnen? Welche einfach festlegen?
@@ -16,6 +10,9 @@ NEXT:
             Falls ja, braucht vielleicht t einen anderen Namen, denn es gibt schon T und configparser ist zumindest nicht per default case sensitive.
         time of transit als absolute Julianzeit mitgeben?
         x-axis of lightcurve in BJD (BJD https://en.wikipedia.org/wiki/Barycentric_Julian_Date and https://en.wikipedia.org/wiki/Barycentric_Dynamical_Time)
+
+    Aus Kapitel 6.1 von Noras 3-Stern-System die Kepler-Parameter für TIC470710327_new.ini extrahieren.
+    Video erzeugen, was hoffentlich dem ursprünglichen Video mit geschätzten Startpos/Startvelocity ähnelt.
 
 
 VERSION 1.0.0 veroeffentlichen !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

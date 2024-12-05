@@ -24,7 +24,7 @@ setup(
         "configparser",
     ],
     author="Uli Scheuss",
-    description="Curvesimulator calculates the movements and eclipses of celestial bodies and produces a video of the moving bodies and of the resulting lightcurve.",
+    description="CurveSimulator generates a video of the movements and eclipses of celestial bodies and the resulting lightcurve.",
     long_description=long_description,
     # long_description=open("README.md").read(),
     long_description_conte8t_type="text/markdown",
@@ -32,6 +32,7 @@ setup(
     classifiers=[
         # "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
