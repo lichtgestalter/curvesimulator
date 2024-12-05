@@ -17,9 +17,12 @@ class CurveSimBodies(list):
         """Initialize instances of physical bodies.
         Read program parameters and properties of the bodies from config file.
         Initialize the circles in the animation (matplotlib patches)"""
-        # For ease of use of these constants in the config file they are additionally defined here without the prefix "p.".
-        g, au, r_sun, m_sun, l_sun = p.g, p.au, p.r_sun, p.m_sun, p.l_sun
-        r_jup, m_jup, r_earth, m_earth, v_earth = p.r_jup, p.m_jup, p.r_earth, p.m_earth, p.v_earth
+        # For ease of use of these constants in the config file are additionally defined here without the prefix "p.".
+        try:
+            g, au, r_sun, m_sun, l_sun = p.g, p.au, p.r_sun, p.m_sun, p.l_sun
+            r_jup, m_jup, r_earth, m_earth, v_earth = p.r_jup, p.m_jup, p.r_earth, p.m_earth, p.v_earth
+        except AttributeError:
+            print("WARNING: Section 'Astronomical Constants' in the configuration file is incomplete. See https://github.com/lichtgestalter/curvesimulator/wiki.")
         config = configparser.ConfigParser(inline_comment_prefixes='#')
         config.read(p.configfilename)  # Read config file. (This time the physical objects.)
         super().__init__()  # create object by calling the constructor of class list

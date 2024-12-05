@@ -13,16 +13,22 @@ class CurveSimParameters:
 
         # [Astronomical Constants]
         # For ease of use of these constants in the config file they are additionally defined here without the prefix "self.".
-        g = eval(config.get("Astronomical Constants", "g"))
-        au = eval(config.get("Astronomical Constants", "au"))
-        r_sun = eval(config.get("Astronomical Constants", "r_sun"))
-        m_sun = eval(config.get("Astronomical Constants", "m_sun"))
-        l_sun = eval(config.get("Astronomical Constants", "l_sun"))
-        r_jup = eval(config.get("Astronomical Constants", "r_jup"))
-        m_jup = eval(config.get("Astronomical Constants", "m_jup"))
-        r_earth = eval(config.get("Astronomical Constants", "r_earth"))
-        m_earth = eval(config.get("Astronomical Constants", "m_earth"))
-        v_earth = eval(config.get("Astronomical Constants", "v_earth"))
+        try:
+            g = eval(config.get("Astronomical Constants", "g"))
+            au = eval(config.get("Astronomical Constants", "au"))
+            r_sun = eval(config.get("Astronomical Constants", "r_sun"))
+            m_sun = eval(config.get("Astronomical Constants", "m_sun"))
+            l_sun = eval(config.get("Astronomical Constants", "l_sun"))
+            r_jup = eval(config.get("Astronomical Constants", "r_jup"))
+            m_jup = eval(config.get("Astronomical Constants", "m_jup"))
+            r_earth = eval(config.get("Astronomical Constants", "r_earth"))
+            m_earth = eval(config.get("Astronomical Constants", "m_earth"))
+            v_earth = eval(config.get("Astronomical Constants", "v_earth"))
+            self.g, self.au, self.r_sun, self.m_sun, self.l_sun = g, au, r_sun, m_sun, l_sun,
+            self.r_jup, self.m_jup, self.r_earth, self.m_earth, self.v_earth = r_jup, m_jup, r_earth, m_earth, v_earth
+        except configparser.NoOptionError:
+            print("WARNING: Section 'Astronomical Constants' in the configuration file is incomplete. See https://github.com/lichtgestalter/curvesimulator/wiki.")
+
         self.g, self.au, self.r_sun, self.m_sun, self.l_sun = g, au, r_sun, m_sun, l_sun,
         self.r_jup, self.m_jup, self.r_earth, self.m_earth, self.v_earth = r_jup, m_jup, r_earth, m_earth, v_earth
 

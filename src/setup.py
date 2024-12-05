@@ -15,7 +15,7 @@ with open(readme_path, "r", encoding="utf-8") as fh:
 
 setup(
     name="curvesimulator",
-    version="0.2.7",
+    version="0.2.8",
     packages=find_packages(),
     install_requires=[
         # List your dependencies here
@@ -27,7 +27,7 @@ setup(
     description="Curvesimulator calculates the movements and eclipses of celestial bodies and produces a video of the moving bodies and of the resulting lightcurve.",
     long_description=long_description,
     # long_description=open("README.md").read(),
-    long_description_content_type="text/markdown",
+    long_description_conte8t_type="text/markdown",
     url="https://github.com/lichtgestalter/curvesimulator",
     classifiers=[
         # "Programming Language :: Python :: 3",
