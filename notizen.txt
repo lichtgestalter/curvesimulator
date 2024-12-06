@@ -1,7 +1,13 @@
 NEXT:
     Limb darkening
-        auf die anscheinend übliche Darstellung mit einem linearen Parameter und einem quadratischen Parameter umstellen.
-        (Achtung, es gibt 2 Definitionen!)
+        Quelle fuer Formel angeben.
+        Sagen, welche Art Approximation es ist.
+        Aktuell ist Parameter relativ zu max-Intensity, muss aber relativ zu ø-Intensity sein.
+
+    Test, bei dem es einen Transit gibt.
+        Funktioniert Limb darkening?
+        Gibt es den lightcurve dip, wenn der Planet VOR dem Stern ist?
+            Oder ist die y-Achse vertauscht wegen Wechsel von Default-Inklination 90 statt 0 Grad?
 
     Orbit parameter input:
         Exoplaneten-Paper und -Datenbanken studieren: Welche Bahnparameter werden angegeben? Welche muss ich berechnen? Welche einfach festlegen?
