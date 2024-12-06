@@ -35,7 +35,7 @@ class CurveSimBodies(list):
                                                  body_type=config.get(section, "body_type"),
                                                  mass=eval(config.get(section, "mass")),
                                                  radius=eval(config.get(section, "radius")),
-                                                 luminosity=None if config.get(section, "luminosity", fallback=None) is None else eval(config.get(section, "luminosity")),
+                                                 luminosity=0.0 if config.get(section, "luminosity", fallback=None) is None else eval(config.get(section, "luminosity")),
                                                  startposition=config.get(section, "startposition", fallback=None),
                                                  velocity=config.get(section, "velocity", fallback=None),
                                                  a=None if config.get(section, "a", fallback=None) is None else eval(config.get(section, "a")),  # a bit long-winded because eval() cannot handle None
@@ -50,7 +50,8 @@ class CurveSimBodies(list):
                                                  nu=None if config.get(section, "nu", fallback=None) is None else eval(config.get(section, "nu")),
                                                  T=None if config.get(section, "T", fallback=None) is None else eval(config.get(section, "T")),
                                                  t=None if config.get(section, "t", fallback=None) is None else eval(config.get(section, "t")),
-                                                 limb_darkening=eval(config.get(section, "limb_darkening", fallback=None)),
+                                                 limb_darkening=None if config.get(section, "limb_darkening", fallback=None) is None else eval(config.get(section, "limb_darkening")),
+                                                 # limb_darkening=eval(config.get(section, "limb_darkening", fallback=None)),
                                                  color=tuple([eval(x) for x in config.get(section, "color").split(",")])))
         # Checking parameters of physical bodies
         if len(self) < 1:
