@@ -124,6 +124,23 @@ class CurveSimPhysics:
         Approximates the flux of a star at a point on the star seen from a very large distance.
         The point's apparent distance from the star's center is relative_radius * radius.
         Beta depends on the wavelength. Beta=2.3 is a good compromise for the spectrum of visible light."""
-        if relative_radius >= 1:
+        if relative_radius >= 1:  # catches edge cases where otherwise the square root of a negative number would be calculated
             return 1 / (1 + beta)
         return (1 + beta * math.sqrt(1 - relative_radius ** 2)) / (1 + beta)
+
+    @staticmethod
+    def limbdarkening2(relative_radius, limb_darkening_parameters):
+        """
+        Approximates the flux of a star at a point on the star seen from a very large distance.
+        The point's apparent distance from the star's center is relative_radius * radius.
+        limb_darkening_parameters: list of coefficients for limb darkening.
+        """
+        if relative_radius >= 1:  # catches edge cases where otherwise the square root of a negative number would be calculated
+            return 1 / (1 + sum(limb_darkening_parameters))
+
+        mu = math.sqrt(1 - relative_radius ** 2)
+        intensity = 1.0
+        for i, coeff in enumerate(limb_darkening_parameters):
+            intensity -= coeff * (1 - mu ** (i + 1))
+
+        return intensity
