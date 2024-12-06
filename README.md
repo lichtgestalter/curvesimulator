@@ -9,6 +9,9 @@ CurveSimulator: A Star System and Lightcurve Simulator
 
 CurveSimulator generates a video of the movements and eclipses of celestial bodies and the 
 resulting lightcurve.
+
+This is especially useful for star systems that contain exoplanets detected using the transit method.
+
 The video simultanously displays a view of the star system from the top and from the side alongside
 the lightcurve of the system's total luminosity over time.
 
