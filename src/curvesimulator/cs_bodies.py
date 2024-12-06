@@ -50,7 +50,6 @@ class CurveSimBodies(list):
                                                  nu=None if config.get(section, "nu", fallback=None) is None else eval(config.get(section, "nu")),
                                                  T=None if config.get(section, "T", fallback=None) is None else eval(config.get(section, "T")),
                                                  t=None if config.get(section, "t", fallback=None) is None else eval(config.get(section, "t")),
-                                                 # limb_darkening=config.get(section, "limb_darkening", fallback=None),
                                                  limb_darkening=eval(config.get(section, "limb_darkening", fallback=None)),
                                                  color=tuple([eval(x) for x in config.get(section, "color").split(",")])))
         # Checking parameters of physical bodies

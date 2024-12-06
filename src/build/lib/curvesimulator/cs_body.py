@@ -10,7 +10,7 @@ debugging_mode = True
 class CurveSimBody:
 
     def __init__(self, p, name, body_type, mass, radius, luminosity, startposition, velocity, a, e, i, Ω, ω, ϖ, L, ma, ea,
-                 nu, T, t, beta, color):
+                 nu, T, t, limb_darkening, color):
         """Initialize instance of physical body."""
         # For ease of use of constants in the config file they are additionally defined here without the prefix "p.".
         g, au, r_sun, m_sun, l_sun = p.g, p.au, p.r_sun, p.m_sun, p.l_sun
@@ -40,10 +40,10 @@ class CurveSimBody:
             self.t = t  # [s] time since last time of transit
             self.ma, self.ea, self.T = None, None, None  # [rad] Only true anomaly or mean_anomaly or eccentric_anomaly or time_of_periapsis has to be provided.
             self.mu = None  # Gravitational Parameter. Depends on the masses of at least 2 bodies.
-            self.beta = None  # unnecessary line of code?
+            self.limb_darkening = None  # unnecessary line of code?
 
         if body_type == "star":
-            self.beta = beta  # [1] limb darkening
+            self.limb_darkening = limb_darkening  # [1] limb darkening
 
         if startposition is not None and velocity is not None:  # State vectors are already in config file.
             pos = []
