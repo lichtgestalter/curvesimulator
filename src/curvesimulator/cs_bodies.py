@@ -50,7 +50,8 @@ class CurveSimBodies(list):
                                                  nu=None if config.get(section, "nu", fallback=None) is None else eval(config.get(section, "nu")),
                                                  T=None if config.get(section, "T", fallback=None) is None else eval(config.get(section, "T")),
                                                  t=None if config.get(section, "t", fallback=None) is None else eval(config.get(section, "t")),
-                                                 beta=eval(config.get(section, "beta")),
+                                                 # limb_darkening=config.get(section, "limb_darkening", fallback=None),
+                                                 limb_darkening=eval(config.get(section, "limb_darkening", fallback=None)),
                                                  color=tuple([eval(x) for x in config.get(section, "color").split(",")])))
         # Checking parameters of physical bodies
         if len(self) < 1:
@@ -62,8 +63,8 @@ class CurveSimBodies(list):
                 raise Exception(f'{body.name} has invalid mass {body.mass}.')
             if body.luminosity < 0:
                 raise Exception(f'{body.name} has invalid luminosity {body.luminosity}.')
-            if body.luminosity > 0 >= body.beta:  # if body.luminosity > 0 and body.beta <= 0:
-                raise Exception(f'{body.name} has invalid limb darkening parameter beta {body.beta}.')
+            if body.luminosity > 0 and len(body.limb_darkening) < 1:  # if body.luminosity > 0 and list of limb darkening parameters empty
+                raise Exception(f'{body.name} has invalid limb darkening parameter {body.limb_darkening}.')
             for c in body.color:
                 if c < 0 or c > 1:
                     raise Exception(f'{body.name} has invalid color value {c}.')
@@ -88,7 +89,7 @@ class CurveSimBodies(list):
                 if body != star:  # an object cannot eclipse itself :)
                     eclipsed_area, relative_radius = star.eclipsed_by(body, iteration)
                     if eclipsed_area != 0:
-                        luminosity -= star.brightness * eclipsed_area * CurveSimPhysics.limbdarkening(relative_radius, star.beta)
+                        luminosity -= star.brightness * eclipsed_area * CurveSimPhysics.limbdarkening(relative_radius, star.limb_darkening)
         return luminosity
 
     def calc_positions_eclipses_luminosity(self, p):

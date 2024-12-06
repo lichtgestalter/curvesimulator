@@ -117,30 +117,34 @@ class CurveSimPhysics:
         dz = body1.positions[i][2] - body2.positions[i][2]
         return math.sqrt((dx ** 2 + dz ** 2))
 
-    @staticmethod
-    def limbdarkening(relative_radius, beta):
-        """https://en.wikipedia.org/wiki/Limb_darkening
-        https://de.wikipedia.org/wiki/Photosph%C3%A4re#Mitte-Rand-Verdunkelung
-        Approximates the flux of a star at a point on the star seen from a very large distance.
-        The point's apparent distance from the star's center is relative_radius * radius.
-        Beta depends on the wavelength. Beta=2.3 is a good compromise for the spectrum of visible light."""
-        if relative_radius >= 1:  # catches edge cases where otherwise the square root of a negative number would be calculated
-            return 1 / (1 + beta)
-        return (1 + beta * math.sqrt(1 - relative_radius ** 2)) / (1 + beta)
+    # @staticmethod
+    # def limbdarkening(relative_radius, beta):
+    #     """https://en.wikipedia.org/wiki/Limb_darkening
+    #     https://de.wikipedia.org/wiki/Photosph%C3%A4re#Mitte-Rand-Verdunkelung
+    #     Approximates the flux of a star at a point on the star seen from a very large distance.
+    #     The point's apparent distance from the star's center is relative_radius * radius.
+    #     Beta depends on the wavelength. Beta=2.3 is a good compromise for the spectrum of visible light."""
+    #     if relative_radius >= 1:  # catches edge cases where otherwise the square root of a negative number would be calculated
+    #         return 1 / (1 + beta)
+    #     return (1 + beta * math.sqrt(1 - relative_radius ** 2)) / (1 + beta)
 
     @staticmethod
-    def limbdarkening2(relative_radius, limb_darkening_parameters):
+    def limbdarkening(relative_radius, limb_darkening_coefficients):
         """
         Approximates the flux of a star at a point on the star seen from a very large distance.
         The point's apparent distance from the star's center is relative_radius * radius.
-        limb_darkening_parameters: list of coefficients for limb darkening.
+
+        Parameters:
+        relative_radius (float): The normalized radial coordinate (0 <= x <= 1).
+        limb_darkening_parameters: list of coefficients for the limb darkening model.
+
+        Returns:
+        float: intensity relative to the intensity at the midlle of the star at the given relative radius.
         """
-        if relative_radius >= 1:  # catches edge cases where otherwise the square root of a negative number would be calculated
-            return 1 / (1 + sum(limb_darkening_parameters))
-
-        mu = math.sqrt(1 - relative_radius ** 2)
-        intensity = 1.0
-        for i, coeff in enumerate(limb_darkening_parameters):
-            intensity -= coeff * (1 - mu ** (i + 1))
-
+        if relative_radius < 0:  # handling rounding errors
+            relative_radius = 0.0
+        if relative_radius > 1:
+            relative_radius = 1.0
+        mu = math.sqrt(1 - relative_radius ** 2)  # mu = cos(theta), where theta is the angle from the center
+        intensity = sum(a * mu ** i for i, a in enumerate(limb_darkening_coefficients))
         return intensity
