@@ -154,6 +154,5 @@ class CurveSimPhysics:
         """Calculates the ratio of the mean intensity to the central intensity of a star based on the given coefficients."""
         intensity = 0.0
         for i, c in enumerate(limb_darkening_coefficients):
-            print(i, c)
             intensity += 2.0 * c / (i + 2)
         return intensity

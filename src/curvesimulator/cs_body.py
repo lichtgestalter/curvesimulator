@@ -4,7 +4,7 @@ import numpy as np
 from curvesimulator.cs_physics import CurveSimPhysics
 
 # debugging_mode = True
-debugging_mode = True
+debugging_mode = False
 
 # noinspection NonAsciiCharacters,PyPep8Naming,PyUnusedLocal
 class CurveSimBody:
@@ -559,7 +559,9 @@ class CurveSimBody:
         area: Area of self which is eclipsed by body.
         relative_radius: The distance of the approximated center of the eclipsed area from the center of self as a percentage of self.radius (used for limb darkening)."""
         if body.positions[iteration][1] < self.positions[iteration][1]:  # Is body nearer to viewpoint than self? (i.e. its position has a smaller y-coordinate)
+            # print(body.name, 'is nearer than', self.name)
             d = CurveSimPhysics.distance_2d_ecl(body, self, iteration)
+            # print(f'{self.name} {body.name} {d=}')
             if d < self.radius + body.radius:  # Does body eclipse self?
                 if d <= abs(self.radius - body.radius):  # Annular (i.e. ring) eclipse or total eclipse
                     if self.radius < body.radius:  # Total eclipse
