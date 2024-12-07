@@ -148,3 +148,12 @@ class CurveSimPhysics:
         mu = math.sqrt(1 - relative_radius ** 2)  # mu = cos(theta), where theta is the angle from the center
         intensity = sum(a * mu ** i for i, a in enumerate(limb_darkening_coefficients))
         return intensity
+
+    @staticmethod
+    def mean_intensity(limb_darkening_coefficients):
+        """Calculates the ratio of the mean intensity to the central intensity of a star based on the given coefficients."""
+        intensity = 0.0
+        for i, c in enumerate(limb_darkening_coefficients):
+            print(i, c)
+            intensity += 2.0 * c / (i + 2)
+        return intensity

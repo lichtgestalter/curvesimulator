@@ -44,6 +44,7 @@ class CurveSimBody:
 
         if body_type == "star":
             self.limb_darkening = limb_darkening  # [1] limb darkening
+            self.mean_intensity = CurveSimPhysics.mean_intensity(limb_darkening)
 
         if startposition is not None and velocity is not None:  # State vectors are already in config file.
             pos = []
