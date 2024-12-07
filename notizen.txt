@@ -1,5 +1,5 @@
 NEXT:
-    Default-Inklination 90 statt 0 Grad
+    Default inclination 90 iso 0 degrees
         Muss ich die Projektion aendern?
         Muss ich das Vorzeichen der y-Achse (oder einer anderen Achse) vertauschen?
         Test, bei dem es einen Transit gibt.
