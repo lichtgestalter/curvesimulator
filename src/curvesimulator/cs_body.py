@@ -554,42 +554,47 @@ class CurveSimBody:
             self.positions[0] = np.array(pos, dtype=float)  # [m] initial position
             self.velocity = np.array(vel, dtype=float)  # [m/s] initial velocity
 
-    def eclipsed_by(self, body, iteration):
+    def eclipsed_by(self, other, iteration):
         """Returns area, relative_radius
-        area: Area of self which is eclipsed by body.
+        area: Area of self which is eclipsed by other.
         relative_radius: The distance of the approximated center of the eclipsed area from the center of self as a percentage of self.radius (used for limb darkening)."""
-        if body.positions[iteration][1] < self.positions[iteration][1]:  # Is body nearer to viewpoint than self? (i.e. its position has a smaller y-coordinate)
-            # print(body.name, 'is nearer than', self.name)
-            d = CurveSimPhysics.distance_2d_ecl(body, self, iteration)
-            # print(f'{self.name} {body.name} {d=}')
-            if d < self.radius + body.radius:  # Does body eclipse self?
-                if d <= abs(self.radius - body.radius):  # Annular (i.e. ring) eclipse or total eclipse
-                    if self.radius < body.radius:  # Total eclipse
+        if other.positions[iteration][1] < self.positions[iteration][1]:  # Is other nearer to viewpoint than self? (i.e. its position has a smaller y-coordinate)
+            # print(other.name, 'is nearer than', self.name)
+            d = CurveSimPhysics.distance_2d_ecl(other, self, iteration)
+            # print(f'{self.name} {other.name} {d=}')
+            if d < self.radius + other.radius:  # Does other eclipse self?
+                if d <= abs(self.radius - other.radius):  # Annular (i.e. ring) eclipse or total eclipse
+                    if self.radius < other.radius:  # Total eclipse
                         area = self.area_2d
                         relative_radius = 0
                         # print(f'  total: {iteration:7d}  rel.area: {area/self.area_2d*100:6.0f}%  rel.r: {relative_radius*100:6.0f}%')
                         return area, relative_radius
                     else:  # Annular (i.e. ring) eclipse
-                        area = body.area_2d
+                        area = other.area_2d
                         relative_radius = d / self.radius
-                        # print(f'   ring: {iteration:7d}  rel.area: {area / self.area_2d * 100:6.0f}%  rel.r: {relative_radius * 100:6.0f}%')
+                        if iteration % 10 == 0:
+                            print(f'ring eclipse i:{iteration:5d}  ecl.area: {area/self.area_2d*100:4.1f}%  rel.r: {relative_radius*100:4.1f}%', end="  ")
+                            print(f"dx: {abs(self.positions[iteration][0]-other.positions[iteration][0]):6.3e}  dz: {abs(self.positions[iteration][2]-other.positions[iteration][2]):6.3e} d: {d:6.3e}")
+                            # print(f'   ring: {iteration:7d}  rel.area: {area / self.area_2d * 100:6.0f}%  rel.r: {relative_radius * 100:6.0f}%')
                         return area, relative_radius
                 else:  # Partial eclipse
-                    # Eclipsed area is the sum of a circle segment of self plus a circle segment of body
+                    # Eclipsed area is the sum of a circle segment of self plus a circle segment of other
                     # https://de.wikipedia.org/wiki/Kreissegment  https://de.wikipedia.org/wiki/Schnittpunkt#Schnittpunkte_zweier_Kreise
-                    self.d = (self.radius ** 2 - body.radius ** 2 + d ** 2) / (2 * d)  # Distance of center from self to radical axis
-                    body.d = (body.radius ** 2 - self.radius ** 2 + d ** 2) / (2 * d)  # Distance of center from body to radical axis
-                    body.h = body.radius + self.d - d  # Height of circle segment
-                    self.h = self.radius + body.d - d  # Height of circle segment
-                    body.angle = 2 * math.acos(1 - body.h / body.radius)  # Angle of circle segment
+                    self.d = (self.radius ** 2 - other.radius ** 2 + d ** 2) / (2 * d)  # Distance of center from self to radical axis
+                    other.d = (other.radius ** 2 - self.radius ** 2 + d ** 2) / (2 * d)  # Distance of center from other to radical axis
+                    other.h = other.radius + self.d - d  # Height of circle segment
+                    self.h = self.radius + other.d - d  # Height of circle segment
+                    other.angle = 2 * math.acos(1 - other.h / other.radius)  # Angle of circle segment
                     self.angle = 2 * math.acos(1 - self.h / self.radius)  # Angle of circle segment
-                    body.eclipsed_area = body.radius ** 2 * (body.angle - math.sin(body.angle)) / 2  # Area of circle segment
+                    other.eclipsed_area = other.radius ** 2 * (other.angle - math.sin(other.angle)) / 2  # Area of circle segment
                     self.eclipsed_area = self.radius ** 2 * (self.angle - math.sin(self.angle)) / 2  # Area of circle segment
-                    area = body.eclipsed_area + self.eclipsed_area  # Eclipsed area is sum of two circle segments.
-                    relative_radius = (self.radius + self.d - body.h) / (2 * self.radius)  # Relative distance between approximated center C of eclipsed area and center of self
-                    # print(f'partial: {iteration:7d}  rel.area: {area/self.area_2d*100:6.0f}%  rel.r: {relative_radius*100:6.0f}%')
+                    area = other.eclipsed_area + self.eclipsed_area  # Eclipsed area is sum of two circle segments.
+                    relative_radius = (self.radius + self.d - other.h) / (2 * self.radius)  # Relative distance between approximated center C of eclipsed area and center of self
+                    if iteration % 10 == 0:
+                        print(f'partial eclipse i:{iteration:5d}  ecl.area: {area / self.area_2d * 100:4.1f}%  rel.r: {relative_radius * 100:4.1f}%', end="  ")
+                        print(f"dx: {abs(self.positions[iteration][0] - other.positions[iteration][0]):6.3e}  dz: {abs(self.positions[iteration][2] - other.positions[iteration][2]):6.3e} d: {d:6.3e}")
                     return area, relative_radius
             else:  # No eclipse because, seen from viewer, the bodies are not close enough to each other
                 return 0.0, 0.0
-        else:  # body cannot eclipse self, because self is nearer to viewer than body
+        else:  # other cannot eclipse self, because self is nearer to viewer than other
             return 0.0, 0.0
