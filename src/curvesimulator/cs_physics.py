@@ -112,10 +112,10 @@ class CurveSimPhysics:
 
     @staticmethod
     def distance_2d_ecl(body1, body2, i):
-        """Return distance of the centers of 2 physical bodies as seen by a viewer (projection y->0)."""
+        """Return distance of the centers of 2 physical bodies as seen by a viewer (projection z->0)."""
         dx = body1.positions[i][0] - body2.positions[i][0]
-        dz = body1.positions[i][2] - body2.positions[i][2]
-        return math.sqrt((dx ** 2 + dz ** 2))
+        dy = body1.positions[i][1] - body2.positions[i][1]
+        return math.sqrt((dx ** 2 + dy ** 2))
 
     # @staticmethod
     # def limbdarkening(relative_radius, beta):
