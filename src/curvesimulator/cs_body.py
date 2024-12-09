@@ -4,7 +4,7 @@ import numpy as np
 from curvesimulator.cs_physics import CurveSimPhysics
 
 debugging_statevector = False
-debugging_eclipse = True
+debugging_eclipse = False
 
 # noinspection NonAsciiCharacters,PyPep8Naming,PyUnusedLocal
 class CurveSimBody:
@@ -558,8 +558,6 @@ class CurveSimBody:
         """Returns area, relative_radius
         area: Area of self which is eclipsed by other.
         relative_radius: The distance of the approximated center of the eclipsed area from the center of self as a percentage of self.radius (used for limb darkening)."""
-        if iteration == 100:
-            print("debug eclipsed_by")
         if other.positions[iteration][2] < self.positions[iteration][2]:  # Is other nearer to viewpoint than self? (i.e. its position has a smaller z-coordinate)
             # print(other.name, 'is nearer than', self.name)
             d = CurveSimPhysics.distance_2d_ecl(other, self, iteration)
