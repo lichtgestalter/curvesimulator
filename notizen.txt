@@ -15,23 +15,35 @@ Orbit parameter input:
     Beispielvideos erstellen und (auf youtube?) veröffentlichen.
     Im Wiki die Videos verlinken.
 
-    PR:
-        Nora
-        Uni Kopenhagen
-        Aiden
-
-        https://astronomy.stackexchange.com/
-        https://space.stackexchange.com/
-
-        https://www.reddit.com/r/Astronomy/
-        https://www.reddit.com/r/exoplanets/
-        https://www.reddit.com/r/astrophysics/
-        https://www.reddit.com/r/AstronomyEducation/
-
-
-
-
 VERSION 1.0.0 veroeffentlichen !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    PR:
+        Bekannte:
+            Nora
+            Aiden
+
+        Universitäten:
+            https://nbi.ku.dk/english/research/astrophysics/exoplanets/
+            https://www.iau.org/administration/membership/individual/11759/
+
+        Organisationen:
+            https://www.aavso.org/
+            https://www.astropy.org/
+
+        Foren
+            https://astronomy.stackexchange.com/
+            https://space.stackexchange.com/
+            https://forum.astronomisk.dk/
+            https://www.astrobin.com/forum/
+            https://forum.astronomie.de/
+
+            https://www.reddit.com/r/exoplanets/
+            https://www.reddit.com/r/TheExoplanetsChannel/
+            https://www.reddit.com/r/askastronomy/
+            https://www.reddit.com/r/Astronomy/
+            https://www.reddit.com/r/astrophysics/
+            https://www.reddit.com/r/space/
+
 
     Orbit parameter output:
         Nach Berechnung aller Positionen die Bahndaten auswerten, in eine Datenstruktur und dann in ein JSON-File schreiben:
