@@ -578,7 +578,7 @@ class CurveSimBody:
                             # print(f'   ring: {iteration:7d}  rel.area: {area / self.area_2d * 100:6.0f}%  rel.r: {relative_radius * 100:6.0f}%')
                         return area, relative_radius
                 else:  # Partial eclipse
-                    # Eclipsed area is the sum of a circle segment of self plus a circle segment of other
+                    # Eclipsed area is the sum of a circle segment of self + a circle segment of other
                     # https://de.wikipedia.org/wiki/Kreissegment  https://de.wikipedia.org/wiki/Schnittpunkt#Schnittpunkte_zweier_Kreise
                     self.d = (self.radius ** 2 - other.radius ** 2 + d ** 2) / (2 * d)  # Distance of center from self to radical axis
                     other.d = (other.radius ** 2 - self.radius ** 2 + d ** 2) / (2 * d)  # Distance of center from other to radical axis
