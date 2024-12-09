@@ -21,7 +21,7 @@ from curvesimulator import curvesim
 def main():
     # parameters, bodies = debug_print_points()
     parameters, bodies, lightcurve = curvesim(config_file="../configurations/MyFirstConfigFile.ini")
-    # parameters, bodies, lightcurve = curvesim(config_file="../configurations/MyFirstConfigFile.ini")
+    #  parameters, bodies, lightcurve = curvesim(config_file="../configurations/MyFirstConfigFile.ini")
     print(parameters)
     print(bodies)
     print(lightcurve)
