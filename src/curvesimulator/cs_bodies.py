@@ -52,14 +52,11 @@ class CurveSimBodies(list):
                                          T=eval(config.get(section, "T", fallback="None")),
                                          t=eval(config.get(section, "t", fallback="None")),
                                          limb_darkening=eval(config.get(section, "limb_darkening", fallback="None")),
-                                         color=tuple([eval(x) for x in config.get(section, "color").split(",")])))
+                                         color=tuple([eval(x) for x in config.get(section, "color", fallback="0, 1, 0").split(",")])))
         # Checking parameters of physical bodies
         if len(self) < 1:
             raise Exception("No physical bodies specified.")
         for body in self:
-            if body.body_type == "planet":
-                print(f"{body.t=}   {body.T=}")
-                exit(555)
             if body.radius <= 0:
                 raise Exception(f'{body.name} has invalid radius {body.radius}.')
             if body.mass <= 0:

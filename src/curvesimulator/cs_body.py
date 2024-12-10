@@ -38,12 +38,12 @@ class CurveSimBody:
             self.nu = None if nu is None else math.radians(nu)  # [deg] true anomaly. Per definition = 270° at the time of an exoplanet's primary transit.
             self.T = T  # [s] Time of periapsis
             self.t = t  # [s] time since last time of transit
-            self.ma, self.ea, self.T = None, None, None  # [rad] Only true anomaly or mean_anomaly or eccentric_anomaly or time_of_periapsis has to be provided.
+            self.ma, self.ea = None, None  # [rad] Only true anomaly or mean_anomaly or eccentric_anomaly or time_of_periapsis has to be provided.
             self.mu = None  # Gravitational Parameter. Depends on the masses of at least 2 bodies.
-            self.limb_darkening = None  # unnecessary line of code?
+            # self.limb_darkening = None  # unnecessary line of code?
 
         if body_type == "star":
-            self.limb_darkening = limb_darkening  # [1] limb darkening
+            self.limb_darkening = limb_darkening
             self.mean_intensity = CurveSimPhysics.mean_intensity(limb_darkening)
 
         if startposition is not None and velocity is not None:  # State vectors are already in config file.

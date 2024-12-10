@@ -5,6 +5,7 @@
 [![Python Versions](https://img.shields.io/pypi/pyversions/curvesimulator.svg)](https://pypi.org/project/curvesimulator/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![PyPI Downloads](https://static.pepy.tech/badge/curvesimulator)
+
 **CurveSimulator: A Star System and Lightcurve Simulator**
 
 CurveSimulator generates a video of the movements and eclipses of celestial bodies and the resulting lightcurve. This is especially useful for star systems that contain exoplanets detected using the transit method.

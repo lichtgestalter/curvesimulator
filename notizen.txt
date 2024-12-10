@@ -1,8 +1,9 @@
 NEXT:
-
     Für welchen Zeitpunkt ermittle ich eigentlich gerade die state vectors? t=0 offenbar. Wo ist das in der Bahn? Periapsis?
-    Parameter t doch wieder einbauen, um state vectors für bestimmten Zeitpunkt zu ermitteln?
-        Falls ja, braucht vielleicht t einen anderen Namen, denn es gibt schon T und configparser ist zumindest nicht per default case sensitive.
+        t=0: Planet beginnt rechts von Sonne, Transit nach 270 Grad Orbit
+        Evtl. Projektionen aendern, so dass Transit bei t=0?
+        T derzeit wirkungslos???
+
     time of transit als absolute Julianzeit mitgeben?
     x-axis of lightcurve in BJD (BJD https://en.wikipedia.org/wiki/Barycentric_Julian_Date and https://en.wikipedia.org/wiki/Barycentric_Dynamical_Time)
 
