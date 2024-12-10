@@ -62,21 +62,13 @@ class CurveSimParameters:
         self.x_unit_value = self.time_units[self.x_unit_name]
         self.red_dot_height = eval(config.get("Plot", "red_dot_height"))
         self.red_dot_width = eval(config.get("Plot", "red_dot_width"))
-        tmp = config.get("Plot", "start_date", fallback="0")
-        eval stark vereinfachen, z.B. mit "None" statt None?
-        self.start_date = eval(tmp)
-        print("1: ", self.start_date)
-        self.start_date = eval(tmp := config.get("Plot", "start_date", fallback="0"))
-        print("2: ", self.start_date)
         self.start_date = eval(config.get("Plot", "start_date", fallback="0"))
-        print("3: ", self.start_date)
-
         # Checking all parameters defined so far
         for key in vars(self):
             if type(getattr(self, key)) not in [str, dict, bool, list]:
-                if getattr(self, key) <= 0:
+                if getattr(self, key) < 0:
                     print(f'{self=}   {key=}   {getattr(self, key)=}    {type(getattr(self, key))=}')
-                    raise Exception(f"No parameter in sections {self.standard_sections} may be zero or negative.")
+                    raise Exception(f"No parameter in sections {self.standard_sections} may be negative.")
 
         # [Debug]
         self.debug_L = list(eval(config.get("Debug", "debug_L")))
