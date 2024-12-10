@@ -62,6 +62,14 @@ class CurveSimParameters:
         self.x_unit_value = self.time_units[self.x_unit_name]
         self.red_dot_height = eval(config.get("Plot", "red_dot_height"))
         self.red_dot_width = eval(config.get("Plot", "red_dot_width"))
+        tmp = config.get("Plot", "start_date", fallback="0")
+        eval stark vereinfachen, z.B. mit "None" statt None?
+        self.start_date = eval(tmp)
+        print("1: ", self.start_date)
+        self.start_date = eval(tmp := config.get("Plot", "start_date", fallback="0"))
+        print("2: ", self.start_date)
+        self.start_date = eval(config.get("Plot", "start_date", fallback="0"))
+        print("3: ", self.start_date)
 
         # Checking all parameters defined so far
         for key in vars(self):
