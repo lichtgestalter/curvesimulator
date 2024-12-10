@@ -8,6 +8,7 @@ class CurveSimParameters:
         self.configfilename = config_file
         self.standard_sections = ["Astronomical Constants", "Video", "Plot", "Scale", "Debug"]  # These sections must be present in the config file.
         config = configparser.ConfigParser(inline_comment_prefixes='#')  # Inline comments in the config file start with "#".
+        config.optionxform = str  # Preserve case of the keys.
         CurveSimParameters.find_and_check_config_file(config_file, standard_sections=self.standard_sections)
         config.read(self.configfilename)
 
@@ -93,6 +94,7 @@ class CurveSimParameters:
         #     config_file = sys.argv[1]
         #     print(f'Using {config_file} as config file. Further program parameters are ignored.')
         config = configparser.ConfigParser(inline_comment_prefixes='#')
+        config.optionxform = str  # Preserve case of the keys.
         red = "\u001b[31m"
         reset = "\u001b[0m"
         if len(config.read(config_file)) < 1:  # does opening the config file fail?

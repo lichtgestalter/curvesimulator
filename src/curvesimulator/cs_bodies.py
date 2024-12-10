@@ -24,6 +24,7 @@ class CurveSimBodies(list):
         except AttributeError:
             print("WARNING: Section 'Astronomical Constants' in the configuration file is incomplete. See https://github.com/lichtgestalter/curvesimulator/wiki.")
         config = configparser.ConfigParser(inline_comment_prefixes='#')
+        config.optionxform = str  # Preserve case of the keys.
         config.read(p.configfilename)  # Read config file. (This time the physical objects.)
         super().__init__()  # create object by calling the constructor of class list
 
@@ -56,6 +57,9 @@ class CurveSimBodies(list):
         if len(self) < 1:
             raise Exception("No physical bodies specified.")
         for body in self:
+            if body.body_type == "planet":
+                print(f"{body.t=}   {body.T=}")
+                exit(555)
             if body.radius <= 0:
                 raise Exception(f'{body.name} has invalid radius {body.radius}.')
             if body.mass <= 0:
