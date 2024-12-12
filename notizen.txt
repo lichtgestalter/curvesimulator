@@ -1,8 +1,10 @@
 NEXT:
-    Für welchen Zeitpunkt ermittle ich eigentlich gerade die state vectors? t=0 offenbar. Wo ist das in der Bahn? Periapsis?
-        t=0: Planet beginnt rechts von Sonne, Transit nach 270 Grad Orbit
-        Evtl. Projektionen aendern, so dass Transit bei t=0?
+
+    t vs. T
         T derzeit wirkungslos???
+        Evtl. Projektionen aendern, so dass Transit bei t=0?
+        t=0: Planet beginnt rechts von Sonne, Transit nach 270 Grad Orbit
+        Für welchen Zeitpunkt ermittle ich eigentlich gerade die state vectors? t=0 offenbar. Wo ist das in der Bahn? Periapsis?
 
     time of transit als absolute Julianzeit mitgeben?
     x-axis of lightcurve in BJD (BJD https://en.wikipedia.org/wiki/Barycentric_Julian_Date and https://en.wikipedia.org/wiki/Barycentric_Dynamical_Time)
