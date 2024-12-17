@@ -9,6 +9,9 @@ NEXT:
     time of transit als absolute Julianzeit mitgeben?
     x-axis of lightcurve in BJD (BJD https://en.wikipedia.org/wiki/Barycentric_Julian_Date and https://en.wikipedia.org/wiki/Barycentric_Dynamical_Time)
 
+    Einschraenkung in Konstruktor von CurveSimBody "if body_type == "planet"" ist wohl falsch.
+    Ich will ja auch Sterne um Sterne kreisen lassen. Dann brauchen alle Koerper ausser dem Primaerstern Orbitparameter.
+
     Orbit parameter input:
         Exoplaneten-Paper und -Datenbanken studieren: Welche Bahnparameter werden angegeben? Welche muss ich berechnen? Welche einfach festlegen?
 
@@ -50,7 +53,12 @@ VERSION 1.0.0 veroeffentlichen !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     Orbit parameter output:
         Nach Berechnung aller Positionen die Bahndaten auswerten, in eine Datenstruktur und dann in ein JSON-File schreiben:
-            Transit times: T1, T2, T3, T4, T14, Tt -> orbiting period
+            Transit times:
+                T1, T2, TT, T3, T4, T14
+                Auch fuer secondary eclipses (Sonne verdeckt Planet)
+                TT (Time of Transit): The time of minimum projected separation between the star and planet, as seen by the observer
+                b (Transit Impact parameter): minimum projected separation at the time of transit, in stellar radii
+                bS (Eclipse impact parameter): minimum projected separation at the time of secondary occultation, in stellar radii
             Transit depths
             Track transit variations (changes in orbiting period).
             max/min of x, y, z position?

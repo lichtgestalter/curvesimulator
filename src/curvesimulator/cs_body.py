@@ -9,7 +9,7 @@ debugging_eclipse = False
 # noinspection NonAsciiCharacters,PyPep8Naming,PyUnusedLocal
 class CurveSimBody:
 
-    def __init__(self, p, name, body_type, mass, radius, luminosity, startposition, velocity, a, e, i, Ω, ω, ϖ, L, ma, ea,
+    def __init__(self, p, name, body_type, mass, radius, pot_transit_date, luminosity, startposition, velocity, a, e, i, Ω, ω, ϖ, L, ma, ea,
                  nu, T, t, limb_darkening, color):
         """Initialize instance of physical body."""
         # For ease of use of constants in the config file they are additionally defined here without the prefix "p.".
@@ -20,6 +20,7 @@ class CurveSimBody:
         self.mass = mass  # [kg]
         self.radius = radius  # [m]
         self.area_2d = math.pi * radius ** 2  # [m**2]
+        self.pot_transit_date = pot_transit_date  # [d]
         self.luminosity = luminosity  # [W]
         self.brightness = luminosity / self.area_2d  # luminosity per (apparent) area [W/m**2]
         self.positions = np.zeros((p.iterations, 3), dtype=float)  # position for each frame
@@ -572,9 +573,9 @@ class CurveSimBody:
                     else:  # Annular (i.e. ring) eclipse
                         area = other.area_2d
                         relative_radius = d / self.radius
-                        if debugging_eclipse and iteration % 10 == 0:
+                        if debugging_eclipse and iteration % 1 == 0:
                             print(f'ring eclipse i:{iteration:5d}  ecl.area: {area/self.area_2d*100:4.1f}%  rel.r: {relative_radius*100:4.1f}%', end="  ")
-                            print(f"dx: {abs(self.positions[iteration][0]-other.positions[iteration][0]):6.3e}  dz: {abs(self.positions[iteration][2]-other.positions[iteration][2]):6.3e} d: {d:6.3e}")
+                            print(f"dy: {abs(self.positions[iteration][1]-other.positions[iteration][1]):6.3e}  dz: {abs(self.positions[iteration][2]-other.positions[iteration][2]):6.3e} d: {d:6.3e}")
                             # print(f'   ring: {iteration:7d}  rel.area: {area / self.area_2d * 100:6.0f}%  rel.r: {relative_radius * 100:6.0f}%')
                         return area, relative_radius
                 else:  # Partial eclipse
@@ -590,9 +591,9 @@ class CurveSimBody:
                     self.eclipsed_area = self.radius ** 2 * (self.angle - math.sin(self.angle)) / 2  # Area of circle segment
                     area = other.eclipsed_area + self.eclipsed_area  # Eclipsed area is sum of two circle segments.
                     relative_radius = (self.radius + self.d - other.h) / (2 * self.radius)  # Relative distance between approximated center C of eclipsed area and center of self
-                    if debugging_eclipse and iteration % 10 == 0:
+                    if debugging_eclipse and iteration % 1 == 0:
                         print(f'partial eclipse i:{iteration:5d}  ecl.area: {area / self.area_2d * 100:4.1f}%  rel.r: {relative_radius * 100:4.1f}%', end="  ")
-                        print(f"dx: {abs(self.positions[iteration][0] - other.positions[iteration][0]):6.3e}  dz: {abs(self.positions[iteration][2] - other.positions[iteration][2]):6.3e} d: {d:6.3e}")
+                        print(f"dy: {abs(self.positions[iteration][1] - other.positions[iteration][1]):6.3e}  dz: {abs(self.positions[iteration][2] - other.positions[iteration][2]):6.3e} d: {d:6.3e}")
                     return area, relative_radius
             else:  # No eclipse because, seen from viewer, the bodies are not close enough to each other
                 return 0.0, 0.0

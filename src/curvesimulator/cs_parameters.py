@@ -47,17 +47,17 @@ class CurveSimParameters:
         self.max_radius = eval(config.get("Scale", "max_radius")) / 100.0
 
         # [Plot]
-        self.figure_width = eval(config.get("Plot", "figure_width"))
-        self.figure_height = eval(config.get("Plot", "figure_height"))
-        self.xlim = eval(config.get("Plot", "xlim"))
-        self.ylim = eval(config.get("Plot", "ylim"))
         self.time_units = {"s": 1, "min": 60, "h": 3600, "d": 24 * 3600,
                            "mon": 365.25 * 24 * 3600 / 12, "y": 365.25 * 24 * 3600}
-        self.x_unit_name = config.get("Plot", "x_unit")
+        self.x_unit_name = config.get("Plot", "x_unit", fallback="d")
         self.x_unit_value = self.time_units[self.x_unit_name]
-        self.red_dot_height = eval(config.get("Plot", "red_dot_height"))
-        self.red_dot_width = eval(config.get("Plot", "red_dot_width"))
-        self.start_date = eval(config.get("Plot", "start_date", fallback="0"))
+        self.start_date = eval(config.get("Plot", "start_date", fallback="0.0"))
+        self.figure_width = eval(config.get("Plot", "figure_width", fallback="16"))
+        self.figure_height = eval(config.get("Plot", "figure_height", fallback="8"))
+        self.xlim = eval(config.get("Plot", "xlim", fallback="1.25"))
+        self.ylim = eval(config.get("Plot", "ylim", fallback="1.0"))
+        self.red_dot_height = eval(config.get("Plot", "red_dot_height", fallback="0.077"))
+        self.red_dot_width = eval(config.get("Plot", "red_dot_width", fallback="0.005"))
         # Checking all parameters defined so far
         for key in vars(self):
             if type(getattr(self, key)) not in [str, dict, bool, list]:

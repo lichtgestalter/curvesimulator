@@ -25,7 +25,6 @@ def main():
     print(parameters)
     print(bodies)
     print(lightcurve)
-unabhaenging von samplingrate 200 oder 300 kriege ich nur 5 eclipses bei iterationen 796 bis 800
 
 if __name__ == '__main__':
     main()

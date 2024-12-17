@@ -36,6 +36,7 @@ class CurveSimBodies(list):
                                          body_type=config.get(section, "body_type", fallback=None),
                                          mass=eval(config.get(section, "mass", fallback="None")),
                                          radius=eval(config.get(section, "radius", fallback="None")),
+                                         pot_transit_date=eval(config.get(section, "pot_transit_date", fallback="0.0")),
                                          luminosity=eval(config.get(section, "luminosity", fallback="0.0")),
                                          startposition=config.get(section, "startposition", fallback=None),
                                          velocity=config.get(section, "velocity", fallback=None),
