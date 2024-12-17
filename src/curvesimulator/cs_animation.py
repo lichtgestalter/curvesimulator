@@ -95,7 +95,7 @@ class CurveSimAnimation:
         return fig, ax_right, ax_left, ax_lightcurve, red_dot
 
     @staticmethod
-    def next_frame(frame, p, bodies, red_dot, lightcurve):
+    def next_frame_old(frame, p, bodies, red_dot, lightcurve):
         """Update patches. Send new circle positions to animation function.
         First parameter comes from iterator frames (a parameter of FuncAnimation).
         The other parameters are given to this function via the parameter fargs of FuncAnimation."""
@@ -105,6 +105,20 @@ class CurveSimAnimation:
         for body in bodies:  # right view: projection (x,y,z) -> (x,-y), order = -z (z-axis points away from viewer)
             body.circle_right.set(zorder=-body.positions[frame * p.sampling_rate][2])
             body.circle_right.center = body.positions[frame * p.sampling_rate][0] / p.scope_right, -body.positions[frame * p.sampling_rate][1] / p.scope_right
+        red_dot.center = p.dt * p.sampling_rate * frame / p.x_unit_value, lightcurve[frame * p.sampling_rate]
+        if frame >= 10 and frame % int(round(p.frames / 10)) == 0:  # Inform user about program's progress.
+            print(f'{round(frame / p.frames * 10) * 10:3d}% ', end="")
+
+    def next_frame(frame, p, bodies, red_dot, lightcurve):
+        """Update patches. Send new circle positions to animation function.
+        First parameter comes from iterator frames (a parameter of FuncAnimation).
+        The other parameters are given to this function via the parameter fargs of FuncAnimation."""
+        for body in bodies:  # left view (overhead): projection (x,y,z) -> (z,-x), order = -y (y-axis points away from viewer)
+            body.circle_left.set(zorder=-body.positions[frame * p.sampling_rate][1])
+            body.circle_left.center = body.positions[frame * p.sampling_rate][2] / p.scope_left, -body.positions[frame * p.sampling_rate][0] / p.scope_left
+        for body in bodies:  # right view (edge-on): projection (x,y,z) -> (z,-y), order = x (x-axis points to viewer)
+            body.circle_right.set(zorder=body.positions[frame * p.sampling_rate][0])
+            body.circle_right.center = body.positions[frame * p.sampling_rate][2] / p.scope_right, -body.positions[frame * p.sampling_rate][1] / p.scope_right
         red_dot.center = p.dt * p.sampling_rate * frame / p.x_unit_value, lightcurve[frame * p.sampling_rate]
         if frame >= 10 and frame % int(round(p.frames / 10)) == 0:  # Inform user about program's progress.
             print(f'{round(frame / p.frames * 10) * 10:3d}% ', end="")

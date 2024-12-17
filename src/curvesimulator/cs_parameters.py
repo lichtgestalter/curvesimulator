@@ -14,22 +14,16 @@ class CurveSimParameters:
 
         # [Astronomical Constants]
         # For ease of use of these constants in the config file they are additionally defined here without the prefix "self.".
-        try:
-            g = eval(config.get("Astronomical Constants", "g"))
-            au = eval(config.get("Astronomical Constants", "au"))
-            r_sun = eval(config.get("Astronomical Constants", "r_sun"))
-            m_sun = eval(config.get("Astronomical Constants", "m_sun"))
-            l_sun = eval(config.get("Astronomical Constants", "l_sun"))
-            r_jup = eval(config.get("Astronomical Constants", "r_jup"))
-            m_jup = eval(config.get("Astronomical Constants", "m_jup"))
-            r_earth = eval(config.get("Astronomical Constants", "r_earth"))
-            m_earth = eval(config.get("Astronomical Constants", "m_earth"))
-            v_earth = eval(config.get("Astronomical Constants", "v_earth"))
-            self.g, self.au, self.r_sun, self.m_sun, self.l_sun = g, au, r_sun, m_sun, l_sun,
-            self.r_jup, self.m_jup, self.r_earth, self.m_earth, self.v_earth = r_jup, m_jup, r_earth, m_earth, v_earth
-        except configparser.NoOptionError:
-            print("WARNING: Section 'Astronomical Constants' in the configuration file is incomplete. See https://github.com/lichtgestalter/curvesimulator/wiki.")
-
+        g = eval(config.get("Astronomical Constants", "g", fallback="None"))
+        au = eval(config.get("Astronomical Constants", "au", fallback="None"))
+        r_sun = eval(config.get("Astronomical Constants", "r_sun", fallback="None"))
+        m_sun = eval(config.get("Astronomical Constants", "m_sun", fallback="None"))
+        l_sun = eval(config.get("Astronomical Constants", "l_sun", fallback="None"))
+        r_jup = eval(config.get("Astronomical Constants", "r_jup", fallback="None"))
+        m_jup = eval(config.get("Astronomical Constants", "m_jup", fallback="None"))
+        r_earth = eval(config.get("Astronomical Constants", "r_earth", fallback="None"))
+        m_earth = eval(config.get("Astronomical Constants", "m_earth", fallback="None"))
+        v_earth = eval(config.get("Astronomical Constants", "v_earth", fallback="None"))
         self.g, self.au, self.r_sun, self.m_sun, self.l_sun = g, au, r_sun, m_sun, l_sun,
         self.r_jup, self.m_jup, self.r_earth, self.m_earth, self.v_earth = r_jup, m_jup, r_earth, m_earth, v_earth
 
@@ -80,8 +74,7 @@ class CurveSimParameters:
 
     @staticmethod
     def find_and_check_config_file(config_file, standard_sections):
-        """Check program parameters and extract config file name from them.
-        Check if config file can be opened and contains all standard sections."""
+        """Check if config file can be opened and contains all standard sections."""
         # Check program parameters and extract config file name from them.
         # if len(sys.argv) == 1:
         #     config_file = default
