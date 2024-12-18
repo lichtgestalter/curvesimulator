@@ -1,5 +1,4 @@
 NEXT:
-    Wahlmoeglichkeit fuer unit der x-achse abschaffen
     X-labels mit flexibler Nachkommastellenanzahl (Y-labels haben das schon!)
 
     t vs. T
