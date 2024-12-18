@@ -1,13 +1,11 @@
 NEXT:
+    Wahlmoeglichkeit fuer unit der x-achse abschaffen
+    X-labels mit flexibler Nachkommastellenanzahl (Y-labels haben das schon!)
 
     t vs. T
         T derzeit wirkungslos???
-        Evtl. Projektionen aendern, so dass Transit bei t=0?
-        t=0: Planet beginnt rechts von Sonne, Transit nach 270 Grad Orbit
         Für welchen Zeitpunkt ermittle ich eigentlich gerade die state vectors? t=0 offenbar. Wo ist das in der Bahn? Periapsis?
-
-    time of transit als absolute Julianzeit mitgeben?
-    x-axis of lightcurve in BJD (BJD https://en.wikipedia.org/wiki/Barycentric_Julian_Date and https://en.wikipedia.org/wiki/Barycentric_Dynamical_Time)
+        x-axis of lightcurve in BJD (BJD https://en.wikipedia.org/wiki/Barycentric_Julian_Date and https://en.wikipedia.org/wiki/Barycentric_Dynamical_Time)
 
     Einschraenkung in Konstruktor von CurveSimBody "if body_type == "planet"" ist wohl falsch.
     Ich will ja auch Sterne um Sterne kreisen lassen. Dann brauchen alle Koerper ausser dem Primaerstern Orbitparameter.

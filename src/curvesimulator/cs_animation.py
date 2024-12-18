@@ -66,7 +66,7 @@ class CurveSimAnimation:
         xmax = p.iterations * p.dt / p.x_unit_value
         ax_lightcurve.set_xlim(0, xmax)
         xvalues = [x * CurveSimAnimation.tic_delta(xmax) for x in range(round(xmax / CurveSimAnimation.tic_delta(xmax)))]
-        xlabels = [f'{round(x, 4)} {p.x_unit_name}' for x in xvalues]
+        xlabels = [f'{round(x + p.start_date, 4)} {p.x_unit_name}' for x in xvalues]
         ax_lightcurve.set_xticks(xvalues, labels=xlabels)
 
         ax_lightcurve.tick_params(axis='y', colors='grey')
@@ -109,6 +109,7 @@ class CurveSimAnimation:
         if frame >= 10 and frame % int(round(p.frames / 10)) == 0:  # Inform user about program's progress.
             print(f'{round(frame / p.frames * 10) * 10:3d}% ', end="")
 
+    @staticmethod
     def next_frame(frame, p, bodies, red_dot, lightcurve):
         """Update patches. Send new circle positions to animation function.
         First parameter comes from iterator frames (a parameter of FuncAnimation).

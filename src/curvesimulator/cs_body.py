@@ -9,7 +9,8 @@ debugging_eclipse = False
 # noinspection NonAsciiCharacters,PyPep8Naming,PyUnusedLocal
 class CurveSimBody:
 
-    def __init__(self, p, name, body_type, mass, radius, pot_transit_date, luminosity, startposition, velocity, a, e, i, Ω, ω, ϖ, L, ma, ea,
+    def __init__(self, p, name, body_type, mass, radius, luminosity, startposition, velocity, a, e, i, Ω, ω, ϖ, L, ma, ea,
+                 # pot_transit_date,
                  nu, T, t, limb_darkening, color):
         """Initialize instance of physical body."""
         # For ease of use of constants in the config file they are additionally defined here without the prefix "p.".
@@ -20,7 +21,7 @@ class CurveSimBody:
         self.mass = mass  # [kg]
         self.radius = radius  # [m]
         self.area_2d = math.pi * radius ** 2  # [m**2]
-        self.pot_transit_date = pot_transit_date  # [d]
+        # self.pot_transit_date = pot_transit_date  # [d]
         self.luminosity = luminosity  # [W]
         self.brightness = luminosity / self.area_2d  # luminosity per (apparent) area [W/m**2]
         self.positions = np.zeros((p.iterations, 3), dtype=float)  # position for each frame
