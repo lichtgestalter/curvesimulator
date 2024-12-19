@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt  # from matplotlib import pyplot as plt
 
 spd = 3600 * 24  # seconds per day
 
-
 class CurveSimAnimation:
 
     def __init__(self, p, bodies, lightcurve):
@@ -52,8 +51,6 @@ class CurveSimAnimation:
         ax_left.set_ylim(-p.ylim, p.ylim)
         ax_left.set_aspect('equal')
         ax_left.set_facecolor("black")  # background color
-        # ax_left.get_xaxis().set_visible(False)
-        # ax_left.get_yaxis().set_visible(False)
 
         ax_right = plt.subplot2grid(shape=(5, 2), loc=(0, 1), rowspan=4, colspan=1)
         ax_right.set_xlim(-p.xlim, p.xlim)
@@ -67,8 +64,11 @@ class CurveSimAnimation:
         ax_lightcurve.tick_params(axis='x', colors='grey')
         xmax = p.iterations * p.dt / spd
         ax_lightcurve.set_xlim(0, xmax)
-        xvalues = [x * CurveSimAnimation.tic_delta(xmax) for x in range(round(xmax / CurveSimAnimation.tic_delta(xmax)))]
-        xlabels = [f'{round(x + p.start_date, 4)}' for x in xvalues]
+        x_listticdelta = CurveSimAnimation.tic_delta(xmax)
+        digits = max(0, round(-math.log10(x_listticdelta))+1)
+        # digits = int(max(0, -math.log10(x_listticdelta)+1))
+        xvalues = [x * x_listticdelta for x in range(round(xmax / x_listticdelta))]
+        xlabels = [f'{round(x + p.start_date, 4):.{digits}f}' for x in xvalues]
         ax_lightcurve.set_xticks(xvalues, labels=xlabels)
 
         ax_lightcurve.tick_params(axis='y', colors='grey')
@@ -80,8 +80,8 @@ class CurveSimAnimation:
         buffer = 0.05 * scope
         ax_lightcurve.set_ylim(minl - buffer, maxl + buffer)
 
-        ticdelta = CurveSimAnimation.tic_delta(maxl - minl)
-        yvalues = [1 - y * ticdelta for y in range(round(float((maxl - minl) / ticdelta)))]
+        y_listticdelta = CurveSimAnimation.tic_delta(maxl - minl)
+        yvalues = [1 - y * y_listticdelta for y in range(round(float((maxl - minl) / y_listticdelta)))]
         ylabels = [f'{round(100 * y, 10)} %' for y in yvalues]
         ax_lightcurve.set_yticks(yvalues, labels=ylabels)
 
@@ -94,6 +94,9 @@ class CurveSimAnimation:
         red_dot.set_color((1, 0, 0))  # red
         ax_lightcurve.add_patch(red_dot)
         plt.tight_layout()  # Automatically adjust padding horizontally as well as vertically.
+
+        ax_lightcurve.text(1.00, -0.2, "BJD (TDB)", color='grey', fontsize=10, ha='right', va='bottom', transform=ax_lightcurve.transAxes)
+
         return fig, ax_right, ax_left, ax_lightcurve, red_dot
 
     @staticmethod

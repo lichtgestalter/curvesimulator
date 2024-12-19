@@ -1,5 +1,7 @@
 NEXT:
     X-labels mit flexibler Nachkommastellenanzahl (Y-labels haben das schon!)
+    richtige Formel fuer digits durch Ausprobieren finden
+        dt = 240 vs dt = 230
 
     t vs. T
         T derzeit wirkungslos???
