@@ -65,8 +65,7 @@ class CurveSimAnimation:
         xmax = p.iterations * p.dt / spd
         ax_lightcurve.set_xlim(0, xmax)
         x_listticdelta = CurveSimAnimation.tic_delta(xmax)
-        digits = max(0, round(-math.log10(x_listticdelta))+1)
-        # digits = int(max(0, -math.log10(x_listticdelta)+1))
+        digits = max(0, round(-math.log10(x_listticdelta) + 0.4))  # The labels get as many decimal places as the intervals between the tics.
         xvalues = [x * x_listticdelta for x in range(round(xmax / x_listticdelta))]
         xlabels = [f'{round(x + p.start_date, 4):.{digits}f}' for x in xvalues]
         ax_lightcurve.set_xticks(xvalues, labels=xlabels)
@@ -80,9 +79,11 @@ class CurveSimAnimation:
         buffer = 0.05 * scope
         ax_lightcurve.set_ylim(minl - buffer, maxl + buffer)
 
-        y_listticdelta = CurveSimAnimation.tic_delta(maxl - minl)
+        y_listticdelta = CurveSimAnimation.tic_delta(scope)
+        digits = max(0, round(-math.log10(y_listticdelta) + 0.4)-2)  # The labels get as many decimal places as the intervals between the tics.
         yvalues = [1 - y * y_listticdelta for y in range(round(float((maxl - minl) / y_listticdelta)))]
-        ylabels = [f'{round(100 * y, 10)} %' for y in yvalues]
+        ylabels = [f'{round(100 * y, 10):.{digits}f} %' for y in yvalues]
+        # ylabels = [f'{round(100 * y, 10)} %' for y in yvalues]
         ax_lightcurve.set_yticks(yvalues, labels=ylabels)
 
         time_axis = np.arange(0, round(p.iterations * p.dt), round(p.sampling_rate * p.dt), dtype=float)
@@ -95,7 +96,7 @@ class CurveSimAnimation:
         ax_lightcurve.add_patch(red_dot)
         plt.tight_layout()  # Automatically adjust padding horizontally as well as vertically.
 
-        ax_lightcurve.text(1.00, -0.2, "BJD (TDB)", color='grey', fontsize=10, ha='right', va='bottom', transform=ax_lightcurve.transAxes)
+        ax_lightcurve.text(1.00, -0.05, "BJD (TDB)", color='grey', fontsize=10, ha='right', va='bottom', transform=ax_lightcurve.transAxes)
 
         return fig, ax_right, ax_left, ax_lightcurve, red_dot
 

@@ -1,12 +1,7 @@
 NEXT:
-    X-labels mit flexibler Nachkommastellenanzahl (Y-labels haben das schon!)
-    richtige Formel fuer digits durch Ausprobieren finden
-        dt = 240 vs dt = 230
-
     t vs. T
-        T derzeit wirkungslos???
         Für welchen Zeitpunkt ermittle ich eigentlich gerade die state vectors? t=0 offenbar. Wo ist das in der Bahn? Periapsis?
-        x-axis of lightcurve in BJD (BJD https://en.wikipedia.org/wiki/Barycentric_Julian_Date and https://en.wikipedia.org/wiki/Barycentric_Dynamical_Time)
+        T derzeit wirkungslos???
 
     Einschraenkung in Konstruktor von CurveSimBody "if body_type == "planet"" ist wohl falsch.
     Ich will ja auch Sterne um Sterne kreisen lassen. Dann brauchen alle Koerper ausser dem Primaerstern Orbitparameter.
@@ -19,6 +14,7 @@ NEXT:
 
     Beispielvideos erstellen und (auf youtube?) veröffentlichen.
     Im Wiki die Videos verlinken.
+    Wiki aktualisieren. Insbesondere Configfile.
 
 VERSION 1.0.0 veroeffentlichen !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
