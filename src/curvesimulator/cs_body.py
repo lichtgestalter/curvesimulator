@@ -3,7 +3,8 @@ import numpy as np
 
 from curvesimulator.cs_physics import CurveSimPhysics
 
-debugging_statevector = False
+debugging_statevector_variants = False
+debugging_kepler_parameters = True
 debugging_eclipse = False
 
 # noinspection NonAsciiCharacters,PyPep8Naming,PyUnusedLocal
@@ -462,28 +463,28 @@ class CurveSimBody:
 
         if ω is None and ϖ is not None and Ω is not None:
             ω = ϖ - Ω
-            if debugging_statevector:
+            if debugging_kepler_parameters:
                 print("Variant 1: ω-  ϖ+  Ω+, calc ω")
         if ma is None and L is not None and ϖ is not None:
             ma = L - ϖ
-            if debugging_statevector:
+            if debugging_kepler_parameters:
                 print("Variant 2: ma-  ϖ+  L+, calc ma")
         if ea is not None:  # ea provided
             nu = 2 * math.atan(math.sqrt((1 + e) / (1 - e)) * math.tan(ea / 2))  # 3b: true anomaly (from eccentric anomaly)
             ma = ea - e * math.sin(ea)  # 2b: Mean anomaly (from eccentric anomaly). Just for completeness.
-            if debugging_statevector:
+            if debugging_kepler_parameters:
                 print("Variant 3: ea+, calc nu ma")
         else:  # ea not provided
             if nu is not None:  # nu provided
                 ea = 2 * math.atan(math.sqrt((1 - e) / (1 + e)) * math.tan(nu / 2))  # 11a: eccentric anomaly (from true anomaly) [rad]
                 ma = ea - e * math.sin(ea)  # 2b: Mean anomaly (from eccentric anomaly). Just for completeness.
-                if debugging_statevector:
+                if debugging_kepler_parameters:
                     print("Variant 4: ea-  nu+, calc ea ma")
             else:  # nu, ea not provided
                 if ma is not None:  # ma provided
                     ea = CurveSimPhysics.kepler_equation_root(e, ma, ea_guess=ma)  # A good guess is important. With guess=0 the root finder very often does not converge.
                     nu = 2 * math.atan(math.sqrt((1 + e) / (1 - e)) * math.tan(ea / 2))  # 3b: true anomaly (from eccentric anomaly)
-                    if debugging_statevector:
+                    if debugging_kepler_parameters:
                         print("Variant 5: ea-  nu-  ma+, calc ea nu")
                 else:  # nu, ea, ma not provided
                     if T is not None:  # T provided
@@ -491,10 +492,10 @@ class CurveSimBody:
                         ma = n * T  # 1b: Mean anomaly at time of periapsis (from angular motion).
                         ea = CurveSimPhysics.kepler_equation_root(e, ma, ea_guess=ma)  # A good guess is important. With guess=0 the root finder very often does not converge.
                         nu = 2 * math.atan(math.sqrt((1 + e) / (1 - e)) * math.tan(ea / 2))  # 3b: true anomaly (from eccentric anomaly)
-                        if debugging_statevector:
+                        if debugging_kepler_parameters:
                             print("Variant 6: ea-  nu-  ma-  T+, calc n ma ea nu")
                     else:  # nu, ea, ma, T not provided
-                        if debugging_statevector:
+                        if debugging_kepler_parameters:
                             print("Variant 7: ea-  nu-  ma-  T-, ERROR")
                         raise Exception("nu or ma or ea or T has to be provided to keplerian_elements_to_state_vectors()")
         n = math.sqrt(mu / a ** 3)  # 12a: mean angular motion
@@ -540,7 +541,7 @@ class CurveSimBody:
         """Get initial position and velocity of the physical body self."""
         self.mu = CurveSimPhysics.gravitational_parameter(bodies, p.g)  # is the same for all bodies in the system, because they are orbiting a common barycenter
         if self.velocity is None:  # State vectors are not in config file. So they will be calculated from Kepler orbit parameters instead.
-            if debugging_statevector:
+            if debugging_statevector_variants:
                 print("State Vector Alternatives:")
                 self.debug_state_vector("vanilla", self.keplerian_elements_to_state_vector)
                 self.debug_state_vector("debug", self.keplerian_elements_to_state_vector_debug)

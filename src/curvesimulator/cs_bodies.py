@@ -51,8 +51,8 @@ class CurveSimBodies(list):
                                          ea=eval(config.get(section, "ea", fallback="None")),
                                          nu=eval(config.get(section, "nu", fallback="None")),
                                          T=eval(config.get(section, "T", fallback="None")),
-                                         t=(p.start_date - eval(config.get(section, "pot_transit_date", fallback="0.0"))) * 24 * 3600,
-                                         # t=eval(config.get(section, "t", fallback="None")),
+                                         # t=(p.start_date - eval(config.get(section, "pot_transit_date", fallback="0.0"))) * 24 * 3600,
+                                         t=eval(config.get(section, "t", fallback="0.0")),
                                          limb_darkening=eval(config.get(section, "limb_darkening", fallback="None")),
                                          color=tuple([eval(x) for x in config.get(section, "color", fallback="0, 1, 0").split(",")])))
         # Checking parameters of physical bodies
