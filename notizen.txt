@@ -1,13 +1,12 @@
 NEXT:
     t vs. T
-        Für welchen Zeitpunkt ermittle ich eigentlich gerade die state vectors? t=0 offenbar. Wo ist das in der Bahn? Periapsis?
-        T derzeit wirkungslos???
+        wiki: neue Seite Kepler Parameter
+            Parameter Namen, gaengige Bezeichner, von mir benutzter Bezeichner
+            Bildchen aus Excel
+            t: Optionales Zeitdelta, Default 0
 
     Einschraenkung in Konstruktor von CurveSimBody "if body_type == "planet"" ist wohl falsch.
     Ich will ja auch Sterne um Sterne kreisen lassen. Dann brauchen alle Koerper ausser dem Primaerstern Orbitparameter.
-
-    Orbit parameter input:
-        Exoplaneten-Paper und -Datenbanken studieren: Welche Bahnparameter werden angegeben? Welche muss ich berechnen? Welche einfach festlegen?
 
     Aus Kapitel 6.1 von Noras 3-Stern-System die Kepler-Parameter für TIC470710327_new.ini extrahieren.
     Video erzeugen, was hoffentlich dem ursprünglichen Video mit geschätzten Startpos/Startvelocity ähnelt.
@@ -64,7 +63,7 @@ VERSION 1.0.0 veroeffentlichen !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     How does an exomoon influence transit variation? Fun :)
 
-    ?Was ist mit zu berechnenden state_vectors von Körpern, die nicht eclipsen? Also auch Omega und nu nicht 270° haben?
+    ?Was ist mit zu berechnenden state_vectors von Körpern, die nicht eclipsen? Also auch Omega und nu nicht 0° haben?
 
     Model variable stars:
         Parameter für regelmäßige Helligkeitsänderungen: variation = [(amplitude, periode, phase(shift?))]
@@ -93,16 +92,6 @@ VERSION 1.0.0 veroeffentlichen !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         Alternative Berechnung fuer Startposition (state vector) aus Quelle [f] in keplerian_elements_to_state_vectors_debug_new liefert fuer Ω!=0 genau den gleichen Fehler wie die urspruengliche Berechnung!
         Alternative Berechnung fuer ea (eccentric anomaly) aus Quelle [f] in keplerian_elements_to_state_vectors_debug_new liefert fuer Ω!=0 genau den gleichen Fehler wie die urspruengliche Berechnung!
         Schoene Darstellung von Orbits abhaengig von Kepler-Parametern zum vergleichen: https://orbitalmechanics.info/
-
-        Beispielvideos zur Erklärung der Parameter machen (oder geogebra nutzen)
-            Folgende Erklaerungen sind vermutlich fehlerhaft.
-            Vergleiche mit https://orbitalmechanics.info/
-            Left (neue Topview):
-                ϖ (longitude of periapsis) 0° ist rechts von der Sonne, 90° hinter der Sonne
-            Right (neue Eclipseview):
-                Inclination 90°: Edgeview, 80°: Planet ist unterhalb und vor der Sonne, sowie oberhalb und hinter der Sonne.
-                Ω (Longitude of ascending node) 15°: Planet zieht von links unten nach rechts oben
-                    vor der Sonne mit einer Steigung von 15° gegenüber der Horizontalen vorbei
 
 
 Open items from zoom call 29.03.2022:

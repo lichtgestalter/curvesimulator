@@ -1,10 +1,11 @@
+import sys
 import math
 import numpy as np
 
 from curvesimulator.cs_physics import CurveSimPhysics
 
 debugging_statevector_variants = False
-debugging_kepler_parameters = True
+debugging_kepler_parameters = False
 debugging_eclipse = False
 
 # noinspection NonAsciiCharacters,PyPep8Naming,PyUnusedLocal
@@ -41,9 +42,8 @@ class CurveSimBody:
             self.nu = None if nu is None else math.radians(nu)  # [deg] true anomaly. Per definition = 270° at the time of an exoplanet's primary transit.
             self.T = T  # [s] Time of periapsis
             self.t = t  # [s] time since last time of transit
-            self.ma, self.ea = None, None  # [rad] Only true anomaly or mean_anomaly or eccentric_anomaly or time_of_periapsis has to be provided.
+            # self.ma, self.ea = None, None  # [rad] Only true anomaly or mean_anomaly or eccentric_anomaly or time_of_periapsis has to be provided.
             self.mu = None  # Gravitational Parameter. Depends on the masses of at least 2 bodies.
-            # self.limb_darkening = None  # unnecessary line of code?
 
         if body_type == "star":
             self.limb_darkening = limb_darkening
@@ -68,6 +68,22 @@ class CurveSimBody:
         return f'CurveSimBody: {self.name}'
 
     # noinspection NonAsciiCharacters,PyPep8Naming,PyUnusedLocal
+    @staticmethod
+    def calc_orbit_angles(ω, ϖ, Ω):
+        if ω is None:
+            ω = ϖ - Ω
+        elif ϖ is None:
+            ϖ = ω + Ω
+        elif Ω is None:
+            Ω = ϖ - ω
+        else:
+            if abs(ω - ϖ + Ω) > 0.00001:
+                print("ω, ϖ, Ω have been defined in the config file. This is redundant.")
+                print("Remove one of these parameters from the config file or")
+                print("make sure that ω - ϖ + Ω = 0")
+                sys.exit(3)
+        return ω, ϖ, Ω
+
     def keplerian_elements_to_state_vector_debug_new(self):
         """
         Version of keplerian_elements_to_state_vectors() using alternative formulas from source [f] instead of [b] for the initial position.
@@ -461,11 +477,10 @@ class CurveSimBody:
         a, e, i, Ω, ω, ϖ, L = self.a, self.e, self.i, self.Ω, self.ω, self.ϖ, self.L  # for readability of formulas
         ma, ea, nu, T, t, mu = self.ma, self.ea, self.nu, self.T, self.t, self.mu  # for readability of formulas
 
-        if ω is None and ϖ is not None and Ω is not None:
-            ω = ϖ - Ω
-            if debugging_kepler_parameters:
-                print("Variant 1: ω-  ϖ+  Ω+, calc ω")
-        if ma is None and L is not None and ϖ is not None:
+        ω, ϖ, Ω = CurveSimBody.calc_orbit_angles(ω, ϖ, Ω)
+        self.ω, self.ϖ, self.Ω = ω, ϖ, Ω
+
+        if ma is None and L is not None:
             ma = L - ϖ
             if debugging_kepler_parameters:
                 print("Variant 2: ma-  ϖ+  L+, calc ma")
@@ -487,17 +502,16 @@ class CurveSimBody:
                     if debugging_kepler_parameters:
                         print("Variant 5: ea-  nu-  ma+, calc ea nu")
                 else:  # nu, ea, ma not provided
-                    if T is not None:  # T provided
-                        n = math.sqrt(mu / a ** 3)  # 1b: Mean angular motion. Not needed in this function. (Except for ma, which is not needed.)
-                        ma = n * T  # 1b: Mean anomaly at time of periapsis (from angular motion).
-                        ea = CurveSimPhysics.kepler_equation_root(e, ma, ea_guess=ma)  # A good guess is important. With guess=0 the root finder very often does not converge.
-                        nu = 2 * math.atan(math.sqrt((1 + e) / (1 - e)) * math.tan(ea / 2))  # 3b: true anomaly (from eccentric anomaly)
-                        if debugging_kepler_parameters:
-                            print("Variant 6: ea-  nu-  ma-  T+, calc n ma ea nu")
-                    else:  # nu, ea, ma, T not provided
-                        if debugging_kepler_parameters:
-                            print("Variant 7: ea-  nu-  ma-  T-, ERROR")
-                        raise Exception("nu or ma or ea or T has to be provided to keplerian_elements_to_state_vectors()")
+                    if T is None:  # T not provided
+                        T = 0.0
+                        print("Variant 6: T missing, T set to default value 0.0")
+                    n = math.sqrt(mu / a ** 3)  # 1b: Mean angular motion. Not needed in this function. (Except for ma, which is not needed.)
+                    ma = n * T  # 1b: Mean anomaly at time of periapsis (from angular motion).
+                    ea = CurveSimPhysics.kepler_equation_root(e, ma, ea_guess=ma)  # A good guess is important. With guess=0 the root finder very often does not converge.
+                    nu = 2 * math.atan(math.sqrt((1 + e) / (1 - e)) * math.tan(ea / 2))  # 3b: true anomaly (from eccentric anomaly)
+                    if debugging_kepler_parameters:
+                        print("Variant 6: ea-  nu-  ma-  T+, calc n ma ea nu")
+
         n = math.sqrt(mu / a ** 3)  # 12a: mean angular motion
         T = ma / n  # Time of periapsis (from mean anomaly and angular motion). Just for completeness.
 
@@ -509,6 +523,7 @@ class CurveSimBody:
         # print(f' delayed: {math.degrees(nu) =   :4.0f}   {math.degrees(ma) =   :4.0f}   {math.degrees(ea) =   :4.0f}')
         # nu = nu % (2*math.pi)
         # print(f'@Transit: {math.degrees(nu) =   :4.0f}   {math.degrees(ma) =   :4.0f}   {math.degrees(ea) =   :4.0f}')
+
         r = a * (1 - e * math.cos(ea))  # 4b: radius r
         h = math.sqrt(mu * a * (1 - e ** 2))  # 5b: specific angular momentum h
         x = r * (math.cos(Ω) * math.cos(ω + nu) - math.sin(Ω) * math.sin(ω + nu) * math.cos(i))  # 6b: position component x

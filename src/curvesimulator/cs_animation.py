@@ -100,20 +100,20 @@ class CurveSimAnimation:
 
         return fig, ax_right, ax_left, ax_lightcurve, red_dot
 
-    @staticmethod
-    def next_frame_old(frame, p, bodies, red_dot, lightcurve):
-        """Update patches. Send new circle positions to animation function.
-        First parameter comes from iterator frames (a parameter of FuncAnimation).
-        The other parameters are given to this function via the parameter fargs of FuncAnimation."""
-        for body in bodies:  # left view: projection (x,y,z) -> (x,z), order = -y (y-axis points away from viewer)
-            body.circle_left.set(zorder=-body.positions[frame * p.sampling_rate][1])
-            body.circle_left.center = body.positions[frame * p.sampling_rate][0] / p.scope_left, body.positions[frame * p.sampling_rate][2] / p.scope_left
-        for body in bodies:  # right view: projection (x,y,z) -> (x,-y), order = -z (z-axis points away from viewer)
-            body.circle_right.set(zorder=-body.positions[frame * p.sampling_rate][2])
-            body.circle_right.center = body.positions[frame * p.sampling_rate][0] / p.scope_right, -body.positions[frame * p.sampling_rate][1] / p.scope_right
-        red_dot.center = p.dt * p.sampling_rate * frame / spd, lightcurve[frame * p.sampling_rate]
-        if frame >= 10 and frame % int(round(p.frames / 10)) == 0:  # Inform user about program's progress.
-            print(f'{round(frame / p.frames * 10) * 10:3d}% ', end="")
+    # @staticmethod
+    # def next_frame_old(frame, p, bodies, red_dot, lightcurve):
+    #     """Update patches. Send new circle positions to animation function.
+    #     First parameter comes from iterator frames (a parameter of FuncAnimation).
+    #     The other parameters are given to this function via the parameter fargs of FuncAnimation."""
+    #     for body in bodies:  # left view: projection (x,y,z) -> (x,z), order = -y (y-axis points away from viewer)
+    #         body.circle_left.set(zorder=-body.positions[frame * p.sampling_rate][1])
+    #         body.circle_left.center = body.positions[frame * p.sampling_rate][0] / p.scope_left, body.positions[frame * p.sampling_rate][2] / p.scope_left
+    #     for body in bodies:  # right view: projection (x,y,z) -> (x,-y), order = -z (z-axis points away from viewer)
+    #         body.circle_right.set(zorder=-body.positions[frame * p.sampling_rate][2])
+    #         body.circle_right.center = body.positions[frame * p.sampling_rate][0] / p.scope_right, -body.positions[frame * p.sampling_rate][1] / p.scope_right
+    #     red_dot.center = p.dt * p.sampling_rate * frame / spd, lightcurve[frame * p.sampling_rate]
+    #     if frame >= 10 and frame % int(round(p.frames / 10)) == 0:  # Inform user about program's progress.
+    #         print(f'{round(frame / p.frames * 10) * 10:3d}% ', end="")
 
     @staticmethod
     def next_frame(frame, p, bodies, red_dot, lightcurve):
@@ -130,12 +130,32 @@ class CurveSimAnimation:
         if frame >= 10 and frame % int(round(p.frames / 10)) == 0:  # Inform user about program's progress.
             print(f'{round(frame / p.frames * 10) * 10:3d}% ', end="")
 
+    # def render(self, p, bodies, lightcurve):
+    #     """Calls next_frame() for each frame and saves the video."""
+    #     print(f'Animating {p.frames:8d} frames:     ', end="")
+    #     tic = time.perf_counter()
+    #     anim = matplotlib.animation.FuncAnimation(self.fig, CurveSimAnimation.next_frame, fargs=(p, bodies, self.red_dot, lightcurve), interval=1000 / p.fps, frames=p.frames, blit=False)
+    #     anim.save(p.video_file, fps=p.fps, metadata={"title": " "}, extra_args=['-vcodec', 'libx264'])  # https://www.ffmpeg.org/libavcodec.html
+    #     toc = time.perf_counter()
+    #     print(f' {toc - tic:7.2f} seconds  ({p.frames / (toc - tic):.0f} frames/second)')
+    #     print(f'{p.video_file} saved.')
+
     def render(self, p, bodies, lightcurve):
         """Calls next_frame() for each frame and saves the video."""
         print(f'Animating {p.frames:8d} frames:     ', end="")
         tic = time.perf_counter()
         anim = matplotlib.animation.FuncAnimation(self.fig, CurveSimAnimation.next_frame, fargs=(p, bodies, self.red_dot, lightcurve), interval=1000 / p.fps, frames=p.frames, blit=False)
-        anim.save(p.video_file, fps=p.fps, metadata={"title": " "}, extra_args=['-vcodec', 'libx264'])  # https://www.ffmpeg.org/libavcodec.html
+        anim.save(
+            p.video_file,
+            fps=p.fps,
+            metadata={"title": " "},
+            extra_args=[
+                '-vcodec', 'libx264',
+                '-crf', '18',  # Constant Rate Factor (lower value means better quality)
+                '-preset', 'slow',  # Preset for better compression
+                '-b:v', '30000k'  # Bitrate (increase as needed)
+            ]
+        )
         toc = time.perf_counter()
         print(f' {toc - tic:7.2f} seconds  ({p.frames / (toc - tic):.0f} frames/second)')
         print(f'{p.video_file} saved.')

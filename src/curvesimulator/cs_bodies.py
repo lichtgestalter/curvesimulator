@@ -36,7 +36,6 @@ class CurveSimBodies(list):
                                          body_type=config.get(section, "body_type", fallback=None),
                                          mass=eval(config.get(section, "mass", fallback="None")),
                                          radius=eval(config.get(section, "radius", fallback="None")),
-                                         # pot_transit_date=eval(config.get(section, "pot_transit_date", fallback="0.0")),
                                          luminosity=eval(config.get(section, "luminosity", fallback="0.0")),
                                          startposition=config.get(section, "startposition", fallback=None),
                                          velocity=config.get(section, "velocity", fallback=None),
@@ -51,7 +50,6 @@ class CurveSimBodies(list):
                                          ea=eval(config.get(section, "ea", fallback="None")),
                                          nu=eval(config.get(section, "nu", fallback="None")),
                                          T=eval(config.get(section, "T", fallback="None")),
-                                         # t=(p.start_date - eval(config.get(section, "pot_transit_date", fallback="0.0"))) * 24 * 3600,
                                          t=eval(config.get(section, "t", fallback="0.0")),
                                          limb_darkening=eval(config.get(section, "limb_darkening", fallback="None")),
                                          color=tuple([eval(x) for x in config.get(section, "color", fallback="0, 1, 0").split(",")])))
