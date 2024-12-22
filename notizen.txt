@@ -1,25 +1,36 @@
 NEXT:
-    t vs. T
-        wiki: neue Seite Kepler Parameter
-            Parameter Namen, gaengige Bezeichner, von mir benutzter Bezeichner
-            Bildchen aus Excel
-            t: Optionales Zeitdelta, Default 0
+    2.14
+    Fuck!
+        Durch neue Projektion kippt der Orbit bei e != 90 Grad jetzt zur Seite.
+        Ich muss die Projektion wieder aendern.
+        Danach muss ich alle Zeichnungen ueber Einfluss der Parameter anpassen :(
 
+
+
+    Wiki aktualisieren.
+        Parameter
+        Configfile
+        Warum CurveSimulator benutzen? (Auf die Startseite oder eigene Seite?)
+
+    2.15
     Einschraenkung in Konstruktor von CurveSimBody "if body_type == "planet"" ist wohl falsch.
     Ich will ja auch Sterne um Sterne kreisen lassen. Dann brauchen alle Koerper ausser dem Primaerstern Orbitparameter.
+
+    Unser Sonnensystem visualisieren
 
     Aus Kapitel 6.1 von Noras 3-Stern-System die Kepler-Parameter für TIC470710327_new.ini extrahieren.
     Video erzeugen, was hoffentlich dem ursprünglichen Video mit geschätzten Startpos/Startvelocity ähnelt.
 
+    Sternsysteme aus weiteren Papern visualisieren.
+
     Beispielvideos erstellen und (auf youtube?) veröffentlichen.
     Im Wiki die Videos verlinken.
-    Wiki aktualisieren. Insbesondere Configfile.
 
 VERSION 1.0.0 veroeffentlichen !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     PR:
         Bekannte:
-            Nora Eisner
+            https://www.noraeisner.com/
             Aiden
 
         Universitäten:
