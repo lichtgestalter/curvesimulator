@@ -1,18 +1,18 @@
 NEXT:
-    2.14
+    2.15
     Fuck!
         Durch neue Projektion kippt der Orbit bei e != 90 Grad jetzt zur Seite.
         Ich muss die Projektion wieder aendern.
         Danach muss ich alle Zeichnungen ueber Einfluss der Parameter anpassen :(
 
-
+    Kann die Lightcurve alle Datenpunkte anzeigen statt nur die fuer die Animation gesampelten?
 
     Wiki aktualisieren.
         Parameter
         Configfile
         Warum CurveSimulator benutzen? (Auf die Startseite oder eigene Seite?)
 
-    2.15
+    2.16
     Einschraenkung in Konstruktor von CurveSimBody "if body_type == "planet"" ist wohl falsch.
     Ich will ja auch Sterne um Sterne kreisen lassen. Dann brauchen alle Koerper ausser dem Primaerstern Orbitparameter.
 
