@@ -1,18 +1,49 @@
 NEXT:
-    2.15
+    0.2.15 New projection
         Alle Zeichnungen ueber Einfluss der Parameter anpassen
 
-    2.16
+    0.2.16 More data in lightcurve
         Kann die Lightcurve alle Datenpunkte anzeigen statt nur die fuer die Animation gesampelten?
 
-    Wiki aktualisieren.
-        Parameter
-        Configfile
-        Warum CurveSimulator benutzen? (Auf die Startseite oder eigene Seite?)
+    0.2.17 Frames / Iterations per Orbit
+        Ausrechnen, wie viele Frames / Iterations ein Orbit sind.
+        Dann kann man leichter Videos machen, die in Endlosschleife abgespielt huebsch aussehen.
 
-    2.17
-    Einschraenkung in Konstruktor von CurveSimBody "if body_type == "planet"" ist wohl falsch.
-    Ich will ja auch Sterne um Sterne kreisen lassen. Dann brauchen alle Koerper ausser dem Primaerstern Orbitparameter.
+    0.2.18 Primary star's initial velocity
+    Primaerer Stern startet mit v=(0,0,0)! Unzulaessige Vereinfachung!
+        Loesung:
+            Zuerst mit v=(0,0,0) den initialen State Vector des sekuendaeren Sterns bzw. Planetens berechnen.
+            Aus dem State Vector des sekuendaeren Sterns den State Vector des primaeren Sterns errechnen.
+            perplexity Anfrage:
+                2 Body Problem. A planet orbits a star. I know the state vector of the planet, the position of
+                the star and the masses of star and planet. How to calculate the state vector of the star?
+            perplexity Antwort:
+                v_star = - mass_planet / mass_star * v_planet
+            perplexity Anfrage:
+                Excellent. How to calculate the star's velocity if there are several planets orbiting this star?
+                (I know the state vectors and masses of all planets.)
+            perplexity Antwort:
+                Step-by-Step Procedure
+                    Multiply each planet's mass by its velocity vector.
+                    Sum up all these mass-velocity products.
+                    Divide the resulting sum by the negative of the star's mass.
+                    The result will be the velocity vector of the star, accounting for the influence of all orbiting planets.
+
+    0.2.19 Orbit parameter for stars
+        Einschraenkung in Konstruktor von CurveSimBody "if body_type == "planet"" ist wohl falsch.
+        Ich will ja auch Sterne um Sterne kreisen lassen. Dann brauchen alle Koerper ausser dem Primaerstern Orbitparameter.
+
+
+    Wiki aktualisieren.
+        Ergaenzungen auf "Orbital Elements"?
+        Auf neue Seite "Orbital Elements" querverweisen.
+        Configfile updaten
+        Warum eigentlich CurveSimulator benutzen? (Auf die Startseite oder eigene Seite?)
+        Erklaeren in "How CurveSimulator works" oder vielleicht auch nur im Beispiel-Config-File:
+            Es gibt 1 primary star. Der startet in pos = (0,0,0).
+            Seine Startgeschwindigkeit wird aus den Startgeschwindigkeiten der
+            orbiting bodies (und den Massen aller bodies) errechnet.
+
 
     Unser Sonnensystem visualisieren
 
@@ -21,10 +52,30 @@ NEXT:
 
     Sternsysteme aus weiteren Papern visualisieren.
 
-    Beispielvideos erstellen und (auf youtube?) veröffentlichen.
+    Beispielvideos erstellen und (auf youtube? eher vimeo wg. Bildqualitaet) veröffentlichen.
     Im Wiki die Videos verlinken.
 
+
 VERSION 1.0.0 veroeffentlichen !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    Fragen an Akademiker:
+        How do I get my project used by others?
+            Publish as a paper?
+            How do I get my project published as a paper?
+        Where do astronomers gather? Is https://astronomy.stackexchange.com/ the best place to ask questions?
+        Is there a community of astronomers specialized in exoplanets that would be welcoming to a dabbling layman like me?
+        How do I reliably find out about new papers with interesting star systems? Searching on "arxiv.org"? Or is there a better way?
+
+        Is the "Transit Impact parameter" usually (more or less) the same for each
+        planet-star-eclipse or does it change from one orbit to the next?
+
+        How to model sun spots?
+            Nora said (in episode 37, at 12:00): Spots move away from the center. Why?
+            Nora said (in episode 37, at 14:00): Peaks in frequency spectrum are integer multiples of peak with highest power. (harmonics) Why?
+            Is it sufficient to just model the lowest frequency? How big is the part I would miss?
+        How to model pulsations and the like (sine curve)?
+            Nora said (in episode 37, at 15:30): Peaks in frequency spectrum are random.
+        Should flares be modeled or are they too unpredictable?
 
     PR:
         Bekannte:
@@ -56,6 +107,13 @@ VERSION 1.0.0 veroeffentlichen !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             https://www.reddit.com/r/space/
 
 
+    Praezise Fehlermeldungen fuer jeden einzelnen fehlenden/falschen Parameter im Configfile
+
+    Radial velocity:
+        Extraplot im Video oder als PNG-file speichern: Lightcurve und die Geschwindigkeit in Beobachterrichtung (y-Achse) für jeden Stern.
+        Plot radial velocity (movement of star to/from viewer). Provides a check if the simulation is realistic.
+        Farbe des Sterns abhängig von RV varieren?
+
     Orbit parameter output:
         Nach Berechnung aller Positionen die Bahndaten auswerten, in eine Datenstruktur und dann in ein JSON-File schreiben:
             Transit times:
@@ -71,8 +129,7 @@ VERSION 1.0.0 veroeffentlichen !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             (((Datenhaltung? [stars] x [bodies] x [aktueller Zustand, [(Ereignis, timestamp)])))
 
     How does an exomoon influence transit variation? Fun :)
-
-    ?Was ist mit zu berechnenden state_vectors von Körpern, die nicht eclipsen? Also auch Omega und nu nicht 0° haben?
+    But how can I provide meaningful orbit parameters for a moon?
 
     Model variable stars:
         Parameter für regelmäßige Helligkeitsänderungen: variation = [(amplitude, periode, phase(shift?))]
@@ -83,12 +140,13 @@ VERSION 1.0.0 veroeffentlichen !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         Handle them correctly
         Example systems: https://arxiv.org/pdf/2204.02539.pdf
 
-    Radial velocity:
-        Extraplot im Video oder als PNG-file speichern: Lightcurve und die Geschwindigkeit in Beobachterrichtung (y-Achse) für jeden Stern.
-        Plot radial velocity (movement of star to/from viewer). Provides a check if the simulation is realistic.
-        Farbe des Sterns abhängig von RV varieren?
 
-    Praezise Fehlermeldungen fuer jeden einzelnen fehlenden/falschen Parameter im Configfile
+
+####################################################
+
+I implemented all suggestions from zoom call 29.03.2022, but tried and dismissed using astronomical constants and units from astropy because 100 times slower.
+
+########################################
 
     Debugging State Vector Calculation:
         Fuer nichttriviale Orbits (z.B. i=90, ϖ=0, aber Ω!=0) liegt die Ellipse anders als in https://orbitalmechanics.info/ (oder auch Geogebra?) !!!
@@ -101,35 +159,6 @@ VERSION 1.0.0 veroeffentlichen !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         Alternative Berechnung fuer Startposition (state vector) aus Quelle [f] in keplerian_elements_to_state_vectors_debug_new liefert fuer Ω!=0 genau den gleichen Fehler wie die urspruengliche Berechnung!
         Alternative Berechnung fuer ea (eccentric anomaly) aus Quelle [f] in keplerian_elements_to_state_vectors_debug_new liefert fuer Ω!=0 genau den gleichen Fehler wie die urspruengliche Berechnung!
         Schoene Darstellung von Orbits abhaengig von Kepler-Parametern zum vergleichen: https://orbitalmechanics.info/
-
-
-Open items from zoom call 29.03.2022:
-    Done: light curve x-axis has now days or other sensible unit (can be configured)
-    Done: light curve y-axis now in normalized Flux
-    Done: formula for eclipsed area now much more precise. All light curve dips are now plausible.
-    Tried and dismissed because 100 times slower: astronomical constants and units from astropy.
-    Done: limb darkening implemented. Source for approximation formula?
-
-Questions for next zoom call:
-
-    Is the "Transit Impact parameter" usually (more or less) the same for each planet-star-eclipse or does it change from one orbit to the next?
-    I implemented a very feasible approximation formula for limb darkening but I found it only on a German wikipedia page and nowhere else.
-        https://de.wikipedia.org/wiki/Photosph%C3%A4re#Mitte-Rand-Verdunkelung
-        Have you seen this formula and know where it comes from?
-        Should I rather use the better known version (with 2 parameters)?
-    How to model sun spots?
-        Nora said (in episode 37, at 12:00): Spots move away from the center. Why?
-        Nora said (in episode 37, at 14:00): Peaks in frequency spectrum are integer multiples of peak with highest power. (harmonics) Why?
-        Is it sufficient to just model the lowest frequency? How big is the part I would miss?
-    How to model pulsations and the like (sine curve)?
-        Nora said (in episode 37, at 15:30): Peaks in frequency spectrum are random.
-    Should flares be modeled or are they too unpredictable?
-    How do I reliably find out about new papers with interesting star systems? Searching on "arxiv.org"? Or is there a better way?
-
-    How do I get my project used by others?
-        Publish as a paper?
-            How do I get my project published as a paper?
-                Find a prof?
-    Where do astronomers gather? Is https://astronomy.stackexchange.com/ the best place to ask questions?
-    Is there a community of astronomers specialized in exoplanets that would be welcoming to a dabbling layman like me?
-
+        LOESUNG:
+            2 der 3 Parameter ω, ϖ, Ω muessen bekannt sein. Der dritte wird aus den anderen beiden mit ω = ϖ - Ω berechnet.
+            Wenn man Ω = ϖ setzt (und folglich ω=0), verhaelt sich der Orbit bei Aenderungen von Ω korrekt.
