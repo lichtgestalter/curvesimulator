@@ -25,6 +25,9 @@ def main():
     print(parameters)
     print(bodies)
     print(lightcurve)
+    # for i in range(0, len(bodies[1].positions), 182):
+    #     print(f"{i:4}: z:{bodies[1].positions[i][2]:12.0f}  x:{bodies[1].positions[i][0]:12.0f}")
+
 
 if __name__ == '__main__':
     main()
