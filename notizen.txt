@@ -1,7 +1,4 @@
 NEXT:
-    0.2.15
-    Debug-Code entfernen/auslagern
-
     0.2.16 More data in lightcurve
         Kann die Lightcurve mehr/alle Datenpunkte anzeigen statt nur die fuer die Animation gesampelten?
 
@@ -170,3 +167,5 @@ I implemented all suggestions from zoom call 29.03.2022, but tried and dismissed
 
      0.2.15
         Text "CurveSimulator" in Video einbauen
+        Debug-Code entfernen/auslagern
+    0.2.16
