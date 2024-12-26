@@ -1,6 +1,5 @@
 NEXT:
     0.2.15
-    Text "CurveSimulator" in Video einbauen
     Debug-Code entfernen/auslagern
 
     0.2.16 More data in lightcurve
@@ -164,3 +163,10 @@ I implemented all suggestions from zoom call 29.03.2022, but tried and dismissed
         LOESUNG:
             2 der 3 Parameter ω, ϖ, Ω muessen bekannt sein. Der dritte wird aus den anderen beiden mit ω = ϖ - Ω berechnet.
             Wenn man Ω = ϖ setzt (und folglich ω=0), verhaelt sich der Orbit bei Aenderungen von Ω korrekt.
+
+ #######################
+
+ CHANGELOG
+
+     0.2.15
+        Text "CurveSimulator" in Video einbauen
