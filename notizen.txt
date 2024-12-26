@@ -1,54 +1,57 @@
 NEXT:
-    0.2.15 New projection, documentation
-    Wiki aktualisieren.
-        Getting Started auf Home-Page: AI Vorschlag einarbeiten.
-        Configfile updaten
-        Formulierungen von AI verbessern lassen.
-            Take a look at this introductory text on the home page of a wiki about a python library, written in mark-up language. Improve the language, for example by removing spelling errors and making the formulations more elegant.
-
+    0.2.15
+    Text "CurveSimulator" in Video einbauen
+    Debug-Code entfernen/auslagern
 
     0.2.16 More data in lightcurve
-        Kann die Lightcurve alle Datenpunkte anzeigen statt nur die fuer die Animation gesampelten?
+        Kann die Lightcurve mehr/alle Datenpunkte anzeigen statt nur die fuer die Animation gesampelten?
 
     0.2.17 Frames / Iterations per Orbit
         Ausrechnen, wie viele Frames / Iterations ein Orbit sind.
+        Use Kepler's Third Law to calculate Period P. #frames = P/(dt*sampling_rate)
         Dann kann man leichter Videos machen, die in Endlosschleife abgespielt huebsch aussehen.
 
-    0.2.18 Primary star's initial velocity
+    0.2.18 Input von P statt a zulassen. Dann a mit Kepler's 3rd Law ausrechnen.
+
+    0.2.19 Primary star's initial velocity
     Primaerer Stern startet mit v=(0,0,0)! Unzulaessige Vereinfachung!
+    Parameter velocity und startposition fuer den ersten Stern aus dem Beispielconfigfile entfernen.
         Loesung:
             Zuerst mit v=(0,0,0) den initialen State Vector des sekuendaeren Sterns bzw. Planetens berechnen.
             Aus dem State Vector des sekuendaeren Sterns den State Vector des primaeren Sterns errechnen.
-            perplexity Anfrage:
-                2 Body Problem. A planet orbits a star. I know the state vector of the planet, the position of
-                the star and the masses of star and planet. How to calculate the state vector of the star?
-            perplexity Antwort:
-                v_star = - mass_planet / mass_star * v_planet
-            perplexity Anfrage:
-                Excellent. How to calculate the star's velocity if there are several planets orbiting this star?
-                (I know the state vectors and masses of all planets.)
-            perplexity Antwort:
-                Step-by-Step Procedure
-                    Multiply each planet's mass by its velocity vector.
-                    Sum up all these mass-velocity products.
-                    Divide the resulting sum by the negative of the star's mass.
-                    The result will be the velocity vector of the star, accounting for the influence of all orbiting planets.
+                Multiply each planet's mass by its velocity vector.
+                Sum up all these mass-velocity products.
+                Divide the resulting sum by the negative of the star's mass.
+                The result will be the velocity vector of the star, accounting for the influence of all orbiting planets.
 
-    0.2.19 Orbit parameter for stars
+    0.2.20 Orbit parameter for stars
         Einschraenkung in Konstruktor von CurveSimBody "if body_type == "planet"" ist wohl falsch.
         Ich will ja auch Sterne um Sterne kreisen lassen. Dann brauchen alle Koerper ausser dem Primaerstern Orbitparameter.
 
 
-    Unser Sonnensystem visualisieren
+    0.2.21 Configfile errorproof
+        Configfile genau auf Korrektheit checken
+        Debug Section soll rein optional sein.
+        Praezise Fehlermeldungen fuer jeden einzelnen fehlenden/falschen Parameter im Configfile
+        Kluge Fehlermeldungen
+        Warnung bei redundanten Orbitparametern und Hinweis, welche der Parameter tatsaechlich verwendet wurden.
 
-    Aus Kapitel 6.1 von Noras 3-Stern-System die Kepler-Parameter für TIC470710327_new.ini extrahieren.
-    Video erzeugen, was hoffentlich dem ursprünglichen Video mit geschätzten Startpos/Startvelocity ähnelt.
+    0.2.22  Beispielvideos
+        Videos erstellen und (auf youtube? eher vimeo wg. Bildqualitaet) veröffentlichen.
 
-    Sternsysteme aus weiteren Papern visualisieren.
+            Unser Sonnensystem visualisieren
 
-    Beispielvideos erstellen und (auf youtube? eher vimeo wg. Bildqualitaet) veröffentlichen.
-    Im Wiki die Videos verlinken.
+            Aus Kapitel 6.1 von Noras 3-Stern-System die Kepler-Parameter für TIC470710327_new.ini extrahieren.
+            Video erzeugen, was hoffentlich dem ursprünglichen Video mit geschätzten Startpos/Startvelocity ähnelt.
 
+            Sternsysteme aus weiteren Papern visualisieren.
+
+    0.2.23  Wiki aktualisieren.
+        Im Wiki die Videos verlinken.
+        Configfile updaten
+        Formulierungen von AI verbessern lassen.
+            Take a look at this text on a page of a wiki about a python library. The text is written in mark-up language.
+            Improve the language, for example by removing spelling errors and making the formulations more elegant: ""
 
 VERSION 1.0.0 veroeffentlichen !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -75,6 +78,7 @@ VERSION 1.0.0 veroeffentlichen !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         Bekannte:
             https://www.noraeisner.com/
             Aiden
+            Brian
 
         Universitäten:
             https://nbi.ku.dk/english/research/astrophysics/exoplanets/
@@ -101,7 +105,11 @@ VERSION 1.0.0 veroeffentlichen !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             https://www.reddit.com/r/space/
 
 
-    Praezise Fehlermeldungen fuer jeden einzelnen fehlenden/falschen Parameter im Configfile
+    Um Hinweis auf CurveSimulator(-Paper) bei Veroeffentlichungen bitten
+        Im GitHubWiki
+        Print in Konsole
+        Im JSON File
+        Copyright notice ins Video?
 
     Radial velocity:
         Extraplot im Video oder als PNG-file speichern: Lightcurve und die Geschwindigkeit in Beobachterrichtung (y-Achse) für jeden Stern.
