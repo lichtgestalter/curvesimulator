@@ -1,11 +1,4 @@
 NEXT:
-    0.2.17 Frames / iterations per Orbit
-        Ausrechnen, wie viele Frames / Iterations ein Orbit sind.
-        Use Kepler's Third Law to calculate Period P. #frames = P/(dt*sampling_rate)
-        Dann kann man leichter Videos machen, die in Endlosschleife abgespielt huebsch aussehen.
-
-    0.2.18 Input von P statt a zulassen. Dann a mit Kepler's 3rd Law ausrechnen.
-
     0.2.19 Primary star's initial velocity
     Primaerer Stern startet mit v=(0,0,0)! Unzulaessige Vereinfachung!
     Parameter velocity und startposition fuer den ersten Stern aus dem Beispielconfigfile entfernen.
@@ -23,6 +16,8 @@ NEXT:
 
 
     0.2.21 Configfile errorproof
+        Abstuerze verhindern
+            Config file enthaelt genau einen body
         Configfile genau auf Korrektheit checken
         Debug Section soll rein optional sein.
         Praezise Fehlermeldungen fuer jeden einzelnen fehlenden/falschen Parameter im Configfile
@@ -113,19 +108,18 @@ VERSION 1.0.0 veroeffentlichen !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         Plot radial velocity (movement of star to/from viewer). Provides a check if the simulation is realistic.
         Farbe des Sterns abhängig von RV varieren?
 
-    Orbit parameter output:
-        Nach Berechnung aller Positionen die Bahndaten auswerten, in eine Datenstruktur und dann in ein JSON-File schreiben:
-            Transit times:
-                T1, T2, TT, T3, T4, T14
-                Auch fuer secondary eclipses (Sonne verdeckt Planet)
-                TT (Time of Transit): The time of minimum projected separation between the star and planet, as seen by the observer
-                b (Transit Impact parameter): minimum projected separation at the time of transit, in stellar radii
-                bS (Eclipse impact parameter): minimum projected separation at the time of secondary occultation, in stellar radii
-            Transit depths
-            Track transit variations (changes in orbiting period).
-            max/min of x, y, z position?
-            Kepler-Orbit-Parameter (aus den simulierten Positionen errechnen?)
-            (((Datenhaltung? [stars] x [bodies] x [aktueller Zustand, [(Ereignis, timestamp)])))
+    Orbit parameter output (in JSON-File?):
+        Alle Programmparameter (inklusive Erlaeuterungen?)
+        Alle Body-Parameter (inklusive Erlaeuterungen?)
+        Transit times:
+            T1, T2, TT, T3, T4, T14
+            Auch fuer secondary eclipses (Sonne verdeckt Planet)
+            TT (Time of Transit): The time of minimum projected separation between the star and planet, as seen by the observer
+            b (Transit Impact parameter): minimum projected separation at the time of transit, in stellar radii
+            bS (Eclipse impact parameter): minimum projected separation at the time of secondary occultation, in stellar radii
+        Transit depths
+        Track transit variations (changes in orbiting period).
+        max/min of x, y, z position?
 
     How does an exomoon influence transit variation? Fun :)
     But how can I provide meaningful orbit parameters for a moon?
@@ -171,4 +165,7 @@ I implemented all suggestions from zoom call 29.03.2022, but tried and dismissed
         Debugging-Code (especially for state vector calculation) moved to backup files in folder "debug"
     0.2.16
         Lightcurve in video now contains all data
-
+    0.2.17
+        Calculates for each body how many video frames are needed to complete one orbit
+    0.2.18
+        Using Kepler's Third Law, calculates Period P from semi-major axis a and vice versa.

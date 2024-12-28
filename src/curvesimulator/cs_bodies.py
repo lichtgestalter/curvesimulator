@@ -26,12 +26,13 @@ class CurveSimBodies(list):
         config = configparser.ConfigParser(inline_comment_prefixes='#')
         config.optionxform = str  # Preserve case of the keys.
         config.read(p.configfilename)  # Read config file. (This time the physical objects.)
-        super().__init__()  # create object by calling the constructor of class list
 
         # Physical bodies
+        # super().__init__()  # unnecessary because self automatically becomes an empty list at the beginning of this method
         for section in config.sections():
             if section not in p.standard_sections:  # section describes a physical object
                 self.append(CurveSimBody(p=p,
+                                         primary=len(self) == 0,
                                          name=section,
                                          body_type=config.get(section, "body_type", fallback=None),
                                          mass=eval(config.get(section, "mass", fallback="None")),
@@ -73,7 +74,7 @@ class CurveSimBodies(list):
                 body.L = debug_L/180.0 * math.pi
             body.calc_state_vector(p, self)
             body.frames_per_orbit = body.calc_frames_per_orbit(p)
-            print(f"{body.name=}   {body.P=}    {p.dt=}   {p.sampling_rate=}   {p.frames=}   {body.frames_per_orbit=}")
+        self.calc_primary_body_initial_velocity()
         self.generate_patches(p)
 
     def __repr__(self):
@@ -81,6 +82,10 @@ class CurveSimBodies(list):
         for body in self:
             names += body.name + ", "
         return names[:-2]
+
+    def calc_primary_body_initial_velocity(self):
+        for body in self[1:]:
+            print("calc_primary_body_initial_velocity", body.name)
 
     def total_luminosity(self, stars, iteration):
         """"Add luminosity of all stars in the system while checking for eclipses.

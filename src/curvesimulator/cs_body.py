@@ -10,7 +10,7 @@ debugging_eclipse = False
 # noinspection NonAsciiCharacters,PyPep8Naming,PyUnusedLocal
 class CurveSimBody:
 
-    def __init__(self, p, name, body_type, mass, radius, luminosity, startposition, velocity, P, a, e, i, Ω, ω, ϖ, L, ma, ea,
+    def __init__(self, primary, p, name, body_type, mass, radius, luminosity, startposition, velocity, P, a, e, i, Ω, ω, ϖ, L, ma, ea,
                  # pot_transit_date,
                  nu, T, t, limb_darkening, color):
         """Initialize instance of physical body."""
@@ -27,7 +27,6 @@ class CurveSimBody:
         self.brightness = luminosity / self.area_2d  # luminosity per (apparent) area [W/m**2]
         self.positions = np.zeros((p.iterations, 3), dtype=float)  # position for each frame
         self.color = color  # (R, G, B)  each between 0 and 1
-
         self.P = P  # [s] period
 
         if body_type == "planet":
@@ -50,7 +49,7 @@ class CurveSimBody:
             self.limb_darkening = limb_darkening
             self.mean_intensity = CurveSimPhysics.mean_intensity(limb_darkening)
 
-        if startposition is not None and velocity is not None:  # State vectors are already in config file.
+        if not primary and startposition is not None and velocity is not None:  # State vectors are already in config file.
             pos = []
             for x in startposition.split(","):
                 pos.append(eval(x))
@@ -59,6 +58,9 @@ class CurveSimBody:
                 vel.append(eval(x))
             self.positions[0] = np.array(pos, dtype=float)  # [m] initial position
             self.velocity = np.array(vel, dtype=float)  # [m/s]
+        elif primary:
+            self.positions[0] = np.array([0.0, 0.0, 0.0], dtype=float)  # [m] initial position
+            self.velocity = np.array([0.0, 0.0, 0.0], dtype=float)  # [m/s] initial velocity will be updated after all other state vectors have been calculated.
         else:  # State vectors are not in config file. They will be calculated from Kepler orbit parameters later on after all bodies are initialized.
             self.velocity = None
 
@@ -87,18 +89,14 @@ class CurveSimBody:
                 sys.exit(3)
 
     def calc_period_or_semi_major_axis(self):
-        print(f"relative_error a, P = {self.P / (2 * math.pi * math.sqrt(self.a ** 3 / self.mu)) - 1}")
         if self.a is None and self.P is None:
             print(f"ERROR in config file, body {self.name}:")
             print("semi-major axis a or Period P have to be specified in config file.")
             sys.exit(4)
         elif self.P is None:
             self.P = 2 * math.pi * math.sqrt(self.a ** 3 / self.mu)
-            # print(f"{self.a=} meters ->  {self.P} seconds = {self.P / (24 * 3600)} days")
         elif self.a is None:
             self.a = ((self.mu * self.P ** 2) / (4 * math.pi ** 2)) ** (1/3)
-            # au = 1.495978707e11
-            # print(f"{self.P=} seconds = {self.P / (24 * 3600)} days  ->  {self.a=} meters = {self.a/au} AU")
         else:
             relative_error = self.P / (2 * math.pi * math.sqrt(self.a ** 3 / self.mu)) - 1
             if relative_error > 0.001:
@@ -243,5 +241,8 @@ class CurveSimBody:
             return 0.0, 0.0
 
     def calc_frames_per_orbit(self, p):
+        """Calculates for each body how many video frames are needed to complete one orbit.
+           ffmpeg (or the video display program?) tends to omit the last few frames.
+           Therefore add a handful of extra frames."""
         if self.P is not None:
             return self.P / (p.dt * p.sampling_rate)
