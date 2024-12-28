@@ -84,11 +84,16 @@ class CurveSimBodies(list):
         return names[:-2]
 
     def calc_primary_body_initial_velocity(self):
+        """Calculates the initial velocity of the primary body in the star system
+            from the masses and initial velocities of all other bodies.
+            The calculation is based on the principles of conservation of momentum
+            and the center of mass motion"""
         for body in self[1:]:
-            print("calc_primary_body_initial_velocity", body.name)
+            self[0].velocity += body.velocity * body.mass
+        self[0].velocity /= - self[0].mass
 
     def total_luminosity(self, stars, iteration):
-        """"Add luminosity of all stars in the system while checking for eclipses.
+        """Add luminosity of all stars in the system while checking for eclipses.
         Does not yet work correctly for eclipsed eclipses (three or more bodies in line of sight at the same time)."""
         luminosity = 0.0
         for star in stars:

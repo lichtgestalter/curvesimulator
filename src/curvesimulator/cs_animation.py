@@ -115,7 +115,6 @@ class CurveSimAnimation:
         ax_lightcurve, red_dot = CurveSimAnimation.init_lightcurve_plot(lightcurve, p)
         plt.tight_layout()  # Automatically adjust padding horizontally as well as vertically.
 
-
         return fig, ax_right, ax_left, ax_lightcurve, red_dot
 
     @staticmethod

@@ -1,15 +1,4 @@
 NEXT:
-    0.2.19 Primary star's initial velocity
-    Primaerer Stern startet mit v=(0,0,0)! Unzulaessige Vereinfachung!
-    Parameter velocity und startposition fuer den ersten Stern aus dem Beispielconfigfile entfernen.
-        Loesung:
-            Zuerst mit v=(0,0,0) den initialen State Vector des sekuendaeren Sterns bzw. Planetens berechnen.
-            Aus dem State Vector des sekuendaeren Sterns den State Vector des primaeren Sterns errechnen.
-                Multiply each planet's mass by its velocity vector.
-                Sum up all these mass-velocity products.
-                Divide the resulting sum by the negative of the star's mass.
-                The result will be the velocity vector of the star, accounting for the influence of all orbiting planets.
-
     0.2.20 Orbit parameter for stars
         Einschraenkung in Konstruktor von CurveSimBody "if body_type == "planet"" ist wohl falsch.
         Ich will ja auch Sterne um Sterne kreisen lassen. Dann brauchen alle Koerper ausser dem Primaerstern Orbitparameter.
@@ -161,11 +150,14 @@ I implemented all suggestions from zoom call 29.03.2022, but tried and dismissed
  CHANGELOG
 
     0.2.15
-        Text "lichtgestalter/CurveSimulator" added to video
-        Debugging-Code (especially for state vector calculation) moved to backup files in folder "debug"
+        Text "lichtgestalter/CurveSimulator" added to video.
+        Debugging-Code (especially for state vector calculation) moved to backup files in folder "debug".
     0.2.16
-        Lightcurve in video now contains all data
+        Lightcurve in video now contains all data.
     0.2.17
-        Calculates for each body how many video frames are needed to complete one orbit
+        Calculates for each body how many video frames are needed to complete one orbit.
     0.2.18
         Using Kepler's Third Law, calculates Period P from semi-major axis a and vice versa.
+    0.2.19
+        Calculates the initial velocity of the primary body based on the principles of
+        conservation of momentum and the center of mass motion.
