@@ -34,34 +34,34 @@ class CurveSimAnimation:
             return delta
 
     @staticmethod
-    def init_plot(p, sampled_lightcurve, lightcurve):
-        """Initialize the matplotlib figure containing 3 axis:
-        Top left: projection (x,y,z) -> (x,z), order = -y.
-        Top right: projection (x,y,z) -> (x,y), order = z.
-        Bottom: lightcurve"""
-        fig = plt.figure()
-        fig.set_figwidth(p.figure_width)
-        fig.set_figheight(p.figure_height)
-        fig.set_facecolor("black")  # background color outside of ax_left and ax_lightcurve
-        buffer = 0
-        fig.subplots_adjust(left=buffer, right=1.0 - buffer, bottom=buffer, top=1 - buffer)  # Positions of the subplots edges, as a fraction of the figure width.
-
+    def init_left_plot(p):
+        # left plot (overhead view)
         ax_left = plt.subplot2grid(shape=(5, 2), loc=(0, 0), rowspan=4, colspan=1)
         ax_left.set_xlim(-p.xlim, p.xlim)
         ax_left.set_ylim(-p.ylim, p.ylim)
         ax_left.set_aspect('equal')
         ax_left.set_facecolor("black")  # background color
+        return ax_left
 
+    @staticmethod
+    def init_right_plot(p):
+        # right plot (edge-on view)
         ax_right = plt.subplot2grid(shape=(5, 2), loc=(0, 1), rowspan=4, colspan=1)
         ax_right.set_xlim(-p.xlim, p.xlim)
         ax_right.set_ylim(-p.ylim, p.ylim)
         ax_right.set_aspect('equal')
         ax_right.set_facecolor("black")  # background color
         ax_right.text(.99, .99, "lichtgestalter/CurveSimulator", color='grey', fontsize=10, ha='right', va='top', transform=ax_right.transAxes)
+        return ax_right
 
+    @staticmethod
+    def init_lightcurve_plot(lightcurve, p, sampled_lightcurve):
+        # lightcurve
         ax_lightcurve = plt.subplot2grid(shape=(5, 1), loc=(4, 0), rowspan=1, colspan=1)
         ax_lightcurve.set_facecolor("black")  # background color
+        ax_lightcurve.text(1.00, -0.05, "BJD (TDB)", color='grey', fontsize=10, ha='right', va='bottom', transform=ax_lightcurve.transAxes)
 
+        # lightcurve x-ticks, x-labels
         ax_lightcurve.tick_params(axis='x', colors='grey')
         xmax = p.iterations * p.dt / spd
         ax_lightcurve.set_xlim(0, xmax)
@@ -71,6 +71,7 @@ class CurveSimAnimation:
         xlabels = [f'{round(x + p.start_date, 4):.{digits}f}' for x in xvalues]
         ax_lightcurve.set_xticks(xvalues, labels=xlabels)
 
+        # lightcurve y-ticks, y-labels
         ax_lightcurve.tick_params(axis='y', colors='grey')
         minl = lightcurve.min(initial=None)
         maxl = lightcurve.max(initial=None)
@@ -79,25 +80,43 @@ class CurveSimAnimation:
         scope = maxl - minl
         buffer = 0.05 * scope
         ax_lightcurve.set_ylim(minl - buffer, maxl + buffer)
-
         y_listticdelta = CurveSimAnimation.tic_delta(scope)
-        digits = max(0, round(-math.log10(y_listticdelta) + 0.4)-2)  # The labels get as many decimal places as the intervals between the tics.
+        digits = max(0, round(-math.log10(y_listticdelta) + 0.4) - 2)  # The labels get as many decimal places as the intervals between the tics.
         yvalues = [1 - y * y_listticdelta for y in range(round(float((maxl - minl) / y_listticdelta)))]
         ylabels = [f'{round(100 * y, 10):.{digits}f} %' for y in yvalues]
         # ylabels = [f'{round(100 * y, 10)} %' for y in yvalues]
         ax_lightcurve.set_yticks(yvalues, labels=ylabels)
 
+        # lightcurve data (white line)
         time_axis = np.arange(0, round(p.iterations * p.dt), round(p.sampling_rate * p.dt), dtype=float)
         time_axis /= spd
         ax_lightcurve.plot(time_axis, sampled_lightcurve[0:len(time_axis)], color="white")
 
+        # lightcurve red dot
         red_dot = matplotlib.patches.Ellipse((0, 0), p.iterations * p.dt * p.red_dot_width / spd, scope * p.red_dot_height)  # matplotlib patch
         red_dot.set(zorder=2)  # Dot in front of lightcurve.
         red_dot.set_color((1, 0, 0))  # red
         ax_lightcurve.add_patch(red_dot)
+        return ax_lightcurve, red_dot
+
+    @staticmethod
+    def init_plot(p, sampled_lightcurve, lightcurve):
+        """Initialize the matplotlib figure containing 3 axis:
+        Top left: overhead view
+        Top right: edge-on view
+        Bottom: lightcurve"""
+        fig = plt.figure()
+        fig.set_figwidth(p.figure_width)
+        fig.set_figheight(p.figure_height)
+        fig.set_facecolor("black")  # background color outside of ax_left and ax_lightcurve
+        buffer = 0
+        fig.subplots_adjust(left=buffer, right=1.0 - buffer, bottom=buffer, top=1 - buffer)  # Positions of the subplots edges, as a fraction of the figure width.
+
+        ax_left = CurveSimAnimation.init_left_plot(p)
+        ax_right = CurveSimAnimation.init_right_plot(p)
+        ax_lightcurve, red_dot = CurveSimAnimation.init_lightcurve_plot(lightcurve, p, sampled_lightcurve)
         plt.tight_layout()  # Automatically adjust padding horizontally as well as vertically.
 
-        ax_lightcurve.text(1.00, -0.05, "BJD (TDB)", color='grey', fontsize=10, ha='right', va='bottom', transform=ax_lightcurve.transAxes)
 
         return fig, ax_right, ax_left, ax_lightcurve, red_dot
 

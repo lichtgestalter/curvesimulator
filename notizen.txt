@@ -101,11 +101,15 @@ VERSION 1.0.0 veroeffentlichen !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             https://www.reddit.com/r/space/
 
 
-    Um Hinweis auf CurveSimulator(-Paper) bei Veroeffentlichungen bitten
+    Um Hinweis auf CurveSimulator(-Paper?) bei Veroeffentlichungen bitten
         Im GitHubWiki
         Print in Konsole
         Im JSON File
         Copyright notice ins Video?
+
+    Planet Albedo
+        Bei Total System Luminosity beruecksichtigen -> kleiner dip in lightcurve bei secondary eclipse
+        Phasen beruecksichtigen: Halbplanet, Vollplanet, ...
 
     Radial velocity:
         Extraplot im Video oder als PNG-file speichern: Lightcurve und die Geschwindigkeit in Beobachterrichtung (y-Achse) für jeden Stern.
