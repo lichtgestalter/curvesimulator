@@ -39,6 +39,7 @@ class CurveSimBodies(list):
                                          luminosity=eval(config.get(section, "luminosity", fallback="0.0")),
                                          startposition=config.get(section, "startposition", fallback=None),
                                          velocity=config.get(section, "velocity", fallback=None),
+                                         P=eval(config.get(section, "P", fallback="None")),
                                          a=eval(config.get(section, "a", fallback="None")),
                                          e=eval(config.get(section, "e", fallback="None")),
                                          i=eval(config.get(section, "i", fallback="None")),
@@ -71,6 +72,8 @@ class CurveSimBodies(list):
             if debug_L >= 0 and body.name == "Test":
                 body.L = debug_L/180.0 * math.pi
             body.calc_state_vector(p, self)
+            body.frames_per_orbit = body.calc_frames_per_orbit(p)
+            print(f"{body.name=}   {body.P=}    {p.dt=}   {p.sampling_rate=}   {p.frames=}   {body.frames_per_orbit=}")
         self.generate_patches(p)
 
     def __repr__(self):

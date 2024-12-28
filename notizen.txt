@@ -1,8 +1,5 @@
 NEXT:
-    0.2.16 More data in lightcurve
-        Kann die Lightcurve mehr/alle Datenpunkte anzeigen statt nur die fuer die Animation gesampelten?
-
-    0.2.17 Frames / Iterations per Orbit
+    0.2.17 Frames / iterations per Orbit
         Ausrechnen, wie viele Frames / Iterations ein Orbit sind.
         Use Kepler's Third Law to calculate Period P. #frames = P/(dt*sampling_rate)
         Dann kann man leichter Videos machen, die in Endlosschleife abgespielt huebsch aussehen.
@@ -169,7 +166,9 @@ I implemented all suggestions from zoom call 29.03.2022, but tried and dismissed
 
  CHANGELOG
 
-     0.2.15
-        Text "CurveSimulator" in Video einbauen
-        Debug-Code entfernen/auslagern
+    0.2.15
+        Text "lichtgestalter/CurveSimulator" added to video
+        Debugging-Code (especially for state vector calculation) moved to backup files in folder "debug"
     0.2.16
+        Lightcurve in video now contains all data
+

@@ -130,6 +130,7 @@ class CurveSimAnimation:
             body.circle_right.set(zorder=body.positions[frame * p.sampling_rate][2])
             body.circle_right.center = body.positions[frame * p.sampling_rate][0] / p.scope_right, body.positions[frame * p.sampling_rate][1] / p.scope_right
         red_dot.center = p.dt * p.sampling_rate * frame / spd, lightcurve[frame * p.sampling_rate]
+        print(red_dot.center[0])
         if frame >= 10 and frame % int(round(p.frames / 10)) == 0:  # Inform user about program's progress.
             print(f'{round(frame / p.frames * 10) * 10:3d}% ', end="")
 
