@@ -9,8 +9,7 @@ spd = 3600 * 24  # seconds per day
 class CurveSimAnimation:
 
     def __init__(self, p, bodies, lightcurve):
-        sampled_lightcurve = np.take(lightcurve, range(0, p.iterations, p.sampling_rate))  # Use only some of the calculated positions for the animation because it is so slow.
-        self.fig, ax_right, ax_left, ax_lightcurve, self.red_dot = CurveSimAnimation.init_plot(p, sampled_lightcurve, lightcurve)  # Adjust constants in section [Plot] of config file to fit your screen.
+        self.fig, ax_right, ax_left, ax_lightcurve, self.red_dot = CurveSimAnimation.init_plot(p, lightcurve)  # Adjust constants in section [Plot] of config file to fit your screen.
         for body in bodies:  # Circles represent the bodies in the animation. Set their colors and add them to the matplotlib axis.
             body.circle_right.set_color(body.color)
             body.circle_left.set_color(body.color)
@@ -55,7 +54,7 @@ class CurveSimAnimation:
         return ax_right
 
     @staticmethod
-    def init_lightcurve_plot(lightcurve, p, sampled_lightcurve):
+    def init_lightcurve_plot(lightcurve, p):
         # lightcurve
         ax_lightcurve = plt.subplot2grid(shape=(5, 1), loc=(4, 0), rowspan=1, colspan=1)
         ax_lightcurve.set_facecolor("black")  # background color
@@ -84,13 +83,12 @@ class CurveSimAnimation:
         digits = max(0, round(-math.log10(y_listticdelta) + 0.4) - 2)  # The labels get as many decimal places as the intervals between the tics.
         yvalues = [1 - y * y_listticdelta for y in range(round(float((maxl - minl) / y_listticdelta)))]
         ylabels = [f'{round(100 * y, 10):.{digits}f} %' for y in yvalues]
-        # ylabels = [f'{round(100 * y, 10)} %' for y in yvalues]
         ax_lightcurve.set_yticks(yvalues, labels=ylabels)
 
         # lightcurve data (white line)
-        time_axis = np.arange(0, round(p.iterations * p.dt), round(p.sampling_rate * p.dt), dtype=float)
-        time_axis /= spd
-        ax_lightcurve.plot(time_axis, sampled_lightcurve[0:len(time_axis)], color="white")
+        time_axis = np.arange(0, round(p.iterations * p.dt), round(p.dt), dtype=float)
+        time_axis /= spd  # seconds -> days
+        ax_lightcurve.plot(time_axis, lightcurve, color="white")
 
         # lightcurve red dot
         red_dot = matplotlib.patches.Ellipse((0, 0), p.iterations * p.dt * p.red_dot_width / spd, scope * p.red_dot_height)  # matplotlib patch
@@ -100,7 +98,7 @@ class CurveSimAnimation:
         return ax_lightcurve, red_dot
 
     @staticmethod
-    def init_plot(p, sampled_lightcurve, lightcurve):
+    def init_plot(p, lightcurve):
         """Initialize the matplotlib figure containing 3 axis:
         Top left: overhead view
         Top right: edge-on view
@@ -114,7 +112,7 @@ class CurveSimAnimation:
 
         ax_left = CurveSimAnimation.init_left_plot(p)
         ax_right = CurveSimAnimation.init_right_plot(p)
-        ax_lightcurve, red_dot = CurveSimAnimation.init_lightcurve_plot(lightcurve, p, sampled_lightcurve)
+        ax_lightcurve, red_dot = CurveSimAnimation.init_lightcurve_plot(lightcurve, p)
         plt.tight_layout()  # Automatically adjust padding horizontally as well as vertically.
 
 
