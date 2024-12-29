@@ -92,17 +92,17 @@ class CurveSimBodies(list):
                     print(f'ERROR in config file: {body.name} has invalid or missing color value.')
                     sys.exit(1)
             if body.velocity is None:
-                if body.e <= 0:
+                if body.e < 0:
                     print(f'ERROR in config file: {body.name} has invalid or missing eccentricity e.')
                     sys.exit(1)
-                if body.i <= -1000:
+                if body.i < -1000:
                     print(f'ERROR in config file: {body.name} has invalid or missing inclination i.')
                     sys.exit(1)
-            if body.a is not None and body.a < 0:
-                print(f'ERROR in config file: {body.name} has negative semi-major axis a.')
+            if body.a is not None and body.a <= 0:
+                print(f'ERROR in config file: {body.name} has invalid semi-major axis a.')
                 sys.exit(1)
-            if body.P is not None and body.P < 0:
-                print(f'ERROR in config file: {body.name} has negative period P.')
+            if body.P is not None and body.P <= 0:
+                print(f'ERROR in config file: {body.name} has invalid period P.')
                 sys.exit(1)
             anomaly_counter = 0
             anomalies = [body.L, body.ma, body.ea, body.nu, body.T]

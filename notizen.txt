@@ -1,8 +1,6 @@
 NEXT:
-    0.2.22  Beispielvideos
+    0.2.22  Example videos
         Videos erstellen und (auf youtube? eher vimeo wg. Bildqualitaet) veröffentlichen.
-
-            Unser Sonnensystem visualisieren
 
             Aus Kapitel 6.1 von Noras 3-Stern-System die Kepler-Parameter für TIC470710327_new.ini extrahieren.
             Video erzeugen, was hoffentlich dem ursprünglichen Video mit geschätzten Startpos/Startvelocity ähnelt.
@@ -11,8 +9,7 @@ NEXT:
 
     0.2.23  Wiki aktualisieren.
         Im Wiki die Videos verlinken.
-        Configfile updaten
-        Formulierungen von AI verbessern lassen.
+        Evtl. restliche Formulierungen von AI verbessern lassen.
             Take a look at this text on a page of a wiki about a python library. The text is written in mark-up language.
             Improve the language, for example by removing spelling errors and making the formulations more elegant.
             Format your improvements in the same mark-up language: ""
@@ -79,11 +76,6 @@ VERSION 1.0.0 veroeffentlichen !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         Bei Total System Luminosity beruecksichtigen -> kleiner dip in lightcurve bei secondary eclipse
         Phasen beruecksichtigen: Halbplanet, Vollplanet, ...
 
-    Radial velocity:
-        Extraplot im Video oder als PNG-file speichern: Lightcurve und die Geschwindigkeit in Beobachterrichtung (y-Achse) für jeden Stern.
-        Plot radial velocity (movement of star to/from viewer). Provides a check if the simulation is realistic.
-        Farbe des Sterns abhängig von RV varieren?
-
     Orbit parameter output (in JSON-File?):
         Alle Programmparameter (inklusive Erlaeuterungen?)
         Alle Body-Parameter (inklusive Erlaeuterungen?)
@@ -96,6 +88,15 @@ VERSION 1.0.0 veroeffentlichen !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         Transit depths
         Track transit variations (changes in orbiting period).
         max/min of x, y, z position?
+
+    Transit times T1, T2, TT, T3, T4, T14 in lightcurve kennzeichnen.
+        Extra tics/labels? Aber nur, wenn genug Platz ist.
+        Dauerhaft angezeigter Yellow Dot auf lightcurve? Aber nur, wenn genug Platz ist?
+
+    Radial velocity:
+        Extraplot im Video oder als PNG-file speichern: Lightcurve und die Geschwindigkeit in Beobachterrichtung (y-Achse) für jeden Stern.
+        Plot radial velocity (movement of star to/from viewer). Provides a check if the simulation is realistic.
+        Farbe des Sterns abhängig von RV varieren?
 
     How does an exomoon influence transit variation? Fun :)
     But how can I provide meaningful orbit parameters for a moon?
@@ -131,6 +132,9 @@ I implemented all suggestions from zoom call 29.03.2022, but tried and dismissed
         LOESUNG:
             2 der 3 Parameter ω, ϖ, Ω muessen bekannt sein. Der dritte wird aus den anderen beiden mit ω = ϖ - Ω berechnet.
             Wenn man Ω = ϖ setzt (und folglich ω=0), verhaelt sich der Orbit bei Aenderungen von Ω korrekt.
+            Mit den Daten unseres Sonnensystems auf https://ssd.jpl.nasa.gov/planets/approx_pos.html Table 1, die als Konvention
+            Transit bei i = 0 Grad haben, tauschen edge-on und overhead view. Wenn ich die Inklination an die Transit-bei-90-Grad-
+            Konvention anpasse (i_90 = 90 - i_0 laut perplexity) werden die Orbits desto merkwuerdiger, je groesser Ω ist.
 
  #######################
 
