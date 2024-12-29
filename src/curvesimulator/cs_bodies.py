@@ -1,5 +1,6 @@
 import configparser
 import math
+import sys
 import time
 import matplotlib
 import matplotlib.animation
@@ -35,15 +36,15 @@ class CurveSimBodies(list):
                                          primary=len(self) == 0,
                                          name=section,
                                          body_type=config.get(section, "body_type", fallback=None),
-                                         color=tuple([eval(x) for x in config.get(section, "color", fallback="0, 1, 0").split(",")]),
-                                         mass=eval(config.get(section, "mass", fallback="None")),
-                                         radius=eval(config.get(section, "radius", fallback="None")),
+                                         color=tuple([eval(x) for x in config.get(section, "color", fallback="-1").split(",")]),
+                                         mass=eval(config.get(section, "mass", fallback="-1")),
+                                         radius=eval(config.get(section, "radius", fallback="-1")),
                                          luminosity=eval(config.get(section, "luminosity", fallback="0.0")),
                                          limb_darkening=eval(config.get(section, "limb_darkening", fallback="None")),
                                          startposition=config.get(section, "startposition", fallback=None),
                                          velocity=config.get(section, "velocity", fallback=None),
-                                         e=eval(config.get(section, "e", fallback="None")),
-                                         i=eval(config.get(section, "i", fallback="None")),
+                                         e=eval(config.get(section, "e", fallback="-1")),
+                                         i=eval(config.get(section, "i", fallback="-1111")),
                                          P=eval(config.get(section, "P", fallback="None")),
                                          a=eval(config.get(section, "a", fallback="None")),
                                          Ω=eval(config.get(section, "longitude_of_ascending_node", fallback="None")),
@@ -56,27 +57,63 @@ class CurveSimBodies(list):
                                          T=eval(config.get(section, "T", fallback="None")),
                                          t=eval(config.get(section, "t", fallback="0.0")),
                                          ))
-        # Checking parameters of physical bodies
-        if len(self) < 1:
-            raise Exception("No physical bodies specified.")
+        self.check_body_parameters()
         for body in self:
-            if body.radius <= 0:
-                raise Exception(f'{body.name} has invalid radius {body.radius}.')
-            if body.mass <= 0:
-                raise Exception(f'{body.name} has invalid mass {body.mass}.')
-            if body.luminosity < 0:
-                raise Exception(f'{body.name} has invalid luminosity {body.luminosity}.')
-            if body.luminosity > 0 and len(body.limb_darkening) < 1:  # if body.luminosity > 0 and list of limb darkening parameters empty
-                raise Exception(f'{body.name} has invalid limb darkening parameter {body.limb_darkening}.')
-            for c in body.color:
-                if c < 0 or c > 1:
-                    raise Exception(f'{body.name} has invalid color value {c}.')
             if debug_L >= 0 and body.name == "Test":
                 body.L = debug_L/180.0 * math.pi
             body.calc_state_vector(p, self)
             body.frames_per_orbit = body.calc_frames_per_orbit(p)
         self.calc_primary_body_initial_velocity()
         self.generate_patches(p)
+
+    def check_body_parameters(self):
+        """Checking parameters of physical bodies in the config file"""
+        if len(self) == 0:
+            print("ERROR in config file: No physical bodies have been specified.")
+            sys.exit(1)
+        if len(self) == 1:
+            print("ERROR in config file: Just one physical body has been specified.")
+            sys.exit(1)
+        for body in self:
+            if body.radius <= 0:
+                print(f'ERROR in config file: {body.name} has invalid or missing radius.')
+                sys.exit(1)
+            if body.mass <= 0:
+                print(f'ERROR in config file: {body.name} has invalid or missing mass.')
+                sys.exit(1)
+            if body.luminosity < 0:
+                print(f'ERROR in config file: {body.name} has invalid luminosity {body.luminosity=}.')
+                sys.exit(1)
+            if body.luminosity > 0 and len(body.limb_darkening) < 1:  # if body.luminosity > 0 and list of limb darkening parameters empty
+                print(f'ERROR in config file: {body.name} has luminosity but invalid limb darkening parameter {body.limb_darkening=}.')
+                sys.exit(1)
+            for c in body.color:
+                if c < 0 or c > 1 or len(body.color) != 3:
+                    print(f'ERROR in config file: {body.name} has invalid or missing color value.')
+                    sys.exit(1)
+            if body.velocity is None:
+                if body.e <= 0:
+                    print(f'ERROR in config file: {body.name} has invalid or missing eccentricity e.')
+                    sys.exit(1)
+                if body.i <= -1000:
+                    print(f'ERROR in config file: {body.name} has invalid or missing inclination i.')
+                    sys.exit(1)
+            if body.a is not None and body.a < 0:
+                print(f'ERROR in config file: {body.name} has negative semi-major axis a.')
+                sys.exit(1)
+            if body.P is not None and body.P < 0:
+                print(f'ERROR in config file: {body.name} has negative period P.')
+                sys.exit(1)
+            anomaly_counter = 0
+            anomalies = [body.L, body.ma, body.ea, body.nu, body.T]
+            for anomaly in anomalies:
+                if anomaly is not None:
+                    anomaly_counter += 1
+            if anomaly_counter > 1:
+                print(f'\u001b[33m WARNING\u001b[0m: more than one anomaly (L, ma, ea, nu, T) has been specified in config file for {body.name}.')
+                print(f'Check for contradictions and/or remove superflous anomalies.')
+
+
 
     def __repr__(self):
         names = "CurveSimBodies: "

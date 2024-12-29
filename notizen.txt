@@ -1,13 +1,4 @@
 NEXT:
-    0.2.21 Configfile errorproof
-        Abstuerze verhindern
-            Config file enthaelt genau einen body
-        Configfile genau auf Korrektheit checken
-        Debug Section soll rein optional sein.
-        Praezise Fehlermeldungen fuer jeden einzelnen fehlenden/falschen Parameter im Configfile
-        Kluge Fehlermeldungen
-        Warnung bei redundanten Orbitparametern und Hinweis, welche der Parameter tatsaechlich verwendet wurden.
-
     0.2.22  Beispielvideos
         Videos erstellen und (auf youtube? eher vimeo wg. Bildqualitaet) veröffentlichen.
 
@@ -23,7 +14,8 @@ NEXT:
         Configfile updaten
         Formulierungen von AI verbessern lassen.
             Take a look at this text on a page of a wiki about a python library. The text is written in mark-up language.
-            Improve the language, for example by removing spelling errors and making the formulations more elegant: ""
+            Improve the language, for example by removing spelling errors and making the formulations more elegant.
+            Format your improvements in the same mark-up language: ""
 
 VERSION 1.0.0 veroeffentlichen !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -144,19 +136,14 @@ I implemented all suggestions from zoom call 29.03.2022, but tried and dismissed
 
  CHANGELOG
 
-    0.2.15
-        Text "lichtgestalter/CurveSimulator" added to video.
-        Debugging-Code (especially for state vector calculation) moved to backup files in folder "debug".
-    0.2.16
-        Lightcurve in video now contains all data.
-    0.2.17
-        Calculates for each body how many video frames are needed to complete one orbit.
-    0.2.18
-        Using Kepler's Third Law, calculates Period P from semi-major axis a and vice versa.
-    0.2.19
-        Calculates the initial velocity of the primary body based on the principles of
-        conservation of momentum and the center of mass motion.
-    0.2.20
-        Correct handling of secondary stars
+    0.2.15  Text "lichtgestalter/CurveSimulator" added to video.
+            Debugging-Code (especially for state vector calculation) moved to backup files in folder "debug".
+    0.2.16  Lightcurve in video now contains all data.
+    0.2.17  Calculates for each body how many video frames are needed to complete one orbit.
+    0.2.18  Using Kepler's Third Law, calculates Period P from semi-major axis a and vice versa.
+    0.2.19  Calculates the initial velocity of the primary body based on the principles of
+            conservation of momentum and the center of mass motion.
+    0.2.20  Correct handling of secondary stars
+    0.2.21  Configfile errorproofing
 
 

@@ -56,6 +56,12 @@ class CurveSimBody:
             vel = []
             for x in velocity.split(","):
                 vel.append(eval(x))
+            if len(pos) != 3:
+                print(f'ERROR in config file: invalid or missing start position. {pos=}')
+                sys.exit(1)
+            if len(vel) != 3:
+                print(f'ERROR in config file: invalid or missing initial velocity. {vel=}')
+                sys.exit(1)
             self.positions[0] = np.array(pos, dtype=float)  # [m] initial position
             self.velocity = np.array(vel, dtype=float)  # [m/s]
         elif primary:
@@ -139,7 +145,7 @@ class CurveSimBody:
                 else:  # nu, ea, ma not provided
                     if T is None:  # T not provided
                         T = 0.0
-                        print("Variant 5: T missing, T set to default value 0.0")
+                        print("L, ea, nu, ma, T missing, T set to default value 0.0")
                     n = math.sqrt(mu / a ** 3)  # 1b: Mean angular motion. Not needed in this function. (Except for ma, which is not needed.)
                     ma = n * T  # 1b: Mean anomaly at time of periapsis (from angular motion).
                     ea = CurveSimPhysics.kepler_equation_root(e, ma, ea_guess=ma)  # A good guess is important. With guess=0 the root finder very often does not converge.
