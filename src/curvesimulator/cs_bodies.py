@@ -35,15 +35,17 @@ class CurveSimBodies(list):
                                          primary=len(self) == 0,
                                          name=section,
                                          body_type=config.get(section, "body_type", fallback=None),
+                                         color=tuple([eval(x) for x in config.get(section, "color", fallback="0, 1, 0").split(",")]),
                                          mass=eval(config.get(section, "mass", fallback="None")),
                                          radius=eval(config.get(section, "radius", fallback="None")),
                                          luminosity=eval(config.get(section, "luminosity", fallback="0.0")),
+                                         limb_darkening=eval(config.get(section, "limb_darkening", fallback="None")),
                                          startposition=config.get(section, "startposition", fallback=None),
                                          velocity=config.get(section, "velocity", fallback=None),
-                                         P=eval(config.get(section, "P", fallback="None")),
-                                         a=eval(config.get(section, "a", fallback="None")),
                                          e=eval(config.get(section, "e", fallback="None")),
                                          i=eval(config.get(section, "i", fallback="None")),
+                                         P=eval(config.get(section, "P", fallback="None")),
+                                         a=eval(config.get(section, "a", fallback="None")),
                                          Ω=eval(config.get(section, "longitude_of_ascending_node", fallback="None")),
                                          ω=eval(config.get(section, "argument_of_periapsis", fallback="None")),
                                          ϖ=eval(config.get(section, "longitude_of_periapsis", fallback="None")),
@@ -53,8 +55,7 @@ class CurveSimBodies(list):
                                          nu=eval(config.get(section, "nu", fallback="None")),
                                          T=eval(config.get(section, "T", fallback="None")),
                                          t=eval(config.get(section, "t", fallback="0.0")),
-                                         limb_darkening=eval(config.get(section, "limb_darkening", fallback="None")),
-                                         color=tuple([eval(x) for x in config.get(section, "color", fallback="0, 1, 0").split(",")])))
+                                         ))
         # Checking parameters of physical bodies
         if len(self) < 1:
             raise Exception("No physical bodies specified.")

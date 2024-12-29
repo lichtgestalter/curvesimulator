@@ -19,35 +19,35 @@ class CurveSimBody:
         r_jup, m_jup, r_earth, m_earth, v_earth = p.r_jup, p.m_jup, p.r_earth, p.m_earth, p.v_earth
         self.name = name  # name
         self.body_type = body_type  # "star" or "planet"
+        self.color = color  # (R, G, B)  each between 0 and 1
         self.mass = mass  # [kg]
         self.radius = radius  # [m]
         self.area_2d = math.pi * radius ** 2  # [m**2]
-        # self.pot_transit_date = pot_transit_date  # [d]
         self.luminosity = luminosity  # [W]
+        self.limb_darkening = limb_darkening
+        self.mean_intensity = CurveSimPhysics.mean_intensity(limb_darkening)
         self.brightness = luminosity / self.area_2d  # luminosity per (apparent) area [W/m**2]
         self.positions = np.zeros((p.iterations, 3), dtype=float)  # position for each frame
-        self.color = color  # (R, G, B)  each between 0 and 1
+
+        self.e = e  # [1] eccentricity
+        self.i = None if i is None else math.radians(i)  # [deg] inclination
+
         self.P = P  # [s] period
+        self.a = a  # [m] semi-major axis
 
-        if body_type == "planet":
-            self.a = a  # [m] semi-major axis
-            self.e = e  # [1] eccentricity
-            self.i = None if i is None else math.radians(i)  # [deg] inclination
-            self.Ω = None if Ω is None else math.radians(Ω)  # [deg] longitude of ascending node
-            self.ω = None if ω is None else math.radians(ω)  # [deg] argument of periapsis
-            self.ϖ = None if ϖ is None else math.radians(ϖ)  # [deg] longitude of periapsis
-            self.L = None if L is None else math.radians(L)  # [deg] mean longitude
-            self.ma = None if ma is None else math.radians(ma)  # [deg] mean anomaly
-            self.ea = None if ea is None else math.radians(ea)  # [deg] eccentric anomaly
-            self.nu = None if nu is None else math.radians(nu)  # [deg] true anomaly. Per definition = 270° at the time of an exoplanet's primary transit.
-            self.T = T  # [s] Time of periapsis
-            self.t = t  # [s] time since last time of transit
-            # self.ma, self.ea = None, None  # [rad] Only true anomaly or mean_anomaly or eccentric_anomaly or time_of_periapsis has to be provided.
-            self.mu = None  # Gravitational Parameter. Depends on the masses of at least 2 bodies.
+        self.Ω = None if Ω is None else math.radians(Ω)  # [deg] longitude of ascending node
+        self.ω = None if ω is None else math.radians(ω)  # [deg] argument of periapsis
+        self.ϖ = None if ϖ is None else math.radians(ϖ)  # [deg] longitude of periapsis
 
-        if body_type == "star":
-            self.limb_darkening = limb_darkening
-            self.mean_intensity = CurveSimPhysics.mean_intensity(limb_darkening)
+        self.L = None if L is None else math.radians(L)  # [deg] mean longitude
+        self.ma = None if ma is None else math.radians(ma)  # [deg] mean anomaly
+        self.ea = None if ea is None else math.radians(ea)  # [deg] eccentric anomaly
+        self.nu = None if nu is None else math.radians(nu)  # [deg] true anomaly. Per definition = 270° at the time of an exoplanet's primary transit.
+        self.T = T  # [s] Time of periapsis
+        self.t = t  # [s] time since last time of transit
+
+        self.mu = None  # Gravitational Parameter. Depends on the masses of at least 2 bodies.
+
 
         if not primary and startposition is not None and velocity is not None:  # State vectors are already in config file.
             pos = []

@@ -1,9 +1,4 @@
 NEXT:
-    0.2.20 Orbit parameter for stars
-        Einschraenkung in Konstruktor von CurveSimBody "if body_type == "planet"" ist wohl falsch.
-        Ich will ja auch Sterne um Sterne kreisen lassen. Dann brauchen alle Koerper ausser dem Primaerstern Orbitparameter.
-
-
     0.2.21 Configfile errorproof
         Abstuerze verhindern
             Config file enthaelt genau einen body
@@ -161,3 +156,7 @@ I implemented all suggestions from zoom call 29.03.2022, but tried and dismissed
     0.2.19
         Calculates the initial velocity of the primary body based on the principles of
         conservation of momentum and the center of mass motion.
+    0.2.20
+        Correct handling of secondary stars
+
+

@@ -74,6 +74,8 @@ class CurveSimPhysics:
     @staticmethod
     def mean_intensity(limb_darkening_coefficients):
         """Calculates the ratio of the mean intensity to the central intensity of a star based on the given coefficients."""
+        if limb_darkening_coefficients is None:
+            return None
         intensity = 0.0
         for i, c in enumerate(limb_darkening_coefficients):
             intensity += 2.0 * c / (i + 2)
