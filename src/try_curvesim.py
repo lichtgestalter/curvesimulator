@@ -23,6 +23,11 @@ def main():
     parameters, bodies, lightcurve = curvesim(config_file="../configurations/TIC470710327.ini")
     print(parameters)
     print(bodies)
+    # for body in bodies:
+    #     # remove attribute positions from body
+    #     body.__dict__.pop('positions')
+    #     # print the names and values of all attributes of body
+    #     print(body.__dict__)
     print(lightcurve)
 
 

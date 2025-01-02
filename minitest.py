@@ -1,34 +1,22 @@
 import math
-import numpy as np
-
-def tic_delta(scope):
-    """Returns a distance between two tics on an axis so that the total
-    number of tics on that axis is between 5 and 10."""
-    if scope <= 0:  # no or constant values
-        return 1
-    delta = 10 ** np.floor(math.log10(scope))
-    if scope / delta < 5:
-        if scope / delta < 2:
-            return delta / 5
-        else:
-            return delta / 2
-    else:
-        return delta
 
 
-def check_digits():
-    for x_listticdelta in [10, 5, 2, 1, 0.5, 0.2, 0.1, 0.05, 0.02, 0.01, 0.005, 0.002, 0.001, 0.0005, 0.0002, 0.0001, 0.00005, 0.00002, 0.00001]:
-        digits = max(0, round(-math.log10(x_listticdelta) + 0.4))
-        # digits = int(max(0, -math.log10(x_listticdelta)+1))
-        print(f"{x_listticdelta=:6}   {digits=}")
-        x_listticdelta /= 1.5
+def calculate_gravitational_parameter(Am, Bm, P):
+    # Gravitational constant (m^3 kg^-1 s^-2)
+    G = 6.67430e-11
+    sm = 1.98847e30
+    # Convert masses to kg if given in solar masses
+    Am_kg = Am * sm
+    Bm_kg = Bm * sm
+    P_seconds = P * 24 * 3600
+    mu = G * (Am_kg + Bm_kg)
+    return mu
 
 
-def check_tic_delta():
-    scope = 100
-    while scope > 0.01:
-        ticd = float(tic_delta(scope))
-        print(f"{scope=:.5f}   {ticd=}")
-        scope /= 1.5
+# Example usage
+Am = 6.5  # Mass of star A in solar masses
+Bm = 5.9  # Mass of star B in solar masses
+P = 1.1047  # Orbital period in days
 
-check_digits()
+mu = calculate_gravitational_parameter(Am, Bm, P)
+print(f"Gravitational parameter: {mu:.2e} m^3/s^2")

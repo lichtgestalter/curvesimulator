@@ -62,11 +62,12 @@ class CurveSimParameters:
         for key in vars(self):
             if type(getattr(self, key)) not in [str, dict, bool, list]:
                 if getattr(self, key) < 0:
+                    print("ERROR in configuration file.")
                     print(f'{self=}   {key=}   {getattr(self, key)=}    {type(getattr(self, key))=}')
-                    raise Exception(f"No parameter in sections {self.standard_sections} may be negative.")
+                    print(f"No parameter in sections {self.standard_sections} may be negative.")
 
         # [Debug]
-        self.debug_L = list(eval(config.get("Debug", "debug_L")))
+        self.debug_L = list(eval(config.get("Debug", "debug_L", fallback="[0]")))
         # print(f'{self.debug_L=}, {type(self.debug_L)=}')
 
     def __repr__(self):
@@ -96,6 +97,6 @@ class CurveSimParameters:
             print(red + f'More information on https://github.com/lichtgestalter/curvesimulator ' + reset)
             sys.exit(1)
         for section in standard_sections:  # Does the config file contain all standard sections?
-            if section not in config.sections():
+            if section not in config.sections() and section != "Debug":
                 print(red + f'Section {section} missing in config file.' + reset)
                 sys.exit(2)

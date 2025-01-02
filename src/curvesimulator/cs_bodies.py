@@ -64,7 +64,15 @@ class CurveSimBodies(list):
             body.calc_state_vector(p, self)
             body.frames_per_orbit = body.calc_frames_per_orbit(p)
         self.calc_primary_body_initial_velocity()
+        # for body in self:
+        #     body.velocity *= 0.0  # DEBUG: Set all velocities to zero.
         self.generate_patches(p)
+
+    def __repr__(self):
+        names = "CurveSimBodies: "
+        for body in self:
+            names += body.name + ", "
+        return names[:-2]
 
     def check_body_parameters(self):
         """Checking parameters of physical bodies in the config file"""
@@ -113,14 +121,6 @@ class CurveSimBodies(list):
                 print(f'\u001b[33m WARNING\u001b[0m: more than one anomaly (L, ma, ea, nu, T) has been specified in config file for {body.name}.')
                 print(f'Check for contradictions and/or remove superflous anomalies.')
 
-
-
-    def __repr__(self):
-        names = "CurveSimBodies: "
-        for body in self:
-            names += body.name + ", "
-        return names[:-2]
-
     def calc_primary_body_initial_velocity(self):
         """Calculates the initial velocity of the primary body in the star system
             from the masses and initial velocities of all other bodies.
@@ -129,6 +129,7 @@ class CurveSimBodies(list):
         for body in self[1:]:
             self[0].velocity += body.velocity * body.mass
         self[0].velocity /= - self[0].mass
+        # print(f"Initial velocity of {self[0].name}: x={self[0].velocity[0]:8.0f}  y={self[0].velocity[1]:8.0f}  z={self[0].velocity[2]:8.0f}  (Primary body)")  # DEBUG
 
     def total_luminosity(self, stars, iteration):
         """Add luminosity of all stars in the system while checking for eclipses.
@@ -175,6 +176,7 @@ class CurveSimBodies(list):
             lightcurve[iteration] = self.total_luminosity(stars, iteration)  # Update lightcurve.
             if iteration % int(round(p.iterations / 10)) == 0:  # Inform user about program's progress.
                 print(f'{round(iteration / p.iterations * 10) * 10:3d}% ', end="")
+                # print(f"{iteration=:3}   {self[0].velocity=}   {self[1].velocity=:}")  # DEBUG
         return lightcurve, self
 
     def calc_physics(self, p):

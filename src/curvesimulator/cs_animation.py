@@ -86,7 +86,7 @@ class CurveSimAnimation:
         ax_lightcurve.set_yticks(yvalues, labels=ylabels)
 
         # lightcurve data (white line)
-        time_axis = np.arange(0, round(p.iterations * p.dt), round(p.dt), dtype=float)
+        time_axis = np.linspace(0, round(p.iterations * p.dt), p.iterations, dtype=float)
         time_axis /= spd  # seconds -> days
         ax_lightcurve.plot(time_axis, lightcurve, color="white")
 
