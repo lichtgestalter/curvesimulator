@@ -9,6 +9,7 @@ import numpy as np
 from curvesimulator.cs_body import CurveSimBody
 from curvesimulator.cs_lightcurve import CurveSimLightcurve
 from curvesimulator.cs_physics import CurveSimPhysics
+from numpy import ndarray
 
 
 class CurveSimBodies(list):
@@ -126,6 +127,7 @@ class CurveSimBodies(list):
             from the masses and initial velocities of all other bodies.
             The calculation is based on the principles of conservation of momentum
             and the center of mass motion"""
+        assert 0 == self[0].velocity[0] == self[0].velocity[1] == self[0].velocity[2]
         for body in self[1:]:
             self[0].velocity += body.velocity * body.mass
         self[0].velocity /= - self[0].mass

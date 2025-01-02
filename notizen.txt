@@ -2,10 +2,8 @@ NEXT:
     0.2.22  Example videos
         Videos erstellen und (auf youtube? eher vimeo wg. Bildqualitaet) veröffentlichen.
 
-            Aus Kapitel 6.1 von Noras 3-Stern-System die Kepler-Parameter für TIC470710327_new.ini extrahieren.
-            Video erzeugen, was hoffentlich dem ursprünglichen Video mit geschätzten Startpos/Startvelocity ähnelt.
-
             Sternsysteme aus weiteren Papern visualisieren.
+                Zunaechst nur Systeme mit nur einem Stern
 
     0.2.23  Wiki aktualisieren.
         Im Wiki die Videos verlinken.
@@ -17,6 +15,8 @@ NEXT:
 VERSION 1.0.0 veroeffentlichen !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     Fragen an Akademiker:
+        Initial velocity or gravitational parameter is incorrect for systems without a domineering mass (i.e. one star systems)
+
         How do I get my project used by others?
             Publish as a paper?
             How do I get my project published as a paper?
@@ -143,6 +143,8 @@ I implemented all suggestions from zoom call 29.03.2022, but tried and dismissed
 
 
     Debugging gravitational parameter mu for star systems without a domineering body, e.g. binary star systems
+        Special case: 2 stars, second star nu=90 e=0 i=90:
+            dy=0, dz=0, dx=sqrt(mu/a), a((mu*P**2)/(4*pi**2))**(1/3)
         Hacking velocity with a correction: self.velocity /= correction
             Let MassB < MassA, e = 0:
             correction = 1 + (MassB / MassA)
@@ -163,5 +165,6 @@ I implemented all suggestions from zoom call 29.03.2022, but tried and dismissed
             conservation of momentum and the center of mass motion.
     0.2.20  Correct handling of secondary stars
     0.2.21  Configfile errorproofing
-
+    0.2.22  Example videos
+                TIC470710327 (with hacked velocity correction)
 
