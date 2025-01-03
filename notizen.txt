@@ -16,7 +16,7 @@ VERSION 1.0.0 veroeffentlichen !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     Fragen an Akademiker:
         Initial velocity or gravitational parameter is incorrect for systems without a domineering mass (i.e. one star systems)
-
+            Idee: Velocity hack auf 3 Sterne ausweiten 
         How do I get my project used by others?
             Publish as a paper?
             How do I get my project published as a paper?
@@ -56,8 +56,6 @@ VERSION 1.0.0 veroeffentlichen !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             https://www.astrobin.com/forum/
             https://forum.astronomie.de/
 
-
-
             https://www.reddit.com/r/exoplanets/
             https://www.reddit.com/r/TheExoplanetsChannel/
             https://www.reddit.com/r/askastronomy/
@@ -92,6 +90,8 @@ VERSION 1.0.0 veroeffentlichen !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     Transit times T1, T2, TT, T3, T4, T14 in lightcurve kennzeichnen.
         Extra tics/labels? Aber nur, wenn genug Platz ist.
         Dauerhaft angezeigter Yellow Dot auf lightcurve? Aber nur, wenn genug Platz ist?
+
+    Add Neptun's mass and radius to astronomical constants in config file?
 
     Orbits einzeichnen?
         Kleiner Punkt (nur 1 Pixel?) fuer jeden Frame fuer jeden Koerper
