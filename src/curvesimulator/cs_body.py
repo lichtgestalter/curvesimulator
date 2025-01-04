@@ -147,7 +147,7 @@ class CurveSimBody:
                 else:  # nu, ea, ma not provided
                     if T is None:  # T not provided
                         T = 0.0
-                        print("L, ea, nu, ma, T missing, T set to default value 0.0")
+                        print(f"{self.name}: L, ea, nu, ma, T missing, T set to default value 0.0")
                     n = math.sqrt(mu / a ** 3)  # 1b: Mean angular motion. Not needed in this function. (Except for ma, which is not needed.)
                     ma = n * T  # 1b: Mean anomaly at time of periapsis (from angular motion).
                     ea = CurveSimPhysics.kepler_equation_root(e, ma, ea_guess=ma)  # A good guess is important. With guess=0 the root finder very often does not converge.
@@ -159,6 +159,7 @@ class CurveSimBody:
         T = ma / n  # Time of periapsis (from mean anomaly and angular motion). Just for completeness.
 
         ma += t * n  # 1b
+        ma %= 2 * math.pi
         ea = CurveSimPhysics.kepler_equation_root(e, ma, ea_guess=ma)  # A good guess is important. With guess=0 the root finder very often does not converge.
         nu = 2 * math.atan(math.sqrt((1 + e) / (1 - e)) * math.tan(ea / 2))  # 3b: true anomaly (from eccentric anomaly)
 
