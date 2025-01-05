@@ -1,4 +1,19 @@
+
 NEXT:
+    Stimmen die Dip-Tiefen im Video?
+    Modify Bidy eclipsed by
+
+        Transit Times provisorisch in Konsole printen
+            Neues Body Attribut Status No, Partial, Ring, Total?
+    Allgemeines Anschreiben entwerfen.
+    Fragen an Michaela einbauen.
+        Was bedeutet t0?
+        Wo ist Planet d am Anfang?
+        ...
+
+
+
+
     0.2.22  Example videos
         Videos erstellen und (auf youtube? eher vimeo wg. Bildqualitaet) veröffentlichen.
 
@@ -6,6 +21,7 @@ NEXT:
                 Zunaechst nur Systeme mit nur einem Stern
 
     0.2.23  Wiki aktualisieren.
+        Ist optimiert fuer Visualisierung. Nicht fuer numerische Praezision. Kleines dt bei kleinen Perioden notwendig.
         Im Wiki die Videos verlinken.
         Evtl. restliche Formulierungen von AI verbessern lassen.
             Take a look at this text on a page of a wiki about a python library. The text is written in mark-up language.
