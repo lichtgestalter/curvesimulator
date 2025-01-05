@@ -2,6 +2,7 @@ import sys
 import math
 import numpy as np
 import pylab as p
+from enum import Enum
 
 from curvesimulator.cs_physics import CurveSimPhysics
 
@@ -11,6 +12,11 @@ debugging_eclipse = False
 # noinspection NonAsciiCharacters,PyPep8Naming,PyUnusedLocal
 class CurveSimBody:
 
+    class Eclipsing(Enum):
+        NO = 1
+        PARTIAL = 2
+        MAX = 3
+
     def __init__(self, primary, p, name, body_type, mass, radius, luminosity, startposition, velocity, P, a, e, i, Ω, ω, ϖ, L, ma, ea,
                  # pot_transit_date,
                  nu, T, t, limb_darkening, color):
@@ -19,6 +25,7 @@ class CurveSimBody:
         g, au, r_sun, m_sun, l_sun = p.g, p.au, p.r_sun, p.m_sun, p.l_sun
         r_jup, m_jup, r_earth, m_earth, v_earth = p.r_jup, p.m_jup, p.r_earth, p.m_earth, p.v_earth
         self.name = name  # name
+        self.eclipsing = CurveSimBody.Eclipsing.NO
         self.body_type = body_type  # "star" or "planet"
         self.color = color  # (R, G, B)  each between 0 and 1
         self.mass = mass  # [kg]
@@ -216,6 +223,9 @@ class CurveSimBody:
             # print(f'{self.name} {other.name} {d=}')
             if d < self.radius + other.radius:  # Does other eclipse self?
                 if d <= abs(self.radius - other.radius):  # Annular (i.e. ring) eclipse or total eclipse
+                    if other.eclipsing.value < CurveSimBody.Eclipsing.MAX.value:
+                        other.eclipsing = CurveSimBody.Eclipsing.MAX
+                        print(f"\n{iteration=} {other.name} eclipses {self.name} maximally.")
                     if self.radius < other.radius:  # Total eclipse
                         area = self.area_2d
                         relative_radius = 0
@@ -230,6 +240,9 @@ class CurveSimBody:
                             # print(f'   ring: {iteration:7d}  rel.area: {area / self.area_2d * 100:6.0f}%  rel.r: {relative_radius * 100:6.0f}%')
                         return area, relative_radius
                 else:  # Partial eclipse
+                    if other.eclipsing.value != CurveSimBody.Eclipsing.PARTIAL.value:
+                        other.eclipsing = CurveSimBody.Eclipsing.PARTIAL
+                        print(f"\n{iteration=} {other.name} eclipses {self.name} partially.")
                     # Eclipsed area is the sum of a circle segment of self + a circle segment of other
                     # https://de.wikipedia.org/wiki/Kreissegment  https://de.wikipedia.org/wiki/Schnittpunkt#Schnittpunkte_zweier_Kreise
                     self.d = (self.radius ** 2 - other.radius ** 2 + d ** 2) / (2 * d)  # Distance of center from self to radical axis
@@ -247,6 +260,9 @@ class CurveSimBody:
                         print(f"dy: {abs(self.positions[iteration][1] - other.positions[iteration][1]):6.3e}  dz: {abs(self.positions[iteration][2] - other.positions[iteration][2]):6.3e} d: {d:6.3e}")
                     return area, relative_radius
             else:  # No eclipse because, seen from viewer, the bodies are not close enough to each other
+                if other.eclipsing.value > CurveSimBody.Eclipsing.NO.value:
+                    other.eclipsing = CurveSimBody.Eclipsing.NO
+                    print(f"\n{iteration=} {other.name} does not eclipse {self.name} anymore.")
                 return 0.0, 0.0
         else:  # other cannot eclipse self, because self is nearer to viewer than other
             return 0.0, 0.0

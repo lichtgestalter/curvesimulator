@@ -143,7 +143,8 @@ class CurveSimBodies(list):
                 if body != star:  # an object cannot eclipse itself :)
                     eclipsed_area, relative_radius = star.eclipsed_by(body, iteration)
                     if eclipsed_area != 0:
-                        luminosity -= star.brightness * eclipsed_area * CurveSimPhysics.limbdarkening(relative_radius, star.limb_darkening) * star.mean_intensity
+                        luminosity -= star.brightness * eclipsed_area * CurveSimPhysics.limbdarkening(relative_radius, star.limb_darkening) / star.mean_intensity  # debug
+                        # luminosity -= star.brightness * eclipsed_area * CurveSimPhysics.limbdarkening(relative_radius, star.limb_darkening) * star.mean_intensity
                         # luminosity -= star.brightness * eclipsed_area * CurveSimPhysics.limbdarkening(relative_radius, star.limb_darkening) * CurveSimPhysics.mean_intensity(star.limb_darkening)
         return luminosity
 

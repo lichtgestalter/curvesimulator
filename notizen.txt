@@ -1,14 +1,22 @@
 
 NEXT:
-    Stimmen die Dip-Tiefen im Video?
-    Modify Bidy eclipsed by
+    Dip-Tiefen stimmen nicht!
+        Planet b laut paper transit depth of ΔF = 718 ppm. Laut Uli 410ppm.
+        718 ppm entspricht genau dem 2D-Flaechenverhaeltnis von Planet b und Stern.
+        Uli findet, der Unterschied muss groesser sein, wenn der Planet nah genug an die Sternmitte kommt,
+        so dass die verdeckte Sternflaeche ueberdurchschnittlich hell ist.
 
-        Transit Times provisorisch in Konsole printen
-            Neues Body Attribut Status No, Partial, Ring, Total?
+        Funktion CurveSimBodies.total_luminosity ueberarbeiten!!!
+
+
+    Modify eclipsed by
+        Transit Times in neue Klasse Result speichern statt unterwegs schon provisorisch in Konsole printen
+
     Allgemeines Anschreiben entwerfen.
     Fragen an Michaela einbauen.
         Was bedeutet t0?
         Wo ist Planet d am Anfang?
+        Dip-Tiefe 718ppm mMn zu niedrig
         ...
 
 
