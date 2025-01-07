@@ -35,13 +35,13 @@ def mean_intensity_uli(limb_darkening_coefficients, n):
     return luminosity/math.pi
 
 
-# ldc = [0.4765, 0.3495, 0.174]
-ldc = [0.3495, 0.4765]
+ldc = [0.4765, 0.3495, 0.174]
+# ldc = [0.3495, 0.4765]
 # ldc = [0.3, 0.9, -0.2]
 mean = mean_intensity(ldc)
 print("def", mean_intensity(ldc))
 print("uli", mean_intensity_uli(ldc, 1000))
-exit(1)
+# exit(1)
 # plot the limb darkening curve for a given set of coefficients and radii between 0 and 1
 radii = np.linspace(0, 1, 100)
 intensities = [limbdarkening(r, ldc) for r in radii]
@@ -49,8 +49,9 @@ plt.plot(radii, intensities)
 plt.xlabel('Normalized Radius')
 plt.ylabel('Relative Intensity')
 plt.title('Limb Darkening Curve')
-#shwo the mean intensity as a horizontal line
+#show the mean intensity as a horizontal line
 plt.axhline(y=mean, color='r', linestyle='--', label='Mean Intensity')
+plt.legend()
 plt.show()
 
 
