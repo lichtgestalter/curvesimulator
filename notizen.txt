@@ -1,5 +1,6 @@
 
 NEXT:
+    intensity in brightness umbenennen???
     Dip-Tiefen stimmen nicht!
         Planet b laut paper transit depth of ΔF = 718 ppm. Laut Uli 410ppm.
         718 ppm entspricht genau dem 2D-Flaechenverhaeltnis von Planet b und Stern.
