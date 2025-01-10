@@ -225,7 +225,7 @@ class CurveSimBody:
                 if d <= abs(self.radius - other.radius):  # Annular (i.e. ring) eclipse or total eclipse
                     if other.eclipsing.value < CurveSimBody.Eclipsing.MAX.value:
                         other.eclipsing = CurveSimBody.Eclipsing.MAX
-                        print(f"\n{iteration=} {other.name} eclipses {self.name} maximally.")
+                        # print(f"\n{iteration=} {other.name} eclipses {self.name} maximally.")
                     if self.radius < other.radius:  # Total eclipse
                         area = self.area_2d
                         relative_radius = 0
@@ -242,7 +242,7 @@ class CurveSimBody:
                 else:  # Partial eclipse
                     if other.eclipsing.value != CurveSimBody.Eclipsing.PARTIAL.value:
                         other.eclipsing = CurveSimBody.Eclipsing.PARTIAL
-                        print(f"\n{iteration=} {other.name} eclipses {self.name} partially.")
+                        # print(f"\n{iteration=} {other.name} eclipses {self.name} partially.")
                     # Eclipsed area is the sum of a circle segment of self + a circle segment of other
                     # https://de.wikipedia.org/wiki/Kreissegment  https://de.wikipedia.org/wiki/Schnittpunkt#Schnittpunkte_zweier_Kreise
                     self.d = (self.radius ** 2 - other.radius ** 2 + d ** 2) / (2 * d)  # Distance of center from self to radical axis
@@ -262,7 +262,7 @@ class CurveSimBody:
             else:  # No eclipse because, seen from viewer, the bodies are not close enough to each other
                 if other.eclipsing.value > CurveSimBody.Eclipsing.NO.value:
                     other.eclipsing = CurveSimBody.Eclipsing.NO
-                    print(f"\n{iteration=} {other.name} does not eclipse {self.name} anymore.")
+                    # print(f"\n{iteration=} {other.name} does not eclipse {self.name} anymore.")
                 return 0.0, 0.0
         else:  # other cannot eclipse self, because self is nearer to viewer than other
             return 0.0, 0.0
