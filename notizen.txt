@@ -1,17 +1,19 @@
 
 NEXT:
     intensity in brightness umbenennen???
-    Dip-Tiefen stimmen nicht!
-        Planet b laut paper transit depth of ΔF = 718 ppm. Laut Uli 410ppm.
-        718 ppm entspricht genau dem 2D-Flaechenverhaeltnis von Planet b und Stern.
-        Uli findet, der Unterschied muss groesser sein, wenn der Planet nah genug an die Sternmitte kommt,
-        so dass die verdeckte Sternflaeche ueberdurchschnittlich hell ist.
-
-        Funktion CurveSimBodies.total_luminosity ueberarbeiten!!!
-
+    0.3.0 limb darkening alternative models
+        neuer parameter limb_darkening_model
 
     Modify eclipsed by
         Transit Times in neue Klasse Result speichern statt unterwegs schon provisorisch in Konsole printen
+            Ingress is the period when an exoplanet begins to cross in front of its host star. It consists of two parts:
+                T1 Exterior ingress (first contact): The moment when the planet's disk first touches the edge of the star's disk9.
+                T2 Interior ingress (second contact): The point at which the entire planet has moved onto the stellar disk91.
+            Egress is the period when an exoplanet exits its transit across the star. It also has two parts:
+                T3 Interior egress (third contact): The moment when the planet's disk touches the opposite edge of the star's disk as it begins to exit9.
+                T4 Exterior egress (fourth contact): The point at which the planet has completely moved off the star's disk, concluding the transit91.
+
+
 
     ;michaela.vitkova@asu.cas.cz
     ;vitkova@mail.asu.cas.cz
@@ -25,7 +27,7 @@ NEXT:
             Sternsysteme aus weiteren Papern visualisieren.
                 Zunaechst nur Systeme mit nur einem Stern
 
-    0.2.23  Wiki aktualisieren.
+    Wiki aktualisieren.
         Ist optimiert fuer Visualisierung. Nicht fuer numerische Praezision. Kleines dt bei kleinen Perioden notwendig.
         Im Wiki die Videos verlinken.
         Evtl. restliche Formulierungen von AI verbessern lassen.
@@ -112,6 +114,29 @@ VERSION 1.0.0 veroeffentlichen !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         Extra tics/labels? Aber nur, wenn genug Platz ist.
         Dauerhaft angezeigter Yellow Dot auf lightcurve? Aber nur, wenn genug Platz ist?
 
+    Weitere interessante Parameter ermitteln?
+        Beispiele aus https://arxiv.org/abs/2412.02769
+        (Erklaerungen in Eastman et al 2019 https://arxiv.org/abs/1907.09480)
+            TC        Time of conjunction (BJDTDB)                   2459363.69480
+            TT        Time of minimum projected separation (BJDTDB)  2459363.69484
+            T0        Optimal conjunction Time (BJDTDB)              2459965.47035
+            TP        Time of Periastron (BJDTDB)                    2459343.85
+            TS        Time of eclipse (BJDTDB)                       2459370.99
+            δ         (RP /R∗)2                                      0.00551
+            δB        Transit depth in B (fraction)                  0.00829
+            δR        Transit depth in R (fraction)                  0.00684
+            δg′       Transit depth in g’ (fraction)                 0.00788
+            δi′       Transit depth in i’ (fraction)                 0.00662
+            δTESS     Transit depth in TESS (fraction)               0.00657
+            δV        Transit depth in V (fraction)                  0.00708
+            τ         Ingress/egress transit duration (days)         0.01319
+            T14       Total transit duration (days)                  0.1855
+            b         Transit Impact parameter                       0.18
+            bS        Eclipse impact parameter                       0.26
+            τS        Ingress/egress eclipse duration (days)         0.0202
+            TS,14     Total eclipse duration (days)                  0.265
+            TS,FWHM   FWHM eclipse duration (days)                   0.245
+
     Add Neptun's mass and radius to astronomical constants in config file?
 
     Orbits einzeichnen?
@@ -188,4 +213,5 @@ I implemented all suggestions from zoom call 29.03.2022, but tried and dismissed
     0.2.21  Configfile errorproofing
     0.2.22  Example videos
                 TIC470710327 (with hacked velocity correction)
+                TOI-4504 / TIC349972412 (1 star, 2 transiting planets, 1 non-transiting planet)
 
