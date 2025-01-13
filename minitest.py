@@ -3,6 +3,7 @@ from pickletools import uint2
 import matplotlib.pyplot as plt
 import numpy as np
 import math
+import sys
 
 def limbdarkening_q(relative_radius, q1, q2):
     if relative_radius < 0:  # handling rounding errors
@@ -33,6 +34,16 @@ def limbdarkening_a(relative_radius, a0, a1, a2):
     intensity = a0 + a1 * mu + a2 * mu * mu
     return intensity
 
+def limbdarkening(relative_radius, limb_darkening_parameters):
+    u1, u2 = limb_darkening_parameters
+    if relative_radius < 0:  # handling rounding errors
+        relative_radius = 0.0
+    if relative_radius > 1:
+        relative_radius = 1.0
+    mu = math.sqrt(1 - relative_radius ** 2)
+    intensity = 1 - u1 * (1 - mu) - u2 * (1 - mu) ** 2  # Apply quadratic limb darkening law
+    return intensity
+
 def limbdarkening_parameters(parameters, parameter_type):
     """converts limb darkening parameters to quadratic law parameters u1,u2 if necessary"""
     if parameter_type == "u":
@@ -50,9 +61,8 @@ def limbdarkening_parameters(parameters, parameter_type):
             u1 = 2 * math.sqrt(q1) * q2
             u2 = np.sqrt(q1) * (1 - 2 * q2)
             return u1, u2
-    print("error")
-
-
+    print(f"ERROR in config file: Wrong limb darkening parameters. ({parameter_type=}, {parameters=}")
+    sys.exit(1)
 
 
 # def mean_intensity(limb_darkening_coefficients):
@@ -75,55 +85,17 @@ def limbdarkening_parameters(parameters, parameter_type):
 #         luminosity += brightness * area
 #     return luminosity/math.pi
 
-def u_to_q(u1, u2):
-    q1 = (u1 + u2)**2
-    q2 = 0.5 * u1 / (u1 + u2)
-    return q1, q2
+parameters = [0.3, 0.9, -0.2]
+parameter_type = "a"
+# parameters = [0.4900, 0.3571]
+# parameter_type = "q"
+# parameters = [0.5, 0.2]
+# parameter_type = "u"
+parameters = limbdarkening_parameters(parameters, parameter_type)
+# print(f"{u1=}, {u2=}")
+print(f"{parameters=}")
+exit(5)
 
-def q_to_u(q1, q2):
-    u1 = 2 * math.sqrt(q1) * q2
-    u2 = np.sqrt(q1) * (1 - 2*q2)
-    return u1, u2
-
-def a_to_u(a0, a1, a2):
-    u1 = a1 + 2*a2
-    u2 = -a2
-    return u1, u2
-
-def u_to_a(u1, u2):
-    a0 = 1 - u1 - u2
-    a1 = u1 + 2*u2
-    a2 = -u2
-    return a0, a1, a2
-
-def q_to_a(q1, q2):
-    u1, u2 = q_to_u(q1, q2)
-    return u_to_a(u1, u2)
-
-def a_to_q(a0, a1, a2):
-    u1, u2 = a_to_u(a0, a1, a2)
-    return u_to_q(u1, u2)
-
-# a0, a1, a2 = 0.3, 0.9, -0.2
-# print(f"{a0=}, {a1=}, {a2=}")
-# q1, q2 = a_to_q(a0, a1, a2)
-# print(f"{q1=}, {q2=}")
-# a0, a1, a2 = q_to_a(q1, q2)
-# print(f"{a0=}, {a1=}, {a2=}")
-#
-# # q1, q2 = 0.36, 0.4
-# u1, u2 = 0.4, 0.2
-# q1, q2 = u_to_q(u1, u2)
-# print(f"u1 = {u1}, u2 = {u2}")
-# print(f"q1 = {q1}, q2 = {q2}")
-# u1, u2 = q_to_u(q1, q2)
-# print(f"u1 = {u1}, u2 = {u2}")
-
-
-# q1, q2 = 0.4900, 0.3571
-# a0, a1, a2 = q_to_a(q1, q2)
-a0, a1, a2 = 0.3, 0.9, -0.2
-q1, q2 = a_to_q(a0, a1, a2)
 
 # plot the limb darkening curve for a given set of coefficients and radii between 0 and 1
 radii = np.linspace(0, 1, 100)
