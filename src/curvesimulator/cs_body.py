@@ -34,7 +34,7 @@ class CurveSimBody:
         self.luminosity = luminosity  # [W]
         self.limb_darkening = CurveSimPhysics.get_limbdarkening_parameters(limb_darkening, limb_darkening_parameter_type)
 
-        self.mean_intensity = CurveSimPhysics.calc_mean_intensity(limb_darkening)
+        self.mean_intensity = CurveSimPhysics.calc_mean_intensity(self.limb_darkening)
         self.brightness = luminosity / self.area_2d  # luminosity per (apparent) area [W/m**2]
         self.positions = np.zeros((p.iterations, 3), dtype=float)  # position for each frame
 
