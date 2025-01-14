@@ -42,6 +42,7 @@ class CurveSimBodies(list):
                                          radius=eval(config.get(section, "radius", fallback="-1")),
                                          luminosity=eval(config.get(section, "luminosity", fallback="0.0")),
                                          limb_darkening=eval(config.get(section, "limb_darkening", fallback="None")),
+                                         limb_darkening_parameter_type=config.get(section, "limb_darkening_parameter_type", fallback=None),
                                          startposition=config.get(section, "startposition", fallback=None),
                                          velocity=config.get(section, "velocity", fallback=None),
                                          e=eval(config.get(section, "e", fallback="-1")),

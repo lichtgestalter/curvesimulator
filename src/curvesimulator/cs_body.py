@@ -19,7 +19,7 @@ class CurveSimBody:
 
     def __init__(self, primary, p, name, body_type, mass, radius, luminosity, startposition, velocity, P, a, e, i, Ω, ω, ϖ, L, ma, ea,
                  # pot_transit_date,
-                 nu, T, t, limb_darkening, color):
+                 nu, T, t, limb_darkening, limb_darkening_parameter_type, color):
         """Initialize instance of physical body."""
         # For ease of use of constants in the config file they are additionally defined here without the prefix "p.".
         g, au, r_sun, m_sun, l_sun = p.g, p.au, p.r_sun, p.m_sun, p.l_sun
@@ -32,8 +32,9 @@ class CurveSimBody:
         self.radius = radius  # [m]
         self.area_2d = math.pi * radius ** 2  # [m**2]
         self.luminosity = luminosity  # [W]
-        self.limb_darkening = limb_darkening
-        self.mean_intensity = CurveSimPhysics.mean_intensity(limb_darkening)
+        self.limb_darkening = CurveSimPhysics.get_limbdarkening_parameters(limb_darkening, limb_darkening_parameter_type)
+
+        self.mean_intensity = CurveSimPhysics.calc_mean_intensity(limb_darkening)
         self.brightness = luminosity / self.area_2d  # luminosity per (apparent) area [W/m**2]
         self.positions = np.zeros((p.iterations, 3), dtype=float)  # position for each frame
 

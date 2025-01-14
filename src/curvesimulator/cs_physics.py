@@ -1,4 +1,6 @@
+import numpy as np
 import math
+import sys
 
 class CurveSimPhysics:
 
@@ -52,7 +54,57 @@ class CurveSimPhysics:
         return math.sqrt((dx ** 2 + dy ** 2))
 
     @staticmethod
-    def limbdarkening(relative_radius, limb_darkening_coefficients):
+    def get_limbdarkening_parameters(parameters, parameter_type):
+        """converts limb darkening parameters to quadratic law parameters u1,u2 if necessary"""
+        if parameter_type == "u":
+            if len(parameters) == 2:
+                return parameters[0], parameters[1]
+        if parameter_type == "a":
+            if len(parameters) == 3:
+                _, a1, a2 = parameters
+                u1 = a1 + 2 * a2
+                u2 = -a2
+                return u1, u2
+        if parameter_type == "q":
+            if len(parameters) == 2:
+                q1, q2 = parameters
+                u1 = 2 * math.sqrt(q1) * q2
+                u2 = np.sqrt(q1) * (1 - 2 * q2)
+                return u1, u2
+        if parameter_type is None and parameters is None:
+            return None
+        print(f"ERROR in config file: limb_darkening_parameter_type must be a or u or q.")
+        print(f"                      limb_darkening must be [a0,a1,a2] or [u1,u2] or [q1,q2] correspondingly.")
+        print(f"                      Config file contains: limb_darkening_parameter_type = {parameter_type} and limb_darkening = {parameters}")
+        sys.exit(1)
+
+    @staticmethod
+    def intensity(mu, limb_darkening_parameters):
+        """Apply quadratic limb darkening law"""
+        u1, u2 = limb_darkening_parameters
+        return 1 - u1 * (1 - mu) - u2 * (1 - mu) ** 2
+
+    @staticmethod
+    def calc_mean_intensity(limb_darkening_parameters):
+        """Calculates the ratio of the mean intensity to the central intensity of a star based on
+        the given quadratic law parameters for limb darkening by integrating the intensity over the stellar disk"""
+        if limb_darkening_parameters is None:
+            return None
+        mu_values = np.linspace(0, 1, 1000)
+        intensities = CurveSimPhysics.intensity(mu_values, limb_darkening_parameters)
+        return 2 * np.trapz(intensities * mu_values, mu_values)
+
+    @staticmethod
+    def limbdarkening(relative_radius, limb_darkening_parameters):
+        if relative_radius < 0:  # handling rounding errors
+            relative_radius = 0.0
+        if relative_radius > 1:
+            relative_radius = 1.0
+        mu = math.sqrt(1 - relative_radius ** 2)
+        return CurveSimPhysics.intensity(mu, limb_darkening_parameters)
+
+    @staticmethod
+    def limbdarkening_old(relative_radius, limb_darkening_coefficients):
         """
         Approximates the flux of a star at a point on the star seen from a very large distance.
         The point's apparent distance from the star's center is relative_radius * radius.
@@ -73,7 +125,7 @@ class CurveSimPhysics:
         return intensity
 
     @staticmethod
-    def mean_intensity(limb_darkening_coefficients):
+    def mean_intensity_old(limb_darkening_coefficients):
         """Calculates the ratio of the mean intensity to the central intensity of a star based on the given coefficients."""
         if limb_darkening_coefficients is None:
             return None
