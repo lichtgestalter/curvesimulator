@@ -213,5 +213,5 @@ I implemented all suggestions from zoom call 29.03.2022, but tried and dismissed
                 TIC470710327 (with hacked velocity correction)
                 TOI-4504 / TIC349972412 (1 star, 2 transiting planets, 1 non-transiting planet)
     0.3.0   limb darkening alternative models/parameters
-            check if ffmpeg is available
+    0.3.1   check if ffmpeg is available
 
