@@ -3,12 +3,14 @@ import time
 import matplotlib
 import numpy as np
 import matplotlib.pyplot as plt  # from matplotlib import pyplot as plt
+import shutil
 
 spd = 3600 * 24  # seconds per day
 
 class CurveSimAnimation:
 
     def __init__(self, p, bodies, lightcurve):
+        CurveSimAnimation.check_ffmpeg()
         self.fig, ax_right, ax_left, ax_lightcurve, self.red_dot = CurveSimAnimation.init_plot(p, lightcurve)  # Adjust constants in section [Plot] of config file to fit your screen.
         for body in bodies:  # Circles represent the bodies in the animation. Set their colors and add them to the matplotlib axis.
             body.circle_right.set_color(body.color)
@@ -16,6 +18,15 @@ class CurveSimAnimation:
             ax_right.add_patch(body.circle_right)
             ax_left.add_patch(body.circle_left)
         self.render(p, bodies, lightcurve)
+
+    @staticmethod
+    def check_ffmpeg():
+        """Checks if ffmpeg is available"""
+        if shutil.which('ffmpeg') is None:
+            print("ERROR: ffmpeg is not available. Please install ffmpeg to save the video.")
+            print("Visit ffmpeg.org to download an executable version.")
+            print("Extract the zip file and add the bin directory to your system's PATH environment variable.")
+            exit(1)
 
     @staticmethod
     def tic_delta(scope):

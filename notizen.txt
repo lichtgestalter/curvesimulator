@@ -1,8 +1,6 @@
 
 NEXT:
     intensity in brightness umbenennen???
-    0.3.0 limb darkening alternative models.
-        neuer parameter limb_darkening_model
 
     Modify eclipsed by
         Transit Times in neue Klasse Result speichern statt unterwegs schon provisorisch in Konsole printen
@@ -214,4 +212,6 @@ I implemented all suggestions from zoom call 29.03.2022, but tried and dismissed
     0.2.22  Example videos
                 TIC470710327 (with hacked velocity correction)
                 TOI-4504 / TIC349972412 (1 star, 2 transiting planets, 1 non-transiting planet)
+    0.3.0   limb darkening alternative models/parameters
+            check if ffmpeg is available
 
