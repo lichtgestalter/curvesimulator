@@ -20,7 +20,7 @@ from curvesimulator import curvesim
 
 def main():
     # parameters, bodies = debug_print_points()
-    parameters, bodies, lightcurve = curvesim(config_file="../configurations/TOI-4504.ini")
+    parameters, bodies, results, lightcurve = curvesim(config_file="../configurations/TOI-4504.ini")
     print(parameters)
     print(bodies)
     # for body in bodies:
@@ -28,6 +28,7 @@ def main():
     #     body.__dict__.pop('positions')
     #     # print the names and values of all attributes of body
     #     print(body.__dict__)
+    print(results)
     print(lightcurve)
 
 

@@ -9,7 +9,7 @@ import numpy as np
 from curvesimulator.cs_body import CurveSimBody
 from curvesimulator.cs_lightcurve import CurveSimLightcurve
 from curvesimulator.cs_physics import CurveSimPhysics
-from numpy import ndarray
+from curvesimulator.cs_results import CurveSimResults
 
 
 class CurveSimBodies(list):
@@ -66,8 +66,6 @@ class CurveSimBodies(list):
             body.calc_state_vector(p, self)
             body.frames_per_orbit = body.calc_frames_per_orbit(p)
         self.calc_primary_body_initial_velocity()
-        # for body in self:
-        #     body.velocity *= 0.0  # DEBUG: Set all velocities to zero.
         self.generate_patches(p)
 
     def __repr__(self):
@@ -132,7 +130,6 @@ class CurveSimBodies(list):
         for body in self[1:]:
             self[0].velocity += body.velocity * body.mass
         self[0].velocity /= - self[0].mass
-        # print(f"Initial velocity of {self[0].name}: x={self[0].velocity[0]:8.0f}  y={self[0].velocity[1]:8.0f}  z={self[0].velocity[2]:8.0f}  (Primary body)")  # DEBUG
 
     def total_luminosity(self, stars, iteration):
         """Add luminosity of all stars in the system while checking for eclipses.
@@ -144,13 +141,14 @@ class CurveSimBodies(list):
                 if body != star:  # an object cannot eclipse itself :)
                     eclipsed_area, relative_radius = star.eclipsed_by(body, iteration)
                     if eclipsed_area != 0:
-                        luminosity -= star.brightness * eclipsed_area * CurveSimPhysics.limbdarkening(relative_radius, star.limb_darkening) / star.mean_intensity
+                        luminosity -= star.intensity * eclipsed_area * CurveSimPhysics.limbdarkening(relative_radius, star.limb_darkening) / star.mean_intensity
         return luminosity
 
     def calc_positions_eclipses_luminosity(self, p):
         """Calculate distances, forces, accelerations, velocities of the bodies for each iteration.
         The resulting body positions and the lightcurve are stored for later use in the animation.
         Body motion calculations inspired by https://colab.research.google.com/drive/1YKjSs8_giaZVrUKDhWLnUAfebuLTC-A5."""
+        results = CurveSimResults(self)
         stars = [body for body in self if body.body_type == "star"]
         lightcurve = CurveSimLightcurve(p.iterations)  # Initialize lightcurve (essentially a np.ndarray)
         lightcurve[0] = self.total_luminosity(stars, 0)
@@ -178,8 +176,7 @@ class CurveSimBodies(list):
             lightcurve[iteration] = self.total_luminosity(stars, iteration)  # Update lightcurve.
             if iteration % int(round(p.iterations / 10)) == 0:  # Inform user about program's progress.
                 print(f'{round(iteration / p.iterations * 10) * 10:3d}% ', end="")
-                # print(f"{iteration=:3}   {self[0].velocity=}   {self[1].velocity=:}")  # DEBUG
-        return lightcurve, self
+        return results, lightcurve, self
 
     def calc_physics(self, p):
         """Calculate body positions and the resulting lightcurve."""
@@ -187,11 +184,11 @@ class CurveSimBodies(list):
               f'earth days. ({p.dt * p.sampling_rate * p.fps / 60 / 60 / 24:.2f} earth days per video second.)')
         print(f'Calculating {p.iterations:6d} iterations: ', end="")
         tic = time.perf_counter()
-        lightcurve, bodies = self.calc_positions_eclipses_luminosity(p)
+        results, lightcurve, bodies = self.calc_positions_eclipses_luminosity(p)
         lightcurve /= lightcurve.max(initial=None)  # Normalize flux.
         toc = time.perf_counter()
         print(f' {toc - tic:7.2f} seconds  ({p.iterations / (toc - tic):.0f} iterations/second)')
-        return lightcurve
+        return results, lightcurve
 
     def calc_patch_radii(self, p):
         """If autoscaling is on, this function calculates the radii of the circles (matplotlib patches) of the animation."""

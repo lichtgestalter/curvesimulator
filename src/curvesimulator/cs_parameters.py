@@ -47,10 +47,6 @@ class CurveSimParameters:
         self.max_radius = eval(config.get("Scale", "max_radius")) / 100.0
 
         # [Plot]
-        # self.time_units = {"s": 1, "min": 60, "h": 3600, "d": 24 * 3600,
-        #                    "mon": 365.25 * 24 * 3600 / 12, "y": 365.25 * 24 * 3600}
-        # self.x_unit_name = config.get("Plot", "x_unit", fallback="d")
-        # self.x_unit_value = self.time_units[self.x_unit_name]
         self.start_date = eval(config.get("Plot", "start_date", fallback="0.0"))
         self.figure_width = eval(config.get("Plot", "figure_width", fallback="16"))
         self.figure_height = eval(config.get("Plot", "figure_height", fallback="8"))
@@ -68,7 +64,6 @@ class CurveSimParameters:
 
         # [Debug]
         self.debug_L = list(eval(config.get("Debug", "debug_L", fallback="[0]")))
-        # print(f'{self.debug_L=}, {type(self.debug_L)=}')
 
     def __repr__(self):
         return f'CurveSimParameters from {self.configfilename}'

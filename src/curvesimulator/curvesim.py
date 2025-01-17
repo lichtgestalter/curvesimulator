@@ -15,11 +15,11 @@ from .cs_physics import CurveSimPhysics
 def curvesim(config_file=""):
     parameters = CurveSimParameters(config_file)  # Read program parameters from config file.
     bodies = CurveSimBodies(parameters)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
-    lightcurve = bodies.calc_physics(parameters)  # Calculate body positions and the resulting lightcurve.
-    CurveSimAnimation(parameters, bodies, lightcurve)  # Create the video
+    results, lightcurve = bodies.calc_physics(parameters)  # Calculate body positions and the resulting lightcurve.
+    CurveSimAnimation(parameters, bodies, results, lightcurve)  # Create the video
     # for i in range(0, len(lightcurve), round(len(lightcurve)/10)):
     #     print(f"{CurveSimPhysics.distance_3d((bodies[0].positions[i]+bodies[1].positions[i])/2, bodies[2].positions[i]):.0f}")
-    return parameters, bodies, lightcurve
+    return parameters, bodies, results, lightcurve
 
 
 def debug_print_points(config_file=""):

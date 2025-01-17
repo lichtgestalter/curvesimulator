@@ -35,7 +35,7 @@ class CurveSimBody:
         self.limb_darkening = CurveSimPhysics.get_limbdarkening_parameters(limb_darkening, limb_darkening_parameter_type)
 
         self.mean_intensity = CurveSimPhysics.calc_mean_intensity(self.limb_darkening)
-        self.brightness = luminosity / self.area_2d  # luminosity per (apparent) area [W/m**2]
+        self.intensity = luminosity / self.area_2d  # luminosity per (apparent) area [W/m**2]
         self.positions = np.zeros((p.iterations, 3), dtype=float)  # position for each frame
 
         self.e = e  # [1] eccentricity
@@ -121,7 +121,6 @@ class CurveSimBody:
                 print("Remove one of these parameters from the config file or")
                 print("make sure that a and P are compatible with Kepler's third law.")
                 sys.exit(5)
-        # print(f"{self.name=} a={self.a/1.495978707e11:.3f} AU.  P={self.P/(3600*24):.2f} days")  # DEBUG
 
     def calc_anomalies(self):
         """[a]: https://web.archive.org/web/20160418175843/https://ccar.colorado.edu/asen5070/handouts/cart2kep2002.pdf
@@ -211,8 +210,6 @@ class CurveSimBody:
             pos, vel, *_ = state_vector_function()
             self.positions[0] = np.array(pos, dtype=float)  # [m] initial position
             self.velocity = np.array(vel, dtype=float)  # [m/s] initial velocity
-            # self.velocity /= 1.0  # DEBUG
-            # print(f"Initial velocity of {self.name}: x={self.velocity[0]:8.0f}  y={self.velocity[1]:8.0f}  z={self.velocity[2]:8.0f}")  # DEBUG
 
     def eclipsed_by(self, other, iteration):
         """Returns area, relative_radius
