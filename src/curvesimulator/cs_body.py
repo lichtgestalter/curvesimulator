@@ -211,7 +211,7 @@ class CurveSimBody:
             self.positions[0] = np.array(pos, dtype=float)  # [m] initial position
             self.velocity = np.array(vel, dtype=float)  # [m/s] initial velocity
 
-    def eclipsed_by(self, other, iteration):
+    def eclipsed_by(self, other, iteration, results):
         """Returns area, relative_radius
         area: Area of self which is eclipsed by other.
         relative_radius: The distance of the approximated center of the eclipsed area from the center of self as a percentage of self.radius (used for limb darkening)."""
@@ -221,8 +221,9 @@ class CurveSimBody:
             # print(f'{self.name} {other.name} {d=}')
             if d < self.radius + other.radius:  # Does other eclipse self?
                 if d <= abs(self.radius - other.radius):  # Annular (i.e. ring) eclipse or total eclipse
-                    if other.eclipsing.value < CurveSimBody.Eclipsing.MAX.value:
+                    if other.eclipsing.value < CurveSimBody.Eclipsing.MAX.value:  # is this T2?
                         other.eclipsing = CurveSimBody.Eclipsing.MAX
+                        # results[other.name] =
                         # print(f"\n{iteration=} {other.name} eclipses {self.name} maximally.")
                     if self.radius < other.radius:  # Total eclipse
                         area = self.area_2d
@@ -238,7 +239,7 @@ class CurveSimBody:
                             # print(f'   ring: {iteration:7d}  rel.area: {area / self.area_2d * 100:6.0f}%  rel.r: {relative_radius * 100:6.0f}%')
                         return area, relative_radius
                 else:  # Partial eclipse
-                    if other.eclipsing.value != CurveSimBody.Eclipsing.PARTIAL.value:
+                    if other.eclipsing.value != CurveSimBody.Eclipsing.PARTIAL.value:  # is this T1 or T3?
                         other.eclipsing = CurveSimBody.Eclipsing.PARTIAL
                         # print(f"\n{iteration=} {other.name} eclipses {self.name} partially.")
                     # Eclipsed area is the sum of a circle segment of self + a circle segment of other
@@ -258,7 +259,7 @@ class CurveSimBody:
                         print(f"dy: {abs(self.positions[iteration][1] - other.positions[iteration][1]):6.3e}  dz: {abs(self.positions[iteration][2] - other.positions[iteration][2]):6.3e} d: {d:6.3e}")
                     return area, relative_radius
             else:  # No eclipse because, seen from viewer, the bodies are not close enough to each other
-                if other.eclipsing.value > CurveSimBody.Eclipsing.NO.value:
+                if other.eclipsing.value > CurveSimBody.Eclipsing.NO.value:  # is this T4?
                     other.eclipsing = CurveSimBody.Eclipsing.NO
                     # print(f"\n{iteration=} {other.name} does not eclipse {self.name} anymore.")
                 return 0.0, 0.0

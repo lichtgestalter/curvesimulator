@@ -13,21 +13,42 @@ Results (dic)
                 b =  0.18  # Transit Impact parameter (distance between the center of the stellar disc and the center of the planetary disc at conjunction, expressed in units of the star's radius)
             1
             2
-        SomeOtherBodySpecificResult
+        SomeOtherBodySpecificResult1
+        SomeOtherBodySpecificResult2
     Bodyname1
 
     Bodyname2
 
 """
 
+# class BodyResults(dict):
+#     def __init__(self):
+#         self["Transits"] = []
+#         self["SomeOtherBodySpecificResult"] = 0
+
 
 class Transit(dict):
     def __init__(self):
         transit_params = ["Transittype", "T1", "T2", "TT", "T3", "T4", "T12", "T23", "T34", "T14", "b"]
-        transit = {key: None for key in transit_params}
+        for key in transit_params:
+            self[key] = None
 
 
 class CurveSimResults(dict):
     def __init__(self, bodies):
         for body in bodies:
-            self[body.name] = {"Transits": [], "Dummy": 0}
+            self[body.name] = {"Transits": [], "SomeOtherBodySpecificResult1": 0, "SomeOtherBodySpecificResult2": 0}
+            # self[body] = {"Transits": [], "SomeOtherBodySpecificResult1": 0, "SomeOtherBodySpecificResult2": 0}
+
+
+
+# def main():
+#     bodies = ["Star", "Planet1", "Planet2"]
+#     results = CurveSimResults(bodies)
+#     for body in bodies:
+#         for _ in range(2):
+#             results[body]["Transits"].append(Transit())
+#     print()
+#     print()
+#
+# main()
