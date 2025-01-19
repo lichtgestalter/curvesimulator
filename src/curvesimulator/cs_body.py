@@ -1,13 +1,17 @@
 import sys
 import math
 import numpy as np
-import pylab as p
 from enum import Enum
 
 from curvesimulator.cs_physics import CurveSimPhysics
 
 debugging_kepler_parameters = False
 debugging_eclipse = False
+
+
+def green(string):
+    return "\u001b[32m" + string + "\u001b[0m"
+
 
 # noinspection NonAsciiCharacters,PyPep8Naming,PyUnusedLocal
 class CurveSimBody:
@@ -227,6 +231,8 @@ class CurveSimBody:
             return area, relative_radius
 
     def partial_eclipse(self, other, d):
+        # Eclipsed area is the sum of a circle segment of self + a circle segment of other
+        # https://de.wikipedia.org/wiki/Kreissegment  https://de.wikipedia.org/wiki/Schnittpunkt#Schnittpunkte_zweier_Kreise
         self.d = (self.radius ** 2 - other.radius ** 2 + d ** 2) / (2 * d)  # Distance of center from self to radical axis
         other.d = (other.radius ** 2 - self.radius ** 2 + d ** 2) / (2 * d)  # Distance of center from other to radical axis
         other.h = other.radius + self.d - d  # Height of circle segment
@@ -242,7 +248,31 @@ class CurveSimBody:
         #     print(f"dy: {abs(self.positions[iteration][1] - other.positions[iteration][1]):6.3e}  dz: {abs(self.positions[iteration][2] - other.positions[iteration][2]):6.3e} d: {d:6.3e}")
         return area, relative_radius
 
-    def eclipsed_by(self, other, iteration, results):
+    def check_for_T1T3(self, other, iteration, results, transit_status):
+        if transit_status[other.name+"."+self.name] == "NoTransit":
+            print(f"\n{iteration=} {green('T1')} {other.name} eclipses {self.name} partially.")
+            transit_status[other.name + "." + self.name] = "Ingress"
+            results[other.name]["Transits"].append() hier weiter
+        elif transit_status[other.name+"."+self.name] == "FullTransit":
+            print(f"\n{iteration=} {green('T3')} {other.name} eclipses {self.name} partially.")
+            transit_status[other.name + "." + self.name] = "Egress"
+
+        # if other.eclipsing.value != CurveSimBody.Eclipsing.PARTIAL.value:  # is this T1 or T3?
+        #     other.eclipsing = CurveSimBody.Eclipsing.PARTIAL
+        #     print(f"\n{iteration=} T1 or T3 {other.name} eclipses {self.name} partially.")
+
+    def check_for_T2(self, other, iteration, results, transit_status):
+        if other.eclipsing.value < CurveSimBody.Eclipsing.MAX.value:  # is this T2?
+            other.eclipsing = CurveSimBody.Eclipsing.MAX
+            # results[other.name] = hier weiter
+            print(f"\n{iteration=} T2 {other.name} eclipses {self.name} maximally.")
+
+    def check_for_T4(self, other, iteration, results, transit_status):
+        if other.eclipsing.value > CurveSimBody.Eclipsing.NO.value:  # is this T4?
+            other.eclipsing = CurveSimBody.Eclipsing.NO
+            print(f"\n{iteration=} {other.name} does not eclipse {self.name} anymore.")
+
+    def eclipsed_by(self, other, iteration, results, transit_status):
         """Returns area, relative_radius
         area: Area of self which is eclipsed by other.
         relative_radius: The distance of the approximated center of the eclipsed area from the center of self as a percentage of self.radius (used for limb darkening)."""
@@ -250,22 +280,15 @@ class CurveSimBody:
             d = CurveSimPhysics.distance_2d_ecl(other, self, iteration)
             if d < self.radius + other.radius:  # Does other eclipse self?
                 if d <= abs(self.radius - other.radius):  # Annular (i.e. ring) eclipse or total eclipse
-                    if other.eclipsing.value < CurveSimBody.Eclipsing.MAX.value:  # is this T2?
-                        other.eclipsing = CurveSimBody.Eclipsing.MAX
-                        results[other.name] = hier weiter
-                        # print(f"\n{iteration=} {other.name} eclipses {self.name} maximally.")
-                    return self.full_eclipse(other, d)
+                    self.check_for_T2(other, iteration, results, transit_status)
+                    area, relative_radius = self.full_eclipse(other, d)
+                    return area, relative_radius
                 else:  # Partial eclipse
-                    if other.eclipsing.value != CurveSimBody.Eclipsing.PARTIAL.value:  # is this T1 or T3?
-                        other.eclipsing = CurveSimBody.Eclipsing.PARTIAL
-                        # print(f"\n{iteration=} {other.name} eclipses {self.name} partially.")
-                    # Eclipsed area is the sum of a circle segment of self + a circle segment of other
-                    # https://de.wikipedia.org/wiki/Kreissegment  https://de.wikipedia.org/wiki/Schnittpunkt#Schnittpunkte_zweier_Kreise
-                    return self.partial_eclipse(other, d)
+                    self.check_for_T1T3(other, iteration, results, transit_status)
+                    area, relative_radius = self.partial_eclipse(other, d)
+                    return area, relative_radius
             else:  # No eclipse because, seen from viewer, the bodies are not close enough to each other
-                if other.eclipsing.value > CurveSimBody.Eclipsing.NO.value:  # is this T4?
-                    other.eclipsing = CurveSimBody.Eclipsing.NO
-                    # print(f"\n{iteration=} {other.name} does not eclipse {self.name} anymore.")
+                self.check_for_T4(other, iteration, results, transit_status)
                 return 0.0, 0.0
         else:  # other cannot eclipse self, because self is nearer to viewer than other
             return 0.0, 0.0

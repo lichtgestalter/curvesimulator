@@ -131,7 +131,7 @@ class CurveSimBodies(list):
             self[0].velocity += body.velocity * body.mass
         self[0].velocity /= - self[0].mass
 
-    def total_luminosity(self, stars, iteration, results):
+    def total_luminosity(self, stars, iteration, results, transit_status):
         """Add luminosity of all stars in the system while checking for eclipses.
         Does not yet work correctly for eclipsed eclipses (three or more bodies in line of sight at the same time)."""
         luminosity = 0.0
@@ -139,7 +139,7 @@ class CurveSimBodies(list):
             luminosity += star.luminosity
             for body in self:
                 if body != star:  # an object cannot eclipse itself :)
-                    eclipsed_area, relative_radius = star.eclipsed_by(body, iteration, results)
+                    eclipsed_area, relative_radius = star.eclipsed_by(body, iteration, results, transit_status)
                     if eclipsed_area != 0:
                         luminosity -= star.intensity * eclipsed_area * CurveSimPhysics.limbdarkening(relative_radius, star.limb_darkening) / star.mean_intensity
         return luminosity
@@ -149,9 +149,13 @@ class CurveSimBodies(list):
         The resulting body positions and the lightcurve are stored for later use in the animation.
         Body motion calculations inspired by https://colab.research.google.com/drive/1YKjSs8_giaZVrUKDhWLnUAfebuLTC-A5."""
         results = CurveSimResults(self)
+        transit_status = {}
+        for body1 in self:
+            for body2 in self:
+                transit_status[body1.name + "." + body2.name] = "NoTransit"
         stars = [body for body in self if body.body_type == "star"]
         lightcurve = CurveSimLightcurve(p.iterations)  # Initialize lightcurve (essentially a np.ndarray)
-        lightcurve[0] = self.total_luminosity(stars, 0, results)
+        lightcurve[0] = self.total_luminosity(stars, 0, results, transit_status)
         for iteration in range(1, p.iterations):
             for body1 in self:
                 force = np.array([0.0, 0.0, 0.0])
@@ -173,7 +177,7 @@ class CurveSimBodies(list):
                 # Update positions:
                 movement = body1.velocity * p.dt - 0.5 * acceleration * p.dt ** 2
                 body1.positions[iteration] = body1.positions[iteration - 1] + movement
-            lightcurve[iteration] = self.total_luminosity(stars, iteration, results)  # Update lightcurve.
+            lightcurve[iteration] = self.total_luminosity(stars, iteration, results, transit_status)  # Update lightcurve.
             if iteration % int(round(p.iterations / 10)) == 0:  # Inform user about program's progress.
                 print(f'{round(iteration / p.iterations * 10) * 10:3d}% ', end="")
         return results, lightcurve, self

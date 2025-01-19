@@ -3,7 +3,7 @@ Results (dic)
     Bodyname0 (dic)
         Transits (list)
             0 (dic)
-                Transittype = primary
+                EclipsedBody = primary
                 T1 = 2459363.1  # [BJD] start_date + iteration * dt
                 T2 = 2459363.2
                 TT = 2459363.5  # Time of minimum projected separation
@@ -18,6 +18,16 @@ Results (dic)
     Bodyname1
 
     Bodyname2
+
+
+
+TransitStatus (dic)
+    Bodyname3.Bodyname1 = Ingress
+    Bodyname5.Bodyname2 = Egress
+    Bodyname1.Bodyname4 = FullTransit
+    Bodyname6.Bodyname1 = NoTransit
+
+
 
 """
 
