@@ -3,7 +3,7 @@ Results (dic)
     Bodyname0 (dic)
         Transits (list)
             0 (dic)
-                EclipsedBody = primary
+                eclipsed_body = TOI-4504
                 T1 = 2459363.1  # [BJD] start_date + iteration * dt
                 T2 = 2459363.2
                 TT = 2459363.5  # Time of minimum projected separation
@@ -38,10 +38,11 @@ TransitStatus (dic)
 
 
 class Transit(dict):
-    def __init__(self):
-        transit_params = ["Transittype", "T1", "T2", "TT", "T3", "T4", "T12", "T23", "T34", "T14", "b"]
+    def __init__(self, eclipsed_body):
+        transit_params = ["EclipsedBody", "T1", "T2", "TT", "T3", "T4", "T12", "T23", "T34", "T14", "b"]
         for key in transit_params:
             self[key] = None
+        self["EclipsedBody"] = eclipsed_body.name
 
 
 class CurveSimResults(dict):

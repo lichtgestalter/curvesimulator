@@ -4,6 +4,7 @@ import numpy as np
 from enum import Enum
 
 from curvesimulator.cs_physics import CurveSimPhysics
+from curvesimulator.cs_results import Transit
 
 debugging_kepler_parameters = False
 debugging_eclipse = False
@@ -12,6 +13,11 @@ debugging_eclipse = False
 def green(string):
     return "\u001b[32m" + string + "\u001b[0m"
 
+def multiple_transit_error():
+    print("ERROR: Ambiguous transit constellation.")
+    print("CurveSimulator can not handle multiple synchronous transits correctly yet.")
+    print("Please send your config file to CurveSimulator's developers.")
+    sys.exit(1)
 
 # noinspection NonAsciiCharacters,PyPep8Naming,PyUnusedLocal
 class CurveSimBody:
@@ -248,31 +254,50 @@ class CurveSimBody:
         #     print(f"dy: {abs(self.positions[iteration][1] - other.positions[iteration][1]):6.3e}  dz: {abs(self.positions[iteration][2] - other.positions[iteration][2]):6.3e} d: {d:6.3e}")
         return area, relative_radius
 
-    def check_for_T1T3(self, other, iteration, results, transit_status):
+    def check_for_T1T3(self, other, iteration, results, transit_status, p):
         if transit_status[other.name+"."+self.name] == "NoTransit":
-            print(f"\n{iteration=} {green('T1')} {other.name} eclipses {self.name} partially.")
+            print(f"\n{iteration=} {green('T1')} {other.name} eclipses {self.name}")
             transit_status[other.name + "." + self.name] = "Ingress"
-            results[other.name]["Transits"].append() hier weiter
+            results[other.name]["Transits"].append(Transit(self))
+            results[other.name]["Transits"][-1]["T1"] = p.start_date + iteration * p.dt / 86400
         elif transit_status[other.name+"."+self.name] == "FullTransit":
-            print(f"\n{iteration=} {green('T3')} {other.name} eclipses {self.name} partially.")
+            print(f"\n{iteration=} {green('T3')} {other.name} eclipses {self.name}")
             transit_status[other.name + "." + self.name] = "Egress"
+            if (results[other.name]["Transits"][-1]["T3"] is None
+                    and results[other.name]["Transits"][-1]["T2"] is not None
+                    and results[other.name]["Transits"][-1]["EclipsedBody"] == self.name):
+                results[other.name]["Transits"][-1]["T3"] = p.start_date + iteration * p.dt / 86400
+            else:
+                multiple_transit_error()
 
-        # if other.eclipsing.value != CurveSimBody.Eclipsing.PARTIAL.value:  # is this T1 or T3?
-        #     other.eclipsing = CurveSimBody.Eclipsing.PARTIAL
-        #     print(f"\n{iteration=} T1 or T3 {other.name} eclipses {self.name} partially.")
+    def check_for_T2(self, other, iteration, results, transit_status, p):
+        if transit_status[other.name+"."+self.name] == "Ingress":
+            print(f"\n{iteration=} {green('T2')} {other.name} eclipses {self.name}")
+            transit_status[other.name + "." + self.name] = "FullTransit"
+            if (results[other.name]["Transits"][-1]["T2"] is None
+                    and results[other.name]["Transits"][-1]["T1"] is not None
+                    and results[other.name]["Transits"][-1]["EclipsedBody"] == self.name):
+                results[other.name]["Transits"][-1]["T2"] = p.start_date + iteration * p.dt / 86400
+            else:
+                multiple_transit_error()
+        elif transit_status[other.name+"."+self.name] == "NoTransit":
+            print(f"\n{iteration=} {green('T1')} {other.name} eclipses {self.name}")
+            print(f"\n{iteration=} {green('T2')} {other.name} eclipses {self.name}")
+            transit_status[other.name + "." + self.name] = "FullTransit"
+            results[other.name]["Transits"].append(Transit(self))
+            results[other.name]["Transits"][-1]["T1"] = p.start_date + iteration * p.dt / 86400
+            results[other.name]["Transits"][-1]["T2"] = p.start_date + iteration * p.dt / 86400
 
-    def check_for_T2(self, other, iteration, results, transit_status):
-        if other.eclipsing.value < CurveSimBody.Eclipsing.MAX.value:  # is this T2?
-            other.eclipsing = CurveSimBody.Eclipsing.MAX
-            # results[other.name] = hier weiter
-            print(f"\n{iteration=} T2 {other.name} eclipses {self.name} maximally.")
+    def check_for_T4(self, other, iteration, results, transit_status, p):
+        if transit_status[other.name+"."+self.name] == "Egress":
+            hier weiter
 
-    def check_for_T4(self, other, iteration, results, transit_status):
-        if other.eclipsing.value > CurveSimBody.Eclipsing.NO.value:  # is this T4?
-            other.eclipsing = CurveSimBody.Eclipsing.NO
-            print(f"\n{iteration=} {other.name} does not eclipse {self.name} anymore.")
 
-    def eclipsed_by(self, other, iteration, results, transit_status):
+        # if other.eclipsing.value > CurveSimBody.Eclipsing.NO.value:  # is this T4?
+        #     other.eclipsing = CurveSimBody.Eclipsing.NO
+        #     print(f"\n{iteration=} {other.name} does not eclipse {self.name} anymore.")
+
+    def eclipsed_by(self, other, iteration, results, transit_status, p):
         """Returns area, relative_radius
         area: Area of self which is eclipsed by other.
         relative_radius: The distance of the approximated center of the eclipsed area from the center of self as a percentage of self.radius (used for limb darkening)."""
@@ -280,15 +305,15 @@ class CurveSimBody:
             d = CurveSimPhysics.distance_2d_ecl(other, self, iteration)
             if d < self.radius + other.radius:  # Does other eclipse self?
                 if d <= abs(self.radius - other.radius):  # Annular (i.e. ring) eclipse or total eclipse
-                    self.check_for_T2(other, iteration, results, transit_status)
+                    self.check_for_T2(other, iteration, results, transit_status, p)
                     area, relative_radius = self.full_eclipse(other, d)
                     return area, relative_radius
                 else:  # Partial eclipse
-                    self.check_for_T1T3(other, iteration, results, transit_status)
+                    self.check_for_T1T3(other, iteration, results, transit_status, p)
                     area, relative_radius = self.partial_eclipse(other, d)
                     return area, relative_radius
             else:  # No eclipse because, seen from viewer, the bodies are not close enough to each other
-                self.check_for_T4(other, iteration, results, transit_status)
+                self.check_for_T4(other, iteration, results, transit_status, p)
                 return 0.0, 0.0
         else:  # other cannot eclipse self, because self is nearer to viewer than other
             return 0.0, 0.0
