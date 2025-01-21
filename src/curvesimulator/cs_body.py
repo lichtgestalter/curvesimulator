@@ -294,7 +294,7 @@ class CurveSimBody:
     def check_for_T4(self, other, iteration, results, transit_status, p):
         if transit_status[other.name+"."+self.name] == "Egress":
             hier weiter
-            0
+            1
 
         # if other.eclipsing.value > CurveSimBody.Eclipsing.NO.value:  # is this T4?
         #     other.eclipsing = CurveSimBody.Eclipsing.NO
