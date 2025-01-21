@@ -20,6 +20,7 @@ from curvesimulator import curvesim
 
 def main():
     # parameters, bodies = debug_print_points()
+    # parameters, bodies, results, lightcurve = curvesim(config_file="../configurations/TIC470710327.ini")
     parameters, bodies, results, lightcurve = curvesim(config_file="../configurations/TOI-4504.ini")
     print(parameters)
     print(bodies)

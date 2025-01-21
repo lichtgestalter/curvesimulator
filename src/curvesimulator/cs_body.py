@@ -220,6 +220,9 @@ class CurveSimBody:
             pos, vel, *_ = state_vector_function()
             self.positions[0] = np.array(pos, dtype=float)  # [m] initial position
             self.velocity = np.array(vel, dtype=float)  # [m/s] initial velocity
+            print(f"{self.name}: Initial velocity before correction: {self.velocity}")
+            self.velocity /= (1 + (self.mass / bodies[0].mass))
+            print(f"{self.name}: Initial velocity  after correction: {self.velocity}")
 
     def full_eclipse(self, other, d):
         if self.radius < other.radius:  # Total eclipse
@@ -291,7 +294,7 @@ class CurveSimBody:
     def check_for_T4(self, other, iteration, results, transit_status, p):
         if transit_status[other.name+"."+self.name] == "Egress":
             hier weiter
-
+            0
 
         # if other.eclipsing.value > CurveSimBody.Eclipsing.NO.value:  # is this T4?
         #     other.eclipsing = CurveSimBody.Eclipsing.NO
