@@ -257,48 +257,78 @@ class CurveSimBody:
         #     print(f"dy: {abs(self.positions[iteration][1] - other.positions[iteration][1]):6.3e}  dz: {abs(self.positions[iteration][2] - other.positions[iteration][2]):6.3e} d: {d:6.3e}")
         return area, relative_radius
 
+    def last_transit_is_relevant_transit(self, other, results, transit_parameter):
+        """Is the last transit in the list (["Transits"][-1]) the transit we are looking at right now?
+            If not, then there are multiple transits happening at the same time. Things are (too) complicated."""
+        transit_parameter_minus1 = "T" + str(int(transit_parameter[-1])-1)
+        return (results[other.name]["Transits"][-1][transit_parameter] is None
+                and results[other.name]["Transits"][-1][transit_parameter_minus1] is not None
+                and results[other.name]["Transits"][-1]["EclipsedBody"] == self.name)
+
     def check_for_T1T3(self, other, iteration, results, transit_status, p):
+        """ This function gets called after every iteration where a part of other eclipses self."""
         if transit_status[other.name+"."+self.name] == "NoTransit":
-            print(f"\n{iteration=} {green('T1')} {other.name} eclipses {self.name}")
+            print(f"\n{iteration=:6} {green('T1')} {other.name} eclipses {self.name}")
             transit_status[other.name + "." + self.name] = "Ingress"
             results[other.name]["Transits"].append(Transit(self))
             results[other.name]["Transits"][-1]["T1"] = p.start_date + iteration * p.dt / 86400
         elif transit_status[other.name+"."+self.name] == "FullTransit":
-            print(f"\n{iteration=} {green('T3')} {other.name} eclipses {self.name}")
+            print(f"\n{iteration=:6} {green('T3')} {other.name} eclipses {self.name}")
             transit_status[other.name + "." + self.name] = "Egress"
-            if (results[other.name]["Transits"][-1]["T3"] is None
-                    and results[other.name]["Transits"][-1]["T2"] is not None
-                    and results[other.name]["Transits"][-1]["EclipsedBody"] == self.name):
+            if self.last_transit_is_relevant_transit(other, results, "T3"):
                 results[other.name]["Transits"][-1]["T3"] = p.start_date + iteration * p.dt / 86400
             else:
-                multiple_transit_error()
+                multiple_transit_error()  # alternatively, I could make a greater effort, finding the right transit. I will do that once I figured out how to calculate the luminosity of multiple parallel transits correctly.
 
     def check_for_T2(self, other, iteration, results, transit_status, p):
+        """ This function gets called after every iteration where all of other eclipses self."""
         if transit_status[other.name+"."+self.name] == "Ingress":
-            print(f"\n{iteration=} {green('T2')} {other.name} eclipses {self.name}")
+            print(f"\n{iteration=:6} {green('T2')} {other.name} eclipses {self.name}")
             transit_status[other.name + "." + self.name] = "FullTransit"
-            if (results[other.name]["Transits"][-1]["T2"] is None
-                    and results[other.name]["Transits"][-1]["T1"] is not None
-                    and results[other.name]["Transits"][-1]["EclipsedBody"] == self.name):
+            if self.last_transit_is_relevant_transit(other, results, "T2"):
                 results[other.name]["Transits"][-1]["T2"] = p.start_date + iteration * p.dt / 86400
             else:
-                multiple_transit_error()
+                multiple_transit_error()  # alternatively, I could make a greater effort, finding the right transit. I will do that once I figured out how to calculate the luminosity of multiple parallel transits correctly.
         elif transit_status[other.name+"."+self.name] == "NoTransit":
-            print(f"\n{iteration=} {green('T1')} {other.name} eclipses {self.name}")
-            print(f"\n{iteration=} {green('T2')} {other.name} eclipses {self.name}")
+            print(f"\n{iteration=:6} {green('T1')} {other.name} eclipses {self.name}")
+            print(f"\n{iteration=:6} {green('T2')} {other.name} eclipses {self.name}")
             transit_status[other.name + "." + self.name] = "FullTransit"
             results[other.name]["Transits"].append(Transit(self))
             results[other.name]["Transits"][-1]["T1"] = p.start_date + iteration * p.dt / 86400
             results[other.name]["Transits"][-1]["T2"] = p.start_date + iteration * p.dt / 86400
+        elif transit_status[other.name+"."+self.name] == "Egress":
+            print("ERROR: Full eclipse one iteration after egress. That must be a programming error.")
+            sys.exit(1)
 
     def check_for_T4(self, other, iteration, results, transit_status, p):
+        """ This function gets called after every iteration where other does not eclipse self."""
         if transit_status[other.name+"."+self.name] == "Egress":
-            hier weiter
-            1
-
-        # if other.eclipsing.value > CurveSimBody.Eclipsing.NO.value:  # is this T4?
-        #     other.eclipsing = CurveSimBody.Eclipsing.NO
-        #     print(f"\n{iteration=} {other.name} does not eclipse {self.name} anymore.")
+            print(f"\n{iteration=:6} {green('T4')} {other.name} eclipses {self.name}")
+            transit_status[other.name + "." + self.name] = "NoTransit"
+            if self.last_transit_is_relevant_transit(other, results, "T4"):
+                results[other.name]["Transits"][-1]["T4"] = p.start_date + iteration * p.dt / 86400
+            else:
+                multiple_transit_error()  # alternatively, I could make a greater effort, finding the right transit. I will do that once I figured out how to calculate the luminosity of multiple parallel transits correctly.
+        elif transit_status[other.name+"."+self.name] == "FullTransit":
+            print(f"\n{iteration=:6} {green('T3')} {other.name} eclipses {self.name}")
+            print(f"\n{iteration=:6} {green('T4')} {other.name} eclipses {self.name}")
+            transit_status[other.name + "." + self.name] = "NoTransit"
+            if self.last_transit_is_relevant_transit(other, results, "T4"):
+                results[other.name]["Transits"][-1]["T3"] = p.start_date + iteration * p.dt / 86400
+                results[other.name]["Transits"][-1]["T4"] = p.start_date + iteration * p.dt / 86400
+            else:
+                multiple_transit_error()  # alternatively, I could make a greater effort, finding the right transit. I will do that once I figured out how to calculate the luminosity of multiple parallel transits correctly.
+        elif transit_status[other.name+"."+self.name] == "Ingress":
+            print(f"\n{iteration=:6} {green('T2')} {other.name} eclipses {self.name}")
+            print(f"\n{iteration=:6} {green('T3')} {other.name} eclipses {self.name}")
+            print(f"\n{iteration=:6} {green('T4')} {other.name} eclipses {self.name}")
+            transit_status[other.name + "." + self.name] = "NoTransit"
+            if self.last_transit_is_relevant_transit(other, results, "T4"):
+                results[other.name]["Transits"][-1]["T2"] = p.start_date + iteration * p.dt / 86400
+                results[other.name]["Transits"][-1]["T3"] = p.start_date + iteration * p.dt / 86400
+                results[other.name]["Transits"][-1]["T4"] = p.start_date + iteration * p.dt / 86400
+            else:
+                multiple_transit_error()  # alternatively, I could make a greater effort, finding the right transit. I will do that once I figured out how to calculate the luminosity of multiple parallel transits correctly.
 
     def eclipsed_by(self, other, iteration, results, transit_status, p):
         """Returns area, relative_radius
@@ -317,9 +347,9 @@ class CurveSimBody:
                     return area, relative_radius
             else:  # No eclipse because, seen from viewer, the bodies are not close enough to each other
                 self.check_for_T4(other, iteration, results, transit_status, p)
-                return 0.0, 0.0
+                return None, None
         else:  # other cannot eclipse self, because self is nearer to viewer than other
-            return 0.0, 0.0
+            return None, None
 
     def calc_frames_per_orbit(self, p):
         """Calculates for each body how many video frames are needed to complete one orbit.
