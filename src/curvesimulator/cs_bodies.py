@@ -11,18 +11,6 @@ from curvesimulator.cs_lightcurve import CurveSimLightcurve
 from curvesimulator.cs_physics import CurveSimPhysics
 from curvesimulator.cs_results import CurveSimResults
 
-from src.curvesimulator.cs_body import green
-
-
-def time_of_transit(impact_parameter_list):
-    if impact_parameter_list:  # Check if the list is not empty
-        min_tuple = min(impact_parameter_list, key=lambda item: item[1])
-        print(f"Time of transit and the corresponding impact parameter: {min_tuple=}")
-        return min_tuple
-    else:
-        print("The list is empty.")
-        return None
-
 
 class CurveSimBodies(list):
 
@@ -143,7 +131,7 @@ class CurveSimBodies(list):
             self[0].velocity += body.velocity * body.mass
         self[0].velocity /= - self[0].mass
 
-    def total_luminosity(self, stars, iteration, results, transit_status, impact_parameter_lists, p):
+    def total_luminosity(self, stars, iteration, results, transit_status, p):
         """Add luminosity of all stars in the system while checking for eclipses.
         Does not yet work correctly for eclipsed eclipses (three or more bodies in line of sight at the same time)."""
         luminosity = 0.0
@@ -154,12 +142,12 @@ class CurveSimBodies(list):
                     eclipsed_area, relative_radius = star.eclipsed_by(body, iteration, results, transit_status, p)
                     if eclipsed_area is not None:
                         # print(f"{iteration=:6}  {relative_radius=:5.2f} ")
-                        impact_parameter_lists[body.name + "." + star.name].append((iteration, relative_radius))
+                        # impact_parameter_lists[body.name + "." + star.name].append((iteration, relative_radius))
                         luminosity -= star.intensity * eclipsed_area * CurveSimPhysics.limbdarkening(relative_radius, star.limb_darkening) / star.mean_intensity
-                    if results[body.name]["Transits"] and results[body.name]["Transits"][-1]["T4"] is not None:
-                        tt, b = time_of_transit(impact_parameter_lists[body.name + "." + star.name]) hier weiter
-                        print(f"{green('Time of transit')} {tt} with impact parameter {b}")
-                        impact_parameter_lists[body.name + "." + star.name].clear()
+                    # if results[body.name]["Transits"] and results[body.name]["Transits"][-1]["T4"] is not None:
+                    #     tt, b = time_of_transit(impact_parameter_lists[body.name + "." + star.name]) hier weiter
+                    #     print(f"{green('Time of transit')} {tt} with impact parameter {b}")
+                    #     impact_parameter_lists[body.name + "." + star.name].clear()
         return luminosity
 
     def calc_positions_eclipses_luminosity(self, p):
@@ -171,13 +159,13 @@ class CurveSimBodies(list):
         for body1 in self:
             for body2 in self:
                 transit_status[body1.name + "." + body2.name] = "NoTransit"
-        impact_parameter_lists = {}
-        for body1 in self:
-            for body2 in self:
-                impact_parameter_lists[body1.name + "." + body2.name] = []
+        # impact_parameter_lists = {}
+        # for body1 in self:
+        #     for body2 in self:
+        #         impact_parameter_lists[body1.name + "." + body2.name] = []
         stars = [body for body in self if body.body_type == "star"]
         lightcurve = CurveSimLightcurve(p.iterations)  # Initialize lightcurve (essentially a np.ndarray)
-        lightcurve[0] = self.total_luminosity(stars, 0, results, transit_status, impact_parameter_lists, p)
+        lightcurve[0] = self.total_luminosity(stars, 0, results, transit_status, p)
         for iteration in range(1, p.iterations):
             for body1 in self:
                 force = np.array([0.0, 0.0, 0.0])
@@ -199,7 +187,7 @@ class CurveSimBodies(list):
                 # Update positions:
                 movement = body1.velocity * p.dt - 0.5 * acceleration * p.dt ** 2
                 body1.positions[iteration] = body1.positions[iteration - 1] + movement
-            lightcurve[iteration] = self.total_luminosity(stars, iteration, results, transit_status, impact_parameter_lists, p)  # Update lightcurve.
+            lightcurve[iteration] = self.total_luminosity(stars, iteration, results, transit_status, p)  # Update lightcurve.
             if iteration % int(round(p.iterations / 10)) == 0:  # Inform user about program's progress.
                 print(f'{round(iteration / p.iterations * 10) * 10:3d}% ', end="")
         return results, lightcurve, self

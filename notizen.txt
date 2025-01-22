@@ -2,6 +2,10 @@ michaela.vitkova@asu.cas.cz
 vitkova@mail.asu.cas.cz
 
 NEXT:
+    Transit depth
+    Convert to JSON und speichern
+
+
     Orbit parameter output (in JSON-File?):
         Alle Programmparameter (+ Link zu Erlaeuterungen im GitHubWiki)
         Alle Body-Parameter (+ Link zu Erlaeuterungen im GitHubWiki)
@@ -10,8 +14,7 @@ NEXT:
             Auch fuer secondary eclipses (Sonne verdeckt Planet)
             TT (Time of Transit): The time of minimum projected separation between the star and planet, as seen by the observer
             b (Transit Impact parameter): minimum projected separation at the time of transit, in stellar radii
-            bS (Eclipse impact parameter): minimum projected separation at the time of secondary occultation, in stellar radii
-        Transit depths
+                Bug Gefahr: der relative Radius bezieht sich auf den verdeckten Koerper? Das waere bei sekundaeren Eclipses wohl unerwuenscht
         Track transit variations (changes in orbiting period).
         max/min of x, y, z position?
 

@@ -30,6 +30,8 @@ TransitStatus (dic)
 
 
 """
+import sys
+
 
 # class BodyResults(dict):
 #     def __init__(self):
@@ -37,20 +39,57 @@ TransitStatus (dic)
 #         self["SomeOtherBodySpecificResult"] = 0
 
 
-class Transit(dict):
+class Transit():
     def __init__(self, eclipsed_body):
+        self.transit_params = {}
         transit_params = ["EclipsedBody", "T1", "T2", "TT", "T3", "T4", "T12", "T23", "T34", "T14", "b"]
         for key in transit_params:
-            self[key] = None
-        self["EclipsedBody"] = eclipsed_body.name
+            self.transit_params[key] = None
+        self.transit_params["EclipsedBody"] = eclipsed_body.name
+        self.impact_parameters = []
 
 
 class CurveSimResults(dict):
     def __init__(self, bodies):
         for body in bodies:
             self[body.name] = {"Transits": [], "SomeOtherBodySpecificResult1": 0, "SomeOtherBodySpecificResult2": 0}
-            # self[body] = {"Transits": [], "SomeOtherBodySpecificResult1": 0, "SomeOtherBodySpecificResult2": 0}
 
+    def __repr__(self):
+        string = "Results:\n"
+        for body in self:
+            if len(self[body]["Transits"]) == 1:
+                string += f"{body:15} {len(self[body]["Transits"]):3} transit\n"
+            elif len(self[body]["Transits"]) > 1:
+                string += f"{body:15} {len(self[body]["Transits"]):3} transits\n"
+        return string
+
+
+    @staticmethod
+    def time_of_transit(impact_parameter_list):
+        """Find Time of transit and the corresponding impact parameter"""
+        if impact_parameter_list:  # Check if the list is not empty
+            min_tuple = min(impact_parameter_list, key=lambda item: item[1])
+            return min_tuple
+        else:
+            print("ERROR: Empty impact_parameter_list.")
+            print("This is a programming error.")
+            print("Please send your config file to CurveSimulator's developers.")
+            return None
+
+    def calculate(self):
+        for body in self:
+            for t in self[body]["Transits"]:
+                t.transit_params["TT"], t.transit_params["b"] = CurveSimResults.time_of_transit(t.impact_parameters)
+                t.transit_params["T12"] = t.transit_params["T2"] - t.transit_params["T1"]
+                t.transit_params["T23"] = t.transit_params["T3"] - t.transit_params["T2"]
+                t.transit_params["T34"] = t.transit_params["T4"] - t.transit_params["T3"]
+                t.transit_params["T14"] = t.transit_params["T4"] - t.transit_params["T1"]
+                # print(t.transit_params)
+                if t.transit_params["T1"] is None or t.transit_params["T2"] is None or t.transit_params["T3"] is None or t.transit_params["T4"] is None:
+                    print("ERROR: Missing transit event in transit results.")
+                    print("This is a programming error.")
+                    print("Please send your config file to CurveSimulator's developers.")
+                    sys.exit(1)
 
 
 # def main():

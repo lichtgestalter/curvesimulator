@@ -19,6 +19,9 @@ def multiple_transit_error():
     print("Please send your config file to CurveSimulator's developers.")
     sys.exit(1)
 
+def iteration2time(iteration, p):
+    return p.start_date + iteration * p.dt / 86400
+
 # noinspection NonAsciiCharacters,PyPep8Naming,PyUnusedLocal
 class CurveSimBody:
 
@@ -111,13 +114,13 @@ class CurveSimBody:
                 print("This is redundant and in this case contradictory.")
                 print("Remove one of these parameters from the config file or")
                 print("make sure that ω - ϖ + Ω = 0")
-                sys.exit(3)
+                sys.exit(1)
 
     def calc_period_or_semi_major_axis(self):
         if self.a is None and self.P is None:
             print(f"ERROR in config file, body {self.name}:")
             print("semi-major axis a or Period P have to be specified in config file.")
-            sys.exit(4)
+            sys.exit(1)
         elif self.P is None:
             self.P = 2 * math.pi * math.sqrt(self.a ** 3 / self.mu)
         elif self.a is None:
@@ -130,7 +133,7 @@ class CurveSimBody:
                 print("This is redundant and in this case contradictory.")
                 print("Remove one of these parameters from the config file or")
                 print("make sure that a and P are compatible with Kepler's third law.")
-                sys.exit(5)
+                sys.exit(1)
 
     def calc_anomalies(self):
         """[a]: https://web.archive.org/web/20160418175843/https://ccar.colorado.edu/asen5070/handouts/cart2kep2002.pdf
@@ -220,9 +223,9 @@ class CurveSimBody:
             pos, vel, *_ = state_vector_function()
             self.positions[0] = np.array(pos, dtype=float)  # [m] initial position
             self.velocity = np.array(vel, dtype=float)  # [m/s] initial velocity
-            print(f"{self.name}: Initial velocity before correction: {self.velocity}")
+            # print(f"{self.name}: Initial velocity before correction: {self.velocity}")
             self.velocity /= (1 + (self.mass / bodies[0].mass))
-            print(f"{self.name}: Initial velocity  after correction: {self.velocity}")
+            # print(f"{self.name}: Initial velocity  after correction: {self.velocity}")
 
     def full_eclipse(self, other, d):
         if self.radius < other.radius:  # Total eclipse
@@ -261,72 +264,73 @@ class CurveSimBody:
         """Is the last transit in the list (["Transits"][-1]) the transit we are looking at right now?
             If not, then there are multiple transits happening at the same time. Things are (too) complicated."""
         transit_parameter_minus1 = "T" + str(int(transit_parameter[-1])-1)
-        return (results[other.name]["Transits"][-1][transit_parameter] is None
-                and results[other.name]["Transits"][-1][transit_parameter_minus1] is not None
-                and results[other.name]["Transits"][-1]["EclipsedBody"] == self.name)
+        return (results[other.name]["Transits"][-1].transit_params[transit_parameter] is None
+                and results[other.name]["Transits"][-1].transit_params[transit_parameter_minus1] is not None
+                and results[other.name]["Transits"][-1].transit_params["EclipsedBody"] == self.name)
 
     def check_for_T1T3(self, other, iteration, results, transit_status, p):
         """ This function gets called after every iteration where a part of other eclipses self."""
         if transit_status[other.name+"."+self.name] == "NoTransit":
-            print(f"\n{iteration=:6} {green('T1')} {other.name} eclipses {self.name}")
+            # print(f"\n{iteration=:6} {green('T1')} {other.name} eclipses {self.name}")
             transit_status[other.name + "." + self.name] = "Ingress"
             results[other.name]["Transits"].append(Transit(self))
-            results[other.name]["Transits"][-1]["T1"] = p.start_date + iteration * p.dt / 86400
+            results[other.name]["Transits"][-1].transit_params["T1"] = iteration2time(iteration, p)
         elif transit_status[other.name+"."+self.name] == "FullTransit":
-            print(f"\n{iteration=:6} {green('T3')} {other.name} eclipses {self.name}")
+            # print(f"\n{iteration=:6} {green('T3')} {other.name} eclipses {self.name}")
             transit_status[other.name + "." + self.name] = "Egress"
             if self.last_transit_is_relevant_transit(other, results, "T3"):
-                results[other.name]["Transits"][-1]["T3"] = p.start_date + iteration * p.dt / 86400
+                results[other.name]["Transits"][-1].transit_params["T3"] = iteration2time(iteration, p)
             else:
                 multiple_transit_error()  # alternatively, I could make a greater effort, finding the right transit. I will do that once I figured out how to calculate the luminosity of multiple parallel transits correctly.
 
     def check_for_T2(self, other, iteration, results, transit_status, p):
         """ This function gets called after every iteration where all of other eclipses self."""
         if transit_status[other.name+"."+self.name] == "Ingress":
-            print(f"\n{iteration=:6} {green('T2')} {other.name} eclipses {self.name}")
+            # print(f"\n{iteration=:6} {green('T2')} {other.name} eclipses {self.name}")
             transit_status[other.name + "." + self.name] = "FullTransit"
             if self.last_transit_is_relevant_transit(other, results, "T2"):
-                results[other.name]["Transits"][-1]["T2"] = p.start_date + iteration * p.dt / 86400
+                results[other.name]["Transits"][-1].transit_params["T2"] = iteration2time(iteration, p)
             else:
                 multiple_transit_error()  # alternatively, I could make a greater effort, finding the right transit. I will do that once I figured out how to calculate the luminosity of multiple parallel transits correctly.
         elif transit_status[other.name+"."+self.name] == "NoTransit":
-            print(f"\n{iteration=:6} {green('T1')} {other.name} eclipses {self.name}")
-            print(f"\n{iteration=:6} {green('T2')} {other.name} eclipses {self.name}")
+            # print(f"\n{iteration=:6} {green('T1')} {other.name} eclipses {self.name}")
+            # print(f"\n{iteration=:6} {green('T2')} {other.name} eclipses {self.name}")
             transit_status[other.name + "." + self.name] = "FullTransit"
             results[other.name]["Transits"].append(Transit(self))
-            results[other.name]["Transits"][-1]["T1"] = p.start_date + iteration * p.dt / 86400
-            results[other.name]["Transits"][-1]["T2"] = p.start_date + iteration * p.dt / 86400
+            results[other.name]["Transits"][-1].transit_params["T1"] = iteration2time(iteration, p)
+            results[other.name]["Transits"][-1].transit_params["T2"] = iteration2time(iteration, p)
         elif transit_status[other.name+"."+self.name] == "Egress":
             print("ERROR: Full eclipse one iteration after egress. That must be a programming error.")
+            print("Please send your config file to CurveSimulator's developers.")
             sys.exit(1)
 
     def check_for_T4(self, other, iteration, results, transit_status, p):
         """ This function gets called after every iteration where other does not eclipse self."""
         if transit_status[other.name+"."+self.name] == "Egress":
-            print(f"\n{iteration=:6} {green('T4')} {other.name} eclipses {self.name}")
+            # print(f"\n{iteration=:6} {green('T4')} {other.name} eclipses {self.name}")
             transit_status[other.name + "." + self.name] = "NoTransit"
             if self.last_transit_is_relevant_transit(other, results, "T4"):
-                results[other.name]["Transits"][-1]["T4"] = p.start_date + iteration * p.dt / 86400
+                results[other.name]["Transits"][-1].transit_params["T4"] = iteration2time(iteration, p)
             else:
                 multiple_transit_error()  # alternatively, I could make a greater effort, finding the right transit. I will do that once I figured out how to calculate the luminosity of multiple parallel transits correctly.
         elif transit_status[other.name+"."+self.name] == "FullTransit":
-            print(f"\n{iteration=:6} {green('T3')} {other.name} eclipses {self.name}")
-            print(f"\n{iteration=:6} {green('T4')} {other.name} eclipses {self.name}")
+            # print(f"\n{iteration=:6} {green('T3')} {other.name} eclipses {self.name}")
+            # print(f"\n{iteration=:6} {green('T4')} {other.name} eclipses {self.name}")
             transit_status[other.name + "." + self.name] = "NoTransit"
             if self.last_transit_is_relevant_transit(other, results, "T4"):
-                results[other.name]["Transits"][-1]["T3"] = p.start_date + iteration * p.dt / 86400
-                results[other.name]["Transits"][-1]["T4"] = p.start_date + iteration * p.dt / 86400
+                results[other.name]["Transits"][-1].transit_params["T3"] = iteration2time(iteration, p)
+                results[other.name]["Transits"][-1].transit_params["T4"] = iteration2time(iteration, p)
             else:
                 multiple_transit_error()  # alternatively, I could make a greater effort, finding the right transit. I will do that once I figured out how to calculate the luminosity of multiple parallel transits correctly.
         elif transit_status[other.name+"."+self.name] == "Ingress":
-            print(f"\n{iteration=:6} {green('T2')} {other.name} eclipses {self.name}")
-            print(f"\n{iteration=:6} {green('T3')} {other.name} eclipses {self.name}")
-            print(f"\n{iteration=:6} {green('T4')} {other.name} eclipses {self.name}")
+            # print(f"\n{iteration=:6} {green('T2')} {other.name} eclipses {self.name}")
+            # print(f"\n{iteration=:6} {green('T3')} {other.name} eclipses {self.name}")
+            # print(f"\n{iteration=:6} {green('T4')} {other.name} eclipses {self.name}")
             transit_status[other.name + "." + self.name] = "NoTransit"
             if self.last_transit_is_relevant_transit(other, results, "T4"):
-                results[other.name]["Transits"][-1]["T2"] = p.start_date + iteration * p.dt / 86400
-                results[other.name]["Transits"][-1]["T3"] = p.start_date + iteration * p.dt / 86400
-                results[other.name]["Transits"][-1]["T4"] = p.start_date + iteration * p.dt / 86400
+                results[other.name]["Transits"][-1].transit_params["T2"] = iteration2time(iteration, p)
+                results[other.name]["Transits"][-1].transit_params["T3"] = iteration2time(iteration, p)
+                results[other.name]["Transits"][-1].transit_params["T4"] = iteration2time(iteration, p)
             else:
                 multiple_transit_error()  # alternatively, I could make a greater effort, finding the right transit. I will do that once I figured out how to calculate the luminosity of multiple parallel transits correctly.
 
@@ -340,6 +344,7 @@ class CurveSimBody:
                 if d <= abs(self.radius - other.radius):  # Annular (i.e. ring) eclipse or total eclipse
                     self.check_for_T2(other, iteration, results, transit_status, p)
                     area, relative_radius = self.full_eclipse(other, d)
+                    results[other.name]["Transits"][-1].impact_parameters.append((iteration2time(iteration, p), relative_radius))
                     return area, relative_radius
                 else:  # Partial eclipse
                     self.check_for_T1T3(other, iteration, results, transit_status, p)

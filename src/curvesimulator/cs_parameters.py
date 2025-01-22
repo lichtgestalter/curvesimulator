@@ -94,4 +94,4 @@ class CurveSimParameters:
         for section in standard_sections:  # Does the config file contain all standard sections?
             if section not in config.sections() and section != "Debug":
                 print(red + f'Section {section} missing in config file.' + reset)
-                sys.exit(2)
+                sys.exit(1)

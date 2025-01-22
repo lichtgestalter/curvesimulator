@@ -24,11 +24,6 @@ def main():
     parameters, bodies, results, lightcurve = curvesim(config_file="../configurations/TOI-4504.ini")
     print(parameters)
     print(bodies)
-    # for body in bodies:
-    #     # remove attribute positions from body
-    #     body.__dict__.pop('positions')
-    #     # print the names and values of all attributes of body
-    #     print(body.__dict__)
     print(results)
     print(lightcurve)
 
