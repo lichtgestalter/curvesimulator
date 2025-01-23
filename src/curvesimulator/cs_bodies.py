@@ -20,6 +20,7 @@ class CurveSimBodies(list):
         Read program parameters and properties of the bodies from config file.
         Initialize the circles in the animation (matplotlib patches)"""
         # For ease of use of these constants in the config file are additionally defined here without the prefix "p.".
+        super().__init__()  # Call the superclass initializer
         try:
             g, au, r_sun, m_sun, l_sun = p.g, p.au, p.r_sun, p.m_sun, p.l_sun
             r_jup, m_jup, r_earth, m_earth, v_earth = p.r_jup, p.m_jup, p.r_earth, p.m_earth, p.v_earth

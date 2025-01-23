@@ -9,8 +9,6 @@ import math
 from .cs_animation import CurveSimAnimation
 from .cs_bodies import CurveSimBodies
 from .cs_parameters import CurveSimParameters
-from .cs_physics import CurveSimPhysics
-from .cs_results import CurveSimResults
 
 
 def curvesim(config_file=""):

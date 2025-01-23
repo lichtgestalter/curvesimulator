@@ -1,7 +1,6 @@
 import sys
 import math
 import numpy as np
-from enum import Enum
 
 from curvesimulator.cs_physics import CurveSimPhysics
 from curvesimulator.cs_results import Transit
@@ -24,11 +23,6 @@ def multiple_transit_error():
 # noinspection NonAsciiCharacters,PyPep8Naming,PyUnusedLocal
 class CurveSimBody:
 
-    class Eclipsing(Enum):
-        NO = 1
-        PARTIAL = 2
-        MAX = 3
-
     def __init__(self, primary, p, name, body_type, mass, radius, luminosity, startposition, velocity, P, a, e, i, Ω, ω, ϖ, L, ma, ea,
                  # pot_transit_date,
                  nu, T, t, limb_darkening, limb_darkening_parameter_type, color):
@@ -37,7 +31,6 @@ class CurveSimBody:
         g, au, r_sun, m_sun, l_sun = p.g, p.au, p.r_sun, p.m_sun, p.l_sun
         r_jup, m_jup, r_earth, m_earth, v_earth = p.r_jup, p.m_jup, p.r_earth, p.m_earth, p.v_earth
         self.name = name  # name
-        self.eclipsing = CurveSimBody.Eclipsing.NO
         self.body_type = body_type  # "star" or "planet"
         self.color = color  # (R, G, B)  each between 0 and 1
         self.mass = mass  # [kg]

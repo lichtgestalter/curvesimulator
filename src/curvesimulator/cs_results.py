@@ -33,7 +33,7 @@ TransitStatus (dic)
 import sys
 
 
-class Transit():
+class Transit:
     def __init__(self, eclipsed_body):
         self.transit_params = {}
         transit_params = ["EclipsedBody", "T1", "T2", "TT", "T3", "T4", "T12", "T23", "T34", "T14", "b"]
@@ -45,6 +45,7 @@ class Transit():
 
 class CurveSimResults(dict):
     def __init__(self, bodies):
+        super().__init__()  # Call the superclass initializer
         self["bodies"] = {}
         for body in bodies:
             self["bodies"][body.name] = {"Transits": [], "SomeOtherBodySpecificResult": 0}
