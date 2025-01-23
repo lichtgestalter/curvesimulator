@@ -5,6 +5,7 @@ from enum import Enum
 
 from curvesimulator.cs_physics import CurveSimPhysics
 from curvesimulator.cs_results import Transit
+from curvesimulator.cs_results import CurveSimResults
 
 debugging_kepler_parameters = False
 debugging_eclipse = False
@@ -19,8 +20,6 @@ def multiple_transit_error():
     print("Please send your config file to CurveSimulator's developers.")
     sys.exit(1)
 
-def iteration2time(iteration, p):
-    return p.start_date + iteration * p.dt / 86400
 
 # noinspection NonAsciiCharacters,PyPep8Naming,PyUnusedLocal
 class CurveSimBody:
@@ -264,22 +263,22 @@ class CurveSimBody:
         """Is the last transit in the list (["Transits"][-1]) the transit we are looking at right now?
             If not, then there are multiple transits happening at the same time. Things are (too) complicated."""
         transit_parameter_minus1 = "T" + str(int(transit_parameter[-1])-1)
-        return (results[other.name]["Transits"][-1].transit_params[transit_parameter] is None
-                and results[other.name]["Transits"][-1].transit_params[transit_parameter_minus1] is not None
-                and results[other.name]["Transits"][-1].transit_params["EclipsedBody"] == self.name)
+        return (results["bodies"][other.name]["Transits"][-1].transit_params[transit_parameter] is None
+                and results["bodies"][other.name]["Transits"][-1].transit_params[transit_parameter_minus1] is not None
+                and results["bodies"][other.name]["Transits"][-1].transit_params["EclipsedBody"] == self.name)
 
     def check_for_T1T3(self, other, iteration, results, transit_status, p):
         """ This function gets called after every iteration where a part of other eclipses self."""
         if transit_status[other.name+"."+self.name] == "NoTransit":
             # print(f"\n{iteration=:6} {green('T1')} {other.name} eclipses {self.name}")
             transit_status[other.name + "." + self.name] = "Ingress"
-            results[other.name]["Transits"].append(Transit(self))
-            results[other.name]["Transits"][-1].transit_params["T1"] = iteration2time(iteration, p)
+            results["bodies"][other.name]["Transits"].append(Transit(self))
+            results["bodies"][other.name]["Transits"][-1].transit_params["T1"] = CurveSimResults.iteration2time(iteration, p)
         elif transit_status[other.name+"."+self.name] == "FullTransit":
             # print(f"\n{iteration=:6} {green('T3')} {other.name} eclipses {self.name}")
             transit_status[other.name + "." + self.name] = "Egress"
             if self.last_transit_is_relevant_transit(other, results, "T3"):
-                results[other.name]["Transits"][-1].transit_params["T3"] = iteration2time(iteration, p)
+                results["bodies"][other.name]["Transits"][-1].transit_params["T3"] = CurveSimResults.iteration2time(iteration, p)
             else:
                 multiple_transit_error()  # alternatively, I could make a greater effort, finding the right transit. I will do that once I figured out how to calculate the luminosity of multiple parallel transits correctly.
 
@@ -289,16 +288,16 @@ class CurveSimBody:
             # print(f"\n{iteration=:6} {green('T2')} {other.name} eclipses {self.name}")
             transit_status[other.name + "." + self.name] = "FullTransit"
             if self.last_transit_is_relevant_transit(other, results, "T2"):
-                results[other.name]["Transits"][-1].transit_params["T2"] = iteration2time(iteration, p)
+                results["bodies"][other.name]["Transits"][-1].transit_params["T2"] = CurveSimResults.iteration2time(iteration, p)
             else:
                 multiple_transit_error()  # alternatively, I could make a greater effort, finding the right transit. I will do that once I figured out how to calculate the luminosity of multiple parallel transits correctly.
         elif transit_status[other.name+"."+self.name] == "NoTransit":
             # print(f"\n{iteration=:6} {green('T1')} {other.name} eclipses {self.name}")
             # print(f"\n{iteration=:6} {green('T2')} {other.name} eclipses {self.name}")
             transit_status[other.name + "." + self.name] = "FullTransit"
-            results[other.name]["Transits"].append(Transit(self))
-            results[other.name]["Transits"][-1].transit_params["T1"] = iteration2time(iteration, p)
-            results[other.name]["Transits"][-1].transit_params["T2"] = iteration2time(iteration, p)
+            results["bodies"][other.name]["Transits"].append(Transit(self))
+            results["bodies"][other.name]["Transits"][-1].transit_params["T1"] = CurveSimResults.iteration2time(iteration, p)
+            results["bodies"][other.name]["Transits"][-1].transit_params["T2"] = CurveSimResults.iteration2time(iteration, p)
         elif transit_status[other.name+"."+self.name] == "Egress":
             print("ERROR: Full eclipse one iteration after egress. That must be a programming error.")
             print("Please send your config file to CurveSimulator's developers.")
@@ -310,7 +309,7 @@ class CurveSimBody:
             # print(f"\n{iteration=:6} {green('T4')} {other.name} eclipses {self.name}")
             transit_status[other.name + "." + self.name] = "NoTransit"
             if self.last_transit_is_relevant_transit(other, results, "T4"):
-                results[other.name]["Transits"][-1].transit_params["T4"] = iteration2time(iteration, p)
+                results["bodies"][other.name]["Transits"][-1].transit_params["T4"] = CurveSimResults.iteration2time(iteration, p)
             else:
                 multiple_transit_error()  # alternatively, I could make a greater effort, finding the right transit. I will do that once I figured out how to calculate the luminosity of multiple parallel transits correctly.
         elif transit_status[other.name+"."+self.name] == "FullTransit":
@@ -318,8 +317,8 @@ class CurveSimBody:
             # print(f"\n{iteration=:6} {green('T4')} {other.name} eclipses {self.name}")
             transit_status[other.name + "." + self.name] = "NoTransit"
             if self.last_transit_is_relevant_transit(other, results, "T4"):
-                results[other.name]["Transits"][-1].transit_params["T3"] = iteration2time(iteration, p)
-                results[other.name]["Transits"][-1].transit_params["T4"] = iteration2time(iteration, p)
+                results["bodies"][other.name]["Transits"][-1].transit_params["T3"] = CurveSimResults.iteration2time(iteration, p)
+                results["bodies"][other.name]["Transits"][-1].transit_params["T4"] = CurveSimResults.iteration2time(iteration, p)
             else:
                 multiple_transit_error()  # alternatively, I could make a greater effort, finding the right transit. I will do that once I figured out how to calculate the luminosity of multiple parallel transits correctly.
         elif transit_status[other.name+"."+self.name] == "Ingress":
@@ -328,9 +327,9 @@ class CurveSimBody:
             # print(f"\n{iteration=:6} {green('T4')} {other.name} eclipses {self.name}")
             transit_status[other.name + "." + self.name] = "NoTransit"
             if self.last_transit_is_relevant_transit(other, results, "T4"):
-                results[other.name]["Transits"][-1].transit_params["T2"] = iteration2time(iteration, p)
-                results[other.name]["Transits"][-1].transit_params["T3"] = iteration2time(iteration, p)
-                results[other.name]["Transits"][-1].transit_params["T4"] = iteration2time(iteration, p)
+                results["bodies"][other.name]["Transits"][-1].transit_params["T2"] = CurveSimResults.iteration2time(iteration, p)
+                results["bodies"][other.name]["Transits"][-1].transit_params["T3"] = CurveSimResults.iteration2time(iteration, p)
+                results["bodies"][other.name]["Transits"][-1].transit_params["T4"] = CurveSimResults.iteration2time(iteration, p)
             else:
                 multiple_transit_error()  # alternatively, I could make a greater effort, finding the right transit. I will do that once I figured out how to calculate the luminosity of multiple parallel transits correctly.
 
@@ -344,7 +343,7 @@ class CurveSimBody:
                 if d <= abs(self.radius - other.radius):  # Annular (i.e. ring) eclipse or total eclipse
                     self.check_for_T2(other, iteration, results, transit_status, p)
                     area, relative_radius = self.full_eclipse(other, d)
-                    results[other.name]["Transits"][-1].impact_parameters.append((iteration2time(iteration, p), relative_radius))
+                    results["bodies"][other.name]["Transits"][-1].impact_parameters.append((CurveSimResults.iteration2time(iteration, p), relative_radius))
                     return area, relative_radius
                 else:  # Partial eclipse
                     self.check_for_T1T3(other, iteration, results, transit_status, p)

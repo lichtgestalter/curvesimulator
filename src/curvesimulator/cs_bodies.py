@@ -141,13 +141,7 @@ class CurveSimBodies(list):
                 if body != star:  # an object cannot eclipse itself :)
                     eclipsed_area, relative_radius = star.eclipsed_by(body, iteration, results, transit_status, p)
                     if eclipsed_area is not None:
-                        # print(f"{iteration=:6}  {relative_radius=:5.2f} ")
-                        # impact_parameter_lists[body.name + "." + star.name].append((iteration, relative_radius))
                         luminosity -= star.intensity * eclipsed_area * CurveSimPhysics.limbdarkening(relative_radius, star.limb_darkening) / star.mean_intensity
-                    # if results[body.name]["Transits"] and results[body.name]["Transits"][-1]["T4"] is not None:
-                    #     tt, b = time_of_transit(impact_parameter_lists[body.name + "." + star.name]) hier weiter
-                    #     print(f"{green('Time of transit')} {tt} with impact parameter {b}")
-                    #     impact_parameter_lists[body.name + "." + star.name].clear()
         return luminosity
 
     def calc_positions_eclipses_luminosity(self, p):
@@ -200,6 +194,7 @@ class CurveSimBodies(list):
         tic = time.perf_counter()
         results, lightcurve, bodies = self.calc_positions_eclipses_luminosity(p)
         lightcurve /= lightcurve.max(initial=None)  # Normalize flux.
+        # results["LightcurveMinima"] = CurveSimLightcurve.lightcurve_minima(lightcurve)
         toc = time.perf_counter()
         print(f' {toc - tic:7.2f} seconds  ({p.iterations / (toc - tic):.0f} iterations/second)')
         return results, lightcurve

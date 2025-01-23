@@ -33,12 +33,6 @@ TransitStatus (dic)
 import sys
 
 
-# class BodyResults(dict):
-#     def __init__(self):
-#         self["Transits"] = []
-#         self["SomeOtherBodySpecificResult"] = 0
-
-
 class Transit():
     def __init__(self, eclipsed_body):
         self.transit_params = {}
@@ -51,18 +45,24 @@ class Transit():
 
 class CurveSimResults(dict):
     def __init__(self, bodies):
+        self["bodies"] = {}
         for body in bodies:
-            self[body.name] = {"Transits": [], "SomeOtherBodySpecificResult1": 0, "SomeOtherBodySpecificResult2": 0}
+            self["bodies"][body.name] = {"Transits": [], "SomeOtherBodySpecificResult": 0}
+        self["LightcurveMinima"] = []
 
     def __repr__(self):
-        string = "Results:\n"
-        for body in self:
-            if len(self[body]["Transits"]) == 1:
-                string += f"{body:15} {len(self[body]["Transits"]):3} transit\n"
-            elif len(self[body]["Transits"]) > 1:
-                string += f"{body:15} {len(self[body]["Transits"]):3} transits\n"
+        string = "RESULTS:\n"
+        for body in self["bodies"]:
+            if len(self["bodies"][body]["Transits"]) == 1:
+                string += f"{body:15} {len(self["bodies"][body]["Transits"]):3} transit\n"
+            elif len(self["bodies"][body]["Transits"]) > 1:
+                string += f"{body:15} {len(self["bodies"][body]["Transits"]):3} transits\n"
+        string += f'LightcurveMinima: {self["LightcurveMinima"]}'
         return string
 
+    @staticmethod
+    def iteration2time(iteration, p):
+        return p.start_date + iteration * p.dt / 86400
 
     @staticmethod
     def time_of_transit(impact_parameter_list):
@@ -76,9 +76,9 @@ class CurveSimResults(dict):
             print("Please send your config file to CurveSimulator's developers.")
             return None
 
-    def calculate(self):
-        for body in self:
-            for t in self[body]["Transits"]:
+    def calculate_results(self, lightcurve, p):
+        for body in self["bodies"]:
+            for t in self["bodies"][body]["Transits"]:
                 t.transit_params["TT"], t.transit_params["b"] = CurveSimResults.time_of_transit(t.impact_parameters)
                 t.transit_params["T12"] = t.transit_params["T2"] - t.transit_params["T1"]
                 t.transit_params["T23"] = t.transit_params["T3"] - t.transit_params["T2"]
@@ -90,15 +90,6 @@ class CurveSimResults(dict):
                     print("This is a programming error.")
                     print("Please send your config file to CurveSimulator's developers.")
                     sys.exit(1)
-
-
-# def main():
-#     bodies = ["Star", "Planet1", "Planet2"]
-#     results = CurveSimResults(bodies)
-#     for body in bodies:
-#         for _ in range(2):
-#             results[body]["Transits"].append(Transit())
-#     print()
-#     print()
-#
-# main()
+        self["LightcurveMinima"] = lightcurve.lightcurve_minima()
+        for i, minimum in enumerate(self["LightcurveMinima"]):
+            self["LightcurveMinima"][i] = CurveSimResults.iteration2time(minimum, p)
