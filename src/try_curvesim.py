@@ -15,6 +15,7 @@
 #
 # if __name__ == '__main__':
 #     main()
+from prompt_toolkit.key_binding.bindings.basic import if_no_repeat
 
 from curvesimulator import curvesim
 
