@@ -93,4 +93,4 @@ class CurveSimResults(dict):
                     sys.exit(1)
         self["LightcurveMinima"] = lightcurve.lightcurve_minima()
         for i, minimum in enumerate(self["LightcurveMinima"]):
-            self["LightcurveMinima"][i] = CurveSimResults.iteration2time(minimum, p)
+            self["LightcurveMinima"][i] = CurveSimResults.iteration2time(minimum[0], p), self["LightcurveMinima"][i][1]

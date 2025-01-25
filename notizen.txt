@@ -3,6 +3,11 @@ vitkova@mail.asu.cas.cz
 
 NEXT:
     Transit depth
+        Werden die LightcurveMinima richtig berechnet in lightcurve_minima(self)
+        und richtig optimiert mit estimate_local_minimum(i, f_im1, f_i, f_ip1) ???
+
+
+
     Convert to JSON und speichern
     Track transit variations (changes in orbiting period).
     Auch fuer secondary eclipses (Sonne verdeckt Planet)
