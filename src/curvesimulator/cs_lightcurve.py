@@ -34,8 +34,7 @@ class CurveSimLightcurve(np.ndarray):
             minima.append((n - 1, self[n-1]))
 
         for i, minimum in enumerate(minima):  # improve the precision by estimating the position of the minimum between iterations
-            minima[i] = estimate_local_minimum(i, self[minimum[0] - 1], self[minimum[0]], self[minimum[0] + 1])
-            # minima[i][0], minima[i][1] = estimate_local_minimum(i, self[minimum[0] - 1], self[minimum[0]], self[minimum[0] + 1])
+            minima[i] = estimate_local_minimum(minimum[0], self[minimum[0] - 1], self[minimum[0]], self[minimum[0] + 1])
 
         return minima
 
