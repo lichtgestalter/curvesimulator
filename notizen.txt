@@ -3,6 +3,7 @@ vitkova@mail.asu.cas.cz
 
 NEXT:
     Convert to JSON und speichern
+        Resultfilename als Parameter aufnehmen (auch in Doku-configfile)
     Track transit variations (changes in orbiting period).
     Auch fuer secondary eclipses (Sonne verdeckt Planet)
     Results Output auf eigener Seite im Wiki dokumentieren.

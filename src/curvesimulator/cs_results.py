@@ -33,19 +33,20 @@ TransitStatus (dic)
 import sys
 
 
-class Transit:
+class Transit(dict):
     def __init__(self, eclipsed_body):
-        self.transit_params = {}
+        super().__init__()
+        self["transit_params"] = {}
         transit_params = ["EclipsedBody", "T1", "T2", "TT", "T3", "T4", "T12", "T23", "T34", "T14", "b"]
         for key in transit_params:
-            self.transit_params[key] = None
-        self.transit_params["EclipsedBody"] = eclipsed_body.name
-        self.impact_parameters = []
+            self["transit_params"][key] = None
+        self["transit_params"]["EclipsedBody"] = eclipsed_body.name
+        self["impact_parameters"] = []
 
 
 class CurveSimResults(dict):
     def __init__(self, bodies):
-        super().__init__()  # Call the superclass initializer
+        super().__init__()
         self["bodies"] = {}
         for body in bodies:
             self["bodies"][body.name] = {"Transits": [], "SomeOtherBodySpecificResult": 0}
@@ -80,14 +81,14 @@ class CurveSimResults(dict):
     def calculate_results(self, lightcurve, p):
         for body in self["bodies"]:
             for t in self["bodies"][body]["Transits"]:
-                t.transit_params["TT"], t.transit_params["b"] = CurveSimResults.time_of_transit(t.impact_parameters)
-                del t.impact_parameters
-                t.transit_params["T12"] = t.transit_params["T2"] - t.transit_params["T1"]
-                t.transit_params["T23"] = t.transit_params["T3"] - t.transit_params["T2"]
-                t.transit_params["T34"] = t.transit_params["T4"] - t.transit_params["T3"]
-                t.transit_params["T14"] = t.transit_params["T4"] - t.transit_params["T1"]
-                # print(t.transit_params)
-                if t.transit_params["T1"] is None or t.transit_params["T2"] is None or t.transit_params["T3"] is None or t.transit_params["T4"] is None:
+                t["transit_params"]["TT"], t["transit_params"]["b"] = CurveSimResults.time_of_transit(t["impact_parameters"])
+                del t["impact_parameters"]
+                t["transit_params"]["T12"] = t["transit_params"]["T2"] - t["transit_params"]["T1"]
+                t["transit_params"]["T23"] = t["transit_params"]["T3"] - t["transit_params"]["T2"]
+                t["transit_params"]["T34"] = t["transit_params"]["T4"] - t["transit_params"]["T3"]
+                t["transit_params"]["T14"] = t["transit_params"]["T4"] - t["transit_params"]["T1"]
+                # print(t["transit_params"])
+                if t["transit_params"]["T1"] is None or t["transit_params"]["T2"] is None or t["transit_params"]["T3"] is None or t["transit_params"]["T4"] is None:
                     print("ERROR: Missing transit event in transit results.")
                     print("This is a programming error.")
                     print("Please send your config file to CurveSimulator's developers.")
@@ -96,8 +97,8 @@ class CurveSimResults(dict):
         for i, minimum in enumerate(self["LightcurveMinima"]):
             self["LightcurveMinima"][i] = CurveSimResults.iteration2time(minimum[0], p), self["LightcurveMinima"][i][1]
 
-    def results2json(self):
+    def results2json(self, filename):
         """Converts self to JSON and saves it in testjson.json"""
         import json
-        with open("testjson.json", "w") as file:
+        with open(filename, "w") as file:
             json.dump(self, file, indent=4)
