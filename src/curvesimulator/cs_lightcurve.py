@@ -37,4 +37,3 @@ class CurveSimLightcurve(np.ndarray):
             minima[i] = estimate_local_minimum(minimum[0], self[minimum[0] - 1], self[minimum[0]], self[minimum[0] + 1])
 
         return minima
-

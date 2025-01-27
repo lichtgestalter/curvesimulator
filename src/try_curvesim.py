@@ -10,12 +10,12 @@
 #     parameters, bodies, lightcurve = curvesim(config_file="../configurations/MyFirstConfigFile.ini")
 #     print(parameters)
 #     print(bodies)
+#     print(results)
 #     print(lightcurve)
 #
 #
 # if __name__ == '__main__':
 #     main()
-from prompt_toolkit.key_binding.bindings.basic import if_no_repeat
 
 from curvesimulator import curvesim
 

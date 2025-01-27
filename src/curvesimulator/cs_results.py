@@ -81,6 +81,7 @@ class CurveSimResults(dict):
         for body in self["bodies"]:
             for t in self["bodies"][body]["Transits"]:
                 t.transit_params["TT"], t.transit_params["b"] = CurveSimResults.time_of_transit(t.impact_parameters)
+                del t.impact_parameters
                 t.transit_params["T12"] = t.transit_params["T2"] - t.transit_params["T1"]
                 t.transit_params["T23"] = t.transit_params["T3"] - t.transit_params["T2"]
                 t.transit_params["T34"] = t.transit_params["T4"] - t.transit_params["T3"]
@@ -94,3 +95,9 @@ class CurveSimResults(dict):
         self["LightcurveMinima"] = lightcurve.lightcurve_minima()
         for i, minimum in enumerate(self["LightcurveMinima"]):
             self["LightcurveMinima"][i] = CurveSimResults.iteration2time(minimum[0], p), self["LightcurveMinima"][i][1]
+
+    def results2json(self):
+        """Converts self to JSON and saves it in testjson.json"""
+        import json
+        with open("testjson.json", "w") as file:
+            json.dump(self, file, indent=4)
