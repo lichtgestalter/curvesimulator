@@ -2,15 +2,15 @@ michaela.vitkova@asu.cas.cz
 vitkova@mail.asu.cas.cz
 
 NEXT:
-    Convert to JSON und speichern
-        Resultfilename als Parameter aufnehmen (auch in Doku-configfile)
-    Track transit variations (changes in orbiting period).
-    Auch fuer secondary eclipses (Sonne verdeckt Planet)
-    Results Output auf eigener Seite im Wiki dokumentieren.
 
-    Orbit parameter output (in JSON-File?):
-        Alle Programmparameter (+ Link zu Erlaeuterungen im GitHubWiki)
-        Alle Body-Parameter (+ Link zu Erlaeuterungen im GitHubWiki)
+Auch in Result-File:
+    Alle Programmparameter
+    Alle Body-Parameter
+    Link zu Erlaeuterungen im GitHubWiki
+    !!! print(parameters.__dict__) benutzen !!!
+
+
+    Orbit parameter output (in JSON-File):
         Results:
         Transit times:
             T1, T2, TT, T3, T4, T14
@@ -27,15 +27,24 @@ NEXT:
             By contrast the timestamps and luminosity values of the lightcurve minima have been slightly adjusted using quadratic interpolation.
 
 
-        Weitere interessante Parameter ermitteln?
-            Beispiele aus https://arxiv.org/abs/2412.02769
-            (Erklaerungen in Eastman et al 2019 https://arxiv.org/abs/1907.09480)
-                TP        Time of Periastron (BJDTDB)                    2459343.85
-                δ         (RP /R∗)2                                      0.00551
-                δB        Transit depth in B (fraction)                  0.00829
-                δR        Transit depth in R (fraction)                  0.00684
-                b         Transit Impact parameter                       0.18
-                bS        Eclipse impact parameter                       0.26
+    Auch fuer secondary eclipses (Sonne verdeckt Planet)
+        AI-Anfrage: Wir beobachten die Helligkeit eines viele Lichtjahre entfernten Sternsystems mit einem Stern und einem Exoplaneten.
+        Die Blickrichtung von der Erde zu dem Stern bildet mit der Verbindung von dem Stern zu dem Exoplaneten einen Winkel alpha.
+        Wenn alpha = 0 Grad, befindet sich der Exoplanet von der Erde aus gesehen genau vor dem Stern. Bei alpha=180 Grad befindet
+        sich der Exoplanet genau hinter dem Stern. Bei alpha=90 Grad befindet sich der Exoplanet seitlich vom Stern und es wird von
+        der Erde aus gesehen genau die Haelfte des Exoplaneten von dem Stern angeleuchtet. Sei max_light die maximale Lichtmenge
+        (Luminosity), die der Exoplanet von dem Stern Richtung Erde reflektieren kann, wenn die komplette der Erde zugewandte
+        Haelfte des Exoplaneten von dem Stern angeleuchtet wird.  Schreibe eine Pythonfunktion, die abhaengig von alpha errechnet,
+        wie viel Prozent von max_light von dem Exoplaneten Richtung Erde reflektiert wird.
+
+        def reflected_light_percentage(alpha):
+            # Konvertiere alpha in Radiant
+            alpha_rad = math.radians(alpha)
+
+            # Berechne den Prozentsatz des reflektierten Lichts
+            percentage = 50 * (1 + math.cos(alpha_rad))
+
+            return percentage
 
 
 
@@ -46,7 +55,8 @@ NEXT:
                 Zunaechst nur Systeme mit nur einem Stern
 
     Wiki aktualisieren.
-        Ist optimiert fuer Visualisierung. Nicht fuer numerische Praezision. Kleines dt bei kleinen Perioden notwendig.
+        Results Output auf eigener Seite im Wiki dokumentieren.
+        Programm ist optimiert fuer Visualisierung. Nicht fuer numerische Praezision. Kleines dt bei kleinen Perioden notwendig. Trotzdem ungenau.
         Im Wiki die Videos verlinken.
         Evtl. restliche Formulierungen von AI verbessern lassen.
             Take a look at this text on a page of a wiki about a python library. The text is written in mark-up language.

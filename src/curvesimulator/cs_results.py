@@ -96,6 +96,11 @@ class CurveSimResults(dict):
         self["LightcurveMinima"] = lightcurve.lightcurve_minima()
         for i, minimum in enumerate(self["LightcurveMinima"]):
             self["LightcurveMinima"][i] = CurveSimResults.iteration2time(minimum[0], p), self["LightcurveMinima"][i][1]
+        self["LightcurveMinimaDistances"] = []
+        for minimum1, minimum2 in zip(self["LightcurveMinima"][:-1], self["LightcurveMinima"][1:]):
+            self["LightcurveMinimaDistances"].append(minimum2[0] - minimum1[0])
+
+
 
     def results2json(self, filename):
         """Converts self to JSON and saves it in testjson.json"""
