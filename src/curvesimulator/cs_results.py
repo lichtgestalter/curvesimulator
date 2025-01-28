@@ -102,3 +102,4 @@ class CurveSimResults(dict):
         import json
         with open(filename, "w") as file:
             json.dump(self, file, indent=4)
+        print(filename, "saved")

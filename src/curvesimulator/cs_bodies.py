@@ -183,8 +183,9 @@ class CurveSimBodies(list):
                 movement = body1.velocity * p.dt - 0.5 * acceleration * p.dt ** 2
                 body1.positions[iteration] = body1.positions[iteration - 1] + movement
             lightcurve[iteration] = self.total_luminosity(stars, iteration, results, transit_status, p)  # Update lightcurve.
-            if iteration % int(round(p.iterations / 10)) == 0:  # Inform user about program's progress.
-                print(f'{round(iteration / p.iterations * 10) * 10:3d}% ', end="")
+            if p.iterations > 5:  # prevent DIV/0 in next line
+                if iteration % int(round(p.iterations / 10)) == 0:  # Inform user about program's progress.
+                    print(f'{round(iteration / p.iterations * 10) * 10:3d}% ', end="")
         return results, lightcurve, self
 
     def calc_physics(self, p):

@@ -29,6 +29,7 @@ class CurveSimParameters:
 
         # [Video]
         self.video_file = config.get("Video", "video_file")
+        self.result_file = config.get("Video", "result_file")
         self.frames = eval(config.get("Video", "frames"))
         self.fps = eval(config.get("Video", "fps"))
         self.dt = eval(config.get("Video", "dt"))
