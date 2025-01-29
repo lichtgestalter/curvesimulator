@@ -1,36 +1,5 @@
-"""
-Results (dic)
-    Bodyname0 (dic)
-        Transits (list)
-            0 (dic)
-                eclipsed_body = TOI-4504
-                T1 = 2459363.1  # [BJD] start_date + iteration * dt
-                T2 = 2459363.2
-                TT = 2459363.5  # Time of minimum projected separation
-                T3 = 2459363.8
-                T4 = 2459363.9
-                T14: 0.8  # Total transit duration (days)
-                b =  0.18  # Transit Impact parameter (distance between the center of the stellar disc and the center of the planetary disc at conjunction, expressed in units of the star's radius)
-            1
-            2
-        SomeOtherBodySpecificResult1
-        SomeOtherBodySpecificResult2
-    Bodyname1
-
-    Bodyname2
-
-
-
-TransitStatus (dic)
-    Bodyname3.Bodyname1 = Ingress
-    Bodyname5.Bodyname2 = Egress
-    Bodyname1.Bodyname4 = FullTransit
-    Bodyname6.Bodyname1 = NoTransit
-
-
-
-"""
 import sys
+import json
 
 
 class Transit(dict):
@@ -49,22 +18,23 @@ class CurveSimResults(dict):
         super().__init__()
         self["bodies"] = {}
         for body in bodies:
-            self["bodies"][body.name] = {"Transits": [], "SomeOtherBodySpecificResult": 0}
+            self["bodies"][body.name] = {"BodyParameters": body.__dict__, "Transits": []}
         self["LightcurveMinima"] = []
 
     def __repr__(self):
-        string = "RESULTS:\n"
+        string = ""
         for body in self["bodies"]:
             if len(self["bodies"][body]["Transits"]) == 1:
                 string += f"{body:15} {len(self["bodies"][body]["Transits"]):3} transit\n"
             elif len(self["bodies"][body]["Transits"]) > 1:
                 string += f"{body:15} {len(self["bodies"][body]["Transits"]):3} transits\n"
-        string += f'LightcurveMinima: {self["LightcurveMinima"]}'
-        return string
+        # string += f'LightcurveMinima: {self["LightcurveMinima"]}'
+        return string[:-1]
 
     @staticmethod
     def iteration2time(iteration, p):
-        return p.start_date + iteration * p.dt / 86400
+        """Calculate the date of an iteration in BJD"""
+        return p.start_date + iteration * p.dt / (60 * 60 * 24)
 
     @staticmethod
     def time_of_transit(impact_parameter_list):
@@ -79,6 +49,8 @@ class CurveSimResults(dict):
             return None
 
     def calculate_results(self, lightcurve, p):
+        """Calculate and populate the transit results and lightcurve minima."""
+        self["ProgramParameters"] = p.__dict__
         for body in self["bodies"]:
             for t in self["bodies"][body]["Transits"]:
                 t["transit_params"]["TT"], t["transit_params"]["b"] = CurveSimResults.time_of_transit(t["impact_parameters"])
@@ -100,11 +72,17 @@ class CurveSimResults(dict):
         for minimum1, minimum2 in zip(self["LightcurveMinima"][:-1], self["LightcurveMinima"][1:]):
             self["LightcurveMinimaDistances"].append(minimum2[0] - minimum1[0])
 
-
-
-    def results2json(self, filename):
+    def results2json(self, bodies, filename):
         """Converts self to JSON and saves it in testjson.json"""
-        import json
+        for body in bodies:  # remove attributes that do not fit well into a JSON file (and are irrelevant)
+            del body.positions
+            del body.velocity
+            del body.circle_left
+            del body.circle_right
         with open(filename, "w") as file:
             json.dump(self, file, indent=4)
         print(filename, "saved")
+
+    def save_results(self, parameters, bodies, lightcurve):
+        self.calculate_results(lightcurve, parameters)  # Calculate transit parameters
+        self.results2json(bodies, parameters.result_file)  # Write results to json file

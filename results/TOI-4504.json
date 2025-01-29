@@ -1,10 +1,84 @@
 {
     "bodies": {
         "TOI-4504": {
-            "Transits": [],
-            "SomeOtherBodySpecificResult": 0
+            "BodyParameters": {
+                "name": "TOI-4504",
+                "body_type": "star",
+                "color": [
+                    0.99,
+                    0.99,
+                    0.99
+                ],
+                "mass": 1.75979595e+30,
+                "radius": 640634640.0,
+                "area_2d": 1.289349655106091e+18,
+                "luminosity": 2.3746e+26,
+                "limb_darkening": [
+                    0.4825125661576079,
+                    0.20777722805928472
+                ],
+                "mean_intensity": 0.8045331357961647,
+                "intensity": 184170367.64201963,
+                "e": -1,
+                "i": -19.390607989657003,
+                "P": null,
+                "a": null,
+                "\u03a9": null,
+                "\u03c9": null,
+                "\u03c0": null,
+                "L": null,
+                "ma": null,
+                "ea": null,
+                "nu": null,
+                "T": null,
+                "t": 0.0,
+                "mu": 1.1811492405362406e+20,
+                "d": 640634140.7178414,
+                "h": 499.28215861320496,
+                "angle": 0.0024969671934826332,
+                "eclipsed_area": 532448935.9058125,
+                "frames_per_orbit": null,
+                "patch_radius": 0.02
+            },
+            "Transits": []
         },
         "TOI-4504b": {
+            "BodyParameters": {
+                "name": "TOI-4504b",
+                "body_type": "planet",
+                "color": [
+                    0.99,
+                    0.01,
+                    0.01
+                ],
+                "mass": 6.210880000000001e+25,
+                "radius": 17163561.285,
+                "area_2d": 925474981364095.0,
+                "luminosity": 0.0,
+                "limb_darkening": null,
+                "mean_intensity": null,
+                "intensity": 0.0,
+                "e": 0.0,
+                "i": 1.5254177662430441,
+                "P": 209618.496,
+                "a": 5084732143.684886,
+                "\u03a9": 0.0,
+                "\u03c9": 1.5707963267948966,
+                "\u03c0": 1.5707963267948966,
+                "L": null,
+                "ma": 5.291296969058214,
+                "ea": 5.291296969058214,
+                "nu": -0.9918883381213724,
+                "T": 0.0,
+                "t": -33091.2,
+                "mu": 1.1811492405362406e+20,
+                "d": 17144915.320330624,
+                "h": 18645.96466934681,
+                "angle": 0.09323372676177233,
+                "eclipsed_area": 19886755724.326073,
+                "frames_per_orbit": 2.6202312,
+                "patch_radius": 0.004
+            },
             "Transits": [
                 {
                     "transit_params": {
@@ -51,10 +125,45 @@
                         "b": 0.36364808588232056
                     }
                 }
-            ],
-            "SomeOtherBodySpecificResult": 0
+            ]
         },
         "TOI-4504c": {
+            "BodyParameters": {
+                "name": "TOI-4504c",
+                "body_type": "planet",
+                "color": [
+                    0.66,
+                    0.66,
+                    0.01
+                ],
+                "mass": 7.15061499312e+27,
+                "radius": 70755632.4,
+                "area_2d": 1.5727942277712612e+16,
+                "luminosity": 0.0,
+                "limb_darkening": null,
+                "mean_intensity": null,
+                "intensity": 0.0,
+                "e": 0.032,
+                "i": 1.565385806113714,
+                "P": 7131784.32,
+                "a": 53388429619.24669,
+                "\u03a9": -0.013962634015954637,
+                "\u03c9": 1.5707963267948966,
+                "\u03c0": 1.556833692778942,
+                "L": null,
+                "ma": 6.175963507072332,
+                "ea": 6.172426466315147,
+                "nu": -0.11435396796805297,
+                "T": 0.0,
+                "t": -121703.04000000001,
+                "mu": 1.1811492405362406e+20,
+                "d": 70529761.5702567,
+                "h": 225870.8297432661,
+                "angle": 0.15984908634200556,
+                "eclipsed_area": 1701830869697.3884,
+                "frames_per_orbit": 89.147304,
+                "patch_radius": 0.010261093464882003
+            },
             "Transits": [
                 {
                     "transit_params": {
@@ -71,12 +180,46 @@
                         "b": 0.4365705669111542
                     }
                 }
-            ],
-            "SomeOtherBodySpecificResult": 0
+            ]
         },
         "TOI-4504d": {
-            "Transits": [],
-            "SomeOtherBodySpecificResult": 0
+            "BodyParameters": {
+                "name": "TOI-4504d",
+                "body_type": "planet",
+                "color": [
+                    0.01,
+                    0.99,
+                    0.01
+                ],
+                "mass": 2.68888330836e+27,
+                "radius": 51159675.2,
+                "area_2d": 8222529302964443.0,
+                "luminosity": 0.0,
+                "limb_darkening": null,
+                "mean_intensity": null,
+                "intensity": 0.0,
+                "e": 0.0445,
+                "i": 1.4789920081399948,
+                "P": 3504677.7600000002,
+                "a": 33246587462.42605,
+                "\u03a9": 0.0,
+                "\u03c9": 1.5707963267948966,
+                "\u03c0": 1.5707963267948966,
+                "L": null,
+                "ma": 0.0,
+                "ea": 0.0,
+                "nu": 0.0,
+                "T": 0.0,
+                "t": 0,
+                "mu": 1.1811492405362406e+20,
+                "d": 0.0,
+                "h": 0.0,
+                "angle": 0.0,
+                "eclipsed_area": 0.0,
+                "frames_per_orbit": 43.808472,
+                "patch_radius": 0.008827679027647209
+            },
+            "Transits": []
         }
     },
     "LightcurveMinima": [
@@ -97,6 +240,52 @@
             0.9991381645460978
         ]
     ],
+    "ProgramParameters": {
+        "configfilename": "../configurations/TOI-4504.ini",
+        "standard_sections": [
+            "Astronomical Constants",
+            "Video",
+            "Plot",
+            "Scale",
+            "Debug"
+        ],
+        "g": 6.6743e-11,
+        "au": 149597870700.0,
+        "r_sun": 696342000.0,
+        "m_sun": 1.98847e+30,
+        "l_sun": 3.83e+26,
+        "r_jup": 71492000.0,
+        "m_jup": 1.8981246e+27,
+        "r_earth": 6378135.0,
+        "m_earth": 5.972e+24,
+        "v_earth": 29785.2,
+        "video_file": "../animations/TOI-4504.mp4",
+        "result_file": "../results/TOI-4504.json",
+        "frames": 6,
+        "fps": 30,
+        "dt": 20,
+        "sampling_rate": 4000,
+        "iterations": 24000,
+        "scope_left": 104718509490.0,
+        "star_scale_left": 100.0,
+        "planet_scale_left": 1000.0,
+        "scope_right": 104718509490.0,
+        "star_scale_right": 100.0,
+        "planet_scale_right": 1000.0,
+        "autoscaling": true,
+        "min_radius": 0.004,
+        "max_radius": 0.02,
+        "start_date": 2458400.0,
+        "figure_width": 16,
+        "figure_height": 8,
+        "xlim": 1.25,
+        "ylim": 1.0,
+        "red_dot_height": 0.05,
+        "red_dot_width": 0.00425531914893617,
+        "debug_L": [
+            0
+        ]
+    },
     "LightcurveMinimaDistances": [
         1.0226898710243404,
         1.4485066994093359,
