@@ -16,10 +16,13 @@ class Transit(dict):
 class CurveSimResults(dict):
     def __init__(self, bodies):
         super().__init__()
+        self["CurveSimulator Documentation"] = "https://github.com/lichtgestalter/curvesimulator/wiki."
+        self["ProgramParameters"] = {}
+        self["LightcurveMinima"] = []
+        self["LightcurveMinimaDistances"] = {}
         self["bodies"] = {}
         for body in bodies:
             self["bodies"][body.name] = {"BodyParameters": body.__dict__, "Transits": []}
-        self["LightcurveMinima"] = []
 
     def __repr__(self):
         string = ""
@@ -50,6 +53,7 @@ class CurveSimResults(dict):
 
     def calculate_results(self, lightcurve, p):
         """Calculate and populate the transit results and lightcurve minima."""
+        del p.standard_sections
         self["ProgramParameters"] = p.__dict__
         for body in self["bodies"]:
             for t in self["bodies"][body]["Transits"]:
