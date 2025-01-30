@@ -7,6 +7,20 @@ NEXT:
         Ich muss die Simulation verbessern. Vielleicht muessen die Iterationsschritte die
         Ableitungen x', y' und z' der vorherigen Iterationen beruecksichtigen.
 
+        Ich simuliere die Bewegungen von Planeten und Sternen umeinander.
+        Basierend auf Position und Geschwindigkeitsvektor von jedem Koerper, errechne ich die Position der
+        Koerper nach einer Zeit dt und den neuen Geschwindigkeitsvektor basierend auf dem bisherigen
+        Geschwindigkeitsvektor und der Gravitationskraefte zwischen den Koerpern.
+        Zwischen 2 Iterationsschritten bewegt sich jeder Koerper in dieser Simulation geradeaus.
+        Das hat sich als eine zu starke Vereinfachung herausgestellt.
+        Wie kann in meinen Iterationsschritten die neue Position und den neuen Geschwindigkeitsvektor
+        genauer bestimmen?
+
+        https://en.wikipedia.org/wiki/Verlet_integration (inkl. Code Beispiel in C++)
+        https://www.lancaster.ac.uk/staff/drummonn/PHYS281/gravity/  (benutzt u.a. Verlet)
+        http://www.scholarpedia.org/article/N-body_simulations_(gravitational)
+
+
     0.3.4 Secondary eclipses (Sonne verdeckt Planet)
 
 
