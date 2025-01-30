@@ -12,7 +12,7 @@ NEXT:
     wird der impact von TOI-4504c immer kleiner, bis es gar keine Eclipse mehr gibt.
     Numerisches Problem? Einfach nur zu gross gewaehltes dt (war hier 1200).
     Passiert auch mit dt=200. Siehe Blatt Planet c in TOI-4504.xlsx.
-    Der impact wird schubweise geringer. Liegt das an der starken inklination von Planet d?
+    Der impact wird schubweise geringer. Liegt das an der starken Inklination von Planet d?
 
 
 
