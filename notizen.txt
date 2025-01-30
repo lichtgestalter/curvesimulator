@@ -53,13 +53,8 @@ NEXT:
 
     Wiki aktualisieren.
         Results Output auf eigener Seite im Wiki dokumentieren.
-            Vielleicht doch ASCII-Namen fuer Omega etc. waehlen? Ansonsten die Unicodes im Wiki erklaeren
-                "\u03a9": Ω Grosses Omega, longitude_of_ascending_node
-                "\u03c9": ω Kleines Omega, argument of periapsis
-                "\u03c0": ϖ Kleines Pi, longitude of periapsis
-
-
         Programm ist optimiert fuer Visualisierung. Nicht fuer numerische Praezision. Kleines dt bei kleinen Perioden notwendig. Trotzdem ungenau.
+            Obsolet mit Verlet???
         Im Wiki die Videos verlinken.
         Evtl. restliche Formulierungen von AI verbessern lassen.
             Take a look at this text on a page of a wiki about a python library. The text is written in mark-up language.

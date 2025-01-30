@@ -83,8 +83,8 @@ class CurveSimResults(dict):
             del body.velocity
             del body.circle_left
             del body.circle_right
-        with open(filename, "w") as file:
-            json.dump(self, file, indent=4)
+        with open(filename, "w", encoding='utf8') as file:
+            json.dump(self, file, indent=4, ensure_ascii=False)
         print(filename, "saved")
 
     def save_results(self, parameters, bodies, lightcurve):

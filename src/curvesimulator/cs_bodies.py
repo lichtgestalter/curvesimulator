@@ -145,6 +145,24 @@ class CurveSimBodies(list):
                         luminosity -= star.intensity * eclipsed_area * CurveSimPhysics.limbdarkening(relative_radius, star.limb_darkening) / star.mean_intensity
         return luminosity
 
+    @staticmethod
+    def calc_distance_and_direction(body1, body2, iteration, p):
+        # Calculate distance and direction between 2 bodies:
+        distance_xyz = body2.positions[iteration - 1] - body1.positions[iteration - 1]
+        distance = math.sqrt(np.dot(distance_xyz, distance_xyz))
+        force_total = p.g * body1.mass * body2.mass / distance ** 2  # Use law of gravitation to calculate force acting on body.
+        x, y, z = distance_xyz[0], distance_xyz[1], distance_xyz[2]
+        polar_angle = math.acos(z / distance)
+        azimuth_angle = math.atan2(y, x)
+        return force_total, azimuth_angle, polar_angle
+
+    @staticmethod
+    def update_force(azimuth_angle, force, force_total, polar_angle):
+        # Compute the force of attraction in each direction:
+        force[0] += math.sin(polar_angle) * math.cos(azimuth_angle) * force_total
+        force[1] += math.sin(polar_angle) * math.sin(azimuth_angle) * force_total
+        force[2] += math.cos(polar_angle) * force_total
+
     def calc_positions_eclipses_luminosity(self, p):
         """Calculate distances, forces, accelerations, velocities of the bodies for each iteration.
         The resulting body positions and the lightcurve are stored for later use in the animation.
@@ -154,10 +172,6 @@ class CurveSimBodies(list):
         for body1 in self:
             for body2 in self:
                 transit_status[body1.name + "." + body2.name] = "NoTransit"
-        # impact_parameter_lists = {}
-        # for body1 in self:
-        #     for body2 in self:
-        #         impact_parameter_lists[body1.name + "." + body2.name] = []
         stars = [body for body in self if body.body_type == "star"]
         lightcurve = CurveSimLightcurve(p.iterations)  # Initialize lightcurve (essentially a np.ndarray)
         lightcurve[0] = self.total_luminosity(stars, 0, results, transit_status, p)
@@ -166,19 +180,10 @@ class CurveSimBodies(list):
                 force = np.array([0.0, 0.0, 0.0])
                 for body2 in self:
                     if body1 != body2:
-                        # Calculate distances between bodies:
-                        distance_xyz = body2.positions[iteration - 1] - body1.positions[iteration - 1]
-                        distance = math.sqrt(np.dot(distance_xyz, distance_xyz))
-                        force_total = p.g * body1.mass * body2.mass / distance ** 2  # Use law of gravitation to calculate force acting on body.
-                        # Compute the force of attraction in each direction:
-                        x, y, z = distance_xyz[0], distance_xyz[1], distance_xyz[2]
-                        polar_angle = math.acos(z / distance)
-                        azimuth_angle = math.atan2(y, x)
-                        force[0] += math.sin(polar_angle) * math.cos(azimuth_angle) * force_total
-                        force[1] += math.sin(polar_angle) * math.sin(azimuth_angle) * force_total
-                        force[2] += math.cos(polar_angle) * force_total
-                acceleration = force / body1.mass  # Compute the acceleration in each direction.
-                body1.velocity += acceleration * p.dt  # Compute the velocity in each direction.
+                        force_total, azimuth_angle, polar_angle = self.calc_distance_and_direction(body1, body2, iteration, p)
+                        self.update_force(azimuth_angle, force, force_total, polar_angle)
+                acceleration = force / body1.mass
+                body1.velocity += acceleration * p.dt
                 # Update positions:
                 movement = body1.velocity * p.dt - 0.5 * acceleration * p.dt ** 2
                 body1.positions[iteration] = body1.positions[iteration - 1] + movement
