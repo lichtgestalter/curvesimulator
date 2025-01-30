@@ -165,6 +165,8 @@ class CurveSimBodies(list):
 
     @staticmethod
     def update_velocity(body1, iteration, force, p):
+        """https://en.wikipedia.org/wiki/Verlet_integration
+        https://www.lancaster.ac.uk/staff/drummonn/PHYS281/gravity/"""
         if iteration == 1:
             body1.acceleration = force / body1.mass
         acceleration = force / body1.mass
@@ -172,27 +174,23 @@ class CurveSimBodies(list):
         body1.acceleration = acceleration
         return acceleration
 
-    @staticmethod
-    def update_velocity_old(body1, force, p):
-        acceleration = force / body1.mass
-        body1.velocity += acceleration * p.dt
-        return acceleration
+    # @staticmethod
+    # def update_velocity_euler(body1, force, p):
+    #     acceleration = force / body1.mass
+    #     body1.velocity += acceleration * p.dt
+    #     return acceleration
 
     @staticmethod
     def update_position(body1, iteration, acceleration, p):
+        """https://en.wikipedia.org/wiki/Verlet_integration
+        https://www.lancaster.ac.uk/staff/drummonn/PHYS281/gravity/"""
         movement = body1.velocity * p.dt + acceleration * (p.dt ** 2 * 0.5)
         body1.positions[iteration] = body1.positions[iteration - 1] + movement
 
-    @staticmethod
-    def update_position_old(body1, iteration, acceleration, p):
-        movement = body1.velocity * p.dt - 0.5 * acceleration * p.dt ** 2
-        body1.positions[iteration] = body1.positions[iteration - 1] + movement
-
-    # def update(self, dt: float) -> None:
-    #     """Velocity Verlet integration"""
-    #     new_pos = self.pos + self.vel * dt + self.acc * (dt ** 2 * 0.5)
-    #     new_acc = self.apply_forces()
-    #     new_vel = self.vel + (self.acc + new_acc) * (dt * 0.5)
+    # @staticmethod
+    # def update_position_euler(body1, iteration, acceleration, p):
+    #     movement = body1.velocity * p.dt - 0.5 * acceleration * p.dt ** 2
+    #     body1.positions[iteration] = body1.positions[iteration - 1] + movement
 
     @staticmethod
     def progress_bar(iteration, p):

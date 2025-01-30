@@ -2,24 +2,6 @@ michaela.vitkova@asu.cas.cz
 vitkova@mail.asu.cas.cz
 
 NEXT:
-    0.3.3 Improved Orbit Simulation
-        Die Simulationsgenauigkeit wird auch bei absurd kleinen dt nicht erheblich besser.
-        Ich muss die Simulation verbessern. Vielleicht muessen die Iterationsschritte die
-        Ableitungen x', y' und z' der vorherigen Iterationen beruecksichtigen.
-
-        Ich simuliere die Bewegungen von Planeten und Sternen umeinander.
-        Basierend auf Position und Geschwindigkeitsvektor von jedem Koerper, errechne ich die Position der
-        Koerper nach einer Zeit dt und den neuen Geschwindigkeitsvektor basierend auf dem bisherigen
-        Geschwindigkeitsvektor und der Gravitationskraefte zwischen den Koerpern.
-        Zwischen 2 Iterationsschritten bewegt sich jeder Koerper in dieser Simulation geradeaus.
-        Das hat sich als eine zu starke Vereinfachung herausgestellt.
-        Wie kann in meinen Iterationsschritten die neue Position und den neuen Geschwindigkeitsvektor
-        genauer bestimmen?
-
-        https://en.wikipedia.org/wiki/Verlet_integration (inkl. Code Beispiel in C++)
-        https://www.lancaster.ac.uk/staff/drummonn/PHYS281/gravity/  (benutzt u.a. Verlet)
-        http://www.scholarpedia.org/article/N-body_simulations_(gravitational)
-
 
     0.3.4 Secondary eclipses (Sonne verdeckt Planet)
 
@@ -216,4 +198,4 @@ I implemented all suggestions from zoom call 29.03.2022, but tried and dismissed
                 T4 Exterior egress (fourth contact): The point at which the planet has completely moved off the star's disk, concluding the transit.
             The accuracy of all transit times depends on the parameter dt, the real time difference between simulation iterations.
             By contrast the timestamps and luminosity values of the lightcurve minima have been slightly adjusted using quadratic interpolation.
-
+    0.3.3   Improved orbit simulation using Verlet integration
