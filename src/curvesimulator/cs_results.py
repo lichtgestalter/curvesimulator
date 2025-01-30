@@ -45,11 +45,12 @@ class CurveSimResults(dict):
         if impact_parameter_list:  # Check if the list is not empty
             min_tuple = min(impact_parameter_list, key=lambda item: item[1])
             return min_tuple
-        else:
-            print("ERROR: Empty impact_parameter_list.")
-            print("This is a programming error.")
-            print("Please send your config file to CurveSimulator's developers.")
-            return None
+        else:  # This is no error, when there is no full eclipse  # debug
+            # print("ERROR: Empty impact_parameter_list.")
+            # print("This is a programming error.")
+            # print("Please send your config file to CurveSimulator's developers.")
+            # return None
+            return None, None
 
     def calculate_results(self, lightcurve, p):
         """Calculate and populate the transit results and lightcurve minima."""

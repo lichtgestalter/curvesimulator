@@ -215,7 +215,7 @@ class CurveSimBody:
             self.positions[0] = np.array(pos, dtype=float)  # [m] initial position
             self.velocity = np.array(vel, dtype=float)  # [m/s] initial velocity
             # print(f"{self.name}: Initial velocity before correction: {self.velocity}")
-            self.velocity /= (1 + (self.mass / bodies[0].mass))
+            self.velocity /= (1 + (self.mass / bodies[0].mass))  # correction because formulas seem to assume a system where all the mass is in one object at the center
             # print(f"{self.name}: Initial velocity  after correction: {self.velocity}")
 
     def full_eclipse(self, other, d):
@@ -254,10 +254,13 @@ class CurveSimBody:
     def last_transit_is_relevant_transit(self, other, results, transit_parameter):
         """Is the last transit in the list (["Transits"][-1]) the transit we are looking at right now?
             If not, then there are multiple transits happening at the same time. Things are (too) complicated."""
-        transit_parameter_minus1 = "T" + str(int(transit_parameter[-1])-1)
-        return (results["bodies"][other.name]["Transits"][-1]["transit_params"][transit_parameter] is None
-                and results["bodies"][other.name]["Transits"][-1]["transit_params"][transit_parameter_minus1] is not None
-                and results["bodies"][other.name]["Transits"][-1]["transit_params"]["EclipsedBody"] == self.name)
+        # transit_parameter_minus1 = "T" + str(int(transit_parameter[-1])-1)
+        # return (results["bodies"][other.name]["Transits"][-1]["transit_params"][transit_parameter] is None
+        #         and results["bodies"][other.name]["Transits"][-1]["transit_params"][transit_parameter_minus1] is not None
+        #         and results["bodies"][other.name]["Transits"][-1]["transit_params"]["EclipsedBody"] == self.name)
+        # This check does not work properly. As soon as I handle multiple transits properly, it should be superflous anyway.  # debug
+        # For now, I deactivate the check.
+        return True
 
     def check_for_T1T3(self, other, iteration, results, transit_status, p):
         """ This function gets called after every iteration where a part of other eclipses self."""

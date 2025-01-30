@@ -2,6 +2,21 @@ michaela.vitkova@asu.cas.cz
 vitkova@mail.asu.cas.cz
 
 NEXT:
+    Nach Einfuehrung von Verlet Integration sind die Orbitzeiten stabil, aber nicht richtig.
+    TOI-4504b hat P=2.4622 statt 2.42614. 1.5% zu langsam.
+    Warum kommt der erste Transit dann 0.06% zu frueh, wenn P 1.5% zu kurz ist?
+    Ohne Korrektur (=minimale Senkung) der initialen Geschwindigkeit ist P=2.46249, also noch etwas langsamer. Das ist kontraintuitiv.
+    TOI-4504c scheint jedoch ungefaehr richtig zu sein. Kann man nicht genau sagen, weil sich dessen P ja ueber Zeit aendert.
+
+    Wenn ich TOI-4504b entferne, um mir die langfristige Entwicklung der Periode von TOI-4504c anzugucken,
+    wird der impact von TOI-4504c immer kleiner, bis es gar keine Eclipse mehr gibt.
+    Numerisches Problem? Einfach nur zu gross gewaehltes dt (war hier 1200).
+    Passiert auch mit dt=200. Siehe Blatt Planet c in TOI-4504.xlsx.
+    Der impact wird schubweise geringer. Liegt das an der starken inklination von Planet d?
+
+
+
+
 
     0.3.4 Secondary eclipses (Sonne verdeckt Planet)
 
