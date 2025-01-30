@@ -62,7 +62,6 @@ class CurveSimBody:
 
         self.mu = None  # Gravitational Parameter. Depends on the masses of at least 2 bodies.
 
-
         if not primary and startposition is not None and velocity is not None:  # State vectors are already in config file.
             pos = []
             for x in startposition.split(","):

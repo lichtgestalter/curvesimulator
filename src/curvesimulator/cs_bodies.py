@@ -146,7 +146,7 @@ class CurveSimBodies(list):
         return luminosity
 
     @staticmethod
-    def calc_distance_and_direction(body1, body2, iteration, p):
+    def distance_and_direction(body1, body2, iteration, p):
         # Calculate distance and direction between 2 bodies:
         distance_xyz = body2.positions[iteration - 1] - body1.positions[iteration - 1]
         distance = math.sqrt(np.dot(distance_xyz, distance_xyz))
@@ -162,6 +162,43 @@ class CurveSimBodies(list):
         force[0] += math.sin(polar_angle) * math.cos(azimuth_angle) * force_total
         force[1] += math.sin(polar_angle) * math.sin(azimuth_angle) * force_total
         force[2] += math.cos(polar_angle) * force_total
+
+    @staticmethod
+    def update_velocity(body1, iteration, force, p):
+        if iteration == 1:
+            body1.acceleration = force / body1.mass
+        acceleration = force / body1.mass
+        body1.velocity += (acceleration + body1.acceleration) * 0.5 * p.dt
+        body1.acceleration = acceleration
+        return acceleration
+
+    @staticmethod
+    def update_velocity_old(body1, force, p):
+        acceleration = force / body1.mass
+        body1.velocity += acceleration * p.dt
+        return acceleration
+
+    @staticmethod
+    def update_position(body1, iteration, acceleration, p):
+        movement = body1.velocity * p.dt + acceleration * (p.dt ** 2 * 0.5)
+        body1.positions[iteration] = body1.positions[iteration - 1] + movement
+
+    @staticmethod
+    def update_position_old(body1, iteration, acceleration, p):
+        movement = body1.velocity * p.dt - 0.5 * acceleration * p.dt ** 2
+        body1.positions[iteration] = body1.positions[iteration - 1] + movement
+
+    # def update(self, dt: float) -> None:
+    #     """Velocity Verlet integration"""
+    #     new_pos = self.pos + self.vel * dt + self.acc * (dt ** 2 * 0.5)
+    #     new_acc = self.apply_forces()
+    #     new_vel = self.vel + (self.acc + new_acc) * (dt * 0.5)
+
+    @staticmethod
+    def progress_bar(iteration, p):
+        if p.iterations > 5:  # prevent DIV/0 in next line
+            if iteration % int(round(p.iterations / 10)) == 0:  # Inform user about program's progress.
+                print(f'{round(iteration / p.iterations * 10) * 10:3d}% ', end="")
 
     def calc_positions_eclipses_luminosity(self, p):
         """Calculate distances, forces, accelerations, velocities of the bodies for each iteration.
@@ -180,17 +217,12 @@ class CurveSimBodies(list):
                 force = np.array([0.0, 0.0, 0.0])
                 for body2 in self:
                     if body1 != body2:
-                        force_total, azimuth_angle, polar_angle = self.calc_distance_and_direction(body1, body2, iteration, p)
-                        self.update_force(azimuth_angle, force, force_total, polar_angle)
-                acceleration = force / body1.mass
-                body1.velocity += acceleration * p.dt
-                # Update positions:
-                movement = body1.velocity * p.dt - 0.5 * acceleration * p.dt ** 2
-                body1.positions[iteration] = body1.positions[iteration - 1] + movement
+                        force_total, azimuth_angle, polar_angle = CurveSimBodies.distance_and_direction(body1, body2, iteration, p)
+                        CurveSimBodies.update_force(azimuth_angle, force, force_total, polar_angle)
+                acceleration = CurveSimBodies.update_velocity(body1, iteration, force, p)
+                CurveSimBodies.update_position(body1, iteration, acceleration, p)
             lightcurve[iteration] = self.total_luminosity(stars, iteration, results, transit_status, p)  # Update lightcurve.
-            if p.iterations > 5:  # prevent DIV/0 in next line
-                if iteration % int(round(p.iterations / 10)) == 0:  # Inform user about program's progress.
-                    print(f'{round(iteration / p.iterations * 10) * 10:3d}% ', end="")
+            CurveSimBodies.progress_bar(iteration, p)
         return results, lightcurve, self
 
     def calc_physics(self, p):

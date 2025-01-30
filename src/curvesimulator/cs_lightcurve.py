@@ -27,13 +27,13 @@ class CurveSimLightcurve(np.ndarray):
         minima = []
         if self[0] < self[1]:
             minima.append((0, self[0]))
-        for i in range(1, n - 1):
-            if self[i - 1] > self[i] < self[i + 1]:
-                minima.append((i, self[i]))
+        for j in range(1, n - 1):
+            if self[j - 1] > self[j] < self[j + 1]:
+                minima.append((j, self[j]))
         if self[-1] < self[-2]:
             minima.append((n - 1, self[n-1]))
 
-        for i, minimum in enumerate(minima):  # improve the precision by estimating the position of the minimum between iterations
-            minima[i] = estimate_local_minimum(minimum[0], self[minimum[0] - 1], self[minimum[0]], self[minimum[0] + 1])
+        for j, minimum in enumerate(minima):  # improve the precision by estimating the position of the minimum between iterations
+            minima[j] = estimate_local_minimum(minimum[0], self[minimum[0] - 1], self[minimum[0]], self[minimum[0] + 1])
 
         return minima
