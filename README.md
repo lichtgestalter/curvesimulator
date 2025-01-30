@@ -14,7 +14,7 @@ The video simultaneously displays a view of the star system from the top and fro
 
 **Key Features**
 - Produces videos with just 2 lines of Python code
-- Fast video generation (about the same time as playing time)
+- Fast video generation (takes about the same time as playing time)
 - Efficient storage (only 0.5 MB disk space per minute of video)
 - Customizable via a configuration file
 
