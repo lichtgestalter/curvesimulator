@@ -2,10 +2,15 @@ michaela.vitkova@asu.cas.cz
 vitkova@mail.asu.cas.cz
 
 NEXT:
-    0.3.3 Secondary eclipses (Sonne verdeckt Planet)
+    0.3.3 Improved Orbit Simulation
+        Die Simulationsgenauigkeit wird auch bei absurd kleinen dt nicht erheblich besser.
+        Ich muss die Simulation verbessern. Vielleicht muessen die Iterationsschritte die
+        Ableitungen x', y' und z' der vorherigen Iterationen beruecksichtigen.
+
+    0.3.4 Secondary eclipses (Sonne verdeckt Planet)
 
 
-    0.3.4 Indirect light
+    0.3.5 Indirect light
         AI-Anfrage: Wir beobachten die Helligkeit eines viele Lichtjahre entfernten Sternsystems mit einem Stern und einem Exoplaneten.
         Die Blickrichtung von der Erde zu dem Stern bildet mit der Verbindung von dem Stern zu dem Exoplaneten einen Winkel alpha.
         Wenn alpha = 0 Grad, befindet sich der Exoplanet von der Erde aus gesehen genau vor dem Stern. Bei alpha=180 Grad befindet
@@ -35,9 +40,10 @@ NEXT:
     Wiki aktualisieren.
         Results Output auf eigener Seite im Wiki dokumentieren.
             Vielleicht doch ASCII-Namen fuer Omega etc. waehlen? Ansonsten die Unicodes im Wiki erklaeren
-                "\u03a9": 0.0,
-                "\u03c9": 1.5707963267948966,
-                "\u03c0": 1.5707963267948966,
+                "\u03a9": Ω Grosses Omega, longitude_of_ascending_node
+                "\u03c9": ω Kleines Omega, argument of periapsis
+                "\u03c0": ϖ Kleines Pi, longitude of periapsis
+
 
         Programm ist optimiert fuer Visualisierung. Nicht fuer numerische Praezision. Kleines dt bei kleinen Perioden notwendig. Trotzdem ungenau.
         Im Wiki die Videos verlinken.

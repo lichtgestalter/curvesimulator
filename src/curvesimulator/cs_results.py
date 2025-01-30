@@ -16,7 +16,7 @@ class Transit(dict):
 class CurveSimResults(dict):
     def __init__(self, bodies):
         super().__init__()
-        self["CurveSimulator Documentation"] = "https://github.com/lichtgestalter/curvesimulator/wiki."
+        self["CurveSimulator Documentation"] = "https://github.com/lichtgestalter/curvesimulator/wiki"
         self["ProgramParameters"] = {}
         self["LightcurveMinima"] = []
         self["LightcurveMinimaDistances"] = {}

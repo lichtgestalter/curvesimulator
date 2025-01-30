@@ -5,12 +5,11 @@ class CurveSimParameters:
 
     def __init__(self, config_file):
         """Read program parameters and properties of the physical bodies from config file."""
-        self.configfilename = config_file
         self.standard_sections = ["Astronomical Constants", "Video", "Plot", "Scale", "Debug"]  # These sections must be present in the config file.
         config = configparser.ConfigParser(inline_comment_prefixes='#')  # Inline comments in the config file start with "#".
         config.optionxform = str  # Preserve case of the keys.
         CurveSimParameters.find_and_check_config_file(config_file, standard_sections=self.standard_sections)
-        config.read(self.configfilename)
+        config.read(config_file)
 
         # [Astronomical Constants]
         # For ease of use of these constants in the config file they are additionally defined here without the prefix "self.".
@@ -28,6 +27,7 @@ class CurveSimParameters:
         self.r_jup, self.m_jup, self.r_earth, self.m_earth, self.v_earth = r_jup, m_jup, r_earth, m_earth, v_earth
 
         # [Video]
+        self.config_file = config_file
         self.video_file = config.get("Video", "video_file")
         self.result_file = config.get("Video", "result_file")
         self.frames = eval(config.get("Video", "frames"))
@@ -67,7 +67,7 @@ class CurveSimParameters:
         self.debug_L = list(eval(config.get("Debug", "debug_L", fallback="[0]")))
 
     def __repr__(self):
-        return f'CurveSimParameters from {self.configfilename}'
+        return f'CurveSimParameters from {self.config_file}'
 
     @staticmethod
     def find_and_check_config_file(config_file, standard_sections):

@@ -28,7 +28,7 @@ class CurveSimBodies(list):
             print("WARNING: Section 'Astronomical Constants' in the configuration file is incomplete. See https://github.com/lichtgestalter/curvesimulator/wiki.")
         config = configparser.ConfigParser(inline_comment_prefixes='#')
         config.optionxform = str  # Preserve case of the keys.
-        config.read(p.configfilename)  # Read config file. (This time the physical objects.)
+        config.read(p.config_file)  # Read config file. (This time the physical objects.)
 
         # Physical bodies
         # super().__init__()  # unnecessary because self automatically becomes an empty list at the beginning of this method
