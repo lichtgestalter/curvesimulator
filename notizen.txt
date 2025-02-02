@@ -2,6 +2,9 @@ michaela.vitkova@asu.cas.cz
 vitkova@mail.asu.cas.cz
 
 NEXT:
+    falls resultatfile nicht in configfile festgelegt, leite dessen Namen aus configfilenamen ab und speichere in Resultatordner mit laufender Nummer
+    Schreib Beispiel Programme, die Resultatfiles auswerten und visualisieren
+
     P in Resultfile. Vielleicht doch optimierte TT auch in Transitresults und nicht nur in Lightcurveminima?
 
     Nach Einfuehrung von Verlet Integration sind die Orbitzeiten stabil, aber nicht richtig.
