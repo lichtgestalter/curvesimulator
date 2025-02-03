@@ -3,6 +3,7 @@ vitkova@mail.asu.cas.cz
 
 NEXT:
     falls resultatfile nicht in configfile festgelegt, leite dessen Namen aus configfilenamen ab und speichere in Resultatordner mit laufender Nummer
+    auch wenn resultatfile in configfile festgelegt, nicht ueberschreiben, sondern mit an Filenamen angehaengter Nummer speichern. (Optional machen?)
     Schreib Beispiel Programme, die Resultatfiles auswerten und visualisieren
 
     P in Resultfile. Vielleicht doch optimierte TT auch in Transitresults und nicht nur in Lightcurveminima?
@@ -26,24 +27,6 @@ NEXT:
     0.3.4 Secondary eclipses (Sonne verdeckt Planet)
 
 
-    0.3.5 Indirect light
-        AI-Anfrage: Wir beobachten die Helligkeit eines viele Lichtjahre entfernten Sternsystems mit einem Stern und einem Exoplaneten.
-        Die Blickrichtung von der Erde zu dem Stern bildet mit der Verbindung von dem Stern zu dem Exoplaneten einen Winkel alpha.
-        Wenn alpha = 0 Grad, befindet sich der Exoplanet von der Erde aus gesehen genau vor dem Stern. Bei alpha=180 Grad befindet
-        sich der Exoplanet genau hinter dem Stern. Bei alpha=90 Grad befindet sich der Exoplanet seitlich vom Stern und es wird von
-        der Erde aus gesehen genau die Haelfte des Exoplaneten von dem Stern angeleuchtet. Sei max_light die maximale Lichtmenge
-        (Luminosity), die der Exoplanet von dem Stern Richtung Erde reflektieren kann, wenn die komplette der Erde zugewandte
-        Haelfte des Exoplaneten von dem Stern angeleuchtet wird.  Schreibe eine Pythonfunktion, die abhaengig von alpha errechnet,
-        wie viel Prozent von max_light von dem Exoplaneten Richtung Erde reflektiert wird.
-
-        def reflected_light_percentage(alpha):
-            # Konvertiere alpha in Radiant
-            alpha_rad = math.radians(alpha)
-
-            # Berechne den Prozentsatz des reflektierten Lichts
-            percentage = 50 * (1 + math.cos(alpha_rad))
-
-            return percentage
 
 
 
@@ -121,9 +104,32 @@ VERSION 1.0.0 veroeffentlichen !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         Im JSON File
         Copyright notice ins Video?
 
-    Planet Albedo
+    Multiple Eclipses (e.g. Triply Eclipsing Triples, >=3 bodies in line of sight):
+        Handle them correctly
+        Example systems: https://arxiv.org/pdf/2204.02539.pdf
+
+    Indirect light / Planet Albedo
         Bei Total System Luminosity beruecksichtigen -> kleiner dip in lightcurve bei secondary eclipse
         Phasen beruecksichtigen: Halbplanet, Vollplanet, ...
+
+        AI-Anfrage: Wir beobachten die Helligkeit eines viele Lichtjahre entfernten Sternsystems mit einem Stern und einem Exoplaneten.
+        Die Blickrichtung von der Erde zu dem Stern bildet mit der Verbindung von dem Stern zu dem Exoplaneten einen Winkel alpha.
+        Wenn alpha = 0 Grad, befindet sich der Exoplanet von der Erde aus gesehen genau vor dem Stern. Bei alpha=180 Grad befindet
+        sich der Exoplanet genau hinter dem Stern. Bei alpha=90 Grad befindet sich der Exoplanet seitlich vom Stern und es wird von
+        der Erde aus gesehen genau die Haelfte des Exoplaneten von dem Stern angeleuchtet. Sei max_light die maximale Lichtmenge
+        (Luminosity), die der Exoplanet von dem Stern Richtung Erde reflektieren kann, wenn die komplette der Erde zugewandte
+        Haelfte des Exoplaneten von dem Stern angeleuchtet wird.  Schreibe eine Pythonfunktion, die abhaengig von alpha errechnet,
+        wie viel Prozent von max_light von dem Exoplaneten Richtung Erde reflektiert wird.
+
+        def reflected_light_percentage(alpha):
+            # Konvertiere alpha in Radiant
+            alpha_rad = math.radians(alpha)
+
+            # Berechne den Prozentsatz des reflektierten Lichts
+            percentage = 50 * (1 + math.cos(alpha_rad))
+
+            return percentage
+
 
     Add Neptun's mass and radius to astronomical constants in config file?
 
@@ -144,10 +150,6 @@ VERSION 1.0.0 veroeffentlichen !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         Parameter für regelmäßige Helligkeitsänderungen: variation = [(amplitude, periode, phase(shift?))]
         Das deckt auch Sunspots ab. Die wären sonst zu beschwerlich.
         Evtl. ermoeglichen, als Parameter den Namen einer Funktion anzugeben, die die Helligkeit des Sterns abhaengig vom Zeitpunkt (in BJD?) berechnet.
-
-    Multiple Eclipses (e.g. Triply Eclipsing Triples, >=3 bodies in line of sight):
-        Handle them correctly
-        Example systems: https://arxiv.org/pdf/2204.02539.pdf
 
 
 
