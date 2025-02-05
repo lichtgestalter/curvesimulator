@@ -3,7 +3,7 @@ vitkova@mail.asu.cas.cz
 
 NEXT:
     0.3.4 Multiple result files
-        falls resultatfile nicht in configfile festgelegt, leite dessen Namen aus configfilenamen ab und speichere in Resultatordner mit laufender Nummer
+        falls resultatfile nicht in configfile festgelegt, dann leite dessen Namen aus configfilenamen ab und speichere in Resultatordner mit laufender Nummer
         auch wenn resultatfile in configfile festgelegt, nicht ueberschreiben, sondern mit an Filenamen angehaengter Nummer speichern. (Optional machen?)
         Schreib Beispiel Programme, die Resultatfiles auswerten und visualisieren
 
