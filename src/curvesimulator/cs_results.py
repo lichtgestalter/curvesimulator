@@ -1,5 +1,7 @@
 import sys
+import os
 import json
+import re
 
 
 class Transit(dict):
@@ -89,6 +91,25 @@ class CurveSimResults(dict):
             json.dump(self, file, indent=4, ensure_ascii=False)
         print(filename, "saved")
 
+    @staticmethod
+    def check_resultfilename(resultfilename):
+        """Check if resultfilename already exists and attach a number if it does."""
+        if not os.path.exists(resultfilename):
+            return resultfilename
+        base, ext = os.path.splitext(resultfilename)
+        match = re.search(r"\.v(\d+)$", base)
+        if match:
+            num = int(match.group(1)) + 1
+            base = base[:match.start()]
+        else:
+            num = 1
+        new_resultfilename = f"{base}.v{num:04}{ext}"
+        while os.path.exists(new_resultfilename):
+            num += 1
+            new_resultfilename = f"{base}.v{num:04}{ext}"
+        return new_resultfilename
+
     def save_results(self, parameters, bodies, lightcurve):
         self.calculate_results(lightcurve, parameters)  # Calculate transit parameters
-        self.results2json(bodies, parameters.result_file)  # Write results to json file
+        resultfilename = CurveSimResults.check_resultfilename(parameters.result_file)
+        self.results2json(bodies, resultfilename)  # Write results to json file

@@ -92,7 +92,15 @@ class CurveSimParameters:
             print(red + f'Provide the config file name as the argument of the function curvesim. ' + reset)
             print(red + f'More information on https://github.com/lichtgestalter/curvesimulator/wiki ' + reset)
             sys.exit(1)
+        if not config_file.endswith(".ini"):
+            print(red + f'Please only use config files with the .ini extension. (You tried to use {config_file}.)' + reset)
+            sys.exit(1)
+
         for section in standard_sections:  # Does the config file contain all standard sections?
             if section not in config.sections() and section != "Debug":
                 print(red + f'Section {section} missing in config file.' + reset)
                 sys.exit(1)
+
+    @staticmethod
+    def resultfile_from_configfile(config_file):
+        return "xxx"
