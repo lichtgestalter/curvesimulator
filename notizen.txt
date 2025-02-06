@@ -4,7 +4,7 @@ vitkova@mail.asu.cas.cz
 NEXT:
         Schreib Beispiel Programme, die Resultatfiles auswerten und visualisieren
 
-        P in Resultfile. Vielleicht doch optimierte TT auch in Transitresults und nicht nur in Lightcurveminima?
+        P in Resultfile. Vielleicht doch optimierte TT auch in Transitresults und nicht bloss in Lightcurveminima?
 
         Orbitparameter regelmaessig (z.B. bei jedem Transit berechnen und im Resultfile speichern.
 
