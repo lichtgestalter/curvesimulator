@@ -75,7 +75,7 @@ class CurveSimPhysics:
             return None
         print(f"ERROR in config file: limb_darkening_parameter_type must be a or u or q.")
         print(f"                      limb_darkening must be [a0,a1,a2] or [u1,u2] or [q1,q2] correspondingly.")
-        print(f"                      Config file contains: limb_darkening_parameter_type = {parameter_type} and limb_darkening = {parameters}")
+        print(f"                      But config file contains: limb_darkening_parameter_type = {parameter_type} and limb_darkening = {parameters}")
         sys.exit(1)
 
     @staticmethod
@@ -96,15 +96,6 @@ class CurveSimPhysics:
 
     @staticmethod
     def limbdarkening(relative_radius, limb_darkening_parameters):
-        if relative_radius < 0:  # handling rounding errors
-            relative_radius = 0.0
-        if relative_radius > 1:
-            relative_radius = 1.0
-        mu = math.sqrt(1 - relative_radius ** 2)
-        return CurveSimPhysics.intensity(mu, limb_darkening_parameters)
-
-    @staticmethod
-    def limbdarkening_old(relative_radius, limb_darkening_coefficients):
         """
         Approximates the flux of a star at a point on the star seen from a very large distance.
         The point's apparent distance from the star's center is relative_radius * radius.
@@ -120,19 +111,8 @@ class CurveSimPhysics:
             relative_radius = 0.0
         if relative_radius > 1:
             relative_radius = 1.0
-        mu = math.sqrt(1 - relative_radius ** 2)  # mu = cos(theta), where theta is the angle from the center
-        intensity = sum(a * mu ** i for i, a in enumerate(limb_darkening_coefficients))
-        return intensity
-
-    @staticmethod
-    def mean_intensity_old(limb_darkening_coefficients):
-        """Calculates the ratio of the mean intensity to the central intensity of a star based on the given coefficients."""
-        if limb_darkening_coefficients is None:
-            return None
-        intensity = 0.0
-        for i, c in enumerate(limb_darkening_coefficients):
-            intensity += 2.0 * c / (i + 2)
-        return intensity
+        mu = math.sqrt(1 - relative_radius ** 2)
+        return CurveSimPhysics.intensity(mu, limb_darkening_parameters)
 
     @staticmethod
     def distance_3d(point1, point2):

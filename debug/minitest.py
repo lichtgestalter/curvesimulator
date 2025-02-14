@@ -1,7 +1,10 @@
 import json
 import matplotlib.pyplot as plt
 
-resultfile = "../results/TOI-4504_127years.json"
+# resultfile = "../results/TOI-4504_including_b.json"
+resultfile = "../results/TOI-4504_tmp.json"
+# resultfile = "../results/TOI-4504_without_b.json"
+# resultfile = "../results/TOI-4504_d_i=91.5.json"
 
 # read json-file and store in variable
 with open(resultfile, "r") as file:
@@ -21,7 +24,7 @@ plt.plot(transit_times_c, impact_parameters_c, 'o-', label="TOI-4504c")
 plt.plot(transit_times_d, impact_parameters_d, 'o-', label="TOI-4504d")
 plt.xlabel('Transit Times [BJD]')
 plt.ylabel('Impact Parameter')
-plt.title('Transit Times vs Impact Parameters for TOI-4504c')
+plt.title(resultfile)
 plt.legend()
 plt.grid(True)
 plt.ylim(bottom=0)
