@@ -36,18 +36,20 @@ def periods(results, resultfile):
     plt.title(resultfile)
     plt.legend()
     plt.grid(True)
-    plt.ylim(bottom=80)
+    plt.ylim(bottom=81, top=85)
     plt.show()
 
 def main():
     # resultfile = "../results/TOI-4504_including_b.json"
     # resultfile = "../results/TOI-4504_tmp.json"
-    resultfile = "../results/TOI-4504_without_b.json"
+    resultfile = "../results/TOI-4504.v0002.json"
+    # resultfile = "../results/TOI-4504_without_b.json"
     # resultfile = "../results/TOI-4504_d_i=91.5.json"
 
     # read json-file and store in variable
     with open(resultfile, "r") as file:
         results = json.load(file)
+    # impact_parameters(results, resultfile)
     periods(results, resultfile)
 
 
