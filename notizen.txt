@@ -7,6 +7,9 @@ NEXT:
         P in Resultfile?
         Orbitparameter regelmaessig (z.B. bei jedem Transit) berechnen und im Resultfile speichern.
 
+        Transits von TOI-4504 c in Datenbanken suchen.
+            Noras Videos gucken (lightkurve?)
+
         Nach Einfuehrung von Verlet Integration sind die Orbitzeiten stabil, aber nicht richtig.
         TOI-4504b hat P=2.4622 statt 2.42614. 1.5% zu langsam.
         Warum kommt der erste Transit dann 0.06% zu frueh, wenn P 1.5% zu kurz ist?
