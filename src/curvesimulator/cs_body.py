@@ -218,6 +218,66 @@ class CurveSimBody:
             self.velocity /= (1 + (self.mass / bodies[0].mass))  # correction because formulas seem to assume a system where all the mass is in one object at the center
             # print(f"{self.name}: Initial velocity  after correction: {self.velocity}")
 
+    def state_vector_to_keplerian_elements(self):
+        """Given the State Vector (position x, y, z and velocity dx, dy, dz) of an exoplanet, calculate its
+            Kepler Orbit Elements (semi-major axis,  eccentricity, inclination, longitude of ascending node,
+            argument of periapsis,  true anomaly) with a python function. You may assume that the orbit is
+            well defined (no edge case, no hyperbole)"""
+
+        # Extract position and velocity components
+        x, y, z = self.positions[0]
+        dx, dy, dz = self.velocity
+
+        # Calculate specific angular momentum
+        h_vec = np.cross([x, y, z], [dx, dy, dz])
+        h = np.linalg.norm(h_vec)
+
+        # Calculate the semi-major axis
+        r = np.linalg.norm([x, y, z])
+        v = np.linalg.norm([dx, dy, dz])
+        mu = self.mu
+        a = 1 / (2 / r - v ** 2 / mu)
+
+        # Calculate the eccentricity vector and its magnitude
+        e_vec = (np.cross([dx, dy, dz], h_vec) / mu) - np.array([x, y, z]) / r
+        e = np.linalg.norm(e_vec)
+
+        # Calculate the inclination
+        i = np.arccos(h_vec[2] / h)
+
+        # Calculate the longitude of ascending node
+        n_vec = np.cross([0, 0, 1], h_vec)
+        n = np.linalg.norm(n_vec)
+        if n != 0:
+            Ω = np.arccos(n_vec[0] / n)
+            if n_vec[1] < 0:
+                Ω = 2 * np.pi - Ω
+        else:
+            Ω = 0
+
+        # Calculate the argument of periapsis
+        if n != 0:
+            ω = np.arccos(np.dot(n_vec, e_vec) / (n * e))
+            if e_vec[2] < 0:
+                ω = 2 * np.pi - ω
+        else:
+            ω = 0
+
+        # Calculate the true anomaly
+        nu = np.arccos(np.dot(e_vec, [x, y, z]) / (e * r))
+        if np.dot([x, y, z], [dx, dy, dz]) < 0:
+            nu = 2 * np.pi - nu
+
+        # Save calculated parameters in body object
+        self.a = a
+        self.e = e
+        self.i = np.degrees(i)
+        self.Ω = np.degrees(Ω)
+        self.ω = np.degrees(ω)
+        self.nu = np.degrees(nu)
+
+        return a, e, np.degrees(i), np.degrees(Ω), np.degrees(ω), np.degrees(nu)
+
     def full_eclipse(self, other, d):
         if self.radius < other.radius:  # Total eclipse
             area = self.area_2d
