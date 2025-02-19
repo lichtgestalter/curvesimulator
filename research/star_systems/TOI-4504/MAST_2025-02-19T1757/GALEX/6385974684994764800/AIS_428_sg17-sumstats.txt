@@ -1,0 +1,72 @@
+PlateSol:DRA                         (d) = -0.0279
+PlateSol:DDec                        (d) = 0.0372
+PlateSol:DRoll                       (d) = 0.00668
+PlateSol:NumMatches                  (d) = 105
+PlateSol:NumMatchesUsed              (d) = 105
+SExtra:MeanPosErrFix                 (d) = NUV=1.21664298870602; FUV=1.84449697880366
+SExtra:MinPosErrFix                  (d) = NUV=1.13921969867357; FUV=1.61651886732122
+SExtra:MaxPosErrFix                  (d) = NUV=1.21999030804433; FUV=1.85811912203924
+SExtra:MeanPosErr                    (d) = NUV=0.485195607595453; FUV=0.419729621579698
+SExtra:MinPosErr                     (d) = NUV=0.0106066226492748; FUV=0.0110403957907841
+SExtra:MaxPosErr                     (d) = NUV=1.35619112773238; FUV=0.922909007247367
+SExtra:SExDetBGRMS                   (d) = NUV=1.84452; FUV=1.0889
+SExtra:DetBGSig                      (d) = NUV=2.0388320734993; FUV=1.48742349989692
+SExtra:MedianBG                      (d) = NUV=0.00731563568115234; FUV=0.00169992446899414
+SExtra:MedianRR                      (d) = NUV=135.371566772461; FUV=164.453872680664
+SExtra:MedianThresh                  (d) = NUV=0.00360562743866605; FUV=0.00216151434182331
+SExtra:NSigmaThresh                  (d) = NUV=2; FUV=2.5
+SExtra:AreaDet                       (d) = NUV=20.4; FUV=20.4
+PhotMap:PhTime0                      (d) = NUV=856968316.995; FUV=856968316.995
+PhotMap:PhTime1                      (d) = NUV=856980247.995; FUV=856980247.995
+PhotMap:ExpTime                      (d) = NUV=199; FUV=199
+PhotMap:NPhRead                      (j) = NUV=20000000; FUV=17282228
+PhotMap:NPhOnMap                     (j) = NUV=7483918; FUV=1835725
+PhotMap:MeanFDead                    (d) = NUV=0.222129504670407; FUV=0.0573784035096691
+PhotMap:RAFldCen                     (d) = NUV=114.382425056998; FUV=114.382425056998
+PhotMap:DecFldCen                    (d) = NUV=-62.6552839993469; FUV=-62.6552839993469
+PhotMap:MeanRoll                     (d) = NUV=178.734123791866; FUV=178.734123791866
+PhotMap:NAspUsed                     (j) = NUV=203; FUV=203
+Photmap:NHVNomNUV                    (d) = 210
+Photmap:NHVNomFUV                    (d) = 210
+Photmap:NVisitsNUV                   (d) = 2
+Photmap:NVisitsFUV                   (d) = 2
+Photmap:RA0                          (d) = 114.370979309082
+Photmap:Dec0                         (d) = -62.649169921875
+GetFWHM:FWHMGaussFit                 (d) = NUV=5.06; FUV=4.38
+GetFWHM:FWHMNSamp                    (j) = NUV=659; FUV=16
+GetFWHM:FWHMGaussFitSum              (d) = NUV=5.4; FUV=5.03
+GetFWHM:FWHMMajSum                   (d) = NUV=7.06; FUV=5.84
+GetFWHM:FWHMMinSum                   (d) = NUV=6.1; FUV=5.28
+GetFWHM:FWHMEllipSum                 (d) = NUV=0.86; FUV=0.9
+GetFWHM:FWHMThetaSum                 (d) = NUV=6.65; FUV=119.13
+GetFWHM:FW80Sum                      (d) = NUV=9.11; FUV=7.94
+GetFWHM:PkPixFracSum                 (d) = NUV=0.0653657620142835; FUV=0.0749379915648535
+GetFWHM:FWHMCat                      (d) = NUV=8.42; FUV=6.41
+GetFWHM:FWHMCatMaj                   (d) = NUV=7.01; FUV=6.8
+GMergeQA:NsingleBand                 (j) = NUV=4350; FUV=482
+GMergeQA:Nmerged                     (j) = 123
+GMergeQA:MergeMedianDx               (d) = -0.0575936287641525
+GMergeQA:MergeMedianDy               (d) = -0.481214016675949
+GMergeQA:MergeStdDevDx               (d) = 1.47350227832794
+GMergeQA:MergeStdDevDy               (d) = 1.6872866153717
+GMergeQA:MergeStdDevMeanDx           (d) = 0.176117211580276
+GMergeQA:MergeStdDevMeanDy           (d) = 0.201669320464134
+GMergeQA:MergeMedianDRA              (d) = -0.0652056261897087
+GMergeQA:MergeMedianDDec             (d) = 0.483594387769699
+GMergeQA:MergeStdDevDRA              (d) = 1.4670342206955
+GMergeQA:MergeStdDevDDec             (d) = 1.69252789020538
+GMergeQA:MergeStdDevMeanDRA          (d) = 0.175344124436378
+GMergeQA:MergeStdDevMeanDDec         (d) = 0.202295780181885
+MarshalQA:RunDate                    (a) = 100623T173824Z
+MarshalQA:File                       (a) = /home/svalin4/fltops/pipe/02-vsn/50428-AIS_428/d/01-main/0001-img/07-try/qa/AIS_428_sg17-sumstats.txt
+MarshalQA:InDir                      (a) = /home/galex/fltops/mains/02-vsn/50428-AIS_428/d/01-main/0001-img/07-try/
+MarshalQA:InBase                     (a) = AIS_428_sg17
+MarshalQA:Vsn                        (a) = 02
+MarshalQA:TileID                     (a) = AIS_428
+MarshalQA:TileNum                    (j) = 50428
+MarshalQA:OW                         (a) = d
+MarshalQA:Visit                      (j) = 0
+MarshalQA:Img                        (j) = 0001
+MarshalQA:Try                        (j) = 07
+MarshalQA:GRelease                   (a) = ops-v7_0_3
+MarshalQA:ExitCode                   (j) = 0

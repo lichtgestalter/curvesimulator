@@ -1,0 +1,1390 @@
+
+
+>>>>  START iam=>'OrbPipe', host=>'modi', pid=>21679, starttime=>'100623_011755Z', ppid=>21678, pgrpid=>21678, user=>'gop', 
+>>>>+ cwd=>'/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try', exec=>'/home/galex/ops/bin/orbpipe', 
+
+Invoking command line:
+/home/galex/ops/bin/orbpipe -input_base AIS_428_0002 -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -cal_path cal -opt_wheel_pos 1 -ais -pipe_data_version_number 2 -verbose -log_file =Orbpipe_sg17.log -no_abs_acs_correction -sub_visits 17 -compress_images -no_dir_lock -eclipse 0 -eclipse_path 0 -update_obst=0 -update_visit_link=0 -mk_use_link -grid_num 36517 -grid_leg 8 -grid_raw6_root /home/galex/fltops/visits//02-vsn/raw6/20000-20999/20518/e20518 -opslog_path 0 -deltaphot_mode -orbpipe:enqjob: -append -orbpipe:orbpipe1b:photmap: -dead -orbpipe:orbpipe1b:grta: -maxdith 4e-5 -orbpipe:fitstblcat: -strict -orbpipe:orbpipe1b:photmap: -dead -orbpipe:orbpipe1b:grta: -maxdith 4e-5 -orbpipe:fitstblcat: -strict -enqueue_job=0 -log =Orbpipe_sg17.log
+
+
+<< OrbPipe >> version='$Id: orbpipe,v 1.476 2009/02/27 00:11:02 cmillion Exp $ ', release=ops-v7_0_3, moddate=2010/03/04_21:12:08Z
+Date/time: 2010/06/23_01:17:55Z  PCPU: 0.29/0.1/3  CCPU: 0.32/0.15
+HOST: modi  PID: 21679  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+CWD: /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/  EXEC: /home/galex/ops/bin/orbpipe (/home/galex/ops/bin/)
+
+Named parameters for OrbPipe:
+input_base = AIS_428_0002; input_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; 
+output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; output_base = undef; cal_path = cal; 
+band = undef; opt_wheel_pos = 1; ais = 1; tbase = UNIX; sctbase = GPS; pipe_data_version_number = 2; run = undef; not = undef; 
+execs = {rta=>grta,add=>addemup,ingest=>gingest,ingest32=>ingest,flag=>gmkflagmap,spex=>gspex,spac=>gspac,map=>photmap,fitstblcat=>fitstblcat,merge=>gmerge,varpix=>movievarpix,spcombine=>gcombine,astromchk=>astromchk,xhk=>xhk,sex=>sextra,instsim=>ginstsim,pipeqa=>gpipeqa,spacadd=>gspacadd,sppipeqa=>gpipeqa,ingest18=>hkdump,trend=>ghktrend}; 
+verbose = 1; debug = 0; log_file = =Orbpipe_sg17.log; test = undef; grspa = undef; merge_path = undef; merge_base = undef; 
+top_cut = 1000; top_mask = 2000; coadd_exptime = undef; sim_mode = undef; no_aspect = undef; use_solution = undef; 
+use_prev_rta = undef; max_dither_rate = 4e-05; exit_code = undef; pre_map = undef; movie_mask = undef; fuv_minexp_check = 500; 
+direct = undef; qa_spectra = undef; full_spectra = undef; enqueue_job = 0; slate_dir = undef; no_acs_correction = undef; 
+no_abs_acs_correction = 1; do_bands = 1,2; nuv_only = undef; fuv_only = undef; sub_visits = 17; tlm_file = undef; 
+clean_ingest = undef; keep_ingest_raw6 = undef; remove_x_file = undef; compress_images = 1; 
+compress_types = cnt,int,intbgsub,wt,skybg,rrhr,objmask,dph,qa/dph2,qa/dphqa,dose,scdose,scq; show_steps = undef; 
+no_dir_lock = 1; unlock = undef; output_file = =Out.txt; command_file = CmdLine.txt; enqueue_exec = enqjob; 
+qav0_exec = gqareport; nolock = undef; eclipse = 0; eclipse_path = 0; run_instsim = undef; ingest = undef; rebuild_scst = undef; 
+hk_path = /home/galex/fltops/ingest/hk; default_cal_target = /home/galex/cal/targ/use; update_obst = 0; 
+obs_stat_base = received; obst_path = /home/galex/fltops/obst; update_visit_link = 0; vislink_path = /home/galex/fltops/visits; 
+mk_out_dir = undef; mk_use_link = 1; slice_time = undef; slice_on_rta_cols = undef; grid_num = 36517; grid_leg = 8; 
+grid_table = undef; grid_raw6_root = /home/galex/fltops/visits//02-vsn/raw6/20000-20999/20518/e20518; fix_planid = undef; 
+mps_path = undef; opslog_path = 0; comment = undef; no_summary_write = undef; no_hdr_update = undef; append_status = undef; 
+deltaphot_mode = 1; 
+other_opts = {nuv_special=>0,loose_ingest=>0,wayoff=>0,grismref=>1,qav0=>1,fuv_inverted=>-1,gyrocorr=>-1,plan=>0,dec0=>-999,opslogname=>ops.log,pathtile=>0,fast_xhk=>1,clean=>0,nomps=>0,raw6ifecl=>1,minaishop=>0,planid=>0,pflags=>0,official=>-1,raw6ptag_is_hvnom=>-1,v0mode=>1,survtype=>0,movmask=>1,faint=>0,fast_ingest=>0,varpix=>1,newopslogname=>ops_to_status.log,dummy=>1,force=>0,ra0=>-999,wait=>0,maskr=>0.6}; 
+Passed-on parameters:
+ '-enqjob:' '-append' '-orbpipe1b:photmap:' '-dead' '-orbpipe1b:grta:' '-maxdith 4e-5' '-fitstblcat:' '-strict' '-orbpipe1b:photmap:' '-dead' '-orbpipe1b:grta:' '-maxdith 4e-5' '-fitstblcat:' '-strict' '-orbpipe1b:photmap:' '-dead' '-orbpipe1b:grta:' '-maxdith 4e-5' '-fitstblcat:' '-strict' '-orbpipe1b:photmap:' '-dead' '-orbpipe1b:grta:' '-maxdith 4e-5' '-fitstblcat:' '-strict' 
+
+>>> Begin at 1277255876
+
+
+>>> Begin sub-visit 17 at 1277255885
+
+
+CMDLINE => orbpipe1b -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -cal_path cal -opt_wheel_pos 1 -ais -pipe_data_version_number 2 -verbose -movie_mask=1 -pre_map=1 -band 1 -not merge,spcombine,spcombineqa,sppipeqa,qasppipeqa,pipeqa -orbpipe1b:spac1 -find=1 -run rta,phxcheck,premap,varpix,map,sex,astromchk,flag,flagastromchk,merge,merge_sex,pipeqa -orbpipe1b:grta -opts\ gyrocorr=-1\ -refine=1\ -noabs=1\ -opts\ fullasp=1 -orbpipe1b:photmap:simplemap -calinf\ maskr=0.6 -input_base AIS_428_0002_sg17 -use_solution=1 -enqjob: -append -orbpipe1b:photmap: -dead -orbpipe1b:grta: -maxdith\ 4e-5 -fitstblcat: -strict -orbpipe1b:photmap: -dead -orbpipe1b:grta: -maxdith\ 4e-5 -fitstblcat: -strict -orbpipe1b:photmap: -dead -orbpipe1b:grta: -maxdith\ 4e-5 -fitstblcat: -strict -orbpipe1b:photmap: -dead -orbpipe1b:grta: -maxdith\ 4e-5 -fitstblcat: -strict
+
+
+>>>>  START iam=>'OrbPipe1b', host=>'modi', pid=>21792, starttime=>'100623_011809Z', ppid=>21679, pgrpid=>21678, user=>'gop', 
+>>>>+ cwd=>'/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try', exec=>'/home/galex/ops/bin/orbpipe1b', 
+
+Invoking command line:
+/home/galex/ops/bin/orbpipe1b -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -cal_path cal -opt_wheel_pos 1 -ais -pipe_data_version_number 2 -verbose -movie_mask=1 -pre_map=1 -band 1 -not merge,spcombine,spcombineqa,sppipeqa,qasppipeqa,pipeqa -orbpipe1b:spac1 -find=1 -run rta,phxcheck,premap,varpix,map,sex,astromchk,flag,flagastromchk,merge,merge_sex,pipeqa -orbpipe1b:grta -opts gyrocorr=-1 -refine=1 -noabs=1 -opts fullasp=1 -orbpipe1b:photmap:simplemap -calinf maskr=0.6 -input_base AIS_428_0002_sg17 -use_solution=1 -enqjob: -append -orbpipe1b:photmap: -dead -orbpipe1b:grta: -maxdith 4e-5 -fitstblcat: -strict -orbpipe1b:photmap: -dead -orbpipe1b:grta: -maxdith 4e-5 -fitstblcat: -strict -orbpipe1b:photmap: -dead -orbpipe1b:grta: -maxdith 4e-5 -fitstblcat: -strict -orbpipe1b:photmap: -dead -orbpipe1b:grta: -maxdith 4e-5 -fitstblcat: -strict
+
+
+<< OrbPipe1b >> version='$Id: orbpipe1b,v 1.174 2008/01/31 23:25:23 tim Exp $ ', release=ops-v7_0_3, moddate=2010/03/04_21:12:08Z
+Date/time: 2010/06/23_01:18:10Z  PCPU: 0.28/0.1/3  CCPU: 0.06/0.1
+HOST: modi  PID: 21792  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+CWD: /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/  EXEC: /home/galex/ops/bin/orbpipe1b (/home/galex/ops/bin/)
+
+Named parameters for OrbPipe1b:
+input_base = AIS_428_0002_sg17; input_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; 
+output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; output_base = undef; cal_path = cal; 
+band = 1; opt_wheel_pos = 1; ais = 1; tbase = UNIX; sctbase = GPS; pipe_data_version_number = 2; 
+run = rta,phxcheck,premap,varpix,map,sex,astromchk,flag,flagastromchk,merge,merge_sex,pipeqa; 
+not = merge,spcombine,spcombineqa,sppipeqa,qasppipeqa,pipeqa; 
+execs = {rta=>grta,ingest=>gingest,add=>addemup,ingest32=>ingest,flag=>gmkflagmap,spac=>gspac,spex=>gspex,map=>photmap,fitstblcat=>fitstblcat,merge=>gmerge,spcombine=>gcombine,varpix=>movievarpix,astromchk=>astromchk,xhk=>xhk,sex=>sextra,instsim=>ginstsim,pipeqa=>gpipeqa,spacadd=>gspacadd,sppipeqa=>gpipeqa,trend=>ghktrend,ingest18=>hkdump}; 
+verbose = 1; debug = 0; log_file = undef; test = undef; grspa = undef; merge_path = undef; merge_base = undef; top_cut = 1000; 
+top_mask = 2000; coadd_exptime = undef; sim_mode = undef; no_aspect = undef; use_solution = 1; use_prev_rta = undef; 
+max_dither_rate = 4e-05; exit_code = undef; pre_map = 1; movie_mask = 1; fuv_minexp_check = 500; 
+Passed-on parameters:
+ '-spac1:' '-find=1' '-grta:' '-opts gyrocorr=-1 -refine=1 -noabs=1 -opts fullasp=1' '-photmap:simplemap:' '-calinf maskr=0.6' '-photmap:' '-dead' '-grta:' '-maxdith 4e-5' '-photmap:' '-dead' '-grta:' '-maxdith 4e-5' '-photmap:' '-dead' '-grta:' '-maxdith 4e-5' '-photmap:' '-dead' '-grta:' '-maxdith 4e-5' 
+
+CMDLINE => grta -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_base AIS_428_0002_sg17 -cal_path cal -ais -verbose -photon_file AIS_428_0002_sg17-nd-raw6.fits -fail_if_nogood=1 -band 1 -qa_output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa -opt_wheel_pos 1 -input_base AIS_428_0002_sg17 -spac1: -find=1 -grta: -opts\ gyrocorr=-1\ -refine=1\ -noabs=1\ -opts\ fullasp=1 -photmap:simplemap: -calinf\ maskr=0.6 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5
+
+
+>>>>  START iam=>'GRTA', host=>'modi', pid=>21826, starttime=>'100623_011814Z', ppid=>21792, pgrpid=>21678, user=>'gop', 
+>>>>+ cwd=>'/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try', exec=>'/home/galex/ops/bin/grta', 
+
+Invoking command line:
+/home/galex/ops/bin/grta -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_base AIS_428_0002_sg17 -cal_path cal -ais -verbose -photon_file AIS_428_0002_sg17-nd-raw6.fits -fail_if_nogood=1 -band 1 -qa_output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa -opt_wheel_pos 1 -input_base AIS_428_0002_sg17 -spac1: -find=1 -grta: -opts gyrocorr=-1 -refine=1 -noabs=1 -opts fullasp=1 -photmap:simplemap: -calinf maskr=0.6 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5
+
+
+<< GRTA >> version='$Id: grta,v 1.183 2008/01/24 03:00:56 tim Exp $ ', release=ops-v7_0_3, moddate=2010/03/04_21:12:05Z
+Date/time: 2010/06/23_01:18:14Z  PCPU: 0.28/0.15/2  CCPU: 0.06/0.1
+HOST: modi  PID: 21826  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+CWD: /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/  EXEC: /home/galex/ops/bin/grta (/home/galex/ops/bin/)
+
+Named parameters for GRTA:
+input_base = AIS_428_0002_sg17; input_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; 
+output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; output_base = AIS_428_0002_sg17; 
+cal_path = cal; band = 1; opt_wheel_pos = 1; ais = 1; tbase = 0; sctbase = 315964800; pipe_data_version_number = 1; run = undef; 
+not = undef; 
+execs = {rta=>grta,ingest=>gingest,add=>addemup,ingest32=>ingest,flag=>gmkflagmap,spac=>gspac,spex=>gspex,map=>photmap,fitstblcat=>fitstblcat,merge=>gmerge,spcombine=>gcombine,varpix=>movievarpix,astromchk=>astromchk,xhk=>xhk,sex=>sextra,instsim=>ginstsim,pipeqa=>gpipeqa,spacadd=>gspacadd,sppipeqa=>gpipeqa,trend=>ghktrend,ingest18=>hkdump}; 
+verbose = 1; debug = 0; log_file = undef; test = undef; grspa = undef; no_aspect = undef; no_abs_acs = 1; no_state = undef; 
+refine_aspect = 1; mle_correction = undef; faint_dph = undef; relative_dph = undef; correct = undef; use_prev_rta = undef; 
+offsets = undef; max_dither_rate = 4e-05; photon_file = AIS_428_0002_sg17-nd-raw6.fits; fail_if_nogood = 1; min_good_recs = 1; 
+update_state_file = undef; deltaphot_qa = undef; way_off = undef; 
+qa_output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa; sim_mode = undef; 
+other_opts = {gyrocorr=>-1,dodph2=>0,dodph1=>0,docent1=>0,skipgaspref=>0,fullasp=>1,rsrad=>1}; deltaphot_correction = undef; 
+Passed-on parameters:
+ '-rta:' '-nuvpltsol    0' '-rta:' '-fuvpltsol    0' '-rta:' '-sort' '-rta:' '-fuvpltsol    0' '-rta:' '-sort' 
+
+CMDLINE => grunstar -input_base AIS_428_0002_sg17 -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_base AIS_428_0002_sg17 -band 1 -opt_wheel_pos 1 -verbose -cntmin 3 -radius 1 -of /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-rtastar.fits -dec -62.6559366575141 -relflux 0.5,0.1 -mindist 120,30 -ra 114.371130187839 -cntmax 100 -rta: -nuvpltsol\ \ \ \ 0 -rta: -fuvpltsol\ \ \ \ 0 -rta: -sort -rta: -fuvpltsol\ \ \ \ 0 -rta: -sort
+
+
+>>>>  START iam=>'GRunstar', host=>'modi', pid=>21895, starttime=>'100623_011820Z', ppid=>21826, pgrpid=>21678, user=>'gop', 
+>>>>+ cwd=>'/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try', exec=>'/home/galex/ops/bin/grunstar', 
+
+Invoking command line:
+/home/galex/ops/bin/grunstar -input_base AIS_428_0002_sg17 -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_base AIS_428_0002_sg17 -band 1 -opt_wheel_pos 1 -verbose -cntmin 3 -radius 1 -of /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-rtastar.fits -dec -62.6559366575141 -relflux 0.5,0.1 -mindist 120,30 -ra 114.371130187839 -cntmax 100 -rta: -nuvpltsol    0 -rta: -fuvpltsol    0 -rta: -sort -rta: -fuvpltsol    0 -rta: -sort
+
+
+<< GRunstar >> version='$Id: grunstar,v 1.10 2005/05/11 23:07:25 tim Exp $ ', release=ops-v7_0_3, moddate=2010/03/04_21:12:05Z
+Date/time: 2010/06/23_01:18:21Z  PCPU: 0.29/0.16/3  CCPU: 0.06/0.1
+HOST: modi  PID: 21895  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+CWD: /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/  EXEC: /home/galex/ops/bin/grunstar (/home/galex/ops/bin/)
+
+Named parameters for GRunstar:
+ra = 114.371130187839; dec = -62.6559366575141; vmax = 18; vmin = -1; nuvmax = 100; nuvmin = 3; fuvmax = 1e+30; fuvmin = -1e+30; 
+radius = 1; duplicate_limit = 3; tbl = undef; 
+of = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-rtastar.fits; pt = undef; 
+bf = undef; sao = undef; act = undef; usn = undef; actonly = undef; bright = 0; mindist = 120,30; relflux = 0.5,0.1; cntmin = 3; 
+cntmax = 100; rta_opts = undef; input_base = AIS_428_0002_sg17; 
+input_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; 
+output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; output_base = AIS_428_0002_sg17; 
+cal_path = cal; band = 1; opt_wheel_pos = 1; ais = undef; tbase = 0; sctbase = 315964800; pipe_data_version_number = 1; 
+run = undef; not = undef; 
+execs = {rta=>grta,ingest=>gingest,add=>addemup,ingest32=>ingest,flag=>gmkflagmap,spac=>gspac,spex=>gspex,map=>photmap,fitstblcat=>fitstblcat,merge=>gmerge,spcombine=>gcombine,varpix=>movievarpix,astromchk=>astromchk,xhk=>xhk,sex=>sextra,instsim=>ginstsim,pipeqa=>gpipeqa,spacadd=>gspacadd,sppipeqa=>gpipeqa,trend=>ghktrend,ingest18=>hkdump}; 
+verbose = 1; debug = 0; log_file = undef; test = undef; 
+
+
+CMDLINE => runstar -ra 114.371130187839 -dec -62.6559366575141 -nuvmax 100 -nuvmin 3 -radius 1 -of /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-rtastar.fits -mindist 120,30 -relflux 0.5,0.1
+
+<< End of GRunstar >> status=0
+Date/time: 2010/06/23_01:18:39Z  PCPU: 0.3/0.16/21  CCPU: 17.25/0.43
+HOST: modi  PID: 21895  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+
+
+CMDLINE => fits2ds9 -rta: -nuvpltsol\ \ \ \ 0 -rta: -fuvpltsol\ \ \ \ 0 -rta: -sort -rta: -fuvpltsol\ \ \ \ 0 -rta: -sort -verbose=1 -runstar=1 -in_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-rtastar.fits -band 1 -out_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa/AIS_428_0002_sg17-rtastar.ds9reg
+
+CMDLINE => gdeltaphot -band 1 -verbose -coarse_half_width_x 60 -fine_t_interval 1 -star_detect 7 -min_fine 50 -min_coarse 300 -hunt_delay_time 10 -aspect_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-asp.fits -other_opts extrapends=1 -coarse_t_interval 5 -cent_fmt 0 -min_frac 1 -coarse_centroid_mode 1 -hunt_max_radius 1800 -fine_half_width_x 30 -hunt_mode 1 -coarse_bin_size 2 -photon_file AIS_428_0002_sg17-nd-raw6.fits -min_detect 6 -qa_output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa/ -no_writed=1 -aspect_out_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-asprta_preref.fits -star_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-rtastar.fits -fine_bin_size 0.5 -cal_info calpath=cal -used_star_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-rtastar_used.fits -roll_mode 3 -rta: -nuvpltsol\ \ \ \ 0 -rta: -fuvpltsol\ \ \ \ 0 -rta: -sort -rta: -fuvpltsol\ \ \ \ 0 -rta: -sort
+
+
+>>>>  START iam=>'GDeltaPhot', host=>'modi', pid=>22112, starttime=>'100623_011845Z', ppid=>21826, pgrpid=>21678, user=>'gop', 
+>>>>+ cwd=>'/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try', exec=>'/home/galex/ops/bin/gdeltaphot', 
+
+Invoking command line:
+/home/galex/ops/bin/gdeltaphot -band 1 -verbose -coarse_half_width_x 60 -fine_t_interval 1 -star_detect 7 -min_fine 50 -min_coarse 300 -hunt_delay_time 10 -aspect_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-asp.fits -other_opts extrapends=1 -coarse_t_interval 5 -cent_fmt 0 -min_frac 1 -coarse_centroid_mode 1 -hunt_max_radius 1800 -fine_half_width_x 30 -hunt_mode 1 -coarse_bin_size 2 -photon_file AIS_428_0002_sg17-nd-raw6.fits -min_detect 6 -qa_output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa/ -no_writed=1 -aspect_out_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-asprta_preref.fits -star_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-rtastar.fits -fine_bin_size 0.5 -cal_info calpath=cal -used_star_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-rtastar_used.fits -roll_mode 3 -rta: -nuvpltsol    0 -rta: -fuvpltsol    0 -rta: -sort -rta: -fuvpltsol    0 -rta: -sort
+
+
+<< GDeltaPhot >> version='$Id: gdeltaphot,v 1.21 2006/01/19 01:56:03 tim Exp $ ', release=ops-v7_0_3, moddate=2010/03/04_21:12:05Z
+Date/time: 2010/06/23_01:18:45Z  PCPU: 0.29/0.13/2  CCPU: 0.01/0.04
+HOST: modi  PID: 22112  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+CWD: /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/  EXEC: /home/galex/ops/bin/gdeltaphot (/home/galex/ops/bin/)
+
+Named parameters for GDeltaPhot:
+photon_file = AIS_428_0002_sg17-nd-raw6.fits; slide_mode = 2; roll_mode = 3; relative_mode = 0; min_detect = 6; star_detect = 7; 
+hunt_mode = 1; hunt_max_radius = 1800; hunt_delay_time = 10; write_sx = undef; no_writed = 1; no_aspect_file = undef; 
+search_radius = undef; coord = 0; edge_rejection_angle = 0.55; max_stars = undef; star_temp_min = undef; star_temp_max = undef; 
+fine_t_interval = 1; fine_half_width_x = 30; fine_half_width_y = undef; min_fine = 50; fine_bin_size = 0.5; fdeltlim = 3; 
+coarse_t_interval = 5; coarse_half_width_x = 60; coarse_half_width_y = undef; min_coarse = 300; coarse_bin_size = 2; 
+cdeltlim = 6; coarse_centroid_mode = 1; safe_t_intervals = undef; offsets = undef; gapmult = 3.5; gripe_frac = 0.15; 
+min_frac = 1; doasp = undef; cent_fmt = 0; centroid_file = undef; 
+star_file = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-rtastar.fits; 
+used_star_file = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-rtastar_used.fits; 
+aspect_file = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-asp.fits; 
+use_solution = undef; state_file = undef; photon_file_sx = undef; photon_file_delta = undef; 
+aspect_out_file = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-asprta_preref.fits; 
+ra0 = undef; dec0 = undef; twist = 0; band = 1; opt_wheel_pos = undef; roll = undef; grspa = undef; nphots_to_read = -1; 
+chunk_sz = 10000000; time_range = undef; tbase = undef; sctbase = undef; dump_phots = undef; 
+other_opts = {detrad=>.25,rej3p=>0,rollratelim=>30,recover=>1,ratelim=>4,bgsub=>0,fitnsig=>3,ndump=>10,cseg=>0,finefilter=>0,fseg=>0,extrapends=>1,concentration=>5,mindroll=>0.013,limdroll=>0.03,savegs=>0,filterhw=>2,dummy=>0             ,rollfiltersz=>30}; 
+verbose = 1; quiet = undef; debug = 0; 
+cal_info = {dumwig=>0,ne=>0,linfile_fuv_x=>FUV_NLC_x_det2sky.fits,pltscl=>68.754932,maskfile_fuv=>FUV_mask.fits,wigfile_fuv_x=>FUV_wiggle_x.fits,nb=>1,fe=>0,fc=>0,wigfile_nuv_x=>NUV_wiggle_x.fits,nc=>0,walkfile_fuv_x=>FUV_walk_x.fits,ff=>1,nd=>0,walkfile_nuv_y=>NUV_walk_y.fits,nf=>1,detsize=>1.25,linfile_nuv_x=>NUV_NLC_x_det2sky.fits,wigfile_nuv_y=>NUV_wiggle_y.fits,linfile_nuv_y=>NUV_NLC_y_det2sky.fits,fb=>1,maskfile_nuv=>NUV_mask.fits,walkfile_fuv_y=>FUV_walk_y.fits,maskfile=>mask.fits,fd=>0,wigfile_fuv_y=>FUV_wiggle_y.fits,linfile_fuv_y=>FUV_NLC_y_det2sky.fits,dumlin=>0,dummy=>0                           ,fa=>0,calpath=>cal,walkfile_nuv_x=>NUV_walk_x.fits,dumwalk=>0,maskr=>0,na=>0}; 
+qa_output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa/; dph_exec = deltaphot; 
+log_file = undef; 
+
+
+CMDLINE => deltaphot -photon_file AIS_428_0002_sg17-nd-raw6.fits -roll_mode 3 -min_detect 6 -star_detect 7 -hunt_mode 1 -hunt_max_radius 1800 -hunt_delay_time 10 -no_writed -fine_t_interval 1 -fine_half_width_x 30 -min_fine 50 -fine_bin_size 0.5 -coarse_t_interval 5 -coarse_half_width_x 60 -min_coarse 300 -coarse_bin_size 2 -coarse_centroid_mode 1 -min_frac 1 -cent_fmt 0 -star_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-rtastar.fits -used_star_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-rtastar_used.fits -aspect_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-asp.fits -aspect_out_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-asprta_preref.fits -band 1 -other_opts \{detrad=\>.25,rollratelim=\>30,rej3p=\>0,recover=\>1,ratelim=\>4,bgsub=\>0,fitnsig=\>3,cseg=\>0,ndump=\>10,finefilter=\>0,fseg=\>0,extrapends=\>1,concentration=\>5,mindroll=\>0.013,limdroll=\>0.03,filterhw=\>2,savegs=\>0,dummy=\>0\ \ \ \ \ \ \ \ \ \ \ \ \ ,rollfiltersz=\>30\} -cal_info \{ne=\>0,dumwig=\>0,linfile_fuv_x=\>FUV_NLC_x_det2sky.fits,pltscl=\>68.754932,maskfile_fuv=\>FUV_mask.fits,wigfile_fuv_x=\>FUV_wiggle_x.fits,nb=\>1,fe=\>0,fc=\>0,wigfile_nuv_x=\>NUV_wiggle_x.fits,nc=\>0,walkfile_fuv_x=\>FUV_walk_x.fits,ff=\>1,nd=\>0,walkfile_nuv_y=\>NUV_walk_y.fits,linfile_nuv_x=\>NUV_NLC_x_det2sky.fits,nf=\>1,detsize=\>1.25,wigfile_nuv_y=\>NUV_wiggle_y.fits,linfile_nuv_y=\>NUV_NLC_y_det2sky.fits,fb=\>1,maskfile_nuv=\>NUV_mask.fits,walkfile_fuv_y=\>FUV_walk_y.fits,maskfile=\>mask.fits,fd=\>0,wigfile_fuv_y=\>FUV_wiggle_y.fits,linfile_fuv_y=\>FUV_NLC_y_det2sky.fits,dumlin=\>0,dummy=\>0\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ,fa=\>0,calpath=\>cal,walkfile_nuv_x=\>NUV_walk_x.fits,dumwalk=\>0,maskr=\>0,na=\>0\} -quiet=0
+
+<< End of GDeltaPhot >> status=0
+Date/time: 2010/06/23_01:19:56Z  PCPU: 0.32/0.13/73  CCPU: 23.26/2.18
+HOST: modi  PID: 22112  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+
+
+CMDLINE => fits2ds9 -rta: -nuvpltsol\ \ \ \ 0 -rta: -fuvpltsol\ \ \ \ 0 -rta: -sort -rta: -fuvpltsol\ \ \ \ 0 -rta: -sort -verbose=1 -color cyan -runstar=1 -in_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-rtastar_used.fits -band 1 -symbol circle -out_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa/AIS_428_0002_sg17-rtastar_used.ds9reg
+
+CMDLINE => asprefine -input_base AIS_428_0002_sg17 -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_base AIS_428_0002_sg17 -cal_path cal -band 1 -opt_wheel_pos 1 -verbose -integration_time 100 -keep_temps=0 -aspect_suf asprta_preref -out_aspect_suf asprta -refinement_limit 0 -rta: -nuvpltsol\ \ \ \ 0 -rta: -fuvpltsol\ \ \ \ 0 -rta: -sort -rta: -fuvpltsol\ \ \ \ 0 -rta: -sort
+
+
+>>>>  START iam=>'AspRefine', host=>'modi', pid=>22591, starttime=>'100623_012003Z', ppid=>21826, pgrpid=>21678, user=>'gop', 
+>>>>+ cwd=>'/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try', exec=>'/home/galex/ops/bin/asprefine', 
+
+Invoking command line:
+/home/galex/ops/bin/asprefine -input_base AIS_428_0002_sg17 -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_base AIS_428_0002_sg17 -cal_path cal -band 1 -opt_wheel_pos 1 -verbose -integration_time 100 -keep_temps=0 -aspect_suf asprta_preref -out_aspect_suf asprta -refinement_limit 0 -rta: -nuvpltsol    0 -rta: -fuvpltsol    0 -rta: -sort -rta: -fuvpltsol    0 -rta: -sort
+
+
+<< AspRefine >> version='$Id: asprefine,v 1.66 2008/02/16 00:52:29 tim Exp $ ', release=ops-v7_0_3, moddate=2010/03/04_21:12:05Z
+Date/time: 2010/06/23_01:20:03Z  PCPU: 0.27/0.15/2  CCPU: 0.05/0.12
+HOST: modi  PID: 22591  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+CWD: /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/  EXEC: /home/galex/ops/bin/asprefine (/home/galex/ops/bin/)
+
+Named parameters for AspRefine:
+input_base = AIS_428_0002_sg17; input_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; 
+output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; output_base = AIS_428_0002_sg17; 
+cal_path = cal; band = 1; opt_wheel_pos = 1; ais = undef; tbase = 0; sctbase = 315964800; pipe_data_version_number = 1; 
+run = undef; not = undef; 
+execs = {rta=>grta,ingest=>gingest,add=>addemup,ingest32=>ingest,flag=>gmkflagmap,spac=>gspac,spex=>gspex,map=>photmap,fitstblcat=>fitstblcat,merge=>gmerge,spcombine=>gcombine,varpix=>movievarpix,astromchk=>astromchk,xhk=>xhk,sex=>sextra,instsim=>ginstsim,pipeqa=>gpipeqa,spacadd=>gspacadd,sppipeqa=>gpipeqa,trend=>ghktrend,ingest18=>hkdump}; 
+verbose = 1; debug = 0; log_file = undef; test = undef; segment_offset = 120; segment_gap = 0; dominance_ratio = 1; 
+integration_time = 100; droll_iter_thresh = 0; refinement_limit = 0; astromchk_radius = 20; asp_skip = undef; threshold = 3; 
+keep_temps = 0; aspect_suf = asprta_preref; correction = undef; out_aspect_suf = asprta; base_suffix = _asprefine; 
+no_platesol_3fit = undef; qa_output_path = undef; extra_opts = {cdeltas=>1.5}; 
+
+
+CMDLINE => photmap -input_base AIS_428_0002_sg17 -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -cal_path cal -verbose -photon_file AIS_428_0002_sg17-nd-raw6.fits -photmap:simplemap -trange\ 856980147.995,856980247.995\ -aspf\ /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-asprta_preref.fits\ -which\ exp=0,dose=0,detbg=0,q=0,sprr=0,movie=0 -output_base AIS_428_0002_sg17_asprefine -band 1 -slicedt2 5 -compress_images=1 -opt_wheel_pos 1
+
+
+>>>>  START iam=>'PhotMap', host=>'modi', pid=>22650, starttime=>'100623_012007Z', ppid=>22591, pgrpid=>21678, user=>'gop', 
+>>>>+ cwd=>'/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try', exec=>'/home/galex/ops/bin/photmap', 
+
+Invoking command line:
+/home/galex/ops/bin/photmap -input_base AIS_428_0002_sg17 -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -cal_path cal -verbose -photon_file AIS_428_0002_sg17-nd-raw6.fits -photmap:simplemap -trange 856980147.995,856980247.995 -aspf /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-asprta_preref.fits -which exp=0,dose=0,detbg=0,q=0,sprr=0,movie=0 -output_base AIS_428_0002_sg17_asprefine -band 1 -slicedt2 5 -compress_images=1 -opt_wheel_pos 1
+
+
+<< PhotMap >> version='$Id: photmap,v 1.38 2006/09/18 22:15:59 tim Exp $ ', release=ops-v7_0_3, moddate=2010/03/04_21:12:05Z
+Date/time: 2010/06/23_01:20:08Z  PCPU: 0.27/0.23/3  CCPU: 0.05/0.12
+HOST: modi  PID: 22650  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+CWD: /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/  EXEC: /home/galex/ops/bin/photmap (/home/galex/ops/bin/)
+
+Named parameters for PhotMap:
+input_base = AIS_428_0002_sg17; input_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; 
+output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; 
+output_base = AIS_428_0002_sg17_asprefine; cal_path = cal; band = 1; opt_wheel_pos = 1; ais = undef; tbase = 0; 
+sctbase = 315964800; pipe_data_version_number = 1; run = undef; not = undef; 
+execs = {rta=>grta,ingest=>gingest,add=>addemup,ingest32=>ingest,flag=>gmkflagmap,spac=>gspac,spex=>gspex,map=>photmap,fitstblcat=>fitstblcat,merge=>gmerge,spcombine=>gcombine,varpix=>movievarpix,astromchk=>astromchk,xhk=>xhk,sex=>sextra,instsim=>ginstsim,pipeqa=>gpipeqa,spacadd=>gspacadd,sppipeqa=>gpipeqa,trend=>ghktrend,ingest18=>hkdump}; 
+verbose = 1; debug = 0; log_file = undef; test = undef; photon_file = AIS_428_0002_sg17-nd-raw6.fits; dead_time_cor = undef; 
+use_solution = undef; slicedt2 = 5; seg_times = undef; min_part_tag = 1; interval = 5; compress_images = 1; 
+map_exec = simplemap; 
+Passed-on parameters:
+ '-simplemap:' '-trange 856980147.995,856980247.995 -aspf /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-asprta_preref.fits -which exp=0,dose=0,detbg=0,q=0,sprr=0,movie=0' 
+
+CMDLINE => simplemap -cal_info calpath=cal -input_base AIS_428_0002_sg17 -photon_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-nd-raw6.fits -output_base AIS_428_0002_sg17_asprefine -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -band 1 -other_opts noprog=1 -slicedt2 5 -compress_images=1 -opt_wheel_pos 1 -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -trange 856980147.995,856980247.995 -aspf /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-asprta_preref.fits -which exp=0,dose=0,detbg=0,q=0,sprr=0,movie=0 -trange 856980147.995,856980247.995 -aspf /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-asprta_preref.fits -which exp=0,dose=0,detbg=0,q=0,sprr=0,movie=0
+
+<< End of PhotMap >> status=0
+Date/time: 2010/06/23_01:21:00Z  PCPU: 0.3/0.23/55  CCPU: 25.71/2.13
+HOST: modi  PID: 22650  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+
+
+CMDLINE => sextra -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -verbose -output_base AIS_428_0002_sg17_asprefine -input_base AIS_428_0002_sg17_asprefine-nd -qa_output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//qa -compress_images=1 -stat_name 1 -nthr 3 -fthr 3 -minpix 2 -rmbg=0 -mask=0 -mkmask=0 -filter
+
+
+>>>>  START iam=>'SExtra', host=>'modi', pid=>23249, starttime=>'100623_012108Z', ppid=>22591, pgrpid=>21678, user=>'gop', 
+>>>>+ cwd=>'/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try', exec=>'/home/galex/ops/bin/sextra', 
+
+Invoking command line:
+/home/galex/ops/bin/sextra -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -verbose -output_base AIS_428_0002_sg17_asprefine -input_base AIS_428_0002_sg17_asprefine-nd -qa_output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//qa -compress_images=1 -stat_name 1 -nthr 3 -fthr 3 -minpix 2 -rmbg=0 -mask=0 -mkmask=0 -filter
+
+
+<< SExtra >> version='$Id: sextra,v 1.218 2009/07/23 21:22:19 cmillion Exp $ ', release=ops-v7_0_3, moddate=2010/03/04_21:11:57Z
+Date/time: 2010/06/23_01:21:09Z  PCPU: 0.51/0.3/5  CCPU: 0.01/0.07
+HOST: modi  PID: 23249  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+CWD: /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/  EXEC: /home/galex/ops/bin/sextra (/home/galex/ops/bin/)
+
+Named parameters for SExtra:
+input_base = AIS_428_0002_sg17_asprefine-nd; threshold = undef; nuv_threshold = 3; fuv_threshold = 3; minpix = 2; 
+absolute_thresh = undef; background = undef; remove_background = 0; mask_objects = 0; get_mask = 0; mask_threshold = 3; 
+expand_mask_radius = 0; trim_rr_level = 0.2; catalog_name = undef; measurement_map = undef; skip_map_creation = undef; 
+no_sex = undef; filter = 1; conv_fwhm = -4.5,-4.5; seeing_fwhm = 5.5,5; apertures = 2,3,5,8,12,17,23; 
+flux_fracs = 0.2,0.5,0.8,0.9,0.95; deblend_mincont = 0.04; deblend_nthresh = 32; phot_autoparams = 2.5,3.5; mag_zero = 0; 
+clean = 1; mask_type = correct; deep = undef; deep_exp_thresh = 10000; backsize = 128; bg_filter_size = 5; detector_bg = undef; 
+sex_par_name = default; sex_par_path = /home/galex/ops/params/sex,/home/galex/params/sex; sex_params = undef; count_map = undef; 
+response_map = undef; weight_map = undef; detector_background_map = undef; inten_map = undef; sigma_map = 0; 
+input_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; 
+output_base = AIS_428_0002_sg17_asprefine; 
+output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; 
+qa_output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//qa; in_out_path = undef; 
+extension_addition = undef; ais = undef; band = undef; opt_wheel_pos = undef; cal_path = cal; check_images = NONE; 
+check_base = undef; mag_column = MAG_AUTO; plot_device = /xs; no_stats = undef; stat_name = 1; compress_images = 1; 
+sex_exec = /home/galex/bin/sex; rmback_exec = poissonbg; fake_options = undef; 
+other_opts = {asciicat=>0,savemem=>0,bgthr=>0,rmbgwt=>0,fieldr=>0.5,regmaglim=>0,fixposerr=>1,savemaskrun=>0,rrtrimr=>0,unmchregfile=>unmatched.ds9reg,prunmch=>0,nohardsex=>0,inscrwidth=>0,rrthr=>0,skipmasksex=>0,pgplotdir=>/home/galex/pgplot,truemchr=>0,truelim=>0,forceconv=>0,detectonly=>0,convsuf=>gauss,sigthr=>0,truecat=>0,detsize=>1.25}; 
+log_file = undef; verbose = 1; debug = undef; 
+
+
+CMDLINE => /home/galex/bin/sex -c /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_asprefine-nd-sexparams.txt -ANALYSIS_THRESH 1 -BACKPHOTO_THICK 24 -BACKPHOTO_TYPE GLOBAL -BACK_FILTERSIZE 5 -BACK_SIZE 128 -CATALOG_NAME /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_asprefine-nd-cat.fits -CATALOG_TYPE FITS_1.0 -CHECKIMAGE_NAME NONE -CHECKIMAGE_TYPE NONE -CLEAN YES -CLEAN_PARAM 1 -DEBLEND_MINCONT 0.04 -DEBLEND_NTHRESH 32 -DETECT_MINAREA 2 -DETECT_THRESH 3 -DETECT_TYPE CCD -FILTER Y -FILTER_NAME /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_asprefine-nd-gauss_30_7x7.txt -GAIN 88.0318298339844 -INTERP_MAXXLAG 1 -INTERP_MAXYLAG 1 -INTERP_TYPE NONE,NONE -MAG_GAMMA 4 -MAG_ZEROPOINT 0 -MASK_TYPE CORRECT -MEMORY_BUFSIZE 1024 -MEMORY_OBJSTACK 2000 -MEMORY_PIXSTACK 1500000 -PARAMETERS_NAME /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_asprefine-nd-sexcols.txt -PHOT_APERTURES 2,3,5,8,12,17,23 -PHOT_AUTOPARAMS 2.5,3.5 -PHOT_FLUXFRAC 0.2,0.5,0.8,0.9,0.95 -PIXEL_SCALE 1.500 -SATUR_LEVEL 999999999 -SEEING_FWHM 5.5 -STARNNW_NAME /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_asprefine-nd-sexnnw.txt -THRESH_TYPE RELATIVE -VERBOSE_TYPE NORMAL -WEIGHT_GAIN Y -WEIGHT_IMAGE /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_asprefine-nd-wt.fits -WEIGHT_TYPE MAP_WEIGHT /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_asprefine-nd-int.fits
+
+<< End of SExtra >> status=0
+Date/time: 2010/06/23_01:22:28Z  PCPU: 6.39/2.22/84  CCPU: 4.83/1.58
+HOST: modi  PID: 23249  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+
+
+CMDLINE => astromchk -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -band 1 -verbose -runstar_name /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-rtastar.fits -output_base AIS_428_0002_sg17_asprefine -min_match_count 5 -input_base AIS_428_0002_sg17_asprefine-nd -match_radius 20
+
+
+>>>>  START iam=>'AstromChk', host=>'modi', pid=>23775, starttime=>'100623_012233Z', ppid=>22591, pgrpid=>21678, user=>'gop', 
+>>>>+ cwd=>'/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try', exec=>'/home/galex/ops/bin/astromchk', 
+
+Invoking command line:
+/home/galex/ops/bin/astromchk -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -band 1 -verbose -runstar_name /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-rtastar.fits -output_base AIS_428_0002_sg17_asprefine -min_match_count 5 -input_base AIS_428_0002_sg17_asprefine-nd -match_radius 20
+
+
+<< AstromChk >> version='$Id: astromchk,v 1.49 2006/05/12 19:51:51 tim Exp $ ', release=ops-v7_0_3, moddate=2010/03/04_21:11:57Z
+Date/time: 2010/06/23_01:22:34Z  PCPU: 0.27/0.12/3  CCPU: 0.01/0.06
+HOST: modi  PID: 23775  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+CWD: /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/  EXEC: /home/galex/ops/bin/astromchk (/home/galex/ops/bin/)
+
+Named parameters for AstromChk:
+input_base = AIS_428_0002_sg17_asprefine-nd; band = 1; match_radius = 20; min_match_count = 5; max_fov_radius = 0.55; 
+flux_limit = 0.1,0.01; input_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; 
+output_base = AIS_428_0002_sg17_asprefine; 
+output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; opt_wheel_pos = d; 
+flux_col = FLUX_AUTO; catalog_name = undef; 
+runstar_name = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-rtastar.fits; 
+mch_file_name = undef; other_opts = undef; log_file = undef; verbose = 1; debug = 0; 
+
+
+<< End of AstromChk >> status=0
+Date/time: 2010/06/23_01:22:41Z  PCPU: 0.48/0.13/10  CCPU: 0.01/0.08
+HOST: modi  PID: 23775  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+
+
+CMDLINE => gplatesol -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -verbose -output_base AIS_428_0002_sg17_asprefine -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//qa -input_base AIS_428_0002_sg17_asprefine-nd -3_param_fit=1 -use_fov=1 -stat_file 1
+
+<< End of AspRefine >> status=0
+Date/time: 2010/06/23_01:23:02Z  PCPU: 0.42/0.18/181  CCPU: 39.57/7.66
+HOST: modi  PID: 22591  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+
+
+CMDLINE => aspqa -v -update -aspf /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-asp.fits -truth /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-asprta.fits -band 1 -pdev AIS_428_0002_sg17-asp_stats.ps/cps -statf AIS_428_0002_sg17-asp_stats.txt
+
+
+>>>>  START iam=>'AspQA', host=>'modi', pid=>23950, starttime=>'100623_012312Z', ppid=>21826, pgrpid=>21678, user=>'gop', 
+>>>>+ cwd=>'/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa', exec=>'/home/galex/ops/bin/aspqa', 
+
+Invoking command line:
+/home/galex/ops/bin/aspqa -v -update -aspf /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-asp.fits -truth /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-asprta.fits -band 1 -pdev AIS_428_0002_sg17-asp_stats.ps/cps -statf AIS_428_0002_sg17-asp_stats.txt
+
+
+<< AspQA >> version='$Id: aspqa,v 1.83 2006/11/29 21:40:00 tim Exp $ ', release=ops-v7_0_3, moddate=2010/03/04_21:12:17Z
+Date/time: 2010/06/23_01:23:12Z  PCPU: 0.48/0.33/5  CCPU: 0/0.02
+HOST: modi  PID: 23950  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+CWD: /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa/  EXEC: /home/galex/ops/bin/aspqa (/home/galex/ops/bin/)
+
+Named parameters for AspQA:
+input_base = undef; input_path = .; 
+aspect_file = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-asp.fits; 
+rta_aspect_file = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-asprta.fits; 
+band = 1; detector_coords = undef; fit_frame_sz = 2000; fit_overlap = 0.1; max_degree_fit = 9; frame_discontinuity_limit = 9999; 
+update_hdr = 1; hdr_tag = undef; plot_device = AIS_428_0002_sg17-asp_stats.ps/cps; plots = undef; multi_window = undef; 
+ignore_flags = undef; stat_file = AIS_428_0002_sg17-asp_stats.txt; time_offset = undef; zoom = 1; interact = undef; 
+round_dp = 3; sub_visit = undef; verbose = 1; log_file = undef; debug = 0; 
+
+
+<< End of AspQA >> status=0
+Date/time: 2010/06/23_01:23:15Z  PCPU: 0.61/0.37/8  CCPU: 0/0.05
+HOST: modi  PID: 23950  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+
+
+CMDLINE => aspqa -v -update -hdrtag R -aspf /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-aspraw.fits -truth /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-asprta.fits -band 1 -pdev AIS_428_0002_sg17-aspraw_stats.ps/cps -statf AIS_428_0002_sg17-aspraw_stats.txt
+
+
+>>>>  START iam=>'AspQA', host=>'modi', pid=>24012, starttime=>'100623_012318Z', ppid=>21826, pgrpid=>21678, user=>'gop', 
+>>>>+ cwd=>'/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa', exec=>'/home/galex/ops/bin/aspqa', 
+
+Invoking command line:
+/home/galex/ops/bin/aspqa -v -update -hdrtag R -aspf /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-aspraw.fits -truth /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-asprta.fits -band 1 -pdev AIS_428_0002_sg17-aspraw_stats.ps/cps -statf AIS_428_0002_sg17-aspraw_stats.txt
+
+
+<< AspQA >> version='$Id: aspqa,v 1.83 2006/11/29 21:40:00 tim Exp $ ', release=ops-v7_0_3, moddate=2010/03/04_21:12:17Z
+Date/time: 2010/06/23_01:23:18Z  PCPU: 0.45/0.3/3  CCPU: 0/0.02
+HOST: modi  PID: 24012  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+CWD: /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa/  EXEC: /home/galex/ops/bin/aspqa (/home/galex/ops/bin/)
+
+Named parameters for AspQA:
+input_base = undef; input_path = .; 
+aspect_file = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-aspraw.fits; 
+rta_aspect_file = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-asprta.fits; 
+band = 1; detector_coords = undef; fit_frame_sz = 2000; fit_overlap = 0.1; max_degree_fit = 9; frame_discontinuity_limit = 9999; 
+update_hdr = 1; hdr_tag = R; plot_device = AIS_428_0002_sg17-aspraw_stats.ps/cps; plots = undef; multi_window = undef; 
+ignore_flags = undef; stat_file = AIS_428_0002_sg17-aspraw_stats.txt; time_offset = undef; zoom = 1; interact = undef; 
+round_dp = 3; sub_visit = undef; verbose = 1; log_file = undef; debug = 0; 
+
+
+<< End of AspQA >> status=0
+Date/time: 2010/06/23_01:23:19Z  PCPU: 0.6/0.32/4  CCPU: 0/0.04
+HOST: modi  PID: 24012  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+
+
+<< End of GRTA >> status=0
+Date/time: 2010/06/23_01:23:19Z  PCPU: 1.36/0.24/307  CCPU: 84.46/13.28
+HOST: modi  PID: 21826  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+
+
+CMDLINE => photmap -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -cal_path cal -verbose -use_solution -photon_file AIS_428_0002_sg17-nd-raw6.fits -photmap:simplemap -which\ rr=0,exp=0,dose=0,detbg=0,q=0,sprr=0 -band 1 -slicedt2 10 -compress_images=1 -opt_wheel_pos 1 -output_base AIS_428_0002_sg17_premap -input_base AIS_428_0002_sg17 -spac1: -find=1 -grta: -opts\ gyrocorr=-1\ -refine=1\ -noabs=1\ -opts\ fullasp=1 -photmap:simplemap: -calinf\ maskr=0.6 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5
+
+
+>>>>  START iam=>'PhotMap', host=>'modi', pid=>24082, starttime=>'100623_012324Z', ppid=>21792, pgrpid=>21678, user=>'gop', 
+>>>>+ cwd=>'/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try', exec=>'/home/galex/ops/bin/photmap', 
+
+Invoking command line:
+/home/galex/ops/bin/photmap -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -cal_path cal -verbose -use_solution -photon_file AIS_428_0002_sg17-nd-raw6.fits -photmap:simplemap -which rr=0,exp=0,dose=0,detbg=0,q=0,sprr=0 -band 1 -slicedt2 10 -compress_images=1 -opt_wheel_pos 1 -output_base AIS_428_0002_sg17_premap -input_base AIS_428_0002_sg17 -spac1: -find=1 -grta: -opts gyrocorr=-1 -refine=1 -noabs=1 -opts fullasp=1 -photmap:simplemap: -calinf maskr=0.6 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5
+
+
+<< PhotMap >> version='$Id: photmap,v 1.38 2006/09/18 22:15:59 tim Exp $ ', release=ops-v7_0_3, moddate=2010/03/04_21:12:05Z
+Date/time: 2010/06/23_01:23:24Z  PCPU: 0.28/0.23/3  CCPU: 0.05/0.11
+HOST: modi  PID: 24082  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+CWD: /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/  EXEC: /home/galex/ops/bin/photmap (/home/galex/ops/bin/)
+
+Named parameters for PhotMap:
+input_base = AIS_428_0002_sg17; input_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; 
+output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; output_base = AIS_428_0002_sg17_premap; 
+cal_path = cal; band = 1; opt_wheel_pos = 1; ais = undef; tbase = 0; sctbase = 315964800; pipe_data_version_number = 1; 
+run = undef; not = undef; 
+execs = {rta=>grta,ingest=>gingest,add=>addemup,ingest32=>ingest,flag=>gmkflagmap,spac=>gspac,spex=>gspex,map=>photmap,fitstblcat=>fitstblcat,merge=>gmerge,spcombine=>gcombine,varpix=>movievarpix,astromchk=>astromchk,xhk=>xhk,sex=>sextra,instsim=>ginstsim,pipeqa=>gpipeqa,spacadd=>gspacadd,sppipeqa=>gpipeqa,trend=>ghktrend,ingest18=>hkdump}; 
+verbose = 1; debug = 0; log_file = undef; test = undef; photon_file = AIS_428_0002_sg17-nd-raw6.fits; dead_time_cor = 1; 
+use_solution = 1; slicedt2 = 10; seg_times = undef; min_part_tag = 1; interval = 5; compress_images = 1; map_exec = simplemap; 
+Passed-on parameters:
+ '-simplemap:' '-which rr=0,exp=0,dose=0,detbg=0,q=0,sprr=0' '-simplemap:' '-calinf maskr=0.6' 
+
+CMDLINE => simplemap -cal_info calpath=cal -input_base AIS_428_0002_sg17 -photon_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-nd-raw6.fits -output_base AIS_428_0002_sg17_premap -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -band 1 -other_opts noprog=1 -dead_time_cor=1 -use_solution=1 -slicedt2 10 -compress_images=1 -opt_wheel_pos 1 -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -which rr=0,exp=0,dose=0,detbg=0,q=0,sprr=0 -calinf maskr=0.6 -which rr=0,exp=0,dose=0,detbg=0,q=0,sprr=0 -calinf maskr=0.6
+
+<< End of PhotMap >> status=0
+Date/time: 2010/06/23_01:24:14Z  PCPU: 0.3/0.23/53  CCPU: 25.75/1.69
+HOST: modi  PID: 24082  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+
+
+CMDLINE => movievarpix -cal_path cal -verbose -moviemask_snr_limit 2.75 -varpixmask_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-nd-flag_varpix.fits.gz -aspect_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-asprta.fits -moviemask_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-nd-movie_mask.fits.gz -stackmask_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-nd-flag_varmask.fits.gz -moviemask_npixel_limit 4 -movie_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_premap-nd-movie.fits.gz -npixel_limit 5 -mask_radius 0.625 -apply_flat=1 -snr_limit 3.5 -no_sextra=1 -compress_images=1 -min_frame_exp_frac 0.5 -varpix_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-nd-varpix.fits.gz -spac1: -find=1 -grta: -opts\ gyrocorr=-1\ -refine=1\ -noabs=1\ -opts\ fullasp=1 -photmap:simplemap: -calinf\ maskr=0.6 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5
+
+
+>>>>  START iam=>'MovieVarPix', host=>'modi', pid=>24464, starttime=>'100623_012420Z', ppid=>21792, pgrpid=>21678, user=>'gop', 
+>>>>+ cwd=>'/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try', exec=>'/home/galex/ops/bin/movievarpix', 
+
+Invoking command line:
+/home/galex/ops/bin/movievarpix -cal_path cal -verbose -moviemask_snr_limit 2.75 -varpixmask_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-nd-flag_varpix.fits.gz -aspect_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-asprta.fits -moviemask_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-nd-movie_mask.fits.gz -stackmask_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-nd-flag_varmask.fits.gz -moviemask_npixel_limit 4 -movie_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_premap-nd-movie.fits.gz -npixel_limit 5 -mask_radius 0.625 -apply_flat=1 -snr_limit 3.5 -no_sextra=1 -compress_images=1 -min_frame_exp_frac 0.5 -varpix_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-nd-varpix.fits.gz -spac1: -find=1 -grta: -opts gyrocorr=-1 -refine=1 -noabs=1 -opts fullasp=1 -photmap:simplemap: -calinf maskr=0.6 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5
+
+
+<< MovieVarPix >> version='$Id: movievarpix,v 1.25 2010/06/02 20:04:54 cmillion Exp $ ', release=ops-v7_0_3, moddate=2010/06/02_20:28:40Z
+Date/time: 2010/06/23_01:24:20Z  PCPU: 0.59/0.37/3  CCPU: 0.02/0.04
+HOST: modi  PID: 24464  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+CWD: /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/  EXEC: /home/galex/ops/bin/movievarpix (/home/galex/ops/bin/)
+
+Named parameters for MovieVarPix:
+movie_file = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_premap-nd-movie.fits.gz; 
+no_sextra = 1; snr_limit = 3.5; npixel_limit = 5; area_limit = 25; elongation_limit = 3; mask_radius = 0.625; 
+varpix_file = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-nd-varpix.fits.gz; 
+intmovie_file = 0; 
+varpixmask_file = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-nd-flag_varpix.fits.gz; 
+varpix_flag_value = 1; 
+moviemask_file = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-nd-movie_mask.fits.gz; 
+stackmask_file = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-nd-flag_varmask.fits.gz; 
+moviemask_snr_limit = 2.75; moviemask_npixel_limit = 4; filter_radius = 0; sex_thresh = undef; sex_minpix = 1; 
+sex_filter_fwhm = 0; expand_mask_radius = 1; 
+aspect_file = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-asprta.fits; 
+stddev = undef; maxpix = undef; compress_images = 1; cal_path = cal; apply_flat = 1; flat_limit = 0.5; level_frames = undef; 
+min_frame_exp_frac = 0.5; out_path = .; band = undef; opt_wheel_pos = 1; verbose = 1; debug = 0; log_file = undef; 
+
+
+<< End of MovieVarPix >> status=0
+Date/time: 2010/06/23_01:24:27Z  PCPU: 6.03/1.46/10  CCPU: 0.05/0.1
+HOST: modi  PID: 24464  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+
+
+CMDLINE => photmap -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_base AIS_428_0002_sg17 -cal_path cal -verbose -use_solution -photon_file AIS_428_0002_sg17-nd-raw6.fits -photmap:simplemap -statfile\ /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa/\ -moviemask\ /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-nd-movie_mask.fits.gz -band 1 -compress_images=1 -opt_wheel_pos 1 -input_base AIS_428_0002_sg17 -spac1: -find=1 -grta: -opts\ gyrocorr=-1\ -refine=1\ -noabs=1\ -opts\ fullasp=1 -photmap:simplemap: -calinf\ maskr=0.6 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5
+
+
+>>>>  START iam=>'PhotMap', host=>'modi', pid=>24557, starttime=>'100623_012431Z', ppid=>21792, pgrpid=>21678, user=>'gop', 
+>>>>+ cwd=>'/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try', exec=>'/home/galex/ops/bin/photmap', 
+
+Invoking command line:
+/home/galex/ops/bin/photmap -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_base AIS_428_0002_sg17 -cal_path cal -verbose -use_solution -photon_file AIS_428_0002_sg17-nd-raw6.fits -photmap:simplemap -statfile /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa/ -moviemask /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-nd-movie_mask.fits.gz -band 1 -compress_images=1 -opt_wheel_pos 1 -input_base AIS_428_0002_sg17 -spac1: -find=1 -grta: -opts gyrocorr=-1 -refine=1 -noabs=1 -opts fullasp=1 -photmap:simplemap: -calinf maskr=0.6 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5
+
+
+<< PhotMap >> version='$Id: photmap,v 1.38 2006/09/18 22:15:59 tim Exp $ ', release=ops-v7_0_3, moddate=2010/03/04_21:12:05Z
+Date/time: 2010/06/23_01:24:31Z  PCPU: 0.25/0.18/2  CCPU: 0.07/0.14
+HOST: modi  PID: 24557  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+CWD: /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/  EXEC: /home/galex/ops/bin/photmap (/home/galex/ops/bin/)
+
+Named parameters for PhotMap:
+input_base = AIS_428_0002_sg17; input_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; 
+output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; output_base = AIS_428_0002_sg17; 
+cal_path = cal; band = 1; opt_wheel_pos = 1; ais = undef; tbase = 0; sctbase = 315964800; pipe_data_version_number = 1; 
+run = undef; not = undef; 
+execs = {rta=>grta,ingest=>gingest,add=>addemup,ingest32=>ingest,flag=>gmkflagmap,spac=>gspac,spex=>gspex,map=>photmap,fitstblcat=>fitstblcat,merge=>gmerge,spcombine=>gcombine,varpix=>movievarpix,astromchk=>astromchk,xhk=>xhk,sex=>sextra,instsim=>ginstsim,pipeqa=>gpipeqa,spacadd=>gspacadd,sppipeqa=>gpipeqa,trend=>ghktrend,ingest18=>hkdump}; 
+verbose = 1; debug = 0; log_file = undef; test = undef; photon_file = AIS_428_0002_sg17-nd-raw6.fits; dead_time_cor = 1; 
+use_solution = 1; slicedt2 = undef; seg_times = undef; min_part_tag = 1; interval = 5; compress_images = 1; 
+map_exec = simplemap; 
+Passed-on parameters:
+ '-simplemap:' '-statfile /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa/ -moviemask /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-nd-movie_mask.fits.gz' '-simplemap:' '-calinf maskr=0.6' 
+
+CMDLINE => simplemap -cal_info calpath=cal -input_base AIS_428_0002_sg17 -photon_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-nd-raw6.fits -output_base AIS_428_0002_sg17 -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -band 1 -other_opts noprog=1 -dead_time_cor=1 -use_solution=1 -compress_images=1 -opt_wheel_pos 1 -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -statfile /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa/ -moviemask /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-nd-movie_mask.fits.gz -calinf maskr=0.6 -statfile /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa/ -moviemask /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-nd-movie_mask.fits.gz -calinf maskr=0.6
+
+<< End of PhotMap >> status=0
+Date/time: 2010/06/23_01:25:13Z  PCPU: 0.28/0.19/44  CCPU: 37.1/2.11
+HOST: modi  PID: 24557  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+
+
+CMDLINE => sextra -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_base AIS_428_0002_sg17 -verbose -qa_output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa -compress_images=1 -stat_name 1 -input_base AIS_428_0002_sg17-nd -spac1: -find=1 -grta: -opts\ gyrocorr=-1\ -refine=1\ -noabs=1\ -opts\ fullasp=1 -photmap:simplemap: -calinf\ maskr=0.6 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5
+
+
+>>>>  START iam=>'SExtra', host=>'modi', pid=>25079, starttime=>'100623_012525Z', ppid=>21792, pgrpid=>21678, user=>'gop', 
+>>>>+ cwd=>'/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try', exec=>'/home/galex/ops/bin/sextra', 
+
+Invoking command line:
+/home/galex/ops/bin/sextra -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_base AIS_428_0002_sg17 -verbose -qa_output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa -compress_images=1 -stat_name 1 -input_base AIS_428_0002_sg17-nd -spac1: -find=1 -grta: -opts gyrocorr=-1 -refine=1 -noabs=1 -opts fullasp=1 -photmap:simplemap: -calinf maskr=0.6 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5
+
+
+<< SExtra >> version='$Id: sextra,v 1.218 2009/07/23 21:22:19 cmillion Exp $ ', release=ops-v7_0_3, moddate=2010/03/04_21:11:57Z
+Date/time: 2010/06/23_01:25:25Z  PCPU: 0.52/0.21/7  CCPU: 0.01/0.02
+HOST: modi  PID: 25079  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+CWD: /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/  EXEC: /home/galex/ops/bin/sextra (/home/galex/ops/bin/)
+
+Named parameters for SExtra:
+input_base = AIS_428_0002_sg17-nd; threshold = undef; nuv_threshold = 2; fuv_threshold = 2.5; minpix = 2; 
+absolute_thresh = undef; background = undef; remove_background = 1; mask_objects = 1; get_mask = 1; mask_threshold = 3; 
+expand_mask_radius = 0; trim_rr_level = 0.2; catalog_name = undef; measurement_map = undef; skip_map_creation = undef; 
+no_sex = undef; filter = 1; conv_fwhm = -4.5,-4.5; seeing_fwhm = 5.5,5; apertures = 2,3,5,8,12,17,23; 
+flux_fracs = 0.2,0.5,0.8,0.9,0.95; deblend_mincont = 0.04; deblend_nthresh = 32; phot_autoparams = 2.5,3.5; mag_zero = 0; 
+clean = 1; mask_type = correct; deep = undef; deep_exp_thresh = 10000; backsize = 128; bg_filter_size = 5; detector_bg = undef; 
+sex_par_name = default; sex_par_path = /home/galex/ops/params/sex,/home/galex/params/sex; sex_params = undef; count_map = undef; 
+response_map = undef; weight_map = undef; detector_background_map = undef; inten_map = undef; sigma_map = 0; 
+input_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; output_base = AIS_428_0002_sg17; 
+output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; 
+qa_output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa; in_out_path = undef; 
+extension_addition = undef; ais = undef; band = undef; opt_wheel_pos = undef; cal_path = cal; check_images = NONE; 
+check_base = undef; mag_column = MAG_AUTO; plot_device = /xs; no_stats = undef; stat_name = 1; compress_images = 1; 
+sex_exec = /home/galex/bin/sex; rmback_exec = poissonbg; fake_options = undef; 
+other_opts = {asciicat=>0,savemem=>0,bgthr=>0,rmbgwt=>0,fieldr=>0.5,regmaglim=>0,fixposerr=>1,savemaskrun=>0,rrtrimr=>0,unmchregfile=>unmatched.ds9reg,prunmch=>0,nohardsex=>0,inscrwidth=>0,rrthr=>0,skipmasksex=>0,pgplotdir=>/home/galex/pgplot,truemchr=>0,truelim=>0,forceconv=>0,detectonly=>0,convsuf=>gauss,sigthr=>0,truecat=>0,detsize=>1.25}; 
+log_file = undef; verbose = 1; debug = undef; 
+
+
+CMDLINE => sextra -input_base AIS_428_0002_sg17-nd -remove_background -filter -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -qa_output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa -stat_name 1 -verbose -check_images seg -output_base AIS_428_0002_sg17_getmask-nd -other_opts fixposerr=0,detectonly=1 -no_stats=1 -threshold 3 -maskobj=0 -getmask=0 -cmprim=0 -xmaskr=0
+
+
+>>>>  START iam=>'SExtra', host=>'modi', pid=>25144, starttime=>'100623_012531Z', ppid=>25079, pgrpid=>21678, user=>'gop', 
+>>>>+ cwd=>'/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try', exec=>'/home/galex/ops/bin/sextra', 
+
+Invoking command line:
+/home/galex/ops/bin/sextra -input_base AIS_428_0002_sg17-nd -remove_background -filter -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -qa_output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa -stat_name 1 -verbose -check_images seg -output_base AIS_428_0002_sg17_getmask-nd -other_opts fixposerr=0,detectonly=1 -no_stats=1 -threshold 3 -maskobj=0 -getmask=0 -cmprim=0 -xmaskr=0
+
+
+<< SExtra >> version='$Id: sextra,v 1.218 2009/07/23 21:22:19 cmillion Exp $ ', release=ops-v7_0_3, moddate=2010/03/04_21:11:57Z
+Date/time: 2010/06/23_01:25:32Z  PCPU: 0.51/0.22/4  CCPU: 0.01/0.05
+HOST: modi  PID: 25144  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+CWD: /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/  EXEC: /home/galex/ops/bin/sextra (/home/galex/ops/bin/)
+
+Named parameters for SExtra:
+input_base = AIS_428_0002_sg17-nd; threshold = 3; nuv_threshold = 2; fuv_threshold = 2.5; minpix = 2; absolute_thresh = undef; 
+background = undef; remove_background = 1; mask_objects = 0; get_mask = 0; mask_threshold = 3; expand_mask_radius = 0; 
+trim_rr_level = 0.2; catalog_name = undef; measurement_map = undef; skip_map_creation = undef; no_sex = undef; filter = 1; 
+conv_fwhm = -4.5,-4.5; seeing_fwhm = 5.5,5; apertures = 2,3,5,8,12,17,23; flux_fracs = 0.2,0.5,0.8,0.9,0.95; 
+deblend_mincont = 0.04; deblend_nthresh = 32; phot_autoparams = 2.5,3.5; mag_zero = 0; clean = 1; mask_type = correct; 
+deep = undef; deep_exp_thresh = 10000; backsize = 128; bg_filter_size = 5; detector_bg = undef; sex_par_name = default; 
+sex_par_path = /home/galex/ops/params/sex,/home/galex/params/sex; sex_params = undef; count_map = undef; response_map = undef; 
+weight_map = undef; detector_background_map = undef; inten_map = undef; sigma_map = 0; 
+input_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; 
+output_base = AIS_428_0002_sg17_getmask-nd; 
+output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; 
+qa_output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa; in_out_path = undef; 
+extension_addition = undef; ais = undef; band = undef; opt_wheel_pos = undef; cal_path = cal; check_images = seg; 
+check_base = undef; mag_column = MAG_AUTO; plot_device = /xs; no_stats = 1; stat_name = 1; compress_images = 0; 
+sex_exec = /home/galex/bin/sex; rmback_exec = poissonbg; fake_options = undef; 
+other_opts = {asciicat=>0,savemem=>0,bgthr=>0,rmbgwt=>0,regmaglim=>0,fieldr=>0.5,fixposerr=>0,savemaskrun=>0,unmchregfile=>unmatched.ds9reg,rrtrimr=>0,prunmch=>0,nohardsex=>0,inscrwidth=>0,rrthr=>0,skipmasksex=>0,pgplotdir=>/home/galex/pgplot,truemchr=>0,truelim=>0,forceconv=>0,detsize=>1.25,truecat=>0,sigthr=>0,convsuf=>gauss,detectonly=>1}; 
+log_file = undef; verbose = 1; debug = undef; 
+
+
+CMDLINE => poissonbg -input_base AIS_428_0002_sg17-nd -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_base AIS_428_0002_sg17_getmask-nd -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -backsize 128 -verbose=0 -quiet=0 -large_rr_img=1 -threshold 3 -area_detect 20.4 -filtersize 5 -weight_only=1 -make_detect=1 -compress_images=0 -response_limit 16.096653300836
+
+CMDLINE => /home/galex/bin/sex -c /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_getmask-nd-sexparams.txt -ANALYSIS_THRESH 0.00601833389184704 -BACKPHOTO_THICK 24 -BACKPHOTO_TYPE GLOBAL -BACK_FILTERSIZE 5 -BACK_SIZE 128 -BACK_TYPE MANUAL -BACK_VALUE 0,0 -CATALOG_NAME /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_getmask-nd-cat.fits -CATALOG_TYPE FITS_1.0 -CHECKIMAGE_NAME /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_getmask-nd-objmask.fits -CHECKIMAGE_TYPE SEGMENTATION -CLEAN YES -CLEAN_PARAM 1 -DEBLEND_MINCONT 0.04 -DEBLEND_NTHRESH 32 -DETECT_MINAREA 10 -DETECT_THRESH 1 -DETECT_TYPE CCD -FILTER Y -FILTER_NAME /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_getmask-nd-gauss_30_7x7.txt -GAIN 70.8382034301758 -INTERP_MAXXLAG 1 -INTERP_MAXYLAG 1 -INTERP_TYPE NONE,NONE -MAG_GAMMA 4 -MAG_ZEROPOINT 0 -MASK_TYPE CORRECT -MEMORY_BUFSIZE 1024 -MEMORY_OBJSTACK 2000 -MEMORY_PIXSTACK 1500000 -PARAMETERS_NAME /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_getmask-nd-sexcols.txt -PHOT_APERTURES 2,3,5,8,12,17,23 -PHOT_AUTOPARAMS 2.5,3.5 -PHOT_FLUXFRAC 0.2,0.5,0.8,0.9,0.95 -PIXEL_SCALE 1.500 -SATUR_LEVEL 999999999 -SEEING_FWHM 5.5 -STARNNW_NAME /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_getmask-nd-sexnnw.txt -THRESH_TYPE ABSOLUTE -VERBOSE_TYPE NORMAL -WEIGHT_GAIN Y -WEIGHT_IMAGE NONE -WEIGHT_TYPE NONE /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_getmask-nd-wt.fits
+
+<< End of SExtra >> status=0
+Date/time: 2010/06/23_01:28:00Z  PCPU: 1.28/0.43/152  CCPU: 15.77/4.34
+HOST: modi  PID: 25144  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+
+
+CMDLINE => poissonbg -input_base AIS_428_0002_sg17-nd -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_base AIS_428_0002_sg17-nd -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -backsize 128 -verbose=0 -quiet=0 -large_rr_img=1 -threshold 2 -area_detect 20.4 -filtersize 5 -mask_objects=1 -make_detect=1 -compress_images=1 -response_limit 16.096653300836
+
+CMDLINE => /home/galex/bin/sex -c /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-nd-sexparams.txt -ANALYSIS_THRESH 0.00388125441822199 -BACKPHOTO_THICK 24 -BACKPHOTO_TYPE GLOBAL -BACK_FILTERSIZE 5 -BACK_SIZE 128 -BACK_TYPE MANUAL -BACK_VALUE 0,0 -CATALOG_NAME /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-nd-cat.fits -CATALOG_TYPE FITS_1.0 -CHECKIMAGE_NAME NONE -CHECKIMAGE_TYPE NONE -CLEAN YES -CLEAN_PARAM 1 -DEBLEND_MINCONT 0.04 -DEBLEND_NTHRESH 32 -DETECT_MINAREA 10 -DETECT_THRESH 1 -DETECT_TYPE CCD -FILTER Y -FILTER_NAME /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-nd-gauss_30_7x7.txt -GAIN 70.8382034301758 -INTERP_MAXXLAG 1 -INTERP_MAXYLAG 1 -INTERP_TYPE NONE,NONE -MAG_GAMMA 4 -MAG_ZEROPOINT 0 -MASK_TYPE CORRECT -MEMORY_BUFSIZE 1024 -MEMORY_OBJSTACK 2000 -MEMORY_PIXSTACK 1500000 -PARAMETERS_NAME /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-nd-sexcols.txt -PHOT_APERTURES 2,3,5,8,12,17,23 -PHOT_AUTOPARAMS 2.5,3.5 -PHOT_FLUXFRAC 0.2,0.5,0.8,0.9,0.95 -PIXEL_SCALE 1.500 -SATUR_LEVEL 999999999 -SEEING_FWHM 5.5 -STARNNW_NAME /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-nd-sexnnw.txt -THRESH_TYPE ABSOLUTE -VERBOSE_TYPE NORMAL -WEIGHT_GAIN Y -WEIGHT_IMAGE /tmp/sextra.modi.25079.VPfo/AIS_428_0002_sg17-nd-rrhr.fits,/tmp/sextra.modi.25079.VPfo/AIS_428_0002_sg17-nd-rrhr.fits -WEIGHT_TYPE MAP_WEIGHT,MAP_WEIGHT /tmp/sextra.modi.25079.VPfo/AIS_428_0002_sg17-nd-wt.fits /tmp/sextra.modi.25079.VPfo/AIS_428_0002_sg17-nd-intbgsub.fits
+
+<< End of SExtra >> status=0
+Date/time: 2010/06/23_01:29:57Z  PCPU: 5.24/1.36/279  CCPU: 61.46/8.78
+HOST: modi  PID: 25079  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+
+
+CMDLINE => astromchk -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_base AIS_428_0002_sg17 -band 1 -verbose -min_match_count 6 -input_base AIS_428_0002_sg17-nd -spac1: -find=1 -grta: -opts\ gyrocorr=-1\ -refine=1\ -noabs=1\ -opts\ fullasp=1 -photmap:simplemap: -calinf\ maskr=0.6 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5
+
+
+>>>>  START iam=>'AstromChk', host=>'modi', pid=>26451, starttime=>'100623_013003Z', ppid=>21792, pgrpid=>21678, user=>'gop', 
+>>>>+ cwd=>'/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try', exec=>'/home/galex/ops/bin/astromchk', 
+
+Invoking command line:
+/home/galex/ops/bin/astromchk -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_base AIS_428_0002_sg17 -band 1 -verbose -min_match_count 6 -input_base AIS_428_0002_sg17-nd -spac1: -find=1 -grta: -opts gyrocorr=-1 -refine=1 -noabs=1 -opts fullasp=1 -photmap:simplemap: -calinf maskr=0.6 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5
+
+
+<< AstromChk >> version='$Id: astromchk,v 1.49 2006/05/12 19:51:51 tim Exp $ ', release=ops-v7_0_3, moddate=2010/03/04_21:11:57Z
+Date/time: 2010/06/23_01:30:04Z  PCPU: 0.26/0.09/4  CCPU: 0.01/0.03
+HOST: modi  PID: 26451  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+CWD: /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/  EXEC: /home/galex/ops/bin/astromchk (/home/galex/ops/bin/)
+
+Named parameters for AstromChk:
+input_base = AIS_428_0002_sg17-nd; band = 1; match_radius = 4; min_match_count = 6; max_fov_radius = 0.55; 
+flux_limit = 0.1,0.01; input_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; 
+output_base = AIS_428_0002_sg17; output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; 
+opt_wheel_pos = d; flux_col = FLUX_AUTO; catalog_name = undef; runstar_name = undef; mch_file_name = undef; other_opts = undef; 
+log_file = undef; verbose = 1; debug = 0; 
+
+
+<< End of AstromChk >> status=0
+Date/time: 2010/06/23_01:30:05Z  PCPU: 0.6/0.11/5  CCPU: 0.01/0.06
+HOST: modi  PID: 26451  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+
+
+CMDLINE => gmkflagmap -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_base AIS_428_0002_sg17 -verbose -do_flags 1,2,3,4,5,6,8,9 -band 1 -qa_output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa -opt_wheel_pos 1 -input_base AIS_428_0002_sg17 -spac1: -find=1 -grta: -opts\ gyrocorr=-1\ -refine=1\ -noabs=1\ -opts\ fullasp=1 -photmap:simplemap: -calinf\ maskr=0.6 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5
+
+
+>>>>  START iam=>'GMkFlagMap', host=>'modi', pid=>26500, starttime=>'100623_013009Z', ppid=>21792, pgrpid=>21678, user=>'gop', 
+>>>>+ cwd=>'/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try', exec=>'/home/galex/ops/bin/gmkflagmap', 
+
+Invoking command line:
+/home/galex/ops/bin/gmkflagmap -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_base AIS_428_0002_sg17 -verbose -do_flags 1,2,3,4,5,6,8,9 -band 1 -qa_output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa -opt_wheel_pos 1 -input_base AIS_428_0002_sg17 -spac1: -find=1 -grta: -opts gyrocorr=-1 -refine=1 -noabs=1 -opts fullasp=1 -photmap:simplemap: -calinf maskr=0.6 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5
+
+
+<< GMkFlagMap >> version='$Id: gmkflagmap,v 1.44 2007/08/20 17:49:32 tim Exp $ ', release=ops-v7_0_3, moddate=2010/03/04_21:12:05Z
+Date/time: 2010/06/23_01:30:10Z  PCPU: 0.27/0.2/3  CCPU: 0.05/0.13
+HOST: modi  PID: 26500  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+CWD: /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/  EXEC: /home/galex/ops/bin/gmkflagmap (/home/galex/ops/bin/)
+
+Named parameters for GMkFlagMap:
+input_base = AIS_428_0002_sg17; input_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; 
+output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; output_base = AIS_428_0002_sg17; 
+cal_path = cal; band = 1; opt_wheel_pos = 1; ais = undef; tbase = 0; sctbase = 315964800; pipe_data_version_number = 1; 
+run = undef; not = undef; 
+execs = {rta=>grta,ingest=>gingest,add=>addemup,ingest32=>ingest,flag=>gmkflagmap,spac=>gspac,spex=>gspex,map=>photmap,fitstblcat=>fitstblcat,merge=>gmerge,spcombine=>gcombine,varpix=>movievarpix,astromchk=>astromchk,xhk=>xhk,sex=>sextra,instsim=>ginstsim,pipeqa=>gpipeqa,spacadd=>gspacadd,sppipeqa=>gpipeqa,trend=>ghktrend,ingest18=>hkdump}; 
+verbose = 1; debug = 0; log_file = undef; test = undef; do_flags = 1,2,3,4,5,6,8,9; like_fits = undef; npix = 480; 
+cdelt = 0.00333333333333333; qa_output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa; 
+
+
+CMDLINE => grunstar -input_base AIS_428_0002_sg17 -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_base AIS_428_0002_sg17 -band 1 -opt_wheel_pos 1 -verbose -cntmin 1 -radius 0.75 -ra 114.396546445516 -of /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flagstar.fits -dec -62.6566930251685
+
+
+>>>>  START iam=>'GRunstar', host=>'modi', pid=>26569, starttime=>'100623_013014Z', ppid=>26500, pgrpid=>21678, user=>'gop', 
+>>>>+ cwd=>'/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try', exec=>'/home/galex/ops/bin/grunstar', 
+
+Invoking command line:
+/home/galex/ops/bin/grunstar -input_base AIS_428_0002_sg17 -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_base AIS_428_0002_sg17 -band 1 -opt_wheel_pos 1 -verbose -cntmin 1 -radius 0.75 -ra 114.396546445516 -of /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flagstar.fits -dec -62.6566930251685
+
+
+<< GRunstar >> version='$Id: grunstar,v 1.10 2005/05/11 23:07:25 tim Exp $ ', release=ops-v7_0_3, moddate=2010/03/04_21:12:05Z
+Date/time: 2010/06/23_01:30:14Z  PCPU: 0.27/0.12/2  CCPU: 0.05/0.08
+HOST: modi  PID: 26569  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+CWD: /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/  EXEC: /home/galex/ops/bin/grunstar (/home/galex/ops/bin/)
+
+Named parameters for GRunstar:
+ra = 114.396546445516; dec = -62.6566930251685; vmax = 18; vmin = -1; nuvmax = 1e+30; nuvmin = 1; fuvmax = 1e+30; 
+fuvmin = -1e+30; radius = 0.75; duplicate_limit = 3; tbl = undef; 
+of = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flagstar.fits; pt = undef; 
+bf = undef; sao = undef; act = undef; usn = undef; actonly = undef; bright = 0; mindist = undef; relflux = undef; cntmin = 1; 
+cntmax = undef; rta_opts = undef; input_base = AIS_428_0002_sg17; 
+input_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; 
+output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; output_base = AIS_428_0002_sg17; 
+cal_path = cal; band = 1; opt_wheel_pos = 1; ais = undef; tbase = 0; sctbase = 315964800; pipe_data_version_number = 1; 
+run = undef; not = undef; 
+execs = {rta=>grta,ingest=>gingest,add=>addemup,ingest32=>ingest,flag=>gmkflagmap,spac=>gspac,spex=>gspex,map=>photmap,fitstblcat=>fitstblcat,merge=>gmerge,spcombine=>gcombine,varpix=>movievarpix,astromchk=>astromchk,xhk=>xhk,sex=>sextra,instsim=>ginstsim,pipeqa=>gpipeqa,spacadd=>gspacadd,sppipeqa=>gpipeqa,trend=>ghktrend,ingest18=>hkdump}; 
+verbose = 1; debug = 0; log_file = undef; test = undef; 
+
+
+CMDLINE => runstar -ra 114.396546445516 -dec -62.6566930251685 -nuvmin 1 -radius 0.75 -of /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flagstar.fits
+
+<< End of GRunstar >> status=0
+Date/time: 2010/06/23_01:30:30Z  PCPU: 0.28/0.13/18  CCPU: 3.13/0.24
+HOST: modi  PID: 26569  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+
+
+CMDLINE => galexflag -eq_region_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flag_edge_eq.ds9reg -fits_mode 1 -band 1 -flag_type 1 -roll 180.640867222938 -scst_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-scst.fits -star_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flagstar.fits -fits_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flag_tbl.fits -quiet=0 -dec0 -62.649169921875 -region_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flag_edge.ds9reg -npix 480 -cdelt 0.00333333333333333 -fovdec -62.6566930251685 -cr_string NUV -ra0 114.370979309082 -fovra 114.396546445516
+
+CMDLINE => /bin/mv -v /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flag_edge_eq.ds9reg /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa/
+
+CMDLINE => galexflag -eq_region_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flag_window_eq.ds9reg -fits_mode 2 -band 1 -flag_type 2 -roll 180.640867222938 -scst_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-scst.fits -star_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flagstar.fits -fits_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flag_tbl.fits -quiet=0 -dec0 -62.649169921875 -region_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flag_window.ds9reg -npix 480 -cdelt 0.00333333333333333 -fovdec -62.6566930251685 -cr_string NUV -ra0 114.370979309082 -fovra 114.396546445516
+
+CMDLINE => /bin/mv -v /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flag_window_eq.ds9reg /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa/
+
+CMDLINE => galexflag -eq_region_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flag_dichroic_eq.ds9reg -fits_mode 2 -band 1 -flag_type 3 -roll 180.640867222938 -scst_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-scst.fits -star_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flagstar.fits -fits_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flag_tbl.fits -quiet=0 -dec0 -62.649169921875 -region_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flag_dichroic.ds9reg -npix 480 -cdelt 0.00333333333333333 -fovdec -62.6566930251685 -cr_string NUV -ra0 114.370979309082 -fovra 114.396546445516
+
+CMDLINE => /bin/mv -v /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flag_dichroic_eq.ds9reg /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa/
+
+CMDLINE => galexflag -eq_region_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flag_brtedge_eq.ds9reg -fits_mode 2 -band 1 -flag_type 5 -roll 180.640867222938 -scst_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-scst.fits -star_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flagstar.fits -fits_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flag_tbl.fits -quiet=0 -dec0 -62.649169921875 -region_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flag_brtedge.ds9reg -npix 480 -cdelt 0.00333333333333333 -fovdec -62.6566930251685 -cr_string NUV -ra0 114.370979309082 -fovra 114.396546445516
+
+CMDLINE => /bin/mv -v /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flag_brtedge_eq.ds9reg /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa/
+
+CMDLINE => galexflag -eq_region_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flag_rim_eq.ds9reg -fits_mode 2 -band 1 -flag_type 6 -roll 180.640867222938 -scst_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-scst.fits -star_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flagstar.fits -fits_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flag_tbl.fits -quiet=0 -dec0 -62.649169921875 -region_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flag_rim.ds9reg -npix 480 -cdelt 0.00333333333333333 -fovdec -62.6566930251685 -cr_string NUV -ra0 114.370979309082 -fovra 114.396546445516
+
+CMDLINE => /bin/mv -v /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flag_rim_eq.ds9reg /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa/
+
+CMDLINE => gmkmask -verbose -out_image /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flags.fits -region_files /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flag_edge.ds9reg,/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flag_window.ds9reg,/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flag_dichroic.ds9reg,/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flag_brtedge.ds9reg,/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flag_rim.ds9reg -or_mask=1 -apply_values 1,2,4,16,32 -cdelt 0.00333333333333333 -npix 480 -mask_image /tmp/gmkflagmap-modi-26500-mask.fits
+
+
+>>>>  START iam=>'GMkMask', host=>'modi', pid=>26796, starttime=>'100623_013102Z', ppid=>26500, pgrpid=>21678, user=>'gop', 
+>>>>+ cwd=>'/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try', exec=>'/home/galex/ops/bin/gmkmask', 
+
+Invoking command line:
+/home/galex/ops/bin/gmkmask -verbose -out_image /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flags.fits -region_files /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flag_edge.ds9reg,/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flag_window.ds9reg,/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flag_dichroic.ds9reg,/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flag_brtedge.ds9reg,/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flag_rim.ds9reg -or_mask=1 -apply_values 1,2,4,16,32 -cdelt 0.00333333333333333 -npix 480 -mask_image /tmp/gmkflagmap-modi-26500-mask.fits
+
+
+<< GMkMask >> version='$Id: gmkmask,v 1.16 2007/09/27 18:02:59 tim Exp $ ', release=ops-v7_0_3, moddate=2010/03/04_21:12:05Z
+Date/time: 2010/06/23_01:31:02Z  PCPU: 0.27/0.21/2  CCPU: 0.02/0.07
+HOST: modi  PID: 26796  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+CWD: /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/  EXEC: /home/galex/ops/bin/gmkmask (/home/galex/ops/bin/)
+
+Named parameters for GMkMask:
+regions = undef; fill = undef; mask_image = /tmp/gmkflagmap-modi-26500-mask.fits; in_image = undef; 
+out_image = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flags.fits; 
+or_mask = 1; axes = undef; mask_value = 0; initial_value = 1; apply_value = 0; cdelt = 0.00333333333333333; options = undef; 
+verbose = 1; quiet = undef; debug = 0; 
+region_files = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flag_edge.ds9reg,/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flag_window.ds9reg,/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flag_dichroic.ds9reg,/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flag_brtedge.ds9reg,/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flag_rim.ds9reg; 
+apply_values = 1,2,4,16,32; like_fits = undef; npix = 480; log_file = undef; 
+
+
+CMDLINE => mkmask -mask_image /tmp/gmkflagmap-modi-26500-mask.fits -in_image /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flags.fits -out_image /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flags.fits -or_mask -cdelt 0.00333333333333333 -verbose -apply_value 1 -verbose=1 -quiet=0 -regions @/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flag_edge.ds9reg
+
+CMDLINE => mkmask -mask_image /tmp/gmkflagmap-modi-26500-mask.fits -in_image /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flags.fits -out_image /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flags.fits -or_mask -cdelt 0.00333333333333333 -verbose -apply_value 2 -verbose=1 -quiet=0 -regions @/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flag_window.ds9reg
+
+CMDLINE => mkmask -mask_image /tmp/gmkflagmap-modi-26500-mask.fits -in_image /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flags.fits -out_image /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flags.fits -or_mask -cdelt 0.00333333333333333 -verbose -apply_value 4 -verbose=1 -quiet=0 -regions @/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flag_dichroic.ds9reg
+
+CMDLINE => mkmask -mask_image /tmp/gmkflagmap-modi-26500-mask.fits -in_image /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flags.fits -out_image /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flags.fits -or_mask -cdelt 0.00333333333333333 -verbose -apply_value 16 -verbose=1 -quiet=0 -regions @/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flag_brtedge.ds9reg
+
+CMDLINE => mkmask -mask_image /tmp/gmkflagmap-modi-26500-mask.fits -in_image /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flags.fits -out_image /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flags.fits -or_mask -cdelt 0.00333333333333333 -verbose -apply_value 32 -verbose=1 -quiet=0 -regions @/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flag_rim.ds9reg
+
+<< End of GMkMask >> status=0
+Date/time: 2010/06/23_01:31:11Z  PCPU: 0.32/0.24/11  CCPU: 4.25/0.78
+HOST: modi  PID: 26796  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+
+
+<< End of GMkFlagMap >> status=0
+Date/time: 2010/06/23_01:31:12Z  PCPU: 0.82/0.47/65  CCPU: 8.69/2.28
+HOST: modi  PID: 26500  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+
+
+CMDLINE => astromchk -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_base AIS_428_0002_sg17 -band 1 -verbose -runstar_name AIS_428_0002_sg17-nd-flagstar.fits -min_match_count 0 -max_fov_radius 0.625 -input_base AIS_428_0002_sg17-nd -spac1: -find=1 -grta: -opts\ gyrocorr=-1\ -refine=1\ -noabs=1\ -opts\ fullasp=1 -photmap:simplemap: -calinf\ maskr=0.6 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5
+
+
+>>>>  START iam=>'AstromChk', host=>'modi', pid=>27126, starttime=>'100623_013116Z', ppid=>21792, pgrpid=>21678, user=>'gop', 
+>>>>+ cwd=>'/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try', exec=>'/home/galex/ops/bin/astromchk', 
+
+Invoking command line:
+/home/galex/ops/bin/astromchk -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_base AIS_428_0002_sg17 -band 1 -verbose -runstar_name AIS_428_0002_sg17-nd-flagstar.fits -min_match_count 0 -max_fov_radius 0.625 -input_base AIS_428_0002_sg17-nd -spac1: -find=1 -grta: -opts gyrocorr=-1 -refine=1 -noabs=1 -opts fullasp=1 -photmap:simplemap: -calinf maskr=0.6 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5
+
+
+<< AstromChk >> version='$Id: astromchk,v 1.49 2006/05/12 19:51:51 tim Exp $ ', release=ops-v7_0_3, moddate=2010/03/04_21:11:57Z
+Date/time: 2010/06/23_01:31:16Z  PCPU: 0.27/0.19/2  CCPU: 0.01/0.07
+HOST: modi  PID: 27126  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+CWD: /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/  EXEC: /home/galex/ops/bin/astromchk (/home/galex/ops/bin/)
+
+Named parameters for AstromChk:
+input_base = AIS_428_0002_sg17-nd; band = 1; match_radius = 4; min_match_count = 0; max_fov_radius = 0.625; 
+flux_limit = 0.1,0.01; input_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; 
+output_base = AIS_428_0002_sg17; output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; 
+opt_wheel_pos = d; flux_col = FLUX_AUTO; catalog_name = undef; runstar_name = AIS_428_0002_sg17-nd-flagstar.fits; 
+mch_file_name = undef; other_opts = undef; log_file = undef; verbose = 1; debug = 0; 
+
+
+<< End of AstromChk >> status=0
+Date/time: 2010/06/23_01:31:18Z  PCPU: 1.62/0.25/4  CCPU: 0.01/0.09
+HOST: modi  PID: 27126  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+
+
+<< End of OrbPipe1b >> status=0
+Date/time: 2010/06/23_01:31:18Z  PCPU: 0.81/0.21/791  CCPU: 236.8/34.79
+HOST: modi  PID: 21792  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+
+
+CMDLINE => orbpipe1b -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -cal_path cal -opt_wheel_pos 1 -ais -pipe_data_version_number 2 -verbose -movie_mask=1 -pre_map=1 -band 2 -not astromchk -use_prev_rta=1 -run rta,phxcheck,premap,varpix,map,sex,astromchk,flag,flagastromchk,merge,merge_sex,pipeqa -exit_code 0 -orbpipe1b:grta -nostate\ -not\ runstar -orbpipe1b:photmap:simplemap -calinf\ maskr=0.6 -input_base AIS_428_0002_sg17 -use_solution=1 -no_aspect=1 -enqjob: -append -orbpipe1b:photmap: -dead -orbpipe1b:grta: -maxdith\ 4e-5 -fitstblcat: -strict -orbpipe1b:photmap: -dead -orbpipe1b:grta: -maxdith\ 4e-5 -fitstblcat: -strict -orbpipe1b:photmap: -dead -orbpipe1b:grta: -maxdith\ 4e-5 -fitstblcat: -strict -orbpipe1b:photmap: -dead -orbpipe1b:grta: -maxdith\ 4e-5 -fitstblcat: -strict
+
+
+>>>>  START iam=>'OrbPipe1b', host=>'modi', pid=>27248, starttime=>'100623_013123Z', ppid=>21679, pgrpid=>21678, user=>'gop', 
+>>>>+ cwd=>'/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try', exec=>'/home/galex/ops/bin/orbpipe1b', 
+
+Invoking command line:
+/home/galex/ops/bin/orbpipe1b -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -cal_path cal -opt_wheel_pos 1 -ais -pipe_data_version_number 2 -verbose -movie_mask=1 -pre_map=1 -band 2 -not astromchk -use_prev_rta=1 -run rta,phxcheck,premap,varpix,map,sex,astromchk,flag,flagastromchk,merge,merge_sex,pipeqa -exit_code 0 -orbpipe1b:grta -nostate -not runstar -orbpipe1b:photmap:simplemap -calinf maskr=0.6 -input_base AIS_428_0002_sg17 -use_solution=1 -no_aspect=1 -enqjob: -append -orbpipe1b:photmap: -dead -orbpipe1b:grta: -maxdith 4e-5 -fitstblcat: -strict -orbpipe1b:photmap: -dead -orbpipe1b:grta: -maxdith 4e-5 -fitstblcat: -strict -orbpipe1b:photmap: -dead -orbpipe1b:grta: -maxdith 4e-5 -fitstblcat: -strict -orbpipe1b:photmap: -dead -orbpipe1b:grta: -maxdith 4e-5 -fitstblcat: -strict
+
+
+<< OrbPipe1b >> version='$Id: orbpipe1b,v 1.174 2008/01/31 23:25:23 tim Exp $ ', release=ops-v7_0_3, moddate=2010/03/04_21:12:08Z
+Date/time: 2010/06/23_01:31:23Z  PCPU: 0.28/0.34/3  CCPU: 0.06/0.12
+HOST: modi  PID: 27248  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+CWD: /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/  EXEC: /home/galex/ops/bin/orbpipe1b (/home/galex/ops/bin/)
+
+Named parameters for OrbPipe1b:
+input_base = AIS_428_0002_sg17; input_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; 
+output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; output_base = undef; cal_path = cal; 
+band = 2; opt_wheel_pos = 1; ais = 1; tbase = UNIX; sctbase = GPS; pipe_data_version_number = 2; 
+run = rta,phxcheck,premap,varpix,map,sex,astromchk,flag,flagastromchk,merge,merge_sex,pipeqa; not = astromchk; 
+execs = {rta=>grta,ingest=>gingest,add=>addemup,ingest32=>ingest,flag=>gmkflagmap,spac=>gspac,spex=>gspex,map=>photmap,fitstblcat=>fitstblcat,merge=>gmerge,spcombine=>gcombine,varpix=>movievarpix,astromchk=>astromchk,xhk=>xhk,sex=>sextra,instsim=>ginstsim,pipeqa=>gpipeqa,spacadd=>gspacadd,sppipeqa=>gpipeqa,trend=>ghktrend,ingest18=>hkdump}; 
+verbose = 1; debug = 0; log_file = undef; test = undef; grspa = undef; merge_path = undef; merge_base = undef; top_cut = 1000; 
+top_mask = 2000; coadd_exptime = undef; sim_mode = undef; no_aspect = 1; use_solution = 1; use_prev_rta = 1; 
+max_dither_rate = 4e-05; exit_code = 0; pre_map = 1; movie_mask = 1; fuv_minexp_check = 500; 
+Passed-on parameters:
+ '-grta:' '-nostate -not runstar' '-photmap:simplemap:' '-calinf maskr=0.6' '-photmap:' '-dead' '-grta:' '-maxdith 4e-5' '-photmap:' '-dead' '-grta:' '-maxdith 4e-5' '-photmap:' '-dead' '-grta:' '-maxdith 4e-5' '-photmap:' '-dead' '-grta:' '-maxdith 4e-5' 
+
+CMDLINE => grta -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_base AIS_428_0002_sg17 -cal_path cal -ais -verbose -no_aspect -use_prev_rta -photon_file AIS_428_0002_sg17-fd-raw6.fits -fail_if_nogood=1 -band 2 -qa_output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa -opt_wheel_pos 1 -input_base AIS_428_0002_sg17 -grta: -nostate\ -not\ runstar -photmap:simplemap: -calinf\ maskr=0.6 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5
+
+
+>>>>  START iam=>'GRTA', host=>'modi', pid=>27302, starttime=>'100623_013127Z', ppid=>27248, pgrpid=>21678, user=>'gop', 
+>>>>+ cwd=>'/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try', exec=>'/home/galex/ops/bin/grta', 
+
+Invoking command line:
+/home/galex/ops/bin/grta -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_base AIS_428_0002_sg17 -cal_path cal -ais -verbose -no_aspect -use_prev_rta -photon_file AIS_428_0002_sg17-fd-raw6.fits -fail_if_nogood=1 -band 2 -qa_output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa -opt_wheel_pos 1 -input_base AIS_428_0002_sg17 -grta: -nostate -not runstar -photmap:simplemap: -calinf maskr=0.6 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5
+
+
+<< GRTA >> version='$Id: grta,v 1.183 2008/01/24 03:00:56 tim Exp $ ', release=ops-v7_0_3, moddate=2010/03/04_21:12:05Z
+Date/time: 2010/06/23_01:31:28Z  PCPU: 0.27/0.19/3  CCPU: 0.06/0.11
+HOST: modi  PID: 27302  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+CWD: /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/  EXEC: /home/galex/ops/bin/grta (/home/galex/ops/bin/)
+
+Named parameters for GRTA:
+input_base = AIS_428_0002_sg17; input_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; 
+output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; output_base = AIS_428_0002_sg17; 
+cal_path = cal; band = 2; opt_wheel_pos = 1; ais = 1; tbase = 0; sctbase = 315964800; pipe_data_version_number = 1; run = undef; 
+not = runstar; 
+execs = {rta=>grta,ingest=>gingest,add=>addemup,ingest32=>ingest,flag=>gmkflagmap,spac=>gspac,spex=>gspex,map=>photmap,fitstblcat=>fitstblcat,merge=>gmerge,spcombine=>gcombine,varpix=>movievarpix,astromchk=>astromchk,xhk=>xhk,sex=>sextra,instsim=>ginstsim,pipeqa=>gpipeqa,spacadd=>gspacadd,sppipeqa=>gpipeqa,trend=>ghktrend,ingest18=>hkdump}; 
+verbose = 1; debug = 0; log_file = undef; test = undef; grspa = undef; no_aspect = 1; no_abs_acs = undef; no_state = 1; 
+refine_aspect = undef; mle_correction = undef; faint_dph = undef; relative_dph = undef; correct = undef; use_prev_rta = 1; 
+offsets = undef; max_dither_rate = 4e-05; photon_file = AIS_428_0002_sg17-fd-raw6.fits; fail_if_nogood = 1; min_good_recs = 1; 
+update_state_file = undef; deltaphot_qa = undef; way_off = undef; 
+qa_output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa; sim_mode = undef; 
+other_opts = {gyrocorr=>0,dodph2=>0,dodph1=>0,docent1=>0,skipgaspref=>0,fullasp=>0,rsrad=>1}; deltaphot_correction = undef; 
+Passed-on parameters:
+ '-rta:' '-nuvpltsol    0' '-rta:' '-fuvpltsol    0' '-rta:' '-sort' '-rta:' '-fuvpltsol    0' '-rta:' '-sort' 
+
+<< End of GRTA >> status=0
+Date/time: 2010/06/23_01:31:28Z  PCPU: 0.29/0.2/3  CCPU: 0.06/0.13
+HOST: modi  PID: 27302  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+
+
+CMDLINE => photmap -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -cal_path cal -verbose -use_solution -photon_file AIS_428_0002_sg17-fd-raw6.fits -photmap:simplemap -which\ rr=0,exp=0,dose=0,detbg=0,q=0,sprr=0 -band 2 -slicedt2 10 -compress_images=1 -opt_wheel_pos 1 -output_base AIS_428_0002_sg17_premap -input_base AIS_428_0002_sg17 -grta: -nostate\ -not\ runstar -photmap:simplemap: -calinf\ maskr=0.6 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5
+
+
+>>>>  START iam=>'PhotMap', host=>'modi', pid=>27362, starttime=>'100623_013132Z', ppid=>27248, pgrpid=>21678, user=>'gop', 
+>>>>+ cwd=>'/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try', exec=>'/home/galex/ops/bin/photmap', 
+
+Invoking command line:
+/home/galex/ops/bin/photmap -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -cal_path cal -verbose -use_solution -photon_file AIS_428_0002_sg17-fd-raw6.fits -photmap:simplemap -which rr=0,exp=0,dose=0,detbg=0,q=0,sprr=0 -band 2 -slicedt2 10 -compress_images=1 -opt_wheel_pos 1 -output_base AIS_428_0002_sg17_premap -input_base AIS_428_0002_sg17 -grta: -nostate -not runstar -photmap:simplemap: -calinf maskr=0.6 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5
+
+
+<< PhotMap >> version='$Id: photmap,v 1.38 2006/09/18 22:15:59 tim Exp $ ', release=ops-v7_0_3, moddate=2010/03/04_21:12:05Z
+Date/time: 2010/06/23_01:31:32Z  PCPU: 0.27/0.18/2  CCPU: 0.05/0.09
+HOST: modi  PID: 27362  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+CWD: /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/  EXEC: /home/galex/ops/bin/photmap (/home/galex/ops/bin/)
+
+Named parameters for PhotMap:
+input_base = AIS_428_0002_sg17; input_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; 
+output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; output_base = AIS_428_0002_sg17_premap; 
+cal_path = cal; band = 2; opt_wheel_pos = 1; ais = undef; tbase = 0; sctbase = 315964800; pipe_data_version_number = 1; 
+run = undef; not = undef; 
+execs = {rta=>grta,ingest=>gingest,add=>addemup,ingest32=>ingest,flag=>gmkflagmap,spac=>gspac,spex=>gspex,map=>photmap,fitstblcat=>fitstblcat,merge=>gmerge,spcombine=>gcombine,varpix=>movievarpix,astromchk=>astromchk,xhk=>xhk,sex=>sextra,instsim=>ginstsim,pipeqa=>gpipeqa,spacadd=>gspacadd,sppipeqa=>gpipeqa,trend=>ghktrend,ingest18=>hkdump}; 
+verbose = 1; debug = 0; log_file = undef; test = undef; photon_file = AIS_428_0002_sg17-fd-raw6.fits; dead_time_cor = 1; 
+use_solution = 1; slicedt2 = 10; seg_times = undef; min_part_tag = 1; interval = 5; compress_images = 1; map_exec = simplemap; 
+Passed-on parameters:
+ '-simplemap:' '-which rr=0,exp=0,dose=0,detbg=0,q=0,sprr=0' '-simplemap:' '-calinf maskr=0.6' 
+
+CMDLINE => simplemap -cal_info calpath=cal -input_base AIS_428_0002_sg17 -photon_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-fd-raw6.fits -output_base AIS_428_0002_sg17_premap -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -band 2 -other_opts noprog=1 -dead_time_cor=1 -use_solution=1 -slicedt2 10 -compress_images=1 -opt_wheel_pos 1 -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -which rr=0,exp=0,dose=0,detbg=0,q=0,sprr=0 -calinf maskr=0.6 -which rr=0,exp=0,dose=0,detbg=0,q=0,sprr=0 -calinf maskr=0.6
+
+<< End of PhotMap >> status=0
+Date/time: 2010/06/23_01:32:01Z  PCPU: 0.29/0.2/31  CCPU: 8.99/1.68
+HOST: modi  PID: 27362  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+
+
+CMDLINE => movievarpix -cal_path cal -verbose -moviemask_snr_limit 2.75 -varpixmask_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-fd-flag_varpix.fits.gz -aspect_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-asprta.fits -moviemask_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-fd-movie_mask.fits.gz -stackmask_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-fd-flag_varmask.fits.gz -moviemask_npixel_limit 4 -movie_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_premap-fd-movie.fits.gz -npixel_limit 5 -mask_radius 0.625 -apply_flat=1 -snr_limit 3.5 -no_sextra=1 -compress_images=1 -min_frame_exp_frac 0.5 -varpix_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-fd-varpix.fits.gz -grta: -nostate\ -not\ runstar -photmap:simplemap: -calinf\ maskr=0.6 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5
+
+
+>>>>  START iam=>'MovieVarPix', host=>'modi', pid=>27613, starttime=>'100623_013208Z', ppid=>27248, pgrpid=>21678, user=>'gop', 
+>>>>+ cwd=>'/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try', exec=>'/home/galex/ops/bin/movievarpix', 
+
+Invoking command line:
+/home/galex/ops/bin/movievarpix -cal_path cal -verbose -moviemask_snr_limit 2.75 -varpixmask_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-fd-flag_varpix.fits.gz -aspect_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-asprta.fits -moviemask_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-fd-movie_mask.fits.gz -stackmask_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-fd-flag_varmask.fits.gz -moviemask_npixel_limit 4 -movie_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_premap-fd-movie.fits.gz -npixel_limit 5 -mask_radius 0.625 -apply_flat=1 -snr_limit 3.5 -no_sextra=1 -compress_images=1 -min_frame_exp_frac 0.5 -varpix_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-fd-varpix.fits.gz -grta: -nostate -not runstar -photmap:simplemap: -calinf maskr=0.6 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5
+
+
+<< MovieVarPix >> version='$Id: movievarpix,v 1.25 2010/06/02 20:04:54 cmillion Exp $ ', release=ops-v7_0_3, moddate=2010/06/02_20:28:40Z
+Date/time: 2010/06/23_01:32:09Z  PCPU: 0.6/0.43/5  CCPU: 0.01/0.06
+HOST: modi  PID: 27613  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+CWD: /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/  EXEC: /home/galex/ops/bin/movievarpix (/home/galex/ops/bin/)
+
+Named parameters for MovieVarPix:
+movie_file = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_premap-fd-movie.fits.gz; 
+no_sextra = 1; snr_limit = 3.5; npixel_limit = 5; area_limit = 25; elongation_limit = 3; mask_radius = 0.625; 
+varpix_file = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-fd-varpix.fits.gz; 
+intmovie_file = 0; 
+varpixmask_file = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-fd-flag_varpix.fits.gz; 
+varpix_flag_value = 1; 
+moviemask_file = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-fd-movie_mask.fits.gz; 
+stackmask_file = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-fd-flag_varmask.fits.gz; 
+moviemask_snr_limit = 2.75; moviemask_npixel_limit = 4; filter_radius = 0; sex_thresh = undef; sex_minpix = 1; 
+sex_filter_fwhm = 0; expand_mask_radius = 1; 
+aspect_file = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-asprta.fits; 
+stddev = undef; maxpix = undef; compress_images = 1; cal_path = cal; apply_flat = 1; flat_limit = 0.5; level_frames = undef; 
+min_frame_exp_frac = 0.5; out_path = .; band = undef; opt_wheel_pos = 1; verbose = 1; debug = 0; log_file = undef; 
+
+
+<< End of MovieVarPix >> status=0
+Date/time: 2010/06/23_01:32:35Z  PCPU: 5.59/1.37/31  CCPU: 0.03/0.12
+HOST: modi  PID: 27613  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+
+
+CMDLINE => photmap -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_base AIS_428_0002_sg17 -cal_path cal -verbose -use_solution -photon_file AIS_428_0002_sg17-fd-raw6.fits -photmap:simplemap -statfile\ /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa/\ -moviemask\ /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-fd-movie_mask.fits.gz -band 2 -compress_images=1 -opt_wheel_pos 1 -input_base AIS_428_0002_sg17 -grta: -nostate\ -not\ runstar -photmap:simplemap: -calinf\ maskr=0.6 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5
+
+
+>>>>  START iam=>'PhotMap', host=>'modi', pid=>27812, starttime=>'100623_013241Z', ppid=>27248, pgrpid=>21678, user=>'gop', 
+>>>>+ cwd=>'/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try', exec=>'/home/galex/ops/bin/photmap', 
+
+Invoking command line:
+/home/galex/ops/bin/photmap -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_base AIS_428_0002_sg17 -cal_path cal -verbose -use_solution -photon_file AIS_428_0002_sg17-fd-raw6.fits -photmap:simplemap -statfile /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa/ -moviemask /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-fd-movie_mask.fits.gz -band 2 -compress_images=1 -opt_wheel_pos 1 -input_base AIS_428_0002_sg17 -grta: -nostate -not runstar -photmap:simplemap: -calinf maskr=0.6 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5
+
+
+<< PhotMap >> version='$Id: photmap,v 1.38 2006/09/18 22:15:59 tim Exp $ ', release=ops-v7_0_3, moddate=2010/03/04_21:12:05Z
+Date/time: 2010/06/23_01:32:41Z  PCPU: 0.27/0.18/2  CCPU: 0.05/0.09
+HOST: modi  PID: 27812  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+CWD: /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/  EXEC: /home/galex/ops/bin/photmap (/home/galex/ops/bin/)
+
+Named parameters for PhotMap:
+input_base = AIS_428_0002_sg17; input_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; 
+output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; output_base = AIS_428_0002_sg17; 
+cal_path = cal; band = 2; opt_wheel_pos = 1; ais = undef; tbase = 0; sctbase = 315964800; pipe_data_version_number = 1; 
+run = undef; not = undef; 
+execs = {rta=>grta,ingest=>gingest,add=>addemup,ingest32=>ingest,flag=>gmkflagmap,spac=>gspac,spex=>gspex,map=>photmap,fitstblcat=>fitstblcat,merge=>gmerge,spcombine=>gcombine,varpix=>movievarpix,astromchk=>astromchk,xhk=>xhk,sex=>sextra,instsim=>ginstsim,pipeqa=>gpipeqa,spacadd=>gspacadd,sppipeqa=>gpipeqa,trend=>ghktrend,ingest18=>hkdump}; 
+verbose = 1; debug = 0; log_file = undef; test = undef; photon_file = AIS_428_0002_sg17-fd-raw6.fits; dead_time_cor = 1; 
+use_solution = 1; slicedt2 = undef; seg_times = undef; min_part_tag = 1; interval = 5; compress_images = 1; 
+map_exec = simplemap; 
+Passed-on parameters:
+ '-simplemap:' '-statfile /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa/ -moviemask /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-fd-movie_mask.fits.gz' '-simplemap:' '-calinf maskr=0.6' 
+
+CMDLINE => simplemap -cal_info calpath=cal -input_base AIS_428_0002_sg17 -photon_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-fd-raw6.fits -output_base AIS_428_0002_sg17 -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -band 2 -other_opts noprog=1 -dead_time_cor=1 -use_solution=1 -compress_images=1 -opt_wheel_pos 1 -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -statfile /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa/ -moviemask /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-fd-movie_mask.fits.gz -calinf maskr=0.6 -statfile /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa/ -moviemask /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-fd-movie_mask.fits.gz -calinf maskr=0.6
+
+<< End of PhotMap >> status=0
+Date/time: 2010/06/23_01:33:32Z  PCPU: 0.3/0.19/53  CCPU: 18.67/2.05
+HOST: modi  PID: 27812  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+
+
+CMDLINE => sextra -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_base AIS_428_0002_sg17 -verbose -qa_output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa -compress_images=1 -stat_name 1 -input_base AIS_428_0002_sg17-fd -grta: -nostate\ -not\ runstar -photmap:simplemap: -calinf\ maskr=0.6 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5
+
+
+>>>>  START iam=>'SExtra', host=>'modi', pid=>28003, starttime=>'100623_013350Z', ppid=>27248, pgrpid=>21678, user=>'gop', 
+>>>>+ cwd=>'/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try', exec=>'/home/galex/ops/bin/sextra', 
+
+Invoking command line:
+/home/galex/ops/bin/sextra -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_base AIS_428_0002_sg17 -verbose -qa_output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa -compress_images=1 -stat_name 1 -input_base AIS_428_0002_sg17-fd -grta: -nostate -not runstar -photmap:simplemap: -calinf maskr=0.6 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5
+
+
+<< SExtra >> version='$Id: sextra,v 1.218 2009/07/23 21:22:19 cmillion Exp $ ', release=ops-v7_0_3, moddate=2010/03/04_21:11:57Z
+Date/time: 2010/06/23_01:33:51Z  PCPU: 0.5/0.27/9  CCPU: 0.01/0.03
+HOST: modi  PID: 28003  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+CWD: /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/  EXEC: /home/galex/ops/bin/sextra (/home/galex/ops/bin/)
+
+Named parameters for SExtra:
+input_base = AIS_428_0002_sg17-fd; threshold = undef; nuv_threshold = 2; fuv_threshold = 2.5; minpix = 2; 
+absolute_thresh = undef; background = undef; remove_background = 1; mask_objects = 1; get_mask = 1; mask_threshold = 3; 
+expand_mask_radius = 0; trim_rr_level = 0.2; catalog_name = undef; measurement_map = undef; skip_map_creation = undef; 
+no_sex = undef; filter = 1; conv_fwhm = -4.5,-4.5; seeing_fwhm = 5.5,5; apertures = 2,3,5,8,12,17,23; 
+flux_fracs = 0.2,0.5,0.8,0.9,0.95; deblend_mincont = 0.04; deblend_nthresh = 32; phot_autoparams = 2.5,3.5; mag_zero = 0; 
+clean = 1; mask_type = correct; deep = undef; deep_exp_thresh = 10000; backsize = 128; bg_filter_size = 5; detector_bg = undef; 
+sex_par_name = default; sex_par_path = /home/galex/ops/params/sex,/home/galex/params/sex; sex_params = undef; count_map = undef; 
+response_map = undef; weight_map = undef; detector_background_map = undef; inten_map = undef; sigma_map = 0; 
+input_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; output_base = AIS_428_0002_sg17; 
+output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; 
+qa_output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa; in_out_path = undef; 
+extension_addition = undef; ais = undef; band = undef; opt_wheel_pos = undef; cal_path = cal; check_images = NONE; 
+check_base = undef; mag_column = MAG_AUTO; plot_device = /xs; no_stats = undef; stat_name = 1; compress_images = 1; 
+sex_exec = /home/galex/bin/sex; rmback_exec = poissonbg; fake_options = undef; 
+other_opts = {asciicat=>0,savemem=>0,bgthr=>0,rmbgwt=>0,fieldr=>0.5,regmaglim=>0,fixposerr=>1,savemaskrun=>0,rrtrimr=>0,unmchregfile=>unmatched.ds9reg,prunmch=>0,nohardsex=>0,inscrwidth=>0,rrthr=>0,skipmasksex=>0,pgplotdir=>/home/galex/pgplot,truemchr=>0,truelim=>0,forceconv=>0,detectonly=>0,convsuf=>gauss,sigthr=>0,truecat=>0,detsize=>1.25}; 
+log_file = undef; verbose = 1; debug = undef; 
+
+
+CMDLINE => sextra -input_base AIS_428_0002_sg17-fd -remove_background -filter -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -qa_output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa -stat_name 1 -verbose -check_images seg -output_base AIS_428_0002_sg17_getmask-fd -other_opts fixposerr=0,detectonly=1 -no_stats=1 -threshold 3 -maskobj=0 -getmask=0 -cmprim=0 -xmaskr=0
+
+
+>>>>  START iam=>'SExtra', host=>'modi', pid=>28062, starttime=>'100623_013404Z', ppid=>28003, pgrpid=>21678, user=>'gop', 
+>>>>+ cwd=>'/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try', exec=>'/home/galex/ops/bin/sextra', 
+
+Invoking command line:
+/home/galex/ops/bin/sextra -input_base AIS_428_0002_sg17-fd -remove_background -filter -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -qa_output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa -stat_name 1 -verbose -check_images seg -output_base AIS_428_0002_sg17_getmask-fd -other_opts fixposerr=0,detectonly=1 -no_stats=1 -threshold 3 -maskobj=0 -getmask=0 -cmprim=0 -xmaskr=0
+
+
+<< SExtra >> version='$Id: sextra,v 1.218 2009/07/23 21:22:19 cmillion Exp $ ', release=ops-v7_0_3, moddate=2010/03/04_21:11:57Z
+Date/time: 2010/06/23_01:34:04Z  PCPU: 0.49/0.17/4  CCPU: 0.02/0.03
+HOST: modi  PID: 28062  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+CWD: /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/  EXEC: /home/galex/ops/bin/sextra (/home/galex/ops/bin/)
+
+Named parameters for SExtra:
+input_base = AIS_428_0002_sg17-fd; threshold = 3; nuv_threshold = 2; fuv_threshold = 2.5; minpix = 2; absolute_thresh = undef; 
+background = undef; remove_background = 1; mask_objects = 0; get_mask = 0; mask_threshold = 3; expand_mask_radius = 0; 
+trim_rr_level = 0.2; catalog_name = undef; measurement_map = undef; skip_map_creation = undef; no_sex = undef; filter = 1; 
+conv_fwhm = -4.5,-4.5; seeing_fwhm = 5.5,5; apertures = 2,3,5,8,12,17,23; flux_fracs = 0.2,0.5,0.8,0.9,0.95; 
+deblend_mincont = 0.04; deblend_nthresh = 32; phot_autoparams = 2.5,3.5; mag_zero = 0; clean = 1; mask_type = correct; 
+deep = undef; deep_exp_thresh = 10000; backsize = 128; bg_filter_size = 5; detector_bg = undef; sex_par_name = default; 
+sex_par_path = /home/galex/ops/params/sex,/home/galex/params/sex; sex_params = undef; count_map = undef; response_map = undef; 
+weight_map = undef; detector_background_map = undef; inten_map = undef; sigma_map = 0; 
+input_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; 
+output_base = AIS_428_0002_sg17_getmask-fd; 
+output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; 
+qa_output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa; in_out_path = undef; 
+extension_addition = undef; ais = undef; band = undef; opt_wheel_pos = undef; cal_path = cal; check_images = seg; 
+check_base = undef; mag_column = MAG_AUTO; plot_device = /xs; no_stats = 1; stat_name = 1; compress_images = 0; 
+sex_exec = /home/galex/bin/sex; rmback_exec = poissonbg; fake_options = undef; 
+other_opts = {asciicat=>0,savemem=>0,bgthr=>0,rmbgwt=>0,regmaglim=>0,fieldr=>0.5,fixposerr=>0,savemaskrun=>0,unmchregfile=>unmatched.ds9reg,rrtrimr=>0,prunmch=>0,nohardsex=>0,inscrwidth=>0,rrthr=>0,skipmasksex=>0,pgplotdir=>/home/galex/pgplot,truemchr=>0,truelim=>0,forceconv=>0,detsize=>1.25,truecat=>0,sigthr=>0,convsuf=>gauss,detectonly=>1}; 
+log_file = undef; verbose = 1; debug = undef; 
+
+
+CMDLINE => poissonbg -input_base AIS_428_0002_sg17-fd -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_base AIS_428_0002_sg17_getmask-fd -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -backsize 128 -verbose=0 -quiet=0 -large_rr_img=1 -threshold 3 -area_detect 20.4 -filtersize 5 -weight_only=1 -make_detect=1 -compress_images=0 -response_limit 19.3752129360275
+
+CMDLINE => /home/galex/bin/sex -c /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_getmask-fd-sexparams.txt -ANALYSIS_THRESH 0.0029319068480258 -BACKPHOTO_THICK 24 -BACKPHOTO_TYPE GLOBAL -BACK_FILTERSIZE 5 -BACK_SIZE 128 -BACK_TYPE MANUAL -BACK_VALUE 0,0 -CATALOG_NAME /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_getmask-fd-cat.fits -CATALOG_TYPE FITS_1.0 -CHECKIMAGE_NAME /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_getmask-fd-objmask.fits -CHECKIMAGE_TYPE SEGMENTATION -CLEAN YES -CLEAN_PARAM 1 -DEBLEND_MINCONT 0.04 -DEBLEND_NTHRESH 32 -DETECT_MINAREA 10 -DETECT_THRESH 1 -DETECT_TYPE CCD -FILTER Y -FILTER_NAME /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_getmask-fd-gauss_30_7x7.txt -GAIN 86.401741027832 -INTERP_MAXXLAG 1 -INTERP_MAXYLAG 1 -INTERP_TYPE NONE,NONE -MAG_GAMMA 4 -MAG_ZEROPOINT 0 -MASK_TYPE CORRECT -MEMORY_BUFSIZE 1024 -MEMORY_OBJSTACK 2000 -MEMORY_PIXSTACK 1500000 -PARAMETERS_NAME /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_getmask-fd-sexcols.txt -PHOT_APERTURES 2,3,5,8,12,17,23 -PHOT_AUTOPARAMS 2.5,3.5 -PHOT_FLUXFRAC 0.2,0.5,0.8,0.9,0.95 -PIXEL_SCALE 1.500 -SATUR_LEVEL 999999999 -SEEING_FWHM 5 -STARNNW_NAME /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_getmask-fd-sexnnw.txt -THRESH_TYPE ABSOLUTE -VERBOSE_TYPE NORMAL -WEIGHT_GAIN Y -WEIGHT_IMAGE NONE -WEIGHT_TYPE NONE /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_getmask-fd-wt.fits
+
+<< End of SExtra >> status=0
+Date/time: 2010/06/23_01:35:06Z  PCPU: 1.18/0.34/66  CCPU: 13.95/4.18
+HOST: modi  PID: 28062  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+
+
+CMDLINE => poissonbg -input_base AIS_428_0002_sg17-fd -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_base AIS_428_0002_sg17-fd -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -backsize 128 -verbose=0 -quiet=0 -large_rr_img=1 -threshold 2.5 -area_detect 20.4 -filtersize 5 -mask_objects=1 -make_detect=1 -compress_images=1 -response_limit 19.3752129360275
+
+CMDLINE => /home/galex/bin/sex -c /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-fd-sexparams.txt -ANALYSIS_THRESH 0.00239107585906497 -BACKPHOTO_THICK 24 -BACKPHOTO_TYPE GLOBAL -BACK_FILTERSIZE 5 -BACK_SIZE 128 -BACK_TYPE MANUAL -BACK_VALUE 0,0 -CATALOG_NAME /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-fd-cat.fits -CATALOG_TYPE FITS_1.0 -CHECKIMAGE_NAME NONE -CHECKIMAGE_TYPE NONE -CLEAN YES -CLEAN_PARAM 1 -DEBLEND_MINCONT 0.04 -DEBLEND_NTHRESH 32 -DETECT_MINAREA 10 -DETECT_THRESH 1 -DETECT_TYPE CCD -FILTER Y -FILTER_NAME /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-fd-gauss_30_7x7.txt -GAIN 86.401741027832 -INTERP_MAXXLAG 1 -INTERP_MAXYLAG 1 -INTERP_TYPE NONE,NONE -MAG_GAMMA 4 -MAG_ZEROPOINT 0 -MASK_TYPE CORRECT -MEMORY_BUFSIZE 1024 -MEMORY_OBJSTACK 2000 -MEMORY_PIXSTACK 1500000 -PARAMETERS_NAME /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-fd-sexcols.txt -PHOT_APERTURES 2,3,5,8,12,17,23 -PHOT_AUTOPARAMS 2.5,3.5 -PHOT_FLUXFRAC 0.2,0.5,0.8,0.9,0.95 -PIXEL_SCALE 1.500 -SATUR_LEVEL 999999999 -SEEING_FWHM 5 -STARNNW_NAME /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-fd-sexnnw.txt -THRESH_TYPE ABSOLUTE -VERBOSE_TYPE NORMAL -WEIGHT_GAIN Y -WEIGHT_IMAGE /tmp/sextra.modi.28003.35Kt/AIS_428_0002_sg17-fd-rrhr.fits,/tmp/sextra.modi.28003.35Kt/AIS_428_0002_sg17-fd-rrhr.fits -WEIGHT_TYPE MAP_WEIGHT,MAP_WEIGHT /tmp/sextra.modi.28003.35Kt/AIS_428_0002_sg17-fd-wt.fits /tmp/sextra.modi.28003.35Kt/AIS_428_0002_sg17-fd-intbgsub.fits
+
+<< End of SExtra >> status=0
+Date/time: 2010/06/23_01:36:12Z  PCPU: 4.44/1.34/150  CCPU: 52.26/8.19
+HOST: modi  PID: 28003  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+
+
+CMDLINE => gmkflagmap -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_base AIS_428_0002_sg17 -verbose -do_flags 3,4,6,8,9 -band 2 -qa_output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa -opt_wheel_pos 1 -input_base AIS_428_0002_sg17 -grta: -nostate\ -not\ runstar -photmap:simplemap: -calinf\ maskr=0.6 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5
+
+
+>>>>  START iam=>'GMkFlagMap', host=>'modi', pid=>28897, starttime=>'100623_013617Z', ppid=>27248, pgrpid=>21678, user=>'gop', 
+>>>>+ cwd=>'/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try', exec=>'/home/galex/ops/bin/gmkflagmap', 
+
+Invoking command line:
+/home/galex/ops/bin/gmkflagmap -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_base AIS_428_0002_sg17 -verbose -do_flags 3,4,6,8,9 -band 2 -qa_output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa -opt_wheel_pos 1 -input_base AIS_428_0002_sg17 -grta: -nostate -not runstar -photmap:simplemap: -calinf maskr=0.6 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5
+
+
+<< GMkFlagMap >> version='$Id: gmkflagmap,v 1.44 2007/08/20 17:49:32 tim Exp $ ', release=ops-v7_0_3, moddate=2010/03/04_21:12:05Z
+Date/time: 2010/06/23_01:36:17Z  PCPU: 0.26/0.14/2  CCPU: 0.06/0.13
+HOST: modi  PID: 28897  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+CWD: /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/  EXEC: /home/galex/ops/bin/gmkflagmap (/home/galex/ops/bin/)
+
+Named parameters for GMkFlagMap:
+input_base = AIS_428_0002_sg17; input_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; 
+output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; output_base = AIS_428_0002_sg17; 
+cal_path = cal; band = 2; opt_wheel_pos = 1; ais = undef; tbase = 0; sctbase = 315964800; pipe_data_version_number = 1; 
+run = undef; not = undef; 
+execs = {rta=>grta,ingest=>gingest,add=>addemup,ingest32=>ingest,flag=>gmkflagmap,spac=>gspac,spex=>gspex,map=>photmap,fitstblcat=>fitstblcat,merge=>gmerge,spcombine=>gcombine,varpix=>movievarpix,astromchk=>astromchk,xhk=>xhk,sex=>sextra,instsim=>ginstsim,pipeqa=>gpipeqa,spacadd=>gspacadd,sppipeqa=>gpipeqa,trend=>ghktrend,ingest18=>hkdump}; 
+verbose = 1; debug = 0; log_file = undef; test = undef; do_flags = 3,4,6,8,9; like_fits = undef; npix = 480; 
+cdelt = 0.00333333333333333; qa_output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa; 
+
+
+CMDLINE => grunstar -input_base AIS_428_0002_sg17 -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_base AIS_428_0002_sg17 -band 2 -opt_wheel_pos 1 -verbose -cntmin 0.1 -radius 0.75 -ra 114.396546445516 -of /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-fd-flagstar.fits -dec -62.6566930251685
+
+
+>>>>  START iam=>'GRunstar', host=>'modi', pid=>28985, starttime=>'100623_013622Z', ppid=>28897, pgrpid=>21678, user=>'gop', 
+>>>>+ cwd=>'/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try', exec=>'/home/galex/ops/bin/grunstar', 
+
+Invoking command line:
+/home/galex/ops/bin/grunstar -input_base AIS_428_0002_sg17 -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_base AIS_428_0002_sg17 -band 2 -opt_wheel_pos 1 -verbose -cntmin 0.1 -radius 0.75 -ra 114.396546445516 -of /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-fd-flagstar.fits -dec -62.6566930251685
+
+
+<< GRunstar >> version='$Id: grunstar,v 1.10 2005/05/11 23:07:25 tim Exp $ ', release=ops-v7_0_3, moddate=2010/03/04_21:12:05Z
+Date/time: 2010/06/23_01:36:22Z  PCPU: 0.27/0.15/2  CCPU: 0.06/0.13
+HOST: modi  PID: 28985  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+CWD: /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/  EXEC: /home/galex/ops/bin/grunstar (/home/galex/ops/bin/)
+
+Named parameters for GRunstar:
+ra = 114.396546445516; dec = -62.6566930251685; vmax = 18; vmin = -1; nuvmax = 1e+30; nuvmin = -1e+30; fuvmax = 1e+30; 
+fuvmin = 0.1; radius = 0.75; duplicate_limit = 3; tbl = undef; 
+of = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-fd-flagstar.fits; pt = undef; 
+bf = undef; sao = undef; act = undef; usn = undef; actonly = undef; bright = 0; mindist = undef; relflux = undef; cntmin = 0.1; 
+cntmax = undef; rta_opts = undef; input_base = AIS_428_0002_sg17; 
+input_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; 
+output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; output_base = AIS_428_0002_sg17; 
+cal_path = cal; band = 2; opt_wheel_pos = 1; ais = undef; tbase = 0; sctbase = 315964800; pipe_data_version_number = 1; 
+run = undef; not = undef; 
+execs = {rta=>grta,ingest=>gingest,add=>addemup,ingest32=>ingest,flag=>gmkflagmap,spac=>gspac,spex=>gspex,map=>photmap,fitstblcat=>fitstblcat,merge=>gmerge,spcombine=>gcombine,varpix=>movievarpix,astromchk=>astromchk,xhk=>xhk,sex=>sextra,instsim=>ginstsim,pipeqa=>gpipeqa,spacadd=>gspacadd,sppipeqa=>gpipeqa,trend=>ghktrend,ingest18=>hkdump}; 
+verbose = 1; debug = 0; log_file = undef; test = undef; 
+
+
+CMDLINE => runstar -ra 114.396546445516 -dec -62.6566930251685 -fuvmin 0.1 -radius 0.75 -of /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-fd-flagstar.fits
+
+<< End of GRunstar >> status=0
+Date/time: 2010/06/23_01:36:26Z  PCPU: 0.28/0.16/6  CCPU: 3.15/0.34
+HOST: modi  PID: 28985  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+
+
+CMDLINE => galexflag -eq_region_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-fd-flag_dichroic_eq.ds9reg -fits_mode 1 -band 2 -flag_type 3 -roll 180.640867222938 -scst_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-scst.fits -star_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-fd-flagstar.fits -fits_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-fd-flag_tbl.fits -quiet=0 -dec0 -62.649169921875 -region_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-fd-flag_dichroic.ds9reg -npix 480 -cdelt 0.00333333333333333 -fovdec -62.6566930251685 -cr_string FUV -ra0 114.370979309082 -fovra 114.396546445516
+
+CMDLINE => /bin/mv -v /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-fd-flag_dichroic_eq.ds9reg /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa/
+
+CMDLINE => galexflag -eq_region_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-fd-flag_rim_eq.ds9reg -fits_mode 2 -band 2 -flag_type 6 -roll 180.640867222938 -scst_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-scst.fits -star_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-fd-flagstar.fits -fits_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-fd-flag_tbl.fits -quiet=0 -dec0 -62.649169921875 -region_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-fd-flag_rim.ds9reg -npix 480 -cdelt 0.00333333333333333 -fovdec -62.6566930251685 -cr_string FUV -ra0 114.370979309082 -fovra 114.396546445516
+
+CMDLINE => /bin/mv -v /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-fd-flag_rim_eq.ds9reg /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa/
+
+CMDLINE => gmkmask -verbose -out_image /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-fd-flags.fits -region_files /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-fd-flag_dichroic.ds9reg,/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-fd-flag_rim.ds9reg -or_mask=1 -apply_values 4,32 -cdelt 0.00333333333333333 -npix 480 -mask_image /tmp/gmkflagmap-modi-28897-mask.fits
+
+
+>>>>  START iam=>'GMkMask', host=>'modi', pid=>29194, starttime=>'100623_013632Z', ppid=>28897, pgrpid=>21678, user=>'gop', 
+>>>>+ cwd=>'/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try', exec=>'/home/galex/ops/bin/gmkmask', 
+
+Invoking command line:
+/home/galex/ops/bin/gmkmask -verbose -out_image /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-fd-flags.fits -region_files /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-fd-flag_dichroic.ds9reg,/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-fd-flag_rim.ds9reg -or_mask=1 -apply_values 4,32 -cdelt 0.00333333333333333 -npix 480 -mask_image /tmp/gmkflagmap-modi-28897-mask.fits
+
+
+<< GMkMask >> version='$Id: gmkmask,v 1.16 2007/09/27 18:02:59 tim Exp $ ', release=ops-v7_0_3, moddate=2010/03/04_21:12:05Z
+Date/time: 2010/06/23_01:36:33Z  PCPU: 0.26/0.19/3  CCPU: 0.01/0.08
+HOST: modi  PID: 29194  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+CWD: /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/  EXEC: /home/galex/ops/bin/gmkmask (/home/galex/ops/bin/)
+
+Named parameters for GMkMask:
+regions = undef; fill = undef; mask_image = /tmp/gmkflagmap-modi-28897-mask.fits; in_image = undef; 
+out_image = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-fd-flags.fits; 
+or_mask = 1; axes = undef; mask_value = 0; initial_value = 1; apply_value = 0; cdelt = 0.00333333333333333; options = undef; 
+verbose = 1; quiet = undef; debug = 0; 
+region_files = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-fd-flag_dichroic.ds9reg,/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-fd-flag_rim.ds9reg; 
+apply_values = 4,32; like_fits = undef; npix = 480; log_file = undef; 
+
+
+CMDLINE => mkmask -mask_image /tmp/gmkflagmap-modi-28897-mask.fits -in_image /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-fd-flags.fits -out_image /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-fd-flags.fits -or_mask -cdelt 0.00333333333333333 -verbose -apply_value 4 -verbose=1 -quiet=0 -regions @/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-fd-flag_dichroic.ds9reg
+
+CMDLINE => mkmask -mask_image /tmp/gmkflagmap-modi-28897-mask.fits -in_image /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-fd-flags.fits -out_image /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-fd-flags.fits -or_mask -cdelt 0.00333333333333333 -verbose -apply_value 32 -verbose=1 -quiet=0 -regions @/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-fd-flag_rim.ds9reg
+
+<< End of GMkMask >> status=0
+Date/time: 2010/06/23_01:36:35Z  PCPU: 0.28/0.21/5  CCPU: 0.35/0.22
+HOST: modi  PID: 29194  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+
+
+<< End of GMkFlagMap >> status=0
+Date/time: 2010/06/23_01:36:36Z  PCPU: 0.7/0.3/21  CCPU: 4.74/1.72
+HOST: modi  PID: 28897  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+
+
+CMDLINE => astromchk -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_base AIS_428_0002_sg17 -band 2 -verbose -runstar_name AIS_428_0002_sg17-fd-flagstar.fits -min_match_count 0 -max_fov_radius 0.625 -input_base AIS_428_0002_sg17-fd -grta: -nostate\ -not\ runstar -photmap:simplemap: -calinf\ maskr=0.6 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5
+
+
+>>>>  START iam=>'AstromChk', host=>'modi', pid=>29307, starttime=>'100623_013638Z', ppid=>27248, pgrpid=>21678, user=>'gop', 
+>>>>+ cwd=>'/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try', exec=>'/home/galex/ops/bin/astromchk', 
+
+Invoking command line:
+/home/galex/ops/bin/astromchk -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_base AIS_428_0002_sg17 -band 2 -verbose -runstar_name AIS_428_0002_sg17-fd-flagstar.fits -min_match_count 0 -max_fov_radius 0.625 -input_base AIS_428_0002_sg17-fd -grta: -nostate -not runstar -photmap:simplemap: -calinf maskr=0.6 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5
+
+
+<< AstromChk >> version='$Id: astromchk,v 1.49 2006/05/12 19:51:51 tim Exp $ ', release=ops-v7_0_3, moddate=2010/03/04_21:11:57Z
+Date/time: 2010/06/23_01:36:39Z  PCPU: 0.26/0.1/2  CCPU: 0.01/0.04
+HOST: modi  PID: 29307  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+CWD: /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/  EXEC: /home/galex/ops/bin/astromchk (/home/galex/ops/bin/)
+
+Named parameters for AstromChk:
+input_base = AIS_428_0002_sg17-fd; band = 2; match_radius = 4; min_match_count = 0; max_fov_radius = 0.625; 
+flux_limit = 0.1,0.01; input_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; 
+output_base = AIS_428_0002_sg17; output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; 
+opt_wheel_pos = d; flux_col = FLUX_AUTO; catalog_name = undef; runstar_name = AIS_428_0002_sg17-fd-flagstar.fits; 
+mch_file_name = undef; other_opts = undef; log_file = undef; verbose = 1; debug = 0; 
+
+
+<< End of AstromChk >> status=0
+Date/time: 2010/06/23_01:36:39Z  PCPU: 0.37/0.11/2  CCPU: 0.01/0.05
+HOST: modi  PID: 29307  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+
+
+CMDLINE => sextra -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_base AIS_428_0002_sg17 -verbose -measurement_map f -skip_map_creation=1 -qa_output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa -input_base AIS_428_0002_sg17-nd -stat_name 1 -grta: -nostate\ -not\ runstar -photmap:simplemap: -calinf\ maskr=0.6 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5
+
+
+>>>>  START iam=>'SExtra', host=>'modi', pid=>29363, starttime=>'100623_013644Z', ppid=>27248, pgrpid=>21678, user=>'gop', 
+>>>>+ cwd=>'/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try', exec=>'/home/galex/ops/bin/sextra', 
+
+Invoking command line:
+/home/galex/ops/bin/sextra -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_base AIS_428_0002_sg17 -verbose -measurement_map f -skip_map_creation=1 -qa_output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa -input_base AIS_428_0002_sg17-nd -stat_name 1 -grta: -nostate -not runstar -photmap:simplemap: -calinf maskr=0.6 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5
+
+
+<< SExtra >> version='$Id: sextra,v 1.218 2009/07/23 21:22:19 cmillion Exp $ ', release=ops-v7_0_3, moddate=2010/03/04_21:11:57Z
+Date/time: 2010/06/23_01:36:46Z  PCPU: 0.52/0.26/5  CCPU: 0.02/0.04
+HOST: modi  PID: 29363  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+CWD: /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/  EXEC: /home/galex/ops/bin/sextra (/home/galex/ops/bin/)
+
+Named parameters for SExtra:
+input_base = AIS_428_0002_sg17-nd; threshold = undef; nuv_threshold = 2; fuv_threshold = 2.5; minpix = 2; 
+absolute_thresh = undef; background = undef; remove_background = 1; mask_objects = 1; get_mask = 1; mask_threshold = 3; 
+expand_mask_radius = 0; trim_rr_level = 0.2; catalog_name = undef; measurement_map = f; skip_map_creation = 1; no_sex = undef; 
+filter = 1; conv_fwhm = -4.5,-4.5; seeing_fwhm = 5.5,5; apertures = 2,3,5,8,12,17,23; flux_fracs = 0.2,0.5,0.8,0.9,0.95; 
+deblend_mincont = 0.04; deblend_nthresh = 32; phot_autoparams = 2.5,3.5; mag_zero = 0; clean = 1; mask_type = correct; 
+deep = undef; deep_exp_thresh = 10000; backsize = 128; bg_filter_size = 5; detector_bg = undef; sex_par_name = default; 
+sex_par_path = /home/galex/ops/params/sex,/home/galex/params/sex; sex_params = undef; count_map = undef; response_map = undef; 
+weight_map = undef; detector_background_map = undef; inten_map = undef; sigma_map = 0; 
+input_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; output_base = AIS_428_0002_sg17; 
+output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; 
+qa_output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa; in_out_path = undef; 
+extension_addition = undef; ais = undef; band = undef; opt_wheel_pos = undef; cal_path = cal; check_images = NONE; 
+check_base = undef; mag_column = MAG_AUTO; plot_device = /xs; no_stats = undef; stat_name = 1; compress_images = undef; 
+sex_exec = /home/galex/bin/sex; rmback_exec = poissonbg; fake_options = undef; 
+other_opts = {asciicat=>0,savemem=>0,bgthr=>0,rmbgwt=>0,fieldr=>0.5,regmaglim=>0,fixposerr=>1,savemaskrun=>0,rrtrimr=>0,unmchregfile=>unmatched.ds9reg,prunmch=>0,nohardsex=>0,inscrwidth=>0,rrthr=>0,skipmasksex=>0,pgplotdir=>/home/galex/pgplot,truemchr=>0,truelim=>0,forceconv=>0,detectonly=>0,convsuf=>gauss,sigthr=>0,truecat=>0,detsize=>1.25}; 
+log_file = undef; verbose = 1; debug = undef; 
+
+
+CMDLINE => /home/galex/bin/sex -c /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-nd-sexparams.txt -ANALYSIS_THRESH 0.00388125441822199 -BACKPHOTO_THICK 24 -BACKPHOTO_TYPE GLOBAL -BACK_FILTERSIZE 5 -BACK_SIZE 128 -BACK_TYPE MANUAL -BACK_VALUE 0,0 -CATALOG_NAME /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-fd-ncat.fits -CATALOG_TYPE FITS_1.0 -CHECKIMAGE_NAME NONE -CHECKIMAGE_TYPE NONE -CLEAN YES -CLEAN_PARAM 1 -DEBLEND_MINCONT 0.04 -DEBLEND_NTHRESH 32 -DETECT_MINAREA 10 -DETECT_THRESH 1 -DETECT_TYPE CCD -FILTER Y -FILTER_NAME /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-nd-gauss_30_7x7.txt -GAIN 70.8382034301758 -INTERP_MAXXLAG 1 -INTERP_MAXYLAG 1 -INTERP_TYPE NONE,NONE -MAG_GAMMA 4 -MAG_ZEROPOINT 0 -MASK_TYPE CORRECT -MEMORY_BUFSIZE 1024 -MEMORY_OBJSTACK 2000 -MEMORY_PIXSTACK 1500000 -PARAMETERS_NAME /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-nd-sexcols.txt -PHOT_APERTURES 2,3,5,8,12,17,23 -PHOT_AUTOPARAMS 2.5,3.5 -PHOT_FLUXFRAC 0.2,0.5,0.8,0.9,0.95 -PIXEL_SCALE 1.500 -SATUR_LEVEL 999999999 -SEEING_FWHM 5.5 -STARNNW_NAME /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-nd-sexnnw.txt -THRESH_TYPE ABSOLUTE -VERBOSE_TYPE NORMAL -WEIGHT_GAIN Y -WEIGHT_IMAGE /tmp/sextra.modi.29363.upwk/AIS_428_0002_sg17-nd-rrhr.fits,/tmp/sextra.modi.29363.upwk/AIS_428_0002_sg17-nd-rrhr.fits -WEIGHT_TYPE MAP_WEIGHT,MAP_WEIGHT /tmp/sextra.modi.29363.upwk/AIS_428_0002_sg17-nd-wt.fits /tmp/sextra.modi.29363.upwk/AIS_428_0002_sg17-fd-intbgsub.fits
+
+<< End of SExtra >> status=0
+Date/time: 2010/06/23_01:37:12Z  PCPU: 5.56/1.4/31  CCPU: 9.52/1.02
+HOST: modi  PID: 29363  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+
+
+CMDLINE => sextra -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_base AIS_428_0002_sg17 -verbose -measurement_map n -skip_map_creation=1 -qa_output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa -input_base AIS_428_0002_sg17-fd -stat_name 1 -grta: -nostate\ -not\ runstar -photmap:simplemap: -calinf\ maskr=0.6 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5
+
+
+>>>>  START iam=>'SExtra', host=>'modi', pid=>29622, starttime=>'100623_013717Z', ppid=>27248, pgrpid=>21678, user=>'gop', 
+>>>>+ cwd=>'/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try', exec=>'/home/galex/ops/bin/sextra', 
+
+Invoking command line:
+/home/galex/ops/bin/sextra -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_base AIS_428_0002_sg17 -verbose -measurement_map n -skip_map_creation=1 -qa_output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa -input_base AIS_428_0002_sg17-fd -stat_name 1 -grta: -nostate -not runstar -photmap:simplemap: -calinf maskr=0.6 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5
+
+
+<< SExtra >> version='$Id: sextra,v 1.218 2009/07/23 21:22:19 cmillion Exp $ ', release=ops-v7_0_3, moddate=2010/03/04_21:11:57Z
+Date/time: 2010/06/23_01:37:17Z  PCPU: 0.5/0.28/2  CCPU: 0.01/0.04
+HOST: modi  PID: 29622  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+CWD: /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/  EXEC: /home/galex/ops/bin/sextra (/home/galex/ops/bin/)
+
+Named parameters for SExtra:
+input_base = AIS_428_0002_sg17-fd; threshold = undef; nuv_threshold = 2; fuv_threshold = 2.5; minpix = 2; 
+absolute_thresh = undef; background = undef; remove_background = 1; mask_objects = 1; get_mask = 1; mask_threshold = 3; 
+expand_mask_radius = 0; trim_rr_level = 0.2; catalog_name = undef; measurement_map = n; skip_map_creation = 1; no_sex = undef; 
+filter = 1; conv_fwhm = -4.5,-4.5; seeing_fwhm = 5.5,5; apertures = 2,3,5,8,12,17,23; flux_fracs = 0.2,0.5,0.8,0.9,0.95; 
+deblend_mincont = 0.04; deblend_nthresh = 32; phot_autoparams = 2.5,3.5; mag_zero = 0; clean = 1; mask_type = correct; 
+deep = undef; deep_exp_thresh = 10000; backsize = 128; bg_filter_size = 5; detector_bg = undef; sex_par_name = default; 
+sex_par_path = /home/galex/ops/params/sex,/home/galex/params/sex; sex_params = undef; count_map = undef; response_map = undef; 
+weight_map = undef; detector_background_map = undef; inten_map = undef; sigma_map = 0; 
+input_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; output_base = AIS_428_0002_sg17; 
+output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; 
+qa_output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa; in_out_path = undef; 
+extension_addition = undef; ais = undef; band = undef; opt_wheel_pos = undef; cal_path = cal; check_images = NONE; 
+check_base = undef; mag_column = MAG_AUTO; plot_device = /xs; no_stats = undef; stat_name = 1; compress_images = undef; 
+sex_exec = /home/galex/bin/sex; rmback_exec = poissonbg; fake_options = undef; 
+other_opts = {asciicat=>0,savemem=>0,bgthr=>0,rmbgwt=>0,fieldr=>0.5,regmaglim=>0,fixposerr=>1,savemaskrun=>0,rrtrimr=>0,unmchregfile=>unmatched.ds9reg,prunmch=>0,nohardsex=>0,inscrwidth=>0,rrthr=>0,skipmasksex=>0,pgplotdir=>/home/galex/pgplot,truemchr=>0,truelim=>0,forceconv=>0,detectonly=>0,convsuf=>gauss,sigthr=>0,truecat=>0,detsize=>1.25}; 
+log_file = undef; verbose = 1; debug = undef; 
+
+
+CMDLINE => /home/galex/bin/sex -c /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-fd-sexparams.txt -ANALYSIS_THRESH 0.00239107585906497 -BACKPHOTO_THICK 24 -BACKPHOTO_TYPE GLOBAL -BACK_FILTERSIZE 5 -BACK_SIZE 128 -BACK_TYPE MANUAL -BACK_VALUE 0,0 -CATALOG_NAME /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-nd-fcat.fits -CATALOG_TYPE FITS_1.0 -CHECKIMAGE_NAME NONE -CHECKIMAGE_TYPE NONE -CLEAN YES -CLEAN_PARAM 1 -DEBLEND_MINCONT 0.04 -DEBLEND_NTHRESH 32 -DETECT_MINAREA 10 -DETECT_THRESH 1 -DETECT_TYPE CCD -FILTER Y -FILTER_NAME /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-fd-gauss_30_7x7.txt -GAIN 86.401741027832 -INTERP_MAXXLAG 1 -INTERP_MAXYLAG 1 -INTERP_TYPE NONE,NONE -MAG_GAMMA 4 -MAG_ZEROPOINT 0 -MASK_TYPE CORRECT -MEMORY_BUFSIZE 1024 -MEMORY_OBJSTACK 2000 -MEMORY_PIXSTACK 1500000 -PARAMETERS_NAME /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-fd-sexcols.txt -PHOT_APERTURES 2,3,5,8,12,17,23 -PHOT_AUTOPARAMS 2.5,3.5 -PHOT_FLUXFRAC 0.2,0.5,0.8,0.9,0.95 -PIXEL_SCALE 1.500 -SATUR_LEVEL 999999999 -SEEING_FWHM 5 -STARNNW_NAME /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-fd-sexnnw.txt -THRESH_TYPE ABSOLUTE -VERBOSE_TYPE NORMAL -WEIGHT_GAIN Y -WEIGHT_IMAGE /tmp/sextra.modi.29622.0Is8/AIS_428_0002_sg17-fd-rrhr.fits,/tmp/sextra.modi.29622.0Is8/AIS_428_0002_sg17-fd-rrhr.fits -WEIGHT_TYPE MAP_WEIGHT,MAP_WEIGHT /tmp/sextra.modi.29622.0Is8/AIS_428_0002_sg17-fd-wt.fits /tmp/sextra.modi.29622.0Is8/AIS_428_0002_sg17-nd-intbgsub.fits
+
+<< End of SExtra >> status=0
+Date/time: 2010/06/23_01:37:33Z  PCPU: 4.51/1.12/18  CCPU: 6.79/1.02
+HOST: modi  PID: 29622  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+
+
+CMDLINE => gmerge -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_base AIS_428_0002_sg17 -verbose -fuv_temp_correction=1 -dyf0 11.454 -dyf1 -0.66723 -opt_wheel_pos 1 -input_base AIS_428_0002_sg17 -grta: -nostate\ -not\ runstar -photmap:simplemap: -calinf\ maskr=0.6 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5
+
+
+>>>>  START iam=>'GMerge', host=>'modi', pid=>29834, starttime=>'100623_013737Z', ppid=>27248, pgrpid=>21678, user=>'gop', 
+>>>>+ cwd=>'/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try', exec=>'/home/galex/ops/bin/gmerge', 
+
+Invoking command line:
+/home/galex/ops/bin/gmerge -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_base AIS_428_0002_sg17 -verbose -fuv_temp_correction=1 -dyf0 11.454 -dyf1 -0.66723 -opt_wheel_pos 1 -input_base AIS_428_0002_sg17 -grta: -nostate -not runstar -photmap:simplemap: -calinf maskr=0.6 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5
+
+
+<< GMerge >> version='$Id: gmerge,v 1.31 2007/09/22 20:39:20 tim Exp $ ', release=ops-v7_0_3, moddate=2010/03/04_21:12:05Z
+Date/time: 2010/06/23_01:37:38Z  PCPU: 0.29/0.13/3  CCPU: 0.06/0.09
+HOST: modi  PID: 29834  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+CWD: /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/  EXEC: /home/galex/ops/bin/gmerge (/home/galex/ops/bin/)
+
+Named parameters for GMerge:
+input_base = AIS_428_0002_sg17; input_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; 
+output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; output_base = AIS_428_0002_sg17; 
+cal_path = cal; band = undef; opt_wheel_pos = 1; ais = undef; tbase = 0; sctbase = 315964800; pipe_data_version_number = 1; 
+run = undef; not = undef; 
+execs = {rta=>grta,ingest=>gingest,add=>addemup,ingest32=>ingest,flag=>gmkflagmap,spac=>gspac,spex=>gspex,map=>photmap,fitstblcat=>fitstblcat,merge=>gmerge,spcombine=>gcombine,varpix=>movievarpix,astromchk=>astromchk,xhk=>xhk,sex=>sextra,instsim=>ginstsim,pipeqa=>gpipeqa,spacadd=>gspacadd,sppipeqa=>gpipeqa,trend=>ghktrend,ingest18=>hkdump}; 
+verbose = 1; debug = 0; log_file = undef; test = undef; snrs = 2,2; snr_cut = 0; search_rad = 7; force_rad = 3; 
+prob_limit = 1e-05; catalog_ext = cat; merge_ext = mcat; flux_scales = 1,1; no_artifact_flags = undef; fuv_temp_value = -9999; 
+fuv_temp_correction = 1; dyf0 = 11.454; dyf1 = -0.66723; 
+
+
+CMDLINE => galexmerge -nuv /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-nd-cat.fits -fuv /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-fd-cat.fits -out /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-xd-mcat.fits -prob 1e-05 -fuvs2n 2 -nuvs2n 2 -fuvs2ncut 0 -nuvs2ncut 0 -sep 7 -autosep 3 -prob 1e-05 -nuv_zpscale 1 -fuv_zpscale 1 -n_flderr 0.42 -f_flderr 0.68 -ibf_err 0.36 -fuv_temp_correction -fuv_temp_value -9999 -dyf0 11.454 -dyf1 -0.66723
+
+<< End of GMerge >> status=0
+Date/time: 2010/06/23_01:38:28Z  PCPU: 0.38/0.24/53  CCPU: 25.71/4.75
+HOST: modi  PID: 29834  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+
+
+CMDLINE => gpipeqa -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_base AIS_428_0002_sg17 -verbose -exit_code 0 -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa -opt_wheel_pos 1 -input_base AIS_428_0002_sg17 -grta: -nostate\ -not\ runstar -photmap:simplemap: -calinf\ maskr=0.6 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5 -photmap: -dead -grta: -maxdith\ 4e-5
+
+
+>>>>  START iam=>'GPipeQA', host=>'modi', pid=>30095, starttime=>'100623_013833Z', ppid=>27248, pgrpid=>21678, user=>'gop', 
+>>>>+ cwd=>'/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try', exec=>'/home/galex/ops/bin/gpipeqa', 
+
+Invoking command line:
+/home/galex/ops/bin/gpipeqa -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -output_base AIS_428_0002_sg17 -verbose -exit_code 0 -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa -opt_wheel_pos 1 -input_base AIS_428_0002_sg17 -grta: -nostate -not runstar -photmap:simplemap: -calinf maskr=0.6 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5 -photmap: -dead -grta: -maxdith 4e-5
+
+
+<< GPipeQA >> version='$Id: gpipeqa,v 1.96 2008/10/09 21:17:15 cmillion Exp $ ', release=ops-v7_0_3, moddate=2010/03/04_21:12:05Z
+Date/time: 2010/06/23_01:38:34Z  PCPU: 0.27/0.16/3  CCPU: 0.06/0.11
+HOST: modi  PID: 30095  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+CWD: /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/  EXEC: /home/galex/ops/bin/gpipeqa (/home/galex/ops/bin/)
+
+Named parameters for GPipeQA:
+steps = undef; product = auto; multi_sp_jpegs = undef; grismqa_suffix = undef; roll = undef; exit_code = 0; 
+rgb_sizes = 2,4,8,32; input_base = AIS_428_0002_sg17; 
+input_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; 
+output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa/; output_base = AIS_428_0002_sg17; 
+cal_path = cal; band = undef; opt_wheel_pos = 1; ais = undef; tbase = 0; sctbase = 315964800; pipe_data_version_number = 1; 
+run = undef; not = undef; 
+execs = {rta=>grta,ingest=>gingest,add=>addemup,ingest32=>ingest,flag=>gmkflagmap,spac=>gspac,spex=>gspex,map=>photmap,fitstblcat=>fitstblcat,merge=>gmerge,spcombine=>gcombine,varpix=>movievarpix,astromchk=>astromchk,xhk=>xhk,sex=>sextra,instsim=>ginstsim,pipeqa=>gpipeqa,spacadd=>gspacadd,sppipeqa=>gpipeqa,trend=>ghktrend,ingest18=>hkdump}; 
+verbose = 1; debug = 0; log_file = undef; test = undef; 
+
+
+CMDLINE => galex_tabqa -mcat /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-xd-mcat.fits -ps AIS_428_0002_sg17-xd-qa_tabmcat.ps -statfile AIS_428_0002_sg17-xd-qa_tabmcat_stats.txt -add_cards
+
+CMDLINE => gplatesol -ibase AIS_428_0002_sg17 -ipath /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -opath /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa -ow 1 -verbose -band 1 -statf 1 -plotf 1 -update -mchtype cat_mch_rtastar
+
+CMDLINE => gplatesol -ibase AIS_428_0002_sg17 -ipath /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -opath /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa -ow 1 -verbose -band 1 -statf 1 -plotf 1 -update -mchtype cat_mch_flagstar
+
+CMDLINE => gplatesol -ibase AIS_428_0002_sg17 -ipath /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -opath /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa -ow 1 -verbose -band 2 -statf 1 -plotf 1 -update -mchtype cat_mch_flagstar
+
+CMDLINE => getfwhm -ibase AIS_428_0002_sg17 -ipath /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -opath /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa -ow 1 -verbose -bands 1,2 -wt 1 -statf 1 -psfsuf psf_eq -eqreg -noreg -nobgsub -imtype intbgsub -nrep 1 -runstar 1,1 -pdev 0
+
+
+>>>>  START iam=>'GetFWHM', host=>'modi', pid=>30320, starttime=>'100623_013852Z', ppid=>30095, pgrpid=>21678, user=>'gop', 
+>>>>+ cwd=>'/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa', exec=>'/home/galex/ops/bin/getfwhm', 
+
+Invoking command line:
+/home/galex/ops/bin/getfwhm -ibase AIS_428_0002_sg17 -ipath /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -opath /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa -ow 1 -verbose -bands 1,2 -wt 1 -statf 1 -psfsuf psf_eq -eqreg -noreg -nobgsub -imtype intbgsub -nrep 1 -runstar 1,1 -pdev 0
+
+
+<< GetFWHM >> version='$Id: getfwhm,v 1.125 2008/01/09 00:18:56 tim Exp $ ', release=ops-v7_0_3, moddate=2010/03/04_21:12:17Z
+Date/time: 2010/06/23_01:38:52Z  PCPU: 0.72/0.26/3  CCPU: 0.01/0.05
+HOST: modi  PID: 30320  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+CWD: /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa/  EXEC: /home/galex/ops/bin/getfwhm (/home/galex/ops/bin/)
+
+Named parameters for GetFWHM:
+input_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; 
+output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa; thumb_only = undef; 
+thumb_too = undef; mag_limits = undef; maxcat = 100; alim = -1; runstar_catalog = 1,1; rad_test = 1800; reg0_radius = undef; 
+cntlim = 2; confusion_rad = -4; confusion_mag = 4; mask_radius = 0; all = undef; weight = 1; magcolumn = MAG_AUTO; 
+snipsize = 81; fwhm = -4.5; noregion = 1; equatorial_regions = 1; psf_suffix = psf_eq; no_bg_sub = 1; bg_method = 1; 
+plot_fit_subtracted = undef; fit_type_subtracted = 2; sub_scale = 2; no_contour = undef; itf = log; pct_stretch = 0.5,0.995; 
+abs_stretch = undef; color_table = ramp; ramp_table = gamma; upsample = 1; input_base = AIS_428_0002_sg17; output_base = undef; 
+catfile = undef; intfile = undef; image_type = intbgsub; sub_visits = undef; cntfile = undef; thumb_min = 30; thumb_max = 180; 
+thumb_table = undef; thumb_sep_files = undef; thumb_num = undef; thumb_suffix = thumb; thumb_compress = undef; 
+many_dirs = undef; opt_wheel_pos = 1; band = 1,2; runstar_radius = 4; stat_file = 1; plotdevice = 0; one_plot_per_page = undef; 
+verbose = 1; log_file = undef; dump = undef; dump_level = 1; debug = 0; 
+
+
+<< End of GetFWHM >> status=0
+Date/time: 2010/06/23_01:39:06Z  PCPU: 0.73/0.27/17  CCPU: 11.02/2.44
+HOST: modi  PID: 30320  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+
+
+CMDLINE => galexrgb -ibase AIS_428_0002_sg17 -ipath /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -opath /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa -ow 1 -verbose -2 -4 -8 -32 -bgsub -brite 2.5
+
+CMDLINE => mkimannot -image /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//qa/AIS_428_0002_sg17-xd-int_2color_medium.jpg -new_image /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//qa/AIS_428_0002_sg17-xd-int_2color_medium_annot.jpg -nuvmin_flag 3 -roll 180.640867222938 -ra 114.396546445516 -dec -62.6566930251685 -map_ra 114.370979309082 -map_dec -62.649169921875 -rtastar /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-rtastar.fits -flagstar /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-nd-flagstar.fits -addstar /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-rtastar_used.fits
+
+CMDLINE => marshalqa -ibase AIS_428_0002_sg17 -ipath /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -opath /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa -ow 1 -verbose -exitcode 0 -fits 1
+
+
+>>>>  START iam=>'MarshalQA', host=>'modi', pid=>30749, starttime=>'100623_014027Z', ppid=>30095, pgrpid=>21678, user=>'gop', 
+>>>>+ cwd=>'/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa', exec=>'/home/galex/ops/bin/marshalqa', 
+
+Invoking command line:
+/home/galex/ops/bin/marshalqa -ibase AIS_428_0002_sg17 -ipath /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -opath /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa -ow 1 -verbose -exitcode 0 -fits 1
+
+
+<< MarshalQA >> version='$Id: marshalqa,v 1.51 2006/11/03 22:15:10 tim Exp $', release=ops-v7_0_3, moddate=2010/03/04_21:12:17Z
+Date/time: 2010/06/23_01:40:28Z  PCPU: 0.27/0.36/5  CCPU: 0.01/0.08
+HOST: modi  PID: 30749  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+CWD: /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa/  EXEC: /home/galex/ops/bin/marshalqa (/home/galex/ops/bin/)
+
+Named parameters for MarshalQA:
+single_band = undef; multiple_visit_product = undef; append = undef; describe = undef; exit_code = 0; 
+input_pattern = *.log,%BASE%*-summary.txt,%BASE%*.fits,%BASE%*.fits.gz,qa/%BASE%*.txt,qa/%BASE%*.fits,qa/%BASE%*.fits.gz; 
+anti_regex = asprefine,getmask; sub_visit = undef; rule_base = QARules.pd; 
+rule_path = /home/galex/ops/params,/home/galex/params; add_rules = undef; input_base = AIS_428_0002_sg17; output_base = undef; 
+input_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; 
+output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa; fits_file = 1; suffix = undef; 
+opt_wheel_pos = 1; log_file = undef; verbose = 1; debug = 0; 
+
+
+<< End of MarshalQA >> status=0
+Date/time: 2010/06/23_01:40:34Z  PCPU: 1.55/0.6/11  CCPU: 0.02/0.15
+HOST: modi  PID: 30749  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+
+
+<< End of GPipeQA >> status=0
+Date/time: 2010/06/23_01:40:36Z  PCPU: 0.62/0.25/125  CCPU: 53.76/18.53
+HOST: modi  PID: 30095  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+
+
+<< End of OrbPipe1b >> status=0
+Date/time: 2010/06/23_01:40:36Z  PCPU: 0.86/0.44/556  CCPU: 208.1/49.59
+HOST: modi  PID: 27248  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+
+
+>>> End sub-visit 17
+
+
+CMDLINE => gqareport -pipe_data_version_number 2 -verbose -name AIS_428_0002_sg17 -grel ops-v7_0_3 -mkv0 1 -paths /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -base AIS_428_0002_sg17 -ow 1 -opath /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//qa/manual -main=0 -compat -stdout -enqjob: -append -orbpipe1b:photmap: -dead -orbpipe1b:grta: -maxdith\ 4e-5 -fitstblcat: -strict -orbpipe1b:photmap: -dead -orbpipe1b:grta: -maxdith\ 4e-5 -fitstblcat: -strict -orbpipe1b:photmap: -dead -orbpipe1b:grta: -maxdith\ 4e-5 -fitstblcat: -strict -orbpipe1b:photmap: -dead -orbpipe1b:grta: -maxdith\ 4e-5 -fitstblcat: -strict
+
+<< End of OrbPipe >> status=0
+Date/time: 2010/06/23_01:40:48Z  PCPU: 3.2/0.76/1376  CCPU: 448.6/86.87
+HOST: modi  PID: 21679  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+

@@ -1,0 +1,23 @@
+
+Generate PSF data from 1 FUV file ...
+
+Catalog file = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17-fd-cat.fits, image = AIS_428_0001_sg17-fd-intbgsub.fits
+Mag limit = -999 999, source count limit = 0
+Using 12 sources out of a total of 480 read.
+Rejected ...
+	194 for being beyond 1200 pix
+	1 with semi-major axis > 5.72"
+	202 for centroid count < 2
+	71 for not matching star catalog
+	0 for being over the count limit.
+MAG_AUTO histogram of used sources:
+N(-5)=1  N(-4)=1  N(-3)=1  N(-2)=1  N(-1)=3  N(0)=2  N(1)=2  N(2)=1  
+
+Average catalog FWHM     = 6.93"
+Median  catalog FWHM     = 5.25"
+Average catalog FWHM(A)  = 6.52"
+Median  catalog FWHM(A)  = 6.88"
+Global gaussian fit FWHM = 4.29" (BG=-0.00129, Peak=0.104)
+                                     Nsamp FitFWHM FWHM(A) FWHM(B)     PA      E   FW80 FWHM(X) FWHM(Y) PA(2d)  E(2d)  Peak(2d)  NIter   PeakPix  ChiSq
+Region  0 (All                  ):      12    4.82    5.66    5.06    112   0.89   7.76    4.39    5.25    112  0.837    0.0824      4     0.084      0
+Region  1 (Global fit           ):    3177    4.29      -0      -0     -0     -0     -0      -0      -0     -0     -0        -0      0        -0     -0

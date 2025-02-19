@@ -1,0 +1,12 @@
+Final status report (v1.2) for /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/: start time=100616T110422Z, end time=100616T110423Z, pipeline release='???'.
+Steps specified : mkqadir,split,orbpipe1b,opslog,rta,phxcheck,premap,varpix,map,sex,astromchk,flag,flagastromchk,merge,merge_sex,pipeqa,qav0,orbpipe1b
+Steps suppressed: none
+  Base         OW SubVisit   MPSLeg     Exit   Status  NUVstat  FUVstat       RA      Dec     Roll NExpTime NValidPh FExpTime FValidPh ErrBlame 
+| AIS_428_0002  d    -1/0      0/0       255    0/0      0/0      0/0   -999.000 -999.000 -999.000   -999.0     -999   -999.0     -999 [UNKNOWN] "OrbPipe: No raw6 file(s) found for band(s) with HVNOM records."
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+Final status report (v1.2) for /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/: start time=100623T011756Z, end time=100623T014048Z, pipeline release='ops-v7_0_3'.
+Steps specified : mkqadir,split,orbpipe1b,opslog,rta,phxcheck,premap,varpix,map,sex,astromchk,flag,flagastromchk,merge,merge_sex,pipeqa,qav0,orbpipe1b
+Steps suppressed: none
+  Base         OW SubVisit   MPSLeg     Exit   Status  NUVstat  FUVstat       RA      Dec     Roll NExpTime NValidPh FExpTime FValidPh ErrBlame 
+| AIS_428_0002  d    17/1      8/12        0    0/0      0/0      0/0    114.371  -62.649  180.668    103.0  3803637    103.0   917767 -
+--------------------------------------------------------------------------------------------------------------------------------------------------------

@@ -1,0 +1,8 @@
+# Region file format: DS9 version 3.0
+global color=green font="helvetica 10 normal" edit=1 move=0 delete=1 include=1 fixed=0
+IMAGE; +ellipse(      330.48,      111.78,        7.50,        7.50,        0.00)
+IMAGE; +ellipse(       67.51,      135.07,        7.50,        7.50,        0.00)
+IMAGE; +ellipse(      397.65,      225.76,        7.50,        7.50,        0.00)
+IMAGE; +ellipse(      361.30,      316.77,        7.50,        7.50,        0.00)
+IMAGE; +ellipse(      225.27,      353.58,        7.50,        7.50,        0.00)
+IMAGE; +ellipse(      345.68,      396.35,        7.50,        7.50,        0.00)

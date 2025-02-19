@@ -1,0 +1,19 @@
+CoaddQA:Date                         (a) = 2010/06/23_17:39:37Z
+CoaddQA:File                         (a) = /home/galex/fltops/mains/02-vsn/50428-AIS_428/d/01-main/0001-img/07-try/qa/manual/AIS_428_sg17-qa_v00.txt
+CoaddQA:Dir                          (a) = /home/galex/fltops/mains/02-vsn/50428-AIS_428/d/01-main/0001-img/07-try/qa/manual/
+CoaddQA:Vsn                          (j) = 00
+CoaddQA:OW                           (a) = d
+CoaddQA:TileID                       (a) = AIS_428
+CoaddQA:VisitsCoaddedNUV             (a) = 1, 2
+CoaddQA:VisitsCoaddedFUV             (a) = 1, 2
+CoaddQA:SubVisit                     (j) = 17
+CoaddQA:GRelease                     (a) = ops-v7_0_3
+CoaddQA:ExpTime                      (d) = NUV=199; FUV=199
+CoaddQA:NHVNom                       (d) = NUV=210.0; FUV=210.0
+CoaddQA:RAFldCen                     (d) = NUV=114.382425056998; FUV=114.382425056998
+CoaddQA:DecFldCen                    (d) = NUV=-62.6552839993469; FUV=-62.6552839993469
+CoaddQA:AnalystID                    (a) = NA
+CoaddQA:Grade                        (a) = PASS
+CoaddQA:Flags                        (a) = NA
+CoaddQA:CommentFlags                 (a) = NA
+CoaddQA:Comments                     (a) = NA

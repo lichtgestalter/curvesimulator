@@ -1,0 +1,171 @@
+abs_cal_path = /home/galex/cal/targ/cal05.00
+param_cal_path = cal
+run_datime = 100623T011756Z
+end_datime = 100623T014041Z
+
+# ------- cal dir listing
+
+lrwxrwxrwx  1 gop gop 24 Jun 14 16:11 cal -> /home/galex/cal/targ/use
+
+# ------- parameters from files
+
+/home/galex/params/All.params
+    -ingestpipe:
+    -%verbose
+    -orbpipe:
+    -%verbose
+    -slicepipe:
+    -%verbose
+    -targpipe:
+    -%verbose
+    -chkcfgdirs:
+    -%verbose
+    -sextra:
+    -%verbose
+    -sl8man:
+    -%verbose
+    -enqjob:
+    -%verbose
+    -gmerge:
+    -%verbose
+    -ginstsim:
+    -%verbose
+    -ghktrend:
+    -%verbose
+    -gingest:
+    -%verbose
+    -gpipeqa:
+    -%verbose
+    -grta:
+    -%verbose
+    -gspac:
+    -%verbose
+    -gspcombine:
+    -%verbose
+    -gspex:
+    -%verbose
+    -lockup:
+    -%verbose
+    -photmap:
+    -%verbose
+    -ghktrend:
+    -pkg_path /home/galex/db/tlm,/home/galex/params/tlmpacks,.
+    -ingestpipe:ghktrend:
+    -hiq
+    -ingestpipe:enqjob
+    -append
+    -ingestpipe:gingest:hkdump
+    -norevt
+    -orbpipe:enqjob
+    -append
+    -targpipe:enqjob
+    -append
+    -orbpipe:
+    -noabs -dph -cmprim
+    -orbpipe:orbpipe1b:photmap
+    -dead
+    -gspac:
+    -rr rrhr
+    -grta:rta
+    -nuvpltsol    0
+    -grta:rta
+    -fuvpltsol    0
+    -grta:rta
+    -sort
+    -sextra:
+    -mkmask -mask -ted -filter
+    -orbpipe:orbpipe1b:grta
+    -maxdith 4e-5
+    -orbpipe1b:
+    -maxdith 4e-5
+    -orbpipe:fitstblcat
+    -strict
+    -targpipe:targpipe1b:sextra
+    -filter -ted
+    -ingestpipe:
+    -no_unlink=0
+    -ingestpipe:
+    -enq
+/home/galex/ops/params/All.params
+    -ingestpipe:
+    -%verbose
+    -orbpipe:
+    -%verbose
+    -slicepipe:
+    -%verbose
+    -targpipe:
+    -%verbose
+    -chkcfgdirs:
+    -%verbose
+    -sextra:
+    -%verbose
+    -sl8man:
+    -%verbose
+    -enqjob:
+    -%verbose
+    -gmerge:
+    -%verbose
+    -ginstsim:
+    -%verbose
+    -ghktrend:
+    -%verbose
+    -gingest:
+    -%verbose
+    -gpipeqa:
+    -%verbose
+    -grta:
+    -%verbose
+    -gspac:
+    -%verbose
+    -gspcombine:
+    -%verbose
+    -gspex:
+    -%verbose
+    -lockup:
+    -%verbose
+    -photmap:
+    -%verbose
+    -ghktrend:
+    -pkg_path /home/galex/db/tlm,/home/galex/params/tlmpacks,.
+    -ingestpipe:ghktrend:
+    -hiq
+    -ingestpipe:enqjob
+    -append
+    -ingestpipe:gingest:hkdump
+    -norevt
+    -orbpipe:enqjob
+    -append
+    -targpipe:enqjob
+    -append
+    -orbpipe:
+    -noabs -dph -cmprim
+    -orbpipe:orbpipe1b:photmap
+    -dead
+    -orbpipe:
+    -mkuse -vislink
+    -targpipe:
+    -mkuse -mainlink
+    -gspac:
+    -rr rrhr
+    -grta:rta
+    -nuvpltsol    0
+    -grta:rta
+    -fuvpltsol    0
+    -grta:rta
+    -sort
+    -sextra:
+    -mkmask -mask -ted -filter
+    -orbpipe:orbpipe1b:grta
+    -maxdith 4e-5
+    -orbpipe1b:
+    -maxdith 4e-5
+    -orbpipe:fitstblcat
+    -strict
+    -targpipe:targpipe1b:sextra
+    -filter -ted
+    -asprefine:
+    -seggap 0
+    -ingestpipe:
+    -no_unlink=0
+    -ingestpipe:
+    -enq

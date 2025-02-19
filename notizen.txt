@@ -2,13 +2,20 @@ michaela.vitkova@asu.cas.cz
 vitkova@mail.asu.cas.cz
 
 NEXT:
-        Optimierte TT auch in Transitresults und nicht bloss in Lightcurveminima?
-        Auch T1, T2, T3, T4 optimieren?
-        P in Resultfile?
-        Orbitparameter regelmaessig (z.B. bei jedem Transit) berechnen und im Resultfile speichern.
+        Transits von TOI-4504 c in Datenbanken:
+            TT, b, depth, duration von lightkurve berechnen lassen?
+            Auch die fits-Dateien, die ich von MAST geholt habe, mit lightkurve auswerten
+            Siehe Excel Datei
+                In Excel Curvesim-Resultate manuell den aus lightkurve geholten Transits gegenueberstellen
+            Warum hat Michaela 11 Transits und ich nur 6?
 
-        Transits von TOI-4504 c in Datenbanken suchen.
-            Noras Videos gucken (lightkurve?)
+        Gradzahlen in Resultfile (zusaetzlich?) in Grad statt Radians speichern?
+        Optimierte TT auch in Transitresults und nicht bloss in Lightcurveminima?
+        Period and transit depth in Resultfile den Transits zuordnen statt separat ausweisen!
+        Auch T1, T2, T3, T4 optimieren?
+        Orbitparameter regelmaessig (z.B. bei jedem Transit) berechnen und im Resultfile speichern.
+            def state_vector_to_keplerian_elements(self):
+
 
         Nach Einfuehrung von Verlet Integration sind die Orbitzeiten stabil, aber nicht richtig.
         TOI-4504b hat P=2.4622 statt 2.42614. 1.5% zu langsam.

@@ -1,0 +1,28 @@
+VisitQA:Date                         (a) = 2010/06/16_11:16:15Z
+VisitQA:File                         (a) = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/qa/manual/AIS_428_0001_sg17-qa_v00.txt
+VisitQA:Dir                          (a) = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/qa/manual/
+VisitQA:Vsn                          (j) = 00
+VisitQA:OW                           (a) = d
+VisitQA:Delivery                     (a) = 07062az02i
+VisitQA:SurveyType                   (a) = AIS
+VisitQA:Eclipse                      (j) = 20516
+VisitQA:TileID                       (a) = AIS_428
+VisitQA:Nlegs                        (j) = 12
+VisitQA:Visit                        (j) = 0001
+VisitQA:SubVisit                     (j) = 17
+VisitQA:Leg                          (j) = 8
+VisitQA:GRelease                     (a) = ops-v7_0_3
+VisitQA:ExpTime                      (d) = NUV=96; FUV=96
+VisitQA:NHVNom                       (d) = NUV=106; FUV=106
+VisitQA:RA0                          (d) = 114.370979309082
+VisitQA:Dec0                         (d) = -62.649169921875
+VisitQA:RALeg                        (d) = 114.374247
+VisitQA:DecLeg                       (d) = -62.651842
+VisitQA:RAFldCen                     (d) = NUV=114.367275477737; FUV=114.367275477737
+VisitQA:DecFldCen                    (d) = NUV=-62.6537706530093; FUV=-62.6537706530093
+VisitQA:AnalystID                    (a) = NA
+VisitQA:Grade                        (a) = PASS
+VisitQA:Coadd                        (a) = YES
+VisitQA:Flags                        (a) = ASP_ERRSTDEV ASP_ERRDIFF
+VisitQA:CommentFlags                 (a) = NA
+VisitQA:Comments                     (a) = NA

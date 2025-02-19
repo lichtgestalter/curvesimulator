@@ -1,0 +1,174 @@
+
+
+------------------- Stats -------------------
+
+Wed Jun 16 04:12:40 2010
+$Id: sextra,v 1.218 2009/07/23 21:22:19 cmillion Exp $ 
+
+Sextractor parameters:
+	     ANALYSIS_THRESH = 0.00248117597024443
+	     BACKPHOTO_THICK = 24
+	      BACKPHOTO_TYPE = GLOBAL
+	     BACK_FILTERSIZE = 5
+	           BACK_SIZE = 128
+	           BACK_TYPE = MANUAL
+	          BACK_VALUE = 0,0
+	        CATALOG_NAME = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17-fd-cat.fits
+	        CATALOG_TYPE = FITS_1.0
+	     CHECKIMAGE_NAME = NONE
+	     CHECKIMAGE_TYPE = NONE
+	               CLEAN = YES
+	         CLEAN_PARAM = 1
+	     DEBLEND_MINCONT = 0.04
+	     DEBLEND_NTHRESH = 32
+	      DETECT_MINAREA = 10
+	       DETECT_THRESH = 1
+	         DETECT_TYPE = CCD
+	              FILTER = Y
+	         FILTER_NAME = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17-fd-gauss_30_7x7.txt
+	                GAIN = 80.8830795288086
+	      INTERP_MAXXLAG = 1
+	      INTERP_MAXYLAG = 1
+	         INTERP_TYPE = NONE,NONE
+	           MAG_GAMMA = 4
+	       MAG_ZEROPOINT = 0
+	           MASK_TYPE = CORRECT
+	      MEMORY_BUFSIZE = 1024
+	     MEMORY_OBJSTACK = 2000
+	     MEMORY_PIXSTACK = 1500000
+	     PARAMETERS_NAME = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17-fd-sexcols.txt
+	      PHOT_APERTURES = 2,3,5,8,12,17,23
+	     PHOT_AUTOPARAMS = 2.5,3.5
+	       PHOT_FLUXFRAC = 0.2,0.5,0.8,0.9,0.95
+	         PIXEL_SCALE = 1.500
+	         SATUR_LEVEL = 999999999
+	         SEEING_FWHM = 5
+	        STARNNW_NAME = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17-fd-sexnnw.txt
+	         THRESH_TYPE = ABSOLUTE
+	        VERBOSE_TYPE = NORMAL
+	         WEIGHT_GAIN = Y
+	        WEIGHT_IMAGE = /tmp/sextra.vanir.24790.uEsk/AIS_428_0001_sg17-fd-rrhr.fits,/tmp/sextra.vanir.24790.uEsk/AIS_428_0001_sg17-fd-rrhr.fits
+	         WEIGHT_TYPE = MAP_WEIGHT,MAP_WEIGHT
+
+
+
+ERRX2_IMAGE New/Old Ratio:
+	Mean   =   64.825  +/-      0.803
+	StdDev =   17.611, N   =      481
+	Min    =    3.876, Max =  121.418
+New ERRX2_IMAGE:
+	Mean   =    0.056  +/-      0.002
+	StdDev =    0.040, N   =      481
+	Min    =    0.000, Max =    0.298
+Old ERRX2_IMAGE:
+	Mean   =    0.001  +/-      0.000
+	StdDev =    0.001, N   =      481
+	Min    =    0.000, Max =    0.005
+ERRY2_IMAGE New/Old Ratio:
+	Mean   =   64.825  +/-      0.803
+	StdDev =   17.611, N   =      481
+	Min    =    3.876, Max =  121.418
+New ERRY2_IMAGE:
+	Mean   =    0.056  +/-      0.002
+	StdDev =    0.038, N   =      481
+	Min    =    0.000, Max =    0.220
+Old ERRY2_IMAGE:
+	Mean   =    0.001  +/-      0.000
+	StdDev =    0.001, N   =      481
+	Min    =    0.000, Max =    0.005
+ERRXY_IMAGE New/Old Ratio:
+	Mean   =   64.825  +/-      0.803
+	StdDev =   17.611, N   =      481
+	Min    =    3.876, Max =  121.418
+New ERRXY_IMAGE:
+	Mean   =   -0.003  +/-      0.001
+	StdDev =    0.027, N   =      481
+	Min    =   -0.110, Max =    0.114
+Old ERRXY_IMAGE:
+	Mean   =   -0.000  +/-      0.000
+	StdDev =    0.000, N   =      481
+	Min    =   -0.002, Max =    0.002
+
+
+(Re?)Reading intensity image '/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17-fd-int.fits' ...
+
+Intensity image stats:
+
+	Nsamp=14745600, Sum=11526.1, Min/Max=        0/  12.2646
+	Mean=0.000781661, RMS=0.0104808, Median=6.48422e-05, Sigma=4.42671e-05
+	         1%      2.275%          5%         10%      15.87%         25%         50% 
+	 1.297e-06    2.95e-06   6.484e-06   1.297e-05   2.058e-05   3.242e-05   6.484e-05  
+	        75%      84.13%         90%         95%      97.72%         99% 
+	 9.726e-05   0.0001091   0.0001167     0.01091     0.01291     0.01605  
+
+Reading source list '/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17-fd-cat.fits' ...
+Found 481 sources in /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17-fd-cat.fits.
+Found 481 sources in /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17-fd-cat.fits.
+481 remain after MAG<50 test.
+481 remain after MAG<50 test.
+481 remain after MAGERR<999 test.
+481 remain after MAGERR<999 test.
+481 remain after MAGERR>0 test.
+481 remain after MAGERR>0 test.
+
+Magnitude stats:
+
+	Nsamp=481, Sum=894.0, Min/Max= -5.69835/  2.88766
+	Mean=  1.85867, RMS=  0.96079, Median=   2.1181, Sigma= 0.503203
+	         1%      2.275%          5%         10%      15.87%         25%         50% 
+	    -2.251      -1.058     0.00138      0.8459       1.444       1.798       2.118  
+	        75%      84.13%         90%         95%      97.72%         99% 
+	     2.336       2.451        2.53        2.63       2.684       2.716  
+
+Magnitude error stats:
+
+	Nsamp=481, Sum=183.2, Min/Max=0.0079444/ 0.907493
+	Mean= 0.380875, RMS= 0.121414, Median= 0.386465, Sigma=0.0847307
+	         1%      2.275%          5%         10%      15.87%         25%         50% 
+	   0.04424     0.07795      0.1424      0.2117      0.2932      0.3416      0.3865  
+	        75%      84.13%         90%         95%      97.72%         99% 
+	    0.4331      0.4627      0.5137      0.5761      0.6455      0.7219  
+
+SNR stats:
+
+	Nsamp=481, Sum=1749.8, Min/Max=  1.10194/  125.875
+	Mean=  3.63775, RMS=  7.17357, Median=  2.59755, Sigma=  1.02104
+	         1%      2.275%          5%         10%      15.87%         25%         50% 
+	     1.132        1.17       1.251       1.401       1.577        1.85       2.598  
+	        75%      84.13%         90%         95%      97.72%         99% 
+	     3.345       3.619       4.841       7.159       12.42       22.39  
+
+Position error stats (arc-seconds):
+
+	Nsamp=481, Sum=198.1, Min/Max=0.00452192/ 0.818449
+	Mean= 0.411942, RMS= 0.139543, Median= 0.405914, Sigma= 0.126138
+	         1%      2.275%          5%         10%      15.87%         25%         50% 
+	   0.02083     0.08834      0.1857      0.2658      0.2916      0.3323      0.4059  
+	        75%      84.13%         90%         95%      97.72%         99% 
+	    0.4881      0.5439       0.605      0.6657      0.7126      0.7369  
+
+FWHM stats (arc-seconds):
+
+	Nsamp=481, Sum=4026.0, Min/Max=-0.202922/   74.087
+	Mean=  8.37004, RMS=  4.93531, Median=  8.02519, Sigma=  2.69744
+	         1%      2.275%          5%         10%      15.87%         25%         50% 
+	      2.07       3.023       3.602       4.538       5.077       5.916       8.025  
+	        75%      84.13%         90%         95%      97.72%         99% 
+	     9.514       10.47       11.83       14.38       17.77       27.95  
+
+FWHM from semi-major axis stats (arc-seconds):
+
+	Nsamp=481, Sum=2457.5, Min/Max=  2.82413/  31.7629
+	Mean=  5.10922, RMS=  2.34006, Median=  4.49699, Sigma=  1.41115
+	         1%      2.275%          5%         10%      15.87%         25%         50% 
+	     2.892       2.978       3.161       3.451       3.585       3.794       4.497  
+	        75%      84.13%         90%         95%      97.72%         99% 
+	     5.765       6.407       7.201       8.307       11.42        15.6  
+Writing 481 regions to file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/qa/AIS_428_0001_sg17-fd-cat.ds9reg ...
+
+
+<< End of SExtra >> status=0
+Date/time: 2010/06/16_11:12:45Z  PCPU: 3.36/0.74/84  CCPU: 40.85/4.68
+HOST: vanir  PID: 24790  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux WS release 4 (Nahant Update 6)'
+
+

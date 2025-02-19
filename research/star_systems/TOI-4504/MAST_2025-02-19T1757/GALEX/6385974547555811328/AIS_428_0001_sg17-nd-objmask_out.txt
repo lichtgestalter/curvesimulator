@@ -1,0 +1,459 @@
+Now logging 24377 to file Orbpipe_sg17.log, GETFD=0 but true, FH=3/GLOB(0x9218314) .
+Dup'ing STDERR=GLOB(0x8063ab8) to LOG=GLOB(0x9218314) with tag ')-'.
+
+
+<< SExtra >> version='$Id: sextra,v 1.218 2009/07/23 21:22:19 cmillion Exp $ ', release=ops-v7_0_3, moddate=2010/03/04_21:11:57Z
+Date/time: 2010/06/16_11:08:01Z  PCPU: 0.38/0.04/1  CCPU: 0.01/0.01
+HOST: vanir  PID: 24377  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux WS release 4 (Nahant Update 6)'
+CWD: /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/  EXEC: /home/galex/ops/bin/sextra (/home/galex/ops/bin/)
+
+Named parameters for SExtra:
+input_base = AIS_428_0001_sg17-nd; threshold = 3; nuv_threshold = 2; fuv_threshold = 2.5; minpix = 2; absolute_thresh = undef; 
+background = undef; remove_background = 1; mask_objects = 0; get_mask = 0; mask_threshold = 3; expand_mask_radius = 0; 
+trim_rr_level = 0.2; catalog_name = undef; measurement_map = undef; skip_map_creation = undef; no_sex = undef; filter = 1; 
+conv_fwhm = -4.5,-4.5; seeing_fwhm = 5.5,5; apertures = 2,3,5,8,12,17,23; flux_fracs = 0.2,0.5,0.8,0.9,0.95; 
+deblend_mincont = 0.04; deblend_nthresh = 32; phot_autoparams = 2.5,3.5; mag_zero = 0; clean = 1; mask_type = correct; 
+deep = undef; deep_exp_thresh = 10000; backsize = 128; bg_filter_size = 5; detector_bg = undef; sex_par_name = default; 
+sex_par_path = /home/galex/ops/params/sex,/home/galex/params/sex; sex_params = undef; count_map = undef; response_map = undef; 
+weight_map = undef; detector_background_map = undef; inten_map = undef; sigma_map = 0; 
+input_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/; 
+output_base = AIS_428_0001_sg17_getmask-nd; 
+output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/; 
+qa_output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/qa; in_out_path = undef; 
+extension_addition = undef; ais = undef; band = undef; opt_wheel_pos = undef; cal_path = cal; check_images = seg; 
+check_base = undef; mag_column = MAG_AUTO; plot_device = /xs; no_stats = 1; stat_name = 1; compress_images = 0; 
+sex_exec = /home/galex/bin/sex; rmback_exec = poissonbg; fake_options = undef; 
+other_opts = {asciicat=>0,savemem=>0,bgthr=>0,rmbgwt=>0,regmaglim=>0,fieldr=>0.5,fixposerr=>0,savemaskrun=>0,unmchregfile=>unmatched.ds9reg,rrtrimr=>0,prunmch=>0,nohardsex=>0,inscrwidth=>0,rrthr=>0,skipmasksex=>0,pgplotdir=>/home/galex/pgplot,truemchr=>0,truelim=>0,forceconv=>0,detsize=>1.25,truecat=>0,sigthr=>0,convsuf=>gauss,detectonly=>1}; 
+log_file = undef; verbose = 1; debug = undef; 
+
+
+Temporary directory = '/tmp/sextra.vanir.24377.twoR'.
+Decompressor = '/bin/gzip'.
+Got PSFFWHM=4.5 from FITS header in '/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17-nd-cnt.fits'.
+Got CRVAL1=114.370979309082 from FITS header in '/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17-nd-cnt.fits'.
+Got CRVAL2=-62.649169921875 from FITS header in '/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17-nd-cnt.fits'.
+Got CDELT1=-0.000416666666666667 from FITS header in '/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17-nd-cnt.fits'.
+Got AVEFDEAD=0.225649946274602 from FITS header in '/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17-nd-cnt.fits'.
+Got EXPTIME=96. from FITS header in '/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17-nd-cnt.fits'.
+Got RRMED=65.4579010009766 from FITS header in '/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17-nd-cnt.fits'.
+Got NAXIS1=3840 from FITS header in '/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17-nd-cnt.fits'.
+Got NAXIS2=3840 from FITS header in '/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17-nd-cnt.fits'.
+Got NVISIBLE=3648062. from FITS header in '/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17-nd-cnt.fits'.
+params: Reassigning background = '0'.
+params: Reassigning absolute_thresh = '1'.
+params: Reassigning minpix = '0.5'.
+Setting trim level to 0.2 * 96. * (1-0.225649946274602) = 14.8675210315276
+params: Reassigning minpix = '10'.
+Opening count image /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17-nd-cnt.fits ...
+
+Running poissonbg to get derived images ...
+
+SPAWN created cmd 'poissonbg -input_base AIS_428_0001_sg17-nd -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/ -output_base AIS_428_0001_sg17_getmask-nd -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/ -backsize 128 -verbose=0 -quiet=0 -large_rr_img=1 -threshold 3 -area_detect 20.4 -filtersize 5 -weight_only=1 -make_detect=1 -compress_images=0 -response_limit 14.8675210315276'.
+
+Mysystem exec'ing Poissonbg (keep,out,err=0,0,0) as ...
+poissonbg -input_base AIS_428_0001_sg17-nd -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/ -output_base AIS_428_0001_sg17_getmask-nd -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/ -backsize 128 -verbose=0 -quiet=0 -large_rr_img=1 -threshold 3 -area_detect 20.4 -filtersize 5 -weight_only=1 -make_detect=1 -compress_images=0 -response_limit 14.8675210315276
+Parameters:
+	inbase         = AIS_428_0001_sg17-nd
+	outbase        = AIS_428_0001_sg17_getmask-nd
+	sigmaclip      =   3.00
+	nsigma         =   3.00
+	area_detect    =  20.40
+	backsize       =  128
+	fitlersize     =   5
+	detector_bg    = -1.000000
+	maxiter        =  10
+	response_limit =   14.87
+	sigfigs        = 4 (scale=8192)
+	cntfile        = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17-nd-cnt.fits
+	rrfile         = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17-nd-rr.fits
+	objmaskfile    = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17-nd-objmask.fits
+	intfile        = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17_getmask-nd-int.fits
+	wtfile         = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17_getmask-nd-wt.fits
+	intbgsubfile   = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17_getmask-nd-intbgsub.fits
+	skybgfile      = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17_getmask-nd-skybg.fits
+	rrhrfile       = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17_getmask-nd-rrhr.fits
+Reading cnt map /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17-nd-cnt.fits ...
+Reading rr map /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17-nd-rr.fits ...
+Median effective coverage = 65.212 seconds.
+Applying low response limit to the rr image ...
+Upsampling the rr image to 3840x3840 from 960x960 ...
+Doing background calculation with mesh=30x30...
+Median-filtering the 30x30 bg mesh with filter=5 ...
+Upsampling the skybg image to 3840x3840 from 30x30 ...
+Applying low response limit to the skybg image ...
+Median background = 0.007508 cps, 3.00 Sigma = 0.00842015 cps.
+Est. det. image sigma = sqrt(BG=0.489633 cnts)/(thr=0.549098 cnts) = 1.274340
+Making the low res threshold image ...
+Upsampling the threshold image to 3840x3840 from 30x30 ...
+Applying low response limit to the threshold image ...
+Median threshold for 3.00 sigma = 0.008427 cps, RMS = 0.000458717 cps.
+Flattening the int (cts/sec) image ...
+Doing background substraction ...
+Making the detection image ...
+Median detection level for 3.00 sigma = -0.874251, RMS= 0.915836 .
+Writing 3840x3840 detection image to /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17_getmask-nd-wt.fits ...
+
+Done.
+Opening detection image '/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17_getmask-nd-wt.fits' to read header ...
+Analysis threshold reset to 0.00631511108247485 .
+Writing new matched 7x7 filter with FWHM=4.5" (3 pixels) to file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17_getmask-nd-gauss_30_7x7.txt .
+`/home/galex/ops/params/sex/default.param' -> `/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17_getmask-nd-sexcols_orig.txt'
+`/home/galex/ops/params/sex/default.sex' -> `/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17_getmask-nd-sexparams_orig.txt'
+`/home/galex/ops/params/sex/default.nnw' -> `/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17_getmask-nd-sexnnw.txt'
+Editing /home/galex/ops/params/sex/default.param ...
+`/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17_getmask-nd-sexcols_orig.txt' -> `/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17_getmask-nd-sexcols.txt'
+
+
+
+Detection image   = '/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17_getmask-nd-wt.fits'
+Measurement image = '/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17_getmask-nd-wt.fits'
+Config file = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17_getmask-nd-sexparams.txt
+ANALYSIS_THRESH      = 0.00631511108247485
+BACKPHOTO_THICK      = 24
+BACKPHOTO_TYPE       = GLOBAL
+BACK_FILTERSIZE      = 5
+BACK_SIZE            = 128
+BACK_TYPE            = MANUAL
+BACK_VALUE           = 0,0
+CATALOG_NAME         = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17_getmask-nd-cat.fits
+CATALOG_TYPE         = FITS_1.0
+CHECKIMAGE_NAME      = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17_getmask-nd-objmask.fits
+CHECKIMAGE_TYPE      = SEGMENTATION
+CLEAN                = YES
+CLEAN_PARAM          = 1
+DEBLEND_MINCONT      = 0.04
+DEBLEND_NTHRESH      = 32
+DETECT_MINAREA       = 10
+DETECT_THRESH        = 1
+DETECT_TYPE          = CCD
+FILTER               = Y
+FILTER_NAME          = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17_getmask-nd-gauss_30_7x7.txt
+GAIN                 = 65.4579010009766
+INTERP_MAXXLAG       = 1
+INTERP_MAXYLAG       = 1
+INTERP_TYPE          = NONE,NONE
+MAG_GAMMA            = 4
+MAG_ZEROPOINT        = 0
+MASK_TYPE            = CORRECT
+MEMORY_BUFSIZE       = 1024
+MEMORY_OBJSTACK      = 2000
+MEMORY_PIXSTACK      = 1500000
+PARAMETERS_NAME      = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17_getmask-nd-sexcols.txt
+PHOT_APERTURES       = 2,3,5,8,12,17,23
+PHOT_AUTOPARAMS      = 2.5,3.5
+PHOT_FLUXFRAC        = 0.2,0.5,0.8,0.9,0.95
+PIXEL_SCALE          = 1.500
+SATUR_LEVEL          = 999999999
+SEEING_FWHM          = 5.5
+STARNNW_NAME         = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17_getmask-nd-sexnnw.txt
+THRESH_TYPE          = ABSOLUTE
+VERBOSE_TYPE         = NORMAL
+WEIGHT_GAIN          = Y
+WEIGHT_IMAGE         = NONE
+WEIGHT_TYPE          = NONE
+
+Sextractor command /home/galex/bin/sex extracting into '/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17_getmask-nd-cat.fits'.
+[1M> 
+[1A----- SExtractor 2.5.0 started on 2010-06-16 at 04:08:20 with 1 thread
+
+[1M> Setting catalog parameters
+[1A[1M> Reading detection filter
+[1A[1M> Initializing Neural Network
+[1A[1M> Reading Neural Network Weights
+[1A[1M> Initializing check-image(s)
+[1A[1M> Initializing catalog
+[1A[1M> Looking for AIS_428_0001_sg17_getmask-nd-wt.fits
+[1AMeasuring from: "AIS_428_0001_sg17"  / 3840 x 3840 / 32 bits FLOATING POINT data
+Detection+Measurement image: [1M> Setting up background maps
+[1A[1M> Setting up background map at line:  128
+[1A[1M> Setting up background map at line:  256
+[1A[1M> Setting up background map at line:  384
+[1A[1M> Setting up background map at line:  512
+[1A[1M> Setting up background map at line:  640
+[1A[1M> Setting up background map at line:  768
+[1A[1M> Setting up background map at line:  896
+[1A[1M> Setting up background map at line: 1024
+[1A[1M> Setting up background map at line: 1152
+[1A[1M> Setting up background map at line: 1280
+[1A[1M> Setting up background map at line: 1408
+[1A[1M> Setting up background map at line: 1536
+[1A[1M> Setting up background map at line: 1664
+[1A[1M> Setting up background map at line: 1792
+[1A[1M> Setting up background map at line: 1920
+[1A[1M> Setting up background map at line: 2048
+[1A[1M> Setting up background map at line: 2176
+[1A[1M> Setting up background map at line: 2304
+[1A[1M> Setting up background map at line: 2432
+[1A[1M> Setting up background map at line: 2560
+[1A[1M> Setting up background map at line: 2688
+[1A[1M> Setting up background map at line: 2816
+[1A[1M> Setting up background map at line: 2944
+[1A[1M> Setting up background map at line: 3072
+[1A[1M> Setting up background map at line: 3200
+[1A[1M> Setting up background map at line: 3328
+[1A[1M> Setting up background map at line: 3456
+[1A[1M> Setting up background map at line: 3584
+[1A[1M> Setting up background map at line: 3712
+[1A[1M> Filtering background map(s)
+[1A[1M> Computing background d-map
+[1A[1M> Computing background-noise d-map
+[1A(M+D) Background: 0          RMS: 0.849721   / Threshold: 1          
+[1M> Scanning image
+[1A[1M> Line:   16  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:   32  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:   48  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:   64  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:   80  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:   96  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  112  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  128  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  144  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  160  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  176  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  192  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  208  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  224  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  240  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  256  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  272  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  288  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  304  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  320  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  336  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  352  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  368  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  384  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  400  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  416  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  432  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  448  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  464  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  480  Objects:        3 detected /        0 sextracted
+[1A[1M> Line:  496  Objects:        9 detected /        0 sextracted
+[1A[1M> Line:  512  Objects:       17 detected /        0 sextracted
+[1A[1M> Line:  528  Objects:       25 detected /        0 sextracted
+[1A[1M> Line:  544  Objects:       33 detected /        0 sextracted
+[1A[1M> Line:  560  Objects:       39 detected /        0 sextracted
+[1A[1M> Line:  576  Objects:       44 detected /        0 sextracted
+[1A[1M> Line:  592  Objects:       51 detected /        0 sextracted
+[1A[1M> Line:  608  Objects:       57 detected /        0 sextracted
+[1A[1M> Line:  624  Objects:       61 detected /        0 sextracted
+[1A[1M> Line:  640  Objects:       64 detected /        0 sextracted
+[1A[1M> Line:  656  Objects:       67 detected /        0 sextracted
+[1A[1M> Line:  672  Objects:       76 detected /        0 sextracted
+[1A[1M> Line:  688  Objects:       83 detected /        0 sextracted
+[1A[1M> Line:  704  Objects:       90 detected /        0 sextracted
+[1A[1M> Line:  720  Objects:       98 detected /        0 sextracted
+[1A[1M> Line:  736  Objects:      106 detected /        0 sextracted
+[1A[1M> Line:  752  Objects:      112 detected /        0 sextracted
+[1A[1M> Line:  768  Objects:      122 detected /        0 sextracted
+[1A[1M> Line:  784  Objects:      126 detected /        0 sextracted
+[1A[1M> Line:  800  Objects:      131 detected /        0 sextracted
+[1A[1M> Line:  816  Objects:      136 detected /        0 sextracted
+[1A[1M> Line:  832  Objects:      140 detected /        0 sextracted
+[1A[1M> Line:  848  Objects:      147 detected /        0 sextracted
+[1A[1M> Line:  864  Objects:      159 detected /        0 sextracted
+[1A[1M> Line:  880  Objects:      167 detected /        0 sextracted
+[1A[1M> Line:  896  Objects:      170 detected /        0 sextracted
+[1A[1M> Line:  912  Objects:      179 detected /        0 sextracted
+[1A[1M> Line:  928  Objects:      182 detected /        0 sextracted
+[1A[1M> Line:  944  Objects:      192 detected /        0 sextracted
+[1A[1M> Line:  960  Objects:      199 detected /        0 sextracted
+[1A[1M> Line:  976  Objects:      203 detected /        0 sextracted
+[1A[1M> Line:  992  Objects:      210 detected /        0 sextracted
+[1A[1M> Line: 1008  Objects:      224 detected /        0 sextracted
+[1A[1M> Line: 1024  Objects:      230 detected /        0 sextracted
+[1A[1M> Line: 1040  Objects:      238 detected /        0 sextracted
+[1A[1M> Line: 1056  Objects:      249 detected /        0 sextracted
+[1A[1M> Line: 1072  Objects:      258 detected /        0 sextracted
+[1A[1M> Line: 1088  Objects:      266 detected /        0 sextracted
+[1A[1M> Line: 1104  Objects:      277 detected /        0 sextracted
+[1A[1M> Line: 1120  Objects:      285 detected /        0 sextracted
+[1A[1M> Line: 1136  Objects:      290 detected /        0 sextracted
+[1A[1M> Line: 1152  Objects:      297 detected /        0 sextracted
+[1A[1M> Line: 1168  Objects:      308 detected /        0 sextracted
+[1A[1M> Line: 1184  Objects:      315 detected /        0 sextracted
+[1A[1M> Line: 1200  Objects:      326 detected /        0 sextracted
+[1A[1M> Line: 1216  Objects:      343 detected /        0 sextracted
+[1A[1M> Line: 1232  Objects:      352 detected /        0 sextracted
+[1A[1M> Line: 1248  Objects:      358 detected /        0 sextracted
+[1A[1M> Line: 1264  Objects:      365 detected /        0 sextracted
+[1A[1M> Line: 1280  Objects:      374 detected /        0 sextracted
+[1A[1M> Line: 1296  Objects:      382 detected /        0 sextracted
+[1A[1M> Line: 1312  Objects:      393 detected /        0 sextracted
+[1A[1M> Line: 1328  Objects:      402 detected /        0 sextracted
+[1A[1M> Line: 1344  Objects:      409 detected /        0 sextracted
+[1A[1M> Line: 1360  Objects:      415 detected /        0 sextracted
+[1A[1M> Line: 1376  Objects:      422 detected /        0 sextracted
+[1A[1M> Line: 1392  Objects:      430 detected /        0 sextracted
+[1A[1M> Line: 1408  Objects:      439 detected /        1 sextracted
+[1A[1M> Line: 1424  Objects:      446 detected /        2 sextracted
+[1A[1M> Line: 1440  Objects:      455 detected /        2 sextracted
+[1A[1M> Line: 1456  Objects:      461 detected /        2 sextracted
+[1A[1M> Line: 1472  Objects:      470 detected /        5 sextracted
+[1A[1M> Line: 1488  Objects:      481 detected /       12 sextracted
+[1A[1M> Line: 1504  Objects:      487 detected /       20 sextracted
+[1A[1M> Line: 1520  Objects:      489 detected /       23 sextracted
+[1A[1M> Line: 1536  Objects:      498 detected /       26 sextracted
+[1A[1M> Line: 1552  Objects:      507 detected /       31 sextracted
+[1A[1M> Line: 1568  Objects:      515 detected /       35 sextracted
+[1A[1M> Line: 1584  Objects:      522 detected /       37 sextracted
+[1A[1M> Line: 1600  Objects:      532 detected /       42 sextracted
+[1A[1M> Line: 1616  Objects:      542 detected /       48 sextracted
+[1A[1M> Line: 1632  Objects:      550 detected /       54 sextracted
+[1A[1M> Line: 1648  Objects:      559 detected /       57 sextracted
+[1A[1M> Line: 1664  Objects:      570 detected /       63 sextracted
+[1A[1M> Line: 1680  Objects:      578 detected /       69 sextracted
+[1A[1M> Line: 1696  Objects:      592 detected /       74 sextracted
+[1A[1M> Line: 1712  Objects:      606 detected /       80 sextracted
+[1A[1M> Line: 1728  Objects:      615 detected /       88 sextracted
+[1A[1M> Line: 1744  Objects:      624 detected /       92 sextracted
+[1A[1M> Line: 1760  Objects:      634 detected /      101 sextracted
+[1A[1M> Line: 1776  Objects:      638 detected /      111 sextracted
+[1A[1M> Line: 1792  Objects:      651 detected /      115 sextracted
+[1A[1M> Line: 1808  Objects:      660 detected /      118 sextracted
+[1A[1M> Line: 1824  Objects:      668 detected /      122 sextracted
+[1A[1M> Line: 1840  Objects:      680 detected /      130 sextracted
+[1A[1M> Line: 1856  Objects:      693 detected /      138 sextracted
+[1A[1M> Line: 1872  Objects:      703 detected /      149 sextracted
+[1A[1M> Line: 1888  Objects:      715 detected /      151 sextracted
+[1A[1M> Line: 1904  Objects:      723 detected /      156 sextracted
+[1A[1M> Line: 1920  Objects:      729 detected /      167 sextracted
+[1A[1M> Line: 1936  Objects:      738 detected /      172 sextracted
+[1A[1M> Line: 1952  Objects:      744 detected /      178 sextracted
+[1A[1M> Line: 1968  Objects:      757 detected /      183 sextracted
+[1A[1M> Line: 1984  Objects:      772 detected /      192 sextracted
+[1A[1M> Line: 2000  Objects:      786 detected /      203 sextracted
+[1A[1M> Line: 2016  Objects:      799 detected /      206 sextracted
+[1A[1M> Line: 2032  Objects:      808 detected /      216 sextracted
+[1A[1M> Line: 2048  Objects:      820 detected /      225 sextracted
+[1A[1M> Line: 2064  Objects:      829 detected /      237 sextracted
+[1A[1M> Line: 2080  Objects:      838 detected /      245 sextracted
+[1A[1M> Line: 2096  Objects:      844 detected /      257 sextracted
+[1A[1M> Line: 2112  Objects:      848 detected /      262 sextracted
+[1A[1M> Line: 2128  Objects:      869 detected /      270 sextracted
+[1A[1M> Line: 2144  Objects:      872 detected /      273 sextracted
+[1A[1M> Line: 2160  Objects:      878 detected /      281 sextracted
+[1A[1M> Line: 2176  Objects:      891 detected /      293 sextracted
+[1A[1M> Line: 2192  Objects:      906 detected /      300 sextracted
+[1A[1M> Line: 2208  Objects:      920 detected /      315 sextracted
+[1A[1M> Line: 2224  Objects:      942 detected /      319 sextracted
+[1A[1M> Line: 2240  Objects:      965 detected /      326 sextracted
+[1A[1M> Line: 2256  Objects:      980 detected /      338 sextracted
+[1A[1M> Line: 2272  Objects:     1005 detected /      347 sextracted
+[1A[1M> Line: 2288  Objects:     1027 detected /      357 sextracted
+[1A[1M> Line: 2304  Objects:     1044 detected /      365 sextracted
+[1A[1M> Line: 2320  Objects:     1063 detected /      372 sextracted
+[1A[1M> Line: 2336  Objects:     1084 detected /      378 sextracted
+[1A[1M> Line: 2352  Objects:     1106 detected /      387 sextracted
+[1A[1M> Line: 2368  Objects:     1127 detected /      392 sextracted
+[1A[1M> Line: 2384  Objects:     1145 detected /      402 sextracted
+[1A[1M> Line: 2400  Objects:     1166 detected /      412 sextracted
+[1A[1M> Line: 2416  Objects:     1186 detected /      418 sextracted
+[1A[1M> Line: 2432  Objects:     1209 detected /      424 sextracted
+[1A[1M> Line: 2448  Objects:     1235 detected /      434 sextracted
+[1A[1M> Line: 2464  Objects:     1255 detected /      440 sextracted
+[1A[1M> Line: 2480  Objects:     1274 detected /      447 sextracted
+[1A[1M> Line: 2496  Objects:     1293 detected /      454 sextracted
+[1A[1M> Line: 2512  Objects:     1313 detected /      460 sextracted
+[1A[1M> Line: 2528  Objects:     1333 detected /      465 sextracted
+[1A[1M> Line: 2544  Objects:     1347 detected /      476 sextracted
+[1A[1M> Line: 2560  Objects:     1363 detected /      481 sextracted
+[1A[1M> Line: 2576  Objects:     1374 detected /      488 sextracted
+[1A[1M> Line: 2592  Objects:     1381 detected /      497 sextracted
+[1A[1M> Line: 2608  Objects:     1391 detected /      505 sextracted
+[1A[1M> Line: 2624  Objects:     1405 detected /      517 sextracted
+[1A[1M> Line: 2640  Objects:     1413 detected /      525 sextracted
+[1A[1M> Line: 2656  Objects:     1421 detected /      534 sextracted
+[1A[1M> Line: 2672  Objects:     1427 detected /      540 sextracted
+[1A[1M> Line: 2688  Objects:     1433 detected /      553 sextracted
+[1A[1M> Line: 2704  Objects:     1448 detected /      570 sextracted
+[1A[1M> Line: 2720  Objects:     1458 detected /      580 sextracted
+[1A[1M> Line: 2736  Objects:     1462 detected /      590 sextracted
+[1A[1M> Line: 2752  Objects:     1467 detected /      594 sextracted
+[1A[1M> Line: 2768  Objects:     1470 detected /      604 sextracted
+[1A[1M> Line: 2784  Objects:     1477 detected /      616 sextracted
+[1A[1M> Line: 2800  Objects:     1486 detected /      624 sextracted
+[1A[1M> Line: 2816  Objects:     1491 detected /      634 sextracted
+[1A[1M> Line: 2832  Objects:     1498 detected /      644 sextracted
+[1A[1M> Line: 2848  Objects:     1504 detected /      655 sextracted
+[1A[1M> Line: 2864  Objects:     1508 detected /      663 sextracted
+[1A[1M> Line: 2880  Objects:     1513 detected /      675 sextracted
+[1A[1M> Line: 2896  Objects:     1522 detected /      683 sextracted
+[1A[1M> Line: 2912  Objects:     1529 detected /      691 sextracted
+[1A[1M> Line: 2928  Objects:     1535 detected /      696 sextracted
+[1A[1M> Line: 2944  Objects:     1546 detected /      704 sextracted
+[1A[1M> Line: 2960  Objects:     1552 detected /      713 sextracted
+[1A[1M> Line: 2976  Objects:     1559 detected /      726 sextracted
+[1A[1M> Line: 2992  Objects:     1565 detected /      747 sextracted
+[1A[1M> Line: 3008  Objects:     1573 detected /      754 sextracted
+[1A[1M> Line: 3024  Objects:     1579 detected /      768 sextracted
+[1A[1M> Line: 3040  Objects:     1587 detected /      775 sextracted
+[1A[1M> Line: 3056  Objects:     1591 detected /      785 sextracted
+[1A[1M> Line: 3072  Objects:     1593 detected /      793 sextracted
+[1A[1M> Line: 3088  Objects:     1600 detected /      802 sextracted
+[1A[1M> Line: 3104  Objects:     1603 detected /      807 sextracted
+[1A[1M> Line: 3120  Objects:     1607 detected /      824 sextracted
+[1A[1M> Line: 3136  Objects:     1609 detected /      830 sextracted
+[1A[1M> Line: 3152  Objects:     1614 detected /      836 sextracted
+[1A[1M> Line: 3168  Objects:     1621 detected /      845 sextracted
+[1A[1M> Line: 3184  Objects:     1625 detected /      861 sextracted
+[1A[1M> Line: 3200  Objects:     1626 detected /      879 sextracted
+[1A[1M> Line: 3216  Objects:     1630 detected /      898 sextracted
+[1A[1M> Line: 3232  Objects:     1632 detected /      911 sextracted
+[1A[1M> Line: 3248  Objects:     1635 detected /      926 sextracted
+[1A[1M> Line: 3264  Objects:     1640 detected /      938 sextracted
+[1A[1M> Line: 3280  Objects:     1644 detected /      959 sextracted
+[1A[1M> Line: 3296  Objects:     1645 detected /      971 sextracted
+[1A[1M> Line: 3312  Objects:     1649 detected /      986 sextracted
+[1A[1M> Line: 3328  Objects:     1653 detected /     1001 sextracted
+[1A[1M> Line: 3344  Objects:     1655 detected /     1014 sextracted
+[1A[1M> Line: 3360  Objects:     1657 detected /     1030 sextracted
+[1A[1M> Line: 3376  Objects:     1657 detected /     1044 sextracted
+[1A[1M> Line: 3392  Objects:     1657 detected /     1060 sextracted
+[1A[1M> Line: 3408  Objects:     1657 detected /     1069 sextracted
+[1A[1M> Line: 3424  Objects:     1657 detected /     1081 sextracted
+[1A[1M> Line: 3440  Objects:     1657 detected /     1097 sextracted
+[1A[1M> Line: 3456  Objects:     1657 detected /     1111 sextracted
+[1A[1M> Line: 3472  Objects:     1657 detected /     1128 sextracted
+[1A[1M> Line: 3488  Objects:     1657 detected /     1144 sextracted
+[1A[1M> Line: 3504  Objects:     1657 detected /     1157 sextracted
+[1A[1M> Line: 3520  Objects:     1657 detected /     1169 sextracted
+[1A[1M> Line: 3536  Objects:     1657 detected /     1188 sextracted
+[1A[1M> Line: 3552  Objects:     1657 detected /     1201 sextracted
+[1A[1M> Line: 3568  Objects:     1657 detected /     1211 sextracted
+[1A[1M> Line: 3584  Objects:     1657 detected /     1220 sextracted
+[1A[1M> Line: 3600  Objects:     1657 detected /     1229 sextracted
+[1A[1M> Line: 3616  Objects:     1657 detected /     1239 sextracted
+[1A[1M> Line: 3632  Objects:     1657 detected /     1247 sextracted
+[1A[1M> Line: 3648  Objects:     1657 detected /     1255 sextracted
+[1A[1M> Line: 3664  Objects:     1657 detected /     1261 sextracted
+[1A[1M> Line: 3680  Objects:     1657 detected /     1267 sextracted
+[1A[1M> Line: 3696  Objects:     1657 detected /     1279 sextracted
+[1A[1M> Line: 3712  Objects:     1657 detected /     1285 sextracted
+[1A[1M> Line: 3728  Objects:     1657 detected /     1291 sextracted
+[1A[1M> Line: 3744  Objects:     1657 detected /     1294 sextracted
+[1A[1M> Line: 3760  Objects:     1657 detected /     1299 sextracted
+[1A[1M> Line: 3776  Objects:     1657 detected /     1307 sextracted
+[1A[1M> Line: 3792  Objects:     1657 detected /     1312 sextracted
+[1A[1M> Line: 3808  Objects:     1657 detected /     1317 sextracted
+[1A[1M> Line: 3824  Objects:     1657 detected /     1320 sextracted
+[1A[1M> Line: 3840  Objects:     1657 detected /     1326 sextracted
+[1AObjects: detected 1657     / sextracted 1473                   
+[1M> Closing files
+[1A[1M> 
+[1A> All done (in 8 s)
+
+Sextractor run complete.
+
+Captured detection RMS=0.849721 from sextractor output.
+Modifying header of '/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/AIS_428_0001_sg17_getmask-nd-cat.fits' using int file header ...
+
+
+
+
+<< End of SExtra >> status=0
+Date/time: 2010/06/16_11:08:28Z  PCPU: 0.99/0.19/28  CCPU: 11.89/2.38
+HOST: vanir  PID: 24377  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux WS release 4 (Nahant Update 6)'
+
+

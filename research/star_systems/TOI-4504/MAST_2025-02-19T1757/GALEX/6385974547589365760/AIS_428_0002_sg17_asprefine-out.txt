@@ -1,0 +1,810 @@
+Now logging 22650 to file Orbpipe_sg17.log, GETFD=0 but true, FH=3/GLOB(0x96b57dc) .
+Dup'ing STDERR=GLOB(0x8a75a40) to LOG=GLOB(0x96b57dc) with tag ')-'.
+
+
+<< PhotMap >> version='$Id: photmap,v 1.38 2006/09/18 22:15:59 tim Exp $ ', release=ops-v7_0_3, moddate=2010/03/04_21:12:05Z
+Date/time: 2010/06/23_01:20:08Z  PCPU: 0.27/0.23/3  CCPU: 0.05/0.12
+HOST: modi  PID: 22650  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+CWD: /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/  EXEC: /home/galex/ops/bin/photmap (/home/galex/ops/bin/)
+
+Named parameters for PhotMap:
+input_base = AIS_428_0002_sg17; input_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; 
+output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; 
+output_base = AIS_428_0002_sg17_asprefine; cal_path = cal; band = 1; opt_wheel_pos = 1; ais = undef; tbase = 0; 
+sctbase = 315964800; pipe_data_version_number = 1; run = undef; not = undef; 
+execs = {rta=>grta,ingest=>gingest,add=>addemup,ingest32=>ingest,flag=>gmkflagmap,spac=>gspac,spex=>gspex,map=>photmap,fitstblcat=>fitstblcat,merge=>gmerge,spcombine=>gcombine,varpix=>movievarpix,astromchk=>astromchk,xhk=>xhk,sex=>sextra,instsim=>ginstsim,pipeqa=>gpipeqa,spacadd=>gspacadd,sppipeqa=>gpipeqa,trend=>ghktrend,ingest18=>hkdump}; 
+verbose = 1; debug = 0; log_file = undef; test = undef; photon_file = AIS_428_0002_sg17-nd-raw6.fits; dead_time_cor = undef; 
+use_solution = undef; slicedt2 = 5; seg_times = undef; min_part_tag = 1; interval = 5; compress_images = 1; 
+map_exec = simplemap; 
+Passed-on parameters:
+ '-simplemap:' '-trange 856980147.995,856980247.995 -aspf /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-asprta_preref.fits -which exp=0,dose=0,detbg=0,q=0,sprr=0,movie=0' 
+
+Input file(s) = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-nd-raw6.fits
+SPAWN created cmd 'simplemap -cal_info calpath=cal -input_base AIS_428_0002_sg17 -photon_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-nd-raw6.fits -output_base AIS_428_0002_sg17_asprefine -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -band 1 -other_opts noprog=1 -slicedt2 5 -compress_images=1 -opt_wheel_pos 1 -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -trange 856980147.995,856980247.995 -aspf /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-asprta_preref.fits -which exp=0,dose=0,detbg=0,q=0,sprr=0,movie=0 -trange 856980147.995,856980247.995 -aspf /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-asprta_preref.fits -which exp=0,dose=0,detbg=0,q=0,sprr=0,movie=0'.
+
+Mysystem exec'ing Simplemap (keep,out,err=0,0,0) as ...
+simplemap -cal_info calpath=cal -input_base AIS_428_0002_sg17 -photon_file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-nd-raw6.fits -output_base AIS_428_0002_sg17_asprefine -input_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -band 1 -other_opts noprog=1 -slicedt2 5 -compress_images=1 -opt_wheel_pos 1 -output_path /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/ -trange 856980147.995,856980247.995 -aspf /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-asprta_preref.fits -which exp=0,dose=0,detbg=0,q=0,sprr=0,movie=0 -trange 856980147.995,856980247.995 -aspf /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-asprta_preref.fits -which exp=0,dose=0,detbg=0,q=0,sprr=0,movie=0
+
+# SimpleMap Version '$Id: simplemap.c,v 1.173 2009/11/20 18:43:36 cmillion Exp $'
+# Datime: Wed_10/06/23_01:20:08Z -- CPU: User 0.00, System 0.00
+
+
+
+
+Command line options for SimpleMap:
+ [nitems=36/36,nalloc=64,alloc_sz=3072+60,chunksz=8,ncache=128,flags=0x1]
+  0: "grism"            (i)        = 0
+  1: "dose_only"        (i)        = 0
+  2: "ais"              (i)        = 0
+  3: "charge_map_too"   (i)        = 0
+  4: "rate"             (i)        = 0
+  5: "which"            (n)        = 0x8e32060 (60 bytes)
+     [nitems=9/9,nalloc=16,alloc_sz=768+60,chunksz=8,ncache=32,flags=0x1]
+      0: "cnt"              (d)        = -1
+      1: "exp"              (d)        = 0
+      2: "rr"               (d)        = 4
+      3: "detbg"            (d)        = 0
+      4: "dose"             (d)        = 0
+      5: "q"                (d)        = 0
+      6: "sprr"             (d)        = 0
+      7: "movie"            (d)        = 0
+      8: "flag"             (d)        = 8
+  6: "compress_images"  (i)        = 1
+  7: "init_from_file"   (i)        = 0
+  8: "multiple_runs"    (i)        = 0
+  9: "use_solution"     (i)        = 0
+ 10: "dead_time_cor"    (i)        = 0
+ 11: "output_path"      (s)        = "/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/" (74 bytes)
+ 12: "input_path"       (s)        = "/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try" (74 bytes)
+ 13: "nphots_to_read"   (i)        = -1
+ 14: "chunk_sz"         (i)        = 10000000
+ 15: "count_def"        (n)        = 0x8e31c88 (60 bytes)
+     [nitems=5/5,nalloc=8,alloc_sz=384+60,chunksz=8,ncache=16,flags=0x1]
+      0: "ra0"              (d)        = -999
+      1: "dec0"             (d)        = -999
+      2: "npix"             (d)        = 3840
+      3: "pixsz"            (d)        = 1.5
+      4: "twist"            (d)        = 0
+ 16: "dosage_def"       (n)        = 0x8e325b0 (60 bytes)
+     [nitems=3/3,nalloc=4,alloc_sz=192+60,chunksz=8,ncache=8,flags=0x1]
+      0: "npix"             (d)        = 2250
+      1: "pixszx"           (d)        = 3
+      2: "bitpix"           (i)        = 32
+ 17: "movie_def"        (n)        = 0x8e32b10 (60 bytes)
+     [nitems=1/1,nalloc=1,alloc_sz=48+60,chunksz=8,ncache=2,flags=0x1]
+      0: "framet"           (d)        = 16
+ 18: "slicedt2"         (d)        = 5
+ 19: "dump_phots"       (i)        = 0
+ 20: "n_to_dump"        (i)        = 100
+ 21: "dither_photons"   (i)        = 0
+ 22: "fwhm"             (d)        = 4.5
+ 23: "center"           (i)        = 0
+ 24: "verbose"          (i)        = 0
+ 25: "quiet"            (i)        = 0
+ 26: "debug"            (i)        = 0
+ 27: "cal_info"         (n)        = 0x8e32690 (60 bytes)
+     [nitems=48/48,nalloc=64,alloc_sz=3072+60,chunksz=8,ncache=128,flags=0x1]
+      0: "calpath"          (s)        = "cal" (4 bytes)
+      1: "flatfile"         (s)        = "flat.fits" (10 bytes)
+      2: "detbgfile"        (s)        = "detbg.fits" (11 bytes)
+      3: "spflatfile"       (s)        = "spflat.fits" (12 bytes)
+      4: "pltscl"           (d)        = 68.754932
+      5: "detsize"          (d)        = 1.25
+      6: "na"               (d)        = 0
+      7: "nb"               (d)        = 1
+      8: "nc"               (d)        = 0
+      9: "nd"               (d)        = 0
+     10: "ne"               (d)        = 0
+     11: "nf"               (d)        = 1
+     12: "fa"               (d)        = 0
+     13: "fb"               (d)        = 1
+     14: "fc"               (d)        = 0
+     15: "fd"               (d)        = 0
+     16: "fe"               (d)        = 0
+     17: "ff"               (d)        = 1
+     18: "maskfile"         (s)        = "mask.fits" (10 bytes)
+     19: "maskfile_fuv"     (s)        = "FUV_mask.fits" (14 bytes)
+     20: "maskfile_nuv"     (s)        = "NUV_mask.fits" (14 bytes)
+     21: "linfile_fuv_x"    (s)        = "FUV_NLC_x_det2sky.fits" (23 bytes)
+     22: "linfile_fuv_y"    (s)        = "FUV_NLC_y_det2sky.fits" (23 bytes)
+     23: "linfile_nuv_x"    (s)        = "NUV_NLC_x_det2sky.fits" (23 bytes)
+     24: "linfile_nuv_y"    (s)        = "NUV_NLC_y_det2sky.fits" (23 bytes)
+     25: "walkfile_fuv_x"   (s)        = "FUV_walk_x.fits" (16 bytes)
+     26: "walkfile_fuv_y"   (s)        = "FUV_walk_y.fits" (16 bytes)
+     27: "walkfile_nuv_x"   (s)        = "NUV_walk_x.fits" (16 bytes)
+     28: "walkfile_nuv_y"   (s)        = "NUV_walk_y.fits" (16 bytes)
+     29: "wigfile_fuv_x"    (s)        = "FUV_wiggle_x.fits" (18 bytes)
+     30: "wigfile_fuv_y"    (s)        = "FUV_wiggle_y.fits" (18 bytes)
+     31: "wigfile_nuv_x"    (s)        = "NUV_wiggle_x.fits" (18 bytes)
+     32: "wigfile_nuv_y"    (s)        = "NUV_wiggle_y.fits" (18 bytes)
+     33: "dumlin"           (d)        = 0
+     34: "dumwalk"          (d)        = 0
+     35: "dumwig"           (d)        = 0
+     36: "maskr"            (d)        = 0
+     37: "flat_correct_fuv" (d)        = -0.0031
+     38: "flat_t0_fuv"      (d)        = 840418779.02
+     39: "flat_correct_nuv" (d)        = -0.0154
+     40: "flat_t0_nuv"      (d)        = 840418779.02
+     41: "flat_correct_fuv_0" (d)        = 1.2420282
+     42: "flat_correct_fuv_1" (d)        = -2.8843099e-10
+     43: "flat_correct_fuv_2" (d)        = 0
+     44: "flat_correct_nuv_0" (d)        = 1.9946352
+     45: "flat_correct_nuv_1" (d)        = -1.9679445e-09
+     46: "flat_correct_nuv_2" (d)        = 9.3025231e-19
+     47: "dummy"            (d)        = 0
+ 28: "other_opts"       (n)        = 0x8e333c8 (60 bytes)
+     [nitems=30/30,nalloc=32,alloc_sz=1536+60,chunksz=8,ncache=64,flags=0x1]
+      0: "feeclkratio"      (d)        = 0.966
+      1: "nomstimr8"        (d)        = 79
+      2: "xsc_det_off"      (d)        = 0
+      3: "ysc_det_off"      (d)        = 0
+      4: "print1st"         (d)        = 0
+      5: "leakchk"          (d)        = 0
+      6: "sort"             (d)        = 0
+      7: "embedfmt"         (d)        = 0
+      8: "scdose"           (d)        = 1
+      9: "charge"           (d)        = 1
+     10: "noaccum"          (d)        = 0
+     11: "nosave"           (d)        = 0
+     12: "selband"          (d)        = 0
+     13: "fieldr"           (d)        = 0
+     14: "nlcmask"          (d)        = 1
+     15: "fieldra"          (d)        = -999
+     16: "fielddec"         (d)        = -999
+     17: "jiggle"           (d)        = 1
+     18: "grainsz"          (d)        = 0.05
+     19: "sampler0"         (d)        = 1.05
+     20: "sampler1"         (d)        = 1.3
+     21: "stimstats"        (d)        = 1
+     22: "autoscale"        (d)        = 0
+     23: "asptoff"          (d)        = 0
+     24: "ratesampt"        (d)        = 0
+     25: "qlo"              (d)        = -1
+     26: "qhi"              (d)        = -1
+     27: "allowbadwalk"     (d)        = 1
+     28: "asperrsfatal"     (d)        = 0
+     29: "noprog"           (d)        = 1
+ 29: "input_base"       (s)        = "AIS_428_0002_sg17" (18 bytes)
+ 30: "photon_file"      (s)        = "/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-nd-raw6.fits" (104 bytes)
+ 31: "output_base"      (s)        = "AIS_428_0002_sg17_asprefine" (28 bytes)
+ 32: "band"             (i)        = 1
+ 33: "opt_wheel_pos"    (i)        = 1
+ 34: "time_range"       (d[2])     = 0x8e30bb0 (16 bytes)
+                                     856980147.995,856980247.995
+ 35: "aspect_file"      (s)        = "/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-asprta_preref.fits" (111 bytes)
+
+
+Reading Aspect file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17-asprta_preref.fits ...
+Read 104 aspect records; t = [856980144.995 to 856980247.995]; Non-skipped t = [856980144.995 to 856980247.995]
+
+Opening photon file '/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-nd-raw6.fits' ...
+Input search times = 856980147.995000 to  856980247.995000.
+Aspect search times= 856980144.995000 to  856980247.995000.
+Final search times = 1172944947.995 to  1172945047.995 (tbase=315964800.000000).
+                     856980147.995 to  856980247.995 (tbase=0).
+                     966.000 to +100.000 (relative).
+Found 67756591 photons in format 7.
+Photon time range  = 1172943981.995 - 1172945622.990 = 1640.995000 sec.s
+                   = 856979181.995 - 856980822.990
+Reading header from state file '/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17-scst.fits' ...
+eclipse=20518fdttdc=28.123809
+Found header values ra0,dec0=114.370979,-62.649170, band=1, ow=1, fwhm=4.50
+                    eclipse/visit=20518/2, tilenum/tilename=50428/'AIS_428', grelease='ops-v7_0_3'/'ops-v7_0_3'
+                    nvalidph=-999
+
+Using these conversion constants:
+NUV plate solution = 0.000000,1.000000,0.000000,0.000000,0.000000,1.000000
+FUV plate solution = 0.000000,1.000000,0.000000,0.000000,0.000000,1.000000
+Plate scale = 68.754932"/mm
+Det. size   = 1.250000 deg.
+     Center            Scale             Slope             Clock            
+     X        Y        X        Y        X        Y        X        Y       
+NUV: 7400.000 6070.000 8.790    14.010   0.530    0.000    2007.000 1992.000
+FUV: 7200.000 6670.000 7.780    10.730   0.000    0.000    1997.000 1993.000
+flat_correct_0, flat_correct_1, flat_correct_2, t, scale = 1.994635, -0.000000, 0.000000, 856980002.492500, 0.991337
+Loading mask file cal/NUV_mask.fits ...
+	mask file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/cal/NUV_mask.fits -> /home/galex/cal/targ/cal05.00/NUV_mask.fits
+Mask is 800X800 and has 3078 zero pixels.
+Remapping mask with 0,1,1,0 ...
+Reading flat file 'cal/NUV_flat.fits' ...
+	flat file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/cal/NUV_flat.fits -> /home/galex/cal/targ/cal05.00/NUV_flat.fits
+Rescaling flat with scale 0.991337 ...
+... rescaled 590220 pixels.
+Remapping flat with 0,1,1,0 ...
+Reading linfile_fuv_x file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/cal/FUV_NLC_x_det2sky.fits; 230400 pixels of size 4 bytes.
+	-> /home/galex/cal/targ/cal05.00/FUV_NLC_x_det2sky.fits
+Reading linfile_nuv_x file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/cal/NUV_NLC_x_det2sky.fits; 230400 pixels of size 4 bytes.
+	-> /home/galex/cal/targ/cal05.00/NUV_NLC_x_det2sky.fits
+Reading linfile_fuv_y file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/cal/FUV_NLC_y_det2sky.fits; 230400 pixels of size 4 bytes.
+	-> /home/galex/cal/targ/cal05.00/FUV_NLC_y_det2sky.fits
+Reading linfile_nuv_y file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/cal/NUV_NLC_y_det2sky.fits; 230400 pixels of size 4 bytes.
+	-> /home/galex/cal/targ/cal05.00/NUV_NLC_y_det2sky.fits
+Reading walkfile_fuv_x file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/cal/FUV_walk_x.fits; 7372800 pixels of size 4 bytes.
+	-> /home/galex/cal/targ/cal05.00/FUV_walk_x.fits
+Reading walkfile_nuv_x file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/cal/NUV_walk_x.fits; 7372800 pixels of size 4 bytes.
+	-> /home/galex/cal/targ/cal05.00/NUV_walk_x.fits
+Reading walkfile_fuv_y file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/cal/FUV_walk_y.fits; 7372800 pixels of size 4 bytes.
+	-> /home/galex/cal/targ/cal05.00/FUV_walk_y.fits
+Reading walkfile_nuv_y file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/cal/NUV_walk_y.fits; 7372800 pixels of size 4 bytes.
+	-> /home/galex/cal/targ/cal05.00/NUV_walk_y.fits
+Reading wigfile_fuv_x file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/cal/FUV_wiggle_x.fits; 15360 pixels of size 4 bytes.
+	-> /home/galex/cal/targ/cal05.00/FUV_wiggle_x.fits
+Reading wigfile_nuv_x file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/cal/NUV_wiggle_x.fits; 15360 pixels of size 4 bytes.
+	-> /home/galex/cal/targ/cal05.00/NUV_wiggle_x.fits
+Reading wigfile_fuv_y file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/cal/FUV_wiggle_y.fits; 15360 pixels of size 4 bytes.
+	-> /home/galex/cal/targ/cal05.00/FUV_wiggle_y.fits
+Reading wigfile_nuv_y file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/cal/NUV_wiggle_y.fits; 15360 pixels of size 4 bytes.
+	-> /home/galex/cal/targ/cal05.00/NUV_wiggle_y.fits
+
+Making image definitions ...
+
+Allocating image space for 3 maps (0x405) ...
+
+
+Reading 10000000 of 67756591 photons remaining (0/67756591 so far) (chunksz=10000000, fmt=7) ...
+Read 0(0) photons in 0.212648 seconds, 0.000000 MB/sec. RC=0, Last=0, EOF=0 .
+
+
+Reading 10000000 of 67756591 photons remaining (0/67756591 so far) (chunksz=10000000, fmt=7) ...
+Read 0(0) photons in 0.146100 seconds, 0.000000 MB/sec. RC=0, Last=0, EOF=0 .
+
+
+Reading 10000000 of 67756591 photons remaining (0/67756591 so far) (chunksz=10000000, fmt=7) ...
+Read 0(0) photons in 0.001340 seconds, 0.000000 MB/sec. RC=0, Last=0, EOF=0 .
+
+
+Reading 10000000 of 67756591 photons remaining (0/67756591 so far) (chunksz=10000000, fmt=7) ...
+Read 0(0) photons in 0.000759 seconds, 0.000000 MB/sec. RC=0, Last=0, EOF=0 .
+
+
+Reading 10000000 of 67756591 photons remaining (0/67756591 so far) (chunksz=10000000, fmt=7) ...
+Read 4109170(10000000) photons in 18.255407 seconds, 8.358504 MB/sec. RC=-2, Last=1, EOF=1 .
+Converting photons to extended format ...
+simplemap rtaph#2
+eclipse = 20518
+fdttdc  = 28.123809
+calpath = cal
+subvis  = 17
+eclipse=20518  fdttdc= 28.12381  subvis=17  calpath='cal'
+NOTE: Running rtaph_setup_FODC() [version 19nov2009 (1:13pm)] 
+NOTE: user calpath exists 'cal.'
+Current working directory = '/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try'.
+NOTE: Using subvisit string = '_sg17'.
+Allocate distortion cube memory [1592812 floats each cube].
+Reading 'cal/nuv_distortion_cube_dx.fits'.
+Reading 'cal/nuv_distortion_cube_dy.fits'.
+Load all stim photons (max = 900000).
+Loaded 5961 stim photons.
+Compute new stim data.
+NOTE: rtaph_setup_FODC: 5 stim groups set (pinc=1192).
+Read in 1 previous entries from 'SSD_nuv_20518_sg17.tbl'.
+Stim solution coeffecients(band=1): -9.9705884e+05  1.1694138e-03 [n=6]
+Writing stim data to 'SSD_nuv_20518_sg17.tbl' [old=1 tot=6].
+
+|sct           |stim_sep |stim_num | sep_fit |
+  856980153.474  5105.578    1017.0  5105.510 
+  856980158.022  5105.609    1190.0  5105.558 
+  856980177.939  5105.551    1195.0  5105.581 
+  856980197.998  5105.594    1194.0  5105.605 
+  856980218.232  5105.482    1210.0  5105.628 
+  856980238.118  5105.766    1202.0  5105.652 
+
+Return to rtaph(), band=1, ...
+Masked 22968 photons.
+... found 3961206 valid photons.
+
+Accumulating 4109170 photons, last=1 ...
+000000001 / 004109170000123303 / 004109170000246391 / 004109170000369495 / 004109170000493311 / 004109170000616902 / 004109170000740563 / 004109170000863736 / 004109170000987344 / 004109170001111362 / 004109170001234773 / 004109170001358649 / 004109170001482203 / 004109170001606337 / 004109170001729551 / 004109170001853130 / 004109170001976460 / 004109170002099577 / 004109170002222853 / 004109170002346529 / 004109170002470226 / 004109170002593302 / 004109170002716649 / 004109170002839872 / 004109170002964091 / 004109170003087746 / 004109170003210874 / 004109170003334356 / 004109170003457453 / 004109170003580675 / 004109170003704158 / 004109170003827855 / 004109170003951445 / 004109170004074829 / 004109170004109170 / 004109170Accumulated in 10.621645 seconds (32821 skipped), 2.584864 usec.s/photon.
+	(Skip type counts = 0 0 0 0 0 0 0 0 26846 0 5975 0 )
+
+
+Computing image stats for count image ...
+Computing image stats for RR image ...
+
+
+
+Stats for this run:
+
+Rough exposure time = 100 seconds.
+Number within   1.300000                  = 4099369
+Number within   1.050000                  = 4099062
+Number between  1.050000   and 1.300000   = 307
+Number outside  1.300000                  = 9801
+Ratio  between  1.050000   and 1.300000   = 0.000075
+Ratio scaled by area                      = 0.000215
+Ave. rate within  1.050000                = 40990.620000 phots/sec
+Ave. rate within  annulus                 = 3.070000 phots/sec
+Ave. rate outside 1.300000                = 98.010000 phots/sec
+
+Accumulation info:
+      0: "NCHUNKS"          (i)        = 1
+      1: "NRUNS"            (d)        = 1
+      2: "PHTRNG0"          (d)        = 1172944947.995
+      3: "PHTRNG1"          (d)        = 1172945047.995
+      4: "PHTFIRST"         (d)        = 856980147.995
+      5: "PHTLAST"          (d)        = 856980247.995
+      6: "PHTELAP"          (d)        = 100
+      7: "EXPTIME"          (d)        = 100
+      8: "NGAPS"            (d)        = 1
+      9: "TOTREAD"          (d)        = 10000000
+     10: "TOTMAP"           (d)        = 4103195
+     11: "TOTONMAP"         (d)        = 4076349
+     12: "NMASKED"          (d)        = 26846
+     13: "NVISIBLE"         (d)        = 4076349
+     14: "NSTIM1"           (d)        = 1505
+     15: "STIM1X"           (d)        = 0.68161522702104
+     16: "STIM1Y"           (d)        = -0.75625420819491
+     17: "NSTIM2"           (d)        = 1406
+     18: "STIM2X"           (d)        = 0.68165807254623
+     19: "STIM2Y"           (d)        = 0.68584372530425
+     20: "NSTIM3"           (d)        = 1545
+     21: "STIM3X"           (d)        = -0.71280771305286
+     22: "STIM3Y"           (d)        = -0.75613772024451
+     23: "NSTIM4"           (d)        = 1512
+     24: "STIM4X"           (d)        = -0.71272707231041
+     25: "STIM4Y"           (d)        = 0.68596988903586
+     26: "CNTMED"           (d)        = 0
+     27: "CNTAVE"           (d)        = 0.57910798672231
+     28: "CNTPCT1"          (d)        = 0
+     29: "CNTPCT99"         (d)        = 3
+     30: "XNOT0AVE"         (d)        = 1889.8369525728
+     31: "YNOT0AVE"         (d)        = 1902.0370369473
+     32: "NNOT0"            (d)        = 2270827
+     33: "RRMED"            (d)        = 88.031829833984
+     34: "RRAVE"            (d)        = 87.732048487799
+     35: "RRPCT1"           (d)        = 79.20272064209
+     36: "RRPCT99"          (d)        = 96.755516052246
+     37: "NASPOK"           (i)        = 101
+     38: "NASPALL"          (i)        = 101
+     39: "NASPXY"           (i)        = 101
+     40: "AVASPX"           (d)        = 1892.7412351412
+     41: "AVASPY"           (d)        = 1901.9669794639
+     42: "AVASPRRX"         (d)        = 473.1853087853
+     43: "AVASPRRY"         (d)        = 475.49174486597
+     44: "AVASPRA"          (d)        = 114.39616044981
+     45: "AVASPDEC"         (d)        = -62.656889756063
+     46: "AVASPROL"         (d)        = 180.63704644729
+     47: "NSKIP"            (i)        = 32821
+     48: "NSKIP00"          (i)        = 0
+     49: "NSKIP01"          (i)        = 0
+     50: "NSKIP02"          (i)        = 0
+     51: "NSKIP03"          (i)        = 0
+     52: "NSKIP04"          (i)        = 0
+     53: "NSKIP05"          (i)        = 0
+     54: "NSKIP06"          (i)        = 0
+     55: "NSKIP07"          (i)        = 0
+     56: "NSKIP08"          (i)        = 26846
+     57: "NSKIP09"          (i)        = 0
+     58: "NSKIP10"          (i)        = 5975
+     59: "NSKIP11"          (i)        = 0
+
+
+
+Making FITS file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17_asprefine-nd-cnt.fits.gz ...
+
+Making FITS file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17_asprefine-nd-rr.fits ...
+
+Making FITS file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//AIS_428_0002_sg17_asprefine-nd-flag_hotmask.fits.gz ...
+
+
+Mapping complete.
+
+
+<< End of PhotMap >> status=0
+Date/time: 2010/06/23_01:21:00Z  PCPU: 0.3/0.23/55  CCPU: 25.71/2.13
+HOST: modi  PID: 22650  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+
+
+Now logging 23249 to file Orbpipe_sg17.log, GETFD=0 but true, FH=3/GLOB(0xb0a5214) .
+Dup'ing STDERR=GLOB(0x9ef0a40) to LOG=GLOB(0xb0a5214) with tag ')-'.
+
+
+<< SExtra >> version='$Id: sextra,v 1.218 2009/07/23 21:22:19 cmillion Exp $ ', release=ops-v7_0_3, moddate=2010/03/04_21:11:57Z
+Date/time: 2010/06/23_01:21:09Z  PCPU: 0.51/0.3/5  CCPU: 0.01/0.07
+HOST: modi  PID: 23249  USER: gop  GRP: gop/gop  CFG: 'ops'  OS: 'Red Hat Enterprise Linux AS release 4 (Nahant Update 5)'
+CWD: /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/  EXEC: /home/galex/ops/bin/sextra (/home/galex/ops/bin/)
+
+Named parameters for SExtra:
+input_base = AIS_428_0002_sg17_asprefine-nd; threshold = undef; nuv_threshold = 3; fuv_threshold = 3; minpix = 2; 
+absolute_thresh = undef; background = undef; remove_background = 0; mask_objects = 0; get_mask = 0; mask_threshold = 3; 
+expand_mask_radius = 0; trim_rr_level = 0.2; catalog_name = undef; measurement_map = undef; skip_map_creation = undef; 
+no_sex = undef; filter = 1; conv_fwhm = -4.5,-4.5; seeing_fwhm = 5.5,5; apertures = 2,3,5,8,12,17,23; 
+flux_fracs = 0.2,0.5,0.8,0.9,0.95; deblend_mincont = 0.04; deblend_nthresh = 32; phot_autoparams = 2.5,3.5; mag_zero = 0; 
+clean = 1; mask_type = correct; deep = undef; deep_exp_thresh = 10000; backsize = 128; bg_filter_size = 5; detector_bg = undef; 
+sex_par_name = default; sex_par_path = /home/galex/ops/params/sex,/home/galex/params/sex; sex_params = undef; count_map = undef; 
+response_map = undef; weight_map = undef; detector_background_map = undef; inten_map = undef; sigma_map = 0; 
+input_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; 
+output_base = AIS_428_0002_sg17_asprefine; 
+output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/; 
+qa_output_path = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try//qa; in_out_path = undef; 
+extension_addition = undef; ais = undef; band = undef; opt_wheel_pos = undef; cal_path = cal; check_images = NONE; 
+check_base = undef; mag_column = MAG_AUTO; plot_device = /xs; no_stats = undef; stat_name = 1; compress_images = 1; 
+sex_exec = /home/galex/bin/sex; rmback_exec = poissonbg; fake_options = undef; 
+other_opts = {asciicat=>0,savemem=>0,bgthr=>0,rmbgwt=>0,fieldr=>0.5,regmaglim=>0,fixposerr=>1,savemaskrun=>0,rrtrimr=>0,unmchregfile=>unmatched.ds9reg,prunmch=>0,nohardsex=>0,inscrwidth=>0,rrthr=>0,skipmasksex=>0,pgplotdir=>/home/galex/pgplot,truemchr=>0,truelim=>0,forceconv=>0,detectonly=>0,convsuf=>gauss,sigthr=>0,truecat=>0,detsize=>1.25}; 
+log_file = undef; verbose = 1; debug = undef; 
+
+
+Temporary directory = '/tmp/sextra.modi.23249.mEkC'.
+Decompressor = '/bin/gzip'.
+Got PSFFWHM=4.5 from FITS header in '/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_asprefine-nd-cnt.fits'.
+Got CRVAL1=114.370979309082 from FITS header in '/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_asprefine-nd-cnt.fits'.
+Got CRVAL2=-62.649169921875 from FITS header in '/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_asprefine-nd-cnt.fits'.
+Got CDELT1=-0.000416666666666667 from FITS header in '/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_asprefine-nd-cnt.fits'.
+Got EXPTIME=100. from FITS header in '/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_asprefine-nd-cnt.fits'.
+Got RRMED=88.0318298339844 from FITS header in '/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_asprefine-nd-cnt.fits'.
+Got NAXIS1=3840 from FITS header in '/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_asprefine-nd-cnt.fits'.
+Got NAXIS2=3840 from FITS header in '/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_asprefine-nd-cnt.fits'.
+Got NVISIBLE=4076349. from FITS header in '/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_asprefine-nd-cnt.fits'.
+Setting trim level to 0.2 * 100. * (1-0) = 20
+params: Reassigning minpix = '2'.
+Reading count image /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_asprefine-nd-cnt.fits ...
+  Min=0 Max=875, Dim=3840,3840, Type=E (imtype=E)
+Reading RR image /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_asprefine-nd-rr.fits ...
+  Trimming RR below 20 seconds of coverage ...
+  Upsampling RR image from 960,960 to 3840,3840 ...
+  Min=0 Max=99.5216217041016, Dim=3840,3840
+    New Min=-1.10000001655221e+30 Max=99.5216217041016
+Opening int output file '/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_asprefine-nd-int.fits' ...
+  Updating header ...
+Use RR file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_asprefine-nd-rr.fits as a gain/weight map.
+Writing intensity image at /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_asprefine-nd-int.fits ...
+  Min=0.0100480681285262, Max=10.3286399841309, Dim=3840,3840, Type=E (imtype=E)
+Writing noise/weight image at /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_asprefine-nd-wt.fits ...
+  Min=-1.10000001655221e+30 Max=99.5216217041016, GAIN=88.0318298339844, Dim=3840,3840
+Copying weight map to /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_asprefine-nd-rrhr.fits ...
+Opening detection image '/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_asprefine-nd-int.fits' to read header ...
+Writing new matched 7x7 filter with FWHM=4.5" (3 pixels) to file /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_asprefine-nd-gauss_30_7x7.txt .
+`/home/galex/ops/params/sex/default.param' -> `/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_asprefine-nd-sexcols_orig.txt'
+`/home/galex/ops/params/sex/default.sex' -> `/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_asprefine-nd-sexparams_orig.txt'
+`/home/galex/ops/params/sex/default.nnw' -> `/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_asprefine-nd-sexnnw.txt'
+Editing /home/galex/ops/params/sex/default.param ...
+`/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_asprefine-nd-sexcols_orig.txt' -> `/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_asprefine-nd-sexcols.txt'
+
+
+
+Detection image   = '/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_asprefine-nd-int.fits'
+Measurement image = '/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_asprefine-nd-int.fits'
+Weight image      = '/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_asprefine-nd-wt.fits'
+Config file = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_asprefine-nd-sexparams.txt
+ANALYSIS_THRESH      = 1
+BACKPHOTO_THICK      = 24
+BACKPHOTO_TYPE       = GLOBAL
+BACK_FILTERSIZE      = 5
+BACK_SIZE            = 128
+CATALOG_NAME         = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_asprefine-nd-cat.fits
+CATALOG_TYPE         = FITS_1.0
+CHECKIMAGE_NAME      = NONE
+CHECKIMAGE_TYPE      = NONE
+CLEAN                = YES
+CLEAN_PARAM          = 1
+DEBLEND_MINCONT      = 0.04
+DEBLEND_NTHRESH      = 32
+DETECT_MINAREA       = 2
+DETECT_THRESH        = 3
+DETECT_TYPE          = CCD
+FILTER               = Y
+FILTER_NAME          = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_asprefine-nd-gauss_30_7x7.txt
+GAIN                 = 88.0318298339844
+INTERP_MAXXLAG       = 1
+INTERP_MAXYLAG       = 1
+INTERP_TYPE          = NONE,NONE
+MAG_GAMMA            = 4
+MAG_ZEROPOINT        = 0
+MASK_TYPE            = CORRECT
+MEMORY_BUFSIZE       = 1024
+MEMORY_OBJSTACK      = 2000
+MEMORY_PIXSTACK      = 1500000
+PARAMETERS_NAME      = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_asprefine-nd-sexcols.txt
+PHOT_APERTURES       = 2,3,5,8,12,17,23
+PHOT_AUTOPARAMS      = 2.5,3.5
+PHOT_FLUXFRAC        = 0.2,0.5,0.8,0.9,0.95
+PIXEL_SCALE          = 1.500
+SATUR_LEVEL          = 999999999
+SEEING_FWHM          = 5.5
+STARNNW_NAME         = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_asprefine-nd-sexnnw.txt
+THRESH_TYPE          = RELATIVE
+VERBOSE_TYPE         = NORMAL
+WEIGHT_GAIN          = Y
+WEIGHT_IMAGE         = /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_asprefine-nd-wt.fits
+WEIGHT_TYPE          = MAP_WEIGHT
+
+Sextractor command /home/galex/bin/sex extracting into '/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_asprefine-nd-cat.fits'.
+[1M> 
+[1A----- SExtractor 2.5.0 started on 2010-06-22 at 18:22:02 with 1 thread
+
+[1M> Setting catalog parameters
+[1A[1M> Reading detection filter
+[1A[1M> Initializing Neural Network
+[1A[1M> Reading Neural Network Weights
+[1A[1M> Initializing catalog
+[1A[1M> Looking for AIS_428_0002_sg17_asprefine-nd-int.fits
+[1AMeasuring from: "AIS_428_0002_sg17_as"  / 3840 x 3840 / 32 bits FLOATING POINT data
+[1M> Looking for AIS_428_0002_sg17_asprefine-nd-wt.fits
+[1AWeighting from: "AIS_428_0002_sg17_as"  / 3840 x 3840 / 32 bits FLOATING POINT data
+Detection+Measurement image: [1M> Setting up background maps
+[1A[1M> Setting up background map at line:  128
+[1A[1M> Setting up background map at line:  256
+[1A[1M> Setting up background map at line:  384
+[1A[1M> Setting up background map at line:  512
+[1A[1M> Setting up background map at line:  640
+[1A[1M> Setting up background map at line:  768
+[1A[1M> Setting up background map at line:  896
+[1A[1M> Setting up background map at line: 1024
+[1A[1M> Setting up background map at line: 1152
+[1A[1M> Setting up background map at line: 1280
+[1A[1M> Setting up background map at line: 1408
+[1A[1M> Setting up background map at line: 1536
+[1A[1M> Setting up background map at line: 1664
+[1A[1M> Setting up background map at line: 1792
+[1A[1M> Setting up background map at line: 1920
+[1A[1M> Setting up background map at line: 2048
+[1A[1M> Setting up background map at line: 2176
+[1A[1M> Setting up background map at line: 2304
+[1A[1M> Setting up background map at line: 2432
+[1A[1M> Setting up background map at line: 2560
+[1A[1M> Setting up background map at line: 2688
+[1A[1M> Setting up background map at line: 2816
+[1A[1M> Setting up background map at line: 2944
+[1A[1M> Setting up background map at line: 3072
+[1A[1M> Setting up background map at line: 3200
+[1A[1M> Setting up background map at line: 3328
+[1A[1M> Setting up background map at line: 3456
+[1A[1M> Setting up background map at line: 3584
+[1A[1M> Setting up background map at line: 3712
+[1A[1M> Filtering background map(s)
+[1A[1M> Computing background d-map
+[1A[1M> Computing background-noise d-map
+[1A(M+D) Background: 3.56313e-06 RMS: 0.00539331 / Threshold: 0.0161799  
+[1M> Scanning image
+[1A[1M> Line:   16  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:   32  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:   48  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:   64  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:   80  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:   96  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  112  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  128  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  144  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  160  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  176  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  192  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  208  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  224  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  240  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  256  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  272  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  288  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  304  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  320  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  336  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  352  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  368  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  384  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  400  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  416  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  432  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  448  Objects:        0 detected /        0 sextracted
+[1A[1M> Line:  464  Objects:        6 detected /        0 sextracted
+[1A[1M> Line:  480  Objects:       13 detected /        0 sextracted
+[1A[1M> Line:  496  Objects:       16 detected /        0 sextracted
+[1A[1M> Line:  512  Objects:       23 detected /        0 sextracted
+[1A[1M> Line:  528  Objects:       26 detected /        0 sextracted
+[1A[1M> Line:  544  Objects:       34 detected /        0 sextracted
+[1A[1M> Line:  560  Objects:       38 detected /        0 sextracted
+[1A[1M> Line:  576  Objects:       42 detected /        0 sextracted
+[1A[1M> Line:  592  Objects:       46 detected /        0 sextracted
+[1A[1M> Line:  608  Objects:       53 detected /        0 sextracted
+[1A[1M> Line:  624  Objects:       57 detected /        0 sextracted
+[1A[1M> Line:  640  Objects:       60 detected /        0 sextracted
+[1A[1M> Line:  656  Objects:       63 detected /        0 sextracted
+[1A[1M> Line:  672  Objects:       73 detected /        0 sextracted
+[1A[1M> Line:  688  Objects:       76 detected /        0 sextracted
+[1A[1M> Line:  704  Objects:       79 detected /        0 sextracted
+[1A[1M> Line:  720  Objects:       86 detected /        0 sextracted
+[1A[1M> Line:  736  Objects:       94 detected /        0 sextracted
+[1A[1M> Line:  752  Objects:       98 detected /        0 sextracted
+[1A[1M> Line:  768  Objects:      110 detected /        0 sextracted
+[1A[1M> Line:  784  Objects:      113 detected /        0 sextracted
+[1A[1M> Line:  800  Objects:      118 detected /        0 sextracted
+[1A[1M> Line:  816  Objects:      122 detected /        0 sextracted
+[1A[1M> Line:  832  Objects:      125 detected /        0 sextracted
+[1A[1M> Line:  848  Objects:      135 detected /        0 sextracted
+[1A[1M> Line:  864  Objects:      144 detected /        0 sextracted
+[1A[1M> Line:  880  Objects:      151 detected /        0 sextracted
+[1A[1M> Line:  896  Objects:      154 detected /        0 sextracted
+[1A[1M> Line:  912  Objects:      161 detected /        0 sextracted
+[1A[1M> Line:  928  Objects:      166 detected /        0 sextracted
+[1A[1M> Line:  944  Objects:      176 detected /        0 sextracted
+[1A[1M> Line:  960  Objects:      186 detected /        0 sextracted
+[1A[1M> Line:  976  Objects:      193 detected /        0 sextracted
+[1A[1M> Line:  992  Objects:      199 detected /        0 sextracted
+[1A[1M> Line: 1008  Objects:      208 detected /        0 sextracted
+[1A[1M> Line: 1024  Objects:      215 detected /        0 sextracted
+[1A[1M> Line: 1040  Objects:      221 detected /        0 sextracted
+[1A[1M> Line: 1056  Objects:      232 detected /        0 sextracted
+[1A[1M> Line: 1072  Objects:      239 detected /        0 sextracted
+[1A[1M> Line: 1088  Objects:      246 detected /        0 sextracted
+[1A[1M> Line: 1104  Objects:      254 detected /        0 sextracted
+[1A[1M> Line: 1120  Objects:      260 detected /        0 sextracted
+[1A[1M> Line: 1136  Objects:      265 detected /        0 sextracted
+[1A[1M> Line: 1152  Objects:      273 detected /        0 sextracted
+[1A[1M> Line: 1168  Objects:      281 detected /        0 sextracted
+[1A[1M> Line: 1184  Objects:      287 detected /        0 sextracted
+[1A[1M> Line: 1200  Objects:      295 detected /        0 sextracted
+[1A[1M> Line: 1216  Objects:      311 detected /        0 sextracted
+[1A[1M> Line: 1232  Objects:      318 detected /        0 sextracted
+[1A[1M> Line: 1248  Objects:      323 detected /        0 sextracted
+[1A[1M> Line: 1264  Objects:      331 detected /        0 sextracted
+[1A[1M> Line: 1280  Objects:      337 detected /        0 sextracted
+[1A[1M> Line: 1296  Objects:      350 detected /        1 sextracted
+[1A[1M> Line: 1312  Objects:      358 detected /        1 sextracted
+[1A[1M> Line: 1328  Objects:      366 detected /        1 sextracted
+[1A[1M> Line: 1344  Objects:      372 detected /        1 sextracted
+[1A[1M> Line: 1360  Objects:      379 detected /        1 sextracted
+[1A[1M> Line: 1376  Objects:      388 detected /        1 sextracted
+[1A[1M> Line: 1392  Objects:      395 detected /        1 sextracted
+[1A[1M> Line: 1408  Objects:      402 detected /        1 sextracted
+[1A[1M> Line: 1424  Objects:      411 detected /        2 sextracted
+[1A[1M> Line: 1440  Objects:      420 detected /        3 sextracted
+[1A[1M> Line: 1456  Objects:      426 detected /        4 sextracted
+[1A[1M> Line: 1472  Objects:      432 detected /        7 sextracted
+[1A[1M> Line: 1488  Objects:      440 detected /       13 sextracted
+[1A[1M> Line: 1504  Objects:      444 detected /       16 sextracted
+[1A[1M> Line: 1520  Objects:      448 detected /       17 sextracted
+[1A[1M> Line: 1536  Objects:      458 detected /       20 sextracted
+[1A[1M> Line: 1552  Objects:      464 detected /       23 sextracted
+[1A[1M> Line: 1568  Objects:      473 detected /       26 sextracted
+[1A[1M> Line: 1584  Objects:      479 detected /       29 sextracted
+[1A[1M> Line: 1600  Objects:      486 detected /       35 sextracted
+[1A[1M> Line: 1616  Objects:      496 detected /       39 sextracted
+[1A[1M> Line: 1632  Objects:      502 detected /       44 sextracted
+[1A[1M> Line: 1648  Objects:      511 detected /       48 sextracted
+[1A[1M> Line: 1664  Objects:      519 detected /       54 sextracted
+[1A[1M> Line: 1680  Objects:      526 detected /       58 sextracted
+[1A[1M> Line: 1696  Objects:      539 detected /       61 sextracted
+[1A[1M> Line: 1712  Objects:      550 detected /       67 sextracted
+[1A[1M> Line: 1728  Objects:      561 detected /       74 sextracted
+[1A[1M> Line: 1744  Objects:      570 detected /       77 sextracted
+[1A[1M> Line: 1760  Objects:      581 detected /       83 sextracted
+[1A[1M> Line: 1776  Objects:      585 detected /       92 sextracted
+[1A[1M> Line: 1792  Objects:      604 detected /       96 sextracted
+[1A[1M> Line: 1808  Objects:      621 detected /      100 sextracted
+[1A[1M> Line: 1824  Objects:      628 detected /      104 sextracted
+[1A[1M> Line: 1840  Objects:      641 detected /      113 sextracted
+[1A[1M> Line: 1856  Objects:      650 detected /      122 sextracted
+[1A[1M> Line: 1872  Objects:      664 detected /      129 sextracted
+[1A[1M> Line: 1888  Objects:      677 detected /      133 sextracted
+[1A[1M> Line: 1904  Objects:      691 detected /      135 sextracted
+[1A[1M> Line: 1920  Objects:      694 detected /      144 sextracted
+[1A[1M> Line: 1936  Objects:      701 detected /      151 sextracted
+[1A[1M> Line: 1952  Objects:      706 detected /      159 sextracted
+[1A[1M> Line: 1968  Objects:      716 detected /      164 sextracted
+[1A[1M> Line: 1984  Objects:      733 detected /      173 sextracted
+[1A[1M> Line: 2000  Objects:      746 detected /      178 sextracted
+[1A[1M> Line: 2016  Objects:      760 detected /      183 sextracted
+[1A[1M> Line: 2032  Objects:      773 detected /      192 sextracted
+[1A[1M> Line: 2048  Objects:      785 detected /      199 sextracted
+[1A[1M> Line: 2064  Objects:      795 detected /      210 sextracted
+[1A[1M> Line: 2080  Objects:      805 detected /      218 sextracted
+[1A[1M> Line: 2096  Objects:      812 detected /      225 sextracted
+[1A[1M> Line: 2112  Objects:      817 detected /      230 sextracted
+[1A[1M> Line: 2128  Objects:      837 detected /      236 sextracted
+[1A[1M> Line: 2144  Objects:      841 detected /      241 sextracted
+[1A[1M> Line: 2160  Objects:      851 detected /      247 sextracted
+[1A[1M> Line: 2176  Objects:      869 detected /      259 sextracted
+[1A[1M> Line: 2192  Objects:      884 detected /      261 sextracted
+[1A[1M> Line: 2208  Objects:      903 detected /      272 sextracted
+[1A[1M> Line: 2224  Objects:      932 detected /      279 sextracted
+[1A[1M> Line: 2240  Objects:      953 detected /      284 sextracted
+[1A[1M> Line: 2256  Objects:      974 detected /      293 sextracted
+[1A[1M> Line: 2272  Objects:      998 detected /      302 sextracted
+[1A[1M> Line: 2288  Objects:     1021 detected /      312 sextracted
+[1A[1M> Line: 2304  Objects:     1038 detected /      322 sextracted
+[1A[1M> Line: 2320  Objects:     1059 detected /      326 sextracted
+[1A[1M> Line: 2336  Objects:     1077 detected /      335 sextracted
+[1A[1M> Line: 2352  Objects:     1097 detected /      341 sextracted
+[1A[1M> Line: 2368  Objects:     1113 detected /      349 sextracted
+[1A[1M> Line: 2384  Objects:     1127 detected /      357 sextracted
+[1A[1M> Line: 2400  Objects:     1150 detected /      366 sextracted
+[1A[1M> Line: 2416  Objects:     1172 detected /      372 sextracted
+[1A[1M> Line: 2432  Objects:     1190 detected /      378 sextracted
+[1A[1M> Line: 2448  Objects:     1210 detected /      387 sextracted
+[1A[1M> Line: 2464  Objects:     1223 detected /      395 sextracted
+[1A[1M> Line: 2480  Objects:     1236 detected /      399 sextracted
+[1A[1M> Line: 2496  Objects:     1253 detected /      406 sextracted
+[1A[1M> Line: 2512  Objects:     1262 detected /      410 sextracted
+[1A[1M> Line: 2528  Objects:     1276 detected /      416 sextracted
+[1A[1M> Line: 2544  Objects:     1290 detected /      424 sextracted
+[1A[1M> Line: 2560  Objects:     1302 detected /      431 sextracted
+[1A[1M> Line: 2576  Objects:     1311 detected /      440 sextracted
+[1A[1M> Line: 2592  Objects:     1317 detected /      447 sextracted
+[1A[1M> Line: 2608  Objects:     1328 detected /      456 sextracted
+[1A[1M> Line: 2624  Objects:     1338 detected /      465 sextracted
+[1A[1M> Line: 2640  Objects:     1347 detected /      473 sextracted
+[1A[1M> Line: 2656  Objects:     1355 detected /      482 sextracted
+[1A[1M> Line: 2672  Objects:     1360 detected /      487 sextracted
+[1A[1M> Line: 2688  Objects:     1365 detected /      495 sextracted
+[1A[1M> Line: 2704  Objects:     1378 detected /      508 sextracted
+[1A[1M> Line: 2720  Objects:     1384 detected /      516 sextracted
+[1A[1M> Line: 2736  Objects:     1389 detected /      528 sextracted
+[1A[1M> Line: 2752  Objects:     1394 detected /      535 sextracted
+[1A[1M> Line: 2768  Objects:     1398 detected /      543 sextracted
+[1A[1M> Line: 2784  Objects:     1405 detected /      554 sextracted
+[1A[1M> Line: 2800  Objects:     1411 detected /      567 sextracted
+[1A[1M> Line: 2816  Objects:     1416 detected /      578 sextracted
+[1A[1M> Line: 2832  Objects:     1422 detected /      588 sextracted
+[1A[1M> Line: 2848  Objects:     1429 detected /      595 sextracted
+[1A[1M> Line: 2864  Objects:     1432 detected /      606 sextracted
+[1A[1M> Line: 2880  Objects:     1438 detected /      621 sextracted
+[1A[1M> Line: 2896  Objects:     1444 detected /      631 sextracted
+[1A[1M> Line: 2912  Objects:     1453 detected /      641 sextracted
+[1A[1M> Line: 2928  Objects:     1461 detected /      645 sextracted
+[1A[1M> Line: 2944  Objects:     1470 detected /      651 sextracted
+[1A[1M> Line: 2960  Objects:     1477 detected /      657 sextracted
+[1A[1M> Line: 2976  Objects:     1485 detected /      667 sextracted
+[1A[1M> Line: 2992  Objects:     1491 detected /      687 sextracted
+[1A[1M> Line: 3008  Objects:     1498 detected /      701 sextracted
+[1A[1M> Line: 3024  Objects:     1507 detected /      710 sextracted
+[1A[1M> Line: 3040  Objects:     1520 detected /      721 sextracted
+[1A[1M> Line: 3056  Objects:     1526 detected /      730 sextracted
+[1A[1M> Line: 3072  Objects:     1527 detected /      742 sextracted
+[1A[1M> Line: 3088  Objects:     1537 detected /      749 sextracted
+[1A[1M> Line: 3104  Objects:     1539 detected /      756 sextracted
+[1A[1M> Line: 3120  Objects:     1543 detected /      771 sextracted
+[1A[1M> Line: 3136  Objects:     1544 detected /      778 sextracted
+[1A[1M> Line: 3152  Objects:     1552 detected /      785 sextracted
+[1A[1M> Line: 3168  Objects:     1557 detected /      791 sextracted
+[1A[1M> Line: 3184  Objects:     1559 detected /      808 sextracted
+[1A[1M> Line: 3200  Objects:     1564 detected /      822 sextracted
+[1A[1M> Line: 3216  Objects:     1568 detected /      837 sextracted
+[1A[1M> Line: 3232  Objects:     1569 detected /      856 sextracted
+[1A[1M> Line: 3248  Objects:     1574 detected /      868 sextracted
+[1A[1M> Line: 3264  Objects:     1580 detected /      878 sextracted
+[1A[1M> Line: 3280  Objects:     1587 detected /      890 sextracted
+[1A[1M> Line: 3296  Objects:     1591 detected /      904 sextracted
+[1A[1M> Line: 3312  Objects:     1596 detected /      915 sextracted
+[1A[1M> Line: 3328  Objects:     1602 detected /      929 sextracted
+[1A[1M> Line: 3344  Objects:     1604 detected /      946 sextracted
+[1A[1M> Line: 3360  Objects:     1613 detected /      954 sextracted
+[1A[1M> Line: 3376  Objects:     1621 detected /      961 sextracted
+[1A[1M> Line: 3392  Objects:     1626 detected /      977 sextracted
+[1A[1M> Line: 3408  Objects:     1626 detected /      987 sextracted
+[1A[1M> Line: 3424  Objects:     1626 detected /     1010 sextracted
+[1A[1M> Line: 3440  Objects:     1626 detected /     1018 sextracted
+[1A[1M> Line: 3456  Objects:     1626 detected /     1028 sextracted
+[1A[1M> Line: 3472  Objects:     1626 detected /     1037 sextracted
+[1A[1M> Line: 3488  Objects:     1626 detected /     1045 sextracted
+[1A[1M> Line: 3504  Objects:     1626 detected /     1051 sextracted
+[1A[1M> Line: 3520  Objects:     1626 detected /     1057 sextracted
+[1A[1M> Line: 3536  Objects:     1626 detected /     1073 sextracted
+[1A[1M> Line: 3552  Objects:     1626 detected /     1088 sextracted
+[1A[1M> Line: 3568  Objects:     1626 detected /     1097 sextracted
+[1A[1M> Line: 3584  Objects:     1626 detected /     1102 sextracted
+[1A[1M> Line: 3600  Objects:     1626 detected /     1111 sextracted
+[1A[1M> Line: 3616  Objects:     1626 detected /     1123 sextracted
+[1A[1M> Line: 3632  Objects:     1626 detected /     1129 sextracted
+[1A[1M> Line: 3648  Objects:     1626 detected /     1135 sextracted
+[1A[1M> Line: 3664  Objects:     1626 detected /     1145 sextracted
+[1A[1M> Line: 3680  Objects:     1626 detected /     1149 sextracted
+[1A[1M> Line: 3696  Objects:     1626 detected /     1160 sextracted
+[1A[1M> Line: 3712  Objects:     1626 detected /     1165 sextracted
+[1A[1M> Line: 3728  Objects:     1626 detected /     1170 sextracted
+[1A[1M> Line: 3744  Objects:     1626 detected /     1174 sextracted
+[1A[1M> Line: 3760  Objects:     1626 detected /     1181 sextracted
+[1A[1M> Line: 3776  Objects:     1626 detected /     1187 sextracted
+[1A[1M> Line: 3792  Objects:     1626 detected /     1191 sextracted
+[1A[1M> Line: 3808  Objects:     1626 detected /     1197 sextracted
+[1A[1M> Line: 3824  Objects:     1626 detected /     1202 sextracted
+[1A[1M> Line: 3840  Objects:     1626 detected /     1206 sextracted
+[1AObjects: detected 1626     / sextracted 1382                   
+[1M> Closing files
+[1A[1M> 
+[1A> All done (in 13 s)
+
+Sextractor run complete.
+
+Captured detection RMS=0.00539331 from sextractor output.
+Modifying header of '/home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/AIS_428_0002_sg17_asprefine-nd-cat.fits' using int file header ...
+
+
+Writing statistics to /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0002-img/07-try/qa/AIS_428_0002_sg17_asprefine-nd-cat_stats.txt ...

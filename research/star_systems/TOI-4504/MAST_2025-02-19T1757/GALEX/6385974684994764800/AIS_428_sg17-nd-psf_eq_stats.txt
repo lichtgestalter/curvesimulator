@@ -1,0 +1,24 @@
+
+Generate PSF data from 1 NUV file ...
+
+Catalog file = /home/galex/fltops/mains/02-vsn/50428-AIS_428/d/01-main/0001-img/07-try/AIS_428_sg17-nd-cat.fits, image = AIS_428_sg17-nd-intbgsub.fits
+Mag limit = -999 999, source count limit = 0
+Using 659 sources out of a total of 4461 read.
+Rejected ...
+	4 for confusion
+	1679 for being beyond 1200 pix
+	5 with semi-major axis > 7.60"
+	1110 for centroid count < 2
+	1004 for not matching star catalog
+	0 for being over the count limit.
+MAG_AUTO histogram of used sources:
+N(-5)=10  N(-4)=15  N(-3)=36  N(-2)=71  N(-1)=143  N(0)=221  N(1)=143  N(2)=20  
+
+Average catalog FWHM     = 9.43"
+Median  catalog FWHM     = 8.42"
+Average catalog FWHM(A)  = 7.13"
+Median  catalog FWHM(A)  = 7.01"
+Global gaussian fit FWHM = 5.06" (BG=3.85e-05, Peak=0.0718)
+                                     Nsamp FitFWHM FWHM(A) FWHM(B)     PA      E   FW80 FWHM(X) FWHM(Y) PA(2d)  E(2d)  Peak(2d)  NIter   PeakPix  ChiSq
+Region  0 (All                  ):     659     5.4    7.06     6.1   6.65   0.86   9.11    4.97    5.82   6.18  0.854    0.0663     12    0.0654      0
+Region  1 (Global fit           ):  148323    5.06      -0      -0     -0     -0     -0      -0      -0     -0     -0        -0      0        -0     -0
