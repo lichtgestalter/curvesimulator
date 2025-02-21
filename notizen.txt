@@ -2,6 +2,10 @@ michaela.vitkova@asu.cas.cz
 vitkova@mail.asu.cas.cz
 
 NEXT:
+        Sensitivitaetsanalyse. Was passiert, wenn ich an den Parametern wackle?
+            Aber zuerst Resultat-Output optimieren.
+            Alle Resultatfiles behalten und in Exceluebersicht dokumentieren.
+
         Transits von TOI-4504 c in Datenbanken:
             TT, b, depth, duration von lightkurve berechnen lassen?
             Auch die fits-Dateien, die ich von MAST geholt habe, mit lightkurve auswerten
