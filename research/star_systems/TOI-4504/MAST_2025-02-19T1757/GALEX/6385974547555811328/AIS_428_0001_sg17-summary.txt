@@ -1,6 +1,0 @@
-Final status report (v1.2) for /home/vili2/fltops/pipe/02-vsn/50428-AIS_428/d/00-visits/0001-img/07-try/: start time=100616T110346Z, end time=100616T111615Z, pipeline release='ops-v7_0_3'.
-Steps specified : mkqadir,split,orbpipe1b,opslog,rta,phxcheck,premap,varpix,map,sex,astromchk,flag,flagastromchk,merge,merge_sex,pipeqa,qav0,orbpipe1b
-Steps suppressed: none
-  Base         OW SubVisit   MPSLeg     Exit   Status  NUVstat  FUVstat       RA      Dec     Roll NExpTime NValidPh FExpTime FValidPh ErrBlame 
-| AIS_428_0001  d    17/1      8/12        0    0/0      0/0      0/0    114.371  -62.649  176.671     96.0  3622071     96.0   870357 -
---------------------------------------------------------------------------------------------------------------------------------------------------------
