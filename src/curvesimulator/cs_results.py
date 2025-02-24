@@ -1,7 +1,8 @@
-import sys
-import os
 import json
+import math
+import os
 import re
+import sys
 
 
 class Transit(dict):
@@ -25,6 +26,24 @@ class CurveSimResults(dict):
         self["bodies"] = {}
         for body in bodies:
             self["bodies"][body.name] = {"BodyParameters": body.__dict__, "Transits": []}
+            if body.Ω is not None:
+                self["bodies"][body.name]["BodyParameters"]["Ω_deg"] = body.Ω * (180 / math.pi)
+            if body.ω is not None:
+                self["bodies"][body.name]["BodyParameters"]["ω_deg"] = body.ω * (180 / math.pi)
+            if body.ϖ is not None:
+                self["bodies"][body.name]["BodyParameters"]["ϖ_deg"] = body.ϖ * (180 / math.pi)
+            if body.L is not None:
+                self["bodies"][body.name]["BodyParameters"]["L_deg"] = body.L * (180 / math.pi)
+            if body.ma is not None:
+                self["bodies"][body.name]["BodyParameters"]["ma_deg"] = body.ma * (180 / math.pi)
+            if body.ea is not None:
+                self["bodies"][body.name]["BodyParameters"]["ea_deg"] = body.ea * (180 / math.pi)
+            if body.nu is not None:
+                self["bodies"][body.name]["BodyParameters"]["nu_deg"] = body.nu * (180 / math.pi)
+            for key in list(body.__dict__.keys()):
+                if body.__dict__[key] is None:
+                    del body.__dict__[key]
+            print("debug")
 
     def __repr__(self):
         string = ""
