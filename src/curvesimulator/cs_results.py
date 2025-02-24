@@ -43,7 +43,6 @@ class CurveSimResults(dict):
             for key in list(body.__dict__.keys()):
                 if body.__dict__[key] is None:
                     del body.__dict__[key]
-            print("debug")
 
     def __repr__(self):
         string = ""
