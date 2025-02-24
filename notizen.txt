@@ -2,6 +2,11 @@ michaela.vitkova@asu.cas.cz
 vitkova@mail.asu.cas.cz
 
 NEXT:
+        Comment-Feld in Config-File -> Result-File
+            fx "Planet c mass + 3 sigma"
+            Comment in Plots visualisieren
+            Plots speichern (Filename startet so wie config/result-file
+
         Sensitivitaetsanalyse. Was passiert, wenn ich an den Parametern wackle?
             Aber zuerst Resultat-Output bzw. Resultat-Auswertung optimieren.
             Alle Resultatfiles behalten und in Exceluebersicht dokumentieren.
