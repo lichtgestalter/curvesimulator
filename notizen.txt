@@ -5,11 +5,10 @@ Recently done / in progress:
         0.3.7 result output enhancements
             Angles are now stored in the result file not only in radians but also in degrees.
             Comment-Field in Config-File -> Result file, plots
+            Save plots
 
 
 NEXT:
-            Comment in Plots visualisieren
-            Plots speichern (Filename startet so wie config/result-file
 
         Sensitivitaetsanalyse. Was passiert, wenn ich an den Parametern wackle?
             Aber zuerst Resultat-Output bzw. Resultat-Auswertung optimieren.
