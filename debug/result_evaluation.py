@@ -74,13 +74,15 @@ def transit_times(results, resultfile, savefile):
             writer.writerow([str(t_bjd).replace('.', ','), t_jd])
 
 def main():
-    resultfile = "../results/TOI-4504.v0007.json"
+    resultfile = "../results/TOI-4504.v0001.json"
     with open(resultfile, "r") as file:
         results = json.load(file)
     # impact_parameters(results, resultfile)
-    transit_duration(results, resultfile)
+    # transit_duration(results, resultfile)
     # periods(results, resultfile)
     # transit_times(results, resultfile, resultfile+".csv")
+    comment = results["ProgramParameters"]["comment"]
+    print(comment)
 
 
 main()

@@ -78,18 +78,17 @@ class CurveSimResults(dict):
         self["ProgramParameters"] = p.__dict__
         for body in self["bodies"]:
             for t in self["bodies"][body]["Transits"]:
-                t["transit_params"]["TT"], t["transit_params"]["b"] = CurveSimResults.time_of_transit(t["impact_parameters"])
-                del t["impact_parameters"]
-                t["transit_params"]["T12"] = t["transit_params"]["T2"] - t["transit_params"]["T1"]
-                t["transit_params"]["T23"] = t["transit_params"]["T3"] - t["transit_params"]["T2"]
-                t["transit_params"]["T34"] = t["transit_params"]["T4"] - t["transit_params"]["T3"]
-                t["transit_params"]["T14"] = t["transit_params"]["T4"] - t["transit_params"]["T1"]
-                # print(t["transit_params"])
                 if t["transit_params"]["T1"] is None or t["transit_params"]["T2"] is None or t["transit_params"]["T3"] is None or t["transit_params"]["T4"] is None:
-                    print("ERROR: Missing transit event in transit results.")
-                    print("This is a programming error.")
-                    print("Please send your config file to CurveSimulator's developers.")
-                    sys.exit(1)
+                    print(f"Incomplete transit: {body} eclipsing {t["transit_params"]["EclipsedBody"]} at T1 = {t["transit_params"]["T1"]} ")
+                    lightcurve[-1] = lightcurve[-2] * 1.001  # Take care of an edge case by making sure there is no minimum at the end of the lightcurve.
+                else:
+                    t["transit_params"]["TT"], t["transit_params"]["b"] = CurveSimResults.time_of_transit(t["impact_parameters"])
+                    del t["impact_parameters"]
+                    t["transit_params"]["T12"] = t["transit_params"]["T2"] - t["transit_params"]["T1"]
+                    t["transit_params"]["T23"] = t["transit_params"]["T3"] - t["transit_params"]["T2"]
+                    t["transit_params"]["T34"] = t["transit_params"]["T4"] - t["transit_params"]["T3"]
+                    t["transit_params"]["T14"] = t["transit_params"]["T4"] - t["transit_params"]["T1"]
+                    # print(t["transit_params"])
         self["LightcurveMinima"] = lightcurve.lightcurve_minima()
         for i, minimum in enumerate(self["LightcurveMinima"]):
             self["LightcurveMinima"][i] = CurveSimResults.iteration2time(minimum[0], p), self["LightcurveMinima"][i][1]

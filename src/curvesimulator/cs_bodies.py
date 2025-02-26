@@ -221,13 +221,14 @@ class CurveSimBodies(list):
                 CurveSimBodies.update_position(body1, iteration, acceleration, p)
             lightcurve[iteration] = self.total_luminosity(stars, iteration, results, transit_status, p)  # Update lightcurve.
             CurveSimBodies.progress_bar(iteration, p)
+
         return results, lightcurve, self
 
     def calc_physics(self, p):
         """Calculate body positions and the resulting lightcurve."""
         print(f'Producing {p.frames / p.fps:.0f} seconds long video, covering {p.dt * p.iterations / 60 / 60 / 24:5.2f} '
               f'earth days. ({p.dt * p.sampling_rate * p.fps / 60 / 60 / 24:.2f} earth days per video second.)')
-        print(f'Calculating {p.iterations:6d} iterations: ', end="")
+        print(f'Calculating {p.iterations:,} iterations: ', end="")  #print(f"{b=:_}
         tic = time.perf_counter()
         results, lightcurve, bodies = self.calc_positions_eclipses_luminosity(p)
         lightcurve /= lightcurve.max(initial=None)  # Normalize flux.

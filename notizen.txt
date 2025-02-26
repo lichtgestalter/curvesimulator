@@ -2,6 +2,9 @@ michaela.vitkova@asu.cas.cz
 vitkova@mail.asu.cas.cz
 
 NEXT:
+        0.3.7 result output enhancements
+            Angles are now stored in the result file not only in radians but also in degrees.
+
         Comment-Feld in Config-File -> Result-File
             fx "Planet c mass + 3 sigma"
             Comment in Plots visualisieren
@@ -12,19 +15,16 @@ NEXT:
             Alle Resultatfiles behalten und in Exceluebersicht dokumentieren.
 
         Transits von TOI-4504 c in Datenbanken:
-            TT, b, depth, duration von lightkurve berechnen lassen?
-            Auch die fits-Dateien, die ich von MAST geholt habe, mit lightkurve auswerten
-            Siehe Excel Datei
-                In Excel Curvesim-Resultate manuell den aus lightkurve geholten Transits gegenueberstellen
-            Warum hat Michaela 11 Transits und ich nur 6?
+            TT, b, depth, duration von library lightkurve berechnen lassen?
+            ((Auch die fits-Dateien, die ich von MAST geholt habe, mit lightkurve auswerten))
+            ((Warum hat Michaela 11 Transits und ich nur 6?  -> old transits with 30 min iso 2 min cadences))
 
-        Gradzahlen in Resultfile (zusaetzlich?) in Grad statt Radians speichern?
-        Optimierte TT auch in Transitresults und nicht bloss in Lightcurveminima?
         Period and transit depth in Resultfile den Transits zuordnen statt separat ausweisen!
-        Auch T1, T2, T3, T4 optimieren?
-        Orbitparameter regelmaessig (z.B. bei jedem Transit) berechnen und im Resultfile speichern.
-            def state_vector_to_keplerian_elements(self):
-
+        Optimierte TT auch in Transitresults und nicht bloss in Lightcurveminima?
+        Auch T1, T2, T3, T4 optimieren, also genaueren Zeitpunkt zwischen 2 Iterationsschritten schaetzen.
+        0.x.x state_vector_to_keplerian_elements
+            Orbitparameter regelmaessig (z.B. bei jedem Transit) berechnen und im Resultfile speichern.
+                def state_vector_to_keplerian_elements(self):
 
         Nach Einfuehrung von Verlet Integration sind die Orbitzeiten stabil, aber nicht richtig.
         TOI-4504b hat P=2.4622 statt 2.42614. 1.5% zu langsam.
@@ -235,3 +235,6 @@ I implemented all suggestions from zoom call 29.03.2022, but tried and dismissed
     0.3.3   Improved orbit simulation using Verlet integration. Orbits are now numerically stable.
     0.3.4   Result files will no longer be overwritten. Instead, a new file with a running number will be created.
     0.3.5   Result file usage examples (result_evaluation.py)
+    0.3.6   Postponed! state_vector_to_keplerian_elements
+    0.3.7   Result output enhancements
+                Angles are now stored in the result file not only in radians but also in degrees.
