@@ -382,8 +382,8 @@ class CurveSimBody:
             # print(f"\n{iteration=:6} {green('T4')} {other.name} eclipses {self.name}")
             transit_status[other.name + "." + self.name] = "NoTransit"
             if self.last_transit_is_relevant_transit(other, results, "T4"):
-                results["bodies"][other.name]["Transits"][-1]["transit_params"]["T2"] = CurveSimResults.iteration2time(iteration, p)
-                results["bodies"][other.name]["Transits"][-1]["transit_params"]["T3"] = CurveSimResults.iteration2time(iteration, p)
+                results["bodies"][other.name]["Transits"][-1]["transit_params"]["T2"] = None
+                results["bodies"][other.name]["Transits"][-1]["transit_params"]["T3"] = None
                 results["bodies"][other.name]["Transits"][-1]["transit_params"]["T4"] = CurveSimResults.iteration2time(iteration, p)
             else:
                 multiple_transit_error()  # alternatively, I could make a greater effort, finding the right transit. I will do that once I figured out how to calculate the luminosity of multiple parallel transits correctly.
@@ -398,12 +398,11 @@ class CurveSimBody:
                 if d <= abs(self.radius - other.radius):  # Annular (i.e. ring) eclipse or total eclipse
                     self.check_for_T2(other, iteration, results, transit_status, p)
                     area, relative_radius = self.full_eclipse(other, d)
-                    results["bodies"][other.name]["Transits"][-1]["impact_parameters"].append((CurveSimResults.iteration2time(iteration, p), relative_radius))
-                    return area, relative_radius
                 else:  # Partial eclipse
                     self.check_for_T1T3(other, iteration, results, transit_status, p)
                     area, relative_radius = self.partial_eclipse(other, d)
-                    return area, relative_radius
+                results["bodies"][other.name]["Transits"][-1]["impact_parameters"].append((CurveSimResults.iteration2time(iteration, p), relative_radius))
+                return area, relative_radius
             else:  # No eclipse because, seen from viewer, the bodies are not close enough to each other
                 self.check_for_T4(other, iteration, results, transit_status, p)
                 return None, None

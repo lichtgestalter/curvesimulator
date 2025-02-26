@@ -1,12 +1,13 @@
 michaela.vitkova@asu.cas.cz
 vitkova@mail.asu.cas.cz
 
-NEXT:
+Recently done / in progress:
         0.3.7 result output enhancements
             Angles are now stored in the result file not only in radians but also in degrees.
+            Comment-Field in Config-File -> Result file, plots
 
-        Comment-Feld in Config-File -> Result-File
-            fx "Planet c mass + 3 sigma"
+
+NEXT:
             Comment in Plots visualisieren
             Plots speichern (Filename startet so wie config/result-file
 
