@@ -15,6 +15,9 @@ NEXT:
             i von c und d
             P von c und d
             komische Keplerwinkel von c und d
+                longitude_of_ascending_node
+                argument_of_periapsis
+
 
 
         Transits von TOI-4504 c in Datenbanken:
