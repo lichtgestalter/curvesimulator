@@ -81,15 +81,16 @@ def transit_times(results, savefile):
         for t_bjd, t_jd in zip(transit_times_c, transit_times_c_jd):
             writer.writerow([str(t_bjd).replace('.', ','), t_jd])
 
-def main():
-    resultfile = "../results/TOI-4504.v0003.json"
-    with open(resultfile, "r") as file:
+def main(resultfile):
+    resultpath = "../results/"
+    resultextension = ".json"
+    with open(resultpath + resultfile + resultextension, "r") as file:
         results = json.load(file)
-    impact_parameters(results, resultfile.replace('.json', '_impact.png'), show_plot=True, save_plot=True)
-    transit_duration(results, resultfile.replace('.json', '_duration_14.png'), show_plot=True, save_plot=True, full_eclipse_only=False)
-    transit_duration(results, resultfile.replace('.json', '_duration_23.png'), show_plot=True, save_plot=True, full_eclipse_only=True)
-    periods(results, resultfile.replace('.json', '_period.png'), show_plot=True, save_plot=True)
+    impact_parameters(results, resultpath + "impact/" + resultfile + '_impact.png', show_plot=True, save_plot=True)
+    transit_duration(results, resultpath + "duration_14/" + resultfile + '_duration_14.png', show_plot=True, save_plot=True, full_eclipse_only=False)
+    transit_duration(results, resultpath + "duration_23/" + resultfile + '_duration_23.png', show_plot=True, save_plot=True, full_eclipse_only=True)
+    periods(results, resultpath + "period/" + resultfile + '_period.png', show_plot=True, save_plot=True)
     # transit_times(results, resultfile, resultfile+".csv")
 
 
-main()
+main("TOI-4504.v0014")

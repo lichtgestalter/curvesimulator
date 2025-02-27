@@ -9,10 +9,13 @@ Recently done / in progress:
 
 
 NEXT:
-
         Sensitivitaetsanalyse. Was passiert, wenn ich an den Parametern wackle?
-            Aber zuerst Resultat-Output bzw. Resultat-Auswertung optimieren.
-            Alle Resultatfiles behalten und in Exceluebersicht dokumentieren.
+            m von d
+            e von c und d
+            i von c und d
+            P von c und d
+            komische Keplerwinkel von c und d
+
 
         Transits von TOI-4504 c in Datenbanken:
             TT, b, depth, duration von library lightkurve berechnen lassen?
