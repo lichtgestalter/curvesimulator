@@ -9,6 +9,10 @@ Recently done / in progress:
 
 
 NEXT:
+        M0 (Mean Anomaly at epoch) aus Paper in config einbauen!
+            c: 173.1 +-2
+            d: 280.6 +-7.4
+
         Sensitivitaetsanalyse. Was passiert, wenn ich an den Parametern wackle?
             m von d
             e von c und d
@@ -17,6 +21,7 @@ NEXT:
             komische Keplerwinkel von c und d
                 longitude_of_ascending_node
                 argument_of_periapsis
+
 
 
 

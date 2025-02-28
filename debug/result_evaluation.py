@@ -93,4 +93,4 @@ def main(resultfile):
     # transit_times(results, resultfile, resultfile+".csv")
 
 
-main("TOI-4504.v0014")
+main("TOI-4504.v0016")
