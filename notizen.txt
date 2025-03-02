@@ -10,11 +10,12 @@ Recently done / in progress:
 
 NEXT:
         Sensitivitaetsanalyse. Was passiert, wenn ich an den Parametern wackle?
-            m von d
-            e von c und d
-            i von c und d
-            P von c und d
-            komische Keplerwinkel von c und d
+            d:
+                m
+            c und d:
+                e
+                i
+                P
                 longitude_of_ascending_node
                 argument_of_periapsis
 
