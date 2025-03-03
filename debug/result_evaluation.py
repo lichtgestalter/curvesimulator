@@ -54,7 +54,7 @@ def transit_duration(results, savefilename="", show_plot=True, save_plot=True, f
     if show_plot:
         plt.show()
 
-def periods(results, savefilename="", show_plot=True, save_plot=True):
+def periods_c(results, savefilename="", show_plot=True, save_plot=True):
     transits_c = results["bodies"]["TOI-4504c"]["Transits"]
     transit_times_c = [transit["transit_params"]["TT"] for transit in transits_c]
     periods_c = [transit2["transit_params"]["TT"] - transit1["transit_params"]["TT"] if transit1["transit_params"]["TT"] is not None and transit2["transit_params"]["TT"] is not None else None for transit1, transit2 in zip(transits_c[:-1], transits_c[1:])]
@@ -66,6 +66,23 @@ def periods(results, savefilename="", show_plot=True, save_plot=True):
     plt.legend()
     plt.grid(True)
     plt.ylim(bottom=81, top=85)
+    if save_plot:
+        plt.savefig(savefilename)
+    if show_plot:
+        plt.show()
+
+def periods_d(results, savefilename="", show_plot=True, save_plot=True):
+    transits_d = results["bodies"]["TOI-4504d"]["Transits"]
+    transit_times_d = [transit["transit_params"]["TT"] for transit in transits_d]
+    periods_d = [transit2["transit_params"]["TT"] - transit1["transit_params"]["TT"] if transit1["transit_params"]["TT"] is not None and transit2["transit_params"]["TT"] is not None else None for transit1, transit2 in zip(transits_d[:-1], transits_d[1:])]
+    plt.figure(figsize=(10, 6))
+    plt.plot(transit_times_d[1:], periods_d, 'o-', label="TOI-4504d")
+    plt.xlabel('Transit Times [BJD]')
+    plt.ylabel('Period [d]')
+    plt.title(f"{os.path.splitext(os.path.basename(savefilename))[0]}, {results["ProgramParameters"]["comment"]} (dt={results["ProgramParameters"]["dt"]})")
+    plt.legend()
+    plt.grid(True)
+    plt.ylim(bottom=39, top=43)
     if save_plot:
         plt.savefig(savefilename)
     if show_plot:
@@ -89,8 +106,9 @@ def main(resultfile):
     impact_parameters(results, resultpath + "impact/" + resultfile + '_impact.png', show_plot=True, save_plot=True)
     transit_duration(results, resultpath + "duration_14/" + resultfile + '_duration_14.png', show_plot=True, save_plot=True, full_eclipse_only=False)
     transit_duration(results, resultpath + "duration_23/" + resultfile + '_duration_23.png', show_plot=True, save_plot=True, full_eclipse_only=True)
-    periods(results, resultpath + "period/" + resultfile + '_period.png', show_plot=True, save_plot=True)
+    periods_c(results, resultpath + "period/" + resultfile + '_period.png', show_plot=True, save_plot=True)
+    # periods_d(results, resultpath + "period/" + resultfile + '_period.png', show_plot=True, save_plot=True)
     # transit_times(results, resultfile, resultfile+".csv")
 
 
-main("TOI-4504.v0020")
+main("TOI-4504.v0033")
