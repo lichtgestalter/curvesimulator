@@ -16,6 +16,29 @@ Recently done / in progress:
 
 NEXT:
 
+Complete this function.
+Analyze lc: calculate time and depth of transit. Calculate T1, T2, T3, T4, TT and depth.
+Fit a model of a transit to just this one lightcurve.
+Do not use other data.
+Therefore,  folding lightcurves does not make sense. Do not do it.
+Using a periodogram does not make sense. Do not do it.
+Finding a max power does not make sendse.  Do not do it.
+
+from lightkurve import TessLightCurve
+def analyze_lightcurve():
+    sectors = ["28"]
+    # sectors = ["27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "61", "62", "63", "64", "65", "67", "68", "69"]
+    for sector in sectors:
+        file = f"../research/star_systems/TOI-4504/lightkurve/{sector}/{sector}.fits"
+        lc = TessLightCurve.read(file)
+        # analyze lc: calculate time and depth of transit. Calculate T1, T2, T3, T4, TT and depth.
+
+
+
+
+
+
+
 
         Transits von TOI-4504 c in Datenbanken:
             TT, b, depth, duration von library lightkurve berechnen lassen?

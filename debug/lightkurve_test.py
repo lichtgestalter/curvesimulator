@@ -22,18 +22,9 @@ def analyze_lightcurve():
     for sector in sectors:
         file = f"../research/star_systems/TOI-4504/lightkurve/{sector}/{sector}.fits"
         lc = TessLightCurve.read(file)
-        lc.plot()
-        # analyze lc: calculate time of transit and depth of transit
+        # analyze lc: calculate time and depth of transit. Calculate T1, T2, T3, T4, TT and depth.
 
-        flat_lc = lc.flatten()
-        flat_lc.plot()
 
-        # periodogram = flat_lc.to_periodogram(method="bls")  # Use the Box Least Squares (BLS) method to find transits
-        # transits = periodogram.transit_time
-        #
-        # for transit_time in transits:
-        #     transit_depth = flat_lc.flux[flat_lc.time == transit_time].mean()
-        #     print(f"Transit Time: {transit_time}, Transit Depth: {transit_depth}")
 
 
 def main():
