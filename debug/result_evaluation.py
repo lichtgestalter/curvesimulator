@@ -103,12 +103,12 @@ def main(resultfile):
     resultextension = ".json"
     with open(resultpath + resultfile + resultextension, "r") as file:
         results = json.load(file)
-    impact_parameters(results, resultpath + "impact/" + resultfile + '_impact.png', show_plot=True, save_plot=True)
-    transit_duration(results, resultpath + "duration_14/" + resultfile + '_duration_14.png', show_plot=True, save_plot=True, full_eclipse_only=False)
-    transit_duration(results, resultpath + "duration_23/" + resultfile + '_duration_23.png', show_plot=True, save_plot=True, full_eclipse_only=True)
-    periods_c(results, resultpath + "period/" + resultfile + '_period.png', show_plot=True, save_plot=True)
-    # periods_d(results, resultpath + "period/" + resultfile + '_period.png', show_plot=True, save_plot=True)
-    # transit_times(results, resultfile, resultfile+".csv")
+    # impact_parameters(results, resultpath + "impact/" + resultfile + '_impact.png', show_plot=True, save_plot=True)
+    # transit_duration(results, resultpath + "duration_14/" + resultfile + '_duration_14.png', show_plot=True, save_plot=True, full_eclipse_only=False)
+    # transit_duration(results, resultpath + "duration_23/" + resultfile + '_duration_23.png', show_plot=True, save_plot=True, full_eclipse_only=True)
+    # periods_c(results, resultpath + "period/" + resultfile + '_period_c.png', show_plot=True, save_plot=True)
+    # periods_d(results, resultpath + "period/" + resultfile + '_period_d.png', show_plot=True, save_plot=True)
+    transit_times(results, resultpath + resultfile + ".csv")
 
 
-main("TOI-4504.v0033")
+main("TOI-4504.v0001")
