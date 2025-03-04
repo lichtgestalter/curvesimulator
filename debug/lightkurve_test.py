@@ -20,6 +20,15 @@ def save_plots():
         plt.close()
 
 
+def save_cutted_plot(sector, start, end):
+    file = f"../research/star_systems/TOI-4504/lightkurve/{sector}/{sector}.fits"
+    lc = TessLightCurve.read(file)
+    lc = cut_lightcurve(lc, start, end)
+    lc.plot()
+    plt.savefig(f"../research/star_systems/TOI-4504/lightkurve/{sector}_cut.png")
+    plt.close()
+
+
 def cut_lightcurve(lc, start, end):
     """Take lightcurve lc and return a shortened lightcurve that starts at time start and ends at time end."""
     mask = (lc.time.value >= start) & (lc.time.value <= end)
@@ -42,14 +51,16 @@ def analyze_lightcurve():
     for sector in sectors:
         file = f"../research/star_systems/TOI-4504/lightkurve/{sector}/{sector}.fits"
         lc = TessLightCurve.read(file)
-        if sector == "64":
-            lc_clean = lc
+        # if sector == "64":
+        #     lc_clean = lc
             # lc_clean = cut_lightcurve(lc, 3055, 3062)
-        elif sector == "67":
-            lc_clean = lc
+        # elif sector == "67":
+        #     lc_clean = lc
             # lc_clean = cut_lightcurve(lc, 3141, 3151)
-        else:
-            lc_clean = lc
+        # else:
+            # lc_clean = lc
+        # lc_clean = lc.remove_outliers()  # Preprocess light curve
+        lc_clean = lc.flatten(window_length=401)  # Preprocess light curve
             # lc_clean = lc.remove_outliers().flatten(window_length=101)  # Preprocess light curve
 
         # Locate transit
@@ -102,8 +113,8 @@ def analyze_lightcurve():
 
 def main():
     # save_plots()
-    analyze_lightcurve()
-
+    # analyze_lightcurve()
+    save_cutted_plot("64", 3059.2, 3060)
 
 main()
 
