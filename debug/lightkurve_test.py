@@ -2,14 +2,14 @@
 
 from lightkurve import TessLightCurve
 from matplotlib import pyplot as plt
-
 import numpy as np
-from pytransit import RoadRunnerModel
+import pandas as pd
+# from pytransit import RoadRunnerModel
 from scipy.optimize import minimize
 
 
 def save_plots():
-    sectors = ["28"]
+    sectors = ["61"]
     # sectors = ["27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "61", "62", "63", "64", "65", "67", "68", "69"]
     # sectors = ["MAST"]
     for sector in sectors:
@@ -39,7 +39,7 @@ def analyze_lightcurve():
     """analyze lc: calculate time and depth of transit. Calculate T1, T2, T3, T4, TT and depth."""
 
     def loss(params):
-    # Optimization
+        # Optimization
         k, ldc1, ldc2, a, i, t0, p = params
         model = tm.evaluate(k=k, ldc=[ldc1, ldc2], t0=t0, p=p, a=a, i=i)
         return np.sum((flux - model) ** 2)
@@ -109,12 +109,43 @@ def analyze_lightcurve():
         print(f"{t1:.5f}, {t2:.5f}, {t3:.5f}, {t4:.5f}, {tt:.5f}, {t14:.5f}, {t23:.5f}, {t12:.5f}, {t34:.5f}, {depth*100:.5f}%")
     return
 
-
+def fits2csv(sector, start, end):
+    file = f"../research/star_systems/TOI-4504/lightkurve/{sector}/{sector}.fits"
+    lc = TessLightCurve.read(file)
+    lc = cut_lightcurve(lc, start, end)
+    print(lc)
+    # store lc in a pandas dataframe
+    data = {
+        'time': lc.time.value,
+        'flux': lc.flux.value,
+        'flux_err': lc.flux_err.value
+    }
+    df = pd.DataFrame(data)
+    pandas_file = f"../research/star_systems/TOI-4504/lightkurve/{sector}_cut.csv"
+    df.to_csv(pandas_file, sep=';', decimal=',', index=False)
 
 def main():
     # save_plots()
     # analyze_lightcurve()
-    save_cutted_plot("64", 3059.2, 3060)
+    delta = 0.4
+    t28 = 2065.24
+    t31 = 2148.48
+    t34 = 2231.11
+    t37 = 2313.25
+    # t64 = 3059.60
+    t67 = 3142.60
+    # save_cutted_plot("28", t28 - delta, t28 + delta)
+    # save_cutted_plot("31", t31 - delta, t31 + delta)
+    # save_cutted_plot("34", t34 - delta, t34 + delta)
+    # save_cutted_plot("37", t37 - delta, t37 + delta)
+    # save_cutted_plot("64", t64 - delta, t64 + delta)
+    save_cutted_plot("67", t67 - delta, t67 + delta)
+    # fits2csv("28", t28 - delta, t28 + delta)
+    # fits2csv("31", t31 - delta, t31 + delta)
+    # fits2csv("34", t34 - delta, t34 + delta)
+    # fits2csv("37", t37 - delta, t37 + delta)
+    # fits2csv("64", t64 - delta, t64 + delta)
+    fits2csv("67", t67 - delta, t67 + delta)
 
 main()
-
+# save_plots()
