@@ -401,6 +401,10 @@ class CurveSimBody:
                 else:  # Partial eclipse
                     self.check_for_T1T3(other, iteration, results, transit_status, p)
                     area, relative_radius = self.partial_eclipse(other, d)
+                # in naechster Zeile nicht list of tuple(time, impact_parameter)
+                # sondern dict(iteration, [impact_parameter] appenden.
+                # in calling function dann spaeter zu dict(iteration, [impact_parameter, depth] ergaenzen
+                hier weiter
                 results["bodies"][other.name]["Transits"][-1]["impact_parameters"].append((CurveSimResults.iteration2time(iteration, p), relative_radius))
                 return area, relative_radius
             else:  # No eclipse because, seen from viewer, the bodies are not close enough to each other

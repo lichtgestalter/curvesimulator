@@ -14,6 +14,7 @@ Recently done / in progress:
                         For some changes of longitude_of_ascending_node (e.g. +3 or +6 standard deviations) the decline
                         of planet c's transit durations is significantly delayed.
                         In each scenario, planets c and d have alternately longer phases with transits.
+                 Manually extracted transit parameters (T1, T2, TT, T3, T4, depth) with high accuracy from TESS data.
 
 
 NEXT:
