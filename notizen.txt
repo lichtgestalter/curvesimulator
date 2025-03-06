@@ -5,58 +5,39 @@ Recently done / in progress:
         0.3.7 result output enhancements
             Angles are now stored in the result file not only in radians but also in degrees.
             Comment-Field in Config-File -> Result file, plots
-            Save plots
-        Sensitivity analysis:  What happens wenn parameters are changed + or - 3 standard deviations?
-            Checked for mass, e, i, P of planets c and d.
-            Checked for longitude_of_ascending_node and argument_of_periapsis of planet c.
-            Result: For some changes of longitude_of_ascending_node (e.g. +3 or +6 standard deviations) the decline
-                of planet c's transit durations is significantly delayed.
-                    In each scenario, planets c and d have alternately longer phases with transits.
+            TOI-4504 Research
+                Save plots
+                Sensitivity analysis:  What happens wenn parameters are changed + or - 3 standard deviations?
+                    Checked for mass, e, i, P of planets c and d.
+                    Checked for longitude_of_ascending_node and argument_of_periapsis of planet c.
+                    Result:
+                        For some changes of longitude_of_ascending_node (e.g. +3 or +6 standard deviations) the decline
+                        of planet c's transit durations is significantly delayed.
+                        In each scenario, planets c and d have alternately longer phases with transits.
 
 
 NEXT:
 
-Complete this function.
-Analyze lc: calculate time and depth of transit. Calculate T1, T2, T3, T4, TT and depth.
-Fit a model of a transit to just this one lightcurve.
-Do not use other data.
-Therefore,  folding lightcurves does not make sense. Do not do it.
-Using a periodogram does not make sense. Do not do it.
-Finding a max power does not make sendse.  Do not do it.
+        Period and transit depth in Resultfile den Transits zuordnen statt separat ausweisen!
 
-from lightkurve import TessLightCurve
-def analyze_lightcurve():
-    sectors = ["28"]
-    # sectors = ["27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "61", "62", "63", "64", "65", "67", "68", "69"]
-    for sector in sectors:
-        file = f"../research/star_systems/TOI-4504/lightkurve/{sector}/{sector}.fits"
-        lc = TessLightCurve.read(file)
-        # analyze lc: calculate time and depth of transit. Calculate T1, T2, T3, T4, TT and depth.
+        Optimierte TT auch in Transitresults und nicht bloss in Lightcurveminima?
 
-
-
-
-
-
-
+        Auch T1, T2, T3, T4 optimieren, also genaueren Zeitpunkt zwischen 2 Iterationsschritten schaetzen.
 
         Transits von TOI-4504 c in Datenbanken:
             TT, b, depth, duration von library lightkurve berechnen lassen?
             ((Auch die fits-Dateien, die ich von MAST geholt habe, mit lightkurve auswerten))
             ((Warum hat Michaela 11 Transits und ich nur 6?  -> old transits with 30 min iso 2 min cadences))
 
-        Period and transit depth in Resultfile den Transits zuordnen statt separat ausweisen!
-        Optimierte TT auch in Transitresults und nicht bloss in Lightcurveminima?
-        Auch T1, T2, T3, T4 optimieren, also genaueren Zeitpunkt zwischen 2 Iterationsschritten schaetzen.
         0.x.x state_vector_to_keplerian_elements
             Orbitparameter regelmaessig (z.B. bei jedem Transit) berechnen und im Resultfile speichern.
                 def state_vector_to_keplerian_elements(self):
 
         Nach Einfuehrung von Verlet Integration sind die Orbitzeiten stabil, aber nicht richtig.
-        TOI-4504b hat P=2.4622 statt 2.42614. 1.5% zu langsam.
-        Warum kommt der erste Transit dann 0.06% zu frueh, wenn P 1.5% zu kurz ist?
-        Ohne Korrektur (=minimale Senkung) der initialen Geschwindigkeit ist P=2.46249, also noch etwas langsamer. Das ist kontraintuitiv.
-        TOI-4504c scheint jedoch ungefaehr richtig zu sein. Kann man nicht genau sagen, weil sich dessen P ja ueber Zeit aendert.
+            TOI-4504b hat P=2.4622 statt 2.42614. 1.5% zu langsam.
+            Warum kommt der erste Transit dann 0.06% zu frueh, wenn P 1.5% zu kurz ist?
+            Ohne Korrektur (=minimale Senkung) der initialen Geschwindigkeit ist P=2.46249, also noch etwas langsamer. Das ist kontraintuitiv.
+            TOI-4504c scheint jedoch ungefaehr richtig zu sein. Kann man nicht genau sagen, weil sich dessen P ja ueber Zeit aendert.
 
         Sector 89 Data Release	15 April 2025	First potential new TOI-4504 observations
 
@@ -120,7 +101,8 @@ VERSION 1.0.0 veroeffentlichen !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
         Universitäten:
             https://nbi.ku.dk/english/research/astrophysics/exoplanets/
-            https://www.iau.org/administration/membership/individual/11759/
+                http://www.mindstep-science.org/about_us.html ???
+            https://www.iau.org/administration/membership/individual/11759/ ???
 
         Organisationen:
             https://www.aavso.org/
