@@ -405,7 +405,7 @@ class CurveSimBody:
                 # sondern dict(iteration, [impact_parameter] appenden.
                 # in calling function dann spaeter zu dict(iteration, [impact_parameter, depth] ergaenzen
                 hier weiter
-                results["bodies"][other.name]["Transits"][-1]["impact_parameters"].append((CurveSimResults.iteration2time(iteration, p), relative_radius))
+                results["bodies"][other.name]["Transits"][-1]["parameters"].append((CurveSimResults.iteration2time(iteration, p), relative_radius))
                 return area, relative_radius
             else:  # No eclipse because, seen from viewer, the bodies are not close enough to each other
                 self.check_for_T4(other, iteration, results, transit_status, p)
