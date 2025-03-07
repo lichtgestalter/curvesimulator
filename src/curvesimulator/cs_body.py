@@ -5,6 +5,7 @@ import numpy as np
 from curvesimulator.cs_physics import CurveSimPhysics
 from curvesimulator.cs_results import Transit
 from curvesimulator.cs_results import CurveSimResults
+from curvesimulator.cs_results import ImpactAndDepth
 
 debugging_kepler_parameters = False
 debugging_eclipse = False
@@ -401,11 +402,8 @@ class CurveSimBody:
                 else:  # Partial eclipse
                     self.check_for_T1T3(other, iteration, results, transit_status, p)
                     area, relative_radius = self.partial_eclipse(other, d)
-                # in naechster Zeile nicht list of tuple(time, impact_parameter)
-                # sondern dict(iteration, [impact_parameter] appenden.
-                # in calling function dann spaeter zu dict(iteration, [impact_parameter, depth] ergaenzen
-                hier weiter
-                results["bodies"][other.name]["Transits"][-1]["parameters"].append((CurveSimResults.iteration2time(iteration, p), relative_radius))
+                results["bodies"][other.name]["Transits"][-1]["impacts_and_depths"].append(ImpactAndDepth(iteration, CurveSimResults.iteration2time(iteration, p), relative_radius))
+                # results["bodies"][other.name]["Transits"][-1]["impacts_and_depths"].append((CurveSimResults.iteration2time(iteration, p), relative_radius))
                 return area, relative_radius
             else:  # No eclipse because, seen from viewer, the bodies are not close enough to each other
                 self.check_for_T4(other, iteration, results, transit_status, p)

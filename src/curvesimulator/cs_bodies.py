@@ -142,7 +142,9 @@ class CurveSimBodies(list):
                 if body != star:  # an object cannot eclipse itself :)
                     eclipsed_area, relative_radius = star.eclipsed_by(body, iteration, results, transit_status, p)
                     if eclipsed_area is not None:
-                        luminosity -= star.intensity * eclipsed_area * CurveSimPhysics.limbdarkening(relative_radius, star.limb_darkening) / star.mean_intensity
+                        absolute_depth = star.intensity * eclipsed_area * CurveSimPhysics.limbdarkening(relative_radius, star.limb_darkening) / star.mean_intensity
+                        luminosity -= absolute_depth
+                        results["bodies"][body.name]["Transits"][-1]["impacts_and_depths"][-1] = absolute_depth
         return luminosity
 
     @staticmethod

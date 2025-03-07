@@ -13,7 +13,15 @@ class Transit(dict):
         for key in transit_params:
             self["transit_params"][key] = None
         self["transit_params"]["EclipsedBody"] = eclipsed_body.name
-        self["parameters"] = []
+        self["impacts_and_depths"] = []
+
+
+class ImpactAndDepth:
+    def __init__(self, iteration, time, impact_parameter):
+        self.iteration = iteration
+        self.time = time
+        self.impact_parameter = impact_parameter
+        self.depth = 0
 
 
 class CurveSimResults(dict):
@@ -63,6 +71,7 @@ class CurveSimResults(dict):
     def time_of_transit(impact_parameter_list):
         """Find Time of transit and the corresponding impact parameter"""
         if impact_parameter_list:  # Check if the list is not empty
+            warum ist das nur eine Liste von floats statt einer Liste von ImpactAndDepth?
             min_tuple = min(impact_parameter_list, key=lambda item: item[1])
             return min_tuple
         else:  # This is no error, when there is no full eclipse  # debug
@@ -83,12 +92,12 @@ class CurveSimResults(dict):
                     lightcurve[-1] = lightcurve[-2] * 1.001  # Take care of an edge case by making sure there is no minimum at the end of the lightcurve.
                 else:  # grazing transit
                     t["transit_params"]["T14"] = t["transit_params"]["T4"] - t["transit_params"]["T1"]
-                    t["transit_params"]["TT"], t["transit_params"]["b"] = CurveSimResults.time_of_transit(t["parameters"])
+                    t["transit_params"]["TT"], t["transit_params"]["b"] = CurveSimResults.time_of_transit(t["impacts_and_depths"])
                 if t["transit_params"]["T2"] is not None and t["transit_params"]["T3"] is not None:
                     t["transit_params"]["T12"] = t["transit_params"]["T2"] - t["transit_params"]["T1"]
                     t["transit_params"]["T23"] = t["transit_params"]["T3"] - t["transit_params"]["T2"]
                     t["transit_params"]["T34"] = t["transit_params"]["T4"] - t["transit_params"]["T3"]
-                del t["parameters"]
+                del t["impacts_and_depths"]
         self["LightcurveMinima"] = lightcurve.lightcurve_minima()
         for i, minimum in enumerate(self["LightcurveMinima"]):
             self["LightcurveMinima"][i] = CurveSimResults.iteration2time(minimum[0], p), self["LightcurveMinima"][i][1]
