@@ -16,7 +16,7 @@ class Transit(dict):
         self["impacts_and_depths"] = []
 
 
-class ImpactAndDepth:   in dict umwandeln, damit JSON es verarbeiten kann
+class ImpactAndDepth:   in dict umwandeln, damit JSON es verarbeiten kann???
     def __init__(self, iteration, time, impact_parameter):
         self.iteration = iteration
         self.time = time
