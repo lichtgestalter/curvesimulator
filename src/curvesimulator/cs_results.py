@@ -16,12 +16,15 @@ class Transit(dict):
         self["impacts_and_depths"] = []
 
 
-class ImpactAndDepth:
+class ImpactAndDepth:   in dict umwandeln, damit JSON es verarbeiten kann
     def __init__(self, iteration, time, impact_parameter):
         self.iteration = iteration
         self.time = time
         self.impact_parameter = impact_parameter
         self.depth = 0
+
+    def __lt__(self, other):
+        return self.impact_parameter < other.impact_parameter
 
 
 class CurveSimResults(dict):
@@ -71,15 +74,25 @@ class CurveSimResults(dict):
     def time_of_transit(impact_parameter_list):
         """Find Time of transit and the corresponding impact parameter"""
         if impact_parameter_list:  # Check if the list is not empty
-            warum ist das nur eine Liste von floats statt einer Liste von ImpactAndDepth?
-            min_tuple = min(impact_parameter_list, key=lambda item: item[1])
-            return min_tuple
+            # warum ist das nur eine Liste von floats statt einer Liste von ImpactAndDepth? debug
+            min_impact_max_depth = min(impact_parameter_list)
+            # max_impact_depth = min(impact_parameter_list, key=lambda item: item[1])
+            return min_impact_max_depth
         else:  # This is no error, when there is no full eclipse  # debug
             # print("ERROR: Empty impact_parameter_list.")
             # print("This is a programming error.")
             # print("Please send your config file to CurveSimulator's developers.")
             # return None
-            return None, None
+            return None
+
+    def normalize_flux(self, lightcurve_max):
+        """Normalize flux in parameter depth in results."""
+        # results.normalize_flux(lightcurve.max(initial=None))  # Normalize flux in parameter depth in results.
+        for body in self["bodies"]:
+            # for transit in body["Transits"]:
+            for transit in self["bodies"][body]["Transits"]:
+                for i in transit["impacts_and_depths"]:
+                    i.depth /= lightcurve_max
 
     def calculate_results(self, lightcurve, p):
         """Calculate and populate the transit results and lightcurve minima."""
@@ -92,7 +105,10 @@ class CurveSimResults(dict):
                     lightcurve[-1] = lightcurve[-2] * 1.001  # Take care of an edge case by making sure there is no minimum at the end of the lightcurve.
                 else:  # grazing transit
                     t["transit_params"]["T14"] = t["transit_params"]["T4"] - t["transit_params"]["T1"]
-                    t["transit_params"]["TT"], t["transit_params"]["b"] = CurveSimResults.time_of_transit(t["impacts_and_depths"])
+                    min_impact_max_depth = CurveSimResults.time_of_transit(t["impacts_and_depths"])
+                    t["transit_params"]["TT"] = min_impact_max_depth.time
+                    t["transit_params"]["b"] = min_impact_max_depth.impact_parameter
+                    t["transit_params"]["depth"] = min_impact_max_depth.depth
                 if t["transit_params"]["T2"] is not None and t["transit_params"]["T3"] is not None:
                     t["transit_params"]["T12"] = t["transit_params"]["T2"] - t["transit_params"]["T1"]
                     t["transit_params"]["T23"] = t["transit_params"]["T3"] - t["transit_params"]["T2"]
