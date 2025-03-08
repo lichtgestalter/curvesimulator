@@ -32,8 +32,8 @@ class CurveSimResults(dict):
         super().__init__()
         self["CurveSimulator Documentation"] = "https://github.com/lichtgestalter/curvesimulator/wiki"
         self["ProgramParameters"] = {}
-        self["LightcurveMinima"] = []
-        self["LightcurveMinimaDistances"] = {}
+        # self["LightcurveMinima"] = []
+        # self["LightcurveMinimaDistances"] = {}
         self["bodies"] = {}
         for body in bodies:
             self["bodies"][body.name] = {"BodyParameters": body.__dict__, "Transits": []}
@@ -111,12 +111,12 @@ class CurveSimResults(dict):
                     t["transit_params"]["T23"] = t["transit_params"]["T3"] - t["transit_params"]["T2"]
                     t["transit_params"]["T34"] = t["transit_params"]["T4"] - t["transit_params"]["T3"]
                 del t["impacts_and_depths"]
-        self["LightcurveMinima"] = lightcurve.lightcurve_minima()
-        for i, minimum in enumerate(self["LightcurveMinima"]):
-            self["LightcurveMinima"][i] = CurveSimResults.iteration2time(minimum[0], p), self["LightcurveMinima"][i][1]
-        self["LightcurveMinimaDistances"] = []
-        for minimum1, minimum2 in zip(self["LightcurveMinima"][:-1], self["LightcurveMinima"][1:]):
-            self["LightcurveMinimaDistances"].append(minimum2[0] - minimum1[0])
+        # self["LightcurveMinima"] = lightcurve.lightcurve_minima()
+        # for i, minimum in enumerate(self["LightcurveMinima"]):
+        #     self["LightcurveMinima"][i] = CurveSimResults.iteration2time(minimum[0], p), self["LightcurveMinima"][i][1]
+        # self["LightcurveMinimaDistances"] = []
+        # for minimum1, minimum2 in zip(self["LightcurveMinima"][:-1], self["LightcurveMinima"][1:]):
+        #     self["LightcurveMinimaDistances"].append(minimum2[0] - minimum1[0])
 
     def results2json(self, bodies, filename):
         """Converts self to JSON and saves it in testjson.json"""

@@ -5,6 +5,7 @@ Recently done / in progress:
         0.3.7 result output enhancements
             Angles are now stored in the result file not only in radians but also in degrees.
             Comment-Field in Config-File -> Result file, plots
+            Depth of each transit added to result file
             TOI-4504 Research
                 Save plots
                 Sensitivity analysis:  What happens wenn parameters are changed + or - 3 standard deviations?
@@ -19,16 +20,9 @@ Recently done / in progress:
 
 NEXT:
 
-        Period and transit depth in Resultfile den Transits zuordnen statt separat ausweisen!
-
         Optimierte TT auch in Transitresults und nicht bloss in Lightcurveminima?
-
+            Siehe obsolete Funktion lightcurve_minima in cs_lightcurve.py
         Auch T1, T2, T3, T4 optimieren, also genaueren Zeitpunkt zwischen 2 Iterationsschritten schaetzen.
-
-        Transits von TOI-4504 c in Datenbanken:
-            TT, b, depth, duration von library lightkurve berechnen lassen?
-            ((Auch die fits-Dateien, die ich von MAST geholt habe, mit lightkurve auswerten))
-            ((Warum hat Michaela 11 Transits und ich nur 6?  -> old transits with 30 min iso 2 min cadences))
 
         0.x.x state_vector_to_keplerian_elements
             Orbitparameter regelmaessig (z.B. bei jedem Transit) berechnen und im Resultfile speichern.

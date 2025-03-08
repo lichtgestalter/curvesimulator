@@ -140,4 +140,4 @@ def main(resultfile):
     # transit_times(results, resultpath + resultfile + ".csv")
 
 
-main("TOI-4504.v0028")
+main("TOI-4504.v0001")
