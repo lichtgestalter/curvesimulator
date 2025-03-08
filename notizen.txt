@@ -20,6 +20,9 @@ Recently done / in progress:
 
 NEXT:
 
+        Artificial Star System
+            Under which circumstances are planets alternately transiting?
+
         Optimierte TT auch in Transitresults und nicht bloss in Lightcurveminima?
             Siehe obsolete Funktion lightcurve_minima in cs_lightcurve.py
         Auch T1, T2, T3, T4 optimieren, also genaueren Zeitpunkt zwischen 2 Iterationsschritten schaetzen.
