@@ -16,7 +16,7 @@ class Transit(dict):
         self["impacts_and_depths"] = []
 
 
-class ImpactAndDepth:   in dict umwandeln, damit JSON es verarbeiten kann???
+class ImpactAndDepth:
     def __init__(self, iteration, time, impact_parameter):
         self.iteration = iteration
         self.time = time
@@ -74,9 +74,8 @@ class CurveSimResults(dict):
     def time_of_transit(impact_parameter_list):
         """Find Time of transit and the corresponding impact parameter"""
         if impact_parameter_list:  # Check if the list is not empty
-            # warum ist das nur eine Liste von floats statt einer Liste von ImpactAndDepth? debug
             min_impact_max_depth = min(impact_parameter_list)
-            # max_impact_depth = min(impact_parameter_list, key=lambda item: item[1])
+            min_impact_max_depth.depth = float(min_impact_max_depth.depth)
             return min_impact_max_depth
         else:  # This is no error, when there is no full eclipse  # debug
             # print("ERROR: Empty impact_parameter_list.")
@@ -87,9 +86,7 @@ class CurveSimResults(dict):
 
     def normalize_flux(self, lightcurve_max):
         """Normalize flux in parameter depth in results."""
-        # results.normalize_flux(lightcurve.max(initial=None))  # Normalize flux in parameter depth in results.
         for body in self["bodies"]:
-            # for transit in body["Transits"]:
             for transit in self["bodies"][body]["Transits"]:
                 for i in transit["impacts_and_depths"]:
                     i.depth /= lightcurve_max

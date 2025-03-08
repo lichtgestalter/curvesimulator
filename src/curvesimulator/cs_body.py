@@ -403,7 +403,6 @@ class CurveSimBody:
                     self.check_for_T1T3(other, iteration, results, transit_status, p)
                     area, relative_radius = self.partial_eclipse(other, d)
                 results["bodies"][other.name]["Transits"][-1]["impacts_and_depths"].append(ImpactAndDepth(iteration, CurveSimResults.iteration2time(iteration, p), relative_radius))
-                # results["bodies"][other.name]["Transits"][-1]["impacts_and_depths"].append((CurveSimResults.iteration2time(iteration, p), relative_radius))
                 return area, relative_radius
             else:  # No eclipse because, seen from viewer, the bodies are not close enough to each other
                 self.check_for_T4(other, iteration, results, transit_status, p)

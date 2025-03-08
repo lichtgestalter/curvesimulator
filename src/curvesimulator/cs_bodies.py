@@ -144,7 +144,7 @@ class CurveSimBodies(list):
                     if eclipsed_area is not None:
                         absolute_depth = star.intensity * eclipsed_area * CurveSimPhysics.limbdarkening(relative_radius, star.limb_darkening) / star.mean_intensity
                         luminosity -= absolute_depth
-                        results["bodies"][body.name]["Transits"][-1]["impacts_and_depths"][-1].depth = absolute_depth
+                        results["bodies"][body.name]["Transits"][-1]["impacts_and_depths"][-1].depth = absolute_depth  # this depth is caused by this particular body eclipsing this particular star
         return luminosity
 
     @staticmethod
@@ -233,8 +233,9 @@ class CurveSimBodies(list):
         print(f'Calculating {p.iterations:,} iterations: ', end="")  #print(f"{b=:_}
         tic = time.perf_counter()
         results, lightcurve, bodies = self.calc_positions_eclipses_luminosity(p)
-        lightcurve /= lightcurve.max(initial=None)  # Normalize flux.
-        results.normalize_flux(lightcurve.max(initial=None))  # Normalize flux in parameter depth in results.
+        lightcurve_max = float(lightcurve.max(initial=None))
+        lightcurve /= lightcurve_max  # Normalize flux.
+        results.normalize_flux(lightcurve_max)  # Normalize flux in parameter depth in results.
         toc = time.perf_counter()
         print(f' {toc - tic:7.2f} seconds  ({p.iterations / (toc - tic):.0f} iterations/second)')
         return results, lightcurve
