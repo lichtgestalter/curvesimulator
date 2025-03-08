@@ -2,25 +2,11 @@ michaela.vitkova@asu.cas.cz
 vitkova@mail.asu.cas.cz
 
 Recently done / in progress:
-        0.3.7 result output enhancements
-            Angles are now stored in the result file not only in radians but also in degrees.
-            Comment-Field in Config-File -> Result file, plots
-            Depth of each transit added to result file
-            TOI-4504 Research
-                Save plots
-                Sensitivity analysis:  What happens wenn parameters are changed + or - 3 standard deviations?
-                    Checked for mass, e, i, P of planets c and d.
-                    Checked for longitude_of_ascending_node and argument_of_periapsis of planet c.
-                    Result:
-                        For some changes of longitude_of_ascending_node (e.g. +3 or +6 standard deviations) the decline
-                        of planet c's transit durations is significantly delayed.
-                        In each scenario, planets c and d have alternately longer phases with transits.
-                 Manually extracted transit parameters (T1, T2, TT, T3, T4, depth) with high accuracy from TESS data.
 
 
 NEXT:
 
-        Artificial Star System
+        0.3.8 Artificial Star System
             Under which circumstances are planets alternately transiting?
 
         Optimierte TT auch in Transitresults und nicht bloss in Lightcurveminima?
@@ -253,3 +239,15 @@ I implemented all suggestions from zoom call 29.03.2022, but tried and dismissed
     0.3.6   Postponed! state_vector_to_keplerian_elements
     0.3.7   Result output enhancements
                 Angles are now stored in the result file not only in radians but also in degrees.
+                Comment-Field in Config-File -> Result file, plots
+                Depth of each transit added to result file
+                TOI-4504 Research
+                    Save plots
+                    Sensitivity analysis:  What happens wenn parameters are changed + or - 3 standard deviations?
+                        Checked for mass, e, i, P of planets c and d.
+                        Checked for longitude_of_ascending_node and argument_of_periapsis of planet c.
+                        Result:
+                            For some changes of longitude_of_ascending_node (e.g. +3 or +6 standard deviations) the decline
+                            of planet c's transit durations is significantly delayed.
+                            In each scenario, planets c and d have alternately longer phases with transits.
+                     Manually extracted transit parameters (T1, T2, TT, T3, T4, depth) with high accuracy from TESS data.
