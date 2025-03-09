@@ -87,7 +87,8 @@ def periods(results, savefilename="", show_plot=True, save_plot=True):
     plt.legend()
     plt.grid(True)
     # plt.ylim(bottom=49.2, top=50.8)
-    plt.ylim(bottom=99.5, top=102.5)
+    # plt.ylim(bottom=99.5, top=102.5)
+    plt.ylim(bottom=4999, top=5000)
     if save_plot:
         plt.savefig(savefilename)
     if show_plot:
@@ -117,5 +118,5 @@ def main(resultfile):
     # transit_times(results, resultpath + resultfile + ".csv")
 
 
-main("Sim001.v0002")
+main("Sim001.v0003")
 # main("TOI-4504.v0001")
