@@ -5,14 +5,23 @@ import matplotlib.pyplot as plt
 import os
 
 
-def depths(results, savefilename="", show_plot=True, save_plot=True):
+def depths(results, savefilename="", show_plot=True, save_plot=True, include_tess=True):
+    transits_c = results["bodies"]["TOI-4504c"]["Transits"]
+    transit_times_c = [transit["transit_params"]["TT"] for transit in transits_c]
+    depths_c = [transit["transit_params"]["depth"] for transit in transits_c]
+
+    transits_d = results["bodies"]["TOI-4504d"]["Transits"]
+    transit_times_d = [transit["transit_params"]["TT"] for transit in transits_d]
+    depths_d = [transit["transit_params"]["depth"] for transit in transits_d]
+
     plt.figure(figsize=(10, 6))
-    bodies = [body for body in results["bodies"] if results["bodies"][body]["BodyParameters"]["body_type"] == "planet"]
-    for body in bodies:
-        transits = results["bodies"][body]["Transits"]
-        transit_times = [transit["transit_params"]["TT"] for transit in transits]
-        depths = [transit["transit_params"]["depth"] for transit in transits]
-        plt.plot(transit_times, depths, 'o-', label=body)
+    plt.plot(transit_times_c, depths_c, 'o-', label="TOI-4504c")
+    plt.plot(transit_times_d, depths_d, 'o-', label="TOI-4504d")
+    if include_tess:
+        transit_times_tess = [2459065.24, 2459148.49, 2459231.11, 2459313.25, 2460059.62, 2460142.60]
+        depths_tess = [0.0132, 0.0134, 0.0128, 0.0128, 0.0131, 0.0123]
+        plt.plot(transit_times_tess, depths_tess, 'o-', label="TOI-4504c TESS")
+
     plt.xlabel('Transit Times [BJD]')
     plt.ylabel('Depth')
     plt.title(f"{os.path.splitext(os.path.basename(savefilename))[0]}, {results["ProgramParameters"]["comment"]} (dt={results["ProgramParameters"]["dt"]})")
@@ -73,26 +82,39 @@ def transit_duration(results, savefilename="", show_plot=True, save_plot=True, f
     if show_plot:
         plt.show()
 
-def periods(results, savefilename="", show_plot=True, save_plot=True):
+def periods_c(results, savefilename="", show_plot=True, save_plot=True):
+    transits_c = results["bodies"]["TOI-4504c"]["Transits"]
+    transit_times_c = [transit["transit_params"]["TT"] for transit in transits_c]
+    periods_c = [transit2["transit_params"]["TT"] - transit1["transit_params"]["TT"] if transit1["transit_params"]["TT"] is not None and transit2["transit_params"]["TT"] is not None else None for transit1, transit2 in zip(transits_c[:-1], transits_c[1:])]
     plt.figure(figsize=(10, 6))
-    bodies = [body for body in results["bodies"] if results["bodies"][body]["BodyParameters"]["body_type"] == "planet"]
-    for body in bodies:
-        transits = results["bodies"][body]["Transits"]
-        transit_times = [transit["transit_params"]["TT"] for transit in transits]
-        periods = [transit2["transit_params"]["TT"] - transit1["transit_params"]["TT"] if transit1["transit_params"]["TT"] is not None and transit2["transit_params"]["TT"] is not None else None for transit1, transit2 in zip(transits[:-1], transits[1:])]
-        plt.plot(transit_times[1:], periods, 'o-', label=body)
+    plt.plot(transit_times_c[1:], periods_c, 'o-', label="TOI-4504c")
     plt.xlabel('Transit Times [BJD]')
     plt.ylabel('Period [d]')
     plt.title(f"{os.path.splitext(os.path.basename(savefilename))[0]}, {results["ProgramParameters"]["comment"]} (dt={results["ProgramParameters"]["dt"]})")
     plt.legend()
     plt.grid(True)
-    # plt.ylim(bottom=49.2, top=50.8)
-    plt.ylim(bottom=99.5, top=102.5)
+    plt.ylim(bottom=81, top=85)
     if save_plot:
         plt.savefig(savefilename)
     if show_plot:
         plt.show()
 
+def periods_d(results, savefilename="", show_plot=True, save_plot=True):
+    transits_d = results["bodies"]["TOI-4504d"]["Transits"]
+    transit_times_d = [transit["transit_params"]["TT"] for transit in transits_d]
+    periods_d = [transit2["transit_params"]["TT"] - transit1["transit_params"]["TT"] if transit1["transit_params"]["TT"] is not None and transit2["transit_params"]["TT"] is not None else None for transit1, transit2 in zip(transits_d[:-1], transits_d[1:])]
+    plt.figure(figsize=(10, 6))
+    plt.plot(transit_times_d[1:], periods_d, 'o-', label="TOI-4504d")
+    plt.xlabel('Transit Times [BJD]')
+    plt.ylabel('Period [d]')
+    plt.title(f"{os.path.splitext(os.path.basename(savefilename))[0]}, {results["ProgramParameters"]["comment"]} (dt={results["ProgramParameters"]["dt"]})")
+    plt.legend()
+    plt.grid(True)
+    plt.ylim(bottom=39, top=43)
+    if save_plot:
+        plt.savefig(savefilename)
+    if show_plot:
+        plt.show()
 
 def transit_times_to_csv(results, savefile):
     """Save transit times as csv file."""
@@ -109,13 +131,13 @@ def main(resultfile):
     resultextension = ".json"
     with open(resultpath + resultfile + resultextension, "r") as file:
         results = json.load(file)
-    depths(results, resultpath + "depth/" + resultfile + '_depth.png', show_plot=True, save_plot=True)
-    # impact_parameters(results, resultpath + "impact/" + resultfile + '_impact.png', show_plot=True, save_plot=True)
-    # transit_duration(results, resultpath + "duration_14/" + resultfile + '_duration_14.png', show_plot=True, save_plot=True, full_eclipse_only=False)
-    # transit_duration(results, resultpath + "duration_23/" + resultfile + '_duration_23.png', show_plot=True, save_plot=True, full_eclipse_only=True)
-    periods(results, resultpath + "period/" + resultfile + '_period_c.png', show_plot=True, save_plot=True)
+    depths(results, resultpath + "depth/" + resultfile + '_depth.png', show_plot=True, save_plot=True, include_tess=True)
+    impact_parameters(results, resultpath + "impact/" + resultfile + '_impact.png', show_plot=True, save_plot=True)
+    transit_duration(results, resultpath + "duration_14/" + resultfile + '_duration_14.png', show_plot=True, save_plot=True, full_eclipse_only=False)
+    transit_duration(results, resultpath + "duration_23/" + resultfile + '_duration_23.png', show_plot=True, save_plot=True, full_eclipse_only=True)
+    periods_c(results, resultpath + "period/" + resultfile + '_period_c.png', show_plot=True, save_plot=True)
+    periods_d(results, resultpath + "period/" + resultfile + '_period_d.png', show_plot=True, save_plot=True)
     # transit_times(results, resultpath + resultfile + ".csv")
 
 
-main("Sim001.v0002")
-# main("TOI-4504.v0001")
+main("TOI-4504.v0001")
