@@ -5,6 +5,18 @@ import matplotlib.pyplot as plt
 import os
 
 
+def plot_this(results, save_plot, savefilename, show_plot, ylabel):
+    plt.xlabel('Transit Times [BJD]')
+    plt.ylabel(ylabel)
+    plt.title(f"{os.path.splitext(os.path.basename(savefilename))[0]}, {results["ProgramParameters"]["comment"]} (dt={results["ProgramParameters"]["dt"]})")
+    plt.legend()
+    plt.grid(True)
+    if save_plot:
+        plt.savefig(savefilename)
+    if show_plot:
+        plt.show()
+
+
 def depths(results, savefilename="", show_plot=True, save_plot=True):
     plt.figure(figsize=(10, 6))
     bodies = [body for body in results["bodies"] if results["bodies"][body]["BodyParameters"]["body_type"] == "planet"]
@@ -13,39 +25,18 @@ def depths(results, savefilename="", show_plot=True, save_plot=True):
         transit_times = [transit["transit_params"]["TT"] for transit in transits]
         depths = [transit["transit_params"]["depth"] for transit in transits]
         plt.plot(transit_times, depths, 'o-', label=body)
-    plt.xlabel('Transit Times [BJD]')
-    plt.ylabel('Depth')
-    plt.title(f"{os.path.splitext(os.path.basename(savefilename))[0]}, {results["ProgramParameters"]["comment"]} (dt={results["ProgramParameters"]["dt"]})")
-    plt.legend()
-    plt.grid(True)
-    plt.ylim(bottom=0)
-    if save_plot:
-        plt.savefig(savefilename)
-    if show_plot:
-        plt.show()
+    plot_this(results, save_plot, savefilename, show_plot, 'Depth')
 
 def impact_parameters(results, savefilename="", show_plot=True, save_plot=True):
-    transits_c = results["bodies"]["TOI-4504c"]["Transits"]
-    transit_times_c = [transit["transit_params"]["TT"] for transit in transits_c]
-    impact_parameters_c = [transit["transit_params"]["b"] for transit in transits_c]
-
-    transits_d = results["bodies"]["TOI-4504d"]["Transits"]
-    transit_times_d = [transit["transit_params"]["TT"] for transit in transits_d]
-    impact_parameters_d = [transit["transit_params"]["b"] for transit in transits_d]
-
     plt.figure(figsize=(10, 6))
-    plt.plot(transit_times_c, impact_parameters_c, 'o-', label="TOI-4504c")
-    plt.plot(transit_times_d, impact_parameters_d, 'o-', label="TOI-4504d")
-    plt.xlabel('Transit Times [BJD]')
-    plt.ylabel('Impact Parameter')
-    plt.title(f"{os.path.splitext(os.path.basename(savefilename))[0]}, {results["ProgramParameters"]["comment"]} (dt={results["ProgramParameters"]["dt"]})")
-    plt.legend()
-    plt.grid(True)
-    plt.ylim(bottom=0)
-    if save_plot:
-        plt.savefig(savefilename)
-    if show_plot:
-        plt.show()
+    bodies = [body for body in results["bodies"] if results["bodies"][body]["BodyParameters"]["body_type"] == "planet"]
+    for body in bodies:
+        transits = results["bodies"][body]["Transits"]
+        transit_times = [transit["transit_params"]["TT"] for transit in transits]
+        impact_parameters = [transit["transit_params"]["b"] for transit in transits]
+        plt.plot(transit_times, impact_parameters, 'o-', label=body)
+    plot_this(results, save_plot, savefilename, show_plot, 'Impact Parameter')
+
 
 def transit_duration(results, savefilename="", show_plot=True, save_plot=True, full_eclipse_only=True):
     transits_c = results["bodies"]["TOI-4504c"]["Transits"]
@@ -80,19 +71,12 @@ def periods(results, savefilename="", show_plot=True, save_plot=True):
         transits = results["bodies"][body]["Transits"]
         transit_times = [transit["transit_params"]["TT"] for transit in transits]
         periods = [transit2["transit_params"]["TT"] - transit1["transit_params"]["TT"] if transit1["transit_params"]["TT"] is not None and transit2["transit_params"]["TT"] is not None else None for transit1, transit2 in zip(transits[:-1], transits[1:])]
+        print(f"{body}:  minimum period = {min(periods):.2f}, maximum period = {max(periods):.2f}")
         plt.plot(transit_times[1:], periods, 'o-', label=body)
-    plt.xlabel('Transit Times [BJD]')
-    plt.ylabel('Period [d]')
-    plt.title(f"{os.path.splitext(os.path.basename(savefilename))[0]}, {results["ProgramParameters"]["comment"]} (dt={results["ProgramParameters"]["dt"]})")
-    plt.legend()
-    plt.grid(True)
-    # plt.ylim(bottom=49.2, top=50.8)
+    plt.ylim(bottom=49.2, top=50.8)
     # plt.ylim(bottom=99.5, top=102.5)
-    plt.ylim(bottom=4999, top=5000)
-    if save_plot:
-        plt.savefig(savefilename)
-    if show_plot:
-        plt.show()
+    # plt.ylim(bottom=4999, top=5000)
+    plot_this(results, save_plot, savefilename, show_plot, 'Period [d]')
 
 
 def transit_times_to_csv(results, savefile):
@@ -110,13 +94,13 @@ def main(resultfile):
     resultextension = ".json"
     with open(resultpath + resultfile + resultextension, "r") as file:
         results = json.load(file)
-    depths(results, resultpath + "depth/" + resultfile + '_depth.png', show_plot=True, save_plot=True)
-    # impact_parameters(results, resultpath + "impact/" + resultfile + '_impact.png', show_plot=True, save_plot=True)
+    # depths(results, resultpath + "depth/" + resultfile + '_depth.png', show_plot=True, save_plot=True)
+    impact_parameters(results, resultpath + "impact/" + resultfile + '_impact.png', show_plot=True, save_plot=True)
     # transit_duration(results, resultpath + "duration_14/" + resultfile + '_duration_14.png', show_plot=True, save_plot=True, full_eclipse_only=False)
     # transit_duration(results, resultpath + "duration_23/" + resultfile + '_duration_23.png', show_plot=True, save_plot=True, full_eclipse_only=True)
     periods(results, resultpath + "period/" + resultfile + '_period_c.png', show_plot=True, save_plot=True)
     # transit_times(results, resultpath + resultfile + ".csv")
 
 
-main("Sim001.v0003")
+main("Sim001.v0005")
 # main("TOI-4504.v0001")
