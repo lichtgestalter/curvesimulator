@@ -34,7 +34,12 @@ def impact_parameters(results, savefilename="", show_plot=True, save_plot=True):
         transits = results["bodies"][body]["Transits"]
         transit_times = [transit["transit_params"]["TT"] for transit in transits]
         impact_parameters = [transit["transit_params"]["b"] for transit in transits]
+        print(f"{body}:  minimum impact parameter = {min(impact_parameters):.5f}, maximum impact parameter = {max(impact_parameters):.5f}")
+        print(f"{body}:  first impact parameter = {impact_parameters[0]:.5f} @ {transit_times[0]:.2f}, last impact parameter = {impact_parameters[-1]:.5f} @ {transit_times[-1]:.2f}")
         plt.plot(transit_times, impact_parameters, 'o-', label=body)
+    # plt.ylim(bottom=0.00022, top=0.00755)
+    # plt.ylim(bottom=0.89243, top=0.89334)
+    plt.ylim(bottom=0.49721, top=0.49786)
     plot_this(results, save_plot, savefilename, show_plot, 'Impact Parameter')
 
 
@@ -71,9 +76,9 @@ def periods(results, savefilename="", show_plot=True, save_plot=True):
         transits = results["bodies"][body]["Transits"]
         transit_times = [transit["transit_params"]["TT"] for transit in transits]
         periods = [transit2["transit_params"]["TT"] - transit1["transit_params"]["TT"] if transit1["transit_params"]["TT"] is not None and transit2["transit_params"]["TT"] is not None else None for transit1, transit2 in zip(transits[:-1], transits[1:])]
-        print(f"{body}:  minimum period = {min(periods):.2f}, maximum period = {max(periods):.2f}")
+        print(f"{body}:  minimum period = {min(periods):.4f}, maximum period = {max(periods):.4f}")
         plt.plot(transit_times[1:], periods, 'o-', label=body)
-    plt.ylim(bottom=49.2, top=50.8)
+    plt.ylim(bottom=50.166666666, top=50.166666667)
     # plt.ylim(bottom=99.5, top=102.5)
     # plt.ylim(bottom=4999, top=5000)
     plot_this(results, save_plot, savefilename, show_plot, 'Period [d]')
@@ -98,9 +103,9 @@ def main(resultfile):
     impact_parameters(results, resultpath + "impact/" + resultfile + '_impact.png', show_plot=True, save_plot=True)
     # transit_duration(results, resultpath + "duration_14/" + resultfile + '_duration_14.png', show_plot=True, save_plot=True, full_eclipse_only=False)
     # transit_duration(results, resultpath + "duration_23/" + resultfile + '_duration_23.png', show_plot=True, save_plot=True, full_eclipse_only=True)
-    periods(results, resultpath + "period/" + resultfile + '_period_c.png', show_plot=True, save_plot=True)
+    periods(results, resultpath + "period/" + resultfile + '_period.png', show_plot=True, save_plot=True)
     # transit_times(results, resultpath + resultfile + ".csv")
 
 
-main("Sim001.v0005")
+main("Sim001.v0006")
 # main("TOI-4504.v0001")
