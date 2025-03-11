@@ -30,12 +30,10 @@ NEXT:
     0.3.x Secondary eclipses (Sonne verdeckt Planet)
 
 
-
-
-
     Example videos
         Videos erstellen und (auf youtube? eher vimeo wg. Bildqualitaet) veröffentlichen.
-
+        Auf Video-Seite im Wiki (letzter Satz) ungefaehr sowas ergaenzen:
+            Or watch this [version with awful compression artefacts](https://youtu.be/7diyCCIqiIc), courtesy of youtube.
             Sternsysteme aus weiteren Papern visualisieren.
                 Zunaechst nur Systeme mit nur einem Stern
 
