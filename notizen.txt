@@ -27,9 +27,6 @@ NEXT:
 
 
 
-    0.3.x Secondary eclipses (Sonne verdeckt Planet)
-
-
     Example videos
         Videos erstellen und (auf youtube? eher vimeo wg. Bildqualitaet) veröffentlichen.
         Auf Video-Seite im Wiki (letzter Satz) ungefaehr sowas ergaenzen:
@@ -52,7 +49,7 @@ VERSION 1.0.0 veroeffentlichen !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     Fragen an Akademiker:
 
         TOI-4504:
-            Alle meine Periodenkurven aehneln sich. Die Periodenlaenge steigt soft steil an. Das passt nicht gut zu den beobachteten Daten.
+            Alle meine Periodenkurven aehneln sich. Die Periodenlaenge steigt sofort steil an. Das passt nicht gut zu den beobachteten Daten.
 
         Initial velocity or gravitational parameter is incorrect for systems without a domineering mass (i.e. one star systems)
             Idee: Velocity hack auf 3 Sterne ausweiten 
@@ -111,9 +108,18 @@ VERSION 1.0.0 veroeffentlichen !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         Im JSON File
         Copyright notice ins Video?
 
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    Kleines Tool (mit tkinter) als separates Programm, zum Planen des Videos (siehe Seite "Planner" in TOI4504.xlsx)
+
+    Systeme mt mehr als einem Stern korrekt hantieren (Initial Velocity)
+
     Multiple Eclipses (e.g. Triply Eclipsing Triples, >=3 bodies in line of sight):
         Handle them correctly
         Example systems: https://arxiv.org/pdf/2204.02539.pdf
+
+    Secondary eclipses (Sonne verdeckt Planet)
 
     Indirect light / Planet Albedo
         Bei Total System Luminosity beruecksichtigen -> kleiner dip in lightcurve bei secondary eclipse
