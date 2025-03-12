@@ -2,13 +2,14 @@ michaela.vitkova@asu.cas.cz
 vitkova@mail.asu.cas.cz
 
 Recently done / in progress:
-
+    0.3.9   Result output enhancements
+        More flexible result evaluation
 
 NEXT:
 
-        0.3.8 Artificial Star System
-            Under which circumstances are planets alternately transiting?
-            Alle Resultate in einem File sammeln.
+
+
+
         Optimierte TT auch in Transitresults und nicht bloss in Lightcurveminima?
             Siehe obsolete Funktion lightcurve_minima in cs_lightcurve.py
         Auch T1, T2, T3, T4 optimieren, also genaueren Zeitpunkt zwischen 2 Iterationsschritten schaetzen.
@@ -111,7 +112,7 @@ VERSION 1.0.0 veroeffentlichen !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    Kleines Tool (mit tkinter) als separates Programm, zum Planen des Videos (siehe Seite "Planner" in TOI4504.xlsx)
+    Kleines Tool (mit tkinter) als separates Programm, zum Planen des Videos (siehe Seite "Planner" in TOI4504.xlsx)?
 
     Systeme mt mehr als einem Stern korrekt hantieren (Initial Velocity)
 
@@ -255,3 +256,10 @@ I implemented all suggestions from zoom call 29.03.2022, but tried and dismissed
                             of planet c's transit durations is significantly delayed.
                             In each scenario, planets c and d have alternately longer phases with transits.
                      Manually extracted transit parameters (T1, T2, TT, T3, T4, depth) with high accuracy from TESS data.
+    0.3.8 Artificial Star System
+        Under which circumstances are planets alternately transiting?
+            Larger and closer second planets with different inclinations change the inclination of the first planet faster.
+            The effect changes somewhat smoothly with changing with increasing mass and decreasing distance of the second planet.
+            This supports the thesis that the alternately transiting behaviour is real and not just an artefact.
+    0.3.9   Result output enhancements
+
