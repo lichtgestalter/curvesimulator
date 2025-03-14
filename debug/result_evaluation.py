@@ -18,9 +18,26 @@ def plot_this(results, save_plot, savefilename, show_plot, ylabel, ybottom=None,
         plt.show()
 
 
-def depth(results, savefilename="", show_plot=True, save_plot=True, ybottom=None, ytop=None):
+def transit_duration(results, savefilename, bodies, show_plot=True, save_plot=True, full_eclipse_only=True, ybottom=None, ytop=None):
     plt.figure(figsize=(10, 6))
-    bodies = [body for body in results["bodies"] if results["bodies"][body]["BodyParameters"]["body_type"] == "planet"]
+    for body in bodies:
+        transits = results["bodies"][body]["Transits"]
+        transit_times = [transit["transit_params"]["TT"] for transit in transits]
+        if full_eclipse_only:
+            t2 = [transit["transit_params"]["T2"] for transit in transits]
+            t3 = [transit["transit_params"]["T3"] for transit in transits]
+            t23 = [t3 - t2 if t2 is not None and t3 is not None else None for t2, t3 in zip(t2, t3)]
+            plt.plot(transit_times, t23, 'o-', label="TOI-4504c T23")
+        else:
+            t1 = [transit["transit_params"]["T1"] for transit in transits]
+            t4 = [transit["transit_params"]["T4"] for transit in transits]
+            t14 = [t4 - t1 if t1 is not None and t4 is not None else None for t1, t4 in zip(t1, t4)]
+            plt.plot(transit_times, t14, 'o-', label="TOI-4504c T14")
+    plot_this(results, save_plot, savefilename, show_plot, 'Transit Duration [d]', ybottom, ytop)
+
+
+def depth(results, savefilename, bodies, show_plot=True, save_plot=True, ybottom=None, ytop=None):
+    plt.figure(figsize=(10, 6))
     for body in bodies:
         transits = results["bodies"][body]["Transits"]
         transit_times = [transit["transit_params"]["TT"] for transit in transits]
@@ -28,9 +45,9 @@ def depth(results, savefilename="", show_plot=True, save_plot=True, ybottom=None
         plt.plot(transit_times, depths, 'o-', label=body)
     plot_this(results, save_plot, savefilename, show_plot, 'Depth', ybottom, ytop)
 
-def impact_parameter(results, savefilename="", show_plot=True, save_plot=True, ybottom=None, ytop=None):
+
+def impact_parameter(results, savefilename, bodies, show_plot=True, save_plot=True, ybottom=None, ytop=None):
     plt.figure(figsize=(10, 6))
-    bodies = [body for body in results["bodies"] if results["bodies"][body]["BodyParameters"]["body_type"] == "planet"]
     for body in bodies:
         transits = results["bodies"][body]["Transits"]
         transit_times = [transit["transit_params"]["TT"] for transit in transits]
@@ -41,35 +58,8 @@ def impact_parameter(results, savefilename="", show_plot=True, save_plot=True, y
     plot_this(results, save_plot, savefilename, show_plot, 'Impact Parameter', ybottom, ytop)
 
 
-def transit_duration(results, savefilename="", show_plot=True, save_plot=True, full_eclipse_only=True, ybottom=None, ytop=None):
-    transits_c = results["bodies"]["TOI-4504c"]["Transits"]
-    transit_times_c = [transit["transit_params"]["TT"] for transit in transits_c]
-
+def period(results, savefilename, bodies, show_plot=True, save_plot=True, ybottom=None, ytop=None):
     plt.figure(figsize=(10, 6))
-    plt.xlabel('Transit Times [BJD]')
-    plt.ylabel('Transit Duration [d]')
-    plt.title(f"{os.path.splitext(os.path.basename(savefilename))[0]}, {results["ProgramParameters"]["comment"]} (dt={results["ProgramParameters"]["dt"]})")
-    if full_eclipse_only:
-        t2_c = [transit["transit_params"]["T2"] for transit in transits_c]
-        t3_c = [transit["transit_params"]["T3"] for transit in transits_c]
-        t23_c = [t3 - t2 if t2 is not None and t3 is not None else None for t2, t3 in zip(t2_c, t3_c)]
-        plt.plot(transit_times_c, t23_c, 'o-', label="TOI-4504c T23")
-    else:
-        t1_c = [transit["transit_params"]["T1"] for transit in transits_c]
-        t4_c = [transit["transit_params"]["T4"] for transit in transits_c]
-        t14_c = [t4 - t1 if t1 is not None and t4 is not None else None for t1, t4 in zip(t1_c, t4_c)]
-        plt.plot(transit_times_c, t14_c, 'o-', label="TOI-4504c T14")
-    plt.legend()
-    plt.grid(True)
-    plt.ylim(bottom=0)
-    if save_plot:
-        plt.savefig(savefilename)
-    if show_plot:
-        plt.show()
-
-def period(results, savefilename="", show_plot=True, save_plot=True, ybottom=None, ytop=None):
-    plt.figure(figsize=(10, 6))
-    bodies = [body for body in results["bodies"] if results["bodies"][body]["BodyParameters"]["body_type"] == "planet"]
     for body in bodies:
         transits = results["bodies"][body]["Transits"]
         transit_times = [transit["transit_params"]["TT"] for transit in transits]
@@ -79,7 +69,7 @@ def period(results, savefilename="", show_plot=True, save_plot=True, ybottom=Non
     plot_this(results, save_plot, savefilename, show_plot, 'Period [d]', ybottom, ytop)
 
 
-def transit_times_to_csv(results, savefile):
+def transit_times_to_csv(results, savefile, bodies):
     """Save transit times as csv file."""
     transits_c = results["bodies"]["TOI-4504c"]["Transits"]
     transit_times_c = [transit["transit_params"]["TT"] for transit in transits_c]
@@ -94,12 +84,14 @@ def main(resultfile):
     resultextension = ".json"
     with open(resultpath + resultfile + resultextension, "r") as file:
         results = json.load(file)
-    # depth(results, resultpath + "depth/" + resultfile + '_depth.png', show_plot=True, save_plot=True)
-    impact_parameter(results, resultpath + "impact/" + resultfile + '_impact.png', show_plot=True, save_plot=True, ybottom=0.89243, ytop=0.89334)
-    # transit_duration(results, resultpath + "duration_14/" + resultfile + '_duration_14.png', show_plot=True, save_plot=True, full_eclipse_only=False)
-    # transit_duration(results, resultpath + "duration_23/" + resultfile + '_duration_23.png', show_plot=True, save_plot=True, full_eclipse_only=True)
-    period(results, resultpath + "period/" + resultfile + '_period.png', show_plot=True, save_plot=True, ybottom=50.0833, ytop=50.1250)
-    # transit_times(results, resultpath + resultfile + ".csv")
+    # bodies = [body for body in results["bodies"]]
+    planets = [body for body in results["bodies"] if results["bodies"][body]["BodyParameters"]["body_type"] == "planet"]
+    depth(results, resultpath + "depth/" + resultfile + '_depth.png', planets, show_plot=True, save_plot=True, ybottom=None, ytop=None)
+    impact_parameter(results, resultpath + "impact/" + resultfile + '_impact.png', planets, show_plot=True, save_plot=True, ybottom=0.89243, ytop=0.89334)
+    transit_duration(results, resultpath + "duration_14/" + resultfile + '_duration_14.png', planets, show_plot=True, save_plot=True, full_eclipse_only=False)
+    transit_duration(results, resultpath + "duration_23/" + resultfile + '_duration_23.png', planets, show_plot=True, save_plot=True, full_eclipse_only=True)
+    period(results, resultpath + "period/" + resultfile + '_period.png', planets, show_plot=True, save_plot=True, ybottom=50.0833, ytop=50.1250)
+    # transit_times(results, resultpath + resultfile + ".csv", planets)
 
 
 main("Sim001.v0007")

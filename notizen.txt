@@ -7,7 +7,8 @@ Recently done / in progress:
 
 NEXT:
 
-
+        FEHLER!?!
+            Warum ist in Sim001.v0007.json T12 und T34 immer Null?
 
         Optimierte TT auch in Transitresults und nicht bloss in Lightcurveminima?
             Siehe obsolete Funktion lightcurve_minima in cs_lightcurve.py
