@@ -52,9 +52,10 @@ def impact_parameter(results, savefilename, bodies, show_plot=True, save_plot=Tr
         transits = results["bodies"][body]["Transits"]
         transit_times = [transit["transit_params"]["TT"] for transit in transits]
         impact_parameters = [transit["transit_params"]["b"] for transit in transits]
-        print(f"{body}:  minimum impact parameter = {min(impact_parameters):.5f}, maximum impact parameter = {max(impact_parameters):.5f}")
-        print(f"{body}:  first impact parameter = {impact_parameters[0]:.5f} @ {transit_times[0]:.2f}, last impact parameter = {impact_parameters[-1]:.5f} @ {transit_times[-1]:.2f}")
-        plt.plot(transit_times, impact_parameters, 'o-', label=body)
+        if impact_parameters:
+            print(f"{body}:  minimum impact parameter = {min(impact_parameters):.5f}, maximum impact parameter = {max(impact_parameters):.5f}")
+            print(f"{body}:  first impact parameter = {impact_parameters[0]:.5f} @ {transit_times[0]:.2f}, last impact parameter = {impact_parameters[-1]:.5f} @ {transit_times[-1]:.2f}")
+            plt.plot(transit_times, impact_parameters, 'o-', label=body)
     plot_this(results, save_plot, savefilename, show_plot, 'Impact Parameter', ybottom, ytop)
 
 
@@ -64,8 +65,9 @@ def period(results, savefilename, bodies, show_plot=True, save_plot=True, ybotto
         transits = results["bodies"][body]["Transits"]
         transit_times = [transit["transit_params"]["TT"] for transit in transits]
         periods = [transit2["transit_params"]["TT"] - transit1["transit_params"]["TT"] if transit1["transit_params"]["TT"] is not None and transit2["transit_params"]["TT"] is not None else None for transit1, transit2 in zip(transits[:-1], transits[1:])]
-        print(f"{body}:  minimum period = {min(periods):.4f}, maximum period = {max(periods):.4f}")
-        plt.plot(transit_times[1:], periods, 'o-', label=body)
+        if periods:
+            print(f"{body}:  minimum period = {min(periods):.4f}, maximum period = {max(periods):.4f}")
+            plt.plot(transit_times[1:], periods, 'o-', label=body)
     plot_this(results, save_plot, savefilename, show_plot, 'Period [d]', ybottom, ytop)
 
 
@@ -94,5 +96,6 @@ def main(resultfile):
     # transit_times(results, resultpath + resultfile + ".csv", planets)
 
 
-main("Sim001.v0007")
+# main("Sim001.v0007")
 # main("TOI-4504.v0001")
+main("TOI-4504.demo.v0002")

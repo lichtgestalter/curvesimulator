@@ -7,9 +7,6 @@ Recently done / in progress:
 
 NEXT:
 
-        FEHLER!?!
-            Warum ist in Sim001.v0007.json T12 und T34 immer Null?
-
         Optimierte TT auch in Transitresults und nicht bloss in Lightcurveminima?
             Siehe obsolete Funktion lightcurve_minima in cs_lightcurve.py
         Auch T1, T2, T3, T4 optimieren, also genaueren Zeitpunkt zwischen 2 Iterationsschritten schaetzen.
@@ -80,9 +77,26 @@ VERSION 1.0.0 veroeffentlichen !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             Peters Kumpel
 
         Universitäten:
-            https://nbi.ku.dk/english/research/astrophysics/exoplanets/
+            Niels Bohr:
+                https://nbi.ku.dk/english/research/astrophysics/exoplanets/
                 http://www.mindstep-science.org/about_us.html ???
-            https://www.iau.org/administration/membership/individual/11759/ ???
+                https://www.iau.org/administration/membership/individual/11759/ ???
+            Aarhus:
+                https://phys.au.dk/sac/our-research/extrasolar-planets/
+                Simon Albrecht, Associate Professor, Department of Physics and Astronomy, +4587155702, albrecht@phys.au.dk
+                    https://pure.au.dk/portal/en/persons/albrecht%40phys.au.dk
+                    https://space.mit.edu/home/albrecht/
+                Professor Emeritus Jørgen Christensen-Dalsgaard
+                    Stellar Astrophysics Centre (SAC) an der Aarhus Universität
+
+            SDU (Odense):
+                https://portal.findresearcher.sdu.dk/da/persons/toby-hinse, +4565507131, toch@cp3.sdu.dk
+            DTU:
+                http://www.exoplanets.dk/
+                https://orbit.dtu.dk/en/persons/lars-christian-astrup-buchhave, buchhave@space.dtu.dk
+                Office: +45 4525 9500, office@space.dtu.dk
+                https://www.space.dtu.dk/afdelinger/astrofysik-og-atmosfaerens-fysik
+
 
         Organisationen:
             https://www.aavso.org/
