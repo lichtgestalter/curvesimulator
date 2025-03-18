@@ -357,7 +357,7 @@
             },
             "Transits": [
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2458401.201388889,
                         "T2": 2458401.2430555555,
@@ -372,7 +372,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2458483.8194444445,
                         "T2": 2458483.861111111,
@@ -387,7 +387,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2458566.8541666665,
                         "T2": 2458566.8958333335,
@@ -402,7 +402,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2458650.298611111,
                         "T2": 2458650.340277778,
@@ -417,7 +417,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2458734.0625,
                         "T2": 2458734.1041666665,
@@ -432,7 +432,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2458818.0208333335,
                         "T2": 2458818.0625,
@@ -447,7 +447,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2458902.097222222,
                         "T2": 2458902.138888889,
@@ -462,7 +462,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2458986.125,
                         "T2": 2458986.1666666665,
@@ -477,7 +477,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2459069.7708333335,
                         "T2": 2459069.8125,
@@ -492,7 +492,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2459152.798611111,
                         "T2": 2459152.8333333335,
@@ -507,7 +507,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2459235.2430555555,
                         "T2": 2459235.277777778,
@@ -522,7 +522,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2459317.326388889,
                         "T2": 2459317.3680555555,
@@ -537,7 +537,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2459399.298611111,
                         "T2": 2459399.3333333335,
@@ -552,7 +552,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2459481.3680555555,
                         "T2": 2459481.402777778,
@@ -567,7 +567,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2459563.7569444445,
                         "T2": 2459563.7916666665,
@@ -582,7 +582,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2459646.6875,
                         "T2": 2459646.722222222,
@@ -597,7 +597,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2459730.2708333335,
                         "T2": 2459730.3125,
@@ -612,7 +612,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2459814.340277778,
                         "T2": 2459814.3819444445,
@@ -627,7 +627,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2459898.5208333335,
                         "T2": 2459898.5555555555,
@@ -642,7 +642,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2459982.486111111,
                         "T2": 2459982.527777778,
@@ -657,7 +657,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2460066.090277778,
                         "T2": 2460066.1319444445,
@@ -672,7 +672,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2460149.284722222,
                         "T2": 2460149.326388889,
@@ -687,7 +687,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2460232.0833333335,
                         "T2": 2460232.125,
@@ -702,7 +702,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2460314.5555555555,
                         "T2": 2460314.597222222,
@@ -717,7 +717,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2460396.8333333335,
                         "T2": 2460396.875,
@@ -732,7 +732,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2460479.0694444445,
                         "T2": 2460479.111111111,
@@ -747,7 +747,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2460561.4166666665,
                         "T2": 2460561.4583333335,
@@ -762,7 +762,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2460644.0208333335,
                         "T2": 2460644.0625,
@@ -777,7 +777,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2460726.986111111,
                         "T2": 2460727.027777778,
@@ -792,7 +792,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2460810.3680555555,
                         "T2": 2460810.409722222,
@@ -807,7 +807,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2460894.138888889,
                         "T2": 2460894.1805555555,
@@ -822,7 +822,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2460978.201388889,
                         "T2": 2460978.2430555555,
@@ -837,7 +837,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2461062.3333333335,
                         "T2": 2461062.375,
@@ -852,7 +852,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2461146.215277778,
                         "T2": 2461146.2569444445,
@@ -867,7 +867,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2461229.5625,
                         "T2": 2461229.6041666665,
@@ -882,7 +882,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2461312.361111111,
                         "T2": 2461312.402777778,
@@ -897,7 +897,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2461394.7569444445,
                         "T2": 2461394.798611111,
@@ -912,7 +912,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2461476.9583333335,
                         "T2": 2461477.0069444445,
@@ -927,7 +927,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2461559.1875,
                         "T2": 2461559.236111111,
@@ -942,7 +942,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2461641.6458333335,
                         "T2": 2461641.701388889,
@@ -957,7 +957,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2461724.548611111,
                         "T2": 2461724.6180555555,
@@ -972,7 +972,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2461807.986111111,
                         "T2": null,
@@ -987,7 +987,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2461891.8194444445,
                         "T2": null,
@@ -1002,7 +1002,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2461975.798611111,
                         "T2": null,
@@ -1017,7 +1017,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2462059.75,
                         "T2": null,
@@ -1032,7 +1032,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2462143.611111111,
                         "T2": null,
@@ -1047,7 +1047,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2462227.298611111,
                         "T2": null,
@@ -1062,7 +1062,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "TOI-4504",
                         "T1": 2462310.715277778,
                         "T2": null,

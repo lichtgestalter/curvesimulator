@@ -22,15 +22,15 @@ def transit_duration(results, savefilename, bodies, show_plot=True, save_plot=Tr
     plt.figure(figsize=(10, 6))
     for body in bodies:
         transits = results["Bodies"][body]["Transits"]
-        transit_times = [transit["transit_params"]["TT"] for transit in transits]
+        transit_times = [transit["Transit_params"]["TT"] for transit in transits]
         if full_eclipse_only:
-            t2 = [transit["transit_params"]["T2"] for transit in transits]
-            t3 = [transit["transit_params"]["T3"] for transit in transits]
+            t2 = [transit["Transit_params"]["T2"] for transit in transits]
+            t3 = [transit["Transit_params"]["T3"] for transit in transits]
             t23 = [t3 - t2 if t2 is not None and t3 is not None else None for t2, t3 in zip(t2, t3)]
             plt.plot(transit_times, t23, 'o-', label="TOI-4504c T23")
         else:
-            t1 = [transit["transit_params"]["T1"] for transit in transits]
-            t4 = [transit["transit_params"]["T4"] for transit in transits]
+            t1 = [transit["Transit_params"]["T1"] for transit in transits]
+            t4 = [transit["Transit_params"]["T4"] for transit in transits]
             t14 = [t4 - t1 if t1 is not None and t4 is not None else None for t1, t4 in zip(t1, t4)]
             plt.plot(transit_times, t14, 'o-', label="TOI-4504c T14")
     plot_this(results, save_plot, savefilename, show_plot, 'Transit Duration [d]', ybottom, ytop)
@@ -40,8 +40,8 @@ def depth(results, savefilename, bodies, show_plot=True, save_plot=True, ybottom
     plt.figure(figsize=(10, 6))
     for body in bodies:
         transits = results["Bodies"][body]["Transits"]
-        transit_times = [transit["transit_params"]["TT"] for transit in transits]
-        depths = [transit["transit_params"]["depth"] for transit in transits]
+        transit_times = [transit["Transit_params"]["TT"] for transit in transits]
+        depths = [transit["Transit_params"]["depth"] for transit in transits]
         plt.plot(transit_times, depths, 'o-', label=body)
     plot_this(results, save_plot, savefilename, show_plot, 'Depth', ybottom, ytop)
 
@@ -50,8 +50,8 @@ def impact_parameter(results, savefilename, bodies, show_plot=True, save_plot=Tr
     plt.figure(figsize=(10, 6))
     for body in bodies:
         transits = results["Bodies"][body]["Transits"]
-        transit_times = [transit["transit_params"]["TT"] for transit in transits]
-        impact_parameters = [transit["transit_params"]["b"] for transit in transits]
+        transit_times = [transit["Transit_params"]["TT"] for transit in transits]
+        impact_parameters = [transit["Transit_params"]["b"] for transit in transits]
         if impact_parameters:
             print(f"{body}:  minimum impact parameter = {min(impact_parameters):.5f}, maximum impact parameter = {max(impact_parameters):.5f}")
             print(f"{body}:  first impact parameter = {impact_parameters[0]:.5f} @ {transit_times[0]:.2f}, last impact parameter = {impact_parameters[-1]:.5f} @ {transit_times[-1]:.2f}")
@@ -63,8 +63,14 @@ def period(results, savefilename, bodies, show_plot=True, save_plot=True, ybotto
     plt.figure(figsize=(10, 6))
     for body in bodies:
         transits = results["Bodies"][body]["Transits"]
-        transit_times = [transit["transit_params"]["TT"] for transit in transits]
-        periods = [transit2["transit_params"]["TT"] - transit1["transit_params"]["TT"] if transit1["transit_params"]["TT"] is not None and transit2["transit_params"]["TT"] is not None else None for transit1, transit2 in zip(transits[:-1], transits[1:])]
+        transit_times = [transit["Transit_params"]["TT"] for transit in transits]
+        # periods = [transit2["Transit_params"]["TT"] - transit1["Transit_params"]["TT"] if transit1["Transit_params"]["TT"] is not None and transit2["Transit_params"]["TT"] is not None else None for transit1, transit2 in zip(transits[:-1], transits[1:])]
+        periods = []
+        for transit1, transit2 in zip(transits[:-1], transits[1:]):
+            if transit1["Transit_params"]["TT"] is not None and transit2["Transit_params"]["TT"] is not None:
+                periods.append(transit2["Transit_params"]["TT"] - transit1["Transit_params"]["TT"])
+            else:
+                periods.append(None)
         if periods:
             print(f"{body}:  minimum period = {min(periods):.4f}, maximum period = {max(periods):.4f}")
             plt.plot(transit_times[1:], periods, 'o-', label=body)
@@ -74,7 +80,7 @@ def period(results, savefilename, bodies, show_plot=True, save_plot=True, ybotto
 def transit_times_to_csv(results, savefile, bodies):
     """Save transit times as csv file."""
     transits_c = results["Bodies"]["TOI-4504c"]["Transits"]
-    transit_times_c = [transit["transit_params"]["TT"] for transit in transits_c]
+    transit_times_c = [transit["Transit_params"]["TT"] for transit in transits_c]
     transit_times_c_jd = [Time(transit_time, format='jd', scale='utc').datetime.strftime('%d/%m/%Y') for transit_time in transit_times_c]
     with open(savefile, mode='w', newline='') as file:
         writer = csv.writer(file, delimiter=';')

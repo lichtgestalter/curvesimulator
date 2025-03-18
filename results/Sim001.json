@@ -114,7 +114,7 @@
             },
             "Transits": [
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2460000.0,
                         "T2": 2460000.0,
@@ -130,7 +130,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2460050.277777778,
                         "T2": 2460050.3055555555,
@@ -146,7 +146,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2460100.5833333335,
                         "T2": 2460100.611111111,
@@ -162,7 +162,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2460150.986111111,
                         "T2": 2460151.013888889,
@@ -178,7 +178,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2460201.2430555555,
                         "T2": 2460201.2708333335,
@@ -194,7 +194,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2460251.590277778,
                         "T2": 2460251.6180555555,
@@ -210,7 +210,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2460301.7708333335,
                         "T2": 2460301.798611111,
@@ -226,7 +226,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2460352.0208333335,
                         "T2": 2460352.048611111,
@@ -242,7 +242,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2460402.097222222,
                         "T2": 2460402.125,
@@ -258,7 +258,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2460452.2083333335,
                         "T2": 2460452.2291666665,
@@ -274,7 +274,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2460502.1458333335,
                         "T2": 2460502.173611111,
@@ -290,7 +290,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2460552.076388889,
                         "T2": 2460552.1041666665,
@@ -306,7 +306,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2460601.8680555555,
                         "T2": 2460601.8958333335,
@@ -322,7 +322,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2460651.597222222,
                         "T2": 2460651.625,
@@ -338,7 +338,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2460701.2291666665,
                         "T2": 2460701.25,
@@ -354,7 +354,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2460750.7569444445,
                         "T2": 2460750.777777778,
@@ -370,7 +370,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2460800.2430555555,
                         "T2": 2460800.2708333335,
@@ -386,7 +386,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2460849.611111111,
                         "T2": 2460849.6319444445,
@@ -402,7 +402,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2460898.9791666665,
                         "T2": 2460899.0069444445,
@@ -418,7 +418,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2460948.2430555555,
                         "T2": 2460948.2708333335,
@@ -434,7 +434,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2460997.534722222,
                         "T2": 2460997.5555555555,
@@ -450,7 +450,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2461046.75,
                         "T2": 2461046.777777778,
@@ -466,7 +466,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2461095.9930555555,
                         "T2": 2461096.0208333335,
@@ -482,7 +482,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2461145.215277778,
                         "T2": 2461145.236111111,
@@ -498,7 +498,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2461194.4375,
                         "T2": 2461194.465277778,
@@ -514,7 +514,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2461243.701388889,
                         "T2": 2461243.7291666665,
@@ -530,7 +530,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2461292.951388889,
                         "T2": 2461292.972222222,
@@ -546,7 +546,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2461342.284722222,
                         "T2": 2461342.3055555555,
@@ -562,7 +562,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2461391.597222222,
                         "T2": 2461391.6180555555,
@@ -578,7 +578,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2461441.027777778,
                         "T2": 2461441.0555555555,
@@ -594,7 +594,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2461490.451388889,
                         "T2": 2461490.4791666665,
@@ -610,7 +610,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2461540.013888889,
                         "T2": 2461540.0416666665,
@@ -626,7 +626,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2461589.590277778,
                         "T2": 2461589.6180555555,
@@ -642,7 +642,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2461639.2916666665,
                         "T2": 2461639.3194444445,
@@ -658,7 +658,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2461689.048611111,
                         "T2": 2461689.076388889,
@@ -674,7 +674,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2461738.8958333335,
                         "T2": 2461738.923611111,
@@ -690,7 +690,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2461788.826388889,
                         "T2": 2461788.847222222,
@@ -706,7 +706,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2461838.8125,
                         "T2": 2461838.8333333335,
@@ -722,7 +722,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2461888.8819444445,
                         "T2": 2461888.909722222,
@@ -738,7 +738,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2461938.9791666665,
                         "T2": 2461939.0069444445,
@@ -754,7 +754,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2461989.1666666665,
                         "T2": 2461989.1944444445,
@@ -770,7 +770,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2462039.3541666665,
                         "T2": 2462039.3819444445,
@@ -786,7 +786,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2462089.611111111,
                         "T2": 2462089.638888889,
@@ -802,7 +802,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2462139.8541666665,
                         "T2": 2462139.8819444445,
@@ -818,7 +818,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2462190.159722222,
                         "T2": 2462190.1875,
@@ -834,7 +834,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2462240.4375,
                         "T2": 2462240.465277778,
@@ -850,7 +850,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2462290.763888889,
                         "T2": 2462290.7916666665,
@@ -866,7 +866,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2462341.034722222,
                         "T2": 2462341.0694444445,
@@ -882,7 +882,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2462391.3541666665,
                         "T2": 2462391.388888889,
@@ -898,7 +898,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2462441.611111111,
                         "T2": 2462441.638888889,
@@ -914,7 +914,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2462491.902777778,
                         "T2": 2462491.9305555555,
@@ -930,7 +930,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2462542.111111111,
                         "T2": 2462542.1458333335,
@@ -946,7 +946,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2462592.3541666665,
                         "T2": 2462592.388888889,
@@ -962,7 +962,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2462642.5,
                         "T2": 2462642.527777778,
@@ -978,7 +978,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2462692.673611111,
                         "T2": 2462692.701388889,
@@ -994,7 +994,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2462742.722222222,
                         "T2": 2462742.75,
@@ -1010,7 +1010,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2462792.8125,
                         "T2": 2462792.840277778,
@@ -1026,7 +1026,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2462842.75,
                         "T2": 2462842.777777778,
@@ -1042,7 +1042,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2462892.7291666665,
                         "T2": 2462892.763888889,
@@ -1058,7 +1058,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2462942.5416666665,
                         "T2": 2462942.576388889,
@@ -1074,7 +1074,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2462992.402777778,
                         "T2": 2462992.4305555555,
@@ -1090,7 +1090,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2463042.0833333335,
                         "T2": 2463042.111111111,
@@ -1106,7 +1106,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2463091.8055555555,
                         "T2": 2463091.840277778,
@@ -1122,7 +1122,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2463141.3680555555,
                         "T2": 2463141.3958333335,
@@ -1138,7 +1138,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2463190.9583333335,
                         "T2": 2463190.986111111,
@@ -1154,7 +1154,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2463240.4166666665,
                         "T2": 2463240.4444444445,
@@ -1170,7 +1170,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2463289.888888889,
                         "T2": 2463289.923611111,
@@ -1186,7 +1186,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2463339.2708333335,
                         "T2": 2463339.3055555555,
@@ -1202,7 +1202,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2463388.652777778,
                         "T2": 2463388.6875,
@@ -1218,7 +1218,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2463437.9930555555,
                         "T2": 2463438.0208333335,
@@ -1234,7 +1234,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2463487.326388889,
                         "T2": 2463487.3541666665,
@@ -1250,7 +1250,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2463536.638888889,
                         "T2": 2463536.6666666665,
@@ -1266,7 +1266,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2463585.9583333335,
                         "T2": 2463585.9930555555,
@@ -1282,7 +1282,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2463635.277777778,
                         "T2": 2463635.3055555555,
@@ -1298,7 +1298,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2463684.638888889,
                         "T2": 2463684.6666666665,
@@ -1314,7 +1314,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2463733.9930555555,
                         "T2": 2463734.0208333335,
@@ -1330,7 +1330,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2463783.423611111,
                         "T2": 2463783.4583333335,
@@ -1346,7 +1346,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2463832.847222222,
                         "T2": 2463832.8819444445,
@@ -1362,7 +1362,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2463882.3958333335,
                         "T2": 2463882.423611111,
@@ -1378,7 +1378,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2463931.923611111,
                         "T2": 2463931.9583333335,
@@ -1394,7 +1394,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2463981.597222222,
                         "T2": 2463981.6319444445,
@@ -1410,7 +1410,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2464031.2569444445,
                         "T2": 2464031.2916666665,
@@ -1426,7 +1426,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2464081.0694444445,
                         "T2": 2464081.097222222,
@@ -1442,7 +1442,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2464130.8680555555,
                         "T2": 2464130.8958333335,
@@ -1458,7 +1458,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2464180.8055555555,
                         "T2": 2464180.8333333335,
@@ -1474,7 +1474,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2464230.7291666665,
                         "T2": 2464230.763888889,
@@ -1490,7 +1490,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2464280.777777778,
                         "T2": 2464280.8055555555,
@@ -1506,7 +1506,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2464330.8194444445,
                         "T2": 2464330.847222222,
@@ -1522,7 +1522,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2464380.951388889,
                         "T2": 2464380.9791666665,
@@ -1538,7 +1538,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2464431.0833333335,
                         "T2": 2464431.111111111,
@@ -1554,7 +1554,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2464481.277777778,
                         "T2": 2464481.3055555555,
@@ -1570,7 +1570,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2464531.4791666665,
                         "T2": 2464531.5069444445,
@@ -1586,7 +1586,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2464581.715277778,
                         "T2": 2464581.7430555555,
@@ -1602,7 +1602,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2464631.9583333335,
                         "T2": 2464631.986111111,
@@ -1618,7 +1618,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2464682.2083333335,
                         "T2": 2464682.236111111,
@@ -1634,7 +1634,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2464732.465277778,
                         "T2": 2464732.4930555555,
@@ -1650,7 +1650,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2464782.715277778,
                         "T2": 2464782.7430555555,
@@ -1666,7 +1666,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2464832.9583333335,
                         "T2": 2464832.986111111,
@@ -1682,7 +1682,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2464883.1666666665,
                         "T2": 2464883.1944444445,
@@ -1698,7 +1698,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2464933.3680555555,
                         "T2": 2464933.3958333335,
@@ -1714,7 +1714,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2464983.513888889,
                         "T2": 2464983.5416666665,
@@ -1773,7 +1773,7 @@
             },
             "Transits": [
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2460082.8680555555,
                         "T2": 2460082.8958333335,
@@ -1789,7 +1789,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2460182.659722222,
                         "T2": 2460182.6875,
@@ -1805,7 +1805,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2460282.597222222,
                         "T2": 2460282.625,
@@ -1821,7 +1821,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2460382.7569444445,
                         "T2": 2460382.784722222,
@@ -1837,7 +1837,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2460483.201388889,
                         "T2": 2460483.2291666665,
@@ -1853,7 +1853,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2460584.013888889,
                         "T2": 2460584.0416666665,
@@ -1869,7 +1869,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2460685.2291666665,
                         "T2": 2460685.2569444445,
@@ -1885,7 +1885,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2460786.8194444445,
                         "T2": 2460786.840277778,
@@ -1901,7 +1901,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2460888.6944444445,
                         "T2": 2460888.715277778,
@@ -1917,7 +1917,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2460990.736111111,
                         "T2": 2460990.763888889,
@@ -1933,7 +1933,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2461092.840277778,
                         "T2": 2461092.8680555555,
@@ -1949,7 +1949,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2461194.9444444445,
                         "T2": 2461194.972222222,
@@ -1965,7 +1965,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2461296.986111111,
                         "T2": 2461297.013888889,
@@ -1981,7 +1981,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2461398.8958333335,
                         "T2": 2461398.923611111,
@@ -1997,7 +1997,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2461500.597222222,
                         "T2": 2461500.625,
@@ -2013,7 +2013,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2461602.013888889,
                         "T2": 2461602.034722222,
@@ -2029,7 +2029,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2461703.0833333335,
                         "T2": 2461703.111111111,
@@ -2045,7 +2045,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2461803.8055555555,
                         "T2": 2461803.8333333335,
@@ -2061,7 +2061,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2461904.222222222,
                         "T2": 2461904.25,
@@ -2077,7 +2077,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2462004.3958333335,
                         "T2": 2462004.423611111,
@@ -2093,7 +2093,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2462104.388888889,
                         "T2": 2462104.409722222,
@@ -2109,7 +2109,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2462204.2569444445,
                         "T2": 2462204.284722222,
@@ -2125,7 +2125,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2462304.0625,
                         "T2": 2462304.090277778,
@@ -2141,7 +2141,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2462403.861111111,
                         "T2": 2462403.888888889,
@@ -2157,7 +2157,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2462503.701388889,
                         "T2": 2462503.722222222,
@@ -2173,7 +2173,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2462603.6319444445,
                         "T2": 2462603.652777778,
@@ -2189,7 +2189,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2462703.701388889,
                         "T2": 2462703.7291666665,
@@ -2205,7 +2205,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2462803.9791666665,
                         "T2": 2462804.0069444445,
@@ -2221,7 +2221,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2462904.513888889,
                         "T2": 2462904.5416666665,
@@ -2237,7 +2237,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2463005.3541666665,
                         "T2": 2463005.375,
@@ -2253,7 +2253,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2463106.527777778,
                         "T2": 2463106.5555555555,
@@ -2269,7 +2269,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2463208.048611111,
                         "T2": 2463208.076388889,
@@ -2285,7 +2285,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2463309.8819444445,
                         "T2": 2463309.902777778,
@@ -2301,7 +2301,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2463411.9375,
                         "T2": 2463411.9583333335,
@@ -2317,7 +2317,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2463514.111111111,
                         "T2": 2463514.1319444445,
@@ -2333,7 +2333,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2463616.2708333335,
                         "T2": 2463616.298611111,
@@ -2349,7 +2349,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2463718.298611111,
                         "T2": 2463718.3194444445,
@@ -2365,7 +2365,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2463820.0833333335,
                         "T2": 2463820.111111111,
@@ -2381,7 +2381,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2463921.5694444445,
                         "T2": 2463921.590277778,
@@ -2397,7 +2397,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2464022.7083333335,
                         "T2": 2464022.736111111,
@@ -2413,7 +2413,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2464123.513888889,
                         "T2": 2464123.534722222,
@@ -2429,7 +2429,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2464224.013888889,
                         "T2": 2464224.0416666665,
@@ -2445,7 +2445,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2464324.263888889,
                         "T2": 2464324.284722222,
@@ -2461,7 +2461,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2464424.3125,
                         "T2": 2464424.340277778,
@@ -2477,7 +2477,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2464524.2291666665,
                         "T2": 2464524.2569444445,
@@ -2493,7 +2493,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2464624.0694444445,
                         "T2": 2464624.097222222,
@@ -2509,7 +2509,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2464723.888888889,
                         "T2": 2464723.909722222,
@@ -2525,7 +2525,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2464823.7430555555,
                         "T2": 2464823.7708333335,
@@ -2541,7 +2541,7 @@
                     }
                 },
                 {
-                    "transit_params": {
+                    "Transit_params": {
                         "EclipsedBody": "Sim001",
                         "T1": 2464923.701388889,
                         "T2": 2464923.7291666665,

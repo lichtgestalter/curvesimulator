@@ -8,11 +8,11 @@ import sys
 class Transit(dict):
     def __init__(self, eclipsed_body):
         super().__init__()
-        self["transit_params"] = {}
+        self["Transit_params"] = {}
         transit_params = ["EclipsedBody", "T1", "T2", "TT", "T3", "T4", "T12", "T23", "T34", "T14", "b"]
         for key in transit_params:
-            self["transit_params"][key] = None
-        self["transit_params"]["EclipsedBody"] = eclipsed_body.name
+            self["Transit_params"][key] = None
+        self["Transit_params"]["EclipsedBody"] = eclipsed_body.name
         self["impacts_and_depths"] = []
 
 
@@ -97,19 +97,19 @@ class CurveSimResults(dict):
         self["ProgramParameters"] = p.__dict__
         for body in self["Bodies"]:
             for t in self["Bodies"][body]["Transits"]:
-                if t["transit_params"]["T1"] is None or t["transit_params"]["T4"] is None:
-                    print(f"Incomplete transit: {body} eclipsing {t["transit_params"]["EclipsedBody"]} at T1 = {t["transit_params"]["T1"]} ")
+                if t["Transit_params"]["T1"] is None or t["Transit_params"]["T4"] is None:
+                    print(f"Incomplete transit: {body} eclipsing {t["Transit_params"]["EclipsedBody"]} at T1 = {t["Transit_params"]["T1"]} ")
                     lightcurve[-1] = lightcurve[-2] * 1.001  # Take care of an edge case by making sure there is no minimum at the end of the lightcurve.
                 else:  # grazing transit
-                    t["transit_params"]["T14"] = t["transit_params"]["T4"] - t["transit_params"]["T1"]
+                    t["Transit_params"]["T14"] = t["Transit_params"]["T4"] - t["Transit_params"]["T1"]
                     min_impact_max_depth = CurveSimResults.time_of_transit(t["impacts_and_depths"])
-                    t["transit_params"]["TT"] = min_impact_max_depth.time
-                    t["transit_params"]["b"] = min_impact_max_depth.impact_parameter
-                    t["transit_params"]["depth"] = min_impact_max_depth.depth
-                if t["transit_params"]["T2"] is not None and t["transit_params"]["T3"] is not None:
-                    t["transit_params"]["T12"] = t["transit_params"]["T2"] - t["transit_params"]["T1"]
-                    t["transit_params"]["T23"] = t["transit_params"]["T3"] - t["transit_params"]["T2"]
-                    t["transit_params"]["T34"] = t["transit_params"]["T4"] - t["transit_params"]["T3"]
+                    t["Transit_params"]["TT"] = min_impact_max_depth.time
+                    t["Transit_params"]["b"] = min_impact_max_depth.impact_parameter
+                    t["Transit_params"]["depth"] = min_impact_max_depth.depth
+                if t["Transit_params"]["T2"] is not None and t["Transit_params"]["T3"] is not None:
+                    t["Transit_params"]["T12"] = t["Transit_params"]["T2"] - t["Transit_params"]["T1"]
+                    t["Transit_params"]["T23"] = t["Transit_params"]["T3"] - t["Transit_params"]["T2"]
+                    t["Transit_params"]["T34"] = t["Transit_params"]["T4"] - t["Transit_params"]["T3"]
                 del t["impacts_and_depths"]
         # self["LightcurveMinima"] = lightcurve.lightcurve_minima()
         # for i, minimum in enumerate(self["LightcurveMinima"]):
