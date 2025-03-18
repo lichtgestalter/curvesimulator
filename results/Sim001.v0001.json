@@ -40,7 +40,7 @@
             0
         ]
     },
-    "bodies": {
+    "Bodies": {
         "Sim001": {
             "BodyParameters": {
                 "name": "Sim001",

@@ -21,7 +21,7 @@ def plot_this(results, save_plot, savefilename, show_plot, ylabel, ybottom=None,
 def transit_duration(results, savefilename, bodies, show_plot=True, save_plot=True, full_eclipse_only=True, ybottom=None, ytop=None):
     plt.figure(figsize=(10, 6))
     for body in bodies:
-        transits = results["bodies"][body]["Transits"]
+        transits = results["Bodies"][body]["Transits"]
         transit_times = [transit["transit_params"]["TT"] for transit in transits]
         if full_eclipse_only:
             t2 = [transit["transit_params"]["T2"] for transit in transits]
@@ -39,7 +39,7 @@ def transit_duration(results, savefilename, bodies, show_plot=True, save_plot=Tr
 def depth(results, savefilename, bodies, show_plot=True, save_plot=True, ybottom=None, ytop=None):
     plt.figure(figsize=(10, 6))
     for body in bodies:
-        transits = results["bodies"][body]["Transits"]
+        transits = results["Bodies"][body]["Transits"]
         transit_times = [transit["transit_params"]["TT"] for transit in transits]
         depths = [transit["transit_params"]["depth"] for transit in transits]
         plt.plot(transit_times, depths, 'o-', label=body)
@@ -49,7 +49,7 @@ def depth(results, savefilename, bodies, show_plot=True, save_plot=True, ybottom
 def impact_parameter(results, savefilename, bodies, show_plot=True, save_plot=True, ybottom=None, ytop=None):
     plt.figure(figsize=(10, 6))
     for body in bodies:
-        transits = results["bodies"][body]["Transits"]
+        transits = results["Bodies"][body]["Transits"]
         transit_times = [transit["transit_params"]["TT"] for transit in transits]
         impact_parameters = [transit["transit_params"]["b"] for transit in transits]
         if impact_parameters:
@@ -62,7 +62,7 @@ def impact_parameter(results, savefilename, bodies, show_plot=True, save_plot=Tr
 def period(results, savefilename, bodies, show_plot=True, save_plot=True, ybottom=None, ytop=None):
     plt.figure(figsize=(10, 6))
     for body in bodies:
-        transits = results["bodies"][body]["Transits"]
+        transits = results["Bodies"][body]["Transits"]
         transit_times = [transit["transit_params"]["TT"] for transit in transits]
         periods = [transit2["transit_params"]["TT"] - transit1["transit_params"]["TT"] if transit1["transit_params"]["TT"] is not None and transit2["transit_params"]["TT"] is not None else None for transit1, transit2 in zip(transits[:-1], transits[1:])]
         if periods:
@@ -73,7 +73,7 @@ def period(results, savefilename, bodies, show_plot=True, save_plot=True, ybotto
 
 def transit_times_to_csv(results, savefile, bodies):
     """Save transit times as csv file."""
-    transits_c = results["bodies"]["TOI-4504c"]["Transits"]
+    transits_c = results["Bodies"]["TOI-4504c"]["Transits"]
     transit_times_c = [transit["transit_params"]["TT"] for transit in transits_c]
     transit_times_c_jd = [Time(transit_time, format='jd', scale='utc').datetime.strftime('%d/%m/%Y') for transit_time in transit_times_c]
     with open(savefile, mode='w', newline='') as file:
@@ -86,8 +86,8 @@ def main(resultfile):
     resultextension = ".json"
     with open(resultpath + resultfile + resultextension, "r") as file:
         results = json.load(file)
-    # bodies = [body for body in results["bodies"]]
-    planets = [body for body in results["bodies"] if results["bodies"][body]["BodyParameters"]["body_type"] == "planet"]
+    # bodies = [body for body in results["Bodies"]]
+    planets = [body for body in results["Bodies"] if results["Bodies"][body]["BodyParameters"]["body_type"] == "planet"]
     depth(results, resultpath + "depth/" + resultfile + '_depth.png', planets, show_plot=True, save_plot=True, ybottom=None, ytop=None)
     impact_parameter(results, resultpath + "impact/" + resultfile + '_impact.png', planets, show_plot=True, save_plot=True, ybottom=0.89243, ytop=0.89334)
     transit_duration(results, resultpath + "duration_14/" + resultfile + '_duration_14.png', planets, show_plot=True, save_plot=True, full_eclipse_only=False)
@@ -96,6 +96,6 @@ def main(resultfile):
     # transit_times(results, resultpath + resultfile + ".csv", planets)
 
 
-# main("Sim001.v0007")
+main("Sim001.v0007")
 # main("TOI-4504.v0001")
-main("TOI-4504.demo.v0002")
+# main("TOI-4504.demo.v0002")

@@ -6,6 +6,9 @@ Recently done / in progress:
         More flexible result evaluation
 
 NEXT:
+        BUG:
+            Ich speichere fuer den Stern ueberfluessige Parameter mit falschen Werten ab? Z.B. e und i.
+
 
         Optimierte TT auch in Transitresults und nicht bloss in Lightcurveminima?
             Siehe obsolete Funktion lightcurve_minima in cs_lightcurve.py

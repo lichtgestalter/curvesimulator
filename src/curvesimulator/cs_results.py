@@ -34,34 +34,34 @@ class CurveSimResults(dict):
         self["ProgramParameters"] = {}
         # self["LightcurveMinima"] = []
         # self["LightcurveMinimaDistances"] = {}
-        self["bodies"] = {}
+        self["Bodies"] = {}
         for body in bodies:
-            self["bodies"][body.name] = {"BodyParameters": body.__dict__, "Transits": []}
+            self["Bodies"][body.name] = {"BodyParameters": body.__dict__, "Transits": []}
             if body.Ω is not None:
-                self["bodies"][body.name]["BodyParameters"]["Ω_deg"] = body.Ω * (180 / math.pi)
+                self["Bodies"][body.name]["BodyParameters"]["Ω_deg"] = body.Ω * (180 / math.pi)
             if body.ω is not None:
-                self["bodies"][body.name]["BodyParameters"]["ω_deg"] = body.ω * (180 / math.pi)
+                self["Bodies"][body.name]["BodyParameters"]["ω_deg"] = body.ω * (180 / math.pi)
             if body.ϖ is not None:
-                self["bodies"][body.name]["BodyParameters"]["ϖ_deg"] = body.ϖ * (180 / math.pi)
+                self["Bodies"][body.name]["BodyParameters"]["ϖ_deg"] = body.ϖ * (180 / math.pi)
             if body.L is not None:
-                self["bodies"][body.name]["BodyParameters"]["L_deg"] = body.L * (180 / math.pi)
+                self["Bodies"][body.name]["BodyParameters"]["L_deg"] = body.L * (180 / math.pi)
             if body.ma is not None:
-                self["bodies"][body.name]["BodyParameters"]["ma_deg"] = body.ma * (180 / math.pi)
+                self["Bodies"][body.name]["BodyParameters"]["ma_deg"] = body.ma * (180 / math.pi)
             if body.ea is not None:
-                self["bodies"][body.name]["BodyParameters"]["ea_deg"] = body.ea * (180 / math.pi)
+                self["Bodies"][body.name]["BodyParameters"]["ea_deg"] = body.ea * (180 / math.pi)
             if body.nu is not None:
-                self["bodies"][body.name]["BodyParameters"]["nu_deg"] = body.nu * (180 / math.pi)
+                self["Bodies"][body.name]["BodyParameters"]["nu_deg"] = body.nu * (180 / math.pi)
             for key in list(body.__dict__.keys()):
                 if body.__dict__[key] is None:
                     del body.__dict__[key]
 
     def __repr__(self):
         string = ""
-        for body in self["bodies"]:
-            if len(self["bodies"][body]["Transits"]) == 1:
-                string += f"{body:15} {len(self["bodies"][body]["Transits"]):3} transit\n"
-            elif len(self["bodies"][body]["Transits"]) > 1:
-                string += f"{body:15} {len(self["bodies"][body]["Transits"]):3} transits\n"
+        for body in self["Bodies"]:
+            if len(self["Bodies"][body]["Transits"]) == 1:
+                string += f"{body:15} {len(self["Bodies"][body]["Transits"]):3} transit\n"
+            elif len(self["Bodies"][body]["Transits"]) > 1:
+                string += f"{body:15} {len(self["Bodies"][body]["Transits"]):3} transits\n"
         # string += f'LightcurveMinima: {self["LightcurveMinima"]}'
         return string[:-1]
 
@@ -86,8 +86,8 @@ class CurveSimResults(dict):
 
     def normalize_flux(self, lightcurve_max):
         """Normalize flux in parameter depth in results."""
-        for body in self["bodies"]:
-            for transit in self["bodies"][body]["Transits"]:
+        for body in self["Bodies"]:
+            for transit in self["Bodies"][body]["Transits"]:
                 for i in transit["impacts_and_depths"]:
                     i.depth /= lightcurve_max
 
@@ -95,8 +95,8 @@ class CurveSimResults(dict):
         """Calculate and populate the transit results and lightcurve minima."""
         del p.standard_sections
         self["ProgramParameters"] = p.__dict__
-        for body in self["bodies"]:
-            for t in self["bodies"][body]["Transits"]:
+        for body in self["Bodies"]:
+            for t in self["Bodies"][body]["Transits"]:
                 if t["transit_params"]["T1"] is None or t["transit_params"]["T4"] is None:
                     print(f"Incomplete transit: {body} eclipsing {t["transit_params"]["EclipsedBody"]} at T1 = {t["transit_params"]["T1"]} ")
                     lightcurve[-1] = lightcurve[-2] * 1.001  # Take care of an edge case by making sure there is no minimum at the end of the lightcurve.

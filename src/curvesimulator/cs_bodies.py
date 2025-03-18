@@ -144,7 +144,7 @@ class CurveSimBodies(list):
                     if eclipsed_area is not None:
                         absolute_depth = star.intensity * eclipsed_area * CurveSimPhysics.limbdarkening(relative_radius, star.limb_darkening) / star.mean_intensity
                         luminosity -= absolute_depth
-                        results["bodies"][body.name]["Transits"][-1]["impacts_and_depths"][-1].depth = absolute_depth  # this depth is caused by this particular body eclipsing this particular star
+                        results["Bodies"][body.name]["Transits"][-1]["impacts_and_depths"][-1].depth = absolute_depth  # this depth is caused by this particular body eclipsing this particular star
         return luminosity
 
     @staticmethod
