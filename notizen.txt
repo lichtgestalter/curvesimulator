@@ -13,6 +13,9 @@ NEXT:
         Optimierte TT auch in Transitresults und nicht bloss in Lightcurveminima?
             Siehe obsolete Funktion lightcurve_minima in cs_lightcurve.py
         Auch T1, T2, T3, T4 optimieren, also genaueren Zeitpunkt zwischen 2 Iterationsschritten schaetzen.
+        Begriffe: Ingress (T12), Full transit (T23), Egress (T34), Total transit (T14)
+
+
 
         0.x.x state_vector_to_keplerian_elements
             Orbitparameter regelmaessig (z.B. bei jedem Transit) berechnen und im Resultfile speichern.
