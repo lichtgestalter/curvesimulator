@@ -9,13 +9,11 @@ NEXT:
         BUG:
             Ich speichere fuer den Stern ueberfluessige Parameter mit falschen Werten ab? Z.B. e und i.
 
+        Result evaluation komfortabel fuer User nutzbar machen.
 
         Optimierte TT auch in Transitresults und nicht bloss in Lightcurveminima?
             Siehe obsolete Funktion lightcurve_minima in cs_lightcurve.py
-        Auch T1, T2, T3, T4 optimieren, also genaueren Zeitpunkt zwischen 2 Iterationsschritten schaetzen.
-        Begriffe: Ingress (T12), Full transit (T23), Egress (T34), Total transit (T14)
-
-
+            Auch T1, T2, T3, T4 optimieren, also genaueren Zeitpunkt zwischen 2 Iterationsschritten schaetzen.
 
         0.x.x state_vector_to_keplerian_elements
             Orbitparameter regelmaessig (z.B. bei jedem Transit) berechnen und im Resultfile speichern.
@@ -253,9 +251,11 @@ I implemented all suggestions from zoom call 29.03.2022, but tried and dismissed
             T12 (Ingress) is the period when an exoplanet begins to cross in front of its host star. It consists of two parts:
                 T1 Exterior ingress (first contact): The moment when the planet's disk first touches the edge of the star's disk.
                 T2 Interior ingress (second contact): The point at which the entire planet has moved onto the stellar disk.
+            T23 is called full transit
             T34 (Egress) is the period when an exoplanet exits its transit across the star. It also has two parts:
                 T3 Interior egress (third contact): The moment when the planet's disk touches the opposite edge of the star's disk as it begins to exit.
                 T4 Exterior egress (fourth contact): The point at which the planet has completely moved off the star's disk, concluding the transit.
+            T14 is called total transit
             The accuracy of all transit times depends on the parameter dt, the real time difference between simulation iterations.
             By contrast the timestamps and luminosity values of the lightcurve minima have been slightly adjusted using quadratic interpolation.
     0.3.3   Improved orbit simulation using Verlet integration. Orbits are now numerically stable.
