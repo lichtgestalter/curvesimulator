@@ -2,7 +2,6 @@ import json
 import math
 import os
 import re
-import sys
 
 
 class Transit(dict):
@@ -121,11 +120,10 @@ class CurveSimResults(dict):
     def results2json(self, bodies, filename):
         """Converts self to JSON and saves it in testjson.json"""
         for body in bodies:  # remove attributes that do not fit well into a JSON file (and are irrelevant)
-            del body.positions
-            del body.velocity
-            del body.circle_left
-            del body.circle_right
-            del body.acceleration
+            for attr in ['positions', 'velocity', 'circle_left', 'circle_right', 'acceleration', 'd', 'h', 'angle', 'eclipsed_area', 'patch_radius']:
+                if getattr(body, attr, None) is not None:
+                    delattr(body, attr)
+
         with open(filename, "w", encoding='utf8') as file:
             json.dump(self, file, indent=4, ensure_ascii=False)
         print(filename, "saved")

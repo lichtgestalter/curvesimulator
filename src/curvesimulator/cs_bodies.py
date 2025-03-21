@@ -65,7 +65,7 @@ class CurveSimBodies(list):
             if debug_L >= 0 and body.name == "Test":
                 body.L = debug_L/180.0 * math.pi
             body.calc_state_vector(p, self)
-            body.frames_per_orbit = body.calc_frames_per_orbit(p)
+            # body.frames_per_orbit = body.calc_frames_per_orbit(p)
         self.calc_primary_body_initial_velocity()
         self.generate_patches(p)
 
