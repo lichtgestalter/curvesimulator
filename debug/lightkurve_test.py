@@ -1,5 +1,6 @@
 # https://lightkurve.github.io/lightkurve/tutorials/3-science-examples/exoplanets-identifying-transiting-planet-signals.html
 
+import lightkurve as lk
 from lightkurve import TessLightCurve
 from matplotlib import pyplot as plt
 import numpy as np
@@ -8,8 +9,8 @@ import pandas as pd
 from scipy.optimize import minimize
 
 
-def save_plots():
-    sectors = ["61"]
+def save_plots(sectors):
+    # sectors = ["61"]
     # sectors = ["27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "61", "62", "63", "64", "65", "67", "68", "69"]
     # sectors = ["MAST"]
     for sector in sectors:
@@ -124,8 +125,26 @@ def fits2csv(sector, start, end):
     pandas_file = f"../research/star_systems/TOI-4504/lightkurve/{sector}_cut.csv"
     df.to_csv(pandas_file, sep=';', decimal=',', index=False)
 
+
+def get_new_data():
+    # search_result = lk.search_lightcurve('TIC349972412', author='QLP', cadence='long')
+    search_result = lk.search_lightcurve('TIC349972412', author='QLP')
+    print(search_result)
+    lc_collection = search_result.download_all()
+    # lc_collection.plot();
+    print(lc_collection)
+    # Save all light curves in lc_collection locally in FITS format
+    for i, lc in enumerate(lc_collection):
+        if lc.meta["SECTOR"] > 76:
+            print("Sector:", lc.meta["SECTOR"])
+            print(lc.flux)
+            # lc.to_fits(f'../research/star_systems/TOI-4504/lightkurve/getnewdata/{i}.fits', overwrite=True)
+
+
 def main():
-    # save_plots()
+    get_new_data()
+    # sectors = ["61"]
+    # save_plots(sectors)
     # analyze_lightcurve()
     delta = 0.4
     t28 = 2065.24
@@ -139,13 +158,15 @@ def main():
     # save_cutted_plot("34", t34 - delta, t34 + delta)
     # save_cutted_plot("37", t37 - delta, t37 + delta)
     # save_cutted_plot("64", t64 - delta, t64 + delta)
-    save_cutted_plot("67", t67 - delta, t67 + delta)
+    # save_cutted_plot("67", t67 - delta, t67 + delta)
     # fits2csv("28", t28 - delta, t28 + delta)
     # fits2csv("31", t31 - delta, t31 + delta)
     # fits2csv("34", t34 - delta, t34 + delta)
     # fits2csv("37", t37 - delta, t37 + delta)
     # fits2csv("64", t64 - delta, t64 + delta)
-    fits2csv("67", t67 - delta, t67 + delta)
+    # fits2csv("67", t67 - delta, t67 + delta)
+
+
 
 main()
 # save_plots()
