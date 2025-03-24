@@ -128,21 +128,20 @@ def fits2csv(sector, start, end):
 
 def get_new_data():
     # search_result = lk.search_lightcurve('TIC349972412', author='QLP', cadence='long')
-    search_result = lk.search_lightcurve('TIC349972412', author='QLP')
+    search_result = lk.search_lightcurve('TIC349972412', author='QLP', sector=[87, 88, 89, 90])
     # print(search_result)
     lc_collection = search_result.download_all()
     # lc_collection.plot();
     # print(lc_collection)
     # Save all light curves in lc_collection locally in FITS format
     for i, lc in enumerate(lc_collection):
-        if lc.meta["SECTOR"] > 76:
-            print("Sector:", lc.meta["SECTOR"])
-            print(lc.flux)
-            # lc.to_fits(f'../research/star_systems/TOI-4504/lightkurve/getnewdata/{i}.fits', overwrite=True)
-            lc.plot()
-            plt.title(f'Sector {lc.meta["SECTOR"]}')
-            # plt.savefig(f'../research/star_systems/TOI-4504/lightkurve/getnewdata/{i}.png')
-            plt.close()
+        print("Sector:", lc.meta["SECTOR"])
+        print(lc.flux)
+        # lc.to_fits(f'../research/star_systems/TOI-4504/lightkurve/getnewdata/{i}.fits', overwrite=True)
+        plt.figure(figsize=(10, 6))
+        plt.plot(lc.flux, lc.astropy_time, 'o-', label=f'Sector {lc.meta["SECTOR"]}')
+        # plt.savefig(f'../research/star_systems/TOI-4504/lightkurve/getnewdata/{i}.png')
+        plt.close()
 
 def main():
     get_new_data()
