@@ -127,21 +127,27 @@ def fits2csv(sector, start, end):
 
 
 def get_new_data():
-    # search_result = lk.search_lightcurve('TIC349972412', author='QLP', cadence='long')
-    search_result = lk.search_lightcurve('TIC349972412', author='QLP', sector=[87, 88, 89, 90])
+    # search_result = lk.search_lightcurve('TIC349972412', author='QLP', sector=[31])
+    # search_result = lk.search_lightcurve('TIC349972412', author='QLP', sector=[87, 88, 89, 90])
+    search_result = lk.search_lightcurve('TIC349972412', author='QLP', sector=[28, 31, 34, 37, 61, 64, 67, 87, 88, 89, 90])
     # print(search_result)
     lc_collection = search_result.download_all()
-    # lc_collection.plot();
     # print(lc_collection)
-    # Save all light curves in lc_collection locally in FITS format
     for i, lc in enumerate(lc_collection):
         print("Sector:", lc.meta["SECTOR"])
         print(lc.flux)
-        # lc.to_fits(f'../research/star_systems/TOI-4504/lightkurve/getnewdata/{i}.fits', overwrite=True)
+        lc = lc.remove_outliers()  # Preprocess light curve
         plt.figure(figsize=(10, 6))
-        plt.plot(lc.flux, lc.astropy_time, 'o-', label=f'Sector {lc.meta["SECTOR"]}')
-        # plt.savefig(f'../research/star_systems/TOI-4504/lightkurve/getnewdata/{i}.png')
-        plt.close()
+        plt.plot(lc.time.jd, list(lc.flux), 'o-', label=f'Sector {lc.meta["SECTOR"]}')
+        plt.xlabel('BJD')
+        plt.ylabel('Flux')
+        plt.title(lc.meta["SECTOR"])
+        plt.legend()
+        plt.grid(True)
+        # lc.to_fits(f'../research/star_systems/TOI-4504/lightkurve/getnewdata/{i}.fits', overwrite=True)
+        plt.savefig(f'../research/star_systems/TOI-4504/lightkurve/{lc.meta["SECTOR"]}/{lc.meta["SECTOR"]}new.png')
+        plt.show()
+
 
 def main():
     get_new_data()
