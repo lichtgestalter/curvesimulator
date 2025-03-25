@@ -127,9 +127,9 @@ def fits2csv(sector, start, end):
 
 
 def get_new_data():
-    # search_result = lk.search_lightcurve('TIC349972412', author='QLP', sector=[31])
+    search_result = lk.search_lightcurve('TIC349972412', author='QLP', sector=[31])
     # search_result = lk.search_lightcurve('TIC349972412', author='QLP', sector=[87, 88, 89, 90])
-    search_result = lk.search_lightcurve('TIC349972412', author='QLP', sector=[28, 31, 34, 37, 61, 64, 67, 87, 88, 89, 90])
+    # search_result = lk.search_lightcurve('TIC349972412', author='QLP', sector=[28, 31, 34, 37, 61, 64, 67, 87, 88, 89, 90])
     # print(search_result)
     lc_collection = search_result.download_all()
     # print(lc_collection)
