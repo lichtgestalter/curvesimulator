@@ -127,9 +127,9 @@ def fits2csv(sector, start, end):
 
 
 def get_new_data():
-    search_result = lk.search_lightcurve('TIC349972412', author='QLP', sector=[31])
-    # search_result = lk.search_lightcurve('TIC349972412', author='QLP', sector=[87, 88, 89, 90])
-    # search_result = lk.search_lightcurve('TIC349972412', author='QLP', sector=[28, 31, 34, 37, 61, 64, 67, 87, 88, 89, 90])
+    # search_result = lk.search_lightcurve('TIC349972412', author='QLP', sector=[31])
+    search_result = lk.search_lightcurve('TIC349972412', author='QLP', sector=[87, 88, 89, 90])
+    search_result = lk.search_lightcurve('TIC349972412', author='QLP', sector=[28, 31, 34, 37, 61, 64, 67, 87, 88, 89, 90])
     # print(search_result)
     lc_collection = search_result.download_all()
     # print(lc_collection)
@@ -149,8 +149,62 @@ def get_new_data():
         plt.show()
 
 
+def get_new_data2(sectors=None, plot_it=False, save_it=False):
+    from lightkurve import search_targetpixelfile
+
+    # Ich habe vergessen, wie ich urspruenglich die -fits-files bekommen habe. Neuer Versuch.
+
+    # search_result = lk.search_lightcurve('TIC349972412', cadence='long')
+    # search_result = lk.search_lightcurve('TIC349972412', author='TESS-SPOC', cadence='long')
+    # search_result = lk.search_lightcurve('TIC349972412', author='QLP', cadence='long')
+    # search_result = lk.search_lightcurve('TOI-4504', author='Tess', cadence='long')
+    # lc_collection = search_result.download_all()
+    # lc_collection.plot();
+
+    # https://lightkurve.github.io/lightkurve/reference/api/lightkurve.search_targetpixelfile.html#lightkurve.search_targetpixelfile
+    # search = search_targetpixelfile("TIC 349972412", sector=[28, 31, 34, 37, 64, 67, 87, 88, 89])
+    # search = search_targetpixelfile("TIC 349972412", author="SPOC", sector=[28, 31, 34, 37, 64, 67])
+    # Download der fits-files. Manchmal gibt es mehrere fuer den gleichen Sektor.
+    # Search for target pixel files
+    # search = search_targetpixelfile("TIC 349972412", author="SPOC", sector=28)
+    # search = search_targetpixelfile("TIC 349972412", sector=[28, 31, 34, 37, 64, 67, 87, 88, 89])
+    # tpf = search.download_all()
+
+    # Save each target pixel file as a .fits file
+    # for i, file in enumerate(tpf):
+    #     filename = f"TIC349972412_sector_{i}_{file.sector}.fits"
+    #     file.to_fits(filename)
+    #     print(f"Saved: {filename}")
+
+    search = search_targetpixelfile("TIC 349972412", author="SPOC", sector=sectors)
+    all_tpfs = search.download_all()
+    for i, tpf in enumerate(all_tpfs):
+        lc = tpf.to_lightcurve(aperture_mask='pipeline').remove_outliers().flatten()
+        if plot_it:
+            plt.figure(figsize=(10, 6))
+            plt.plot(lc.time.jd, lc.flux, marker='o', markersize=1, linestyle='None', label=f'Sector {lc.meta["SECTOR"]}')  # sometimes list(lc.flux) was needed
+            # plt.xlim(left=2459148.1, right=2459148.9)
+            plt.xlabel('BJD')
+            plt.ylabel('Flux')
+            plt.title(lc.meta["SECTOR"])
+            plt.legend()
+            plt.grid(True)
+            # lc.to_fits(f'../research/star_systems/TOI-4504/lightkurve/getnewdata/{i}.fits', overwrite=True)
+            plt.savefig(f'../research/star_systems/TOI-4504/lightkurve/{lc.meta["SECTOR"]}/{lc.meta["SECTOR"]}testnew.png')
+            plt.show()
+        if save_it:
+            filename = f"TIC349972412_sector_{i}_{tpf.sector}.fits"
+            tpf.to_fits(filename, overwrite=True)
+            print(f"Saved: {filename}")
+
+
 def main():
-    get_new_data()
+    # get_new_data()
+    # sectors = [28, 31, 34, 37, 64, 67, 87, 88, 89]
+    sectors = [28]
+    get_new_data2(sectors, plot_it=True, save_it=False)
+
+
     # sectors = ["61"]
     # save_plots(sectors)
     # analyze_lightcurve()
