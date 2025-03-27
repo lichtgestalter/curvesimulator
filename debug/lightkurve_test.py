@@ -149,7 +149,7 @@ def get_new_data():
         plt.show()
 
 
-def get_new_data2(sectors=None, plot_it=False, save_it=False):
+def get_new_data2(sectors=None, save_plot=False, save_curve=False):
     from lightkurve import search_targetpixelfile
 
     # Ich habe vergessen, wie ich urspruenglich die -fits-files bekommen habe. Neuer Versuch.
@@ -180,7 +180,7 @@ def get_new_data2(sectors=None, plot_it=False, save_it=False):
     all_tpfs = search.download_all()
     for i, tpf in enumerate(all_tpfs):
         lc = tpf.to_lightcurve(aperture_mask='pipeline').remove_outliers().flatten()
-        if plot_it:
+        if save_plot:
             plt.figure(figsize=(10, 6))
             plt.plot(lc.time.jd, lc.flux, marker='o', markersize=1, linestyle='None', label=f'Sector {lc.meta["SECTOR"]}')  # sometimes list(lc.flux) was needed
             # plt.xlim(left=2459148.1, right=2459148.9)
@@ -192,7 +192,7 @@ def get_new_data2(sectors=None, plot_it=False, save_it=False):
             # lc.to_fits(f'../research/star_systems/TOI-4504/lightkurve/getnewdata/{i}.fits', overwrite=True)
             plt.savefig(f'../research/star_systems/TOI-4504/lightkurve/{lc.meta["SECTOR"]}/{lc.meta["SECTOR"]}testnew.png')
             plt.show()
-        if save_it:
+        if save_curve:
             filename = f"TIC349972412_sector_{i}_{tpf.sector}.fits"
             tpf.to_fits(filename, overwrite=True)
             print(f"Saved: {filename}")
@@ -202,7 +202,7 @@ def main():
     # get_new_data()
     # sectors = [28, 31, 34, 37, 64, 67, 87, 88, 89]
     sectors = [28]
-    get_new_data2(sectors, plot_it=True, save_it=False)
+    get_new_data2(sectors, save_plot=True, save_curve=False)
 
 
     # sectors = ["61"]
