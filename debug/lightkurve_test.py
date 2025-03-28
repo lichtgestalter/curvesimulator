@@ -126,30 +126,7 @@ def fits2csv(sector, start, end):
     df.to_csv(pandas_file, sep=';', decimal=',', index=False)
 
 
-def get_new_data():
-    # search_result = lk.search_lightcurve('TIC349972412', author='QLP', sector=[31])
-    search_result = lk.search_lightcurve('TIC349972412', author='QLP', sector=[87, 88, 89, 90])
-    search_result = lk.search_lightcurve('TIC349972412', author='QLP', sector=[28, 31, 34, 37, 61, 64, 67, 87, 88, 89, 90])
-    # print(search_result)
-    lc_collection = search_result.download_all()
-    # print(lc_collection)
-    for i, lc in enumerate(lc_collection):
-        print("Sector:", lc.meta["SECTOR"])
-        print(lc.flux)
-        lc = lc.remove_outliers()  # Preprocess light curve
-        plt.figure(figsize=(10, 6))
-        plt.plot(lc.time.jd, list(lc.flux), 'o-', label=f'Sector {lc.meta["SECTOR"]}')
-        plt.xlabel('BJD')
-        plt.ylabel('Flux')
-        plt.title(lc.meta["SECTOR"])
-        plt.legend()
-        plt.grid(True)
-        # lc.to_fits(f'../research/star_systems/TOI-4504/lightkurve/getnewdata/{i}.fits', overwrite=True)
-        plt.savefig(f'../research/star_systems/TOI-4504/lightkurve/{lc.meta["SECTOR"]}/{lc.meta["SECTOR"]}new.png')
-        plt.show()
-
-
-def get_new_data2(sectors=None, save_plot=False, save_curve=False):
+def download_flux(sectors=None, save_plot=False, save_curve=False):
     from lightkurve import search_targetpixelfile
 
     # I forgot how I originally obtained the .fits files. New attempt.
@@ -195,6 +172,9 @@ def get_new_data2(sectors=None, save_plot=False, save_curve=False):
             # lc.to_fits(f'../research/star_systems/TOI-4504/lightkurve/getnewdata/{i}.fits', overwrite=True)
             plt.savefig(f'../research/star_systems/TOI-4504/lightkurve/{lc.meta["SECTOR"]}/{lc.meta["SECTOR"]}test.png')
             plt.show()
+
+            fits2csv anpassen und benutzen
+
         if save_curve:
             filename = f"../research/star_systems/TOI-4504/lightkurve/{lc.meta["SECTOR"]}/TIC349972412_sector_{i}_{tpf.sector}.fits"
             tpf.to_fits(filename, overwrite=True)
@@ -204,8 +184,8 @@ def get_new_data2(sectors=None, save_plot=False, save_curve=False):
 def main():
     # get_new_data()
     # sectors = [28, 31, 34, 37, 64, 67, 87, 88, 89]
-    sectors = [87, 88, 89]
-    get_new_data2(sectors, save_plot=True, save_curve=False)
+    sectors = [89]
+    download_flux(sectors, save_plot=True, save_curve=False)
 
 
     # sectors = ["61"]
