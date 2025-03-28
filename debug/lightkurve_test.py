@@ -185,8 +185,8 @@ def get_new_data2(sectors=None, save_plot=False, save_curve=False):
             plt.plot(lc.time.jd, lc.flux, marker='o', markersize=1, linestyle='None', label=f'Sector {lc.meta["SECTOR"]}')  # sometimes list(lc.flux) was needed
             # left, right = 2460718.4, 2460718.8  # Sector 89, b-Transit
             # left, right = 2460736.5, 2460736.8  # Sector 89, c-Transit
-            left, right = 2460695.3, 2460695.7  # Sector 88, c-Transit
-            plt.xlim(left=left, right=right)
+            # left, right = 2460695.3, 2460695.7  # Sector 88, c-Transit
+            # plt.xlim(left=left, right=right)
             plt.xlabel('BJD')
             plt.ylabel('Flux')
             plt.title(lc.meta["SECTOR"])
@@ -204,7 +204,7 @@ def get_new_data2(sectors=None, save_plot=False, save_curve=False):
 def main():
     # get_new_data()
     # sectors = [28, 31, 34, 37, 64, 67, 87, 88, 89]
-    sectors = [88]
+    sectors = [87, 88, 89]
     get_new_data2(sectors, save_plot=True, save_curve=False)
 
 
