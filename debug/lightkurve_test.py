@@ -152,7 +152,9 @@ def get_new_data():
 def get_new_data2(sectors=None, save_plot=False, save_curve=False):
     from lightkurve import search_targetpixelfile
 
-    # Ich habe vergessen, wie ich urspruenglich die -fits-files bekommen habe. Neuer Versuch.
+    # I forgot how I originally obtained the .fits files. New attempt.
+    # You can either download finished light curves with search_lightcurve().
+    # Or download raw data from selected pixels with search_targetpixelfile().
 
     # search_result = lk.search_lightcurve('TIC349972412', cadence='long')
     # search_result = lk.search_lightcurve('TIC349972412', author='TESS-SPOC', cadence='long')
@@ -161,39 +163,40 @@ def get_new_data2(sectors=None, save_plot=False, save_curve=False):
     # lc_collection = search_result.download_all()
     # lc_collection.plot();
 
-    # https://lightkurve.github.io/lightkurve/reference/api/lightkurve.search_targetpixelfile.html#lightkurve.search_targetpixelfile
-    # search = search_targetpixelfile("TIC 349972412", sector=[28, 31, 34, 37, 64, 67, 87, 88, 89])
-    # search = search_targetpixelfile("TIC 349972412", author="SPOC", sector=[28, 31, 34, 37, 64, 67])
-    # Download der fits-files. Manchmal gibt es mehrere fuer den gleichen Sektor.
-    # Search for target pixel files
-    # search = search_targetpixelfile("TIC 349972412", author="SPOC", sector=28)
-    # search = search_targetpixelfile("TIC 349972412", sector=[28, 31, 34, 37, 64, 67, 87, 88, 89])
-    # tpf = search.download_all()
+    # https://lightkurve.github.io/lightkurve/reference/api/lightkurve.search_targetpixelfile.html
+    # https://lightkurve.github.io/lightkurve/reference/api/lightkurve.LightCurve.flatten.html
 
-    # Save each target pixel file as a .fits file
-    # for i, file in enumerate(tpf):
-    #     filename = f"TIC349972412_sector_{i}_{file.sector}.fits"
-    #     file.to_fits(filename)
-    #     print(f"Saved: {filename}")
-
+    # Download of fits-files. Sometimes there are several for the same sector.
     search = search_targetpixelfile("TIC 349972412", author="SPOC", sector=sectors)
     all_tpfs = search.download_all()
     for i, tpf in enumerate(all_tpfs):
-        lc = tpf.to_lightcurve(aperture_mask='pipeline').remove_outliers().flatten()
+        lc = tpf.to_lightcurve(aperture_mask='pipeline').remove_outliers()
+
+        # Mask the flattening, so transits do not get removed by flattening!
+        # mask = np.ones(len(lc.time), dtype=bool)
+        # mask[555:557] = False  # No detectable flattening.
+        # mask[2000:3000] = False # Totally wrong curve
+        # lc = lc.flatten(mask=mask)
+        # lc = lc.flatten()  # no mask -> no transit after flattening :(
+
         if save_plot:
             plt.figure(figsize=(10, 6))
+            # plt.plot(range(len(lc.time.jd)), lc.flux, marker='o', markersize=1, linestyle='None', label=f'Sector {lc.meta["SECTOR"]}')  # sometimes list(lc.flux) was needed
             plt.plot(lc.time.jd, lc.flux, marker='o', markersize=1, linestyle='None', label=f'Sector {lc.meta["SECTOR"]}')  # sometimes list(lc.flux) was needed
-            # plt.xlim(left=2459148.1, right=2459148.9)
+            # left, right = 2460718.4, 2460718.8  # Sector 89, b-Transit
+            # left, right = 2460736.5, 2460736.8  # Sector 89, c-Transit
+            left, right = 2460695.3, 2460695.7  # Sector 88, c-Transit
+            plt.xlim(left=left, right=right)
             plt.xlabel('BJD')
             plt.ylabel('Flux')
             plt.title(lc.meta["SECTOR"])
             plt.legend()
             plt.grid(True)
             # lc.to_fits(f'../research/star_systems/TOI-4504/lightkurve/getnewdata/{i}.fits', overwrite=True)
-            plt.savefig(f'../research/star_systems/TOI-4504/lightkurve/{lc.meta["SECTOR"]}/{lc.meta["SECTOR"]}testnew.png')
+            plt.savefig(f'../research/star_systems/TOI-4504/lightkurve/{lc.meta["SECTOR"]}/{lc.meta["SECTOR"]}test.png')
             plt.show()
         if save_curve:
-            filename = f"TIC349972412_sector_{i}_{tpf.sector}.fits"
+            filename = f"../research/star_systems/TOI-4504/lightkurve/{lc.meta["SECTOR"]}/TIC349972412_sector_{i}_{tpf.sector}.fits"
             tpf.to_fits(filename, overwrite=True)
             print(f"Saved: {filename}")
 
@@ -201,7 +204,7 @@ def get_new_data2(sectors=None, save_plot=False, save_curve=False):
 def main():
     # get_new_data()
     # sectors = [28, 31, 34, 37, 64, 67, 87, 88, 89]
-    sectors = [28]
+    sectors = [88]
     get_new_data2(sectors, save_plot=True, save_curve=False)
 
 
