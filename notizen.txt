@@ -8,7 +8,7 @@ Recently done / in progress:
 NEXT:
         Mail an Uffe
         Mail an Simon Albrecht
-        Excel: all curves auf normierten Flux umstellen. Alle Diagramme gleichen Wertebereich (z.B. 97,7 bis 101%)
+        Excel: Seite "all curves" auf normierten Flux umstellen. Alle Diagramme gleichen Wertebereich (z.B. 97,7 bis 101%)
         In aelteren TESS-Sektoren nach Planet-d-Transits suchen.
 
 
