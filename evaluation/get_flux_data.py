@@ -30,12 +30,6 @@ def save_cutted_plot(sector, start, end):
     plt.close()
 
 
-def cut_lightcurve(lc, start, end):
-    """Take lightcurve lc and return a shortened lightcurve that starts at time start and ends at time end."""
-    mask = (lc.time.value >= start) & (lc.time.value <= end)
-    return lc[mask]
-
-
 def analyze_lightcurve():
     """analyze lc: calculate time and depth of transit. Calculate T1, T2, T3, T4, TT and depth."""
 
@@ -110,26 +104,37 @@ def analyze_lightcurve():
         print(f"{t1:.5f}, {t2:.5f}, {t3:.5f}, {t4:.5f}, {tt:.5f}, {t14:.5f}, {t23:.5f}, {t12:.5f}, {t34:.5f}, {depth*100:.5f}%")
     return
 
-def fits2csv(sector, start, end):
-    file = f"../research/star_systems/TOI-4504/lightkurve/{sector}/{sector}.fits"
-    lc = TessLightCurve.read(file)
-    lc = cut_lightcurve(lc, start, end)
-    print(lc)
-    # store lc in a pandas dataframe
+
+def lc2csv(lc, file):
     data = {
         'time': lc.time.value,
         'flux': lc.flux.value,
         'flux_err': lc.flux_err.value
     }
     df = pd.DataFrame(data)
+    df.to_csv(file, sep=';', decimal=',', index=False)
+
+
+def fits2csv(sector, start, end):
+    file = f"../research/star_systems/TOI-4504/lightkurve/{sector}/{sector}.fits"
+    lc = TessLightCurve.read(file)
+    lc = cut_lightcurve(lc, start, end)
+    print(lc)
     pandas_file = f"../research/star_systems/TOI-4504/lightkurve/{sector}_cut.csv"
-    df.to_csv(pandas_file, sep=';', decimal=',', index=False)
+    lc2csv(lc, pandas_file)
 
 
-def download_flux(sectors=None, save_plot=False, save_curve=False):
+def cut_lightcurve(lc, start, end):
+    """Take lightcurve lc and return a shortened lightcurve that starts at time start and ends at time end."""
+    mask = (lc.time.jd >= start) & (lc.time.jd <= end)
+    # mask = (lc.time.value >= start) & (lc.time.value <= end)
+    debug = lc[mask]
+    return lc[mask]
+
+
+def download_flux(sectors=None, save_plot=False, save_csv=False, save_fits=False, start=None, end=None):
     from lightkurve import search_targetpixelfile
 
-    # I forgot how I originally obtained the .fits files. New attempt.
     # You can either download finished light curves with search_lightcurve().
     # Or download raw data from selected pixels with search_targetpixelfile().
 
@@ -141,13 +146,16 @@ def download_flux(sectors=None, save_plot=False, save_curve=False):
     # lc_collection.plot();
 
     # https://lightkurve.github.io/lightkurve/reference/api/lightkurve.search_targetpixelfile.html
-    # https://lightkurve.github.io/lightkurve/reference/api/lightkurve.LightCurve.flatten.html
+    # https://lightkurve.github.io/lightkurve/reference/api/lightkurve.LightCurve.flatten.html flatten() is buggy. I will not use it.
 
     # Download of fits-files. Sometimes there are several for the same sector.
     search = search_targetpixelfile("TIC 349972412", author="SPOC", sector=sectors)
     all_tpfs = search.download_all()
     for i, tpf in enumerate(all_tpfs):
         lc = tpf.to_lightcurve(aperture_mask='pipeline').remove_outliers()
+        if start and end:
+            lc = cut_lightcurve(lc, start, end)
+            print(f"sector {sectors}, curve from {start} til {end} contains {len(lc.time.jd)} data points.")
 
         # Mask the flattening, so transits do not get removed by flattening!
         # mask = np.ones(len(lc.time), dtype=bool)
@@ -155,63 +163,64 @@ def download_flux(sectors=None, save_plot=False, save_curve=False):
         # mask[2000:3000] = False # Totally wrong curve
         # lc = lc.flatten(mask=mask)
         # lc = lc.flatten()  # no mask -> no transit after flattening :(
+        # CONCLUSION: flatten() is buggy. I will not use it.
 
         if save_plot:
             plt.figure(figsize=(10, 6))
             # plt.plot(range(len(lc.time.jd)), lc.flux, marker='o', markersize=1, linestyle='None', label=f'Sector {lc.meta["SECTOR"]}')  # sometimes list(lc.flux) was needed
             plt.plot(lc.time.jd, lc.flux, marker='o', markersize=1, linestyle='None', label=f'Sector {lc.meta["SECTOR"]}')  # sometimes list(lc.flux) was needed
-            # left, right = 2460718.4, 2460718.8  # Sector 89, b-Transit
-            # left, right = 2460736.5, 2460736.8  # Sector 89, c-Transit
-            # left, right = 2460695.3, 2460695.7  # Sector 88, c-Transit
-            # plt.xlim(left=left, right=right)
             plt.xlabel('BJD')
             plt.ylabel('Flux')
-            plt.title(lc.meta["SECTOR"])
-            plt.legend()
+            plt.title(f'TOI 4504, TESS sector {lc.meta["SECTOR"]}')
+            # plt.legend()
             plt.grid(True)
             # lc.to_fits(f'../research/star_systems/TOI-4504/lightkurve/getnewdata/{i}.fits', overwrite=True)
-            plt.savefig(f'../research/star_systems/TOI-4504/lightkurve/{lc.meta["SECTOR"]}/{lc.meta["SECTOR"]}test.png')
+            plt.savefig(f'../research/star_systems/TOI-4504/lightkurve/{lc.meta["SECTOR"]}/{lc.meta["SECTOR"]}_c_cut.png')
             plt.show()
-
-            fits2csv anpassen und benutzen
-
-        if save_curve:
+        if save_csv:
+            pandas_file = f'../research/star_systems/TOI-4504/lightkurve/{lc.meta["SECTOR"]}/{lc.meta["SECTOR"]}_c_cut.csv'
+            lc2csv(lc, pandas_file)
+        if save_fits:
             filename = f"../research/star_systems/TOI-4504/lightkurve/{lc.meta["SECTOR"]}/TIC349972412_sector_{i}_{tpf.sector}.fits"
             tpf.to_fits(filename, overwrite=True)
             print(f"Saved: {filename}")
 
 
-def main():
-    # get_new_data()
-    # sectors = [28, 31, 34, 37, 64, 67, 87, 88, 89]
-    sectors = [89]
-    download_flux(sectors, save_plot=True, save_curve=False)
-
-
-    # sectors = ["61"]
-    # save_plots(sectors)
-    # analyze_lightcurve()
+def main_old():
+    sectors = ["61"]
+    save_plots(sectors)
+    analyze_lightcurve()
     delta = 0.4
     t28 = 2065.24
     t31 = 2148.48
     t34 = 2231.11
     t37 = 2313.25
-    # t64 = 3059.60
+    t64 = 3059.60
     t67 = 3142.60
-    # save_cutted_plot("28", t28 - delta, t28 + delta)
-    # save_cutted_plot("31", t31 - delta, t31 + delta)
-    # save_cutted_plot("34", t34 - delta, t34 + delta)
-    # save_cutted_plot("37", t37 - delta, t37 + delta)
-    # save_cutted_plot("64", t64 - delta, t64 + delta)
-    # save_cutted_plot("67", t67 - delta, t67 + delta)
-    # fits2csv("28", t28 - delta, t28 + delta)
-    # fits2csv("31", t31 - delta, t31 + delta)
-    # fits2csv("34", t34 - delta, t34 + delta)
-    # fits2csv("37", t37 - delta, t37 + delta)
-    # fits2csv("64", t64 - delta, t64 + delta)
-    # fits2csv("67", t67 - delta, t67 + delta)
+    save_cutted_plot("28", t28 - delta, t28 + delta)
+    save_cutted_plot("31", t31 - delta, t31 + delta)
+    save_cutted_plot("34", t34 - delta, t34 + delta)
+    save_cutted_plot("37", t37 - delta, t37 + delta)
+    save_cutted_plot("64", t64 - delta, t64 + delta)
+    save_cutted_plot("67", t67 - delta, t67 + delta)
+    fits2csv("28", t28 - delta, t28 + delta)
+    fits2csv("31", t31 - delta, t31 + delta)
+    fits2csv("34", t34 - delta, t34 + delta)
+    fits2csv("37", t37 - delta, t37 + delta)
+    fits2csv("64", t64 - delta, t64 + delta)
+    fits2csv("67", t67 - delta, t67 + delta)
 
+
+def main():
+    # get_new_data()
+    # sectors = [28, 31, 34, 37, 64, 67, 87, 88, 89]
+    # sectors = 88
+    # start, end = None, None
+    sectors, start, end = 61, 2459975.71, 2459976.4
+    # sectors, start, end = 88, 2460695.3, 2460695.7  # TOI4504d-Transit
+    # sectors, start, end = 89, 2460718.3, 2460718.9  # TOI4504c-Transit
+    # sectors, start, end = 89, 2460736.4, 2460736.9  # TOI4504d-Transit
+    download_flux(sectors, save_plot=True, save_csv=True, save_fits=False, start=start, end=end)
 
 
 main()
-# save_plots()

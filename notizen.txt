@@ -6,6 +6,12 @@ Recently done / in progress:
         More flexible result evaluation
 
 NEXT:
+        Mail an Uffe
+        Mail an Simon Albrecht
+        Excel: all curves auf normierten Flux umstellen. Alle Diagramme gleichen Wertebereich (z.B. 97,7 bis 101%)
+        In aelteren TESS-Sektoren nach Planet-d-Transits suchen.
+
+
         BUG:
             Ich speichere fuer den Stern ueberfluessige Parameter mit falschen Werten ab? Z.B. e und i.
 
