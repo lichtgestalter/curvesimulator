@@ -149,7 +149,8 @@ def download_flux(sectors=None, save_plot=False, save_csv=False, save_fits=False
     # https://lightkurve.github.io/lightkurve/reference/api/lightkurve.LightCurve.flatten.html flatten() is buggy. I will not use it.
 
     # Download of fits-files. Sometimes there are several for the same sector.
-    search = search_targetpixelfile("TIC 349972412", author="SPOC", sector=sectors)
+    # search = search_targetpixelfile("TIC 349972412", author="SPOC", sector=sectors)
+    search = search_targetpixelfile("TIC 349972412", sector=sectors)
     all_tpfs = search.download_all()
     for i, tpf in enumerate(all_tpfs):
         lc = tpf.to_lightcurve(aperture_mask='pipeline').remove_outliers()
@@ -175,13 +176,14 @@ def download_flux(sectors=None, save_plot=False, save_csv=False, save_fits=False
             # plt.legend()
             plt.grid(True)
             # lc.to_fits(f'../research/star_systems/TOI-4504/lightkurve/getnewdata/{i}.fits', overwrite=True)
-            plt.savefig(f'../research/star_systems/TOI-4504/lightkurve/{lc.meta["SECTOR"]}/{lc.meta["SECTOR"]}_c_cut.png')
+            # plt.savefig(f'../research/star_systems/TOI-4504/lightkurve/{lc.meta["SECTOR"]}/{lc.meta["SECTOR"]}_c_cut.png')
+            plt.savefig(f'../research/star_systems/TOI-4504/lightkurve/{tpf.sector}/{tpf.sector}_{i}.png')
             plt.show()
         if save_csv:
-            pandas_file = f'../research/star_systems/TOI-4504/lightkurve/{lc.meta["SECTOR"]}/{lc.meta["SECTOR"]}_c_cut.csv'
+            pandas_file = f'../research/star_systems/TOI-4504/lightkurve/{tpf.sector}/{tpf.sector}_{i}.csv'
             lc2csv(lc, pandas_file)
         if save_fits:
-            filename = f"../research/star_systems/TOI-4504/lightkurve/{lc.meta["SECTOR"]}/TIC349972412_sector_{i}_{tpf.sector}.fits"
+            filename = f"../research/star_systems/TOI-4504/lightkurve/{tpf.sector}/{tpf.sector}_{i}.fits"
             tpf.to_fits(filename, overwrite=True)
             print(f"Saved: {filename}")
 
@@ -214,13 +216,13 @@ def main_old():
 def main():
     # get_new_data()
     # sectors = [28, 31, 34, 37, 64, 67, 87, 88, 89]
-    # sectors = 88
-    # start, end = None, None
-    sectors, start, end = 61, 2459975.71, 2459976.4
+    sectors = 61
+    start, end = None, None
+    # sectors, start, end = 61, 2459975.71, 2459976.4  # TOI4504c-Transit
     # sectors, start, end = 88, 2460695.3, 2460695.7  # TOI4504d-Transit
     # sectors, start, end = 89, 2460718.3, 2460718.9  # TOI4504c-Transit
     # sectors, start, end = 89, 2460736.4, 2460736.9  # TOI4504d-Transit
-    download_flux(sectors, save_plot=True, save_csv=True, save_fits=False, start=start, end=end)
+    download_flux(sectors, save_plot=True, save_csv=True, save_fits=True, start=start, end=end)
 
 
 main()

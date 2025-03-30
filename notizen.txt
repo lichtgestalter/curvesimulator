@@ -8,8 +8,9 @@ Recently done / in progress:
 NEXT:
         Mail an Uffe
         Mail an Simon Albrecht
-        Excel: Seite "all curves" auf normierten Flux umstellen. Alle Diagramme gleichen Wertebereich (z.B. 97,7 bis 101%)
+        SERVER DOWN?!? Sector 61: Daten mit besserer Qualitaet downloadbar? Es gibt 3 Kurven und 2 Pixelfiles zum Download.
         In aelteren TESS-Sektoren nach Planet-d-Transits suchen.
+        Simulation so anpassen, dass sie die beobachteten d-Transits erzeugt.
 
 
         BUG:
