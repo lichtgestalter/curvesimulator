@@ -177,13 +177,13 @@ def download_flux(sectors=None, save_plot=False, save_csv=False, save_fits=False
             plt.grid(True)
             # lc.to_fits(f'../research/star_systems/TOI-4504/lightkurve/getnewdata/{i}.fits', overwrite=True)
             # plt.savefig(f'../research/star_systems/TOI-4504/lightkurve/{lc.meta["SECTOR"]}/{lc.meta["SECTOR"]}_c_cut.png')
-            plt.savefig(f'../research/star_systems/TOI-4504/lightkurve/{tpf.sector}/{tpf.sector}_{i}.png')
+            plt.savefig(f'../research/star_systems/TOI-4504/lightkurve/{tpf.sector}/{tpf.sector}_{i}_cut.png')
             plt.show()
         if save_csv:
-            pandas_file = f'../research/star_systems/TOI-4504/lightkurve/{tpf.sector}/{tpf.sector}_{i}.csv'
+            pandas_file = f'../research/star_systems/TOI-4504/lightkurve/{tpf.sector}/{tpf.sector}_{i}_cut.csv'
             lc2csv(lc, pandas_file)
         if save_fits:
-            filename = f"../research/star_systems/TOI-4504/lightkurve/{tpf.sector}/{tpf.sector}_{i}.fits"
+            filename = f"../research/star_systems/TOI-4504/lightkurve/{tpf.sector}/{tpf.sector}_{i}_cut.fits"
             tpf.to_fits(filename, overwrite=True)
             print(f"Saved: {filename}")
 
@@ -216,9 +216,9 @@ def main_old():
 def main():
     # get_new_data()
     # sectors = [28, 31, 34, 37, 64, 67, 87, 88, 89]
-    sectors = 61
-    start, end = None, None
-    # sectors, start, end = 61, 2459975.71, 2459976.4  # TOI4504c-Transit
+    # sectors = 61
+    # start, end = None, None
+    sectors, start, end = 61, 2459975.71, 2459976.4  # TOI4504c-Transit
     # sectors, start, end = 88, 2460695.3, 2460695.7  # TOI4504d-Transit
     # sectors, start, end = 89, 2460718.3, 2460718.9  # TOI4504c-Transit
     # sectors, start, end = 89, 2460736.4, 2460736.9  # TOI4504d-Transit
