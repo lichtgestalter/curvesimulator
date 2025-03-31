@@ -34,8 +34,6 @@ NEXT:
             Ohne Korrektur (=minimale Senkung) der initialen Geschwindigkeit ist P=2.46249, also noch etwas langsamer. Das ist kontraintuitiv.
             TOI-4504c scheint jedoch ungefaehr richtig zu sein. Kann man nicht genau sagen, weil sich dessen P ja ueber Zeit aendert.
 
-        Sector 89 Data Release	15 April 2025	First potential new TOI-4504 observations
-
 
 
     Example videos
