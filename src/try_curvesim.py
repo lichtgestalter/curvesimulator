@@ -21,8 +21,8 @@ from curvesimulator import curvesim
 
 def main():
     # parameters, bodies = debug_print_points()
-    # parameters, bodies, results, lightcurve = curvesim(config_file="../configurations/TOI-4504.demo.ini")
-    parameters, bodies, results, lightcurve = curvesim(config_file="../configurations/Sim001.ini")
+    parameters, bodies, results, lightcurve = curvesim(config_file="../configurations/TOI-4504.demo.ini")
+    # parameters, bodies, results, lightcurve = curvesim(config_file="../configurations/Sim001.ini")
     # print(parameters)
     print(bodies)
     print(results)

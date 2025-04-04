@@ -6,8 +6,7 @@ Recently done / in progress:
         More flexible result evaluation
 
 NEXT:
-        Mail an Uffe
-        Mail an Simon Albrecht
+        Bleibt Energie des Sternsystems konstant?
         Sector 61: Daten mit besserer Qualitaet downloadbar? Es gibt 3 Kurven und 2 Pixelfiles zum Download.
             Die 2 Pixelfiles vergleichen. Habe schon cutted files gemacht.
         In aelteren TESS-Sektoren nach Planet-d-Transits suchen.
@@ -289,4 +288,9 @@ I implemented all suggestions from zoom call 29.03.2022, but tried and dismissed
             The effect changes somewhat smoothly with changing with increasing mass and decreasing distance of the second planet.
             This supports the thesis that the alternately transiting behaviour is real and not just an artefact.
     0.3.9   Result output enhancements
-
+    0.4.0   Constant energy check
+        Added function energy() to check if the total energy in the star system stays constant as it should.
+        Results:
+            Precision: Error remains below ±2×10⁻⁷ relative to the mean (1 part in 5 million).
+            Periodicity of error: Repeats about every 5,500 iterations (Δt=600 s per iteration)
+            This indicates a highly stable system with minimal energy drift over time.

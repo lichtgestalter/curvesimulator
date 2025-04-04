@@ -185,7 +185,8 @@ class CurveSimBodies(list):
     @staticmethod
     def update_position(body1, iteration, acceleration, p):
         """https://en.wikipedia.org/wiki/Verlet_integration
-        https://www.lancaster.ac.uk/staff/drummonn/PHYS281/gravity/"""
+        https://www.lancaster.ac.uk/staff/drummonn/PHYS281/gravity/
+        Verlet integration avoids the numerical problems of the Euler method."""
         movement = body1.velocity * p.dt + acceleration * (p.dt ** 2 * 0.5)
         body1.positions[iteration] = body1.positions[iteration - 1] + movement
 
@@ -199,6 +200,8 @@ class CurveSimBodies(list):
         if p.iterations > 5:  # prevent DIV/0 in next line
             if iteration % int(round(p.iterations / 10)) == 0:  # Inform user about program's progress.
                 print(f'{round(iteration / p.iterations * 10) * 10:3d}% ', end="")
+                # print(self.energy(iteration, p))
+
 
     def calc_positions_eclipses_luminosity(self, p):
         """Calculate distances, forces, accelerations, velocities of the bodies for each iteration.
@@ -265,3 +268,17 @@ class CurveSimBodies(list):
                     extrascale_left, extrascale_right = p.star_scale_left, p.star_scale_right  # It's a star. Scale radius in plot accordingly.
                 body.circle_right = matplotlib.patches.Circle((0, 0), radius=body.radius * extrascale_right / p.scope_right)  # Matplotlib patch for right view
                 body.circle_left = matplotlib.patches.Circle((0, 0), radius=body.radius * extrascale_left / p.scope_left)  # Matplotlib patch for left view
+
+    def energy(self, iteration, p):
+        """Calculates the total energy in the system. This should be constant."""
+        kinetic_energy = 0
+        potential_energy = 0
+        for i, body1 in enumerate(self):
+            velocity_magnitude = np.linalg.norm(body1.velocity)
+            kinetic_energy += 0.5 * body1.mass * velocity_magnitude ** 2
+            for j, body2 in enumerate(self):
+                if i < j:
+                    distance = np.linalg.norm(body2.positions[iteration - 1] - body1.positions[iteration - 1])
+                    if distance > 0:
+                        potential_energy += body1.mass * body2.mass / distance
+        return kinetic_energy - p.g * potential_energy
