@@ -6,11 +6,15 @@ Recently done / in progress:
         More flexible result evaluation
 
 NEXT:
-        Bleibt Energie des Sternsystems konstant?
+        0.4.1   Fit simulation to d-Transits
+            ma von d fuer dessen zweiten Transit angepasst mit noch verkehrtem i = 88.8
+                Zeit von erstem Transit wird total verfehlt (2460696.46 statt 2460695.53)
+
+
+
         Sector 61: Daten mit besserer Qualitaet downloadbar? Es gibt 3 Kurven und 2 Pixelfiles zum Download.
             Die 2 Pixelfiles vergleichen. Habe schon cutted files gemacht.
         In aelteren TESS-Sektoren nach Planet-d-Transits suchen.
-        Simulation so anpassen, dass sie die beobachteten d-Transits erzeugt.
         Lassen sich die Flux-Daten durch eine manuell von mir gemachte alternative Pixelmaske verbessern? Z.B. 4x4 statt 3x2?
 
 
