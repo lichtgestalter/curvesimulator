@@ -226,7 +226,9 @@ class CurveSimBodies(list):
                 CurveSimBodies.update_position(body1, iteration, acceleration, p)
             lightcurve[iteration] = self.total_luminosity(stars, iteration, results, transit_status, p)  # Update lightcurve.
             CurveSimBodies.progress_bar(iteration, p)
-
+        lightcurve_max = float(lightcurve.max(initial=None))
+        lightcurve /= lightcurve_max  # Normalize flux.
+        results.normalize_flux(lightcurve_max)  # Normalize flux in parameter depth in results.
         return results, lightcurve, self
 
     def calc_physics(self, p):
@@ -236,9 +238,6 @@ class CurveSimBodies(list):
         print(f'Calculating {p.iterations:,} iterations: ', end="")  #print(f"{b=:_}
         tic = time.perf_counter()
         results, lightcurve, bodies = self.calc_positions_eclipses_luminosity(p)
-        lightcurve_max = float(lightcurve.max(initial=None))
-        lightcurve /= lightcurve_max  # Normalize flux.
-        results.normalize_flux(lightcurve_max)  # Normalize flux in parameter depth in results.
         toc = time.perf_counter()
         print(f' {toc - tic:7.2f} seconds  ({p.iterations / (toc - tic):.0f} iterations/second)')
         return results, lightcurve
