@@ -5,9 +5,8 @@ Recently done / in progress:
 
 NEXT:
         0.4.1   Fit simulation to d-Transits
-            ma von d fuer dessen zweiten Transit angepasst mit noch verkehrtem i = 88.8
-                Zeit von erstem Transit wird total verfehlt (2460696.46 statt 2460695.53)
-
+            Planet d's mean anomaly adjusted in the config file until d's transit at 2460736.63 happens at the right time.
+            But then the transit before was a whole day off (2460696.46 iso 2460695.53).
 
 
         Sector 61: Daten mit besserer Qualitaet downloadbar? Es gibt 3 Kurven und 2 Pixelfiles zum Download.
