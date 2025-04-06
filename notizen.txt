@@ -1,12 +1,8 @@
-michaela.vitkova@asu.cas.cz
-vitkova@mail.asu.cas.cz
 
 Recently done / in progress:
 
 NEXT:
-        0.4.1   Fit simulation to d-Transits
-            Planet d's mean anomaly adjusted in the config file until d's transit at 2460736.63 happens at the right time.
-            But then the transit before was a whole day off (2460696.46 iso 2460695.53).
+        0.4.2   Trying out Rebound
 
 
         Sector 61: Daten mit besserer Qualitaet downloadbar? Es gibt 3 Kurven und 2 Pixelfiles zum Download.
@@ -88,7 +84,10 @@ VERSION 1.0.0 veroeffentlichen !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             Peters Kumpel
 
         Universitäten:
+            michaela.vitkova@asu.cas.cz, vitkova@mail.asu.cas.cz
+
             Niels Bohr:
+                Uffe
                 https://nbi.ku.dk/english/research/astrophysics/exoplanets/
                 http://www.mindstep-science.org/about_us.html ???
                 https://www.iau.org/administration/membership/individual/11759/ ???
@@ -296,3 +295,7 @@ I implemented all suggestions from zoom call 29.03.2022, but tried and dismissed
             Precision: Error remains below ±2×10⁻⁷ relative to the mean (1 part in 5 million).
             Periodicity of error: Repeats about every 5,500 iterations (Δt=600 s per iteration) in TOI-4504
             This indicates a highly stable system with minimal energy drift over time.
+        0.4.1   Fit simulation to d-Transits
+            Planet d's mean anomaly adjusted in the config file until d's transit at 2460736.63 happens at the right time.
+            But then the transit before was a whole day off (2460696.46 iso 2460695.53).
+            -> postponed
