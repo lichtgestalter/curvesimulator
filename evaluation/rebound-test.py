@@ -50,7 +50,7 @@ mass = (0.885 - 0 * 0.05) * m_sun       # +-0.05
 radius = 0.92 * r_sun
 luminosity = 0.62 * l_sun
 limb_darkening = [0.4765, 0.3495]  # q1, q2
-sim.add(m=mass)
+sim.add(m=0.885, hash="TOI-4504")
 # sim.add(m=mass, r=radius)
 
 # [TOI-4504b]
@@ -63,9 +63,12 @@ longitude_of_ascending_node = 0
 argument_of_periapsis = 90
 T = 0
 t = 3600 * 24 * -0.383  # first Transit T0 BJD 2458400.383, 0.383 days after simulation's start date (t0 [BJD] 2459038.458)
-sim.add(m=mass)
+sim.add(m=1e-4, hash="TOI-4504b", a=1.0)
 
 
 # sim.integrate(10000)
-print(sim.status())
+# print(sim.status())
+
+for p in sim.particles:
+    print(p)
 
