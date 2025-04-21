@@ -84,8 +84,9 @@ VERSION 1.0.0 veroeffentlichen !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             Peters Kumpel
 
         Universitäten:
-            michaela.vitkova@asu.cas.cz, vitkova@mail.asu.cas.cz
-
+            CZ:
+                michaela.vitkova@asu.cas.cz, vitkova@mail.asu.cas.cz
+                https://stel.asu.cas.cz/en/extrasolar-planet-research/extrasolar-members/
             Niels Bohr:
                 Uffe
                 https://nbi.ku.dk/english/research/astrophysics/exoplanets/
@@ -98,7 +99,6 @@ VERSION 1.0.0 veroeffentlichen !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     https://space.mit.edu/home/albrecht/
                 Professor Emeritus Jørgen Christensen-Dalsgaard
                     Stellar Astrophysics Centre (SAC) an der Aarhus Universität
-
             SDU (Odense):
                 https://portal.findresearcher.sdu.dk/da/persons/toby-hinse, +4565507131, toch@cp3.sdu.dk
             DTU:
