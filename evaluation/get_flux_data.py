@@ -31,7 +31,8 @@ def save_cutted_plot(sector, start, end):
 
 
 def analyze_lightcurve():
-    """analyze lc: calculate time and depth of transit. Calculate T1, T2, T3, T4, TT and depth."""
+    """Untested chatbot code!
+    analyze lc: calculate time and depth of transit. Calculate T1, T2, T3, T4, TT and depth."""
 
     def loss(params):
         # Optimization
@@ -154,9 +155,11 @@ def download_flux(sectors=None, save_plot=False, save_csv=False, save_fits=False
     all_tpfs = search.download_all()
     for i, tpf in enumerate(all_tpfs):
         lc = tpf.to_lightcurve(aperture_mask='pipeline').remove_outliers()
+        cut = ""
         if start and end:
             lc = cut_lightcurve(lc, start, end)
             print(f"sector {sectors}, curve from {start} til {end} contains {len(lc.time.jd)} data points.")
+            cut = "_cut"
 
         # Mask the flattening, so transits do not get removed by flattening!
         # mask = np.ones(len(lc.time), dtype=bool)
@@ -177,13 +180,13 @@ def download_flux(sectors=None, save_plot=False, save_csv=False, save_fits=False
             plt.grid(True)
             # lc.to_fits(f'../research/star_systems/TOI-4504/lightkurve/getnewdata/{i}.fits', overwrite=True)
             # plt.savefig(f'../research/star_systems/TOI-4504/lightkurve/{lc.meta["SECTOR"]}/{lc.meta["SECTOR"]}_c_cut.png')
-            plt.savefig(f'../research/star_systems/TOI-4504/lightkurve/{tpf.sector}/{tpf.sector}_{i}_cut.png')
+            plt.savefig(f'../research/star_systems/TOI-4504/lightkurve/{tpf.sector}/{tpf.sector}_{i}{cut}.png')
             plt.show()
         if save_csv:
-            pandas_file = f'../research/star_systems/TOI-4504/lightkurve/{tpf.sector}/{tpf.sector}_{i}_cut.csv'
+            pandas_file = f'../research/star_systems/TOI-4504/lightkurve/{tpf.sector}/{tpf.sector}_{i}{cut}.csv'
             lc2csv(lc, pandas_file)
         if save_fits:
-            filename = f"../research/star_systems/TOI-4504/lightkurve/{tpf.sector}/{tpf.sector}_{i}_cut.fits"
+            filename = f"../research/star_systems/TOI-4504/lightkurve/{tpf.sector}/{tpf.sector}_{i}{cut}.fits"
             tpf.to_fits(filename, overwrite=True)
             print(f"Saved: {filename}")
 
@@ -214,12 +217,12 @@ def main_old():
 
 
 def main():
-    # get_new_data()
     # sectors = [28, 31, 34, 37, 64, 67, 87, 88, 89]
-    # sectors = 61
-    # start, end = None, None
-    sectors, start, end = 61, 2459975.71, 2459976.4  # TOI4504c-Transit
+
+    # sectors, start, end = 61, 2459975.71, 2459976.4  # TOI4504c-Transit
+    sectors, start, end = 88, None, None
     # sectors, start, end = 88, 2460695.3, 2460695.7  # TOI4504d-Transit
+    # sectors, start, end = 89, None, None
     # sectors, start, end = 89, 2460718.3, 2460718.9  # TOI4504c-Transit
     # sectors, start, end = 89, 2460736.4, 2460736.9  # TOI4504d-Transit
     download_flux(sectors, save_plot=True, save_csv=True, save_fits=True, start=start, end=end)
