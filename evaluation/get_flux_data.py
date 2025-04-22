@@ -146,7 +146,7 @@ def download_flux(sectors=None, save_plot=False, save_csv=False, save_fits=False
     # lc_collection.plot();
 
     # https://lightkurve.github.io/lightkurve/reference/api/lightkurve.search_targetpixelfile.html
-    # https://lightkurve.github.io/lightkurve/reference/api/lightkurve.LightCurve.flatten.html flatten() is buggy. I will not use it.
+    # https://lightkurve.github.io/lightkurve/reference/api/lightkurve.LightCurve.flatten.html
 
     # Download of fits-files. Sometimes there are several for the same sector.
     # search = search_targetpixelfile("TIC 349972412", author="SPOC", sector=sectors)
