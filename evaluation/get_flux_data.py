@@ -200,13 +200,13 @@ def main():
     t64 = 2457000 + 3059.60
     t67 = 2457000 + 3142.60
 
-    # sectors, start, end = 28, t28 - delta, t28 + delta
-    # sectors, start, end = 31, t31 - delta, t31 + delta
-    # sectors, start, end = 34, t34 - delta, t34 + delta
-    # sectors, start, end = 37, t37 - delta, t37 + delta
+    # sectors, start, end = 28, t28 - delta, t28 + delta # TOI4504c-Transit
+    # sectors, start, end = 31, t31 - delta, t31 + delta # TOI4504c-Transit
+    # sectors, start, end = 34, t34 - delta, t34 + delta # TOI4504c-Transit
+    # sectors, start, end = 37, t37 - delta, t37 + delta # TOI4504c-Transit
     # sectors, start, end = 61, 2459975.71, 2459976.4  # TOI4504c-Transit
-    # sectors, start, end = 64, t64 - delta, t64 + delta
-    # sectors, start, end = 67, t67 - delta, t67 + delta
+    # sectors, start, end = 64, t64 - delta, t64 + delta # TOI4504c-Transit
+    # sectors, start, end = 67, t67 - delta, t67 + delta # TOI4504c-Transit
     # sectors, start, end = 88, 2460695.3, 2460695.7  # TOI4504d-Transit
     sectors, start, end = 89, None, None
     # sectors, start, end = 89, 2460718.3, 2460718.9  # TOI4504c-Transit
