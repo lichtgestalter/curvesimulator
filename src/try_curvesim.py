@@ -17,6 +17,8 @@
 # if __name__ == '__main__':
 #     main()
 
+
+# Current version for developers
 from curvesimulator import curvesim
 
 def main():
