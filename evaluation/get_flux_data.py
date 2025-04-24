@@ -166,7 +166,7 @@ def download_flux(sectors=None, save_plot=False, save_csv=False, save_fits=False
         # mask[2000:3000] = False # Totally wrong curve
         # lc = lc.flatten(mask=mask)
         # lc = lc.flatten()  # no mask -> no transit after flattening :(
-        # CONCLUSION: I do not understand flatten() or it is buggy. I will not use it for now.
+        # CONCLUSION: I do not understand mask or it is buggy. I will not use it for now and therefore I will not use flatten() for now.
 
         if save_plot:
             plt.figure(figsize=(10, 6))
