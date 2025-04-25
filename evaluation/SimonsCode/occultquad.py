@@ -70,6 +70,13 @@ def ellpic_bulirsch(n, k):
 #   of this routine in your research.  Please report errors or bugs to
 #   jdeast@astronomy.ohio-state.edu
 def occultquad(z, u1, u2, p0):
+    """
+    See https://arxiv.org/abs/astro-ph/0210099 (Analytic Lightcurves for Planetary Transit Searches)
+    z: Distance between the centers of the bodies (star and planet) in units of stellar radii
+    u1, u2: Quadratic limb darkening coefficients
+    p0: Planet radius in units of stellar radii
+    ???: The measured brightness (flux) of the star system outside of transit
+    """
     nz = size(z)
     lambdad = zeros(nz)
     etad = zeros(nz)
@@ -271,3 +278,6 @@ def occultquad(z, u1, u2, p0):
         mu0 = 1. - lambdae
         return [muo1, mu0]
     return None
+
+
+print(occultquad(0.001, 0.3, 0.3, 0.1))
