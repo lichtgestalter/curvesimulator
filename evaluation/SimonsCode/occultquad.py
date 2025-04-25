@@ -1,4 +1,5 @@
 from numpy import size, zeros, where, arccos, sqrt, pi, log
+from numpy import asarray  # Uli
 
 
 # Computes Hasting's polynomial approximation for the complete
@@ -107,6 +108,8 @@ def occultquad(z, u1, u2, p0):
     # Case 1 - the star is unocculted:
     # only consider points with z lt 1+p
     notusedyet = where(z < (1. + p))
+    # notusedyet = asarray(z < (1. + p)).nonzero()   # Uli
+    # notusedyet = asarray(z < (1. + p))   # Uli
     notusedyet = notusedyet[0]
     if size(notusedyet) == 0:
         muo1 = 1. - ((1. - u1 - 2. * u2) * lambdae + (u1 + 2. * u2) * (lambdad + 2. / 3. * (p > z)) +
@@ -280,4 +283,4 @@ def occultquad(z, u1, u2, p0):
     return None
 
 
-print(occultquad(0.001, 0.3, 0.3, 0.1))
+print(occultquad([0.001], 0.3, 0.3, [0.1]))
