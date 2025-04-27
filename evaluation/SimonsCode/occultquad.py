@@ -71,19 +71,17 @@ def ellpic_bulirsch(n, k):
 #   jdeast@astronomy.ohio-state.edu
 def occultquad(z, u1, u2, p0):
     """
-    See https://arxiv.org/abs/astro-ph/0210099 (Analytic Lightcurves for Planetary Transit Searches)
+    See https://arxiv.org/abs/astro-ph/0210099 (Analytic Lightcurves for Planetary Transit Searches by Kaisey Mandel and Eric Agol)
     Parameters:
-    z: <numpy array> or <list of floats> distance between the centers of the star and planet in units of stellar radii
+    z: <numpy array> distance between the centers of the star and planet in units of stellar radii
     u1: <float> first quadratic limb-darkening coefficient
     u2: <float> second quadratic limb-darkening coefficient
     p0: <float> planet radius in units of stellar radii
     ???: The measured brightness (flux) of the star system outside of transit
     Return values:
-    muo1: Normalized flux of the star system, accounting for limb-darkening during transit.
-    mu0: Normalized flux of the star system without considering limb darkening.
-
-
-Both values are normalized to the out-of-transit flux of the star system, meaning they are expressed as fractions of the star's brightness when no planet is transiting.
+    muo1: Normalized flux of the star system, accounting for limb-darkening
+    mu0: Normalized flux of the star system without considering limb darkening
+    Both values are normalized to the out-of-transit flux of the star system.
     """
 
     nz = np.size(z)
@@ -111,7 +109,7 @@ Both values are normalized to the out-of-transit flux of the star system, meanin
     if p <= 0:
         muo1 = np.zeros(nz) + 1
         mu0 = np.zeros(nz) + 1
-        return [muo1, mu0]
+        return muo1, mu0
 
     # Case 1 - the star is unocculted:
     # only consider points with z lt 1+p
@@ -120,7 +118,7 @@ Both values are normalized to the out-of-transit flux of the star system, meanin
     if np.size(notusedyet) == 0:
         muo1 = 1 - ((1 - u1 - 2 * u2) * lambdae + (u1 + 2 * u2) * (lambdad + 2 / 3 * (p > z)) + u2 * etad) / omega
         mu0 = 1 - lambdae
-        return [muo1, mu0]
+        return muo1, mu0
 
     # Case 11 - the  source is completely occulted:
     if p >= 1:
@@ -134,7 +132,7 @@ Both values are normalized to the out-of-transit flux of the star system, meanin
             if np.size(notused2) == 0:
                 muo1 = 1 - ((1 - u1 - 2 * u2) * lambdae + (u1 + 2 * u2) * (lambdad + 2 / 3 * (p > z)) + u2 * etad) / omega
                 mu0 = 1 - lambdae
-                return [muo1, mu0]
+                return muo1, mu0
             notusedyet = notusedyet[notused2]
 
     # Case 2, 7, 8 - ingress/egress (uniform disk only)
@@ -187,7 +185,7 @@ Both values are normalized to the out-of-transit flux of the star system, meanin
             muo1 = 1 - ((1 - u1 - 2 * u2) * lambdae + (u1 + 2 * u2) *
                         (lambdad + 2 / 3 * (p > z)) + u2 * etad) / omega
             mu0 = 1 - lambdae
-            return [muo1, mu0]
+            return muo1, mu0
         notusedyet = notusedyet[notused3]
 
     # Case 2, Case 8 - ingress/egress (with limb darkening)
@@ -217,7 +215,7 @@ Both values are normalized to the out-of-transit flux of the star system, meanin
             muo1 = 1 - ((1 - u1 - 2 * u2) * lambdae + (u1 + 2 * u2) * (lambdad + 2 / 3 *
                                                                        (p > z)) + u2 * etad) / omega
             mu0 = 1 - lambdae
-            return [muo1, mu0]
+            return muo1, mu0
         notusedyet = notusedyet[notused4]
 
     # Case 3, 4, 9, 10 - planet completely inside star
@@ -245,7 +243,7 @@ Both values are normalized to the out-of-transit flux of the star system, meanin
                     muo1 = 1 - ((1 - u1 - 2 * u2) * lambdae + (u1 + 2 * u2) *
                                 (lambdad + 2 / 3 * (p > z)) + u2 * etad) / omega
                     mu0 = 1 - lambdae
-                    return [muo1, mu0]
+                    return muo1, mu0
                 ndxuse = ndxuse[notused6[0]]
 
             # Case 10 - origin of planet hits origin of star
@@ -258,7 +256,7 @@ Both values are normalized to the out-of-transit flux of the star system, meanin
                     muo1 = 1 - ((1 - u1 - 2 * u2) * lambdae + (u1 + 2 * u2) *
                                 (lambdad + 2 / 3 * (p > z)) + u2 * etad) / omega
                     mu0 = 1 - lambdae
-                    return [muo1, mu0]
+                    return muo1, mu0
                 ndxuse = ndxuse[notused7[0]]
 
             q = np.sqrt((x2[ndxuse] - x1[ndxuse]) / (1 - x1[ndxuse]))
@@ -278,13 +276,13 @@ Both values are normalized to the out-of-transit flux of the star system, meanin
         if notused5[0].size > 0:  # Uli: replaced because outdated: if notused5[0] != 0:
             print("ERROR: the following values of z didn't fit into a case:")
             print(z[notused5])  # Uli: inserted because was missing
-            return None  # Uli: replaced because outdated: return [-1, -1]
+            return None, None  # Uli: replaced because outdated: return [-1, -1]
 
         muo1 = 1 - ((1 - u1 - 2 * u2) * lambdae + (u1 + 2 * u2) * (lambdad + 2 / 3 * (p > z)) +
                     u2 * etad) / omega
         mu0 = 1 - lambdae
-        return [muo1, mu0]
-    return None
+        return muo1, mu0
+    return None, None  # Uli: inserted because was missing (should not be reached though)
 
 
 # Example call to occultquad()
