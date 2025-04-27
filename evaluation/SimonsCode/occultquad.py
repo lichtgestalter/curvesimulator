@@ -33,7 +33,7 @@ def ellke(k):
     ek2 = (b0 + m1 * (b1 + m1 * (b2 + m1 * (b3 + m1 * b4)))) * logm1
     kk = ek1 - ek2
 
-    return [ek, kk]
+    return ek, kk
 
 
 # Computes the complete elliptical integral of the third kind using
@@ -88,13 +88,9 @@ Both values are normalized to the out-of-transit flux of the star system, meanin
 
     nz = np.size(z)
     lambdad = np.zeros(nz)
-    uli = np.zeros(nz)
-    uli1 = np.zeros(nz)
-    uli2 = np.zeros(nz)
-    uli3 = np.zeros(nz)
     etad = np.zeros(nz)
     lambdae = np.zeros(nz)
-    omega = 1. - u1 / 3. - u2 / 6.
+    omega = 1 - u1 / 3 - u2 / 6
 
     # tolerance for double precision equalities
     # special case integrations
@@ -103,193 +99,190 @@ Both values are normalized to the out-of-transit flux of the star system, meanin
     p = abs(p0)
 
     z = np.where(abs(p - z) < tol, p, z)
-    z = np.where(abs((p - 1) - z) < tol, p - 1., z)
-    z = np.where(abs((1 - p) - z) < tol, 1. - p, z)
-    z = np.where(z < tol, 0., z)
+    z = np.where(abs((p - 1) - z) < tol, p - 1, z)
+    z = np.where(abs((1 - p) - z) < tol, 1 - p, z)
+    z = np.where(z < tol, 0, z)
 
-    x1 = (p - z) ** 2.
-    x2 = (p + z) ** 2.
-    x3 = p ** 2. - z ** 2.
+    x1 = (p - z) ** 2
+    x2 = (p + z) ** 2
+    x3 = p ** 2 - z ** 2
 
     # trivial case of no planet
-    if p <= 0.:
-        muo1 = np.zeros(nz) + 1.
-        mu0 = np.zeros(nz) + 1.
+    if p <= 0:
+        muo1 = np.zeros(nz) + 1
+        mu0 = np.zeros(nz) + 1
         return [muo1, mu0]
 
     # Case 1 - the star is unocculted:
     # only consider points with z lt 1+p
-    notusedyet = np.where(z < (1. + p))
+    notusedyet = np.where(z < (1 + p))
     notusedyet = notusedyet[0]
     if np.size(notusedyet) == 0:
-        muo1 = 1. - ((1. - u1 - 2. * u2) * lambdae + (u1 + 2. * u2) * (lambdad + 2. / 3. * (p > z)) +
-                     u2 * etad) / omega
-        mu0 = 1. - lambdae
+        muo1 = 1 - ((1 - u1 - 2 * u2) * lambdae + (u1 + 2 * u2) * (lambdad + 2 / 3 * (p > z)) + u2 * etad) / omega
+        mu0 = 1 - lambdae
         return [muo1, mu0]
 
     # Case 11 - the  source is completely occulted:
-    if p >= 1.:
-        occulted = np.where(z[notusedyet] <= p - 1.)  #,complement=notused2)
+    if p >= 1:
+        occulted = np.where(z[notusedyet] <= p - 1)  # ,complement=notused2)
         if np.size(occulted) != 0:
             ndxuse = notusedyet[occulted]
             etad[ndxuse] = 0.5  # corrected typo in paper
-            lambdae[ndxuse] = 1.
+            lambdae[ndxuse] = 1
             # lambdad = 0 already
             notused2 = np.where(z[notusedyet] > p - 1)
             if np.size(notused2) == 0:
-                muo1 = 1. - ((1. - u1 - 2. * u2) * lambdae + (u1 + 2. * u2) * (lambdad + 2. / 3. *
-                                                                               (p > z)) + u2 * etad) / omega
-                mu0 = 1. - lambdae
+                muo1 = 1 - ((1 - u1 - 2 * u2) * lambdae + (u1 + 2 * u2) * (lambdad + 2 / 3 * (p > z)) + u2 * etad) / omega
+                mu0 = 1 - lambdae
                 return [muo1, mu0]
             notusedyet = notusedyet[notused2]
 
     # Case 2, 7, 8 - ingress/egress (uniform disk only)
-    inegressuni = np.where((z[notusedyet] >= abs(1. - p)) & (z[notusedyet] < 1. + p))
+    inegressuni = np.where((z[notusedyet] >= abs(1 - p)) & (z[notusedyet] < 1 + p))
     if np.size(inegressuni) != 0:
         ndxuse = notusedyet[inegressuni]
-        tmp = (1. - p ** 2. + z[ndxuse] ** 2.) / 2. / z[ndxuse]
-        tmp = np.where(tmp > 1., 1., tmp)
-        tmp = np.where(tmp < -1., -1., tmp)
+        tmp = (1 - p ** 2 + z[ndxuse] ** 2) / 2 / z[ndxuse]
+        tmp = np.where(tmp > 1, 1, tmp)
+        tmp = np.where(tmp < -1, -1, tmp)
         kap1 = np.arccos(tmp)
-        tmp = (p ** 2. + z[ndxuse] ** 2 - 1.) / 2. / p / z[ndxuse]
-        tmp = np.where(tmp > 1., 1., tmp)
-        tmp = np.where(tmp < -1., -1., tmp)
+        tmp = (p ** 2 + z[ndxuse] ** 2 - 1) / 2 / p / z[ndxuse]
+        tmp = np.where(tmp > 1, 1, tmp)
+        tmp = np.where(tmp < -1, -1, tmp)
         kap0 = np.arccos(tmp)
-        tmp = 4. * z[ndxuse] ** 2 - (1. + z[ndxuse] ** 2 - p ** 2) ** 2
+        tmp = 4 * z[ndxuse] ** 2 - (1 + z[ndxuse] ** 2 - p ** 2) ** 2
         tmp = np.where(tmp < 0, 0, tmp)
         lambdae[ndxuse] = (p ** 2 * kap0 + kap1 - 0.5 * np.sqrt(tmp)) / np.pi
         # eta_1
-        etad[ndxuse] = 1. / 2. / np.pi * (kap1 + p ** 2 * (p ** 2 + 2. * z[ndxuse] ** 2) * kap0 -
-                                          (1. + 5. * p ** 2 + z[ndxuse] ** 2) / 4. * np.sqrt((1. - x1[ndxuse]) * (x2[ndxuse] - 1.)))
+        etad[ndxuse] = 1 / 2 / np.pi * (kap1 + p ** 2 * (p ** 2 + 2 * z[ndxuse] ** 2) * kap0 -
+                                        (1 + 5 * p ** 2 + z[ndxuse] ** 2) / 4 * np.sqrt((1 - x1[ndxuse]) * (x2[ndxuse] - 1)))
 
     # Case 5, 6, 7 - the edge of planet lies at origin of star
-    ocltor = np.where(z[notusedyet] == p)  #, complement=notused3)
-    t = np.where(z[notusedyet] == p)
+    ocltor = np.where(z[notusedyet] == p)  # , complement=notused3)
+    # t = np.where(z[notusedyet] == p)  # Uli: removed because never used
     if np.size(ocltor) != 0:
         ndxuse = notusedyet[ocltor]
         if p < 0.5:
             # Case 5
-            q = 2. * p  # corrected typo in paper (2k -> 2p)
-            Ek, Kk = ellke(q)
+            q = 2 * p  # corrected typo in paper (2k -> 2p)
+            ek, kk = ellke(q)
             # lambda_4
-            lambdad[ndxuse] = 1. / 3. + 2. / 9. / np.pi * (4. * (2. * p ** 2 - 1.) * Ek +
-                                                           (1. - 4. * p ** 2) * Kk)
+            lambdad[ndxuse] = 1 / 3 + 2 / 9 / np.pi * (4 * (2 * p ** 2 - 1) * ek + (1 - 4 * p ** 2) * kk)
             # eta_2
-            etad[ndxuse] = p ** 2 / 2. * (p ** 2 + 2. * z[ndxuse] ** 2)
+            etad[ndxuse] = p ** 2 / 2 * (p ** 2 + 2 * z[ndxuse] ** 2)
             lambdae[ndxuse] = p ** 2  # uniform disk
         elif p > 0.5:
             # Case 7
             q = 0.5 / p  # corrected typo in paper (1/2k -> 1/2p)
-            Ek, Kk = ellke(q)
+            ek, kk = ellke(q)
             # lambda_3
-            lambdad[ndxuse] = 1. / 3. + 16. * p / 9. / np.pi * (2. * p ** 2 - 1.) * Ek - \
-                              (32. * p ** 4 - 20. * p ** 2 + 3.) / 9. / np.pi / p * Kk
+            lambdad[ndxuse] = (1 / 3 + 16 * p / 9 / np.pi * (2 * p ** 2 - 1) * ek -
+                               (32 * p ** 4 - 20 * p ** 2 + 3) / 9 / np.pi / p * kk)
             # etad = eta_1 already
         else:
             # Case 6
-            lambdad[ndxuse] = 1. / 3. - 4. / np.pi / 9.
-            etad[ndxuse] = 3. / 32.
+            lambdad[ndxuse] = 1 / 3 - 4 / np.pi / 9
+            etad[ndxuse] = 3 / 32
         notused3 = np.where(z[notusedyet] != p)
         if np.size(notused3) == 0:
-            muo1 = 1. - ((1. - u1 - 2. * u2) * lambdae + (u1 + 2. * u2) *
-                         (lambdad + 2. / 3. * (p > z)) + u2 * etad) / omega
-            mu0 = 1. - lambdae
+            muo1 = 1 - ((1 - u1 - 2 * u2) * lambdae + (u1 + 2 * u2) *
+                        (lambdad + 2 / 3 * (p > z)) + u2 * etad) / omega
+            mu0 = 1 - lambdae
             return [muo1, mu0]
         notusedyet = notusedyet[notused3]
 
     # Case 2, Case 8 - ingress/egress (with limb darkening)
     inegress = np.where(((z[notusedyet] > 0.5 + abs(p - 0.5)) &
-                         (z[notusedyet] < 1. + p)) | \
-                        ((p > 0.5) & (z[notusedyet] > abs(1. - p)) &
-                      (z[notusedyet] < p)))  #, complement=notused4)
+                         (z[notusedyet] < 1 + p)) |
+                        ((p > 0.5) & (z[notusedyet] > abs(1 - p)) &
+                         (z[notusedyet] < p)))  # , complement=notused4)
     if np.size(inegress) != 0:
 
         ndxuse = notusedyet[inegress]
-        q = np.sqrt((1. - x1[ndxuse]) / (x2[ndxuse] - x1[ndxuse]))
-        Ek, Kk = ellke(q)
-        n = 1. / x1[ndxuse] - 1.
+        q = np.sqrt((1 - x1[ndxuse]) / (x2[ndxuse] - x1[ndxuse]))
+        ek, kk = ellke(q)
+        n = 1 / x1[ndxuse] - 1
 
         # lambda_1:
-        lambdad[ndxuse] = 2. / 9. / np.pi / np.sqrt(x2[ndxuse] - x1[ndxuse]) * \
-                          (((1. - x2[ndxuse]) * (2. * x2[ndxuse] + x1[ndxuse] - 3.) -
-                            3. * x3[ndxuse] * (x2[ndxuse] - 2.)) * Kk + (x2[ndxuse] -
-                                                                         x1[ndxuse]) * (z[ndxuse] ** 2 + 7. * p ** 2 - 4.) * Ek -
-                           3. * x3[ndxuse] / x1[ndxuse] * ellpic_bulirsch(n, q))
+        lambdad[ndxuse] = 2 / 9 / np.pi / np.sqrt(x2[ndxuse] - x1[ndxuse]) * \
+                          (((1 - x2[ndxuse]) * (2 * x2[ndxuse] + x1[ndxuse] - 3) -
+                            3 * x3[ndxuse] * (x2[ndxuse] - 2)) * kk + (x2[ndxuse] -
+                                                                       x1[ndxuse]) * (z[ndxuse] ** 2 + 7 * p ** 2 - 4) * ek -
+                           3 * x3[ndxuse] / x1[ndxuse] * ellpic_bulirsch(n, q))
 
         notused4 = np.where(((z[notusedyet] <= 0.5 + abs(p - 0.5)) |
-                             (z[notusedyet] >= 1. + p)) & ((p <= 0.5) |
-                                                        (z[notusedyet] <= abs(1. - p)) |
-                                                        (z[notusedyet] >= p)))
+                             (z[notusedyet] >= 1 + p)) & ((p <= 0.5) |
+                                                          (z[notusedyet] <= abs(1 - p)) |
+                                                          (z[notusedyet] >= p)))
         if np.size(notused4) == 0:
-            muo1 = 1. - ((1. - u1 - 2. * u2) * lambdae + (u1 + 2. * u2) * (lambdad + 2. / 3. *
-                                                                           (p > z)) + u2 * etad) / omega
-            mu0 = 1. - lambdae
+            muo1 = 1 - ((1 - u1 - 2 * u2) * lambdae + (u1 + 2 * u2) * (lambdad + 2 / 3 *
+                                                                       (p > z)) + u2 * etad) / omega
+            mu0 = 1 - lambdae
             return [muo1, mu0]
         notusedyet = notusedyet[notused4]
 
     # Case 3, 4, 9, 10 - planet completely inside star
-    if p < 1.:
-        inside = np.where(z[notusedyet] <= (1. - p))  #, complement=notused5)
+    if p < 1:
+        inside = np.where(z[notusedyet] <= (1 - p))  # , complement=notused5)
         if np.size(inside) != 0:
             ndxuse = notusedyet[inside]
 
             # eta_2
-            etad[ndxuse] = p ** 2 / 2. * (p ** 2 + 2. * z[ndxuse] ** 2)
+            etad[ndxuse] = p ** 2 / 2 * (p ** 2 + 2 * z[ndxuse] ** 2)
 
             # uniform disk
             lambdae[ndxuse] = p ** 2
 
             # Case 4 - edge of planet hits edge of star
-            edge = np.where(z[ndxuse] == 1. - p)  #, complement=notused6)
+            edge = np.where(z[ndxuse] == 1 - p)  # , complement=notused6)
             if np.size(edge[0]) != 0:
                 # lambda_5
-                lambdad[ndxuse[edge]] = 2. / 3. / np.pi * np.arccos(1. - 2. * p) - \
-                                        4. / 9. / np.pi * np.sqrt(p * (1. - p)) * (3. + 2. * p - 8. * p ** 2)
+                lambdad[ndxuse[edge]] = 2 / 3 / np.pi * np.arccos(1 - 2 * p) - \
+                                        4 / 9 / np.pi * np.sqrt(p * (1 - p)) * (3 + 2 * p - 8 * p ** 2)
                 if p > 0.5:
-                    lambdad[ndxuse[edge]] -= 2. / 3.
-                notused6 = np.where(z[ndxuse] != 1. - p)
+                    lambdad[ndxuse[edge]] -= 2 / 3
+                notused6 = np.where(z[ndxuse] != 1 - p)
                 if np.size(notused6) == 0:
-                    muo1 = 1. - ((1. - u1 - 2. * u2) * lambdae + (u1 + 2. * u2) *
-                                 (lambdad + 2. / 3. * (p > z)) + u2 * etad) / omega
-                    mu0 = 1. - lambdae
+                    muo1 = 1 - ((1 - u1 - 2 * u2) * lambdae + (u1 + 2 * u2) *
+                                (lambdad + 2 / 3 * (p > z)) + u2 * etad) / omega
+                    mu0 = 1 - lambdae
                     return [muo1, mu0]
                 ndxuse = ndxuse[notused6[0]]
 
             # Case 10 - origin of planet hits origin of star
-            origin = np.where(z[ndxuse] == 0)  #, complement=notused7)
+            origin = np.where(z[ndxuse] == 0)  # , complement=notused7)
             if np.size(origin) != 0:
                 # lambda_6
-                lambdad[ndxuse[origin]] = -2. / 3. * (1. - p ** 2) ** 1.5
+                lambdad[ndxuse[origin]] = -2 / 3 * (1 - p ** 2) ** 1.5
                 notused7 = np.where(z[ndxuse] != 0)
                 if np.size(notused7) == 0:
-                    muo1 = 1. - ((1. - u1 - 2. * u2) * lambdae + (u1 + 2. * u2) *
-                                 (lambdad + 2. / 3. * (p > z)) + u2 * etad) / omega
-                    mu0 = 1. - lambdae
+                    muo1 = 1 - ((1 - u1 - 2 * u2) * lambdae + (u1 + 2 * u2) *
+                                (lambdad + 2 / 3 * (p > z)) + u2 * etad) / omega
+                    mu0 = 1 - lambdae
                     return [muo1, mu0]
                 ndxuse = ndxuse[notused7[0]]
 
-            q = np.sqrt((x2[ndxuse] - x1[ndxuse]) / (1. - x1[ndxuse]))
-            n = x2[ndxuse] / x1[ndxuse] - 1.
-            Ek, Kk = ellke(q)
+            q = np.sqrt((x2[ndxuse] - x1[ndxuse]) / (1 - x1[ndxuse]))
+            n = x2[ndxuse] / x1[ndxuse] - 1
+            ek, kk = ellke(q)
 
             # Case 3, Case 9 - anywhere in between
             # lambda_2
-            lambdad[ndxuse] = (2. / 9. / np.pi / np.sqrt(1. - x1[ndxuse]) *
-                               ((1. - 5. * z[ndxuse] ** 2 + p ** 2 + x3[ndxuse] ** 2) * Kk +
-                               (1. - x1[ndxuse]) * (z[ndxuse] ** 2 + 7. * p ** 2 - 4.) * Ek -
-                               3. * x3[ndxuse] / x1[ndxuse] * ellpic_bulirsch(n, q)))
+            lambdad[ndxuse] = (2 / 9 / np.pi / np.sqrt(1 - x1[ndxuse]) *
+                               ((1 - 5 * z[ndxuse] ** 2 + p ** 2 + x3[ndxuse] ** 2) * kk +
+                                (1 - x1[ndxuse]) * (z[ndxuse] ** 2 + 7 * p ** 2 - 4) * ek -
+                                3 * x3[ndxuse] / x1[ndxuse] * ellpic_bulirsch(n, q)))
 
         # if there are still unused elements, there's a bug in the code
         # (please report it)
-        notused5 = np.where(z[notusedyet] > (1. - p))
-        if notused5[0].size > 0:  # Uli
-        # if notused5[0] != 0:
+        notused5 = np.where(z[notusedyet] > (1 - p))
+        if notused5[0].size > 0:  # Uli: replaced because outdated: if notused5[0] != 0:
             print("ERROR: the following values of z didn't fit into a case:")
-            return [-1, -1]
+            print(z[notused5])  # Uli: inserted because was missing
+            return None  # Uli: replaced because outdated: return [-1, -1]
 
-        muo1 = 1. - ((1. - u1 - 2. * u2) * lambdae + (u1 + 2. * u2) * (lambdad + 2. / 3. * (p > z)) +
-                     u2 * etad) / omega
-        mu0 = 1. - lambdae
+        muo1 = 1 - ((1 - u1 - 2 * u2) * lambdae + (u1 + 2 * u2) * (lambdad + 2 / 3 * (p > z)) +
+                    u2 * etad) / omega
+        mu0 = 1 - lambdae
         return [muo1, mu0]
     return None
 
