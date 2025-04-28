@@ -1,6 +1,7 @@
 import numpy as np
 from matplotlib import pyplot as plt
 
+
 # Computes Hasting's polynomial approximation for the complete
 # elliptic integral of the first (ek) and second (kk) kind
 def ellke(k):
@@ -77,10 +78,9 @@ def occultquad(z, u1, u2, p0):
     u1: <float> first quadratic limb-darkening coefficient
     u2: <float> second quadratic limb-darkening coefficient
     p0: <float> planet radius in units of stellar radii
-    ???: The measured brightness (flux) of the star system outside of transit
     Return values:
-    muo1: Normalized flux of the star system, accounting for limb-darkening
-    mu0: Normalized flux of the star system without considering limb darkening
+    muo1: <numpy array> Normalized flux of the star system, accounting for limb-darkening
+    mu0: <numpy array> Normalized flux of the star system without considering limb darkening
     Both values are normalized to the out-of-transit flux of the star system.
     """
 
@@ -201,11 +201,11 @@ def occultquad(z, u1, u2, p0):
         n = 1 / x1[ndxuse] - 1
 
         # lambda_1:
-        lambdad[ndxuse] = 2 / 9 / np.pi / np.sqrt(x2[ndxuse] - x1[ndxuse]) * \
-                          (((1 - x2[ndxuse]) * (2 * x2[ndxuse] + x1[ndxuse] - 3) -
-                            3 * x3[ndxuse] * (x2[ndxuse] - 2)) * kk + (x2[ndxuse] -
-                                                                       x1[ndxuse]) * (z[ndxuse] ** 2 + 7 * p ** 2 - 4) * ek -
-                           3 * x3[ndxuse] / x1[ndxuse] * ellpic_bulirsch(n, q))
+        lambdad[ndxuse] = (2 / 9 / np.pi / np.sqrt(x2[ndxuse] - x1[ndxuse]) *
+                           (((1 - x2[ndxuse]) * (2 * x2[ndxuse] + x1[ndxuse] - 3) -
+                            3 * x3[ndxuse] * (x2[ndxuse] - 2)) * kk +
+                           (x2[ndxuse] - x1[ndxuse]) * (z[ndxuse] ** 2 + 7 * p ** 2 - 4) * ek -
+                           3 * x3[ndxuse] / x1[ndxuse] * ellpic_bulirsch(n, q)))
 
         notused4 = np.where(((z[notusedyet] <= 0.5 + abs(p - 0.5)) |
                              (z[notusedyet] >= 1 + p)) & ((p <= 0.5) |
@@ -285,13 +285,19 @@ def occultquad(z, u1, u2, p0):
     return None, None  # Uli: inserted because was missing (should not be reached though)
 
 
-def plot_this(title, x, x_label, y_label, data_list, data_label_list, plot_file=None, legend=None, grid=None, marker='o', markersize=1, linestyle='None'):
+def plot_this(title, x, x_label, y_label, data_list, data_labels, plot_file=None,
+              legend=None, grid=None, marker='o', markersize=1, linestyle='None',
+              left=None, right=None, bottom=None, top=None):
     plt.figure(figsize=(10, 6))
-    for data, data_label in zip(data_list, data_label_list):
-        plt.plot(x, data, marker=marker, markersize=markersize, linestyle=linestyle, label=data_label)
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.title(title)
+    if left or right:
+        plt.xlim(left=left, right=right)
+    if bottom or top:
+        plt.ylim(bottom=bottom, top=top)
+    for data, data_label in zip(data_list, data_labels):
+        plt.plot(x, data, marker=marker, markersize=markersize, linestyle=linestyle, label=data_label)
     if legend:
         plt.legend()
     if grid:
@@ -302,12 +308,18 @@ def plot_this(title, x, x_label, y_label, data_list, data_label_list, plot_file=
 
 
 def main():
-    distances = np.linspace(0.0, 1.2, 300)
+    planet_radius = 0.1  # Planet radius in stellar radii
+    distances = np.linspace(0.0, 1 + planet_radius, 500)
     # distances = np.array([0.0, 0.02, 0.099, 0.2, 0.8, 1.0, 1.1])
-    limb_darkening1 = 0.6  # Limb-darkening coefficient 1
-    limb_darkening2 = 0.0  # Limb-darkening coefficient 2
-    planet_radius = 0.099  # Planet radius in stellar radii
-    muo1, mu0 = occultquad(distances, limb_darkening1, limb_darkening2, planet_radius)
-    plot_this("Occult Test", distances, "Distance", "Normed Flux", [muo1, mu0], ["muo1", "mu0"], legend=True)
+    limb_darkening1, limb_darkening2 = 0.6, 0.0  # Limb-darkening coefficients
+    muo1a, mu0 = occultquad(distances, limb_darkening1, limb_darkening2, planet_radius)
+    limb_darkening1, limb_darkening2 = 0.3, 0.3  # Limb-darkening coefficients
+    muo1b, mu0 = occultquad(distances, limb_darkening1, limb_darkening2, planet_radius)
+
+    plot_this(title="Occult Test", x=distances, x_label="Distance", y_label="Normed Flux",
+              data_list=[muo1a, muo1b], data_labels=["0.6, 0.0", "0.3, 0.3"], plot_file="TEST.png",
+              legend=True, grid=None, marker='o', markersize=1, linestyle='None',
+              left=None, right=None, bottom=None, top=None)
+
 
 main()
