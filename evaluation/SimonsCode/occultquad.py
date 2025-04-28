@@ -1,5 +1,5 @@
 import numpy as np
-
+from matplotlib import pyplot as plt
 
 # Computes Hasting's polynomial approximation for the complete
 # elliptic integral of the first (ek) and second (kk) kind
@@ -285,12 +285,29 @@ def occultquad(z, u1, u2, p0):
     return None, None  # Uli: inserted because was missing (should not be reached though)
 
 
-# Example call to occultquad()
-# distances = np.linspace(0, 2, 100)  # Distance values from 0 to 2
-distances = np.array([0.0, 0.02, 0.099, 0.2, 0.8, 1.0, 1.1])
-limb_darkening1 = 0.6  # Limb-darkening coefficient 1
-limb_darkening2 = 0.0  # Limb-darkening coefficient 2
-planet_radius = 0.099  # Planet radius in stellar radii
+def plot_this(title, x, x_label, y_label, data_list, data_label_list, plot_file=None, legend=None, grid=None, marker='o', markersize=1, linestyle='None'):
+    plt.figure(figsize=(10, 6))
+    for data, data_label in zip(data_list, data_label_list):
+        plt.plot(x, data, marker=marker, markersize=markersize, linestyle=linestyle, label=data_label)
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
+    plt.title(title)
+    if legend:
+        plt.legend()
+    if grid:
+        plt.grid(True)
+    if plot_file:
+        plt.savefig(plot_file)
+    plt.show()
 
-result = occultquad(distances, limb_darkening1, limb_darkening2, planet_radius)
-print(result)
+
+def main():
+    distances = np.linspace(0.0, 1.2, 300)
+    # distances = np.array([0.0, 0.02, 0.099, 0.2, 0.8, 1.0, 1.1])
+    limb_darkening1 = 0.6  # Limb-darkening coefficient 1
+    limb_darkening2 = 0.0  # Limb-darkening coefficient 2
+    planet_radius = 0.099  # Planet radius in stellar radii
+    muo1, mu0 = occultquad(distances, limb_darkening1, limb_darkening2, planet_radius)
+    plot_this("Occult Test", distances, "Distance", "Normed Flux", [muo1, mu0], ["muo1", "mu0"], legend=True)
+
+main()
