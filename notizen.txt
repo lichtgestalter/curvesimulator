@@ -2,14 +2,9 @@
 Recently done / in progress:
 
 NEXT:
-+        0.4.2   Trying out Rebound
-            N-Body:
-                Exostriker: laueft nicht richtig auf Windows
-                Rebound: ++
-            Parameter finden:
-                juliet: wird nicht mehr gepflegt?
-                exoplanet: wird nicht mehr gepflegt?
-                Exofast? Wirkt professionell. Laeuft vielleicht nicht auf Windows?
+        Linux Bug:
+            In Iteration 724 mit i=90 fuer alle Koerper
+            Fehler tritt gar nicht auf wenn i von SecondaryStar < 84 Grad.
 
 
         Sector 61: Daten mit besserer Qualitaet downloadbar? Es gibt 3 Kurven und 2 Pixelfiles zum Download.
@@ -299,7 +294,15 @@ I implemented all suggestions from zoom call 29.03.2022, but tried and dismissed
             Precision: Error remains below ±2×10⁻⁷ relative to the mean (1 part in 5 million).
             Periodicity of error: Repeats about every 5,500 iterations (Δt=600 s per iteration) in TOI-4504
             This indicates a highly stable system with minimal energy drift over time.
-        0.4.1   Fit simulation to d-Transits
-            Planet d's mean anomaly adjusted in the config file until d's transit at 2460736.63 happens at the right time.
-            But then the transit before was a whole day off (2460696.46 iso 2460695.53).
-            -> postponed
+    0.4.1   Fit simulation to d-Transits
+        Planet d's mean anomaly adjusted in the config file until d's transit at 2460736.63 happens at the right time.
+        But then the transit before was a whole day off (2460696.46 iso 2460695.53).
+        -> postponed
+    0.4.2   Trying out Rebound and other software
+        N-Body programs:
+            Exostriker: does not run correctly on Windows (had to rename python.exe, still had problems)
+            Rebound: Excellent package. I consider using Rebound internally in Curvesim, replacing some of my own functions.
+        Programs for estimating planet system parameters:
+            Juliet: Project inactive?
+            exoplanet: Project inactive?
+            Exofast? Seems professionell. Doubtful if it works on Windows.
