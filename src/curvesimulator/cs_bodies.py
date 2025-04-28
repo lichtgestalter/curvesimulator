@@ -202,11 +202,9 @@ class CurveSimBodies(list):
                 print(f'{round(iteration / p.iterations * 10) * 10:3d}% ', end="")
                 # print(self.energy(iteration, p))
 
-
     def calc_positions_eclipses_luminosity(self, p):
         """Calculate distances, forces, accelerations, velocities of the bodies for each iteration.
-        The resulting body positions and the lightcurve are stored for later use in the animation.
-        Body motion calculations inspired by https://colab.research.google.com/drive/1YKjSs8_giaZVrUKDhWLnUAfebuLTC-A5."""
+        The resulting body positions and the lightcurve are stored for later use in the animation."""
         results = CurveSimResults(self)
         transit_status = {}
         for body1 in self:
