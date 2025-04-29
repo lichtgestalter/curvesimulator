@@ -1,7 +1,6 @@
 import numpy as np
 from matplotlib import pyplot as plt
 
-
 # Computes Hasting's polynomial approximation for the complete
 # elliptic integral of the first (ek) and second (kk) kind
 def ellke(k):
@@ -285,9 +284,24 @@ def occultquad(z, u1, u2, p0):
     return None, None  # Uli: inserted because was missing (should not be reached though)
 
 
-def plot_this(title, x, x_label, y_label, data_list, data_labels, plot_file=None,
-              legend=None, grid=None, marker='o', markersize=1, linestyle='None',
-              left=None, right=None, bottom=None, top=None):
+def plot_this(
+        x: [list, np.ndarray],    # positions of data points on x-axis
+        data_list: list,          # each list item is a list or numpy array which will be displayed as a curve
+        data_labels: list,        # each list item is a string representing the label of a curve
+        title: str = None,        # plot title
+        x_label: str = None,      # label of x-axis
+        y_label: str = None,      # label of y-axis
+        plot_file: str = None,    # file name if the plot shall be saved as .png
+        legend: bool = None,      # display legend?
+        grid: bool = None,        # display grid?
+        marker: str = 'o',        # marker style for each data point
+        markersize: int = 1,      # marker size for each data point
+        linestyle: str = 'None',  # line connecting data points
+        left: float = None,       # cut off x-axis
+        right: float = None,      # cut off x-axis
+        bottom: float = None,     # cut off y-axis
+        top: float = None         # cut off y-axis
+) -> None:
     plt.figure(figsize=(10, 6))
     plt.xlabel(x_label)
     plt.ylabel(y_label)
@@ -316,8 +330,8 @@ def main():
     limb_darkening1, limb_darkening2 = 0.3, 0.3  # Limb-darkening coefficients
     muo1b, mu0 = occultquad(distances, limb_darkening1, limb_darkening2, planet_radius)
 
-    plot_this(title="Occult Test", x=distances, x_label="Distance", y_label="Normed Flux",
-              data_list=[muo1a, muo1b], data_labels=["0.6, 0.0", "0.3, 0.3"], plot_file="TEST.png",
+    plot_this(x=distances, data_list=[muo1a, muo1b], data_labels=["0.6, 0.0", "0.3, 0.3"],
+              title="Occult Test", x_label="Distance", y_label="Normed Flux", plot_file="TEST.png",
               legend=True, grid=None, marker='o', markersize=1, linestyle='None',
               left=None, right=None, bottom=None, top=None)
 
