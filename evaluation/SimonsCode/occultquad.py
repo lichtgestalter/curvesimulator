@@ -63,20 +63,26 @@ def ellpic_bulirsch(n, k):
             return 0.5 * np.pi * (c * m0 + d) / (m0 * (m0 + p))
 
 
+def mu(etad, lambdad, lambdae, omega, p, u1, u2, z):
+    muo1 = 1 - ((1 - u1 - 2 * u2) * lambdae + (u1 + 2 * u2) * (lambdad + 2 / 3 * (p > z)) + u2 * etad) / omega
+    mu0 = 1 - lambdae
+    return muo1, mu0
+
+
 #   Python translation of IDL code.
 #   This routine computes the lightcurve for occultation of a
 #   quadratically limb-darkened source without microlensing.  Please
 #   cite Mandel & Agol (2002) and Eastman & Agol (2008) if you make use
 #   of this routine in your research.  Please report errors or bugs to
 #   jdeast@astronomy.ohio-state.edu
-def occultquad(z, u1, u2, p0):
+def occultquad(
+        z: np.ndarray,  # distance between the centers of the star and planet in units of stellar radii
+        u1: float,      # first quadratic limb-darkening coefficient
+        u2: float,      # second quadratic limb-darkening coefficient
+        p0: float       # planet radius in units of stellar radii
+) -> tuple[np.ndarray, np.ndarray]:
     """
     See https://arxiv.org/abs/astro-ph/0210099 (Analytic Lightcurves for Planetary Transit Searches by Kaisey Mandel and Eric Agol)
-    Parameters:
-    z: <numpy array> distance between the centers of the star and planet in units of stellar radii
-    u1: <float> first quadratic limb-darkening coefficient
-    u2: <float> second quadratic limb-darkening coefficient
-    p0: <float> planet radius in units of stellar radii
     Return values:
     muo1: <numpy array> Normalized flux of the star system, accounting for limb-darkening
     mu0: <numpy array> Normalized flux of the star system without considering limb darkening
@@ -115,9 +121,7 @@ def occultquad(z, u1, u2, p0):
     notusedyet = np.where(z < (1 + p))
     notusedyet = notusedyet[0]
     if np.size(notusedyet) == 0:
-        muo1 = 1 - ((1 - u1 - 2 * u2) * lambdae + (u1 + 2 * u2) * (lambdad + 2 / 3 * (p > z)) + u2 * etad) / omega
-        mu0 = 1 - lambdae
-        return muo1, mu0
+        return mu(etad, lambdad, lambdae, omega, p, u1, u2, z)
 
     # Case 11 - the  source is completely occulted:
     if p >= 1:
@@ -129,9 +133,7 @@ def occultquad(z, u1, u2, p0):
             # lambdad = 0 already
             notused2 = np.where(z[notusedyet] > p - 1)
             if np.size(notused2) == 0:
-                muo1 = 1 - ((1 - u1 - 2 * u2) * lambdae + (u1 + 2 * u2) * (lambdad + 2 / 3 * (p > z)) + u2 * etad) / omega
-                mu0 = 1 - lambdae
-                return muo1, mu0
+                return mu(etad, lambdad, lambdae, omega, p, u1, u2, z)
             notusedyet = notusedyet[notused2]
 
     # Case 2, 7, 8 - ingress/egress (uniform disk only)
@@ -181,10 +183,7 @@ def occultquad(z, u1, u2, p0):
             etad[ndxuse] = 3 / 32
         notused3 = np.where(z[notusedyet] != p)
         if np.size(notused3) == 0:
-            muo1 = 1 - ((1 - u1 - 2 * u2) * lambdae + (u1 + 2 * u2) *
-                        (lambdad + 2 / 3 * (p > z)) + u2 * etad) / omega
-            mu0 = 1 - lambdae
-            return muo1, mu0
+            return mu(etad, lambdad, lambdae, omega, p, u1, u2, z)
         notusedyet = notusedyet[notused3]
 
     # Case 2, Case 8 - ingress/egress (with limb darkening)
@@ -211,10 +210,7 @@ def occultquad(z, u1, u2, p0):
                                                           (z[notusedyet] <= abs(1 - p)) |
                                                           (z[notusedyet] >= p)))
         if np.size(notused4) == 0:
-            muo1 = 1 - ((1 - u1 - 2 * u2) * lambdae + (u1 + 2 * u2) * (lambdad + 2 / 3 *
-                                                                       (p > z)) + u2 * etad) / omega
-            mu0 = 1 - lambdae
-            return muo1, mu0
+            return mu(etad, lambdad, lambdae, omega, p, u1, u2, z)
         notusedyet = notusedyet[notused4]
 
     # Case 3, 4, 9, 10 - planet completely inside star
@@ -239,10 +235,7 @@ def occultquad(z, u1, u2, p0):
                     lambdad[ndxuse[edge]] -= 2 / 3
                 notused6 = np.where(z[ndxuse] != 1 - p)
                 if np.size(notused6) == 0:
-                    muo1 = 1 - ((1 - u1 - 2 * u2) * lambdae + (u1 + 2 * u2) *
-                                (lambdad + 2 / 3 * (p > z)) + u2 * etad) / omega
-                    mu0 = 1 - lambdae
-                    return muo1, mu0
+                    return mu(etad, lambdad, lambdae, omega, p, u1, u2, z)
                 ndxuse = ndxuse[notused6[0]]
 
             # Case 10 - origin of planet hits origin of star
@@ -252,10 +245,7 @@ def occultquad(z, u1, u2, p0):
                 lambdad[ndxuse[origin]] = -2 / 3 * (1 - p ** 2) ** 1.5
                 notused7 = np.where(z[ndxuse] != 0)
                 if np.size(notused7) == 0:
-                    muo1 = 1 - ((1 - u1 - 2 * u2) * lambdae + (u1 + 2 * u2) *
-                                (lambdad + 2 / 3 * (p > z)) + u2 * etad) / omega
-                    mu0 = 1 - lambdae
-                    return muo1, mu0
+                    return mu(etad, lambdad, lambdae, omega, p, u1, u2, z)
                 ndxuse = ndxuse[notused7[0]]
 
             q = np.sqrt((x2[ndxuse] - x1[ndxuse]) / (1 - x1[ndxuse]))
@@ -269,23 +259,18 @@ def occultquad(z, u1, u2, p0):
                                 (1 - x1[ndxuse]) * (z[ndxuse] ** 2 + 7 * p ** 2 - 4) * ek -
                                 3 * x3[ndxuse] / x1[ndxuse] * ellpic_bulirsch(n, q)))
 
-        # if there are still unused elements, there's a bug in the code
-        # (please report it)
         notused5 = np.where(z[notusedyet] > (1 - p))
         if notused5[0].size > 0:  # Uli: replaced because outdated: if notused5[0] != 0:
-            print("ERROR: the following values of z didn't fit into a case:")
-            print(z[notused5])  # Uli: inserted because was missing
-            return None, None  # Uli: replaced because outdated: return [-1, -1]
+            print("There are still unused elements. There's a bug in the code. Please report it.")
+            raise ValueError(f"ERROR: The following values of z didn't fit into a case: {z[notused5]}")  # Uli: inserted because was missing
 
-        muo1 = 1 - ((1 - u1 - 2 * u2) * lambdae + (u1 + 2 * u2) * (lambdad + 2 / 3 * (p > z)) +
-                    u2 * etad) / omega
-        mu0 = 1 - lambdae
-        return muo1, mu0
-    return None, None  # Uli: inserted because was missing (should not be reached though)
+        return mu(etad, lambdad, lambdae, omega, p, u1, u2, z)
+
+    raise ValueError("This code should never be reached. There's a bug in the code. Please report it.")  # Uli: inserted because was missing
 
 
 def plot_this(
-        x: [list, np.ndarray],    # positions of data points on x-axis
+        x: np.ndarray,            # positions of data points on x-axis
         data_list: list,          # each list item is a list or numpy array which will be displayed as a curve
         data_labels: list,        # each list item is a string representing the label of a curve
         title: str = None,        # plot title
@@ -302,6 +287,7 @@ def plot_this(
         bottom: float = None,     # cut off y-axis
         top: float = None         # cut off y-axis
 ) -> None:
+
     plt.figure(figsize=(10, 6))
     plt.xlabel(x_label)
     plt.ylabel(y_label)
