@@ -1,6 +1,9 @@
 import numpy as np
 from matplotlib import pyplot as plt
 
+from curvesimulator import curvesim
+
+
 # Computes Hasting's polynomial approximation for the complete
 # elliptic integral of the first (ek) and second (kk) kind
 def ellke(k):
@@ -69,12 +72,6 @@ def mu(etad, lambdad, lambdae, omega, p, u1, u2, z):
     return muo1, mu0
 
 
-#   Python translation of IDL code.
-#   This routine computes the lightcurve for occultation of a
-#   quadratically limb-darkened source without microlensing.  Please
-#   cite Mandel & Agol (2002) and Eastman & Agol (2008) if you make use
-#   of this routine in your research.  Please report errors or bugs to
-#   jdeast@astronomy.ohio-state.edu
 def occultquad(
         z: np.ndarray,  # distance between the centers of the star and planet in units of stellar radii
         u1: float,      # first quadratic limb-darkening coefficient
@@ -82,6 +79,14 @@ def occultquad(
         p0: float       # planet radius in units of stellar radii
 ) -> tuple[np.ndarray, np.ndarray]:
     """
+    Python translation of IDL code.
+    This routine computes the lightcurve for occultation of a
+    quadratically limb-darkened source without microlensing.  Please
+    cite Mandel & Agol (2002) and Eastman & Agol (2008) if you make use
+    of this routine in your research.  Please report errors or bugs to
+    jdeast@astronomy.ohio-state.edu
+
+
     See https://arxiv.org/abs/astro-ph/0210099 (Analytic Lightcurves for Planetary Transit Searches by Kaisey Mandel and Eric Agol)
     Return values:
     muo1: <numpy array> Normalized flux of the star system, accounting for limb-darkening
@@ -308,16 +313,18 @@ def plot_this(
 
 
 def main():
-    planet_radius = 0.1  # Planet radius in stellar radii
-    distances = np.linspace(0.0, 1 + planet_radius, 500)
-    # distances = np.array([0.0, 0.02, 0.099, 0.2, 0.8, 1.0, 1.1])
-    limb_darkening1, limb_darkening2 = 0.6, 0.0  # Limb-darkening coefficients
-    muo1a, mu0 = occultquad(distances, limb_darkening1, limb_darkening2, planet_radius)
-    limb_darkening1, limb_darkening2 = 0.3, 0.3  # Limb-darkening coefficients
-    muo1b, mu0 = occultquad(distances, limb_darkening1, limb_darkening2, planet_radius)
+    parameters, bodies, results, lightcurve = curvesim(config_file="../configurations/Occultquad-Test.ini")
+    print(bodies)
+    print(results)
+    print(lightcurve)
 
-    plot_this(x=distances, data_list=[muo1a, muo1b], data_labels=["0.6, 0.0", "0.3, 0.3"],
-              title="Occult Test", x_label="Distance", y_label="Normed Flux", plot_file="TEST.png",
+    planet_radius = 0.1  # Planet radius in stellar radii
+    distances = np.linspace(0.0, 1 + planet_radius, 1000)
+    limb_darkening1, limb_darkening2 = 0.3, 0.3  # Limb-darkening coefficients
+    muo1, mu0 = occultquad(distances, limb_darkening1, limb_darkening2, planet_radius)
+
+    plot_this(x=distances, data_list=[muo1, lightcurve], data_labels=["Agol", "Uli"],
+              title="Occult Test", x_label="Distance", y_label="Normed Flux", plot_file="Uli_vs_Agol.png",
               legend=True, grid=None, marker='o', markersize=1, linestyle='None',
               left=None, right=None, bottom=None, top=None)
 

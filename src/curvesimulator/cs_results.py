@@ -90,32 +90,41 @@ class CurveSimResults(dict):
                 for i in transit["impacts_and_depths"]:
                     i.depth /= lightcurve_max
 
+    @staticmethod
+    def transit_full(t):
+        return not (t["Transit_params"]["T1"] is None or t["Transit_params"]["T2"] is None
+                or t["Transit_params"]["T3"] is None or t["Transit_params"]["T4"] is None)
+
+    @staticmethod
+    def transit_incomplete(t):
+        return t["Transit_params"]["T1"] is None or t["Transit_params"]["T4"] is None
+
+    @staticmethod
+    def transit_grazing(t):
+        t1t4_exist = not (t["Transit_params"]["T1"] is None or t["Transit_params"]["T4"] is None)
+        t2t3_lack = t["Transit_params"]["T2"] is None or t["Transit_params"]["T3"] is None
+        return t1t4_exist and t2t3_lack
+
     def calculate_results(self, lightcurve, p):
         """Calculate and populate the transit results and lightcurve minima."""
         del p.standard_sections
         self["ProgramParameters"] = p.__dict__
         for body in self["Bodies"]:
             for t in self["Bodies"][body]["Transits"]:
-                if t["Transit_params"]["T1"] is None or t["Transit_params"]["T4"] is None:
-                    print(f"Incomplete transit: {body} eclipsing {t["Transit_params"]["EclipsedBody"]} at T1 = {t["Transit_params"]["T1"]} ")
-                    lightcurve[-1] = lightcurve[-2] * 1.001  # Take care of an edge case by making sure there is no minimum at the end of the lightcurve.
-                else:  # grazing transit
+                if CurveSimResults.transit_grazing(t):
                     t["Transit_params"]["T14"] = t["Transit_params"]["T4"] - t["Transit_params"]["T1"]
                     min_impact_max_depth = CurveSimResults.time_of_transit(t["impacts_and_depths"])
                     t["Transit_params"]["TT"] = min_impact_max_depth.time
                     t["Transit_params"]["b"] = min_impact_max_depth.impact_parameter
                     t["Transit_params"]["depth"] = min_impact_max_depth.depth
-                if t["Transit_params"]["T2"] is not None and t["Transit_params"]["T3"] is not None:
+                if CurveSimResults.transit_full(t):
                     t["Transit_params"]["T12"] = t["Transit_params"]["T2"] - t["Transit_params"]["T1"]
                     t["Transit_params"]["T23"] = t["Transit_params"]["T3"] - t["Transit_params"]["T2"]
                     t["Transit_params"]["T34"] = t["Transit_params"]["T4"] - t["Transit_params"]["T3"]
+                if CurveSimResults.transit_incomplete(t):
+                    print(f"Incomplete transit: {body} eclipsing {t["Transit_params"]["EclipsedBody"]}, T1 = {t["Transit_params"]["T1"]} , T4 = {t["Transit_params"]["T4"]} ")
+                    lightcurve[-1] = lightcurve[-2] * 1.001  # Take care of an edge case by making sure there is no minimum at the end of the lightcurve.
                 del t["impacts_and_depths"]
-        # self["LightcurveMinima"] = lightcurve.lightcurve_minima()
-        # for i, minimum in enumerate(self["LightcurveMinima"]):
-        #     self["LightcurveMinima"][i] = CurveSimResults.iteration2time(minimum[0], p), self["LightcurveMinima"][i][1]
-        # self["LightcurveMinimaDistances"] = []
-        # for minimum1, minimum2 in zip(self["LightcurveMinima"][:-1], self["LightcurveMinima"][1:]):
-        #     self["LightcurveMinimaDistances"].append(minimum2[0] - minimum1[0])
 
     def results2json(self, bodies, filename):
         """Converts self to JSON and saves it in testjson.json"""

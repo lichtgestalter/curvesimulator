@@ -2,10 +2,7 @@
 Recently done / in progress:
 
 NEXT:
-        Linux Bug:
-            In Iteration 724 mit i=90 fuer alle Koerper
-            Fehler tritt gar nicht auf wenn i von SecondaryStar < 84 Grad.
-
+        BUG???? Warum nimmt die eclipsed area mit zunehmender Halbachse a ab?
 
         Sector 61: Daten mit besserer Qualitaet downloadbar? Es gibt 3 Kurven und 2 Pixelfiles zum Download.
             Die 2 Pixelfiles vergleichen. Habe schon cutted files gemacht.
