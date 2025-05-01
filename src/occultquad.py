@@ -329,4 +329,5 @@ def main():
               left=None, right=None, bottom=None, top=None)
 
 
-main()
+if __name__ == "__main__":
+    main()
