@@ -123,7 +123,7 @@ def calculate_semi_major_axes(P_days, M1_solar, M2_solar):
     return a1, a2, a_total
 
 def calculate_eclipse_duration(P_days, R1, R2, a, ecc, incl, omega_rad):
-    """
+    r"""
 
     \Delta t = \frac{P}{\pi} \arcsin \left( \frac{R_1 + R_2}{a} \sqrt{1 - \sin^2 i \cos^2 \omega} \right) \cdot \sqrt{\frac{1 - e^2}{1 + e\cos\nu}}
 
