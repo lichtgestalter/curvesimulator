@@ -1,7 +1,7 @@
 import numpy as np
 from matplotlib import pyplot as plt
 
-from curvesimulator import curvesim  # executed script has to be in folder src in order to run because it uses CurveSimulator's project files, not the library.
+# from curvesimulator import curvesim  # executed script has to be in folder src in order to run because it uses CurveSimulator's project files, not the library.
 
 
 # Computes Hasting's polynomial approximation for the complete

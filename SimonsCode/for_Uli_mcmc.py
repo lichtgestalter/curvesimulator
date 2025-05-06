@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import corner
 from importlib import import_module
 from cal_phot import PhotDataset
-from cal_spec import SpecDataset
+# from cal_spec import SpecDataset
 from cal_transformation import TransformationManager
 from scipy.optimize import minimize
 
