@@ -301,4 +301,4 @@ I implemented all suggestions from zoom call 29.03.2022, but tried and dismissed
         Programs for estimating planet system parameters:
             Juliet: Project inactive?
             exoplanet: Project inactive?
-            Exofast? Seems professionell. Doubtful if it works on Windows.
+            Exofast? Seems professionell. Doubtful if it works on Windows .
