@@ -133,7 +133,7 @@ VERSION 1.0.0 veroeffentlichen !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     Kleines Tool (mit tkinter) als separates Programm, zum Planen des Videos (siehe Seite "Planner" in TOI4504.xlsx)?
 
-    Systeme mt mehr als einem Stern korrekt hantieren (Initial Velocity)
+    Systeme mit mehr als einem Stern korrekt hantieren (Initial Velocity)
 
     Multiple Eclipses (e.g. Triply Eclipsing Triples, >=3 bodies in line of sight):
         Handle them correctly
