@@ -78,9 +78,9 @@ os.makedirs(base_dir, exist_ok=True)
 #system_name = "TIC159720951"  # Replace with the actual system name
 
 if phot_data:
-    phot_data.plot()  #save_path=f"{base_dir}{system_name}_photometry.pdf")
-    phot_data.plot_eclipse_zoom(eclipse="primary")  #, save_path=f"{base_dir}{system_name}_primary_eclipse_zoom.pdf")
-    phot_data.plot_eclipse_zoom(eclipse="secondary")  #, save_path=f"{base_dir}{system_name}_secondary_eclipse_zoom.pdf")
+    phot_data.plot(save_path=f"{base_dir}{system_name}_photometry.pdf")
+    phot_data.plot_eclipse_zoom(eclipse="primary", save_path=f"{base_dir}{system_name}_primary_eclipse_zoom.pdf")
+    phot_data.plot_eclipse_zoom(eclipse="secondary", save_path=f"{base_dir}{system_name}_secondary_eclipse_zoom.pdf")
 
     residuals_phot = phot_data.calculate_eclipse_residuals()
 
