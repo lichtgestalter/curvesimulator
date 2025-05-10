@@ -1,6 +1,6 @@
 #%%
-import numpy as np
-import matplotlib.pyplot as plt
+# import numpy as np
+# import matplotlib.pyplot as plt
 from importlib import import_module
 from cal_phot import PhotDataset
 # from cal_spec import SpecDataset
@@ -8,11 +8,8 @@ from cal_transformation import TransformationManager
 import os
 
 # Continue with photometry and spectroscopy setup...
-#system_name = "TIC159720951"   
-#system_name = "V1143Cyg"
-system_name = "KELT9"
-#system_name = "CVVEL"
-#system_name = "KIC06864859"
+system_name = "TOI4504"
+# system_name = "KELT9"
 spec = 0
 phot = 1
 
@@ -75,7 +72,6 @@ if spec_data:
 # Define the base directory for saving plots
 base_dir = "plots/"
 os.makedirs(base_dir, exist_ok=True)
-#system_name = "TIC159720951"  # Replace with the actual system name
 
 if phot_data:
     phot_data.plot(save_path=f"{base_dir}{system_name}_photometry.pdf")

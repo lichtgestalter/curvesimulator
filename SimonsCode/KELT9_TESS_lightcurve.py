@@ -16,7 +16,8 @@ plt.show()
 
 time_bjd = lc.time.value  
 flux = lc.flux.value      
-flux_unc = lc.flux_unc.value 
+flux_unc = lc.flux_err.value  # Uli
+# flux_unc = lc.flux_unc.value
 
 
 lightcurve_data = pd.DataFrame({
@@ -28,4 +29,4 @@ lightcurve_data = pd.DataFrame({
 
 lightcurve_data.to_csv("data/KELT9_TESS_phot.csv", index=False)
 
-print("downloaded and saved lightcurve.csv'")
+# print("downloaded and saved lightcurve.csv'")

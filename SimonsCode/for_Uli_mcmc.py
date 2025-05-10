@@ -11,11 +11,8 @@ from scipy.optimize import minimize
 
 
 # Import system-specific modules
-#system_name = "TIC159720951"   
-#system_name = "V1143Cyg"
-system_name = "KELT9"
-#system_name="CVVEL"
-#system_name = "KIC06864859"
+system_name = "TOI4504"
+# system_name = "KELT9"
 spec = 0
 phot = 1
 
