@@ -113,7 +113,7 @@ def log_probability(theta, phot_data, spec_data, para, fitting_indices, transfor
 ndim = len(fitting_indices)
 nwalkers = 32
 nsteps = 2000
-number_of_points_disregarded = 500
+number_of_points_disregarded = 500  # Uli: hiermit spielen
 
 # Initial positions
 pos = np.array(initial_values) + 1e-4 * np.random.randn(nwalkers, ndim)
@@ -131,14 +131,14 @@ print("MCMC finished!")
 flat_samples = sampler.get_chain(discard=number_of_points_disregarded, thin=10, flat=True)
 
 # Trace plots
-fig, axes = plt.subplots(ndim, figsize=(10, ndim * 2), sharex=True)
-for i, name in enumerate(fitting_indices):
-    ax = axes[i]
-    ax.plot(sampler.get_chain(discard=number_of_points_disregarded, flat=False)[:, :, i], alpha=0.5)
-    ax.set_ylabel(name)
-ax.set_xlabel("Step")
-plt.tight_layout()
-plt.show()
+# fig, axes = plt.subplots(ndim, figsize=(10, ndim * 2), sharex=True)
+# for i, name in enumerate(fitting_indices):
+#     ax = axes[i]
+#     ax.plot(sampler.get_chain(discard=number_of_points_disregarded, flat=False)[:, :, i], alpha=0.5)
+#     ax.set_ylabel(name)
+# ax.set_xlabel("Step")
+# plt.tight_layout()
+# plt.show()
 
 # Function to calculate HDI (1-sigma interval)
 def hdi(data, credible_mass=0.68):

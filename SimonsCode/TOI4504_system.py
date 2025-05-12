@@ -21,11 +21,11 @@ ldc_primary_2 = 0.3
 
 parameters = {
     "T_peri": {"value": None, "fit": False, "type": "dependent"},
-    "Tmin_pri": {"value": Tmin_pri ,"step": 1e-4, "min": 2460695.0, "max": 2460696.0, "fit": True,"type": "fitting_parameter"},  # time of primary transit
+    "Tmin_pri": {"value": Tmin_pri ,"step": 1e-4, "min": 2460695.0, "max": 2460696.0, "fit": False,"type": "fitting_parameter"},  # time of primary transit
     "Tmin_sec": {"value": None, "fit": False, "type": "dependent"},   
     "P_days": {"value": P_days, "step": 1.e-5, "min": 39.0, "max": 43.0, "fit": True, "type": "fitting_parameter"},  # orbital period
     "dPdt": {"value": 1 , "step": 1, "min": 2.5, "max": 3.0, "fit": False, "type": "fitting_parameter"},
-    "incl_deg": {"value": incl_deg, "step": 0.1, "min": 85.0, "max": 95.0, "fit":  True , "type": "fitting_parameter"},  # orbital inclination
+    "incl_deg": {"value": incl_deg, "step": 0.1, "min": 85.0, "max": 95.0, "fit":  False , "type": "fitting_parameter"},  # orbital inclination
     "Omega_deg": {"value": 0, "step": 1.0, "min": -np.inf, "max": np.inf, "fit": False, "type": "fitting_parameter"},
     "omega_deg": {"value": omega_deg, "step": 1.0, "min": -np.inf, "max": np.inf, "fit":False, "type": "fitting_parameter"},  # argument of periastron
     "ecc": {"value": ecc, "step": 1.e-2, "min": 0.0, "max": 1.0, "fit": False, "type": "fitting_parameter"},  # orbital eccentricity

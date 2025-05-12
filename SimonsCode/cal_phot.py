@@ -224,8 +224,8 @@ class PhotDataset:
 
         # Time-domain plot
         fig, ax = plt.subplots(2, 1, figsize=(10, 8), gridspec_kw={'height_ratios': [3, 1]}, sharex=True)
-        ax[0].plot(self.time_vector, self.normalized_flux, label="Observed Flux", color="black", marker="o", linestyle="None", markersize=4)
-        ax[0].plot(self.time_vector, self.photometric_model, label="Model Flux", linestyle="--", color="blue")
+        ax[0].plot(self.time_vector, self.normalized_flux, label="Observed Flux", color="black", marker="o", linestyle="None", markersize=4)  # Uli fuer Plot benutzen
+        ax[0].plot(self.time_vector, self.photometric_model, label="Model Flux", linestyle="--", color="blue") # Uli fuer Plot benutzen
         ax[0].set_ylabel("Flux")
         ax[0].legend()
         ax[0].set_title(f"Photometric Model for {self.name}")

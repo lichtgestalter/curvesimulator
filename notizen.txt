@@ -1,4 +1,23 @@
+Gespraech mit Simon, 12.05.25:
 
+Zeigt der gute Plot wirklich beide Transits?
+Die beiden Transits nebeneinander mit der gefitteten Linie plotten. (Siehe cal_phot.py 227-228)
+for_Uli_mcmc.py debuggen, damit es nicht abstuerzt, wenn man nur einen einzigen Parameter fittet (Zeilen 133-141 und 171-179)
+Aus dem CSV alle Zeilen entfernen, die nicht nahe an den beiden Transits liegen.
+Den Flux der beiden Transits getrennt voneinander auf 1 normieren.
+Zunaechst nur einen Parameter fitten. Reihenfolge:
+    P
+    T0
+    Radiusverhaeltnis R-Planet / R-Stern
+    inc
+    limb darkening
+
+(MCMC steht fuer Monte Carlo Markov Chain)
+
+
+
+
+--------------------------------------------------------
 Recently done / in progress:
 
 NEXT:
