@@ -113,8 +113,8 @@ def main():
     t88_89_df = pd.concat([t88d_df, t89d_df], ignore_index=True)
     t88_89_df.to_csv('../research/star_systems/TOI-4504/lightkurve/TOI4504_88+89_reduced_normalized.csv', sep=',', decimal='.', index=False)
 
-    plot_this(t88_89_df.time, [t88_89_df.flux], ["flux"])
-    plot_this(t88_89_df.time, [t88_89_df.flux], ["flux"], left=t88d - half_sample_duration, right=t88d + half_sample_duration)
-    plot_this(t88_89_df.time, [t88_89_df.flux], ["flux"], left=t89d - half_sample_duration, right=t89d + half_sample_duration)
+    plot_this(t88_89_df.time, [t88_89_df.flux], ["flux"], plot_file="88_89_rn.png")
+    plot_this(t88_89_df.time, [t88_89_df.flux], ["flux"], left=t88d - half_sample_duration, right=t88d + half_sample_duration, plot_file="88_rn.png")
+    plot_this(t88_89_df.time, [t88_89_df.flux], ["flux"], left=t89d - half_sample_duration, right=t89d + half_sample_duration, plot_file="89_rn.png")
 
 main()

@@ -44,6 +44,8 @@ def download_flux(sectors=None, save_plot=False, save_csv=False, save_fits=False
     # search = search_targetpixelfile("TIC 349972412", author="SPOC", sector=sectors)
     search = search_targetpixelfile("TIC 349972412", sector=sectors)
     all_tpfs = search.download_all()
+    if not all_tpfs:
+        return  # no data available
     for i, tpf in enumerate(all_tpfs):
         lc = tpf.to_lightcurve(aperture_mask='pipeline').remove_outliers()
         cut = ""
@@ -101,12 +103,12 @@ def main():
     # sectors, start, end = 61, 2459975.71, 2459976.4  # TOI4504c-Transit
     # sectors, start, end = 64, t64 - delta, t64 + delta # TOI4504c-Transit
     # sectors, start, end = 67, t67 - delta, t67 + delta # TOI4504c-Transit
-    # sectors, start, end = 88, None, None
+    sectors, start, end = 88, None, None
     # sectors, start, end = 88, t88d - delta, t88d + delta  # TOI4504d-Transit
-    # sectors, start, end = 89, None, None
-    sectors, start, end = 89, t89d - delta, t89d + delta  # TOI4504d-Transit
+    # sectors, start, end = 89, t89d - delta, t89d + delta  # TOI4504d-Transit
 
-    download_flux(sectors, save_plot=True, save_csv=True, save_fits=True, start=start, end=end)
+    # download_flux(sectors, save_plot=True, save_csv=True, save_fits=True, start=start, end=end)
+    download_flux(91)
 
 
 main()
