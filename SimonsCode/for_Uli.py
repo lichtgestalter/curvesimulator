@@ -1,6 +1,3 @@
-#%%
-# import numpy as np
-# import matplotlib.pyplot as plt
 from importlib import import_module
 from cal_phot import PhotDataset
 # from cal_spec import SpecDataset
@@ -9,7 +6,6 @@ import os
 
 # Continue with photometry and spectroscopy setup...
 system_name = "TOI4504"
-# system_name = "KELT9"
 spec = 0
 phot = 1
 

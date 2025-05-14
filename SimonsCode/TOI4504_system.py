@@ -1,7 +1,7 @@
 import numpy as np
 
-data_file = 'data/TOI4504_88+89.csv'
-# data_file = '../research/star_systems/TOI-4504/lightkurve/88/88_0.csv'
+# data_file = 'data/TOI4504_88+89.csv'
+data_file = '../research/star_systems/TOI-4504/lightkurve/TOI4504_88+89_reduced_normalized.csv'
 
 au = 1.495978707e11                          # [m] astronomical unit
 r_sun = 6.96342e8                            # [m] solar radius

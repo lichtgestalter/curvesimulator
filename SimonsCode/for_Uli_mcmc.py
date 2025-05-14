@@ -12,7 +12,6 @@ from scipy.optimize import minimize
 
 # Import system-specific modules
 system_name = "TOI4504"
-# system_name = "KELT9"
 spec = 0
 phot = 1
 
@@ -131,14 +130,15 @@ print("MCMC finished!")
 flat_samples = sampler.get_chain(discard=number_of_points_disregarded, thin=10, flat=True)
 
 # Trace plots
-# fig, axes = plt.subplots(ndim, figsize=(10, ndim * 2), sharex=True)
-# for i, name in enumerate(fitting_indices):
-#     ax = axes[i]
-#     ax.plot(sampler.get_chain(discard=number_of_points_disregarded, flat=False)[:, :, i], alpha=0.5)
-#     ax.set_ylabel(name)
-# ax.set_xlabel("Step")
-# plt.tight_layout()
-# plt.show()
+if ndim > 1:
+    fig, axes = plt.subplots(ndim, figsize=(10, ndim * 2), sharex=True)
+    for i, name in enumerate(fitting_indices):
+        ax = axes[i]
+        ax.plot(sampler.get_chain(discard=number_of_points_disregarded, flat=False)[:, :, i], alpha=0.5)
+        ax.set_ylabel(name)
+    ax.set_xlabel("Step")
+    plt.tight_layout()
+    plt.show()
 
 # Function to calculate HDI (1-sigma interval)
 def hdi(data, credible_mass=0.68):
@@ -165,29 +165,26 @@ for i, name in enumerate(fitting_indices):
     print(f"{name}: HDI = [{hdi_min:.6f}, {hdi_max:.6f}], Max Likelihood = {max_likelihood_params[i]:.6f}")
 
 
-
 # Histograms for each parameter
-fig, axes = plt.subplots(ndim, figsize=(10, ndim * 2))
-for i, name in enumerate(fitting_indices):
-    ax = axes[i]
-    ax.hist(flat_samples[:, i], bins=30, density=True, alpha=0.7, color="blue", edgecolor="black")
-    ax.axvline(max_likelihood_params[i], color="red", linestyle="--", label="Max Likelihood")
-    ax.axvline(hdi_results[name][0], color="green", linestyle="--", label="HDI Lower Bound")
-    ax.axvline(hdi_results[name][1], color="green", linestyle="--", label="HDI Upper Bound")
-    ax.set_xlabel(name)
-    ax.set_ylabel("Density")
-    ax.legend()
-plt.tight_layout()
-plt.show()
+if ndim > 1:
+    fig, axes = plt.subplots(ndim, figsize=(10, ndim * 2))
+    for i, name in enumerate(fitting_indices):
+        ax = axes[i]
+        ax.hist(flat_samples[:, i], bins=30, density=True, alpha=0.7, color="blue", edgecolor="black")
+        ax.axvline(max_likelihood_params[i], color="red", linestyle="--", label="Max Likelihood")
+        ax.axvline(hdi_results[name][0], color="green", linestyle="--", label="HDI Lower Bound")
+        ax.axvline(hdi_results[name][1], color="green", linestyle="--", label="HDI Upper Bound")
+        ax.set_xlabel(name)
+        ax.set_ylabel("Density")
+        ax.legend()
+    plt.tight_layout()
+    plt.show()
 
-# Corner plot with best-fit parameters
-fig = corner.corner(
-    flat_samples,
-    labels=fitting_indices,
-    truths=max_likelihood_params,
-    title_fmt=".4f",
-)
-plt.show()
-
-
-# %%
+    # Corner plot with best-fit parameters
+    fig = corner.corner(
+        flat_samples,
+        labels=fitting_indices,
+        truths=max_likelihood_params,
+        title_fmt=".4f",
+    )
+    plt.show()
