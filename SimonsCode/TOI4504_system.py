@@ -15,34 +15,34 @@ ecc = 0.0                                    # [1] orbital eccentricity
 R1a = 0.92 * r_sun / (0.2219 * au)           # [1] radius of primary star in units of the semi-major axis: R/a       (0.019299)
 R2a = 0.86 * r_jup / (0.2219 * au)           # radius of secondary star/body(?) in units of the semi-major axis: R/a (0.001852)
                                              # (but for the planet case R2/R1 would be a better stepping parameter)
-ldc_primary_1 = 0.3
-ldc_primary_2 = 0.3
+ldc_primary_1 = 0.48
+ldc_primary_2 = 0.21
 
 parameters = {
-    "T_peri": {"value": None, "fit": False, "type": "dependent"},
-    "Tmin_pri": {"value": Tmin_pri ,"step": 1e-5, "min": 2460695.4, "max": 2460695.66, "fit": False,"type": "fitting_parameter"},  # time of primary transit
-    "Tmin_sec": {"value": None, "fit": False, "type": "dependent"},   
-    "P_days": {"value": P_days, "step": 1.e-6, "min": 41.08, "max": 41.12, "fit": True, "type": "fitting_parameter"},  # orbital period
-    "dPdt": {"value": 1 , "step": 0.1, "min": 2.5, "max": 3.0, "fit": False, "type": "fitting_parameter"},
-    "incl_deg": {"value": incl_deg, "step": 0.001, "min": 88.0, "max": 90.0, "fit":  True , "type": "fitting_parameter"},  # orbital inclination
-    "Omega_deg": {"value": 0, "step": 0.1, "min": -np.inf, "max": np.inf, "fit": False, "type": "fitting_parameter"},
-    "omega_deg": {"value": omega_deg, "step": 0.1, "min": -np.inf, "max": np.inf, "fit":False, "type": "fitting_parameter"},  # argument of periastron
-    "ecc": {"value": ecc, "step": 1.e-3, "min": 0.0, "max": 1.0, "fit": False, "type": "fitting_parameter"},  # orbital eccentricity
-    "sqrt_ecc_sin_omega":{"value":np.sqrt(0.)*np.sin(np.deg2rad(90)), "step": 1.e-4, "min": -1., "max": 1.0, "fit": False , "type": "fitting_parameter"},
-    "sqrt_ecc_cos_omega":{"value":np.sqrt(0.)*np.cos(np.deg2rad(90)), "step": 1.e-4, "min": -1., "max": 1.0, "fit": False, "type": "fitting_parameter"},
+    "T_peri": {"value": None,                                                                     "fit": False, "type": "dependent"},
+    "Tmin_pri": {"value": Tmin_pri ,          "step": 1e-5,  "min": 2460695.4, "max": 2460695.66, "fit": False, "type": "fitting_parameter"},  # time of primary transit
+    "Tmin_sec": {"value": None,                                                                   "fit": False, "type": "dependent"},
+    "P_days": {"value": P_days,               "step": 1.e-6, "min": 41.08,     "max": 41.12,      "fit": False, "type": "fitting_parameter"},  # orbital period
+    "dPdt": {"value": 1 ,                     "step": 0.1,   "min": 2.5,       "max": 3.0,        "fit": False, "type": "fitting_parameter"},
+    "incl_deg": {"value": incl_deg,           "step": 0.001, "min": 88.0,      "max": 90.0,       "fit": False, "type": "fitting_parameter"},  # orbital inclination
+    "Omega_deg": {"value": 0,                 "step": 0.1,   "min": -np.inf,   "max": np.inf,     "fit": False, "type": "fitting_parameter"},
+    "omega_deg": {"value": omega_deg,         "step": 0.1,   "min": -np.inf,   "max": np.inf,     "fit": False, "type": "fitting_parameter"},  # argument of periastron
+    "ecc": {"value": ecc,                     "step": 1.e-3, "min": 0.0,       "max": 1.0,        "fit": False, "type": "fitting_parameter"},  # orbital eccentricity
+    "sqrt_ecc_sin_omega": {"value": np.sqrt(0.)*np.sin(np.deg2rad(90)), "step": 1.e-4, "min": -1., "max": 1.0, "fit": False , "type": "fitting_parameter"},
+    "sqrt_ecc_cos_omega": {"value": np.sqrt(0.)*np.cos(np.deg2rad(90)), "step": 1.e-4, "min": -1., "max": 1.0, "fit": False, "type": "fitting_parameter"},
     
 
-    "R1a": {"value": R1a, "step": 1.e-7, "min": 0.01, "max": 0.03, "fit": False, "type": "fitting_parameter"},  # radius of primary star in units of the semi-major axis: R/a
-    "R2a": {"value": R2a, "step": 1.e-8, "min": 0.001, "max": 0.003, "fit": False, "type": "fitting_parameter"},  # radius of secondary star/body(?) in units of the semi-major axis: R/a (but for the planet case R2/R1 would be a better stepping parameter)
-    "systemic_velocity_kms": {"value": 13.18, "step": 0.1, "min": 0, "max": 30, "fit": False , "type": "fitting_parameter"},
-    "M1_solar": {"value": 1.8, "step": 1.e-3, "min": 0.05, "max": 5, "fit": False , "type": "fitting_parameter"},
-    "M2_solar": {"value": 1.6, "step": 1.e-3, "min": 0.05, "max": 5, "fit": False , "type": "fitting_parameter"},
-    "ldc_primary_1": {"value": ldc_primary_1, "step": 1.e-3, "min": 0.0, "max": 1.0, "fit": False , "type": "fitting_parameter"},  # linear limb darkening parameter
-    "ldc_primary_2": {"value": ldc_primary_2, "step": 1.e-3, "min": 0.0, "max": 1.0, "fit": False , "type": "fitting_parameter"},  # quadratic limb darkening parameter
-    "ldc_secondary_1": {"value": 0.3, "step": 1.e-3, "min": 0.0, "max": 1.0, "fit": False, "type": "fitting_parameter"},
-    "ldc_secondary_2": {"value": 0.3, "step": 1.e-3, "min": 0.0, "max": 1.0, "fit": False , "type": "fitting_parameter"},
-    "lphot_primary": {"value": 1.0, "step": 1.e-3, "min": 0.0, "max": 10.0, "fit": False, "type": "fitting_parameter"},
-    "lphot_secondary": {"value": 0.000286, "step": 1.e-6, "min": 0.0, "max": 10.0, "fit": False, "type": "fitting_parameter"},
+    "R1a": {"value": R1a,                     "step": 1.e-7, "min": 0.019,     "max": 0.020,      "fit": True,  "type": "fitting_parameter"},  # radius of primary star in units of the semi-major axis: R/a
+    "R2a": {"value": R2a,                     "step": 1.e-8, "min": 0.0016,    "max": 0.0021,     "fit": True,  "type": "fitting_parameter"},  # radius of secondary star/body(?) in units of the semi-major axis: R/a (but for the planet case R2/R1 would be a better stepping parameter)
+    "systemic_velocity_kms": {"value": 13.18, "step": 0.1,   "min": 0,         "max": 30,         "fit": False, "type": "fitting_parameter"},
+    "M1_solar": {"value": 1.8,                "step": 1.e-3, "min": 0.05,      "max": 5,          "fit": False, "type": "fitting_parameter"},
+    "M2_solar": {"value": 1.6,                "step": 1.e-3, "min": 0.05,      "max": 5,          "fit": False, "type": "fitting_parameter"},
+    "ldc_primary_1": {"value": ldc_primary_1, "step": 1.e-3, "min": 0.0,       "max": 1.0,        "fit": False, "type": "fitting_parameter"},  # linear limb darkening parameter
+    "ldc_primary_2": {"value": ldc_primary_2, "step": 1.e-3, "min": 0.0,       "max": 1.0,        "fit": False, "type": "fitting_parameter"},  # quadratic limb darkening parameter
+    "ldc_secondary_1": {"value": 0.3,         "step": 1.e-3, "min": 0.0,       "max": 1.0,        "fit": False, "type": "fitting_parameter"},
+    "ldc_secondary_2": {"value": 0.3,         "step": 1.e-3, "min": 0.0,       "max": 1.0,        "fit": False, "type": "fitting_parameter"},
+    "lphot_primary": {"value": 1.0,           "step": 1.e-3, "min": 0.0,       "max": 10.0,       "fit": False, "type": "fitting_parameter"},
+    "lphot_secondary": {"value": 0.000286,    "step": 1.e-6, "min": 0.0,       "max": 10.0,       "fit": False, "type": "fitting_parameter"},
     
     # Spectroscopic Parameters for Primary
     "primary_vsini": {"value": 33.0, "step": 0.5, "min": 20.0, "max": 50.0, "fit": False, "type": "fitting_parameter"},
