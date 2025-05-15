@@ -135,7 +135,7 @@ class PhotDataset:
         """
         Compute the photometric light curves for the binary system using relative positions.
         """
-        rel_x = self.orbit.positions1[0] / self.para["R1a"]
+        rel_x = self.orbit.positions1[0] / self.para["R1a"]  # Uli: ?
         rel_y = self.orbit.positions1[1] / self.para["R1a"]
         rel_z = self.orbit.positions1[2] / self.para["R1a"]
         distances = np.sqrt(rel_x**2 + rel_y**2)
@@ -146,7 +146,7 @@ class PhotDataset:
         secondary_flux = np.ones_like(rel_x, dtype=float)
 
         # Eclipse conditions for occultation
-        eclipse_condition = distances <= 1 + self.para["R2a"] / self.para["R1a"]
+        eclipse_condition = distances <= 1 + self.para["R2R1"]
         is_secondary_in_front = rel_z > 0
 
         # Primary star eclipsed
@@ -156,22 +156,22 @@ class PhotDataset:
             distances[pri_eclipse_indices],
             self.para["ldc_primary_1"],
             self.para["ldc_primary_2"],
-            (self.para["R2a"] / self.para["R1a"])
+            (self.para["R2R1"])
         )[0]
         primary_flux[pri_eclipse_indices] = eclipse_primary_flux
 
-        # Secondary star eclipsed
-        sec_eclipse_mask = eclipse_condition & ~is_secondary_in_front
-        sec_eclipse_indices = np.where(sec_eclipse_mask)[0]
-        eclipse_secondary_flux = occultquad(
-            distances[sec_eclipse_indices],
-            self.para["ldc_secondary_1"],
-            self.para["ldc_secondary_2"],
-            (self.para["R1a"] / self.para["R2a"])
-        )[0]
-        secondary_flux[sec_eclipse_indices] = eclipse_secondary_flux
+        # # Secondary star eclipsed
+        # sec_eclipse_mask = eclipse_condition & ~is_secondary_in_front
+        # sec_eclipse_indices = np.where(sec_eclipse_mask)[0]
+        # eclipse_secondary_flux = occultquad(
+        #     distances[sec_eclipse_indices],
+        #     self.para["ldc_secondary_1"],
+        #     self.para["ldc_secondary_2"],
+        #     (self.para["R1a"] / self.para["R2a"])
+        # )[0]
+        # secondary_flux[sec_eclipse_indices] = eclipse_secondary_flux
 
-        return primary_flux, secondary_flux
+        return primary_flux, 0 # secondary_flux
 
     def calculate_eclipse_residuals(self):
         """

@@ -14,15 +14,16 @@ omega_deg = 0.0                              # [deg] argument of periastron
 ecc = 0.0                                    # [1] orbital eccentricity
 R1a = 0.92 * r_sun / (0.2219 * au)           # [1] radius of primary star in units of the semi-major axis: R/a       (0.019299)
 R2a = 0.86 * r_jup / (0.2219 * au)           # radius of secondary star/body(?) in units of the semi-major axis: R/a (0.001852)
-                                             # (but for the planet case R2/R1 would be a better stepping parameter)
+R2R1 = R2a / R1a                             # but for the planet case R2/R1 is a better stepping parameter (0.0959)
+
 ldc_primary_1 = 0.48
 ldc_primary_2 = 0.21
 
 parameters = {
     "T_peri": {"value": None,                                                                     "fit": False, "type": "dependent"},
-    "Tmin_pri": {"value": Tmin_pri ,          "step": 1e-5,  "min": 2460695.4, "max": 2460695.66, "fit": False, "type": "fitting_parameter"},  # time of primary transit
+    "Tmin_pri": {"value": Tmin_pri ,          "step": 1e-5,  "min": 2460695.4, "max": 2460695.66, "fit": True, "type": "fitting_parameter"},  # time of primary transit
     "Tmin_sec": {"value": None,                                                                   "fit": False, "type": "dependent"},
-    "P_days": {"value": P_days,               "step": 1.e-6, "min": 41.08,     "max": 41.12,      "fit": False, "type": "fitting_parameter"},  # orbital period
+    "P_days": {"value": P_days,               "step": 1.e-5, "min": 41.08,     "max": 41.12,      "fit": True,  "type": "fitting_parameter"},  # orbital period
     "dPdt": {"value": 1 ,                     "step": 0.1,   "min": 2.5,       "max": 3.0,        "fit": False, "type": "fitting_parameter"},
     "incl_deg": {"value": incl_deg,           "step": 0.001, "min": 88.0,      "max": 90.0,       "fit": False, "type": "fitting_parameter"},  # orbital inclination
     "Omega_deg": {"value": 0,                 "step": 0.1,   "min": -np.inf,   "max": np.inf,     "fit": False, "type": "fitting_parameter"},
@@ -30,10 +31,10 @@ parameters = {
     "ecc": {"value": ecc,                     "step": 1.e-3, "min": 0.0,       "max": 1.0,        "fit": False, "type": "fitting_parameter"},  # orbital eccentricity
     "sqrt_ecc_sin_omega": {"value": np.sqrt(0.)*np.sin(np.deg2rad(90)), "step": 1.e-4, "min": -1., "max": 1.0, "fit": False , "type": "fitting_parameter"},
     "sqrt_ecc_cos_omega": {"value": np.sqrt(0.)*np.cos(np.deg2rad(90)), "step": 1.e-4, "min": -1., "max": 1.0, "fit": False, "type": "fitting_parameter"},
-    
 
-    "R1a": {"value": R1a,                     "step": 1.e-7, "min": 0.019,     "max": 0.020,      "fit": True,  "type": "fitting_parameter"},  # radius of primary star in units of the semi-major axis: R/a
-    "R2a": {"value": R2a,                     "step": 1.e-8, "min": 0.0016,    "max": 0.0021,     "fit": True,  "type": "fitting_parameter"},  # radius of secondary star/body(?) in units of the semi-major axis: R/a (but for the planet case R2/R1 would be a better stepping parameter)
+    "R1a": {"value": R1a,                     "step": 1.e-7, "min": 0.019,     "max": 0.020,      "fit": False,  "type": "fitting_parameter"},  # radius of primary star in units of the semi-major axis: R1/a
+    # "R2a": {"value": R2R1,                     "step": 1.e-5, "min": 0.0016,    "max": 0.0021,     "fit": True,  "type": "fitting_parameter"},  # radius of secondary star in units of the semi-major axis: R2/a
+    "R2R1": {"value": R2R1,                   "step": 1.e-6, "min": 0.09,      "max": 0.10,       "fit": False, "type": "fitting_parameter"},  # but for the planet case R2/R1 is a better stepping parameter
     "systemic_velocity_kms": {"value": 13.18, "step": 0.1,   "min": 0,         "max": 30,         "fit": False, "type": "fitting_parameter"},
     "M1_solar": {"value": 1.8,                "step": 1.e-3, "min": 0.05,      "max": 5,          "fit": False, "type": "fitting_parameter"},
     "M2_solar": {"value": 1.6,                "step": 1.e-3, "min": 0.05,      "max": 5,          "fit": False, "type": "fitting_parameter"},
