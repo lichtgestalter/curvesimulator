@@ -122,7 +122,7 @@ def hdi(data, credible_mass=0.68):
 # MCMC setup
 ndim = len(fitting_indices)
 nwalkers = 32
-nsteps = 2000
+nsteps = 100
 number_of_points_disregarded = 5  # Uli: hiermit spielen
 
 # Initial positions
@@ -144,7 +144,7 @@ flat_samples = sampler.get_chain(discard=number_of_points_disregarded, thin=10, 
 fig, axes = plt.subplots(ndim, figsize=(10, ndim * 2), sharex=True)
 if ndim == 1:
     axes = [axes]
-chains = sampler.get_chain(discard=number_of_points_disregarded, flat=False)  falsch
+chains = np.moveaxis(sampler.get_chain(discard=number_of_points_disregarded, flat=False), -1, 0)
 for chain, ax, name in zip(chains, axes, fitting_indices):
     ax.plot(chain, alpha=0.5)
     ax.set_ylabel(name)

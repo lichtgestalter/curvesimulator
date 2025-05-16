@@ -23,7 +23,7 @@ parameters = {
     "T_peri": {"value": None,                                                                     "fit": False, "type": "dependent"},
     "Tmin_pri": {"value": Tmin_pri ,          "step": 1e-5,  "min": 2460695.4, "max": 2460695.66, "fit": True, "type": "fitting_parameter"},  # time of primary transit
     "Tmin_sec": {"value": None,                                                                   "fit": False, "type": "dependent"},
-    "P_days": {"value": P_days,               "step": 1.e-5, "min": 41.08,     "max": 41.12,      "fit": False, "type": "fitting_parameter"},  # orbital period
+    "P_days": {"value": P_days,               "step": 1.e-5, "min": 41.08,     "max": 41.12,      "fit": True, "type": "fitting_parameter"},  # orbital period
     "dPdt": {"value": 1 ,                     "step": 0.1,   "min": 2.5,       "max": 3.0,        "fit": False, "type": "fitting_parameter"},
     "incl_deg": {"value": incl_deg,           "step": 0.001, "min": 88.0,      "max": 90.0,       "fit": False, "type": "fitting_parameter"},  # orbital inclination
     "Omega_deg": {"value": 0,                 "step": 0.1,   "min": -np.inf,   "max": np.inf,     "fit": False, "type": "fitting_parameter"},
