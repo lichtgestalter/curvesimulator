@@ -122,8 +122,8 @@ def hdi(data, credible_mass=0.68):
 # MCMC setup
 ndim = len(fitting_indices)
 nwalkers = 32
-nsteps = 100
-number_of_points_disregarded = 5  # Uli: hiermit spielen
+nsteps = 50
+number_of_points_disregarded = 1  # Uli: hiermit spielen
 
 # Initial positions
 pos = np.array(initial_values) + 1e-4 * np.random.randn(nwalkers, ndim)
