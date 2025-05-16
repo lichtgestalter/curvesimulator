@@ -122,7 +122,7 @@ def hdi(data, credible_mass=0.68):
 # MCMC setup
 ndim = len(fitting_indices)
 nwalkers = 32
-nsteps = 50
+nsteps = 500
 number_of_points_disregarded = 1  # Uli: hiermit spielen
 
 # Initial positions
