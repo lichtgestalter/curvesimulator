@@ -15,7 +15,6 @@ system_name = "TOI4504"
 spec = 0
 phot = 1
 
-
 system_module = import_module(f"{system_name}_system")
 
 # Extract system functions and parameters
@@ -108,6 +107,18 @@ def log_probability(theta, phot_data, spec_data, para, fitting_indices, transfor
     return lp + log_likelihood(theta, phot_data, spec_data, para, fitting_indices, transformer)
 
 
+# Function to calculate HDI (1-sigma interval)
+def hdi(data, credible_mass=0.68):
+    sorted_data = np.sort(data)
+    n = len(sorted_data)
+    interval_idx_inc = int(np.floor(credible_mass * n))
+    intervals = sorted_data[interval_idx_inc:] - sorted_data[:n - interval_idx_inc]
+    min_idx = np.argmin(intervals)
+    hdi_min = sorted_data[min_idx]
+    hdi_max = sorted_data[min_idx + interval_idx_inc]
+    return hdi_min, hdi_max
+
+
 # MCMC setup
 ndim = len(fitting_indices)
 nwalkers = 32
@@ -133,23 +144,16 @@ flat_samples = sampler.get_chain(discard=number_of_points_disregarded, thin=10, 
 fig, axes = plt.subplots(ndim, figsize=(10, ndim * 2), sharex=True)
 if ndim == 1:
     axes = [axes]
-for i, ax, name in zip(range(ndim), axes, fitting_indices):
-    ax.plot(sampler.get_chain(discard=number_of_points_disregarded, flat=False)[:, :, i], alpha=0.5)
+curve_list = sampler.get_chain(discard=number_of_points_disregarded, flat=False).T
+for curve, ax, name in zip(curve_list, axes, fitting_indices):
+    print(curve, curve_list)
+    print(f"{type(curve)=}")
+    print(f"{type(curve_list)=}")
+    ax.plot(curve, alpha=0.5)
     ax.set_ylabel(name)
     ax.set_xlabel("Step")
 plt.tight_layout()
 plt.show()
-
-# Function to calculate HDI (1-sigma interval)
-def hdi(data, credible_mass=0.68):
-    sorted_data = np.sort(data)
-    n = len(sorted_data)
-    interval_idx_inc = int(np.floor(credible_mass * n))
-    intervals = sorted_data[interval_idx_inc:] - sorted_data[:n - interval_idx_inc]
-    min_idx = np.argmin(intervals)
-    hdi_min = sorted_data[min_idx]
-    hdi_max = sorted_data[min_idx + interval_idx_inc]
-    return hdi_min, hdi_max
 
 # Maximum likelihood parameters
 log_prob_samples = sampler.get_log_prob(flat=True, discard=number_of_points_disregarded, thin=10)
@@ -168,9 +172,9 @@ for i, name in enumerate(fitting_indices):
 fig, axes = plt.subplots(ndim, figsize=(10, ndim * 2))
 if ndim == 1:
     axes = [axes]
-for i, ax, name in zip(range(ndim), axes, fitting_indices):
-    ax.hist(flat_samples[:, i], bins=30, density=True, alpha=0.7, color="blue", edgecolor="black")
-    ax.axvline(max_likelihood_params[i], color="red", linestyle="--", label="Max Likelihood")
+for sample, max_likelihood_param, ax, name in zip(flat_samples.T, max_likelihood_params, axes, fitting_indices):
+    ax.hist(sample, bins=30, density=True, alpha=0.7, color="blue", edgecolor="black")
+    ax.axvline(max_likelihood_param, color="red", linestyle="--", label="Max Likelihood")
     ax.axvline(hdi_results[name][0], color="green", linestyle="--", label="HDI Lower Bound")
     ax.axvline(hdi_results[name][1], color="green", linestyle="--", label="HDI Upper Bound")
     ax.set_xlabel(name)
