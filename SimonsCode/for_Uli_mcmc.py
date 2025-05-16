@@ -144,12 +144,9 @@ flat_samples = sampler.get_chain(discard=number_of_points_disregarded, thin=10, 
 fig, axes = plt.subplots(ndim, figsize=(10, ndim * 2), sharex=True)
 if ndim == 1:
     axes = [axes]
-curve_list = sampler.get_chain(discard=number_of_points_disregarded, flat=False).T
-for curve, ax, name in zip(curve_list, axes, fitting_indices):
-    print(curve, curve_list)
-    print(f"{type(curve)=}")
-    print(f"{type(curve_list)=}")
-    ax.plot(curve, alpha=0.5)
+chains = sampler.get_chain(discard=number_of_points_disregarded, flat=False).T
+for chain, ax, name in zip(chains, axes, fitting_indices):
+    ax.plot(chain, alpha=0.5)
     ax.set_ylabel(name)
     ax.set_xlabel("Step")
 plt.tight_layout()
@@ -172,9 +169,9 @@ for i, name in enumerate(fitting_indices):
 fig, axes = plt.subplots(ndim, figsize=(10, ndim * 2))
 if ndim == 1:
     axes = [axes]
-for sample, max_likelihood_param, ax, name in zip(flat_samples.T, max_likelihood_params, axes, fitting_indices):
+for sample, param, ax, name in zip(flat_samples.T, max_likelihood_params, axes, fitting_indices):
     ax.hist(sample, bins=30, density=True, alpha=0.7, color="blue", edgecolor="black")
-    ax.axvline(max_likelihood_param, color="red", linestyle="--", label="Max Likelihood")
+    ax.axvline(param, color="red", linestyle="--", label="Max Likelihood")
     ax.axvline(hdi_results[name][0], color="green", linestyle="--", label="HDI Lower Bound")
     ax.axvline(hdi_results[name][1], color="green", linestyle="--", label="HDI Upper Bound")
     ax.set_xlabel(name)
