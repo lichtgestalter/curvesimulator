@@ -49,6 +49,8 @@ R2R1: HDI = [0.095887, 0.096047], Max Likelihood = 0.095865
 
 P_days: HDI = [41.089731, 41.115243], Max Likelihood = 41.101225
 
+Tmin_pri: HDI = [2460736.615742, 2460736.653061], Max Likelihood = 2460736.639237
+
 
 --------------------------------------------------------
 Recently done / in progress:

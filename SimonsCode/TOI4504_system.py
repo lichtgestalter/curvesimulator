@@ -1,13 +1,16 @@
 import numpy as np
 
 # data_file = 'data/TOI4504_88+89.csv'
-data_file = '../research/star_systems/TOI-4504/lightkurve/TOI4504_88+89_reduced_normalized.csv'
+# data_file = '../research/star_systems/TOI-4504/lightkurve/TOI4504_88+89_reduced_normalized.csv'
+# data_file = '../research/star_systems/TOI-4504/lightkurve/88/TOI4504_88_reduced_normalized.csv'
+data_file = '../research/star_systems/TOI-4504/lightkurve/89/TOI4504_89_reduced_normalized.csv'
 
 au = 1.495978707e11                          # [m] astronomical unit
 r_sun = 6.96342e8                            # [m] solar radius
 r_jup = 7.1492e7                             # [m] Jupiter radius
 
-Tmin_pri = 2460695.538                       # [days] time of primary transit (BJD)
+# Tmin_pri = 2460695.538                       # [days] time of primary transit (BJD)   (sector 88)
+Tmin_pri = 2460736.635                       # [days] time of primary transit (BJD)    (sector 89)
 P_days = 41.101                              # [days] orbital period
 incl_deg = 89.01                              # [deg] orbital inclination
 omega_deg = 0.0                              # [deg] argument of periastron
@@ -21,9 +24,11 @@ ldc_primary_2 = 0.21
 
 parameters = {
     "T_peri": {"value": None,                                                                     "fit": False, "type": "dependent"},
-    "Tmin_pri": {"value": Tmin_pri ,          "step": 1e-5,  "min": 2460695.4, "max": 2460695.66, "fit": False, "type": "fitting_parameter"},  # time of primary transit
+    # "Tmin_pri": {"value": Tmin_pri ,          "step": 1e-5,  "min": 2460695, "max": 2460696, "fit": True, "type": "fitting_parameter"},  # time of primary transit
+    # "Tmin_pri": {"value": Tmin_pri ,          "step": 1e-5,  "min": 2460695.4, "max": 2460695.66, "fit": True, "type": "fitting_parameter"},  # time of primary transit
+    "Tmin_pri": {"value": Tmin_pri ,          "step": 1.e-5,  "min": 2460730, "max": 2460740,     "fit": True, "type": "fitting_parameter"},  # time of primary transit
     "Tmin_sec": {"value": None,                                                                   "fit": False, "type": "dependent"},
-    "P_days": {"value": P_days,               "step": 1.e-5, "min": 31.08,     "max": 51.12,      "fit": True, "type": "fitting_parameter"},  # orbital period
+    "P_days": {"value": P_days,               "step": 1.e-5, "min": 41.08,     "max": 41.12,      "fit": False, "type": "fitting_parameter"},  # orbital period
     "dPdt": {"value": 1 ,                     "step": 0.1,   "min": 2.5,       "max": 3.0,        "fit": False, "type": "fitting_parameter"},
     "incl_deg": {"value": incl_deg,           "step": 0.001, "min": 88.0,      "max": 90.0,       "fit": False, "type": "fitting_parameter"},  # orbital inclination
     "Omega_deg": {"value": 0,                 "step": 0.1,   "min": -np.inf,   "max": np.inf,     "fit": False, "type": "fitting_parameter"},
