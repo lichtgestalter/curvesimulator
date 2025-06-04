@@ -1,8 +1,8 @@
 Next Steps nach Gespraech mit Simon, 04.06.25:
 
 Mail an Simon schreiben:
-Github pfad zum Clonen
-Relevante Verzeichnisse erklaeren
+    Github pfad zum Clonen
+    Relevante Verzeichnisse erklaeren
 
 Simon zum aendern auf GitHub berechtigen?
 
