@@ -1,3 +1,19 @@
+Next Steps nach Gespraech mit Simon, 04.06.25:
+
+Mail an Simon schreiben:
+Github pfad zum Clonen
+Relevante Verzeichnisse erklaeren
+
+Simon zum aendern auf GitHub berechtigen?
+
+Uncertainties korrekt skalieren
+mit mcmc spielen
+Simon schickt Code Update fuer priors
+Treffen 16.6.
+
+
+
+
 Gespraech mit Simon, 12.05.25:
 
 Zeigt der gute Plot wirklich beide Transits?
@@ -356,3 +372,4 @@ I implemented all suggestions from zoom call 29.03.2022, but tried and dismissed
             Juliet: Project inactive?
             exoplanet: Project inactive?
             Exofast? Seems professionell. Doubtful if it works on Windows .
+    0.4.3   Fitting TOI-4504

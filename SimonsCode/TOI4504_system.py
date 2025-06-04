@@ -1,9 +1,9 @@
 import numpy as np
 
 # data_file = 'data/TOI4504_88+89.csv'
-# data_file = '../research/star_systems/TOI-4504/lightkurve/TOI4504_88+89_reduced_normalized.csv'
+data_file = '../research/star_systems/TOI-4504/lightkurve/TOI4504_88+89_reduced_normalized.csv'
 # data_file = '../research/star_systems/TOI-4504/lightkurve/88/TOI4504_88_reduced_normalized.csv'
-data_file = '../research/star_systems/TOI-4504/lightkurve/89/TOI4504_89_reduced_normalized.csv'
+# data_file = '../research/star_systems/TOI-4504/lightkurve/89/TOI4504_89_reduced_normalized.csv'
 
 au = 1.495978707e11                          # [m] astronomical unit
 r_sun = 6.96342e8                            # [m] solar radius
@@ -28,18 +28,18 @@ parameters = {
     # "Tmin_pri": {"value": Tmin_pri ,          "step": 1e-5,  "min": 2460695.4, "max": 2460695.66, "fit": True, "type": "fitting_parameter"},  # time of primary transit
     "Tmin_pri": {"value": Tmin_pri ,          "step": 1.e-5,  "min": 2460730, "max": 2460740,     "fit": True, "type": "fitting_parameter"},  # time of primary transit
     "Tmin_sec": {"value": None,                                                                   "fit": False, "type": "dependent"},
-    "P_days": {"value": P_days,               "step": 1.e-5, "min": 41.08,     "max": 41.12,      "fit": False, "type": "fitting_parameter"},  # orbital period
+    "P_days": {"value": P_days,               "step": 1.e-5, "min": 20.08,     "max": 62.12,      "fit": True, "type": "fitting_parameter"},  # orbital period
     "dPdt": {"value": 1 ,                     "step": 0.1,   "min": 2.5,       "max": 3.0,        "fit": False, "type": "fitting_parameter"},
-    "incl_deg": {"value": incl_deg,           "step": 0.001, "min": 88.0,      "max": 90.0,       "fit": False, "type": "fitting_parameter"},  # orbital inclination
+    "incl_deg": {"value": incl_deg,           "step": 0.001, "min": 88.0,      "max": 90.0,       "fit": True, "type": "fitting_parameter"},  # orbital inclination
     "Omega_deg": {"value": 0,                 "step": 0.1,   "min": -np.inf,   "max": np.inf,     "fit": False, "type": "fitting_parameter"},
     "omega_deg": {"value": omega_deg,         "step": 0.1,   "min": -np.inf,   "max": np.inf,     "fit": False, "type": "fitting_parameter"},  # argument of periastron
     "ecc": {"value": ecc,                     "step": 1.e-3, "min": 0.0,       "max": 1.0,        "fit": False, "type": "fitting_parameter"},  # orbital eccentricity
     "sqrt_ecc_sin_omega": {"value": np.sqrt(0.)*np.sin(np.deg2rad(90)), "step": 1.e-4, "min": -1., "max": 1.0, "fit": False , "type": "fitting_parameter"},
     "sqrt_ecc_cos_omega": {"value": np.sqrt(0.)*np.cos(np.deg2rad(90)), "step": 1.e-4, "min": -1., "max": 1.0, "fit": False, "type": "fitting_parameter"},
 
-    "R1a": {"value": R1a,                     "step": 1.e-7, "min": 0.019,     "max": 0.020,      "fit": False,  "type": "fitting_parameter"},  # radius of primary star in units of the semi-major axis: R1/a
+    "R1a": {"value": R1a,                     "step": 1.e-3, "min": 0.0,     "max": 0.30,      "fit": True,  "type": "fitting_parameter"},  # radius of primary star in units of the semi-major axis: R1/a
     # "R2a": {"value": R2R1,                     "step": 1.e-5, "min": 0.0016,    "max": 0.0021,     "fit": True,  "type": "fitting_parameter"},  # radius of secondary star in units of the semi-major axis: R2/a
-    "R2R1": {"value": R2R1,                   "step": 1.e-6, "min": 0.09,      "max": 0.10,       "fit": False, "type": "fitting_parameter"},  # but for the planet case R2/R1 is a better stepping parameter
+    "R2R1": {"value": R2R1,                   "step": 1.e-4, "min": 0.0,      "max": 0.30,       "fit": True, "type": "fitting_parameter"},  # but for the planet case R2/R1 is a better stepping parameter
     "systemic_velocity_kms": {"value": 13.18, "step": 0.1,   "min": 0,         "max": 30,         "fit": False, "type": "fitting_parameter"},
     "M1_solar": {"value": 1.8,                "step": 1.e-3, "min": 0.05,      "max": 5,          "fit": False, "type": "fitting_parameter"},
     "M2_solar": {"value": 1.6,                "step": 1.e-3, "min": 0.05,      "max": 5,          "fit": False, "type": "fitting_parameter"},
@@ -202,13 +202,15 @@ def read_TESS_photometry(csv_path, bin_size=1):
         bjd, flux, flux_unc = binned_bjd, binned_flux, binned_flux_unc
         
         # Normalize flux and flux_unc
-        flux = flux / np.max(flux)   +0.0013
-        flux_unc = flux_unc / np.max(flux)
-    
+        # flux = flux / np.max(flux)   +0.004
+        print(flux_unc)
+        flux_unc = flux_unc / 4000 # np.max(flux)  debug
+        print(flux_unc)
+
     return bjd, flux, flux_unc
 
 
 def photometry(excluded_epochs=None, transformer=None):    
     #OK this is a bit of a silly function, but this way it looks symmetric in the fitting code
-    TESS_bjd, TESS_flux, TESS_flux_unc = read_TESS_photometry(data_file, bin_size=9)
+    TESS_bjd, TESS_flux, TESS_flux_unc = read_TESS_photometry(data_file, bin_size=1)
     return TESS_bjd, TESS_flux, TESS_flux_unc

@@ -42,7 +42,11 @@ def download_flux(sectors=None, save_plot=False, save_csv=False, save_fits=False
 
     # Download of fits-files. Sometimes there are several for the same sector.
     # search = search_targetpixelfile("TIC 349972412", author="SPOC", sector=sectors)
+    print("Looking for data in sector(s)", sectors)
     search = search_targetpixelfile("TIC 349972412", sector=sectors)
+    print(f"Found {len(search)} datasets.")
+    if len(search) == 0:
+        return
     all_tpfs = search.download_all()
     if not all_tpfs:
         return  # no data available

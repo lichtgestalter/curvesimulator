@@ -84,11 +84,11 @@ class PhotDataset:
         )
         self.photometric_model /= (self.para["lphot_primary"] + self.para["lphot_secondary"])
 
-        # Normalize observed flux if requested
-        if self.phot_setup.get("normalize_flux",False):
-            self.normalize_eclipse_flux()
-        else:
-            self.normalized_flux = np.copy(self.observed_flux)
+        # Normalize observed flux if requested  # debug
+        # if self.phot_setup.get("normalize_flux",False):
+        #     self.normalize_eclipse_flux()
+        # else:
+        self.normalized_flux = np.copy(self.observed_flux)
 
         return self.photometric_model
 
