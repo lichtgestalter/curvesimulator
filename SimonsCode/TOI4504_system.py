@@ -203,9 +203,7 @@ def read_TESS_photometry(csv_path, bin_size=1):
         
         # Normalize flux and flux_unc
         # flux = flux / np.max(flux)   +0.004
-        print(flux_unc)
-        flux_unc = flux_unc / 4000 # np.max(flux)  debug
-        print(flux_unc)
+        # flux_unc = flux_unc / np.max(flux)
 
     return bjd, flux, flux_unc
 

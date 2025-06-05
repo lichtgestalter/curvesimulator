@@ -78,8 +78,7 @@ def cut_df(df, start, end):
 
 def scale_flux(flux_df, factor):
     flux_df.loc[:, 'flux'] *= factor
-    # Uncomment the following line if you want to scale 'flux_err' as well
-    # flux_df.loc[:, 'flux_err'] *= factor
+    flux_df.loc[:, 'flux_err'] *= factor
     return flux_df
 
 
