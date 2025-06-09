@@ -13,13 +13,14 @@ with open(readme_path, "r", encoding="utf-8") as fh:
 
 setup(
     name="curvesimulator",
-    version="0.4.3",
+    version="0.5",
     packages=find_packages(),
     install_requires=[
         # List your dependencies here
         "numpy",
         "matplotlib",
         "configparser",
+        "rebound"
     ],
     author="Uli Scheuss",
     description="CurveSimulator generates a video of the movements and eclipses of celestial bodies and the resulting lightcurve.",
