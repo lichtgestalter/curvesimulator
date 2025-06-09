@@ -18,7 +18,7 @@ year = 365.25 * day
 
 
 sim = rebound.Simulation()
-sim.start_server(port=1234)
+# sim.start_server(port=1234)
 sim.G = g  # gravitational constant
 sim.dt = hour
 

@@ -393,7 +393,6 @@ class CurveSimBody:
         """Returns area, relative_radius
         area: Area of self which is eclipsed by other.
         relative_radius: The distance of the approximated center of the eclipsed area from the center of self as a percentage of self.radius (used for limb darkening)."""
-        # if other.positions[iteration][0] < self.positions[iteration][0]:  # Is other nearer to viewpoint than self? (i.e. its position has a smaller x-coordinate)
         if other.positions[iteration][2] > self.positions[iteration][2]:  # Is other nearer to viewpoint than self? (i.e. its position has a larger z-coordinate)
             d = CurveSimPhysics.distance_2d_ecl(other, self, iteration)
             if d < self.radius + other.radius:  # Does other eclipse self?

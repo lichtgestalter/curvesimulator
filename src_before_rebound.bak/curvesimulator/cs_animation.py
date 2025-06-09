@@ -133,15 +133,9 @@ class CurveSimAnimation:
         """Update patches. Send new circle positions to animation function.
         First parameter comes from iterator frames (a parameter of FuncAnimation).
         The other parameters are given to this function via the parameter fargs of FuncAnimation."""
-        # for body in bodies:  # left view: projection (x,y,z) -> (z,x), order = y (y-axis points to viewer)
-        #     body.circle_left.set(zorder=body.positions[frame * p.sampling_rate][1])
-        #     body.circle_left.center = body.positions[frame * p.sampling_rate][2] / p.scope_left, body.positions[frame * p.sampling_rate][0] / p.scope_left
         for body in bodies:  # left view: projection (x,y,z) -> (x,-z), order = y (y-axis points to viewer)
             body.circle_left.set(zorder=body.positions[frame * p.sampling_rate][1])
             body.circle_left.center = body.positions[frame * p.sampling_rate][0] / p.scope_left, -body.positions[frame * p.sampling_rate][2] / p.scope_left
-        # for body in bodies:  # right view: projection (x,y,z) -> (z,y), order = -x (x-axis points away from viewer)
-        #     body.circle_right.set(zorder=-body.positions[frame * p.sampling_rate][0])
-        #     body.circle_right.center = body.positions[frame * p.sampling_rate][2] / p.scope_right, body.positions[frame * p.sampling_rate][1] / p.scope_right
         for body in bodies:  # right view: projection (x,y,z) -> (x,y), order = z (z-axis points to viewer)
             body.circle_right.set(zorder=body.positions[frame * p.sampling_rate][2])
             body.circle_right.center = body.positions[frame * p.sampling_rate][0] / p.scope_right, body.positions[frame * p.sampling_rate][1] / p.scope_right

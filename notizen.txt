@@ -30,43 +30,6 @@ Reihenfolge:
     inc
     limb darkening
 
-Monte Carlo Markov Chain Results:
-Tmin_pri: HDI = [2460695.195161, 2460695.653827], Max Likelihood = 2460695.537728
-
-Tmin_pri: HDI = [2460695.509193, 2460695.572993], Max Likelihood = 2460695.538113
-P_days: HDI = [41.054986, 41.141605], Max Likelihood = 41.101210
-
-Tmin_pri: HDI = [2460695.509825, 2460695.570711], Max Likelihood = 2460695.537812
-P_days: HDI = [41.057268, 41.142156], Max Likelihood = 41.100804
-
-Tmin_pri: HDI = [2460695.511190, 2460695.573840], Max Likelihood = 2460695.537985
-P_days: HDI = [41.058190, 41.145606], Max Likelihood = 41.100617
-
-Tmin_pri: HDI = [2460695.504167, 2460695.566217], Max Likelihood = 2460695.538020
-P_days: HDI = [41.060345, 41.147682], Max Likelihood = 41.100459
-
-Tmin_pri: HDI = [2460695.507069, 2460695.569975], Max Likelihood = 2460695.538413
-P_days: HDI = [41.059160, 41.147179], Max Likelihood = 41.101152
-
-R1a: HDI = [0.016618, 0.022515], Max Likelihood = 0.019393
-R2a: HDI = [0.001256, 0.002287], Max Likelihood = 0.001894
-
-incl_deg: HDI = [88.292957, 91.653068], Max Likelihood = 89.008552
-
-P_days: HDI = [41.090622, 41.116439], Max Likelihood = 41.100771
-incl_deg: HDI = [88.922905, 89.118796], Max Likelihood = 89.007349
-
-P_days: HDI = [41.088697, 41.114955], Max Likelihood = 41.101632
-incl_deg: HDI = [88.915364, 89.112286], Max Likelihood = 89.007598
-
-R2R1: HDI = [0.095919, 0.096088], Max Likelihood = 0.095920
-R2R1: HDI = [0.095863, 0.096011], Max Likelihood = 0.096050
-R2R1: HDI = [0.095887, 0.096047], Max Likelihood = 0.095865
-
-P_days: HDI = [41.089731, 41.115243], Max Likelihood = 41.101225
-
-Tmin_pri: HDI = [2460736.615742, 2460736.653061], Max Likelihood = 2460736.639237
-
 
 --------------------------------------------------------
 Recently done / in progress:

@@ -11,36 +11,8 @@ from curvesimulator.cs_lightcurve import CurveSimLightcurve
 from curvesimulator.cs_physics import CurveSimPhysics
 from curvesimulator.cs_results import CurveSimResults
 
-import rebound
 
 class CurveSimBodies(list):
-
-    def init_rebound(self, p):
-        simulation = rebound.Simulation()
-        simulation.G = p.g  # gravitational constant
-        i = 0
-
-        for body in self[0:1]:
-            simulation.add(m=body.mass, r=body.radius, hash=body.name)
-            body.rebound_index = i
-
-        for body in self[1:]:
-            simulation.add(m=body.mass, r=body.radius, hash=body.name, P=body.P, inc=body.i, e=body.e, Omega=body.Ω, omega=body.ω, M=body.ma)
-            i += 1
-            body.rebound_index = i
-
-        print(f"{simulation.particles[-1].inc=}")
-        simulation.move_to_com()  # move origin to center of mass before integrating -> better numerical stability
-
-        # day = 60 *60 *24
-        # for i in range(85):
-        #     simulation.integrate(i * day)
-        #     planet_d = simulation.particles[-1]
-        #     print(f"Day {i:4.0f}: {planet_d.x:9.0e} {planet_d.y:9.0e} {planet_d.z:9.0e}")
-
-        return simulation
-
-
 
     # noinspection PyUnusedLocal
     def __init__(self, p, debug_L=-1):
@@ -175,34 +147,34 @@ class CurveSimBodies(list):
                         results["Bodies"][body.name]["Transits"][-1]["impacts_and_depths"][-1].depth = absolute_depth  # this depth is caused by this particular body eclipsing this particular star
         return luminosity
 
-    # @staticmethod
-    # def distance_and_direction(body1, body2, iteration, p):
-    #     # Calculate distance and direction between 2 bodies:
-    #     distance_xyz = body2.positions[iteration - 1] - body1.positions[iteration - 1]
-    #     distance = math.sqrt(np.dot(distance_xyz, distance_xyz))
-    #     force_total = p.g * body1.mass * body2.mass / distance ** 2  # Use law of gravitation to calculate force acting on body.
-    #     x, y, z = distance_xyz[0], distance_xyz[1], distance_xyz[2]
-    #     polar_angle = math.acos(z / distance)
-    #     azimuth_angle = math.atan2(y, x)
-    #     return force_total, azimuth_angle, polar_angle
-    #
-    # @staticmethod
-    # def update_force(azimuth_angle, force, force_total, polar_angle):
-    #     # Compute the force of attraction in each direction:
-    #     force[0] += math.sin(polar_angle) * math.cos(azimuth_angle) * force_total
-    #     force[1] += math.sin(polar_angle) * math.sin(azimuth_angle) * force_total
-    #     force[2] += math.cos(polar_angle) * force_total
-    #
-    # @staticmethod
-    # def update_velocity(body1, iteration, force, p):
-    #     """https://en.wikipedia.org/wiki/Verlet_integration
-    #     https://www.lancaster.ac.uk/staff/drummonn/PHYS281/gravity/"""
-    #     if iteration == 1:
-    #         body1.acceleration = force / body1.mass
-    #     acceleration = force / body1.mass
-    #     body1.velocity += (acceleration + body1.acceleration) * 0.5 * p.dt
-    #     body1.acceleration = acceleration
-    #     return acceleration
+    @staticmethod
+    def distance_and_direction(body1, body2, iteration, p):
+        # Calculate distance and direction between 2 bodies:
+        distance_xyz = body2.positions[iteration - 1] - body1.positions[iteration - 1]
+        distance = math.sqrt(np.dot(distance_xyz, distance_xyz))
+        force_total = p.g * body1.mass * body2.mass / distance ** 2  # Use law of gravitation to calculate force acting on body.
+        x, y, z = distance_xyz[0], distance_xyz[1], distance_xyz[2]
+        polar_angle = math.acos(z / distance)
+        azimuth_angle = math.atan2(y, x)
+        return force_total, azimuth_angle, polar_angle
+
+    @staticmethod
+    def update_force(azimuth_angle, force, force_total, polar_angle):
+        # Compute the force of attraction in each direction:
+        force[0] += math.sin(polar_angle) * math.cos(azimuth_angle) * force_total
+        force[1] += math.sin(polar_angle) * math.sin(azimuth_angle) * force_total
+        force[2] += math.cos(polar_angle) * force_total
+
+    @staticmethod
+    def update_velocity(body1, iteration, force, p):
+        """https://en.wikipedia.org/wiki/Verlet_integration
+        https://www.lancaster.ac.uk/staff/drummonn/PHYS281/gravity/"""
+        if iteration == 1:
+            body1.acceleration = force / body1.mass
+        acceleration = force / body1.mass
+        body1.velocity += (acceleration + body1.acceleration) * 0.5 * p.dt
+        body1.acceleration = acceleration
+        return acceleration
 
     # @staticmethod
     # def update_velocity_euler(body1, force, p):
@@ -210,18 +182,13 @@ class CurveSimBodies(list):
     #     body1.velocity += acceleration * p.dt
     #     return acceleration
 
-    # @staticmethod
-    # def update_position(body1, iteration, acceleration, p):
-    #     """https://en.wikipedia.org/wiki/Verlet_integration
-    #     https://www.lancaster.ac.uk/staff/drummonn/PHYS281/gravity/
-    #     Verlet integration avoids the numerical problems of the Euler method."""
-    #     movement = body1.velocity * p.dt + acceleration * (p.dt ** 2 * 0.5)
-    #     body1.positions[iteration] = body1.positions[iteration - 1] + movement
-
     @staticmethod
-    def update_position_reb(body1, iteration, rebound_sim):
-        particle = rebound_sim.particles[body1.rebound_index]
-        body1.positions[iteration] = np.array([particle.x, particle.y, particle.z])
+    def update_position(body1, iteration, acceleration, p):
+        """https://en.wikipedia.org/wiki/Verlet_integration
+        https://www.lancaster.ac.uk/staff/drummonn/PHYS281/gravity/
+        Verlet integration avoids the numerical problems of the Euler method."""
+        movement = body1.velocity * p.dt + acceleration * (p.dt ** 2 * 0.5)
+        body1.positions[iteration] = body1.positions[iteration - 1] + movement
 
     # @staticmethod
     # def update_position_euler(body1, iteration, acceleration, p):
@@ -238,24 +205,25 @@ class CurveSimBodies(list):
     def calc_positions_eclipses_luminosity(self, p):
         """Calculate distances, forces, accelerations, velocities of the bodies for each iteration.
         The resulting body positions and the lightcurve are stored for later use in the animation."""
-        rebound_sim = CurveSimBodies.init_rebound(self, p)
         results = CurveSimResults(self)
         transit_status = {}
-
         for body1 in self:
             for body2 in self:
                 transit_status[body1.name + "." + body2.name] = "NoTransit"
-
         stars = [body for body in self if body.body_type == "star"]
         lightcurve = CurveSimLightcurve(p.iterations)  # Initialize lightcurve (essentially a np.ndarray)
-
-        for iteration in range(p.iterations):
-            rebound_sim.integrate(iteration * p.dt)
-            for body in self:
-                CurveSimBodies.update_position_reb(body, iteration, rebound_sim)
+        lightcurve[0] = self.total_luminosity(stars, 0, results, transit_status, p)
+        for iteration in range(1, p.iterations):
+            for body1 in self:
+                force = np.array([0.0, 0.0, 0.0])
+                for body2 in self:
+                    if body1 != body2:
+                        force_total, azimuth_angle, polar_angle = CurveSimBodies.distance_and_direction(body1, body2, iteration, p)
+                        CurveSimBodies.update_force(azimuth_angle, force, force_total, polar_angle)
+                acceleration = CurveSimBodies.update_velocity(body1, iteration, force, p)
+                CurveSimBodies.update_position(body1, iteration, acceleration, p)
             lightcurve[iteration] = self.total_luminosity(stars, iteration, results, transit_status, p)  # Update lightcurve.
             CurveSimBodies.progress_bar(iteration, p)
-
         lightcurve_max = float(lightcurve.max(initial=None))
         lightcurve /= lightcurve_max  # Normalize flux.
         results.normalize_flux(lightcurve_max)  # Normalize flux in parameter depth in results.
@@ -298,16 +266,16 @@ class CurveSimBodies(list):
                 body.circle_right = matplotlib.patches.Circle((0, 0), radius=body.radius * extrascale_right / p.scope_right)  # Matplotlib patch for right view
                 body.circle_left = matplotlib.patches.Circle((0, 0), radius=body.radius * extrascale_left / p.scope_left)  # Matplotlib patch for left view
 
-    # def energy(self, iteration, p):
-    #     """Calculates the total energy in the system. This should be constant."""
-    #     kinetic_energy = 0
-    #     potential_energy = 0
-    #     for i, body1 in enumerate(self):
-    #         velocity_magnitude = np.linalg.norm(body1.velocity)
-    #         kinetic_energy += 0.5 * body1.mass * velocity_magnitude ** 2
-    #         for j, body2 in enumerate(self):
-    #             if i < j:
-    #                 distance = np.linalg.norm(body2.positions[iteration - 1] - body1.positions[iteration - 1])
-    #                 if distance > 0:
-    #                     potential_energy += body1.mass * body2.mass / distance
-    #     return kinetic_energy - p.g * potential_energy
+    def energy(self, iteration, p):
+        """Calculates the total energy in the system. This should be constant."""
+        kinetic_energy = 0
+        potential_energy = 0
+        for i, body1 in enumerate(self):
+            velocity_magnitude = np.linalg.norm(body1.velocity)
+            kinetic_energy += 0.5 * body1.mass * velocity_magnitude ** 2
+            for j, body2 in enumerate(self):
+                if i < j:
+                    distance = np.linalg.norm(body2.positions[iteration - 1] - body1.positions[iteration - 1])
+                    if distance > 0:
+                        potential_energy += body1.mass * body2.mass / distance
+        return kinetic_energy - p.g * potential_energy
