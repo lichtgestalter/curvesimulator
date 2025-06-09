@@ -29,7 +29,7 @@ class CurveSimBodies(list):
             i += 1
             body.rebound_index = i
 
-        print(f"{simulation.particles[-1].inc=}")
+        # print(f"{simulation.particles[-1].inc=}")
         simulation.move_to_com()  # move origin to center of mass before integrating -> better numerical stability
 
         # day = 60 *60 *24
