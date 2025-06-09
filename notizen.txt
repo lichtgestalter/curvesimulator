@@ -53,6 +53,10 @@ NEXT Programming:
             Siehe obsolete Funktion lightcurve_minima in cs_lightcurve.py
             Auch T1, T2, T3, T4 optimieren, also genaueren Zeitpunkt zwischen 2 Iterationsschritten schaetzen.
 
+        Funktion schreiben, die in sehr kurzer Zeit alle Transits in TOI4504 im TEST-Zeitraum findet.
+            Ein cleverer Algorithmus bewirkt, dass Rebound nur vergleichsweise wenige Male aufgerufen wird.
+            Nutzt Vorwissen ueber die erwarteten Perioden.
+
         Orbitparameter regelmaessig (z.B. bei jedem Transit) im Resultfile speichern.
 
         init_rebound() verallgemeinern. Auch Hierarchie ermoeglichen (=wer kreist um wen?)
