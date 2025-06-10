@@ -107,7 +107,7 @@ print(f' {toc - tic:7.2f} seconds  ({iterations / (toc - tic):.0f} iterations/se
 # integrate randomly
 # base =   0    |   10e6     |   10e8
 # randomrealm: iterations/second
-# 10e4: 40000   |   31000    |     200
+# 10e4: 40000   |   31000    |     200/32000
 # 10e5:  5400   |    5400    |    4280
 # 10e6:   570   |     600    |     440
 # 10e7:    56   |      60    |      40
