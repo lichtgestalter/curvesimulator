@@ -18,14 +18,15 @@ class CurveSimBodies(list):
     def init_rebound(self, p):
         simulation = rebound.Simulation()
         simulation.G = p.g  # gravitational constant
+        # simulation.dt = p.dt
         i = 0
 
-        for body in self[0:1]:
+        for body in self[0:1]:  # hack: works only when the first body is the only star and all other bodies are orbiting this star (no binary, no moons, ...)
             simulation.add(m=body.mass, r=body.radius, hash=body.name)
             body.rebound_index = i
 
-        for body in self[1:]:
-            simulation.add(m=body.mass, r=body.radius, hash=body.name, P=body.P, inc=body.i, e=body.e, Omega=body.Ω, omega=body.ω, M=body.ma)
+        for body in self[1:]:  # hack: works only when the first body is the only star and all other bodies are orbiting this star (no binary, no moons, ...)
+            simulation.add(primary=simulation.particles[self[0].name], m=body.mass, r=body.radius, hash=body.name, P=body.P, inc=body.i, e=body.e, Omega=body.Ω, omega=body.ω, M=body.ma)
             i += 1
             body.rebound_index = i
 
@@ -219,7 +220,7 @@ class CurveSimBodies(list):
     #     body1.positions[iteration] = body1.positions[iteration - 1] + movement
 
     @staticmethod
-    def update_position_reb(body1, iteration, rebound_sim):
+    def update_position(body1, iteration, rebound_sim):
         particle = rebound_sim.particles[body1.rebound_index]
         body1.positions[iteration] = np.array([particle.x, particle.y, particle.z])
 
@@ -252,10 +253,13 @@ class CurveSimBodies(list):
         for iteration in range(p.iterations):
             rebound_sim.integrate(iteration * p.dt)
             for body in self:
-                CurveSimBodies.update_position_reb(body, iteration, rebound_sim)
+                CurveSimBodies.update_position(body, iteration, rebound_sim)
             lightcurve[iteration] = self.total_luminosity(stars, iteration, results, transit_status, p)  # Update lightcurve.
             CurveSimBodies.progress_bar(iteration, p)
-
+            # if iteration % 10000 == 2:
+            #     inc = math.degrees(rebound_sim.particles["TOI-4504d"].inc)
+            #     print(f"d-inc={inc:.2f}")
+        # print(f"\nRebound performed {rebound_sim.steps_done} simulation steps.")
         lightcurve_max = float(lightcurve.max(initial=None))
         lightcurve /= lightcurve_max  # Normalize flux.
         results.normalize_flux(lightcurve_max)  # Normalize flux in parameter depth in results.

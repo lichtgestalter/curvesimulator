@@ -5,11 +5,6 @@ import sys
 class CurveSimPhysics:
 
     @staticmethod
-    def period_from_semi_major_axis():
-        period = 0
-        return period
-
-    @staticmethod
     def kepler_equation(ea, e, ma):
         """ea: eccentric anomaly [rad], e: eccentricity, ma: mean anomaly [rad]"""
         if not -2 * math.pi < ea < 2 * math.pi:

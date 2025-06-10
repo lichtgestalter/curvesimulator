@@ -13,6 +13,13 @@ NEXT Programming:
 
         BUG! Ich speichere fuer den Stern ueberfluessige Parameter mit falschen Werten ab? Z.B. e und i.
 
+        sim.step() statt vom User festgelegtes p.dt verwenden? Performancegewinn?
+            https://rebound.readthedocs.io/en/latest/simulationtimestepping/#__tabbed_4_2
+
+        Den Hash-Wert fuer eindeutige Identifikation der Himmelskoerper nutzen. Statt den Index im Particle-Array.
+            https://rebound.readthedocs.io/en/latest/particles/#__tabbed_3_2
+
+
         Result evaluation komfortabel fuer User nutzbar machen.
 
         Optimierte TT auch in Transitresults und nicht bloss in Lightcurveminima?
