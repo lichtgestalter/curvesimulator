@@ -1,37 +1,3 @@
-Next Steps nach Gespraech mit Simon, 04.06.25:
-
-Mail an Simon schreiben:
-    Github pfad zum Clonen
-    Relevante Verzeichnisse erklaeren
-
-Simon zum aendern auf GitHub berechtigen?
-
-Uncertainties korrekt skalieren
-mit mcmc spielen
-Simon schickt Code Update fuer priors
-Treffen 16.6.
-
-
-
-
-Gespraech mit Simon, 12.05.25:
-
-Zeigt der gute Plot wirklich beide Transits?
-Die beiden Transits nebeneinander mit der gefitteten Linie plotten. (Siehe cal_phot.py 227-228)
-for_Uli_mcmc.py debuggen, damit es nicht abstuerzt, wenn man nur einen einzigen Parameter fittet (Zeilen 133-141 und 171-179)
-Aus dem CSV alle Zeilen entfernen, die nicht nahe an den beiden Transits liegen.
-Den Flux der beiden Transits getrennt voneinander auf 1 normieren.
-Zunaechst nur einen Parameter fitten.
-
-Reihenfolge:
-    P
-    T0
-    Radiusverhaeltnis R-Planet / R-Stern
-    inc
-    limb darkening
-
-
---------------------------------------------------------
 Recently done / in progress:
 
 NEXT Astrophysics:
@@ -307,19 +273,19 @@ I implemented all suggestions from zoom call 29.03.2022, but tried and dismissed
             Larger and closer second planets with different inclinations change the inclination of the first planet faster.
             The effect changes somewhat smoothly with changing with increasing mass and decreasing distance of the second planet.
             This supports the thesis that the alternately transiting behaviour is real and not just an artefact.
-    0.3.9   Result output enhancements
+    0.3.9 Result output enhancements
         More flexible result evaluation
-    0.4.0   Constant energy check
+    0.4.0 Constant energy check
         Added function energy() to check if the total energy in the star system stays constant as it should.
         Results:
             Precision: Error remains below ±2×10⁻⁷ relative to the mean (1 part in 5 million).
             Periodicity of error: Repeats about every 5,500 iterations (Δt=600 s per iteration) in TOI-4504
             This indicates a highly stable system with minimal energy drift over time.
-    0.4.1   Fit simulation to d-Transits
+    0.4.1 Fit simulation to d-Transits
         Planet d's mean anomaly adjusted in the config file until d's transit at 2460736.63 happens at the right time.
         But then the transit before was a whole day off (2460696.46 iso 2460695.53).
         -> postponed
-    0.4.2   Trying out Rebound and other software
+    0.4.2 Trying out Rebound and other software
         N-Body programs:
             Exostriker: does not run correctly on Windows (had to rename python.exe, still had problems)
             Rebound: Excellent package. I consider using Rebound internally in Curvesim, replacing some of my own functions.
@@ -327,4 +293,39 @@ I implemented all suggestions from zoom call 29.03.2022, but tried and dismissed
             Juliet: Project inactive?
             exoplanet: Project inactive?
             Exofast? Seems professionell. Doubtful if it works on Windows .
-    0.4.3   Fitting TOI-4504
+    0.4.3 Fitting TOI-4504
+    0.5 First partial Rebound integration
+
+
+-----------------------------------------------------------------------
+
+Call mit Simon, 12.05.25:
+
+    Zeigt der gute Plot wirklich beide Transits?
+    Die beiden Transits nebeneinander mit der gefitteten Linie plotten. (Siehe cal_phot.py 227-228)
+    for_Uli_mcmc.py debuggen, damit es nicht abstuerzt, wenn man nur einen einzigen Parameter fittet (Zeilen 133-141 und 171-179)
+    Aus dem CSV alle Zeilen entfernen, die nicht nahe an den beiden Transits liegen.
+    Den Flux der beiden Transits getrennt voneinander auf 1 normieren.
+    Zunaechst nur einen Parameter fitten.
+
+    Reihenfolge:
+        P
+        T0
+        Radiusverhaeltnis R-Planet / R-Stern
+        inc
+        limb darkening
+
+
+Next Steps nach Call mit Simon, 04.06.25:
+
+    Mail an Simon schreiben:
+        Github pfad zum Clonen
+        Relevante Verzeichnisse erklaeren
+
+    Simon zum aendern auf GitHub berechtigen?
+
+    Uncertainties korrekt skalieren
+    mit mcmc spielen
+    Simon schickt Code Update fuer priors
+    Treffen 16.6.
+
