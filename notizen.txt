@@ -13,6 +13,11 @@ NEXT Programming:
 
         BUG! Ich speichere fuer den Stern ueberfluessige Parameter mit falschen Werten ab? Z.B. e und i.
 
+        Energie bei Start und Ende der Integration vergleichen! Relative Veraenderung in Konsole ausgeben.
+
+        Verschiedene Integratoren testen. In init_rebound() zumindest durch gute Kommentare vorbereiten,
+        dass zukuenftig abhaengig vom Sternsystem ein bestimmer Integrator gewaehlt wird.
+
         sim.step() statt vom User festgelegtes p.dt verwenden? Performancegewinn?
             https://rebound.readthedocs.io/en/latest/simulationtimestepping/#__tabbed_4_2
 

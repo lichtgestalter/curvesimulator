@@ -18,26 +18,30 @@ class CurveSimBodies(list):
     def init_rebound(self, p):
         simulation = rebound.Simulation()
         simulation.G = p.g  # gravitational constant
-        # simulation.dt = p.dt
-        i = 0
 
+        # simulation.integrator = "whfast"
+        # simulation.dt = p.dt
+        # print(simulation.integrator)
+
+        i = 0
         for body in self[0:1]:  # hack: works only when the first body is the only star and all other bodies are orbiting this star (no binary, no moons, ...)
             simulation.add(m=body.mass, r=body.radius, hash=body.name)
-            body.rebound_index = i
-
         for body in self[1:]:  # hack: works only when the first body is the only star and all other bodies are orbiting this star (no binary, no moons, ...)
             simulation.add(primary=simulation.particles[self[0].name], m=body.mass, r=body.radius, hash=body.name, P=body.P, inc=body.i, e=body.e, Omega=body.Ω, omega=body.ω, M=body.ma)
             i += 1
-            body.rebound_index = i
 
-        # print(f"{simulation.particles[-1].inc=}")
         simulation.move_to_com()  # move origin to center of mass before integrating -> better numerical stability
 
-        # day = 60 *60 *24
-        # for i in range(85):
-        #     simulation.integrate(i * day)
-        #     planet_d = simulation.particles[-1]
-        #     print(f"Day {i:4.0f}: {planet_d.x:9.0e} {planet_d.y:9.0e} {planet_d.z:9.0e}")
+        # s = simulation.particles["TOI-4504"]
+        # b = simulation.particles["TOI-4504b"]
+        # c = simulation.particles["TOI-4504c"]
+        # d = simulation.particles["TOI-4504d"]
+        # simulation.integrate(1000)
+
+        # for i in range(8):
+        #     simulation.integrate(i)
+        #     print(f"{i:4.0f}: {d.x:20.3f} {d.y:20.3f} {d.z:20.3f}  {d.vx:20.3f} {d.vy:20.3f} {d.vz:20.3f}")
+        # print(f"{d.inc=}")
 
         return simulation
 
@@ -220,9 +224,10 @@ class CurveSimBodies(list):
     #     body1.positions[iteration] = body1.positions[iteration - 1] + movement
 
     @staticmethod
-    def update_position(body1, iteration, rebound_sim):
-        particle = rebound_sim.particles[body1.rebound_index]
-        body1.positions[iteration] = np.array([particle.x, particle.y, particle.z])
+    def update_position(body, iteration, rebound_sim):
+        particle = rebound_sim.particles[body.name]
+        # particle = rebound_sim.particles[body1.rebound_index]
+        body.positions[iteration] = np.array([particle.x, particle.y, particle.z])
 
     # @staticmethod
     # def update_position_euler(body1, iteration, acceleration, p):
@@ -249,31 +254,38 @@ class CurveSimBodies(list):
 
         stars = [body for body in self if body.body_type == "star"]
         lightcurve = CurveSimLightcurve(p.iterations)  # Initialize lightcurve (essentially a np.ndarray)
-
+        initial_energy = rebound_sim.energy()
         for iteration in range(p.iterations):
             rebound_sim.integrate(iteration * p.dt)
             for body in self:
                 CurveSimBodies.update_position(body, iteration, rebound_sim)
             lightcurve[iteration] = self.total_luminosity(stars, iteration, results, transit_status, p)  # Update lightcurve.
             CurveSimBodies.progress_bar(iteration, p)
-            # if iteration % 10000 == 2:
+            # if iteration < 10:
             #     inc = math.degrees(rebound_sim.particles["TOI-4504d"].inc)
             #     print(f"d-inc={inc:.2f}")
+            #     d = rebound_sim.particles["TOI-4504d"]
+            #     print(f"{iteration:4.0f}: {d.x:20.0f} {d.y:20.0f} {d.z:20.0f}  {d.vx:20.0f} {d.vy:20.0f} {d.vz:20.0f}")
+
         # print(f"\nRebound performed {rebound_sim.steps_done} simulation steps.")
         lightcurve_max = float(lightcurve.max(initial=None))
         lightcurve /= lightcurve_max  # Normalize flux.
         results.normalize_flux(lightcurve_max)  # Normalize flux in parameter depth in results.
-        return results, lightcurve, self
+        energy_change = math.log10(abs(rebound_sim.energy() / initial_energy - 1))  # Magnitude of the relative change of energy during simulation
+        return results, lightcurve, self, energy_change
 
     def calc_physics(self, p):
         """Calculate body positions and the resulting lightcurve."""
-        print(f'Producing {p.frames / p.fps:.0f} seconds long video, covering {p.dt * p.iterations / 60 / 60 / 24:5.2f} '
-              f'earth days. ({p.dt * p.sampling_rate * p.fps / 60 / 60 / 24:.2f} earth days per video second.)')
+        days = p.dt * p.iterations / 60 / 60 / 24
+        years = days / 365.25
+        print(f'Producing {p.frames / p.fps:.0f} seconds long video, covering {days:.0f} earth days / {years:.1f} earth years.'
+              f' ({p.dt * p.sampling_rate * p.fps / 60 / 60 / 24:.2f} earth days per video second.)')
         print(f'Calculating {p.iterations:,} iterations: ', end="")  #print(f"{b=:_}
         tic = time.perf_counter()
-        results, lightcurve, bodies = self.calc_positions_eclipses_luminosity(p)
+        results, lightcurve, bodies, energy_change = self.calc_positions_eclipses_luminosity(p)
         toc = time.perf_counter()
         print(f' {toc - tic:7.2f} seconds  ({p.iterations / (toc - tic):.0f} iterations/second)')
+        print(f"Magnitude of the relative change of energy during simulation: {energy_change:.0f}")
         return results, lightcurve
 
     def calc_patch_radii(self, p):
