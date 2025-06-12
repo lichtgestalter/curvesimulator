@@ -1,5 +1,10 @@
 Recently done / in progress:
 
+Fragen an Simon:
+    Lohnt es sich die Verdunklung durch secondary eclipses und eclipses unter Planeten (fx planet c verdeckt planet d) zu modellieren?
+        Bei Albedo von 50% muesste eine secondary eclipse halb so tief sein wie eine primary eclipse, korrekt?
+
+
 NEXT Astrophysics:
 
         In aelteren TESS-Sektoren nach Planet-d-Transits suchen.
@@ -12,18 +17,6 @@ NEXT Astrophysics:
 NEXT Programming:
 
         BUG! Ich speichere fuer den Stern ueberfluessige Parameter mit falschen Werten ab? Z.B. e und i.
-
-        Energie bei Start und Ende der Integration vergleichen! Relative Veraenderung in Konsole ausgeben.
-
-        Verschiedene Integratoren testen. In init_rebound() zumindest durch gute Kommentare vorbereiten,
-        dass zukuenftig abhaengig vom Sternsystem ein bestimmer Integrator gewaehlt wird.
-
-        sim.step() statt vom User festgelegtes p.dt verwenden? Performancegewinn?
-            https://rebound.readthedocs.io/en/latest/simulationtimestepping/#__tabbed_4_2
-
-        Den Hash-Wert fuer eindeutige Identifikation der Himmelskoerper nutzen. Statt den Index im Particle-Array.
-            https://rebound.readthedocs.io/en/latest/particles/#__tabbed_3_2
-
 
         Result evaluation komfortabel fuer User nutzbar machen.
 
@@ -38,6 +31,28 @@ NEXT Programming:
         Orbitparameter regelmaessig (z.B. bei jedem Transit) im Resultfile speichern.
 
         init_rebound() verallgemeinern. Auch Hierarchie ermoeglichen (=wer kreist um wen?)
+
+        Aus dem User Input die Kepler-Parameter berechnen, die Rebound braucht, und Rebound damit fuettern.
+        Fuer mich relevante Parameter, die Reboundklasse Orbit akzeptiert:
+            P :         orbital period
+            a :         semimajor axis
+
+            e :         eccentricity
+            inc :       inclination
+
+            Omega :     longitude of ascending node
+            omega :     argument of pericenter
+            pomega :    longitude of pericenter
+
+            f :         true anomaly
+            M :         mean anomaly
+            E :         eccentric anomaly (requires solving Kepler's equation - only calculated when needed)
+
+            l :         mean longitude = Omega + omega + M
+            theta :     true longitude = Omega + omega + f
+
+            T:          time of pericenter passage
+
 
         Code entsorgen, der durch rebound abgedeckt wird.
 

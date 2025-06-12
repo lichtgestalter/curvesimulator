@@ -34,7 +34,7 @@ class CurveSimParameters:
         self.frames = eval(config.get("Video", "frames"))
         self.fps = eval(config.get("Video", "fps"))
         self.dt = eval(config.get("Video", "dt"))
-        self.sampling_rate = eval(config.get("Video", "sampling_rate"))
+        self.sampling_rate = int(eval(config.get("Video", "sampling_rate")))
         self.iterations = self.frames * self.sampling_rate
 
         # [Scale]

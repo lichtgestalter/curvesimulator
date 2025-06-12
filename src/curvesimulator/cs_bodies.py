@@ -19,9 +19,12 @@ class CurveSimBodies(list):
         simulation = rebound.Simulation()
         simulation.G = p.g  # gravitational constant
 
-        # simulation.integrator = "whfast"
-        # simulation.dt = p.dt
-        # print(simulation.integrator)
+        star_count = sum(1 for body in self if body.body_type == "star")
+
+        if star_count == 1:
+            simulation.integrator = "whfast"
+            simulation.dt = p.dt
+        print(f"Rebound uses integrator {simulation.integrator}.")
 
         i = 0
         for body in self[0:1]:  # hack: works only when the first body is the only star and all other bodies are orbiting this star (no binary, no moons, ...)
@@ -268,6 +271,7 @@ class CurveSimBodies(list):
             #     print(f"{iteration:4.0f}: {d.x:20.0f} {d.y:20.0f} {d.z:20.0f}  {d.vx:20.0f} {d.vy:20.0f} {d.vz:20.0f}")
 
         # print(f"\nRebound performed {rebound_sim.steps_done} simulation steps.")
+        self.find_transits(p)
         lightcurve_max = float(lightcurve.max(initial=None))
         lightcurve /= lightcurve_max  # Normalize flux.
         results.normalize_flux(lightcurve_max)  # Normalize flux in parameter depth in results.
@@ -285,7 +289,9 @@ class CurveSimBodies(list):
         results, lightcurve, bodies, energy_change = self.calc_positions_eclipses_luminosity(p)
         toc = time.perf_counter()
         print(f' {toc - tic:7.2f} seconds  ({p.iterations / (toc - tic):.0f} iterations/second)')
-        print(f"Magnitude of the relative change of energy during simulation: {energy_change:.0f}")
+        print(f"Log10 of the relative change of energy during simulation: {energy_change:.0f}")
+        if energy_change > -6:
+            print("\u001b[31m" + "The energy must not change significantly! Consider using a smaller time step (dt)." + "\u001b[0m")
         return results, lightcurve
 
     def calc_patch_radii(self, p):
@@ -327,3 +333,19 @@ class CurveSimBodies(list):
     #                 if distance > 0:
     #                     potential_energy += body1.mass * body2.mass / distance
     #     return kinetic_energy - p.g * potential_energy
+
+    def find_transits(self, p):
+        # transit_dic = {}
+        print()
+        for i in range(1, p.iterations):
+            for j, body1 in enumerate(self):
+                for k, body2 in enumerate(self):
+                    if j < k:
+                        if (body1.positions[i][0] - body2.positions[i][0]) * (body1.positions[i-1][0] - body2.positions[i-1][0]) <= 0:
+                            d = CurveSimPhysics.distance_2d_ecl(body1, body2, i)
+                            if d < body1.radius + body2.radius:
+                                if body1.positions[i][2] > body2.positions[i][2]:
+                                    eclipser, eclipsee = body1.name, body2.name
+                                else:
+                                    eclipser, eclipsee = body2.name, body1.name
+                                print(f"{eclipser} transits before {eclipsee} between iteration {i}/ {i+1}")
