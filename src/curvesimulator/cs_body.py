@@ -389,6 +389,51 @@ class CurveSimBody:
             else:
                 multiple_transit_error()  # alternatively, I could make a greater effort, finding the right transit. I will do that once I figured out how to calculate the luminosity of multiple parallel transits correctly.
 
+    def example_from_docs(sim):
+        N = 174
+        transittimes = np.zeros(N)
+        p = sim.particles
+        i = 0
+        while i < N:
+            y_old = p[1].y - p[0].y  # (Thanks to David Martin for pointing out a bug in this line!)
+            t_old = sim.t
+            sim.integrate(sim.t + 0.5)  # check for transits every 0.5 time units. Note that 0.5 is shorter than one orbit
+            t_new = sim.t
+            if y_old * (p[1].y - p[0].y) < 0. and p[1].x - p[0].x > 0.:  # sign changed (y_old*y<0), planet in front of star (x>0)
+                while t_new - t_old > 1e-7:  # bisect until prec of 1e-5 reached
+                    if y_old * (p[1].y - p[0].y) < 0.:
+                        t_new = sim.t
+                    else:
+                        t_old = sim.t
+                    sim.integrate((t_new + t_old) / 2.)
+                transittimes[i] = sim.t
+                i += 1
+                sim.integrate(sim.t + 0.05)  # integrate 0.05 to be past the transit
+
+    def find_tt(self, other, iteration, rebound_sim, p):
+        """other eclipses self. Find the exact time of transit (TT)."""
+        eclipser = rebound_sim.particles[other.name]
+        eclipsee = rebound_sim.particles[self.name]
+        rebound_sim.integrate(rebound_sim.t + iteration * p.dt)
+        dx_old = eclipser.x - eclipsee.x
+        t_old = rebound_sim.t
+        rebound_sim.integrate(rebound_sim.t + iteration * p.dt + p.dt)
+        t_new = rebound_sim.t
+        dx_new = eclipser.x - eclipsee.x
+        # x-coordinate is identical for eclipser and eclipsee at TT
+        # eclipser has larger z-coordinate than eclipsee (nearer to viewpoint)
+        if dx_old * dx_new < 0 and eclipser.z >= eclipsee.z:  # sign of dx changed and eclipser in front of eclipsee
+            while t_new - t_old > 1e-6:  # bisect until prec of 1e-6 reached
+                if dx_old * (eclipser.x - eclipsee.x) < 0:
+                    t_new = rebound_sim.t
+                else:
+                    t_old = rebound_sim.t
+                rebound_sim.integrate((t_new + t_old) / 2)
+            return rebound_sim.t
+        else:
+            print("Fehler in find_tt.")
+            return -1
+
     def eclipsed_by(self, other, iteration, results, transit_status, p):
         """Returns area, relative_radius
         area: Area of self which is eclipsed by other.

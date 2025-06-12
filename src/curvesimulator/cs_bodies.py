@@ -271,7 +271,7 @@ class CurveSimBodies(list):
             #     print(f"{iteration:4.0f}: {d.x:20.0f} {d.y:20.0f} {d.z:20.0f}  {d.vx:20.0f} {d.vy:20.0f} {d.vz:20.0f}")
 
         # print(f"\nRebound performed {rebound_sim.steps_done} simulation steps.")
-        self.find_transits(p)
+        self.find_transits(rebound_sim, p)
         lightcurve_max = float(lightcurve.max(initial=None))
         lightcurve /= lightcurve_max  # Normalize flux.
         results.normalize_flux(lightcurve_max)  # Normalize flux in parameter depth in results.
@@ -334,8 +334,7 @@ class CurveSimBodies(list):
     #                     potential_energy += body1.mass * body2.mass / distance
     #     return kinetic_energy - p.g * potential_energy
 
-    def find_transits(self, p):
-        # transit_dic = {}
+    def find_transits(self, rebound_sim, p):
         print()
         for i in range(1, p.iterations):
             for j, body1 in enumerate(self):
@@ -345,7 +344,8 @@ class CurveSimBodies(list):
                             d = CurveSimPhysics.distance_2d_ecl(body1, body2, i)
                             if d < body1.radius + body2.radius:
                                 if body1.positions[i][2] > body2.positions[i][2]:
-                                    eclipser, eclipsee = body1.name, body2.name
+                                    eclipser, eclipsee = body1, body2
                                 else:
-                                    eclipser, eclipsee = body2.name, body1.name
-                                print(f"{eclipser} transits before {eclipsee} between iteration {i}/ {i+1}")
+                                    eclipser, eclipsee = body2, body1
+                                tt = eclipsee.find_tt(eclipser, i, rebound_sim, p)
+                                print(f"{eclipser.name} transits before {eclipsee.name} between iterations {i} and {i+1}. {tt=}")
