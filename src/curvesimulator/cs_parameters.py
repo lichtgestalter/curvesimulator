@@ -23,8 +23,12 @@ class CurveSimParameters:
         r_earth = eval(config.get("Astronomical Constants", "r_earth", fallback="None"))
         m_earth = eval(config.get("Astronomical Constants", "m_earth", fallback="None"))
         v_earth = eval(config.get("Astronomical Constants", "v_earth", fallback="None"))
+        hour = eval(config.get("Astronomical Constants", "hour", fallback="None"))
+        day = eval(config.get("Astronomical Constants", "day", fallback="None"))
+        year = eval(config.get("Astronomical Constants", "year", fallback="None"))
         self.g, self.au, self.r_sun, self.m_sun, self.l_sun = g, au, r_sun, m_sun, l_sun,
         self.r_jup, self.m_jup, self.r_earth, self.m_earth, self.v_earth = r_jup, m_jup, r_earth, m_earth, v_earth
+        self.hour, self.day, self.year = hour, day, year
 
         # [Video]
         self.config_file = config_file

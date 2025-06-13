@@ -414,10 +414,10 @@ class CurveSimBody:
         """other eclipses self. Find the exact time of transit (TT)."""
         eclipser = rebound_sim.particles[other.name]
         eclipsee = rebound_sim.particles[self.name]
-        rebound_sim.integrate(rebound_sim.t + iteration * p.dt)
+        rebound_sim.integrate(iteration * p.dt)
         dx_old = eclipser.x - eclipsee.x
         t_old = rebound_sim.t
-        rebound_sim.integrate(rebound_sim.t + iteration * p.dt + p.dt)
+        rebound_sim.integrate((iteration + 1) * p.dt)
         t_new = rebound_sim.t
         dx_new = eclipser.x - eclipsee.x
         # x-coordinate is identical for eclipser and eclipsee at TT
@@ -429,9 +429,40 @@ class CurveSimBody:
                 else:
                     t_old = rebound_sim.t
                 rebound_sim.integrate((t_new + t_old) / 2)
-            return rebound_sim.t
+            return rebound_sim.t / p.day + p.start_date
         else:
-            print("Fehler in find_tt.")
+            print("Programming error in find_tt. Please open an issue on github/lichtgestalter and provide your config file.")
+            return -1
+
+    def find_t1(self, other, iteration, rebound_sim, p, tt):
+        """other eclipses self. Find the exact starting time of the ingress (T1)."""
+        eclipser = rebound_sim.particles[other.name]
+        eclipsee = rebound_sim.particles[self.name]
+
+        # go backwards from iteration (this is the one right _after_ TT) to find the iteration before the eclipse starts
+        go_back = 0
+        d = -1
+        while d < self.radius + other.radius:  # Does other eclipse self?
+            go_back += 1
+            d = CurveSimPhysics.distance_2d_ecl(other, self, iteration - go_back)
+
+
+        rebound_sim.integrate((iteration - go_back) * p.dt)
+        d_old = distance_2d_ecl(eclipser, eclipsee)  die Funktion muss ich noch schreiben
+        t_old = rebound_sim.t
+        rebound_sim.integrate(iteration * p.dt)
+        t_new = rebound_sim.t
+        d_new = eclipser.x - eclipsee.x
+        if dx_old * dx_new < 0 and eclipser.z >= eclipsee.z:  # sign of dx changed and eclipser in front of eclipsee
+            while t_new - t_old > 1e-6:  # bisect until prec of 1e-6 reached
+                if dx_old * (eclipser.x - eclipsee.x) < 0:
+                    t_new = rebound_sim.t
+                else:
+                    t_old = rebound_sim.t
+                rebound_sim.integrate((t_new + t_old) / 2)
+            return rebound_sim.t / p.day + p.start_date
+        else:
+            print("Programming error in find_tt. Please open an issue on github/lichtgestalter and provide your config file.")
             return -1
 
     def eclipsed_by(self, other, iteration, results, transit_status, p):

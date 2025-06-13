@@ -347,5 +347,6 @@ class CurveSimBodies(list):
                                     eclipser, eclipsee = body1, body2
                                 else:
                                     eclipser, eclipsee = body2, body1
-                                tt = eclipsee.find_tt(eclipser, i, rebound_sim, p)
-                                print(f"{eclipser.name} transits before {eclipsee.name} between iterations {i} and {i+1}. {tt=}")
+                                tt = eclipsee.find_tt(eclipser, i-1, rebound_sim, p)
+                                t1 = eclipsee.find_t1(eclipser, i, rebound_sim, p)
+                                print(f"{eclipser.name} transits before {eclipsee.name} at {tt=:.3f} {t1=:.3f}")
