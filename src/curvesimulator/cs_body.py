@@ -452,7 +452,7 @@ class CurveSimBody:
         t_old = rebound_sim.t
         rebound_sim.integrate(iteration * p.dt)
         t_new = rebound_sim.t
-        d_new = eclipser.x - eclipsee.x
+        d_new = distance_2d_ecl(eclipser, eclipsee)
         if dx_old * dx_new < 0 and eclipser.z >= eclipsee.z:  # sign of dx changed and eclipser in front of eclipsee
             while t_new - t_old > 1e-6:  # bisect until prec of 1e-6 reached
                 if dx_old * (eclipser.x - eclipsee.x) < 0:
