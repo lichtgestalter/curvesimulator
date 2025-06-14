@@ -211,13 +211,10 @@ class CurveSimBody:
         self.mu = CurveSimPhysics.gravitational_parameter(bodies, p.g)  # is the same for all bodies in the system, because they are orbiting a common barycenter
         if self.velocity is None:  # State vectors are not in config file. So they will be calculated from Kepler orbit parameters instead.
             state_vector_function = self.keplerian_elements_to_state_vector
-            # print(f'Using state vector function {state_vector_function.__name__}')
             pos, vel, *_ = state_vector_function()
             self.positions[0] = np.array(pos, dtype=float)  # [m] initial position
             self.velocity = np.array(vel, dtype=float)  # [m/s] initial velocity
-            # print(f"{self.name}: Initial velocity before correction: {self.velocity}")
             self.velocity /= (1 + (self.mass / bodies[0].mass))  # correction because formulas seem to assume a system where all the mass is in one object at the center
-            # print(f"{self.name}: Initial velocity  after correction: {self.velocity}")
 
     def state_vector_to_keplerian_elements(self):
         """Given the State Vector (position x, y, z and velocity dx, dy, dz) of an exoplanet, calculate its
@@ -283,15 +280,10 @@ class CurveSimBody:
         if self.radius < other.radius:  # Total eclipse
             area = self.area_2d
             relative_radius = 0
-            # print(f'  total: {iteration:7d}  rel.area: {area/self.area_2d*100:6.0f}%  rel.r: {relative_radius*100:6.0f}%')
             return area, relative_radius
         else:  # Annular (i.e. ring) eclipse
             area = other.area_2d
             relative_radius = d / self.radius
-            # if debugging_eclipse and iteration % 1 == 0:
-            #     print(f'ring eclipse i:{iteration:5d}  ecl.area: {area/self.area_2d*100:4.1f}%  rel.r: {relative_radius*100:4.1f}%', end="  ")
-            #     print(f"dy: {abs(self.positions[iteration][1]-other.positions[iteration][1]):6.3e}  dz: {abs(self.positions[iteration][2]-other.positions[iteration][2]):6.3e} d: {d:6.3e}")
-            # print(f'   ring: {iteration:7d}  rel.area: {area / self.area_2d * 100:6.0f}%  rel.r: {relative_radius * 100:6.0f}%')
             return area, relative_radius
 
     def partial_eclipse(self, other, d):
@@ -307,9 +299,6 @@ class CurveSimBody:
         self.eclipsed_area = self.radius ** 2 * (self.angle - math.sin(self.angle)) / 2  # Area of circle segment
         area = other.eclipsed_area + self.eclipsed_area  # Eclipsed area is sum of two circle segments.
         relative_radius = (self.radius + self.d - other.h) / (2 * self.radius)  # Relative distance between approximated center C of eclipsed area and center of self
-        # if debugging_eclipse and iteration % 1 == 0:
-        #     print(f'partial eclipse i:{iteration:5d}  ecl.area: {area / self.area_2d * 100:4.1f}%  rel.r: {relative_radius * 100:4.1f}%', end="  ")
-        #     print(f"dy: {abs(self.positions[iteration][1] - other.positions[iteration][1]):6.3e}  dz: {abs(self.positions[iteration][2] - other.positions[iteration][2]):6.3e} d: {d:6.3e}")
         return area, relative_radius
 
     def last_transit_is_relevant_transit(self, other, results, transit_parameter):
@@ -424,46 +413,61 @@ class CurveSimBody:
         # eclipser has larger z-coordinate than eclipsee (nearer to viewpoint)
         if dx_old * dx_new < 0 and eclipser.z >= eclipsee.z:  # sign of dx changed and eclipser in front of eclipsee
             while t_new - t_old > 1e-6:  # bisect until prec of 1e-6 reached
-                if dx_old * (eclipser.x - eclipsee.x) < 0:
-                    t_new = rebound_sim.t
-                else:
-                    t_old = rebound_sim.t
                 rebound_sim.integrate((t_new + t_old) / 2)
-            return rebound_sim.t / p.day + p.start_date
+                if dx_old * (eclipser.x - eclipsee.x) < 0:  # TT lies between t_old and (t_new + t_old) / 2
+                    t_new = rebound_sim.t
+                else:  # TT lies between t_new and (t_new + t_old) / 2
+                    t_old = rebound_sim.t
+            tt = rebound_sim.t / p.day + p.start_date
+            impact = CurveSimPhysics.distance_2d_particle(eclipser, eclipsee) / self.radius
+            return tt, impact  next: absolute depth ausrechnen
         else:
-            print("Programming error in find_tt. Please open an issue on github/lichtgestalter and provide your config file.")
+            print("Programming error in function find_tt. Please open an issue on https://github.com/lichtgestalter/curvesimulator/issues and provide your config file.")
             return -1
 
-    def find_t1(self, other, iteration, rebound_sim, p, tt):
-        """other eclipses self. Find the exact starting time of the ingress (T1)."""
+    def find_t1234(self, other, iteration, rebound_sim, p, transittimetype):
+        """other eclipses self. Find where ingress starts (T1) or egress ends (T4)."""
         eclipser = rebound_sim.particles[other.name]
         eclipsee = rebound_sim.particles[self.name]
-
-        # go backwards from iteration (this is the one right _after_ TT) to find the iteration before the eclipse starts
-        go_back = 0
+        if transittimetype in ["T1", "T4"]:
+            d_max = self.radius + other.radius
+        else:
+            d_max = abs(self.radius - other.radius)
+        iteration_delta = 0
         d = -1
-        while d < self.radius + other.radius:  # Does other eclipse self?
-            go_back += 1
-            d = CurveSimPhysics.distance_2d_ecl(other, self, iteration - go_back)
-
-
-        rebound_sim.integrate((iteration - go_back) * p.dt)
-        d_old = distance_2d_ecl(eclipser, eclipsee)  die Funktion muss ich noch schreiben
+        step = -1 if transittimetype in ["T1", "T2"] else 1
+        # T1/T2: go backwards from iteration (this should be the one right _after_ TT) to find the iteration before the eclipse starts
+        # T3/T4: go forward from iteration (this should be the one right _before_ TT) to find the iteration after the eclipse ends
+        while d < d_max:
+            if iteration + iteration_delta == p.iterations - 1 or iteration + iteration_delta == 0:
+                return None  # incomplete transit at start or end of simulation
+            iteration_delta += step
+            d = CurveSimPhysics.distance_2d(other, self, iteration + iteration_delta)
+        rebound_sim.integrate((iteration + iteration_delta) * p.dt)
+        d_old = CurveSimPhysics.distance_2d_particle(eclipser, eclipsee)
         t_old = rebound_sim.t
         rebound_sim.integrate(iteration * p.dt)
         t_new = rebound_sim.t
-        d_new = distance_2d_ecl(eclipser, eclipsee)
-        if dx_old * dx_new < 0 and eclipser.z >= eclipsee.z:  # sign of dx changed and eclipser in front of eclipsee
+        d_new = CurveSimPhysics.distance_2d_particle(eclipser, eclipsee)
+        if transittimetype not in ["T1", "T2"]:
+            t_new, t_old = t_old, t_new
+        if d_old > d_max > d_new:  # T1 or T2  or T3 or T4 lies between t_old and t_new
             while t_new - t_old > 1e-6:  # bisect until prec of 1e-6 reached
-                if dx_old * (eclipser.x - eclipsee.x) < 0:
-                    t_new = rebound_sim.t
-                else:
-                    t_old = rebound_sim.t
                 rebound_sim.integrate((t_new + t_old) / 2)
+                in_eclipse = CurveSimPhysics.distance_2d_particle(eclipser, eclipsee) < d_max
+                if transittimetype in ["T1", "T2"]:
+                    if in_eclipse: # T1 or T2 lies between t_old and (t_new + t_old) / 2
+                        t_new = rebound_sim.t
+                    else:
+                        t_old = rebound_sim.t
+                else:
+                    if in_eclipse: # T3 or T4 lies between t_new and (t_new + t_old) / 2
+                        t_old = rebound_sim.t
+                    else:
+                        t_new = rebound_sim.t
             return rebound_sim.t / p.day + p.start_date
-        else:
-            print("Programming error in find_tt. Please open an issue on github/lichtgestalter and provide your config file.")
-            return -1
+        else:  # grazing transit
+            return None
 
     def eclipsed_by(self, other, iteration, results, transit_status, p):
         """Returns area, relative_radius
@@ -471,7 +475,7 @@ class CurveSimBody:
         relative_radius: The distance of the approximated center of the eclipsed area from the center of self as a percentage of self.radius (used for limb darkening)."""
         # if other.positions[iteration][0] < self.positions[iteration][0]:  # Is other nearer to viewpoint than self? (i.e. its position has a smaller x-coordinate)
         if other.positions[iteration][2] > self.positions[iteration][2]:  # Is other nearer to viewpoint than self? (i.e. its position has a larger z-coordinate)
-            d = CurveSimPhysics.distance_2d_ecl(other, self, iteration)
+            d = CurveSimPhysics.distance_2d(other, self, iteration)
             if d < self.radius + other.radius:  # Does other eclipse self?
                 if d <= abs(self.radius - other.radius):  # Annular (i.e. ring) eclipse or total eclipse
                     self.check_for_T2(other, iteration, results, transit_status, p)

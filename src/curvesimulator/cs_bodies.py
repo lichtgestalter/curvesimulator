@@ -341,12 +341,24 @@ class CurveSimBodies(list):
                 for k, body2 in enumerate(self):
                     if j < k:
                         if (body1.positions[i][0] - body2.positions[i][0]) * (body1.positions[i-1][0] - body2.positions[i-1][0]) <= 0:
-                            d = CurveSimPhysics.distance_2d_ecl(body1, body2, i)
+                            d = CurveSimPhysics.distance_2d(body1, body2, i)
                             if d < body1.radius + body2.radius:
                                 if body1.positions[i][2] > body2.positions[i][2]:
                                     eclipser, eclipsee = body1, body2
                                 else:
                                     eclipser, eclipsee = body2, body1
-                                tt = eclipsee.find_tt(eclipser, i-1, rebound_sim, p)
-                                t1 = eclipsee.find_t1(eclipser, i, rebound_sim, p)
-                                print(f"{eclipser.name} transits before {eclipsee.name} at {tt=:.3f} {t1=:.3f}")
+                                tt, b = eclipsee.find_tt(eclipser, i-1, rebound_sim, p)
+                                t1 = eclipsee.find_t1234(eclipser, i, rebound_sim, p, transittimetype="T1")
+                                t2 = eclipsee.find_t1234(eclipser, i, rebound_sim, p, transittimetype="T2")
+                                t3 = eclipsee.find_t1234(eclipser, i - 1, rebound_sim, p, transittimetype="T3")
+                                t4 = eclipsee.find_t1234(eclipser, i - 1, rebound_sim, p, transittimetype="T4")
+                                t12, t23, t34, t14 = CurveSimPhysics.calc_transit_intervals(t1, t2, t3, t4)
+                                t1 = 0 if t1 is None else t1
+                                t2 = 0 if t2 is None else t2
+                                t3 = 0 if t3 is None else t3
+                                t4 = 0 if t4 is None else t4
+                                t12 = 0 if t12 is None else t12
+                                t23 = 0 if t23 is None else t23
+                                t34 = 0 if t34 is None else t34
+                                t14 = 0 if t14 is None else t14
+                                print(f"{eclipser.name} eclipses {eclipsee.name} {b=:.3f} {t1=:.3f} {t2=:.3f} {tt=:.3f} {t3=:.3f} {t4=:.3f} {t12=:.3f} {t23=:.3f} {t34=:.3f} {t14=:.3f}")

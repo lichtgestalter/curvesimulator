@@ -42,7 +42,7 @@ class CurveSimPhysics:
         return g * mass
 
     @staticmethod
-    def distance_2d_ecl(body1, body2, i):
+    def distance_2d(body1, body2, i):
         """Return distance of the centers of 2 physical bodies as seen by a viewer (projection x->0)."""
         # dy = body1.positions[i][1] - body2.positions[i][1]
         # dz = body1.positions[i][2] - body2.positions[i][2]
@@ -50,6 +50,13 @@ class CurveSimPhysics:
         """Return distance of the centers of 2 physical bodies as seen by a viewer (projection z->0)."""
         dx = body1.positions[i][0] - body2.positions[i][0]
         dy = body1.positions[i][1] - body2.positions[i][1]
+        return math.sqrt((dx ** 2 + dy ** 2))
+
+    @staticmethod
+    def distance_2d_particle(particle1, particle2):
+        """Return distance of the centers of 2 rebound simulation particles (projection z->0)."""
+        dx = particle1.x - particle2.x
+        dy = particle1.y - particle2.y
         return math.sqrt((dx ** 2 + dy ** 2))
 
     @staticmethod
@@ -118,3 +125,12 @@ class CurveSimPhysics:
         x1, y1, z1 = point1
         x2, y2, z2 = point2
         return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2)
+
+    @staticmethod
+    def calc_transit_intervals(t1, t2, t3, t4):
+        t12 = None if t2 is None or t1 is None else t2 - t1
+        t23 = None if t3 is None or t2 is None else t3 - t2
+        t34 = None if t4 is None or t3 is None else t4 - t3
+        t14 = None if t4 is None or t1 is None else t4 - t1
+        return t12, t23, t34, t14
+
