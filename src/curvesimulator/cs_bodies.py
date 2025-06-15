@@ -271,9 +271,9 @@ class CurveSimBodies(list):
             #     print(f"{iteration:4.0f}: {d.x:20.0f} {d.y:20.0f} {d.z:20.0f}  {d.vx:20.0f} {d.vy:20.0f} {d.vz:20.0f}")
 
         # print(f"\nRebound performed {rebound_sim.steps_done} simulation steps.")
-        self.find_transits(rebound_sim, p)
         lightcurve_max = float(lightcurve.max(initial=None))
         lightcurve /= lightcurve_max  # Normalize flux.
+        self.find_transits(rebound_sim, p, lightcurve)
         results.normalize_flux(lightcurve_max)  # Normalize flux in parameter depth in results.
         energy_change = math.log10(abs(rebound_sim.energy() / initial_energy - 1))  # Magnitude of the relative change of energy during simulation
         return results, lightcurve, self, energy_change
@@ -334,7 +334,7 @@ class CurveSimBodies(list):
     #                     potential_energy += body1.mass * body2.mass / distance
     #     return kinetic_energy - p.g * potential_energy
 
-    def find_transits(self, rebound_sim, p):
+    def find_transits(self, rebound_sim, p, lightcurve):
         print()
         for i in range(1, p.iterations):
             for j, body1 in enumerate(self):
@@ -347,7 +347,7 @@ class CurveSimBodies(list):
                                     eclipser, eclipsee = body1, body2
                                 else:
                                     eclipser, eclipsee = body2, body1
-                                tt, b = eclipsee.find_tt(eclipser, i-1, rebound_sim, p)
+                                tt, b, depth = eclipsee.find_tt(eclipser, i-1, rebound_sim, p, lightcurve)
                                 t1 = eclipsee.find_t1234(eclipser, i, rebound_sim, p, transittimetype="T1")
                                 t2 = eclipsee.find_t1234(eclipser, i, rebound_sim, p, transittimetype="T2")
                                 t3 = eclipsee.find_t1234(eclipser, i - 1, rebound_sim, p, transittimetype="T3")
@@ -361,4 +361,6 @@ class CurveSimBodies(list):
                                 t23 = 0 if t23 is None else t23
                                 t34 = 0 if t34 is None else t34
                                 t14 = 0 if t14 is None else t14
-                                print(f"{eclipser.name} eclipses {eclipsee.name} {b=:.3f} {t1=:.3f} {t2=:.3f} {tt=:.3f} {t3=:.3f} {t4=:.3f} {t12=:.3f} {t23=:.3f} {t34=:.3f} {t14=:.3f}")
+                                print(f"{eclipser.name} eclipses {eclipsee.name}: {1-lightcurve[i-1]=:.6f} {depth=:.6f} {1-lightcurve[i]=:.6f} ")
+
+                                # print(f"{eclipser.name} eclipses {eclipsee.name} {b=:.3f} {t1=:.3f} {t2=:.3f} {tt=:.3f} {t3=:.3f} {t4=:.3f} {t12=:.3f} {t23=:.3f} {t34=:.3f} {t14=:.3f}")

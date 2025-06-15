@@ -399,8 +399,9 @@ class CurveSimBody:
                 i += 1
                 sim.integrate(sim.t + 0.05)  # integrate 0.05 to be past the transit
 
-    def find_tt(self, other, iteration, rebound_sim, p):
-        """other eclipses self. Find the exact time of transit (TT)."""
+    def find_tt(self, other, iteration, rebound_sim, p, lightcurve):
+        """other eclipses self. Find the exact time of transit (TT).
+            iteration should be the last one before TT. """
         eclipser = rebound_sim.particles[other.name]
         eclipsee = rebound_sim.particles[self.name]
         rebound_sim.integrate(iteration * p.dt)
@@ -420,7 +421,8 @@ class CurveSimBody:
                     t_old = rebound_sim.t
             tt = rebound_sim.t / p.day + p.start_date
             impact = CurveSimPhysics.distance_2d_particle(eclipser, eclipsee) / self.radius
-            return tt, impact  next: absolute depth ausrechnen
+            depth = 1 - lightcurve.interpolate_max_depth(tt, p, iteration)
+            return tt, impact, depth
         else:
             print("Programming error in function find_tt. Please open an issue on https://github.com/lichtgestalter/curvesimulator/issues and provide your config file.")
             return -1

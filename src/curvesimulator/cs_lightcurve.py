@@ -37,3 +37,39 @@ class CurveSimLightcurve(np.ndarray):
             minima[j] = estimate_local_minimum(minimum[0], self[minimum[0] - 1], self[minimum[0]], self[minimum[0] + 1])
 
         return minima
+
+    def interpolate_max_depth(self, tt, p, iteration):
+        """
+        Interpolates the 'self' value at a given 'tt' using cubic interpolation
+        (Catmull-Rom like) based on surrounding 'iteration' points.
+
+        Args:
+            self: lightcurve
+            tt: The time value for which to interpolate [BJD]
+            p: CurveSimulator parameters
+            iteration: index of the simulation right before TT (iteration < iteration_tt < iteration + 1).
+
+        Returns:
+            The interpolated value at tt, or None if interpolation indices are out of bounds.
+        """
+        if not (1 <= iteration < len(self) - 2):  # Ensure indices are within bounds
+            print("Function interpolate_max_depth: Interpolation indices out of bounds. ")
+            print(f"{iteration=}, {len(self)=}")
+            return None
+
+        iteration_tt = ((tt - p.start_date) * p.day % p.dt) / p.dt + iteration
+        P0 = self[iteration - 1]  # f_im1
+        P1 = self[iteration]  # f_i
+        P2 = self[iteration + 1]  # f_ip1
+        P3 = self[iteration + 2]  # f_ip2
+        alpha = iteration_tt - iteration  # Calculate the normalized position (alpha or t) within the segment [iteration, iteration + 1]
+        alpha = np.clip(alpha, 0.0, 1.0)  # Due to floating point arithmetic, it might be slightly outside [0, 1), so clamp it.
+        alpha2 = alpha * alpha
+        alpha3 = alpha2 * alpha
+        interpolated_value = 0.5 * (
+                (2 * P1) +
+                (-P0 + P2) * alpha +
+                (2 * P0 - 5 * P1 + 4 * P2 - P3) * alpha2 +
+                (-P0 + 3 * P1 - 3 * P2 + P3) * alpha3
+        )
+        return interpolated_value
