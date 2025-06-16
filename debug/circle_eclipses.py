@@ -5,7 +5,7 @@ Complete the function visible_percentages().
 Consider the funtion intersection() to be correctly implemented.
 """
 
-from shapely.geometry import Point
+from shapely.geometry import Point  # https://shapely.readthedocs.io/en/stable/manual.html
 import math
 
 class TCircle():
