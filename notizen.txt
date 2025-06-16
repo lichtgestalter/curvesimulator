@@ -1,8 +1,14 @@
 Recently done / in progress:
 
 Fragen an Simon:
+
+    Vorgehensweise bei Suche nach alten Planet-d-Transits
+        Planet-b-Transits modellieren?
+
     Lohnt es sich die Verdunklung durch secondary eclipses und eclipses unter Planeten (fx planet c verdeckt planet d) zu modellieren?
         Bei Albedo von 50% muesste eine secondary eclipse halb so tief sein wie eine primary eclipse, korrekt?
+
+    Hast du Literatur zu multiple Transits / Fallunterscheidung bei gegenseitiger Ueberdeckung von 3 oder mehr Kreisen?
 
 
 NEXT Astrophysics:
