@@ -2,12 +2,6 @@ Recently done / in progress:
 
 Fragen an Simon:
 
-    Vorgehensweise bei Suche nach alten Planet-d-Transits
-        Planet-b-Transits modellieren?
-
-    Lohnt es sich die Verdunklung durch secondary eclipses und eclipses unter Planeten (fx planet c verdeckt planet d) zu modellieren?
-        Bei Albedo von 50% muesste eine secondary eclipse halb so tief sein wie eine primary eclipse, korrekt?
-
     Hast du Literatur zu multiple Transits / Fallunterscheidung bei gegenseitiger Ueberdeckung von 3 oder mehr Kreisen?
 
 
@@ -22,9 +16,21 @@ NEXT Astrophysics:
 
 NEXT Programming:
 
+        Alte d-transits finden
+
+        MCMC-Integration
+            Super simples Fakemodell machen und mit MCMC zum Interasgieren bringen
+                Koennte z.B. Funktion sein, die  a * x + b + r berechnet
+                    r ist ein kleiner Zufallswert (white noise)
+                    a und b sind die durch MCMC zu bestimmenden Parameter
+
+
         Mit Rebound ermittelte Transit-Parameter vernuenftig speichern.
             Bisherige Ermittlungs- und Abspeicher-Funktionen ersetzen
             z.B. obsolete Funktion lightcurve_minima in cs_lightcurve.py
+
+
+    Hinter MCMC-Integration zurueckgestellt:
 
         BUG! Ich speichere fuer den Stern ueberfluessige Parameter mit falschen Werten ab? Z.B. e und i.
 
@@ -34,26 +40,27 @@ NEXT Programming:
 
         init_rebound() verallgemeinern. Auch Hierarchie ermoeglichen (=wer kreist um wen?)
 
-        Aus dem User Input die Kepler-Parameter berechnen, die Rebound braucht, und Rebound damit fuettern.
-        Fuer mich relevante Parameter, die Reboundklasse Orbit akzeptiert:
-            P :         orbital period
-            a :         semimajor axis
+        Damit CurveSimulator auch fuer andere Systeme ausser TOI4504 funktioniert:
+            Aus dem User Input die Kepler-Parameter berechnen, die Rebound braucht, und Rebound damit fuettern.
+            Fuer mich relevante Parameter, die Reboundklasse Orbit akzeptiert:
+                P :         orbital period
+                a :         semimajor axis
 
-            e :         eccentricity
-            inc :       inclination
+                e :         eccentricity
+                inc :       inclination
 
-            Omega :     longitude of ascending node
-            omega :     argument of pericenter
-            pomega :    longitude of pericenter
+                Omega :     longitude of ascending node
+                omega :     argument of pericenter
+                pomega :    longitude of pericenter
 
-            f :         true anomaly
-            M :         mean anomaly
-            E :         eccentric anomaly (requires solving Kepler's equation - only calculated when needed)
+                f :         true anomaly
+                M :         mean anomaly
+                E :         eccentric anomaly (requires solving Kepler's equation - only calculated when needed)
 
-            l :         mean longitude = Omega + omega + M
-            theta :     true longitude = Omega + omega + f
+                l :         mean longitude = Omega + omega + M
+                theta :     true longitude = Omega + omega + f
 
-            T:          time of pericenter passage
+                T:          time of pericenter passage
 
 
         Code entsorgen, der durch rebound abgedeckt wird.
@@ -62,10 +69,12 @@ NEXT Programming:
             Mindestgenauigkeit bei binary search von Transittimes
             Akzeptable Energieveraenderung
 
-        Multiple transits (und secondary eclipses?) korrekt hantieren
-            Alle Fallunterscheidungen fuer gleichzeitige Verdeckung von 3 bodies manuell ermitteln.
-                Dafuer vorher nochmal die Fallunterscheidungen fuer 2 bodies verstehen.
+        Multiple transits (und secondary eclipses?) korrekt hantieren.
+            Siehe circle_eclipses.py
 
+        Lohnt es sich die Verdunklung durch secondary eclipses und eclipses unter Planeten (fx planet c verdeckt planet d) zu modellieren?
+        Bei Albedo von 50% muesste eine secondary eclipse halb so tief sein wie eine primary eclipse, korrekt?
+                Nein, der Effekt ist viel kleiner und kann vorerst vernachlaessigt werden. Kann ich irgendwann spaeter mal einbauen.
 
 
     Example videos

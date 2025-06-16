@@ -273,7 +273,8 @@ class CurveSimBodies(list):
         # print(f"\nRebound performed {rebound_sim.steps_done} simulation steps.")
         lightcurve_max = float(lightcurve.max(initial=None))
         lightcurve /= lightcurve_max  # Normalize flux.
-        self.find_transits(rebound_sim, p, lightcurve)
+        print("Remember to replace obsolete code with self.find_transits(rebound_sim, p, lightcurve)")
+        # self.find_transits(rebound_sim, p, lightcurve)
         results.normalize_flux(lightcurve_max)  # Normalize flux in parameter depth in results.
         energy_change = math.log10(abs(rebound_sim.energy() / initial_energy - 1))  # Magnitude of the relative change of energy during simulation
         return results, lightcurve, self, energy_change
@@ -361,6 +362,5 @@ class CurveSimBodies(list):
                                 t23 = 0 if t23 is None else t23
                                 t34 = 0 if t34 is None else t34
                                 t14 = 0 if t14 is None else t14
-                                print(f"{eclipser.name} eclipses {eclipsee.name}: {1-lightcurve[i-1]=:.6f} {depth=:.6f} {1-lightcurve[i]=:.6f} ")
-
+                                # print(f"{eclipser.name} eclipses {eclipsee.name}: {1-lightcurve[i-1]=:.6f} {depth=:.6f} {1-lightcurve[i]=:.6f} ")
                                 # print(f"{eclipser.name} eclipses {eclipsee.name} {b=:.3f} {t1=:.3f} {t2=:.3f} {tt=:.3f} {t3=:.3f} {t4=:.3f} {t12=:.3f} {t23=:.3f} {t34=:.3f} {t14=:.3f}")
