@@ -40,6 +40,9 @@ NEXT Programming:
 
         init_rebound() verallgemeinern. Auch Hierarchie ermoeglichen (=wer kreist um wen?)
 
+        Neben Energieerhalt weiteren Check einbauen, dass Integration korrekt ist.
+            Erhalt des Drehmoments?
+
         Damit CurveSimulator auch fuer andere Systeme ausser TOI4504 funktioniert:
             Aus dem User Input die Kepler-Parameter berechnen, die Rebound braucht, und Rebound damit fuettern.
             Fuer mich relevante Parameter, die Reboundklasse Orbit akzeptiert:
