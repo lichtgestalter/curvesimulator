@@ -131,6 +131,9 @@ pos = np.array(initial_values) + 1e-4 * np.random.randn(nwalkers, ndim)
 # Run MCMC
 sampler = emcee.EnsembleSampler(
     nwalkers, ndim, log_probability, args=(phot_data, spec_data, para, fitting_indices, transformer)
+    #  args enthaelt die parameter von log_probability (ausser theta = Vektor der Parameter, die MCMC veraendern darf)
+    #  data (TESS Messwerte) und para (Input (Keplerparameter etc) reichen als args
+    #  circa Zeilen 83 bis 97 mit meinem Code ersetzen
 )
 
 print("Running MCMC...")

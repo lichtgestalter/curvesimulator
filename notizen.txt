@@ -364,3 +364,26 @@ Next Steps nach Call mit Simon, 04.06.25:
     Simon schickt Code Update fuer priors
     Treffen 16.6.
 
+Next Steps nach Call mit Simon, 16.06.25:
+
+    Zuerst nach d-Transits in den alten Daten suchen:
+        BLS benutzen! https://github.com/spacetelescope/tessworkshop_tutorials/blob/master/bls/bls-tutorial.ipynb
+        (Ganz eventuell auch Lightcurve benutzen: https://lightkurve.github.io/lightkurve/tutorials/1-getting-started/what-are-periodogram-objects.html )
+        b- und c-Transits aus den Daten entweder ganz entfernen oder rausrechnen.
+        Letzteres haette den Vorteil, dass dann nicht potenziell d-Transits als Kollateralschaden mit entfernt werden.
+        Moegliche Tests:
+            Finde ich b-Transits in den gesamten Daten?
+            Finde ich die beiden d-Transits in den neuen Daten?
+            Finde ich Transits in von mir simulierten Daten?
+
+    CurveSimulator mit MCMC verknuepfen:
+        In Funktion log_likelihood die Berechnung von residuals_phot_sum_squared durch meinen Code ersetzen
+        In "sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability, args=(phot_data, spec_data, para, fitting_indices, transformer)"
+            enthaelt args die parameter von log_probability (ausser theta = Vektor der Parameter, die MCMC veraendern darf)
+            reichen als args data (TESS Messwerte) und para (Input, also Keplerparameter etc)
+        Meine simulierten Fluxdaten muss ich so anpassen, dass sie in jedem Sektor ueber den gleichen Zeitraum integrert sind, wie die jeweiligen TESS-Daten
+        Simon schickt Update von seinem Code
+
+
+
+
