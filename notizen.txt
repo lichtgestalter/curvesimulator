@@ -1,5 +1,13 @@
 Recently done / in progress:
 
+Resultate erst berechnen, wenn lightcurve fertig, damit MCMC nachher schneller wird
+neue Resultate (TT etc.) absspeichern
+alte Resultatsberechnung abschalten
+
+
+
+
+
 Fragen an Simon:
 
     Hast du Literatur zu multiple Transits / Fallunterscheidung bei gegenseitiger Ueberdeckung von 3 oder mehr Kreisen?
@@ -34,11 +42,18 @@ NEXT Programming:
 
         BUG! Ich speichere fuer den Stern ueberfluessige Parameter mit falschen Werten ab? Z.B. e und i.
 
+        Option in config_file einbauen: sollen eclipsees in find_transits() auf sterne eingeschraenkt sein?
+            Besser: Jeder Body kriegt die Parameter relevant_eclipser  (yes/no) und relevant_eclipsee (yes/no)
+
         Result evaluation komfortabel fuer User nutzbar machen.
 
         Orbitparameter regelmaessig (z.B. bei jedem Transit) im Resultfile speichern.
 
         init_rebound() verallgemeinern. Auch Hierarchie ermoeglichen (=wer kreist um wen?)
+
+        Neu eingefuehrte Konstanten in Parameterfile statt hart im Code, z.B.
+            Mindestgenauigkeit bei binary search von Transittimes
+            Akzeptable Energieveraenderung
 
         Neben Energieerhalt weiteren Check einbauen, dass Integration korrekt ist.
             Erhalt des Drehmoments?
@@ -68,9 +83,6 @@ NEXT Programming:
 
         Code entsorgen, der durch rebound abgedeckt wird.
 
-        Neu eingefuehrte Konstanten in Parameterfile statt hart im Code, z.B.
-            Mindestgenauigkeit bei binary search von Transittimes
-            Akzeptable Energieveraenderung
 
         Multiple transits (und secondary eclipses?) korrekt hantieren.
             Siehe circle_eclipses.py

@@ -55,7 +55,7 @@ class CurveSimLightcurve(np.ndarray):
         if not (1 <= iteration < len(self) - 2):  # Ensure indices are within bounds
             print("Function interpolate_max_depth: Interpolation indices out of bounds. ")
             print(f"{iteration=}, {len(self)=}")
-            return None
+            return 0
 
         iteration_tt = ((tt - p.start_date) * p.day % p.dt) / p.dt + iteration
         P0 = self[iteration - 1]  # f_im1

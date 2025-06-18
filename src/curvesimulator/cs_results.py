@@ -50,9 +50,9 @@ class CurveSimResults(dict):
                 self["Bodies"][body.name]["BodyParameters"]["ea_deg"] = body.ea * (180 / math.pi)
             if body.nu is not None:
                 self["Bodies"][body.name]["BodyParameters"]["nu_deg"] = body.nu * (180 / math.pi)
-            for key in list(body.__dict__.keys()):
-                if body.__dict__[key] is None:
-                    del body.__dict__[key]
+            # for key in list(body.__dict__.keys()):  # debug  spaeter wieder einbauen, wenn ich die alte resultroutine abgeschafft habe
+            #     if body.__dict__[key] is None:
+            #         del body.__dict__[key]
 
     def __repr__(self):
         string = ""
@@ -67,7 +67,7 @@ class CurveSimResults(dict):
     @staticmethod
     def iteration2time(iteration, p):
         """Calculate the date of an iteration in BJD"""
-        return p.start_date + iteration * p.dt / (60 * 60 * 24)
+        return p.start_date + iteration * p.dt / p.day
 
     @staticmethod
     def time_of_transit(impact_parameter_list):
@@ -104,6 +104,27 @@ class CurveSimResults(dict):
         t1t4_exist = not (t["Transit_params"]["T1"] is None or t["Transit_params"]["T4"] is None)
         t2t3_lack = t["Transit_params"]["T2"] is None or t["Transit_params"]["T3"] is None
         return t1t4_exist and t2t3_lack
+
+    def calculate_results_old(self, lightcurve, p):
+        """Calculate and populate the transit results and lightcurve minima."""
+        del p.standard_sections
+        self["ProgramParameters"] = p.__dict__
+        for body in self["Bodies"]:
+            for t in self["Bodies"][body]["Transits"]:
+                if CurveSimResults.transit_grazing(t) or CurveSimResults.transit_full(t):
+                    t["Transit_params"]["T14"] = t["Transit_params"]["T4"] - t["Transit_params"]["T1"]
+                    min_impact_max_depth = CurveSimResults.time_of_transit(t["impacts_and_depths"])
+                    t["Transit_params"]["TT"] = min_impact_max_depth.time
+                    t["Transit_params"]["b"] = min_impact_max_depth.impact_parameter
+                    t["Transit_params"]["depth"] = min_impact_max_depth.depth
+                if CurveSimResults.transit_full(t):
+                    t["Transit_params"]["T12"] = t["Transit_params"]["T2"] - t["Transit_params"]["T1"]
+                    t["Transit_params"]["T23"] = t["Transit_params"]["T3"] - t["Transit_params"]["T2"]
+                    t["Transit_params"]["T34"] = t["Transit_params"]["T4"] - t["Transit_params"]["T3"]
+                if CurveSimResults.transit_incomplete(t):
+                    print(f"Incomplete transit: {body} eclipsing {t["Transit_params"]["EclipsedBody"]}, T1 = {t["Transit_params"]["T1"]} , T4 = {t["Transit_params"]["T4"]} ")
+                    lightcurve[-1] = lightcurve[-2] * 1.001  # Take care of an edge case by making sure there is no minimum at the end of the lightcurve.
+                del t["impacts_and_depths"]
 
     def calculate_results(self, lightcurve, p):
         """Calculate and populate the transit results and lightcurve minima."""
@@ -154,6 +175,11 @@ class CurveSimResults(dict):
             num += 1
             new_resultfilename = f"{base}.v{num:04}{ext}"
         return new_resultfilename
+
+    def save_results_old(self, parameters, bodies, lightcurve):
+        self.calculate_results_old(lightcurve, parameters)  # Calculate transit parameters
+        resultfilename = CurveSimResults.check_resultfilename(parameters.result_file)
+        self.results2json(bodies, resultfilename)  # Write results to json file
 
     def save_results(self, parameters, bodies, lightcurve):
         self.calculate_results(lightcurve, parameters)  # Calculate transit parameters

@@ -248,7 +248,7 @@ class CurveSimBodies(list):
         """Calculate distances, forces, accelerations, velocities of the bodies for each iteration.
         The resulting body positions and the lightcurve are stored for later use in the animation."""
         rebound_sim = CurveSimBodies.init_rebound(self, p)
-        results = CurveSimResults(self)
+        results_old = CurveSimResults(self)
         transit_status = {}
 
         for body1 in self:
@@ -262,7 +262,7 @@ class CurveSimBodies(list):
             rebound_sim.integrate(iteration * p.dt)
             for body in self:
                 CurveSimBodies.update_position(body, iteration, rebound_sim)
-            lightcurve[iteration] = self.total_luminosity(stars, iteration, results, transit_status, p)  # Update lightcurve.
+            lightcurve[iteration] = self.total_luminosity(stars, iteration, results_old, transit_status, p)  # Update lightcurve.
             CurveSimBodies.progress_bar(iteration, p)
             # if iteration < 10:
             #     inc = math.degrees(rebound_sim.particles["TOI-4504d"].inc)
@@ -273,11 +273,11 @@ class CurveSimBodies(list):
         # print(f"\nRebound performed {rebound_sim.steps_done} simulation steps.")
         lightcurve_max = float(lightcurve.max(initial=None))
         lightcurve /= lightcurve_max  # Normalize flux.
-        print("Remember to replace obsolete code with self.find_transits(rebound_sim, p, lightcurve)")
-        # self.find_transits(rebound_sim, p, lightcurve)
-        results.normalize_flux(lightcurve_max)  # Normalize flux in parameter depth in results.
+        results = self.find_transits(rebound_sim, p, lightcurve)
+        # results = None
+        results_old.normalize_flux(lightcurve_max)  # Normalize flux in parameter depth in results.
         energy_change = math.log10(abs(rebound_sim.energy() / initial_energy - 1))  # Magnitude of the relative change of energy during simulation
-        return results, lightcurve, self, energy_change
+        return results_old, results, lightcurve, self, energy_change
 
     def calc_physics(self, p):
         """Calculate body positions and the resulting lightcurve."""
@@ -287,13 +287,13 @@ class CurveSimBodies(list):
               f' ({p.dt * p.sampling_rate * p.fps / 60 / 60 / 24:.2f} earth days per video second.)')
         print(f'Calculating {p.iterations:,} iterations: ', end="")  #print(f"{b=:_}
         tic = time.perf_counter()
-        results, lightcurve, bodies, energy_change = self.calc_positions_eclipses_luminosity(p)
+        results_old, results, lightcurve, bodies, energy_change = self.calc_positions_eclipses_luminosity(p)
         toc = time.perf_counter()
         print(f' {toc - tic:7.2f} seconds  ({p.iterations / (toc - tic):.0f} iterations/second)')
         print(f"Log10 of the relative change of energy during simulation: {energy_change:.0f}")
         if energy_change > -6:
             print("\u001b[31m" + "The energy must not change significantly! Consider using a smaller time step (dt)." + "\u001b[0m")
-        return results, lightcurve
+        return results_old, results, lightcurve
 
     def calc_patch_radii(self, p):
         """If autoscaling is on, this function calculates the radii of the circles (matplotlib patches) of the animation."""
@@ -337,14 +337,15 @@ class CurveSimBodies(list):
 
     def find_transits(self, rebound_sim, p, lightcurve):
         print()
+        results = CurveSimResults(self)
         for i in range(1, p.iterations):
             for j, body1 in enumerate(self):
                 for k, body2 in enumerate(self):
                     if j < k:
-                        if (body1.positions[i][0] - body2.positions[i][0]) * (body1.positions[i-1][0] - body2.positions[i-1][0]) <= 0:
+                        if (body1.positions[i][0] - body2.positions[i][0]) * (body1.positions[i-1][0] - body2.positions[i-1][0]) <= 0:  # transit between i-1 and i?
                             d = CurveSimPhysics.distance_2d(body1, body2, i)
-                            if d < body1.radius + body2.radius:
-                                if body1.positions[i][2] > body2.positions[i][2]:
+                            if d < body1.radius + body2.radius:  # close enough for eclipse?
+                                if body1.positions[i][2] > body2.positions[i][2]:  # who eclipses whom?
                                     eclipser, eclipsee = body1, body2
                                 else:
                                     eclipser, eclipsee = body2, body1
@@ -354,6 +355,7 @@ class CurveSimBodies(list):
                                 t3 = eclipsee.find_t1234(eclipser, i - 1, rebound_sim, p, transittimetype="T3")
                                 t4 = eclipsee.find_t1234(eclipser, i - 1, rebound_sim, p, transittimetype="T4")
                                 t12, t23, t34, t14 = CurveSimPhysics.calc_transit_intervals(t1, t2, t3, t4)
+
                                 t1 = 0 if t1 is None else t1
                                 t2 = 0 if t2 is None else t2
                                 t3 = 0 if t3 is None else t3
@@ -363,4 +365,5 @@ class CurveSimBodies(list):
                                 t34 = 0 if t34 is None else t34
                                 t14 = 0 if t14 is None else t14
                                 # print(f"{eclipser.name} eclipses {eclipsee.name}: {1-lightcurve[i-1]=:.6f} {depth=:.6f} {1-lightcurve[i]=:.6f} ")
-                                # print(f"{eclipser.name} eclipses {eclipsee.name} {b=:.3f} {t1=:.3f} {t2=:.3f} {tt=:.3f} {t3=:.3f} {t4=:.3f} {t12=:.3f} {t23=:.3f} {t34=:.3f} {t14=:.3f}")
+                                print(f"{eclipser.name} eclipses {eclipsee.name} {b=:.3f} {t1=:.3f} {t2=:.3f} {tt=:.3f} {t3=:.3f} {t4=:.3f} {t12=:.3f} {t23=:.3f} {t34=:.3f} {t14=:.3f}")
+        return results

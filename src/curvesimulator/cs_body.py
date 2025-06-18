@@ -405,27 +405,56 @@ class CurveSimBody:
         eclipser = rebound_sim.particles[other.name]
         eclipsee = rebound_sim.particles[self.name]
         rebound_sim.integrate(iteration * p.dt)
-        dx_old = eclipser.x - eclipsee.x
-        t_old = rebound_sim.t
+        dx_left = eclipser.x - eclipsee.x
+        # if dx_left < 0:
+        #     print("dx_left<0", iteration, other.name, "->", self.name)
+        # if iteration == 27318:  # debug mit dt=3600
+        #     print(f"{self.positions[iteration]=}")
+        #     print(f"{other.positions[iteration]=}")
+        #     max_i = 100
+        #     for i in range(max_i+1):
+        #         rebound_sim.integrate(iteration * p.dt + p.dt * i / max_i)
+        #         dx = eclipser.x - eclipsee.x
+        #         print(f"{dx=:.0f} {eclipser.x=:.0f} {eclipsee.x=:.0f}")
+
+        t_left = rebound_sim.t
         rebound_sim.integrate((iteration + 1) * p.dt)
-        t_new = rebound_sim.t
-        dx_new = eclipser.x - eclipsee.x
+        t_right = rebound_sim.t
+        dx_right = eclipser.x - eclipsee.x
         # x-coordinate is identical for eclipser and eclipsee at TT
         # eclipser has larger z-coordinate than eclipsee (nearer to viewpoint)
-        if dx_old * dx_new < 0 and eclipser.z >= eclipsee.z:  # sign of dx changed and eclipser in front of eclipsee
-            while t_new - t_old > 1e-6:  # bisect until prec of 1e-6 reached
-                rebound_sim.integrate((t_new + t_old) / 2)
-                if dx_old * (eclipser.x - eclipsee.x) < 0:  # TT lies between t_old and (t_new + t_old) / 2
-                    t_new = rebound_sim.t
-                else:  # TT lies between t_new and (t_new + t_old) / 2
-                    t_old = rebound_sim.t
+        if dx_left * dx_right >= 0:  # dx per definition 0 at TT. If dx_left and dx_right have the same sign due to numeric instability in rebound, enlarge the search interval.
+            rebound_sim.integrate((iteration - 1) * p.dt)
+            dx_left = eclipser.x - eclipsee.x
+            t_left = rebound_sim.t
+            rebound_sim.integrate((iteration + 2) * p.dt)
+            t_right = rebound_sim.t
+            dx_right = eclipser.x - eclipsee.x
+        if dx_left * dx_right < 0 and eclipser.z >= eclipsee.z:  # sign of dx changed and eclipser in front of eclipsee
+            while t_right - t_left > 1e-2:  # bisect until desired precision reached
+                t_middle = (t_right + t_left) / 2
+                rebound_sim.integrate(t_middle)
+                if dx_left * (eclipser.x - eclipsee.x) < 0:  # TT lies between t_left and t_middle
+                    t_right = rebound_sim.t  # middle is now the new right
+                    dx_right = eclipser.x - eclipsee.x
+                else:  # TT lies between t_right and middle
+                    t_left = rebound_sim.t  # middle is now the new left
+                    dx_left = eclipser.x - eclipsee.x
+            # while t_right - t_left > 1e-6:  # bisect until prec of 1e-6 reached
+            #     rebound_sim.integrate((t_right + t_left) / 2)
+            #     if dx_left * (eclipser.x - eclipsee.x) < 0:  # TT lies between t_left and (t_right + t_left) / 2
+            #         t_right = rebound_sim.t
+            #     else:  # TT lies between t_right and (t_right + t_left) / 2
+            #         t_left = rebound_sim.t
+
             tt = rebound_sim.t / p.day + p.start_date
             impact = CurveSimPhysics.distance_2d_particle(eclipser, eclipsee) / self.radius
             depth = 1 - lightcurve.interpolate_max_depth(tt, p, iteration)
             return tt, impact, depth
         else:
-            print("Programming error in function find_tt. Please open an issue on https://github.com/lichtgestalter/curvesimulator/issues and provide your config file.")
-            return -1
+            print("Error in function find_tt. Try with a smaller iteration time step dt.")
+            print("If that does not help, please open an issue on https://github.com/lichtgestalter/curvesimulator/issues and provide your config file.")
+            return -1, -1, -1
 
     def find_t1234(self, other, iteration, rebound_sim, p, transittimetype):
         """other eclipses self. Find where ingress starts (T1) or egress ends (T4)."""
@@ -454,7 +483,7 @@ class CurveSimBody:
         if transittimetype not in ["T1", "T2"]:
             t_new, t_old = t_old, t_new
         if d_old > d_max > d_new:  # T1 or T2  or T3 or T4 lies between t_old and t_new
-            while t_new - t_old > 1e-6:  # bisect until prec of 1e-6 reached
+            while t_new - t_old > 1e-2:  # bisect until desired precision reached
                 rebound_sim.integrate((t_new + t_old) / 2)
                 in_eclipse = CurveSimPhysics.distance_2d_particle(eclipser, eclipsee) < d_max
                 if transittimetype in ["T1", "T2"]:

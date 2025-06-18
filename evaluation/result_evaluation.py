@@ -1,4 +1,5 @@
 from astropy.time import Time
+import statistics
 import csv
 import json
 import matplotlib.pyplot as plt
@@ -72,7 +73,7 @@ def period(results, savefilename, bodies, show_plot=True, save_plot=True, ybotto
             else:
                 periods.append(None)
         if periods:
-            print(f"{body}:  minimum period = {min(periods):.4f}, maximum period = {max(periods):.4f}")
+            print(f"{body}:  minimum period = {min(periods):.4f}, maximum period = {max(periods):.4f}, average period = {statistics.mean(periods):.6f}")
             plt.plot(transit_times[1:], periods, 'o-', label=body)
     plot_this(results, save_plot, savefilename, show_plot, 'Period [d]', ybottom, ytop)
 
@@ -98,10 +99,11 @@ def main(resultfile):
     impact_parameter(results, resultpath + "impact/" + resultfile + '_impact.png', planets, show_plot=True, save_plot=True, ybottom=0.89243, ytop=0.89334)
     transit_duration(results, resultpath + "duration_14/" + resultfile + '_duration_14.png', planets, show_plot=True, save_plot=True, full_eclipse_only=False)
     transit_duration(results, resultpath + "duration_23/" + resultfile + '_duration_23.png', planets, show_plot=True, save_plot=True, full_eclipse_only=True)
-    period(results, resultpath + "period/" + resultfile + '_period.png', planets, show_plot=True, save_plot=True, ybottom=50.0833, ytop=50.1250)
+    # period(results, resultpath + "period/" + resultfile + '_period.png', planets, show_plot=True, save_plot=True, ybottom=39.5, ytop=43.5)
+    period(results, resultpath + "period/" + resultfile + '_period.png', planets, show_plot=True, save_plot=True, ybottom=2.4259, ytop=2.4263)
     # transit_times(results, resultpath + resultfile + ".csv", planets)
 
 
-main("Sim001.v0007")
-# main("TOI-4504.v0001")
+# main("Sim001.v0007")
+main("TOI-4504.v0014")
 # main("TOI-4504.demo.v0002")

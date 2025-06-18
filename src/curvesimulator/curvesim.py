@@ -7,7 +7,8 @@ from .cs_parameters import CurveSimParameters
 def curvesim(config_file=""):
     parameters = CurveSimParameters(config_file)  # Read program parameters from config file.
     bodies = CurveSimBodies(parameters)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
-    results, lightcurve = bodies.calc_physics(parameters)  # Calculate all body positions and the resulting lightcurve
+    results_old, results, lightcurve = bodies.calc_physics(parameters)  # Calculate all body positions and the resulting lightcurve
     CurveSimAnimation(parameters, bodies, results, lightcurve)  # Create the video
-    results.save_results(parameters, bodies, lightcurve)
+    results_old.save_results_old(parameters, bodies, lightcurve)
+    # results.save_results(parameters, bodies, lightcurve)
     return parameters, bodies, results, lightcurve
