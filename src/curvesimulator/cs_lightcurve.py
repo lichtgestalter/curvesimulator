@@ -1,3 +1,4 @@
+from colorama import Fore, Style
 import numpy as np
 
 
@@ -53,10 +54,11 @@ class CurveSimLightcurve(np.ndarray):
             The interpolated value at tt, or None if interpolation indices are out of bounds.
         """
         if not (1 <= iteration < len(self) - 2):  # Ensure indices are within bounds
-            print("Function interpolate_max_depth: Interpolation indices out of bounds. ")
+            print(f"{Fore.YELLOW}Function interpolate_max_depth: Interpolation indices out of bounds. ")
             print(f"{iteration=}, {len(self)=}")
-            print("Depth of this transit has been stored in result file as zero!")
-            return 0
+            print(f"Depth of this transit has been stored in result file as zero!")
+            print(f"Try moving the start or end of the simulation a bit.{Style.RESET_ALL}")
+            return 1
 
         iteration_tt = ((tt - p.start_date) * p.day % p.dt) / p.dt + iteration
         P0 = self[iteration - 1]  # f_im1

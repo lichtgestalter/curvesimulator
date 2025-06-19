@@ -1,3 +1,4 @@
+from colorama import Fore, Style
 import configparser
 import sys
 
@@ -64,9 +65,9 @@ class CurveSimParameters:
         for key in vars(self):
             if type(getattr(self, key)) not in [str, dict, bool, list]:
                 if getattr(self, key) < 0:
-                    print("ERROR in configuration file.")
+                    print(f"{Fore.RED}ERROR in configuration file.")
                     print(f'{self=}   {key=}   {getattr(self, key)=}    {type(getattr(self, key))=}')
-                    print(f"No parameter in sections {self.standard_sections} may be negative.")
+                    print(f"No parameter in sections {self.standard_sections} may be negative.{Style.RESET_ALL}")
 
         # [Debug]
         self.debug_L = list(eval(config.get("Debug", "debug_L", fallback="[0]")))

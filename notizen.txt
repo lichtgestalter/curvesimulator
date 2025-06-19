@@ -1,8 +1,5 @@
 Recently done / in progress:
 
-Resultate erst berechnen, wenn lightcurve fertig, damit MCMC nachher schneller wird
-neue Resultate (TT etc.) absspeichern
-alte Resultatsberechnung abschalten
 
 
 
@@ -83,6 +80,7 @@ NEXT Programming:
 
         Code entsorgen, der durch rebound abgedeckt wird.
 
+        Alle kritischen Textmeldungen mit colorama einfaerben (siehe color.py in Ordner debug)
 
         Multiple transits (und secondary eclipses?) korrekt hantieren.
             Siehe circle_eclipses.py

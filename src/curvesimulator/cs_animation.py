@@ -1,3 +1,4 @@
+from colorama import Fore, Style
 import math
 import matplotlib
 import matplotlib.pyplot as plt  # from matplotlib import pyplot as plt
@@ -9,7 +10,7 @@ spd = 3600 * 24  # seconds per day
 
 class CurveSimAnimation:
 
-    def __init__(self, p, bodies, results, lightcurve):
+    def __init__(self, p, bodies, lightcurve):
         CurveSimAnimation.check_ffmpeg()
         self.fig, ax_right, ax_left, ax_lightcurve, self.red_dot = CurveSimAnimation.init_plot(p, lightcurve)  # Adjust constants in section [Plot] of config file to fit your screen.
         for body in bodies:  # Circles represent the bodies in the animation. Set their colors and add them to the matplotlib axis.
@@ -17,15 +18,15 @@ class CurveSimAnimation:
             body.circle_left.set_color(body.color)
             ax_right.add_patch(body.circle_right)
             ax_left.add_patch(body.circle_left)
-        self.render(p, bodies, results, lightcurve)
+        self.render(p, bodies, lightcurve)
 
     @staticmethod
     def check_ffmpeg():
         """Checks if ffmpeg is available"""
         if shutil.which('ffmpeg') is None:
-            print("ERROR: ffmpeg is not available. Please install ffmpeg to save the video.")
+            print(f"{Fore.RED}ERROR: ffmpeg is not available. Please install ffmpeg to save the video.")
             print("Visit ffmpeg.org to download an executable version.")
-            print("Extract the zip file and add the bin directory to your system's PATH environment variable.")
+            print(f"Extract the zip file and add the bin directory to your system's PATH environment variable.{Style.RESET_ALL}")
             exit(1)
 
     @staticmethod
@@ -149,7 +150,7 @@ class CurveSimAnimation:
         if frame >= 10 and frame % int(round(p.frames / 10)) == 0:  # Inform user about program's progress.
             print(f'{round(frame / p.frames * 10) * 10:3d}% ', end="")
 
-    def render(self, p, bodies, results, lightcurve):
+    def render(self, p, bodies, lightcurve):
         """Calls next_frame() for each frame and saves the video."""
         print(f'Animating {p.frames:8d} frames:     ', end="")
         tic = time.perf_counter()
