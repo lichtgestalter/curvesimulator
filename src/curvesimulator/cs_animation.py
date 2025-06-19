@@ -1,9 +1,9 @@
 import math
-import time
 import matplotlib
-import numpy as np
 import matplotlib.pyplot as plt  # from matplotlib import pyplot as plt
+import numpy as np
 import shutil
+import time
 
 spd = 3600 * 24  # seconds per day
 

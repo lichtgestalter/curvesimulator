@@ -1,6 +1,6 @@
-import sys
 import math
 import numpy as np
+import sys
 
 from curvesimulator.cs_physics import CurveSimPhysics
 from curvesimulator.cs_results import Transit
@@ -13,6 +13,14 @@ debugging_eclipse = False
 
 def green(string):
     return "\u001b[32m" + string + "\u001b[0m"
+
+def red(string):
+    return "\u001b[32m" + string + "\u001b[0m"
+
+def yellow(string):
+    return "\u001b[32m" + string + "\u001b[0m"
+
+
 
 def multiple_transit_error():
     print("ERROR: Ambiguous transit constellation.")

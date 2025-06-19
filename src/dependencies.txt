@@ -1,0 +1,23 @@
+animation -
+
+bodies
+    body
+    lightcurve
+    physics
+    results
+
+body
+	physics import CurveSimPhysics
+	results import Transit
+	results import CurveSimResults
+	results import ImpactAndDepth
+
+lightcurve -
+
+parameters -
+
+physics -
+
+results -
+
+curvesim

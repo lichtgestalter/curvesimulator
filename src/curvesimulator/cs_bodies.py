@@ -1,17 +1,17 @@
 import configparser
 import math
-import sys
-import time
 import matplotlib
 import matplotlib.animation
 import numpy as np
+import rebound
+import sys
+import time
 
 from curvesimulator.cs_body import CurveSimBody
 from curvesimulator.cs_lightcurve import CurveSimLightcurve
 from curvesimulator.cs_physics import CurveSimPhysics
 from curvesimulator.cs_results import CurveSimResults
 
-import rebound
 
 class CurveSimBodies(list):
 

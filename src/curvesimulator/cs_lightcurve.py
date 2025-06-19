@@ -55,6 +55,7 @@ class CurveSimLightcurve(np.ndarray):
         if not (1 <= iteration < len(self) - 2):  # Ensure indices are within bounds
             print("Function interpolate_max_depth: Interpolation indices out of bounds. ")
             print(f"{iteration=}, {len(self)=}")
+            print("Depth of this transit has been stored in result file as zero!")
             return 0
 
         iteration_tt = ((tt - p.start_date) * p.day % p.dt) / p.dt + iteration
