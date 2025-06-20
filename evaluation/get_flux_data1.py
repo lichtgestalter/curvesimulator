@@ -119,7 +119,7 @@ def download_flux_lc(target, sector, author, exptime, save_plot=False, save_erro
         plt.plot(lc.time.jd, lc.flux, marker='o', markersize=1, linestyle='None', label=f'Sector {sector}')  # sometimes list(lc.flux) was needed
         plt.xlabel('BJD')
         plt.ylabel('Flux')
-        plt.title(f'TOI 4504 Flux, TESS sector {sector}')
+        plt.title(f'TOI 4504 Flux {sector=} {author=} {exptime=}')
         # plt.legend()
         plt.grid(True)
         plt.savefig(f'../research/star_systems/TOI-4504/lightkurve/{sector}/{sector}_{author}_{exptime}{cut}.png')
@@ -166,15 +166,34 @@ def main():
     # sectors, start, end = 88, t88d - delta, t88d + delta  # TOI4504d-Transit
     # sectors, start, end = 89, t89d - delta, t89d + delta  # TOI4504d-Transit
 
-    # download_flux(sectors, save_plot=True, save_csv=True, save_fits=True, start=start, end=end)
+    # download_flux_tpf(sectors, save_plot=True, save_csv=True, save_fits=True, start=start, end=end)
     # download_flux_tpf(91)
 
-    # Sector >= 27: SPOC 120
-    # Sector 1 - 13: QLP 1800
+    # download_flux_lc('TIC349972412', 31, 'SPOC', 120, save_plot=True, save_error_plot=True, save_csv=True, save_fits=False, start=False, end=False)
+    # return
+
+    tasoc_sectors = [1, 2, 3, 4, 5, 6]
+    for sector in tasoc_sectors:
+        download_flux_lc('TIC349972412', sector, 'TASOC', 1800, save_plot=True, save_error_plot=True, save_csv=True, save_fits=False, start=False, end=False)
+
+    return
+
+    tglc_sectors = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    for sector in tglc_sectors:
+        download_flux_lc('TIC349972412', sector, 'TGLC', 1800, save_plot=True, save_error_plot=True, save_csv=True, save_fits=False, start=False, end=False)
+
+    gsfc_sectors = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    for sector in gsfc_sectors:
+        download_flux_lc('TIC349972412', sector, 'GSFC-ELEANOR-LITE', 1800, save_plot=True, save_error_plot=True, save_csv=True, save_fits=False, start=False, end=False)
+
     spoc_sectors = [27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 61, 62, 63, 64, 65, 67, 68, 69, 87, 88, 89, 90]
     for sector in spoc_sectors:
         download_flux_lc('TIC349972412', sector, 'SPOC', 120, save_plot=True, save_error_plot=True, save_csv=True, save_fits=False, start=False, end=False)
 
+    qlp_sectors = [1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+    for sector in qlp_sectors:
+        download_flux_lc('TIC349972412', sector, 'QLP', 1800, save_plot=True, save_error_plot=True, save_csv=True, save_fits=False, start=False, end=False)
+
 main()
 
-
+in tmp fuer jeden Sektor Autor waehlen
