@@ -82,10 +82,8 @@ def scale_flux(flux_df, factor):
     return flux_df
 
 
-def main():
+def process_88_89():
     path = '../research/star_systems/TOI-4504/lightkurve/'
-
-
     half_sample_duration = 0.4  # time interval we are interested in: before and after time of transit transit
     half_ignore_duration = 0.07  # time interval we want to exclude: between T1 and T4
     t88d = 2460695.535  # TT of TOI4504-d in sector 88
@@ -119,4 +117,5 @@ def main():
     plot_this(t88_89_df.time, [t88_89_df.flux], ["flux"], left=t88d - half_sample_duration, right=t88d + half_sample_duration, plot_file=path+"88/88_rn.png")
     plot_this(t88_89_df.time, [t88_89_df.flux], ["flux"], left=t89d - half_sample_duration, right=t89d + half_sample_duration, plot_file=path+"89/89_rn.png")
 
-main()
+
+process_88_89()
