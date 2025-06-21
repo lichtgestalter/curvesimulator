@@ -87,7 +87,7 @@ def download_flux_tpf(sectors=None, save_plot=False, save_csv=False, save_fits=F
             tpf.to_fits(filename, overwrite=True)
             print(f"Saved: {filename}")
 
-def download_flux_lc(target, sector, author, exptime, save_plot=False, save_error_plot=False, save_csv=False, save_fits=False, start=None, end=None):
+def download_flux_lc(target, sector=None, author=None, exptime=None, save_plot=False, save_error_plot=False, save_csv=False, save_fits=False, start=None, end=None):
     # You can either download finished light curves with search_lightcurve().
     # Or download raw data from selected pixels with search_targetpixelfile().
     # lc_collection = search_result.download_all()
@@ -103,7 +103,8 @@ def download_flux_lc(target, sector, author, exptime, save_plot=False, save_erro
         print(f"{Fore.RED}No data found.{Style.RESET_ALL}")
         return
     elif len(search_result) > 1:
-        print(f"{Fore.YELLOW}Several data found. Refine search criteria.{Style.RESET_ALL}")
+        print(f"{Fore.YELLOW}{len(search_result)} data found. Refine search criteria.{Style.RESET_ALL}")
+        print(search_result)
         return
     else:
         print(f"{Fore.GREEN}Data found.{Style.RESET_ALL}")
@@ -143,7 +144,7 @@ def download_flux_lc(target, sector, author, exptime, save_plot=False, save_erro
         print(f"Saved: {filename}")
 
 
-def main():
+def get_targetpixelfiles():
     # sectors = [28, 31, 34, 37, 64, 67, 87, 88, 89]
     delta = 0.4
     t28 = 2457000 + 2065.24
@@ -169,14 +170,12 @@ def main():
     # download_flux_tpf(sectors, save_plot=True, save_csv=True, save_fits=True, start=start, end=end)
     # download_flux_tpf(91)
 
-    # download_flux_lc('TIC349972412', 31, 'SPOC', 120, save_plot=True, save_error_plot=True, save_csv=True, save_fits=False, start=False, end=False)
-    # return
+
+def get_old_lightcurves():
 
     tasoc_sectors = [1, 2, 3, 4, 5, 6]
     for sector in tasoc_sectors:
         download_flux_lc('TIC349972412', sector, 'TASOC', 1800, save_plot=True, save_error_plot=True, save_csv=True, save_fits=False, start=False, end=False)
-
-    return
 
     tglc_sectors = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     for sector in tglc_sectors:
@@ -194,6 +193,16 @@ def main():
     for sector in qlp_sectors:
         download_flux_lc('TIC349972412', sector, 'QLP', 1800, save_plot=True, save_error_plot=True, save_csv=True, save_fits=False, start=False, end=False)
 
-main()
 
-in tmp fuer jeden Sektor Autor waehlen
+def get_new_lightcurve(sector):
+    download_flux_lc('TIC349972412', sector, 'SPOC', 120, save_plot=True, save_error_plot=True, save_csv=True, save_fits=False, start=False, end=False)
+
+
+def check_for_new_data(sector):
+    download_flux_lc(target='TIC349972412', sector=sector)
+
+
+# get_targetpixelfiles()
+# get_old_lightcurves()
+# get_new_lightcurve(91)
+# check_for_new_data([91, 92, 93, 94])

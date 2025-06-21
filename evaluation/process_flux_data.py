@@ -41,9 +41,9 @@ def plot_this(
     plt.show()
 
 
-def median_flux(flux_df, start, end, ignore_time_intervals):
+def median_flux(df, start=None, end=None, ignore_time_intervals=[]):
     """
-    flux_df: <pandas DataFrame> Usually contains collumns 'time', 'flux', 'flux_err'.
+    df: <pandas DataFrame> Usually contains collumns 'time', 'flux', 'flux_err'.
         time : BJD
         flux : Flux
         flux_err : Flux Error
@@ -51,18 +51,11 @@ def median_flux(flux_df, start, end, ignore_time_intervals):
     end:   <float> Use data stopping at this date (BJD)
     ignore_time_interval: <list(float, float)> For each tuple, exclude data between 1st item of tuple and 2nd item of tuple
     """
-
-    # Remove rows from flux_df where time < start or time > end
-    flux_df = flux_df[(flux_df['time'] >= start) & (flux_df['time'] <= end)]
-
-    # Remove rows from flux_df where time > ignore_start and time < ignore_end
+    if start and end:
+        dftmp = extract_from_df(df, start, end)  # Keep only rows where start <= time <= end
     for ignore_start, ignore_end in ignore_time_intervals:
-        flux_df = flux_df[~((flux_df['time'] > ignore_start) & (flux_df['time'] < ignore_end))]
-
-    # Find median of flux
-    median = flux_df['flux'].median()
-
-    return median
+        remove_from_df(dftmp, ignore_start, ignore_end)  # Remove rows from df where start <= time <= end
+    return dftmp['flux'].median()
 
 
 def csv2df(filename):
@@ -70,16 +63,32 @@ def csv2df(filename):
     return df
 
 
-def cut_df(df, start, end):
-    # Remove rows from df where time < start or time > end
-    df = df[(df['time'] >= start) & (df['time'] <= end)]
+def extract_from_df(df, start, end):
+    # Keep only rows where start <= time <= end
+    # Equivalent to: Remove rows from df where time < start or time > end
+    return df[(df['time'] >= start) & (df['time'] <= end)]
+
+
+def remove_from_df(df, start, end):
+    # Remove rows from df where start <= time <= end
+    # Equivalent to: Keep only rows from df where time < start or time > end
+    return df[(df['time'] < start) | (df['time'] > end)]
+
+
+def scale_flux(df, factor):
+    df.loc[:, 'flux'] *= factor
+    df.loc[:, 'flux_err'] *= factor
     return df
 
 
-def scale_flux(flux_df, factor):
-    flux_df.loc[:, 'flux'] *= factor
-    flux_df.loc[:, 'flux_err'] *= factor
-    return flux_df
+def tess_time_2_bjd(df):
+    df.time += 2457000  # offset in TESS data
+    return df
+
+
+def bjd_2_tess_time(df):
+    df.time -= 2457000  # offset in TESS data
+    return df
 
 
 def process_88_89():
@@ -95,18 +104,20 @@ def process_88_89():
 
     # find median flux shortly before and after the planet-d transit in sector 88.
     # Include only data near the transit. Exclude data inside the transit.
-    median88 = median_flux(flux_df, t88d - half_sample_duration, t88d + half_sample_duration, [(t88d - half_ignore_duration, t88d + half_ignore_duration)])
+    median88 = median_flux(flux_df, start=t88d - half_sample_duration, end=t88d + half_sample_duration,
+                           ignore_time_intervals=[(t88d - half_ignore_duration, t88d + half_ignore_duration)])
     print(f"d-transit sector 88:   {half_sample_duration=}   {half_ignore_duration=}   {median88=:.2f}")
 
-    t88d_df = cut_df(flux_df, t88d - half_sample_duration, t88d + half_sample_duration)  # df reduced to data of and around the transit
+    t88d_df = extract_from_df(flux_df, t88d - half_sample_duration, t88d + half_sample_duration)  # df reduced to data of and around the transit
     t88d_df = scale_flux(t88d_df, 1 / median88)  # normalize flux
 
     # find median flux shortly before and after the planet-d transit in sector 89.
     # Include only data near the transit. Exclude data inside the transit.
-    median89 = median_flux(flux_df, t89d - half_sample_duration, t89d + half_sample_duration, [(t89d - half_ignore_duration, t89d + half_ignore_duration)])
+    median89 = median_flux(flux_df, start=t89d-half_sample_duration, end=t89d+half_sample_duration,
+                           ignore_time_intervals=[(t89d - half_ignore_duration, t89d + half_ignore_duration)])
     print(f"d-transit sector 89:   {half_sample_duration=}   {half_ignore_duration=}   {median89=:.2f}")
 
-    t89d_df = cut_df(flux_df, t89d - half_sample_duration, t89d + half_sample_duration)  # df reduced to data of and around the transit
+    t89d_df = extract_from_df(flux_df, t89d - half_sample_duration, t89d + half_sample_duration)  # df reduced to data of and around the transit
     t89d_df = scale_flux(t89d_df, 1 / median89)  # normalize flux
 
     # append t89d_df to t88d_df
@@ -114,8 +125,11 @@ def process_88_89():
     t88_89_df.to_csv(path + 'TOI4504_88+89_reduced_normalized.csv', sep=',', decimal='.', index=False)
 
     plot_this(t88_89_df.time, [t88_89_df.flux], ["flux"], plot_file=path+"88_89_rn.png")
-    plot_this(t88_89_df.time, [t88_89_df.flux], ["flux"], left=t88d - half_sample_duration, right=t88d + half_sample_duration, plot_file=path+"88/88_rn.png")
-    plot_this(t88_89_df.time, [t88_89_df.flux], ["flux"], left=t89d - half_sample_duration, right=t89d + half_sample_duration, plot_file=path+"89/89_rn.png")
+    plot_this(t88_89_df.time, [t88_89_df.flux], ["flux"], left=t88d - half_sample_duration, right=t88d + half_sample_duration,
+              plot_file=path+"88/88_rn.png")
+    plot_this(t88_89_df.time, [t88_89_df.flux], ["flux"], left=t89d - half_sample_duration, right=t89d + half_sample_duration,
+              plot_file=path+"89/89_rn.png")
 
 
-process_88_89()
+if __name__ == '__main__':
+    process_88_89()
