@@ -1,3 +1,4 @@
+import lightkurve as lk
 from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
@@ -41,25 +42,26 @@ def plot_this(
     plt.show()
 
 
-def median_flux(df, start=None, end=None, ignore_time_intervals=[]):
-    """
-    df: <pandas DataFrame> Usually contains collumns 'time', 'flux', 'flux_err'.
-        time : BJD
-        flux : Flux
-        flux_err : Flux Error
-    start: <float> Use data starting from this date (BJD)
-    end:   <float> Use data stopping at this date (BJD)
-    ignore_time_interval: <list(float, float)> For each tuple, exclude data between 1st item of tuple and 2nd item of tuple
-    """
-    if start and end:
-        dftmp = extract_from_df(df, start, end)  # Keep only rows where start <= time <= end
-    for ignore_start, ignore_end in ignore_time_intervals:
-        remove_from_df(dftmp, ignore_start, ignore_end)  # Remove rows from df where start <= time <= end
-    return dftmp['flux'].median()
-
-
 def csv2df(filename):
-    df = pd.read_csv(filename)
+    return pd.read_csv(filename)
+
+
+def df2lc(df):
+    return lk.LightCurve(time=df.time, flux=df.flux, flux_err=df.flux_err)
+
+
+def lc2df(lc):
+    df = pd.DataFrame({'time': lc.time.value, 'flux': lc.flux, 'flux_err': lc.flux_err})
+    return df
+
+
+def tesstime2bjd(df):
+    df.loc[:, 'time'] += 2457000  # offset in TESS data
+    return df
+
+
+def bjd2tess_time(df):
+    df.loc[:, 'time'] -= 2457000  # offset in TESS data
     return df
 
 
@@ -81,14 +83,22 @@ def scale_flux(df, factor):
     return df
 
 
-def tess_time_2_bjd(df):
-    df.time += 2457000  # offset in TESS data
-    return df
-
-
-def bjd_2_tess_time(df):
-    df.time -= 2457000  # offset in TESS data
-    return df
+def median_flux(df, start=None, end=None, ignore_time_intervals=[]):
+    """
+    df: <pandas DataFrame> Usually contains collumns 'time', 'flux', 'flux_err'.
+        time : BJD
+        flux : Flux
+        flux_err : Flux Error
+    start: <float> Use data starting from this date (BJD)
+    end:   <float> Use data stopping at this date (BJD)
+    ignore_time_interval: <list(float, float)> For each tuple, exclude data between 1st item of tuple and 2nd item of tuple
+    """
+    dftmp = df
+    if start and end:
+        dftmp = extract_from_df(df, start, end)  # Keep only rows where start <= time <= end
+    for ignore_start, ignore_end in ignore_time_intervals:
+        remove_from_df(dftmp, ignore_start, ignore_end)  # Remove rows from df where start <= time <= end
+    return dftmp['flux'].median()
 
 
 def process_88_89():
@@ -100,7 +110,8 @@ def process_88_89():
 
     csv_88_89 = path + 'TOI4504_88+89_all.csv'  # contains all flux data from sectors 88 and 89
     flux_df = csv2df(csv_88_89)  # usually contains df['time'], df['flux'], df['flux_err']
-    flux_df.time += 2457000  # offset in TESS data
+    flux_df = tesstime2bjd(flux_df)
+    # flux_df.time += 2457000  # offset in TESS data
 
     # find median flux shortly before and after the planet-d transit in sector 88.
     # Include only data near the transit. Exclude data inside the transit.
