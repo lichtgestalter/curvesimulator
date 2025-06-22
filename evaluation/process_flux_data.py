@@ -67,7 +67,6 @@ def bjd2tess_time(df):
 
 def extract_from_df(df, start, end):
     # Keep only rows where start <= time <= end
-    # Equivalent to: Remove rows from df where time < start or time > end
     return df[(df['time'] >= start) & (df['time'] <= end)]
 
 
@@ -83,9 +82,9 @@ def scale_flux(df, factor):
     return df
 
 
-def median_flux(df, start=None, end=None, ignore_time_intervals=[]):
+def median_flux_new(df, start=None, end=None, ignore_time_intervals=None):
     """
-    df: <pandas DataFrame> Usually contains collumns 'time', 'flux', 'flux_err'.
+    df: <pandas DataFrame> Usually contains columns 'time', 'flux', 'flux_err'.
         time : BJD
         flux : Flux
         flux_err : Flux Error
@@ -93,12 +92,13 @@ def median_flux(df, start=None, end=None, ignore_time_intervals=[]):
     end:   <float> Use data stopping at this date (BJD)
     ignore_time_interval: <list(float, float)> For each tuple, exclude data between 1st item of tuple and 2nd item of tuple
     """
-    dftmp = df
+    if ignore_time_intervals is None:
+        ignore_time_intervals = []
     if start and end:
-        dftmp = extract_from_df(df, start, end)  # Keep only rows where start <= time <= end
+        df = extract_from_df(df, start, end)  # Keep only rows where start <= time <= end
     for ignore_start, ignore_end in ignore_time_intervals:
-        remove_from_df(dftmp, ignore_start, ignore_end)  # Remove rows from df where start <= time <= end
-    return dftmp['flux'].median()
+        df = remove_from_df(df, ignore_start, ignore_end)  # Remove rows from df where start <= time <= end
+    return df['flux'].median()
 
 
 def process_88_89():
