@@ -82,7 +82,7 @@ def scale_flux(df, factor):
     return df
 
 
-def median_flux_new(df, start=None, end=None, ignore_time_intervals=None):
+def median_flux(df, start=None, end=None, ignore_time_intervals=None):
     """
     df: <pandas DataFrame> Usually contains columns 'time', 'flux', 'flux_err'.
         time : BJD
