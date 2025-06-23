@@ -46,6 +46,10 @@ def csv2df(filename):
     return pd.read_csv(filename)
 
 
+def df2csv(df, filename):
+    return df.to_csv(filename, index=False)
+
+
 def df2lc(df):
     return lk.LightCurve(time=df.time, flux=df.flux, flux_err=df.flux_err)
 
