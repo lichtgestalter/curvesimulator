@@ -158,5 +158,38 @@ def process_88_89():
               plot_file=path+"89/89_rn.png")
 
 
+def combine_all_flux_data():
+    path = '../research/star_systems/TOI-4504/lightkurve/'
+    all_dfs = []
+
+    qlp_sectors = [1]
+    for sector in qlp_sectors:
+        full_path = path + f"{sector}/{sector}_QLP_1800_p.csv"
+        df = csv2df(full_path)
+        all_dfs.append(df)
+
+    tglc_sectors = [2, 3, 4, 5, 6, 7, 8, 9, 10]
+    for sector in tglc_sectors:
+        full_path = path + f"{sector}/{sector}_TGLC_1800_p.csv"
+        df = csv2df(full_path)
+        all_dfs.append(df)
+
+    qlp_sectors = [11, 12, 13]
+    for sector in qlp_sectors:
+        full_path = path + f"{sector}/{sector}_QLP_1800_p.csv"
+        df = csv2df(full_path)
+        all_dfs.append(df)
+
+    spoc_sectors = [27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 61, 62, 63, 64, 65, 67, 68, 69, 87, 88, 89, 90]
+    for sector in spoc_sectors:
+        full_path = path + f"{sector}/{sector}_SPOC_120_p.csv"
+        df = csv2df(full_path)
+        all_dfs.append(df)
+
+    combined_df = pd.concat(all_dfs, ignore_index=True)
+    df2csv(combined_df, path + "all_p.csv")
+
+
 if __name__ == '__main__':
-    process_88_89()
+    # process_88_89()
+    combine_all_flux_data()
