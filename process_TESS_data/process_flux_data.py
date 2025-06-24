@@ -86,6 +86,18 @@ def scale_flux(df, factor):
     return df
 
 
+def calculate_flux_err(df, window_length=101):
+    d = window_length // 2
+    flux_err = []
+    for i in range(len(df)):
+        start_idx = max(0, i - d)
+        end_idx = min(len(df), i + d + 1)
+        std_dev = df.iloc[start_idx:end_idx]['flux'].std()
+        flux_err.append(std_dev)
+    df['flux_err'] = flux_err
+    return df
+
+
 def median_flux(df, start=None, end=None, ignore_time_intervals=None):
     """
     df: <pandas DataFrame> Usually contains columns 'time', 'flux', 'flux_err'.
