@@ -1,5 +1,6 @@
 import lightkurve as lk
 from matplotlib import pyplot as plt
+from matplotlib import rcParams
 import numpy as np
 import pandas as pd
 
@@ -117,6 +118,22 @@ def median_flux(df, start=None, end=None, ignore_time_intervals=None):
     return df['flux'].median()
 
 
+def periodogram(results):
+    period = results.period[np.argmax(results.power)]
+    rcParams["figure.dpi"] = 150
+    fig, ax = plt.subplots(1, 1, figsize=(6, 3))
+    ax.plot(results.period, results.power, "k", lw=0.5)
+    ax.set_xlim(results.period.min(), results.period.max())
+    ax.set_xlabel("period [days]")
+    ax.set_ylabel("log likelihood")
+
+    # Highlight the harmonics of the peak period
+    ax.axvline(period, alpha=0.4, lw=4)
+    for n in range(2, 10):
+        ax.axvline(n * period, alpha=0.4, lw=1, linestyle="dashed")
+        ax.axvline(period / n, alpha=0.4, lw=1, linestyle="dashed")
+
+
 def process_88_89():
     path = '../research/star_systems/TOI-4504/lightkurve/'
     half_sample_duration = 0.4  # time interval we are interested in: before and after time of transit transit
@@ -158,7 +175,11 @@ def process_88_89():
               plot_file=path+"89/89_rn.png")
 
 
-def combine_all_flux_data():
+def remove_d_transits(df):
+    Hier weiter
+    return df
+
+def combine_flux_data(start_sec, end_sec, filename):
     path = '../research/star_systems/TOI-4504/lightkurve/'
     all_dfs = []
 
@@ -166,30 +187,40 @@ def combine_all_flux_data():
     for sector in qlp_sectors:
         full_path = path + f"{sector}/{sector}_QLP_1800_p.csv"
         df = csv2df(full_path)
-        all_dfs.append(df)
+        if start_sec <= sector <= end_sec:
+            all_dfs.append(df)
 
     tglc_sectors = [2, 3, 4, 5, 6, 7, 8, 9, 10]
     for sector in tglc_sectors:
         full_path = path + f"{sector}/{sector}_TGLC_1800_p.csv"
         df = csv2df(full_path)
-        all_dfs.append(df)
+        if start_sec <= sector <= end_sec:
+            all_dfs.append(df)
 
     qlp_sectors = [11, 12, 13]
     for sector in qlp_sectors:
         full_path = path + f"{sector}/{sector}_QLP_1800_p.csv"
         df = csv2df(full_path)
-        all_dfs.append(df)
+        if start_sec <= sector <= end_sec:
+            all_dfs.append(df)
 
     spoc_sectors = [27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 61, 62, 63, 64, 65, 67, 68, 69, 87, 88, 89, 90]
     for sector in spoc_sectors:
         full_path = path + f"{sector}/{sector}_SPOC_120_p.csv"
         df = csv2df(full_path)
-        all_dfs.append(df)
+        if start_sec <= sector <= end_sec:
+            all_dfs.append(df)
 
     combined_df = pd.concat(all_dfs, ignore_index=True)
-    df2csv(combined_df, path + "all_p.csv")
+    df2csv(combined_df, path + filename)
 
 
 if __name__ == '__main__':
     # process_88_89()
-    combine_all_flux_data()
+    combine_flux_data(1, 90, "all_p.csv")
+    combine_flux_data(1, 13, "01-13_p.csv")
+    combine_flux_data(27, 38, "27-38_p.csv")
+    combine_flux_data(61, 69, "61-69_p.csv")
+    # combine_sec_1_to_13()
+    # combine_sec_27_to_69()
+    pass

@@ -4,13 +4,14 @@ import json
 import matplotlib.pyplot as plt
 import os
 
+Obsolet?
 
 def depths(results, savefilename="", show_plot=True, save_plot=True, include_tess=True):
-    transits_c = results["bodies"]["TOI-4504c"]["Transits"]
+    transits_c = results["Bodies"]["TOI-4504c"]["Transits"]
     transit_times_c = [transit["transit_params"]["TT"] for transit in transits_c]
     depths_c = [transit["transit_params"]["depth"] for transit in transits_c]
 
-    transits_d = results["bodies"]["TOI-4504d"]["Transits"]
+    transits_d = results["Bodies"]["TOI-4504d"]["Transits"]
     transit_times_d = [transit["transit_params"]["TT"] for transit in transits_d]
     depths_d = [transit["transit_params"]["depth"] for transit in transits_d]
 
@@ -34,11 +35,11 @@ def depths(results, savefilename="", show_plot=True, save_plot=True, include_tes
         plt.show()
 
 def impact_parameters(results, savefilename="", show_plot=True, save_plot=True):
-    transits_c = results["bodies"]["TOI-4504c"]["Transits"]
+    transits_c = results["Bodies"]["TOI-4504c"]["Transits"]
     transit_times_c = [transit["transit_params"]["TT"] for transit in transits_c]
     impact_parameters_c = [transit["transit_params"]["b"] for transit in transits_c]
 
-    transits_d = results["bodies"]["TOI-4504d"]["Transits"]
+    transits_d = results["Bodies"]["TOI-4504d"]["Transits"]
     transit_times_d = [transit["transit_params"]["TT"] for transit in transits_d]
     impact_parameters_d = [transit["transit_params"]["b"] for transit in transits_d]
 
@@ -57,7 +58,7 @@ def impact_parameters(results, savefilename="", show_plot=True, save_plot=True):
         plt.show()
 
 def transit_duration(results, savefilename="", show_plot=True, save_plot=True, full_eclipse_only=True):
-    transits_c = results["bodies"]["TOI-4504c"]["Transits"]
+    transits_c = results["Bodies"]["TOI-4504c"]["Transits"]
     transit_times_c = [transit["transit_params"]["TT"] for transit in transits_c]
 
     plt.figure(figsize=(10, 6))
@@ -83,7 +84,7 @@ def transit_duration(results, savefilename="", show_plot=True, save_plot=True, f
         plt.show()
 
 def periods_c(results, savefilename="", show_plot=True, save_plot=True):
-    transits_c = results["bodies"]["TOI-4504c"]["Transits"]
+    transits_c = results["Bodies"]["TOI-4504c"]["Transits"]
     transit_times_c = [transit["transit_params"]["TT"] for transit in transits_c]
     periods_c = [transit2["transit_params"]["TT"] - transit1["transit_params"]["TT"] if transit1["transit_params"]["TT"] is not None and transit2["transit_params"]["TT"] is not None else None for transit1, transit2 in zip(transits_c[:-1], transits_c[1:])]
     plt.figure(figsize=(10, 6))
@@ -100,7 +101,7 @@ def periods_c(results, savefilename="", show_plot=True, save_plot=True):
         plt.show()
 
 def periods_d(results, savefilename="", show_plot=True, save_plot=True):
-    transits_d = results["bodies"]["TOI-4504d"]["Transits"]
+    transits_d = results["Bodies"]["TOI-4504d"]["Transits"]
     transit_times_d = [transit["transit_params"]["TT"] for transit in transits_d]
     periods_d = [transit2["transit_params"]["TT"] - transit1["transit_params"]["TT"] if transit1["transit_params"]["TT"] is not None and transit2["transit_params"]["TT"] is not None else None for transit1, transit2 in zip(transits_d[:-1], transits_d[1:])]
     plt.figure(figsize=(10, 6))
@@ -118,7 +119,7 @@ def periods_d(results, savefilename="", show_plot=True, save_plot=True):
 
 def transit_times_to_csv(results, savefile):
     """Save transit times as csv file."""
-    transits_c = results["bodies"]["TOI-4504c"]["Transits"]
+    transits_c = results["Bodies"]["TOI-4504c"]["Transits"]
     transit_times_c = [transit["transit_params"]["TT"] for transit in transits_c]
     transit_times_c_jd = [Time(transit_time, format='jd', scale='utc').datetime.strftime('%d/%m/%Y') for transit_time in transit_times_c]
     with open(savefile, mode='w', newline='') as file:
@@ -140,4 +141,4 @@ def main(resultfile):
     # transit_times(results, resultpath + resultfile + ".csv")
 
 
-main("TOI-4504.v0001")
+main("TOI-4504.v0003")
