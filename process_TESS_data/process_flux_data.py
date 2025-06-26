@@ -4,6 +4,7 @@ from matplotlib import rcParams
 import numpy as np
 import pandas as pd
 
+C_TRANSITS = [2458401.41, 2458483.21, 2458565.09, 2458647.33, 2459065.24, 2459148.48, 2459231.11, 2459313.25, 2459976.05, 2460059.62, 2460142.60]
 
 def plot_this(
         x: np.ndarray,            # positions of data points on x-axis
@@ -175,8 +176,9 @@ def process_88_89():
               plot_file=path+"89/89_rn.png")
 
 
-def remove_d_transits(df):
-    Hier weiter
+def remove_c_transits(df, delta):
+    for tt in C_TRANSITS:
+        df = remove_from_df(df, tt - delta, tt + delta)
     return df
 
 def combine_flux_data(start_sec, end_sec, filename):
