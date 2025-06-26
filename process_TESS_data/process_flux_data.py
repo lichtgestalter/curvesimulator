@@ -219,10 +219,8 @@ def combine_flux_data(start_sec, end_sec, filename):
 
 if __name__ == '__main__':
     # process_88_89()
-    combine_flux_data(1, 90, "all_p.csv")
-    combine_flux_data(1, 13, "01-13_p.csv")
-    combine_flux_data(27, 38, "27-38_p.csv")
-    combine_flux_data(61, 69, "61-69_p.csv")
-    # combine_sec_1_to_13()
-    # combine_sec_27_to_69()
+    # combine_flux_data(1, 90, "all_p.csv")
+    # combine_flux_data(1, 13, "01-13_p.csv")
+    # combine_flux_data(27, 38, "27-38_p.csv")
+    # combine_flux_data(61, 69, "61-69_p.csv")
     pass
