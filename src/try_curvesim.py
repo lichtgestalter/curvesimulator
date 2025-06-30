@@ -29,6 +29,7 @@ def main():
     print(bodies)
     print(results)
     print(lightcurve)
+    print(lightcurve[-1])
 
 
 if __name__ == '__main__':

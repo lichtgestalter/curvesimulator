@@ -9,7 +9,7 @@ C_TRANSITS = [2458401.41, 2458483.21, 2458565.09, 2458647.33, 2459065.24, 245914
 def plot_this(
         x: np.ndarray,            # positions of data points on x-axis
         data_list: list,          # each list item is a list or numpy array which will be displayed as a curve
-        data_labels: list,        # each list item is a string representing the label of a curve
+        data_labels: list = None, # each list item is a string representing the label of a curve
         title: str = None,        # plot title
         x_label: str = None,      # label of x-axis
         y_label: str = None,      # label of y-axis
@@ -25,6 +25,8 @@ def plot_this(
         top: float = None         # cut off y-axis
 ) -> None:
 
+    if data_labels is None:
+        data_labels = [f"data{i}" for i in range(len(data_list))]
     plt.figure(figsize=(10, 6))
     plt.xlabel(x_label)
     plt.ylabel(y_label)
