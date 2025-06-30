@@ -7,7 +7,7 @@ from importlib import import_module
 from cal_phot import PhotDataset
 # from cal_spec import SpecDataset
 from cal_transformation import TransformationManager
-from scipy.optimize import minimize
+# from scipy.optimize import minimize
 
 
 # Import system-specific modules
@@ -122,7 +122,7 @@ def hdi(data, credible_mass=0.68):
 # MCMC setup
 ndim = len(fitting_indices)
 nwalkers = 32
-nsteps = 20000
+nsteps = 500
 number_of_points_disregarded = 1  # Uli: hiermit spielen
 
 # Initial positions
