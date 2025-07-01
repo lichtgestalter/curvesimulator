@@ -12,6 +12,7 @@ Fragen an Simon:
     Rebound ist schnell fuer festes dt. TESS-Daten halten sich da aber nicht dran. Abweichung bis 140 Sekunden bei 1800 Sekunden exposure. Egal?
     Vitkova waehlte t0 = 2458400. Der erste TESS-Datenpunkt danach ist aber t0 = 2458400.010395068. Das ist 898 Sekunden spaeter.
     Was macht flatten/thin mit den Chains?
+
     Hast du Literatur zu multiple Transits / Fallunterscheidung bei gegenseitiger Ueberdeckung von 3 oder mehr Kreisen?
 
 

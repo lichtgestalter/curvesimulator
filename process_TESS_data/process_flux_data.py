@@ -24,7 +24,6 @@ def plot_this(
         bottom: float = None,     # cut off y-axis
         top: float = None         # cut off y-axis
 ) -> None:
-
     if data_labels is None:
         data_labels = [f"data{i}" for i in range(len(data_list))]
     plt.figure(figsize=(10, 6))
@@ -137,6 +136,55 @@ def periodogram(results):
         ax.axvline(period / n, alpha=0.4, lw=1, linestyle="dashed")
 
 
+def relevant_flux(df, t0, dt, iterations, max_exp_delta):
+    """
+    df: <pandas DataFrame> Contains at least columns 'time' and 'flux'.
+    t0: start of a lightcurve simulation [BJD days]
+    dt: iteration step size of this lightcurve simulation [seconds]
+    iterations: number of iterations of this lightcurve simulation
+    max_exp_delta: maximum acceptable difference between
+        an item of df['time'] (middle of exposure) and
+        the time of a simulation iteration t0 + i * dt
+        for this item to be considered correspondig to iteration i.
+
+    Returns:
+    rel_flux <np.ndarray> with rel_flux.shape = (iterations,)
+    rel_flux[i] is the actual flux value corresponding to simulated value lightcurve[i]
+    Only flux data with a time value close enough to the simulation's time value will be accepted (abs(exp_delta[i]) <= max_exp_delta)
+    If there is no flux data inside the acceptable time intervall, then rel_flux[i] is 0.
+    If there are several flux data inside the acceptable time intervall, then rel_flux[i] is their average.
+
+    data_points <np.ndarray> with rel_flux.shape = (iterations,)
+
+
+    data_points <np.ndarray> with rel_flux.shape = (iterations,)
+
+
+    """
+    rel_flux = np.zeros(iterations)
+    data_points = np.zeros(iterations)
+    exp_delta = np.zeros(iterations)
+    dt /= 60*60*24  # seconds - > days
+    max_exp_delta /= 60*60*24  # seconds - > days
+    df['time'] -= t0
+    for t_index, t in df['time'].items():
+        if t < -max_exp_delta:
+            continue  # we are not interested in data significantly before the scope of the simulation (starts at t0)
+        i = round(t // dt)
+        if i > iterations - 1:
+            break  # we are not interested in data after the scope of the simulation (ends at t0 + dt * iterations)
+        exp_delta_tmp = t - i * dt
+        if exp_delta_tmp > dt / 2:
+            exp_delta_tmp -= dt
+        if abs(exp_delta_tmp) <= max_exp_delta:
+            data_points[i] += 1
+            rel_flux[i] = (rel_flux[i] * (data_points[i] - 1)  + df['flux'][t_index]) / data_points[i]  # update average
+            exp_delta[i] = (exp_delta[i] * (data_points[i] - 1)  + exp_delta_tmp) / data_points[i]  # update average
+
+
+    return rel_flux, data_points, exp_delta
+
+
 def process_88_89():
     path = '../research/star_systems/TOI-4504/lightkurve/'
     half_sample_duration = 0.4  # time interval we are interested in: before and after time of transit transit
@@ -219,10 +267,25 @@ def combine_flux_data(start_sec, end_sec, filename):
     df2csv(combined_df, path + filename)
 
 
-if __name__ == '__main__':
+def main():
     # process_88_89()
     # combine_flux_data(1, 90, "all_p.csv")
     # combine_flux_data(1, 13, "01-13_p.csv")
     # combine_flux_data(27, 38, "27-38_p.csv")
     # combine_flux_data(61, 69, "61-69_p.csv")
-    pass
+
+    path = '../research/star_systems/TOI-4504/lightkurve/'  # path to example lightcurve data. Change this if required.
+    df = csv2df(path + "01-13_p.csv")  # path and file name of example lightcurve data. Change this if required.
+    t0 = 2458400.011
+    dt = 1800
+    iterations = 14000
+    max_err = dt/2.1
+    rel_flux, hits, exp_delta = relevant_flux(df, t0, dt, iterations, max_err)
+    x = np.arange(0, iterations)
+    # x = [i for i in range(iterations)]
+    plot_this(x, [rel_flux], title="Relevant Flux")
+    plot_this(x, [hits], title="Hits")
+    plot_this(x, [exp_delta*60*60*24], title="Exposure Delta [s]")
+
+if __name__ == '__main__':
+    main()
