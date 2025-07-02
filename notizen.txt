@@ -9,8 +9,16 @@ lightcurve legen kann, um die Datenpunkte zu entfernen, fuer die es keine TESS-D
 Fragen an Simon:
 
     Ich muss also "nur" meine errechnete lightcurve mit den TESS-Daten vergleichen und log_likelihood durch die Summe der Residuen-Quadrate berechnen?
-    Rebound ist schnell fuer festes dt. TESS-Daten halten sich da aber nicht dran. Abweichung bis 140 Sekunden bei 1800 Sekunden exposure. Egal?
-    Vitkova waehlte t0 = 2458400. Der erste TESS-Datenpunkt danach ist aber t0 = 2458400.010395068. Das ist 898 Sekunden spaeter.
+    Rebound ist schnell fuer festes dt. TESS-Daten halten sich da aber nicht dran.
+        Abweichung bis 70 Sekunden bei 1800 Sekunden exposure. Egal?
+    Vitkova waehlte t0 = 2458400. Der erste TESS-Datenpunkt danach ist aber t0 = 2458400.010395068.
+        Das ist 898 Sekunden spaeter. Ich habe jetzt erstmal t0 = 2458400.011 gesetzt.
+    MCMC-Code erklaeren:
+        flux_unc wird nie verwendet?
+
+
+
+
     Was macht flatten/thin mit den Chains?
 
     Hast du Literatur zu multiple Transits / Fallunterscheidung bei gegenseitiger Ueberdeckung von 3 oder mehr Kreisen?

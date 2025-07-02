@@ -32,10 +32,11 @@ def curvesim(config_file=""):
     if mcmc_debug:
         parameters = CurveSimParameters(config_file)  # Read program parameters from config file.
         bodies = CurveSimBodies(parameters)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
-        flux, mask = try_flux(parameters)
+        flux, mask = get_corresponding_flux(parameters)
         lightcurve, rebound_sim = bodies.calc_physics(parameters)  # Calculate all body positions and the resulting lightcurve
-        residuals = (flux - lightcurve) * mask
-        debug_flux(parameters, lightcurve, residuals, flux)
+        lp = log_likelihood_uli(flux, mask, lightcurve)
+        print(f"{lp=}")
+        debug_flux(parameters, flux, mask, lightcurve)
         return parameters, bodies, None, lightcurve
     else:
         parameters = CurveSimParameters(config_file)  # Read program parameters from config file.

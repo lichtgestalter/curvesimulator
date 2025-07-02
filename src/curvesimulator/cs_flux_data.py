@@ -236,7 +236,7 @@ def remove_c_transits(df, delta):
     return df
 
 def combine_flux_data(start_sec, end_sec, filename):
-    path = '../../research/star_systems/TOI-4504/lightkurve/'
+    path = '../research/star_systems/TOI-4504/lightkurve/'
     all_dfs = []
 
     qlp_sectors = [1]
@@ -271,10 +271,10 @@ def combine_flux_data(start_sec, end_sec, filename):
     df2csv(combined_df, path + filename)
 
 
-def try_flux(p):
+def get_corresponding_flux(p):
     # process_88_89()
     # combine_flux_data(1, 90, "all_p.csv")
-    # combine_flux_data(1, 13, "01-13_p.csv")
+    combine_flux_data(1, 13, "01-13_p.csv")
     # combine_flux_data(27, 38, "27-38_p.csv")
     # combine_flux_data(61, 69, "61-69_p.csv")
 
@@ -291,30 +291,70 @@ def try_flux(p):
     return rel_flux, mask
 
 
-def debug_flux(parameters, lightcurve, residuals, flux):
+def debug_flux(parameters, flux, mask, lightcurve):
+    left = 50
+    right = 80
     x = np.arange(0, parameters.iterations)
+    residuals = (flux - lightcurve) * mask
     plot_this(x, [lightcurve], title="Simulated Lightcurve")
     plot_this(x, [residuals], title="Residuals")
-    plot_this(x, [flux], title="Flux", left=7900, right=8100, bottom=0.985, top=1.001)
-    plot_this(x, [lightcurve], title="Simulated Lightcurve", left=7900, right=8100)
-    plot_this(x, [residuals], title="Residuals", left=7900, right=8100)
+    plot_this(x, [flux], title="Flux", left=left, right=right, bottom=0.985, top=1.015)
+    plot_this(x, [lightcurve], title="Simulated Lightcurve", left=left, right=right)
+    plot_this(x, [residuals], title="Residuals", left=left, right=right)
 
 
-def log_prior(theta):
+def log_prior_uli(theta, theta_bounds):
+    # Missing: If any parameter is outside resonable bounds: return -np.inf
+    return 0
+
+
+def log_prior_simon(theta, parameter_bounds):
     for val, (lower, upper) in zip(theta, parameter_bounds):
         if not (lower < val < upper):
             return -np.inf
     return 0.0
 
 
-def log_likelihood(theta, phot_data, fitting_indices, transformer):
+def log_likelihood_uli(flux, mask, lightcurve):
+    residuals = (flux - lightcurve) * mask
+    residuals_phot_sum_squared = np.sum(residuals ** 2)
+    return -0.5 * residuals_phot_sum_squared
+
+
+def log_likelihood_simon(theta, phot_data, fitting_indices, transformer, parameters):
+    """
+    theta:
+        wie muss theta beschaffen sein?
+    phot_data:
+        para
+        flux
+        time
+        weitere Parameter, die nicht in para enthalten sind wie z.B. stepsize
+    para:
+        Parameter hab ich schon entfernt, weil er direkt ueberschrieben wird
+    fitting_indices:
+        ['Tmin_pri', 'P_days', 'incl_deg', 'R1a', 'R2R1']
+    transformer:
+        Enthaelt alle Parameter (feste und veraenderliche)
+        Ausserdem Methoden zur Anpassung von abhaengigen Parametern, fuer den Falls, dass MCMC die zugrundeliegenden Parameter aendern darf
+
+    warum zum Schluss *1e4?
+    4-fache Redundanz?
+        parameters (global)
+        transformer.parameters
+        phot_data.para
+        para
+
+
+
+
+    """
     # Update parameter dictionary with current values
     for i, key in enumerate(fitting_indices):
         parameters[key]["value"] = theta[i]
     transformer.update_dependent_parameters()
     para = {name: info["value"] for name, info in parameters.items()}
 
-    residuals_phot_sum_squared = 0
     phot_data.para.update(para)
     phot_data.evaluate_model()
     residuals_phot = phot_data.calculate_eclipse_residuals()
@@ -323,9 +363,15 @@ def log_likelihood(theta, phot_data, fitting_indices, transformer):
     return -0.5 * residuals_phot_sum_squared
 
 
-# Log-probability function
-def log_probability(theta, phot_data, fitting_indices, transformer):
-    lp = log_prior(theta)
+def log_probability_uli(theta, theta_bounds, flux, mask, lightcurve):
+    lp = log_prior_uli(theta, theta_bounds)
     if not np.isfinite(lp):
         return -np.inf
-    return lp + log_likelihood(theta, phot_data, fitting_indices, transformer)
+    return lp + log_likelihood_uli(flux, mask, lightcurve)
+
+
+def log_probability_simon(theta, phot_data, fitting_indices, transformer, parameters):
+    lp = log_prior_simon(theta)
+    if not np.isfinite(lp):
+        return -np.inf
+    return lp + log_likelihood_simon(theta, phot_data, fitting_indices, transformer, parameters)
