@@ -358,6 +358,7 @@ I implemented all suggestions from zoom call 29.03.2022, but tried and dismissed
             Exofast? Seems professionell. Doubtful if it works on Windows .
     0.4.3 Fitting TOI-4504
     0.5 First partial Rebound integration
+    0.5.3 Added cs_flux_data.py to CurveSimulator
 
 
 -----------------------------------------------------------------------

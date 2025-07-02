@@ -3,6 +3,7 @@ from matplotlib import pyplot as plt
 from matplotlib import rcParams
 import numpy as np
 import pandas as pd
+import time
 
 C_TRANSITS = [2458401.41, 2458483.21, 2458565.09, 2458647.33, 2459065.24, 2459148.48, 2459231.11, 2459313.25, 2459976.05, 2460059.62, 2460142.60]
 
@@ -149,19 +150,22 @@ def relevant_flux(df, t0, dt, iterations, max_exp_delta):
 
     Returns:
     rel_flux <np.ndarray> with rel_flux.shape = (iterations,)
-    rel_flux[i] is the actual flux value corresponding to simulated value lightcurve[i]
-    Only flux data with a time value close enough to the simulation's time value will be accepted (abs(exp_delta[i]) <= max_exp_delta)
-    If there is no flux data inside the acceptable time intervall, then rel_flux[i] is 0.
-    If there are several flux data inside the acceptable time intervall, then rel_flux[i] is their average.
+        rel_flux[i] is the actual flux value corresponding to simulated value lightcurve[i]
+        Only flux data with a time value close enough to the simulation's time value will be accepted (abs(exp_delta[i]) <= max_exp_delta)
+        If there is no flux data inside the acceptable time intervall, then rel_flux[i] is 0.
+        If there are several flux data inside the acceptable time intervall, then rel_flux[i] is their average.
 
     data_points <np.ndarray> with rel_flux.shape = (iterations,)
-
-
-    data_points <np.ndarray> with rel_flux.shape = (iterations,)
+        ...
+    mask <np.ndarray> with rel_flux.shape = (iterations,)
+        ...
+    exp_delta <np.ndarray> with rel_flux.shape = (iterations,)
+        ...
 
 
     """
     rel_flux = np.zeros(iterations)
+    mask = np.zeros(iterations)
     data_points = np.zeros(iterations)
     exp_delta = np.zeros(iterations)
     dt /= 60*60*24  # seconds - > days
@@ -180,13 +184,13 @@ def relevant_flux(df, t0, dt, iterations, max_exp_delta):
             data_points[i] += 1
             rel_flux[i] = (rel_flux[i] * (data_points[i] - 1)  + df['flux'][t_index]) / data_points[i]  # update average
             exp_delta[i] = (exp_delta[i] * (data_points[i] - 1)  + exp_delta_tmp) / data_points[i]  # update average
+    mask = data_points > 0
 
-
-    return rel_flux, data_points, exp_delta
+    return rel_flux, mask, data_points, exp_delta
 
 
 def process_88_89():
-    path = '../research/star_systems/TOI-4504/lightkurve/'
+    path = '../../research/star_systems/TOI-4504/lightkurve/'
     half_sample_duration = 0.4  # time interval we are interested in: before and after time of transit transit
     half_ignore_duration = 0.07  # time interval we want to exclude: between T1 and T4
     t88d = 2460695.535  # TT of TOI4504-d in sector 88
@@ -232,7 +236,7 @@ def remove_c_transits(df, delta):
     return df
 
 def combine_flux_data(start_sec, end_sec, filename):
-    path = '../research/star_systems/TOI-4504/lightkurve/'
+    path = '../../research/star_systems/TOI-4504/lightkurve/'
     all_dfs = []
 
     qlp_sectors = [1]
@@ -267,25 +271,61 @@ def combine_flux_data(start_sec, end_sec, filename):
     df2csv(combined_df, path + filename)
 
 
-def main():
+def try_flux(p):
     # process_88_89()
     # combine_flux_data(1, 90, "all_p.csv")
     # combine_flux_data(1, 13, "01-13_p.csv")
     # combine_flux_data(27, 38, "27-38_p.csv")
     # combine_flux_data(61, 69, "61-69_p.csv")
 
+    # path = '../../../research/star_systems/TOI-4504/lightkurve/'  # path to example lightcurve data. Change this if required.
+    # path = '../../research/star_systems/TOI-4504/lightkurve/'  # path to example lightcurve data. Change this if required.
     path = '../research/star_systems/TOI-4504/lightkurve/'  # path to example lightcurve data. Change this if required.
     df = csv2df(path + "01-13_p.csv")  # path and file name of example lightcurve data. Change this if required.
-    t0 = 2458400.011
-    dt = 1800
-    iterations = 14000
-    max_err = dt/2.1
-    rel_flux, hits, exp_delta = relevant_flux(df, t0, dt, iterations, max_err)
-    x = np.arange(0, iterations)
-    # x = [i for i in range(iterations)]
+    rel_flux, mask, hits, exp_delta = relevant_flux(df, p.start_date, p.dt, p.iterations, max_exp_delta=p.dt/2.1)
+    x = np.arange(0, p.iterations)
     plot_this(x, [rel_flux], title="Relevant Flux")
+    plot_this(x, [rel_flux], title="Relevant Flux", bottom=0.98, top=1.02)
     plot_this(x, [hits], title="Hits")
     plot_this(x, [exp_delta*60*60*24], title="Exposure Delta [s]")
+    return rel_flux, mask
 
-if __name__ == '__main__':
-    main()
+
+def debug_flux(parameters, lightcurve, residuals, flux):
+    x = np.arange(0, parameters.iterations)
+    plot_this(x, [lightcurve], title="Simulated Lightcurve")
+    plot_this(x, [residuals], title="Residuals")
+    plot_this(x, [flux], title="Flux", left=7900, right=8100, bottom=0.985, top=1.001)
+    plot_this(x, [lightcurve], title="Simulated Lightcurve", left=7900, right=8100)
+    plot_this(x, [residuals], title="Residuals", left=7900, right=8100)
+
+
+def log_prior(theta):
+    for val, (lower, upper) in zip(theta, parameter_bounds):
+        if not (lower < val < upper):
+            return -np.inf
+    return 0.0
+
+
+def log_likelihood(theta, phot_data, fitting_indices, transformer):
+    # Update parameter dictionary with current values
+    for i, key in enumerate(fitting_indices):
+        parameters[key]["value"] = theta[i]
+    transformer.update_dependent_parameters()
+    para = {name: info["value"] for name, info in parameters.items()}
+
+    residuals_phot_sum_squared = 0
+    phot_data.para.update(para)
+    phot_data.evaluate_model()
+    residuals_phot = phot_data.calculate_eclipse_residuals()
+    residuals_phot_sum_squared = np.sum(residuals_phot ** 2) * 1e4
+
+    return -0.5 * residuals_phot_sum_squared
+
+
+# Log-probability function
+def log_probability(theta, phot_data, fitting_indices, transformer):
+    lp = log_prior(theta)
+    if not np.isfinite(lp):
+        return -np.inf
+    return lp + log_likelihood(theta, phot_data, fitting_indices, transformer)

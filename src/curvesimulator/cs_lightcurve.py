@@ -39,40 +39,42 @@ class CurveSimLightcurve(np.ndarray):
     #
     #     return minima
     #
-    # def interpolate_max_depth(self, tt, p, iteration):
-    #     """
-    #     Interpolates the 'self' value at a given 'tt' using cubic interpolation
-    #     (Catmull-Rom like) based on surrounding 'iteration' points.
-    #
-    #     Args:
-    #         self: lightcurve
-    #         tt: The time value for which to interpolate [BJD]
-    #         p: CurveSimulator parameters
-    #         iteration: index of the simulation right before TT (iteration < iteration_tt < iteration + 1).
-    #
-    #     Returns:
-    #         The interpolated value at tt, or None if interpolation indices are out of bounds.
-    #     """
-    #     if not (1 <= iteration < len(self) - 2):  # Ensure indices are within bounds
-    #         print(f"{Fore.YELLOW}Function interpolate_max_depth: Interpolation indices out of bounds. ")
-    #         print(f"{iteration=}, {len(self)=}")
-    #         print(f"Depth of this transit has been stored in result file as zero!")
-    #         print(f"Try moving the start or end of the simulation a bit.{Style.RESET_ALL}")
-    #         return 1
-    #
-    #     iteration_tt = ((tt - p.start_date) * p.day % p.dt) / p.dt + iteration
-    #     P0 = self[iteration - 1]  # f_im1
-    #     P1 = self[iteration]  # f_i
-    #     P2 = self[iteration + 1]  # f_ip1
-    #     P3 = self[iteration + 2]  # f_ip2
-    #     alpha = iteration_tt - iteration  # Calculate the normalized position (alpha or t) within the segment [iteration, iteration + 1]
-    #     alpha = np.clip(alpha, 0.0, 1.0)  # Due to floating point arithmetic, it might be slightly outside [0, 1), so clamp it.
-    #     alpha2 = alpha * alpha
-    #     alpha3 = alpha2 * alpha
-    #     interpolated_value = 0.5 * (
-    #             (2 * P1) +
-    #             (-P0 + P2) * alpha +
-    #             (2 * P0 - 5 * P1 + 4 * P2 - P3) * alpha2 +
-    #             (-P0 + 3 * P1 - 3 * P2 + P3) * alpha3
-    #     )
-    #     return interpolated_value
+    def interpolate_max_depth(self, tt, p, iteration):
+        """
+        Interpolates the 'self' value at a given 'tt' using cubic interpolation
+        (Catmull-Rom like) based on surrounding 'iteration' points.
+
+        Args:
+            self: lightcurve
+            tt: The time value for which to interpolate [BJD]
+            p: CurveSimulator parameters
+            iteration: index of the simulation right before TT (iteration < iteration_tt < iteration + 1).
+
+        Returns:
+            The interpolated value at tt, or None if interpolation indices are out of bounds.
+        """
+        if not (1 <= iteration < len(self) - 2):  # Ensure indices are within bounds
+            print(f"{Fore.YELLOW}Function interpolate_max_depth: Interpolation indices out of bounds at {iteration=}")
+            print(f"Depth of this transit has been stored in result file as 0.")
+            if iteration < 1:
+                print(f"Try to increase start_date (t0), the start of the simulation a bit.{Style.RESET_ALL}")
+            else:
+                print(f"Try to increase or decrease the number of iterations a bit.{Style.RESET_ALL}")
+            return 1
+
+        iteration_tt = ((tt - p.start_date) * p.day % p.dt) / p.dt + iteration
+        P0 = self[iteration - 1]  # f_im1
+        P1 = self[iteration]  # f_i
+        P2 = self[iteration + 1]  # f_ip1
+        P3 = self[iteration + 2]  # f_ip2
+        alpha = iteration_tt - iteration  # Calculate the normalized position (alpha or t) within the segment [iteration, iteration + 1]
+        alpha = np.clip(alpha, 0.0, 1.0)  # Due to floating point arithmetic, it might be slightly outside [0, 1), so clamp it.
+        alpha2 = alpha * alpha
+        alpha3 = alpha2 * alpha
+        interpolated_value = 0.5 * (
+                (2 * P1) +
+                (-P0 + P2) * alpha +
+                (2 * P0 - 5 * P1 + 4 * P2 - P3) * alpha2 +
+                (-P0 + 3 * P1 - 3 * P2 + P3) * alpha3
+        )
+        return interpolated_value
