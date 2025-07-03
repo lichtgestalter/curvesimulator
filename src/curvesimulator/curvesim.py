@@ -2,42 +2,22 @@
 from .cs_animation import CurveSimAnimation
 from .cs_bodies import CurveSimBodies
 from .cs_parameters import CurveSimParameters
-from .cs_mcmc import CurveSimMCMC
+# from .cs_mcmc import CurveSimMCMC
 from .cs_flux_data import *
 
 
 def curvesim(config_file=""):
-
-    # path = '../research/star_systems/TOI-4504/lightkurve/'  # path to example lightcurve data. Change this if required.
-    # df = csv2df(path + "01-13_p.csv")  # path and file name of example lightcurve data. Change this if required.
-    # t0 = 2458400.011
-    # dt = 1800
-    # iterations = 14000
-    # max_err = dt/2.1
-    # tic = time.perf_counter()
-    # rel_flux, hits, exp_delta = relevant_flux(df, t0, dt, iterations, max_err)
-    # toc = time.perf_counter()
-    # print(f' {toc - tic:7.2f} seconds  ({iterations / (toc - tic):.0f} iterations/second)')
-    #
-    # x = np.arange(0, iterations)
-    # # x = [i for i in range(iterations)]
-    # plot_this(x, [rel_flux], title="Relevant Flux")
-    # plot_this(x, [hits], title="Hits")
-    # plot_this(x, [exp_delta*60*60*24], title="Exposure Delta [s]")
-    # return None, None, None, None
-
-
     mcmc_debug = True
-    # mcmc_debug = False
+    flux_debug = True
     if mcmc_debug:
         parameters = CurveSimParameters(config_file)  # Read program parameters from config file.
         bodies = CurveSimBodies(parameters)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
         flux, mask = get_corresponding_flux(parameters)
-        lightcurve, rebound_sim = bodies.calc_physics(parameters)  # Calculate all body positions and the resulting lightcurve
-        lp = log_likelihood_uli(flux, mask, lightcurve)
-        print(f"{lp=}")
-        debug_flux(parameters, flux, mask, lightcurve)
-        return parameters, bodies, None, lightcurve
+        if flux_debug:
+            lightcurve, rebound_sim = bodies.calc_physics(parameters)  # Calculate all body positions and the resulting lightcurve
+            debug_flux(parameters, flux, mask, lightcurve)
+        mcmc(mask, bodies, flux, parameters)
+        return parameters, bodies, None, None
     else:
         parameters = CurveSimParameters(config_file)  # Read program parameters from config file.
         bodies = CurveSimBodies(parameters)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation

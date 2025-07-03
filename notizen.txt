@@ -5,15 +5,21 @@ lightcurve legen kann, um die Datenpunkte zu entfernen, fuer die es keine TESS-D
 
 
 
+Erledigt:
+    Results from rebound
+    bls :/
+    corresponding flux
+    mcmc
 
 Fragen an Simon:
-
-    Ich muss also "nur" meine errechnete lightcurve mit den TESS-Daten vergleichen und log_likelihood durch die Summe der Residuen-Quadrate berechnen?
+    Es ist gar nicht das Ziel, dass die Chains konvergieren? Die sollen gerne den ganzen Parameterraum abdecken?
+    Ich muss "nur" meine errechnete lightcurve mit den TESS-Daten vergleichen und log_likelihood durch die Summe der Residuen-Quadrate berechnen?
     Rebound ist schnell fuer festes dt. TESS-Daten halten sich da aber nicht dran.
         Abweichung bis 70 Sekunden bei 1800 Sekunden exposure. Egal?
     Vitkova waehlte t0 = 2458400. Der erste TESS-Datenpunkt danach ist aber t0 = 2458400.010395068.
         Das ist 898 Sekunden spaeter. Ich habe jetzt erstmal t0 = 2458400.011 gesetzt.
     MCMC-Code erklaeren:
+        warum der Name pos im Hauptprogramm statt theta?
         flux_unc wird nie verwendet?
 
 

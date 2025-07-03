@@ -3,7 +3,7 @@ from matplotlib import pyplot as plt
 from matplotlib import rcParams
 import numpy as np
 import pandas as pd
-import time
+import emcee
 
 C_TRANSITS = [2458401.41, 2458483.21, 2458565.09, 2458647.33, 2459065.24, 2459148.48, 2459231.11, 2459313.25, 2459976.05, 2460059.62, 2460142.60]
 
@@ -274,7 +274,7 @@ def combine_flux_data(start_sec, end_sec, filename):
 def get_corresponding_flux(p):
     # process_88_89()
     # combine_flux_data(1, 90, "all_p.csv")
-    combine_flux_data(1, 13, "01-13_p.csv")
+    # combine_flux_data(1, 13, "01-13_p.csv")
     # combine_flux_data(27, 38, "27-38_p.csv")
     # combine_flux_data(61, 69, "61-69_p.csv")
 
@@ -284,8 +284,8 @@ def get_corresponding_flux(p):
     df = csv2df(path + "01-13_p.csv")  # path and file name of example lightcurve data. Change this if required.
     rel_flux, mask, hits, exp_delta = relevant_flux(df, p.start_date, p.dt, p.iterations, max_exp_delta=p.dt/2.1)
     x = np.arange(0, p.iterations)
-    plot_this(x, [rel_flux], title="Relevant Flux")
-    plot_this(x, [rel_flux], title="Relevant Flux", bottom=0.98, top=1.02)
+    plot_this(x, [rel_flux], title="Corresponding Flux")
+    plot_this(x, [rel_flux], title="Corresponding Flux", bottom=0.98, top=1.02)
     plot_this(x, [hits], title="Hits")
     plot_this(x, [exp_delta*60*60*24], title="Exposure Delta [s]")
     return rel_flux, mask
@@ -303,28 +303,56 @@ def debug_flux(parameters, flux, mask, lightcurve):
     plot_this(x, [residuals], title="Residuals", left=left, right=right)
 
 
-def log_prior_uli(theta, theta_bounds):
-    # Missing: If any parameter is outside resonable bounds: return -np.inf
+def mcmc(mask, bodies, flux, parameters):
+    # MCMC setup
+    fitting_indices = ["bodies[1].P"]  # list of names of fitting parameters. Needed so these parameters can be updated inside log_likelihood().
+    initial_values = [bodies[1].P]  # initial values of the fitting parameters
+    theta_bounds = [(bodies[1].P * 0.9, bodies[1].P * 1.1)]
+    ndim = len(fitting_indices)
+    nwalkers = 2  # 32
+    nsteps = 1  # 2000
+    # number_of_points_disregarded = 1  # burn-in phase
+    theta0 = np.array(initial_values) + 1e-4 * np.random.randn(nwalkers, ndim)  # slightly randomized initial values of the fitting parameters
+    sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability, args=(theta_bounds, flux, mask, bodies, parameters))
+    print("Running MCMC...")
+    sampler.run_mcmc(theta0, nsteps, progress=True)
+    print("MCMC finished!")
+
+
+def log_prior(theta, theta_bounds):
+    """# If any parameter is outside resonable bounds: return -np.inf"""
+    for val, (lower, upper) in zip(theta, theta_bounds):
+        if not (lower < val < upper):
+            return -np.inf
     return 0
 
 
-def log_prior_simon(theta, parameter_bounds):
-    for val, (lower, upper) in zip(theta, parameter_bounds):
-        if not (lower < val < upper):
-            return -np.inf
-    return 0.0
-
-
-def log_likelihood_uli(flux, mask, lightcurve):
+def log_likelihood(theta, flux, mask, bodies, parameters):
+    bodies[1].P = theta[0]
+    print(f"{theta=}")
+    lightcurve, _ = bodies.calc_physics(parameters)
     residuals = (flux - lightcurve) * mask
     residuals_phot_sum_squared = np.sum(residuals ** 2)
+    residuals durch uncertainty teilen?
+    print(f"Log Likelihood={-0.5 * residuals_phot_sum_squared:.18f}")
     return -0.5 * residuals_phot_sum_squared
+
+
+def log_probability(theta, theta_bounds, flux, mask, bodies, parameters):
+    lp = log_prior(theta, theta_bounds)
+    if not np.isfinite(lp):
+        return -np.inf
+    return lp + log_likelihood(theta, flux, mask, bodies, parameters)
+
 
 
 def log_likelihood_simon(theta, phot_data, fitting_indices, transformer, parameters):
     """
     theta:
-        wie muss theta beschaffen sein?
+        Liste mit den aktuellen Zahlenwerten der fitting indices (s.u.).
+        Wird von mcmc selbstaendig veraendert
+        Bevor in log_likelihood() die simulierte lightcurve neu berechnet wird,
+        werden die Parameter mittels der Werte von theta aktualisiert
     phot_data:
         para
         flux
@@ -333,7 +361,8 @@ def log_likelihood_simon(theta, phot_data, fitting_indices, transformer, paramet
     para:
         Parameter hab ich schon entfernt, weil er direkt ueberschrieben wird
     fitting_indices:
-        ['Tmin_pri', 'P_days', 'incl_deg', 'R1a', 'R2R1']
+        Liste mit den Namen der zu fittenden Parametern
+        z.B. ['Tmin_pri', 'P_days', 'incl_deg', 'R1a', 'R2R1']
     transformer:
         Enthaelt alle Parameter (feste und veraenderliche)
         Ausserdem Methoden zur Anpassung von abhaengigen Parametern, fuer den Falls, dass MCMC die zugrundeliegenden Parameter aendern darf
@@ -344,9 +373,6 @@ def log_likelihood_simon(theta, phot_data, fitting_indices, transformer, paramet
         transformer.parameters
         phot_data.para
         para
-
-
-
 
     """
     # Update parameter dictionary with current values
@@ -361,17 +387,3 @@ def log_likelihood_simon(theta, phot_data, fitting_indices, transformer, paramet
     residuals_phot_sum_squared = np.sum(residuals_phot ** 2) * 1e4
 
     return -0.5 * residuals_phot_sum_squared
-
-
-def log_probability_uli(theta, theta_bounds, flux, mask, lightcurve):
-    lp = log_prior_uli(theta, theta_bounds)
-    if not np.isfinite(lp):
-        return -np.inf
-    return lp + log_likelihood_uli(flux, mask, lightcurve)
-
-
-def log_probability_simon(theta, phot_data, fitting_indices, transformer, parameters):
-    lp = log_prior_simon(theta)
-    if not np.isfinite(lp):
-        return -np.inf
-    return lp + log_likelihood_simon(theta, phot_data, fitting_indices, transformer, parameters)
