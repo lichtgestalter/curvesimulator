@@ -152,8 +152,9 @@ class CurveSimAnimation:
 
     def render(self, p, bodies, lightcurve):
         """Calls next_frame() for each frame and saves the video."""
-        print(f'Animating {p.frames:8d} frames:     ', end="")
-        tic = time.perf_counter()
+        if p.verbose:
+            print(f'Animating {p.frames:8d} frames:     ', end="")
+            tic = time.perf_counter()
         anim = matplotlib.animation.FuncAnimation(self.fig, CurveSimAnimation.next_frame, fargs=(p, bodies, self.red_dot, lightcurve), interval=1000 / p.fps, frames=p.frames, blit=False)
         anim.save(
             p.video_file,
@@ -166,6 +167,7 @@ class CurveSimAnimation:
                 '-b:v', '30000k'  # Bitrate 5000k (increase as needed)
             ]
         )
-        toc = time.perf_counter()
-        print(f' {toc - tic:7.2f} seconds  ({p.frames / (toc - tic):.0f} frames/second)')
-        print(f'{p.video_file} saved.')
+        if p.verbose:
+            toc = time.perf_counter()
+            print(f' {toc - tic:7.2f} seconds  ({p.frames / (toc - tic):.0f} frames/second)')
+            print(f'{p.video_file} saved.')

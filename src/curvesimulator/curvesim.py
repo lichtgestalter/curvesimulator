@@ -7,12 +7,12 @@ from .cs_flux_data import *
 
 
 def curvesim(config_file=""):
-    mcmc_debug = True
-    flux_debug = True
+    mcmc_debug = False
+    flux_debug = False
     if mcmc_debug:
         parameters = CurveSimParameters(config_file)  # Read program parameters from config file.
         bodies = CurveSimBodies(parameters)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
-        flux, mask = get_corresponding_flux(parameters)
+        flux, mask = try_corresponding_flux(parameters)
         if flux_debug:
             lightcurve, rebound_sim = bodies.calc_physics(parameters)  # Calculate all body positions and the resulting lightcurve
             debug_flux(parameters, flux, mask, lightcurve)

@@ -27,9 +27,11 @@ class CurveSimParameters:
         hour = eval(config.get("Astronomical Constants", "hour", fallback="None"))
         day = eval(config.get("Astronomical Constants", "day", fallback="None"))
         year = eval(config.get("Astronomical Constants", "year", fallback="None"))
+        verbose = eval(config.get("Astronomical Constants", "verbose", fallback="True"))
         self.g, self.au, self.r_sun, self.m_sun, self.l_sun = g, au, r_sun, m_sun, l_sun,
         self.r_jup, self.m_jup, self.r_earth, self.m_earth, self.v_earth = r_jup, m_jup, r_earth, m_earth, v_earth
         self.hour, self.day, self.year = hour, day, year
+        self.verbose = verbose
 
         # [Video]
         self.config_file = config_file
@@ -70,7 +72,7 @@ class CurveSimParameters:
                     print(f"No parameter in sections {self.standard_sections} may be negative.{Style.RESET_ALL}")
 
         # [Debug]
-        self.debug_L = list(eval(config.get("Debug", "debug_L", fallback="[0]")))
+        # self.debug_L = list(eval(config.get("Debug", "debug_L", fallback="[0]")))
 
     def __repr__(self):
         return f'CurveSimParameters from {self.config_file}'

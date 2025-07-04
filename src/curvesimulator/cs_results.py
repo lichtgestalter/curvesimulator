@@ -61,11 +61,12 @@ class CurveSimResults(dict):
         """Calculate the date of an iteration in BJD"""
         return p.start_date + iteration * p.dt / p.day
 
-    def results2json(self, filename):
+    def results2json(self, filename, p):
         """Converts self to JSON and saves it in testjson.json"""
         with open(filename, "w", encoding='utf8') as file:
             json.dump(self, file, indent=4, ensure_ascii=False)
-        print(filename, "saved")
+        if p.verbose:
+            print(filename, "saved")
 
     @staticmethod
     def check_resultfilename(resultfilename):
@@ -89,4 +90,4 @@ class CurveSimResults(dict):
         del parameters.standard_sections
         self["ProgramParameters"] = parameters.__dict__
         resultfilename = CurveSimResults.check_resultfilename(parameters.result_file)
-        self.results2json(resultfilename)
+        self.results2json(resultfilename, parameters)

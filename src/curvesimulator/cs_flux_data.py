@@ -137,7 +137,7 @@ def periodogram(results):
         ax.axvline(period / n, alpha=0.4, lw=1, linestyle="dashed")
 
 
-def relevant_flux(df, t0, dt, iterations, max_exp_delta):
+def corresponding_flux(df, t0, dt, iterations, max_exp_delta):
     """
     df: <pandas DataFrame> Contains at least columns 'time' and 'flux'.
     t0: start of a lightcurve simulation [BJD days]
@@ -165,7 +165,6 @@ def relevant_flux(df, t0, dt, iterations, max_exp_delta):
 
     """
     rel_flux = np.zeros(iterations)
-    mask = np.zeros(iterations)
     data_points = np.zeros(iterations)
     exp_delta = np.zeros(iterations)
     dt /= 60*60*24  # seconds - > days
@@ -271,7 +270,7 @@ def combine_flux_data(start_sec, end_sec, filename):
     df2csv(combined_df, path + filename)
 
 
-def get_corresponding_flux(p):
+def try_corresponding_flux(p):
     # process_88_89()
     # combine_flux_data(1, 90, "all_p.csv")
     # combine_flux_data(1, 13, "01-13_p.csv")
@@ -282,12 +281,12 @@ def get_corresponding_flux(p):
     # path = '../../research/star_systems/TOI-4504/lightkurve/'  # path to example lightcurve data. Change this if required.
     path = '../research/star_systems/TOI-4504/lightkurve/'  # path to example lightcurve data. Change this if required.
     df = csv2df(path + "01-13_p.csv")  # path and file name of example lightcurve data. Change this if required.
-    rel_flux, mask, hits, exp_delta = relevant_flux(df, p.start_date, p.dt, p.iterations, max_exp_delta=p.dt/2.1)
-    x = np.arange(0, p.iterations)
-    plot_this(x, [rel_flux], title="Corresponding Flux")
-    plot_this(x, [rel_flux], title="Corresponding Flux", bottom=0.98, top=1.02)
-    plot_this(x, [hits], title="Hits")
-    plot_this(x, [exp_delta*60*60*24], title="Exposure Delta [s]")
+    rel_flux, mask, hits, exp_delta = corresponding_flux(df, p.start_date, p.dt, p.iterations, max_exp_delta=p.dt / 2.1)
+    # x = np.arange(0, p.iterations)
+    # plot_this(x, [rel_flux], title="Corresponding Flux")
+    # plot_this(x, [rel_flux], title="Corresponding Flux", bottom=0.98, top=1.02)
+    # plot_this(x, [hits], title="Hits")
+    # plot_this(x, [exp_delta*60*60*24], title="Exposure Delta [s]")
     return rel_flux, mask
 
 
@@ -305,15 +304,15 @@ def debug_flux(parameters, flux, mask, lightcurve):
 
 def mcmc(mask, bodies, flux, parameters):
     # MCMC setup
-    fitting_indices = ["bodies[1].P"]  # list of names of fitting parameters. Needed so these parameters can be updated inside log_likelihood().
+    theta_references = ["bodies[1].P"]  # list of names of fitting parameters. Needed so these parameters can be updated inside log_likelihood().
     initial_values = [bodies[1].P]  # initial values of the fitting parameters
     theta_bounds = [(bodies[1].P * 0.9, bodies[1].P * 1.1)]
-    ndim = len(fitting_indices)
+    ndim = len(theta_references)
     nwalkers = 2  # 32
     nsteps = 1  # 2000
     # number_of_points_disregarded = 1  # burn-in phase
     theta0 = np.array(initial_values) + 1e-4 * np.random.randn(nwalkers, ndim)  # slightly randomized initial values of the fitting parameters
-    sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability, args=(theta_bounds, flux, mask, bodies, parameters))
+    sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability, args=(theta_bounds, theta_references, flux, mask, bodies, parameters))
     print("Running MCMC...")
     sampler.run_mcmc(theta0, nsteps, progress=True)
     print("MCMC finished!")
@@ -327,63 +326,37 @@ def log_prior(theta, theta_bounds):
     return 0
 
 
-def log_likelihood(theta, flux, mask, bodies, parameters):
-    bodies[1].P = theta[0]
-    print(f"{theta=}")
-    lightcurve, _ = bodies.calc_physics(parameters)
+def log_likelihood(theta, theta_references, flux, mask, bodies, parameters):
+    """
+    theta:
+        List containing the current numerical values of the `theta_references` (see below).
+        It is automatically modified by the MCMC process.
+        Before the simulated lightcurve is recalculated in `log_likelihood()`,
+        the parameters are updated using the values from `theta`.
+
+    theta_references:
+        List containing the names of the parameters to be fitted.
+        For example: ['Tmin_pri', 'P_days', 'incl_deg', 'R1a', 'R2R1']
+    """
+    bodies[1].P = theta[0]  # update all parameters from theta. parameter names are to be found in theta_references
+    # print(f"{theta=}")
+    lightcurve, _ = bodies.calc_physics(parameters)  # run simulation
     residuals = (flux - lightcurve) * mask
     residuals_phot_sum_squared = np.sum(residuals ** 2)
-    residuals durch uncertainty teilen?
-    print(f"Log Likelihood={-0.5 * residuals_phot_sum_squared:.18f}")
+
+
+
+    # residuals durch uncertainty teilen?  ##############################################
+
+
+
+    # print(f"Log Likelihood={-0.5 * residuals_phot_sum_squared:.18f}")
     return -0.5 * residuals_phot_sum_squared
 
 
-def log_probability(theta, theta_bounds, flux, mask, bodies, parameters):
+def log_probability(theta, theta_bounds, theta_references, flux, mask, bodies, parameters):
     lp = log_prior(theta, theta_bounds)
     if not np.isfinite(lp):
         return -np.inf
-    return lp + log_likelihood(theta, flux, mask, bodies, parameters)
+    return lp + log_likelihood(theta, theta_references, flux, mask, bodies, parameters)
 
-
-
-def log_likelihood_simon(theta, phot_data, fitting_indices, transformer, parameters):
-    """
-    theta:
-        Liste mit den aktuellen Zahlenwerten der fitting indices (s.u.).
-        Wird von mcmc selbstaendig veraendert
-        Bevor in log_likelihood() die simulierte lightcurve neu berechnet wird,
-        werden die Parameter mittels der Werte von theta aktualisiert
-    phot_data:
-        para
-        flux
-        time
-        weitere Parameter, die nicht in para enthalten sind wie z.B. stepsize
-    para:
-        Parameter hab ich schon entfernt, weil er direkt ueberschrieben wird
-    fitting_indices:
-        Liste mit den Namen der zu fittenden Parametern
-        z.B. ['Tmin_pri', 'P_days', 'incl_deg', 'R1a', 'R2R1']
-    transformer:
-        Enthaelt alle Parameter (feste und veraenderliche)
-        Ausserdem Methoden zur Anpassung von abhaengigen Parametern, fuer den Falls, dass MCMC die zugrundeliegenden Parameter aendern darf
-
-    warum zum Schluss *1e4?
-    4-fache Redundanz?
-        parameters (global)
-        transformer.parameters
-        phot_data.para
-        para
-
-    """
-    # Update parameter dictionary with current values
-    for i, key in enumerate(fitting_indices):
-        parameters[key]["value"] = theta[i]
-    transformer.update_dependent_parameters()
-    para = {name: info["value"] for name, info in parameters.items()}
-
-    phot_data.para.update(para)
-    phot_data.evaluate_model()
-    residuals_phot = phot_data.calculate_eclipse_residuals()
-    residuals_phot_sum_squared = np.sum(residuals_phot ** 2) * 1e4
-
-    return -0.5 * residuals_phot_sum_squared

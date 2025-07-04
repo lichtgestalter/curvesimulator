@@ -1,30 +1,31 @@
-Recently done / in progress:
+Next / in progress:
 
-TESS Daten angucken: In process_flux_data eine Boolean Mask erzeugen (und abspeichern?), die ich dann ueber jede erzeugte
-lightcurve legen kann, um die Datenpunkte zu entfernen, fuer die es keine TESS-Daten gibt, bevor ich die Residuen ausrechne.
+    Neben Energieerhalt weiteren Check einbauen, dass Integration korrekt ist.
+        Impulserhaltung (Gesamtimpuls):
+        Drehimpulserhaltung (Gesamtdrehimpuls):
+        Schwerpunktbewegung: Position und Geschwindigkeit des Schwerpunkts (Center of Mass) sollten konstant sein
 
+    In log_likelihood() die residuals durch uncertainty teilen?
 
+    Simons Methoden einbauen zur Anpassung von abhaengigen Parametern, falls MCMC die zugrundeliegenden Parameter aendern darf.
+        (class TransformationManager)
 
-Erledigt:
-    Results from rebound
-    bls :/
-    corresponding flux
-    mcmc
+    Orga/Refactoring:
+        Soll Code fuer mcmc in flux-data bleiben?
+        cs_mcmc nutzen oder abschaffen
+        Klasse in flux_data anlegen? (import * ist haesslich)
+        Package mal wieder hochladen und mit pip testen.
+
+    Auswertungen nach durchgefuehrtem mcmc:
+        Corner plots
+        Histogramm mit max likelihood
+        Chain-Grafiken (auch verbesserte Uli-Version mit ueberlagerten halbtransparenten Grautoenen start Farbspaghetti?)
+        HDI (Highest density interval)
+
+    Neue Programmparameter in (neue) vernuenftige Abschnitte in Config-File organisieren
+
 
 Fragen an Simon:
-    Es ist gar nicht das Ziel, dass die Chains konvergieren? Die sollen gerne den ganzen Parameterraum abdecken?
-    Ich muss "nur" meine errechnete lightcurve mit den TESS-Daten vergleichen und log_likelihood durch die Summe der Residuen-Quadrate berechnen?
-    Rebound ist schnell fuer festes dt. TESS-Daten halten sich da aber nicht dran.
-        Abweichung bis 70 Sekunden bei 1800 Sekunden exposure. Egal?
-    Vitkova waehlte t0 = 2458400. Der erste TESS-Datenpunkt danach ist aber t0 = 2458400.010395068.
-        Das ist 898 Sekunden spaeter. Ich habe jetzt erstmal t0 = 2458400.011 gesetzt.
-    MCMC-Code erklaeren:
-        warum der Name pos im Hauptprogramm statt theta?
-        flux_unc wird nie verwendet?
-
-
-
-
     Was macht flatten/thin mit den Chains?
 
     Hast du Literatur zu multiple Transits / Fallunterscheidung bei gegenseitiger Ueberdeckung von 3 oder mehr Kreisen?
@@ -32,100 +33,86 @@ Fragen an Simon:
 
 NEXT Astrophysics:
 
-        In aelteren TESS-Sektoren nach Planet-d-Transits suchen.
+    Bessere TESS-Daten finden (welche, die nicht die c-transits wegwerfen)
 
-        Sector 61: Daten mit besserer Qualitaet downloadbar? Es gibt 3 Kurven und 2 Pixelfiles zum Download.
-            Die 2 Pixelfiles vergleichen. Habe schon cutted files gemacht.
+    Uncertainty selber berechnen
+        aus Werten in der Naehe aber ausserhalb vom Transit
+        Uncertainty waehrend und in Naehe von Transit als konstant annehmen
 
-        Lassen sich die Flux-Daten durch eine manuell von mir gemachte alternative Pixelmaske verbessern? Z.B. 4x4 statt 3x2?
+    Sector 61: Daten mit besserer Qualitaet downloadbar? Es gibt 3 Kurven und 2 Pixelfiles zum Download.
+        Die 2 Pixelfiles vergleichen. Habe schon cutted files gemacht.
 
-NEXT Programming:
-
-        Alte d-transits finden
-
-        MCMC-Integration
-            Super simples Fakemodell machen und mit MCMC zum Interasgieren bringen
-                Koennte z.B. Funktion sein, die  a * x + b + r berechnet
-                    r ist ein kleiner Zufallswert (white noise)
-                    a und b sind die durch MCMC zu bestimmenden Parameter
+    Lassen sich die Flux-Daten durch eine manuell von mir gemachte alternative Pixelmaske verbessern? Z.B. 4x4 statt 3x2?
 
 
-        Mit Rebound ermittelte Transit-Parameter vernuenftig speichern.
-            Bisherige Ermittlungs- und Abspeicher-Funktionen ersetzen
-            z.B. obsolete Funktion lightcurve_minima in cs_lightcurve.py
+Programming Hinter MCMC-Integration zurueckgestellt:
+
+    BUG! Ich speichere fuer den Stern ueberfluessige Parameter mit falschen Werten ab? Z.B. e und i.
+
+    Option in config_file einbauen: sollen eclipsees in find_transits() auf sterne eingeschraenkt sein?
+        Besser: Jeder Body kriegt die Parameter relevant_eclipser  (yes/no) und relevant_eclipsee (yes/no)
+
+    Result evaluation komfortabel fuer User nutzbar machen.
+
+    Orbitparameter regelmaessig (z.B. bei jedem Transit) im Resultfile speichern.
+
+    init_rebound() verallgemeinern. Auch Hierarchie ermoeglichen (=wer kreist um wen?)
+
+    Neu eingefuehrte Konstanten in Parameterfile statt hart im Code, z.B.
+        Mindestgenauigkeit bei binary search von Transittimes
+        Akzeptable Energieveraenderung
+
+    Damit CurveSimulator auch fuer andere Systeme ausser TOI4504 funktioniert:
+        Aus dem User Input die Kepler-Parameter berechnen, die Rebound braucht, und Rebound damit fuettern.
+        Fuer mich relevante Parameter, die Reboundklasse Orbit akzeptiert:
+            P :         orbital period
+            a :         semimajor axis
+
+            e :         eccentricity
+            inc :       inclination
+
+            Omega :     longitude of ascending node
+            omega :     argument of pericenter
+            pomega :    longitude of pericenter
+
+            f :         true anomaly
+            M :         mean anomaly
+            E :         eccentric anomaly (requires solving Kepler's equation - only calculated when needed)
+
+            l :         mean longitude = Omega + omega + M
+            theta :     true longitude = Omega + omega + f
+
+            T:          time of pericenter passage
 
 
-    Hinter MCMC-Integration zurueckgestellt:
+    Code entsorgen, der durch rebound abgedeckt wird.
 
-        BUG! Ich speichere fuer den Stern ueberfluessige Parameter mit falschen Werten ab? Z.B. e und i.
+    Alle kritischen Textmeldungen mit colorama einfaerben (siehe color.py in Ordner debug)
 
-        Option in config_file einbauen: sollen eclipsees in find_transits() auf sterne eingeschraenkt sein?
-            Besser: Jeder Body kriegt die Parameter relevant_eclipser  (yes/no) und relevant_eclipsee (yes/no)
+    Multiple transits (und secondary eclipses?) korrekt hantieren.
+        Siehe circle_eclipses.py
 
-        Result evaluation komfortabel fuer User nutzbar machen.
-
-        Orbitparameter regelmaessig (z.B. bei jedem Transit) im Resultfile speichern.
-
-        init_rebound() verallgemeinern. Auch Hierarchie ermoeglichen (=wer kreist um wen?)
-
-        Neu eingefuehrte Konstanten in Parameterfile statt hart im Code, z.B.
-            Mindestgenauigkeit bei binary search von Transittimes
-            Akzeptable Energieveraenderung
-
-        Neben Energieerhalt weiteren Check einbauen, dass Integration korrekt ist.
-            Erhalt des Drehmoments?
-
-        Damit CurveSimulator auch fuer andere Systeme ausser TOI4504 funktioniert:
-            Aus dem User Input die Kepler-Parameter berechnen, die Rebound braucht, und Rebound damit fuettern.
-            Fuer mich relevante Parameter, die Reboundklasse Orbit akzeptiert:
-                P :         orbital period
-                a :         semimajor axis
-
-                e :         eccentricity
-                inc :       inclination
-
-                Omega :     longitude of ascending node
-                omega :     argument of pericenter
-                pomega :    longitude of pericenter
-
-                f :         true anomaly
-                M :         mean anomaly
-                E :         eccentric anomaly (requires solving Kepler's equation - only calculated when needed)
-
-                l :         mean longitude = Omega + omega + M
-                theta :     true longitude = Omega + omega + f
-
-                T:          time of pericenter passage
+    Lohnt es sich die Verdunklung durch secondary eclipses und eclipses unter Planeten (fx planet c verdeckt planet d) zu modellieren?
+    Bei Albedo von 50% muesste eine secondary eclipse halb so tief sein wie eine primary eclipse, korrekt?
+            Nein, der Effekt ist viel kleiner und kann vorerst vernachlaessigt werden. Kann ich irgendwann spaeter mal einbauen.
 
 
-        Code entsorgen, der durch rebound abgedeckt wird.
+Example videos
+    Videos erstellen und (auf youtube? eher vimeo wg. Bildqualitaet) veröffentlichen.
+    Auf Video-Seite im Wiki (letzter Satz) ungefaehr sowas ergaenzen:
+        Or watch this [version with awful compression artefacts](https://youtu.be/7diyCCIqiIc), courtesy of youtube.
+        Sternsysteme aus weiteren Papern visualisieren.
+            Zunaechst nur Systeme mit nur einem Stern
 
-        Alle kritischen Textmeldungen mit colorama einfaerben (siehe color.py in Ordner debug)
-
-        Multiple transits (und secondary eclipses?) korrekt hantieren.
-            Siehe circle_eclipses.py
-
-        Lohnt es sich die Verdunklung durch secondary eclipses und eclipses unter Planeten (fx planet c verdeckt planet d) zu modellieren?
-        Bei Albedo von 50% muesste eine secondary eclipse halb so tief sein wie eine primary eclipse, korrekt?
-                Nein, der Effekt ist viel kleiner und kann vorerst vernachlaessigt werden. Kann ich irgendwann spaeter mal einbauen.
-
-
-    Example videos
-        Videos erstellen und (auf youtube? eher vimeo wg. Bildqualitaet) veröffentlichen.
-        Auf Video-Seite im Wiki (letzter Satz) ungefaehr sowas ergaenzen:
-            Or watch this [version with awful compression artefacts](https://youtu.be/7diyCCIqiIc), courtesy of youtube.
-            Sternsysteme aus weiteren Papern visualisieren.
-                Zunaechst nur Systeme mit nur einem Stern
-
-    Wiki aktualisieren.
-        Results Output auf eigener Seite im Wiki dokumentieren.
-        Programm ist optimiert fuer Visualisierung. Nicht fuer numerische Praezision. Kleines dt bei kleinen Perioden notwendig. Trotzdem ungenau.
-            Obsolet mit Verlet???
-        Im Wiki die Videos verlinken.
-        Evtl. restliche Formulierungen von AI verbessern lassen.
-            Take a look at this text on a page of a wiki about a python library. The text is written in mark-up language.
-            Improve the language, for example by removing spelling errors and making the formulations more elegant.
-            Format your improvements in the same mark-up language: ""
+Wiki aktualisieren.
+    Results Output auf eigener Seite im Wiki dokumentieren.
+    Programm ist optimiert fuer Visualisierung. Nicht fuer numerische Praezision. Kleines dt bei kleinen Perioden notwendig. Trotzdem ungenau.
+        Obsolet mit Verlet???
+    Im Wiki die Videos verlinken.
+    Evtl. restliche Formulierungen von AI verbessern lassen.
+        Take a look at this text on a page of a wiki about a python library. The text is written in mark-up language.
+        Improve the language, for example by removing spelling errors and making the formulations more elegant.
+        Format your improvements in the same mark-up language: ""
 
 VERSION 1.0.0 veroeffentlichen !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -371,8 +358,16 @@ I implemented all suggestions from zoom call 29.03.2022, but tried and dismissed
             exoplanet: Project inactive?
             Exofast? Seems professionell. Doubtful if it works on Windows .
     0.4.3 Fitting TOI-4504
-    0.5 First partial Rebound integration
-    0.5.3 Added cs_flux_data.py to CurveSimulator
+    0.5 Partial Rebound integration
+        CurveSimulator now uses Rebound for integration and for calculating results (T1, T2, TT, T3, T4, depth, impact).
+    0.5.2
+         Searched with BoxLeastSquared after transits. Confirmed TOI4504b- and c-transits. No evidence for d-transits in sectors 1 - 69 :(
+    0.5.3 MCMC
+        Function corresponding_flux() converts TESS-data into data corresponding to a simulated lightcurve.
+        Added cs_flux_data.py to CurveSimulator
+        First rudimentary integration of emcee (MCMC library) with just one Parameter (Planet-b Period).
+        Introduced silent mode (so Curvesimulator does not write into the console during MCMC)
+
 
 
 -----------------------------------------------------------------------
@@ -427,6 +422,11 @@ Next Steps nach Call mit Simon, 16.06.25:
         Meine simulierten Fluxdaten muss ich so anpassen, dass sie in jedem Sektor ueber den gleichen Zeitraum integrert sind, wie die jeweiligen TESS-Daten
         Simon schickt Update von seinem Code
 
+Call mit Simon, 03.07.25:
+    Am besten alle Flux-Daten ausserhalb von Transits vom MCMC fernhalten.
+    Waere gut, wenn Curvesimulator zwischen den Transits moeglichst schnell integrieren wuerde. (Veraenderliches dt, oder zumindest Vielfache von dt).
+    Residuen durch Uncertainty teilen, damit die Residuen von ungenauen Daten weniger gewichtet werden.
+    Next Date: spontan/kurzfristig, falls ich feststecke.
 
 
 

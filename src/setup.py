@@ -17,9 +17,10 @@ setup(
     packages=find_packages(),
     install_requires=[
         # List your dependencies here
-        "numpy",
-        "matplotlib",
+        "colorama",
         "configparser",
+        "matplotlib",
+        "numpy",
         "rebound"
     ],
     author="Uli Scheuss",

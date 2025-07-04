@@ -11,6 +11,7 @@ import time
 from curvesimulator.cs_body import CurveSimBody
 from curvesimulator.cs_lightcurve import CurveSimLightcurve
 from curvesimulator.cs_physics import CurveSimPhysics
+from curvesimulator.cs_rebound import CurveSimRebound
 from curvesimulator.cs_results import CurveSimResults
 from curvesimulator.cs_results import Transit
 
@@ -24,7 +25,11 @@ class CurveSimBodies(list):
         if star_count == 1:
             simulation.integrator = "whfast"
             simulation.dt = p.dt
-        print(f"Rebound uses integrator {simulation.integrator}.")
+        if p.verbose:
+            print(f"Rebound uses integrator {simulation.integrator}.")
+        if star_count == 0:
+            print(f"{Fore.RED}ERROR: No body in config file has body type star.{Style.RESET_ALL}")
+            exit(1)
         i = 0
         for body in self[0:1]:  # hack debug: works only when the first body is the only star and all other bodies are orbiting this star (no binary, no moons, ...)
             simulation.add(m=body.mass, r=body.radius, hash=body.name)
@@ -232,31 +237,37 @@ class CurveSimBodies(list):
         stars = [body for body in self if body.body_type == "star"]
         lightcurve = CurveSimLightcurve(p.iterations)  # Initialize lightcurve (essentially a np.ndarray)
         initial_energy = rebound_sim.energy()
+        initial_sim_state = CurveSimRebound(rebound_sim)
         for iteration in range(p.iterations):
             rebound_sim.integrate(iteration * p.dt)
             for body in self:
                 CurveSimBodies.update_position(body, iteration, rebound_sim)
             lightcurve[iteration] = self.total_luminosity(stars, iteration, p)  # Update lightcurve.
-            CurveSimBodies.progress_bar(iteration, p)
+            if p.verbose:
+                CurveSimBodies.progress_bar(iteration, p)
         lightcurve_max = float(lightcurve.max(initial=None))
         lightcurve /= lightcurve_max  # Normalize flux.
         energy_change = math.log10(abs(rebound_sim.energy() / initial_energy - 1))  # Magnitude of the relative change of energy during simulation
+        new_sim_state = CurveSimRebound(rebound_sim)
+        initial_sim_state.sim_check_deltas(new_sim_state)
         return lightcurve, self, rebound_sim, energy_change
 
     def calc_physics(self, p):
         """Calculate body positions and the resulting lightcurve."""
         days = p.dt * p.iterations / p.day
         years = days / 365.25
-        print(f'Producing {p.frames / p.fps:.0f} seconds long video, covering {days:.0f} earth days / {years:.1f} earth years.'
-              f' ({p.dt * p.sampling_rate * p.fps / 60 / 60 / 24:.2f} earth days per video second.)')
-        print(f'Calculating {p.iterations:,} iterations: ', end="")  #print(f"{b=:_}
-        tic = time.perf_counter()
+        if p.verbose:
+            print(f'Producing {p.frames / p.fps:.0f} seconds long video, covering {days:.0f} earth days / {years:.1f} earth years.'
+                  f' ({p.dt * p.sampling_rate * p.fps / 60 / 60 / 24:.2f} earth days per video second.)')
+            print(f'Calculating {p.iterations:,} iterations: ', end="")  #print(f"{b=:_}
+            tic = time.perf_counter()
         lightcurve, bodies, rebound_sim, energy_change = self.calc_positions_eclipses_luminosity(p)
-        toc = time.perf_counter()
-        print(f' {toc - tic:7.2f} seconds  ({p.iterations / (toc - tic):.0f} iterations/second)')
-        print(f"Log10 of the relative change of energy during simulation: {energy_change:.0f}")
+        if p.verbose:
+            toc = time.perf_counter()
+            print(f' {toc - tic:7.2f} seconds  ({p.iterations / (toc - tic):.0f} iterations/second)')
+            print(f"Log10 of the relative change of energy during simulation: {energy_change:.0f}")
         if energy_change > -6:
-            print("\u001b[31m" + "The energy must not change significantly! Consider using a smaller time step (dt)." + "\u001b[0m")
+            print(f"{Fore.RED}The energy must not change significantly! Consider using a smaller time step (dt).{Style.RESET_ALL}")
         return lightcurve, rebound_sim
 
     def calc_patch_radii(self, p):

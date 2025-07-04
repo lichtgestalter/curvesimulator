@@ -54,12 +54,13 @@ class CurveSimLightcurve(np.ndarray):
             The interpolated value at tt, or None if interpolation indices are out of bounds.
         """
         if not (1 <= iteration < len(self) - 2):  # Ensure indices are within bounds
-            print(f"{Fore.YELLOW}Function interpolate_max_depth: Interpolation indices out of bounds at {iteration=}")
-            print(f"Depth of this transit has been stored in result file as 0.")
-            if iteration < 1:
-                print(f"Try to increase start_date (t0), the start of the simulation a bit.{Style.RESET_ALL}")
-            else:
-                print(f"Try to increase or decrease the number of iterations a bit.{Style.RESET_ALL}")
+            if p.verbose:
+                print(f"{Fore.YELLOW}Function interpolate_max_depth: Interpolation indices out of bounds at {iteration=}")
+                print(f"Depth of this transit has been stored in result file as 0.")
+                if iteration < 1:
+                    print(f"Try to increase start_date (t0), the start of the simulation a bit.{Style.RESET_ALL}")
+                else:
+                    print(f"Try to increase or decrease the number of iterations a bit.{Style.RESET_ALL}")
             return 1
 
         iteration_tt = ((tt - p.start_date) * p.day % p.dt) / p.dt + iteration

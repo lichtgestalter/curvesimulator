@@ -7,4 +7,5 @@ from .cs_flux_data import *
 from .cs_lightcurve import CurveSimLightcurve
 from .cs_parameters import CurveSimParameters
 from .cs_physics import CurveSimPhysics
+from .cs_rebound import CurveSimRebound
 from .cs_results import CurveSimResults
