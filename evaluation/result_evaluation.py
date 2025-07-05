@@ -105,5 +105,5 @@ def main(resultfile):
 
 
 # main("Sim001.v0007")
-main("TOI-4504.v0003")
-# main("TOI-4504.demo.v0002")
+# main("TOI-4504.v0003")
+main("TOI-4504.v0002")
