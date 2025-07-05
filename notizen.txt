@@ -1,9 +1,16 @@
 Next / in progress:
 
-    Neben Energieerhalt weiteren Check einbauen, dass Integration korrekt ist.
-        Impulserhaltung (Gesamtimpuls):
-        Drehimpulserhaltung (Gesamtdrehimpuls):
-        Schwerpunktbewegung: Position und Geschwindigkeit des Schwerpunkts (Center of Mass) sollten konstant sein
+    Bringt es was, mit den whfast-options zu spielen?
+    Kann man dt unterwegs aendern?
+        Auch mit komischen whfast-options?
+
+    Funktion schreiben, die die corresponding lightcurve ausliest und daraus berechnet, wie viele Iterationen mit welchem dt laufen muessen
+
+    Simulationscheck klappt fuer Drehimpuls, Energie und Center of Mass, aber nicht fuer Impuls.
+        Vermutlich Berechnungsfehler des Impulses?
+        Ausserdem komisch, dass CoM am Sim-Start nicht im Ursprung liegt.
+
+
 
     In log_likelihood() die residuals durch uncertainty teilen?
 
