@@ -17,7 +17,7 @@
 # if __name__ == '__main__':
 #     main()
 
-
+next dangerous whfast mode testen und in excel eintragen
 # Current version for developers
 from curvesimulator import curvesim
 

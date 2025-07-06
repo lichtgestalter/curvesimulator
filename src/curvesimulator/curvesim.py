@@ -15,13 +15,7 @@ def curvesim(config_file=""):
         parameters = CurveSimParameters(config_file)  # Read program parameters from config file.
         bodies = CurveSimBodies(parameters)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
         lightcurve, rebound_sim = bodies.calc_physics(parameters)  # Calculate all body positions and the resulting lightcurve
-        # print(f"star at last transit: {bodies[0].positions[99474]}")
-        # print(f"   b at last transit: {bodies[1].positions[99474]}")
-        # print(f"   c at last transit: {bodies[2].positions[99474]}")
-        # print(f"   d at last transit: {bodies[3].positions[99474]}")
-        area, impact = bodies[0].eclipsed_by(bodies[2], 99474, parameters)
-        # area = 0 if area is None else area
-        # impact = 0 if impact is None else impact
+        area, impact = bodies[0].eclipsed_by(bodies[2], 3780, parameters)
         print(f"{area=:.6e}  {impact=:.6f}")
         return parameters, bodies, None, None
     if mode == "mcmc":
