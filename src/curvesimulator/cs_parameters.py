@@ -6,7 +6,7 @@ class CurveSimParameters:
 
     def __init__(self, config_file):
         """Read program parameters and properties of the physical bodies from config file."""
-        self.standard_sections = ["Astronomical Constants", "Video", "Plot", "Scale", "Debug"]  # These sections must be present in the config file.
+        self.standard_sections = ["Astronomical Constants", "Simulation", "Video", "Plot", "Scale", "Debug"]  # These sections must be present in the config file.
         config = configparser.ConfigParser(inline_comment_prefixes='#')  # Inline comments in the config file start with "#".
         config.optionxform = str  # Preserve case of the keys.
         CurveSimParameters.find_and_check_config_file(config_file, standard_sections=self.standard_sections)
@@ -27,11 +27,18 @@ class CurveSimParameters:
         hour = eval(config.get("Astronomical Constants", "hour", fallback="None"))
         day = eval(config.get("Astronomical Constants", "day", fallback="None"))
         year = eval(config.get("Astronomical Constants", "year", fallback="None"))
-        verbose = eval(config.get("Astronomical Constants", "verbose", fallback="True"))
         self.g, self.au, self.r_sun, self.m_sun, self.l_sun = g, au, r_sun, m_sun, l_sun,
         self.r_jup, self.m_jup, self.r_earth, self.m_earth, self.v_earth = r_jup, m_jup, r_earth, m_earth, v_earth
         self.hour, self.day, self.year = hour, day, year
-        self.verbose = verbose
+
+        # [Simulation]
+        self.verbose = eval(config.get("Simulation", "verbose", fallback="True"))
+        self.start_date = eval(config.get("Simulation", "start_date", fallback="0.0"))
+        self.starts = list(eval(config.get("Simulation", "starts", fallback="None")))[0],
+        self.ends = list(eval(config.get("Simulation", "ends", fallback="None")))[0],
+        self.dts = list(eval(config.get("Simulation", "dts", fallback="None")))[0],
+        self.max_iterations = [int((end - start) / dt) + 1 for start, end, dt in zip(self.starts, self.ends, self.dts)]
+        self.total_iterations = sum(self.max_iterations)
 
         # [Video]
         self.config_file = config_file
@@ -41,7 +48,8 @@ class CurveSimParameters:
         self.frames = eval(config.get("Video", "frames"))
         self.fps = eval(config.get("Video", "fps"))
         self.dt = eval(config.get("Video", "dt"))
-        self.sampling_rate = int(eval(config.get("Video", "sampling_rate")))
+        self.sampling_rate = (self.total_iterations - 1) // self.frames + 1
+        # self.sampling_rate = int(eval(config.get("Video", "sampling_rate")))
         self.iterations = self.frames * self.sampling_rate
 
         # [Scale]
@@ -56,7 +64,6 @@ class CurveSimParameters:
         self.max_radius = eval(config.get("Scale", "max_radius")) / 100.0
 
         # [Plot]
-        self.start_date = eval(config.get("Plot", "start_date", fallback="0.0"))
         self.figure_width = eval(config.get("Plot", "figure_width", fallback="16"))
         self.figure_height = eval(config.get("Plot", "figure_height", fallback="8"))
         self.xlim = eval(config.get("Plot", "xlim", fallback="1.25"))
@@ -65,7 +72,7 @@ class CurveSimParameters:
         self.red_dot_width = eval(config.get("Plot", "red_dot_width", fallback="0.005"))
         # Checking all parameters defined so far
         for key in vars(self):
-            if type(getattr(self, key)) not in [str, dict, bool, list]:
+            if type(getattr(self, key)) not in [str, dict, bool, list, tuple]:
                 if getattr(self, key) < 0:
                     print(f"{Fore.RED}ERROR in configuration file.")
                     print(f'{self=}   {key=}   {getattr(self, key)=}    {type(getattr(self, key))=}')

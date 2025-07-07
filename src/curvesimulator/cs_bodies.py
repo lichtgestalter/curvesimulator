@@ -14,7 +14,7 @@ from curvesimulator.cs_physics import CurveSimPhysics
 from curvesimulator.cs_rebound import CurveSimRebound
 from curvesimulator.cs_results import CurveSimResults
 from curvesimulator.cs_results import Transit
-from numpy import ndarray
+# from numpy import ndarray
 
 
 class CurveSimBodies(list):
@@ -266,24 +266,23 @@ class CurveSimBodies(list):
         stars = [body for body in self if body.body_type == "star"]
 
         # t_check = 1800 * 99474 = 179 053 200 seconds
-        starts = [  1000000, 10000000, 21000000, 54321000, 56789000, 179053200-500*120]
-        ends =   [  1300000, 10100000, 21100000, 55321000, 56989000, 179053200+500*120]
-        dts =    [     1800,     1800,      120,     1800,      120,                120]
-        max_iterations = [int((end - start) / dt) + 1 for start, end, dt in zip(starts, ends, dts)]
-        total_iterations = sum(max_iterations)
-        lightcurve = CurveSimLightcurve(total_iterations)  # Initialize lightcurve (essentially a np.ndarray)
-        timeaxis = CurveSimLightcurve(total_iterations)
-        for body in self:
-            body.positions = ndarray((total_iterations, 3), dtype=float)
-
+        # starts = [  1000000, 10000000, 21000000, 54321000, 56789000, 179053200-500*120]
+        # ends =   [  1300000, 10100000, 21100000, 55321000, 56989000, 179053200+500*120]
+        # dts =    [     1800,     1800,      120,     1800,      120,                120]
+        # max_iterations = [int((end - start) / dt) + 1 for start, end, dt in zip(starts, ends, dts)]
+        # total_iterations = sum(max_iterations)
+        lightcurve = CurveSimLightcurve(p.total_iterations)  # Initialize lightcurve (essentially a np.ndarray)
+        timeaxis = CurveSimLightcurve(p.total_iterations)
+        # for body in self:
+        #     body.positions = ndarray((total_iterations, 3), dtype=float)
         i = 0
-        for start, dt, max_iteration in zip(starts, dts, max_iterations):
+        for start, dt, max_iteration in zip(p.starts, p.dts, p.max_iterations):
             for j in range(max_iteration):
                 timeaxis[i] = start + j * dt
                 i += 1
         initial_energy = rebound_sim.energy()
         initial_sim_state = CurveSimRebound(rebound_sim)
-        for iteration in range(sum(max_iterations)):
+        for iteration in range(sum(p.max_iterations)):
             rebound_sim.integrate(timeaxis[iteration])
             for body in self:
                 CurveSimBodies.update_position(body, iteration, rebound_sim)

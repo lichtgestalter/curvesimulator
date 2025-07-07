@@ -37,6 +37,7 @@ class CurveSimBody:
         self.mean_intensity = CurveSimPhysics.calc_mean_intensity(self.limb_darkening)
         self.intensity = luminosity / self.area_2d  # luminosity per (apparent) area [W/m**2]
         # self.positions = np.zeros((p.iterations, 3), dtype=float)  # position for each frame
+        self.positions = np.ndarray((p.total_iterations, 3), dtype=float)
 
         self.e = e  # [1] eccentricity
         self.i = None if i is None else math.radians(i)  # [deg] inclination

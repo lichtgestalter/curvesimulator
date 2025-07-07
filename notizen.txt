@@ -1,8 +1,10 @@
 Next / in progress:
 
-    Bringt es was, mit den whfast-options zu spielen?
-    Kann man dt unterwegs aendern?
-        Auch mit komischen whfast-options?
+    laufen lassen. erzeugt null frames!
+    check starts und ends
+        monoton steigend
+        Intervallbreite >= 0
+
 
     Funktion schreiben, die die corresponding lightcurve ausliest und daraus berechnet, wie viele Iterationen mit welchem dt laufen muessen
 
