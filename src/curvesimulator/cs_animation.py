@@ -10,9 +10,9 @@ spd = 3600 * 24  # seconds per day
 
 class CurveSimAnimation:
 
-    def __init__(self, p, bodies, lightcurve):
+    def __init__(self, p, bodies, lightcurve, timeaxis):
         CurveSimAnimation.check_ffmpeg()
-        self.fig, ax_right, ax_left, ax_lightcurve, self.red_dot = CurveSimAnimation.init_plot(p, lightcurve)  # Adjust constants in section [Plot] of config file to fit your screen.
+        self.fig, ax_right, ax_left, ax_lightcurve, self.red_dot = CurveSimAnimation.init_plot(p, lightcurve, timeaxis)  # Adjust constants in section [Plot] of config file to fit your screen.
         for body in bodies:  # Circles represent the bodies in the animation. Set their colors and add them to the matplotlib axis.
             body.circle_right.set_color(body.color)
             body.circle_left.set_color(body.color)
@@ -66,7 +66,7 @@ class CurveSimAnimation:
         return ax_right
 
     @staticmethod
-    def init_lightcurve_plot(lightcurve, p):
+    def init_lightcurve_plot(lightcurve, timeaxis, p):
         # lightcurve
         ax_lightcurve = plt.subplot2grid(shape=(5, 1), loc=(4, 0), rowspan=1, colspan=1)
         ax_lightcurve.set_facecolor("black")  # background color
@@ -74,7 +74,8 @@ class CurveSimAnimation:
 
         # lightcurve x-ticks, x-labels
         ax_lightcurve.tick_params(axis='x', colors='grey')
-        xmax = p.iterations * p.dt / spd
+        xmax = timeaxis[-1] / spd  # debug new time axis
+        # xmax = p.iterations * p.dt / spd
         ax_lightcurve.set_xlim(0, xmax)
         x_listticdelta = CurveSimAnimation.tic_delta(xmax)
         digits = max(0, round(-math.log10(x_listticdelta) + 0.4))  # The labels get as many decimal places as the intervals between the tics.
@@ -98,9 +99,9 @@ class CurveSimAnimation:
         ax_lightcurve.set_yticks(yvalues, labels=ylabels)
 
         # lightcurve data (white line)
-        time_axis = np.linspace(0, round(p.iterations * p.dt), p.iterations, dtype=float)
-        time_axis /= spd  # seconds -> days
-        ax_lightcurve.plot(time_axis, lightcurve, color="white")
+        # time_axis = np.linspace(0, round(p.iterations * p.dt), p.iterations, dtype=float)  # debug deactivated because timeaxis is now a parameter
+        timeaxis /= spd  # seconds -> days
+        ax_lightcurve.plot(timeaxis, lightcurve, color="white")
 
         # lightcurve red dot
         red_dot = matplotlib.patches.Ellipse((0, 0), p.iterations * p.dt * p.red_dot_width / spd, scope * p.red_dot_height)  # matplotlib patch
@@ -110,7 +111,7 @@ class CurveSimAnimation:
         return ax_lightcurve, red_dot
 
     @staticmethod
-    def init_plot(p, lightcurve):
+    def init_plot(p, lightcurve, timeaxis):
         """Initialize the matplotlib figure containing 3 axis:
         Top left: overhead view
         Top right: edge-on view
@@ -124,7 +125,7 @@ class CurveSimAnimation:
 
         ax_left = CurveSimAnimation.init_left_plot(p)
         ax_right = CurveSimAnimation.init_right_plot(p)
-        ax_lightcurve, red_dot = CurveSimAnimation.init_lightcurve_plot(lightcurve, p)
+        ax_lightcurve, red_dot = CurveSimAnimation.init_lightcurve_plot(lightcurve, timeaxis, p)
         plt.tight_layout()  # Automatically adjust padding horizontally as well as vertically.
 
         return fig, ax_right, ax_left, ax_lightcurve, red_dot
@@ -155,7 +156,9 @@ class CurveSimAnimation:
         if p.verbose:
             print(f'Animating {p.frames:8d} frames:     ', end="")
             tic = time.perf_counter()
-        anim = matplotlib.animation.FuncAnimation(self.fig, CurveSimAnimation.next_frame, fargs=(p, bodies, self.red_dot, lightcurve), interval=1000 / p.fps, frames=p.frames, blit=False)
+        frames = len(lightcurve) // p.sampling_rate  # debug new timeline
+        anim = matplotlib.animation.FuncAnimation(self.fig, CurveSimAnimation.next_frame, fargs=(p, bodies, self.red_dot, lightcurve), interval=1000 / p.fps, frames=frames, blit=False)
+        # anim = matplotlib.animation.FuncAnimation(self.fig, CurveSimAnimation.next_frame, fargs=(p, bodies, self.red_dot, lightcurve), interval=1000 / p.fps, frames=p.frames, blit=False)
         anim.save(
             p.video_file,
             fps=p.fps,

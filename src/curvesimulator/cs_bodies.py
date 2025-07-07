@@ -14,6 +14,7 @@ from curvesimulator.cs_physics import CurveSimPhysics
 from curvesimulator.cs_rebound import CurveSimRebound
 from curvesimulator.cs_results import CurveSimResults
 from curvesimulator.cs_results import Transit
+from numpy import ndarray
 
 
 class CurveSimBodies(list):
@@ -125,13 +126,13 @@ class CurveSimBodies(list):
                 if c < 0 or c > 1 or len(body.color) != 3:
                     print(f'{Fore.RED}ERROR in config file: {body.name} has invalid or missing color value.')
                     sys.exit(1)
-            if body.velocity is None:
-                if body.e < 0:
-                    print(f'{Fore.RED}ERROR in config file: {body.name} has invalid or missing eccentricity e.')
-                    sys.exit(1)
-                if body.i < -1000:
-                    print(f'{Fore.RED}ERROR in config file: {body.name} has invalid or missing inclination i.')
-                    sys.exit(1)
+            # if body.velocity is None:
+            #     if body.e < 0:
+            #         print(f'{Fore.RED}ERROR in config file: {body.name} has invalid or missing eccentricity e.')
+            #         sys.exit(1)
+            #     if body.i < -1000:
+            #         print(f'{Fore.RED}ERROR in config file: {body.name} has invalid or missing inclination i.')
+            #         sys.exit(1)
             if body.a is not None and body.a <= 0:
                 print(f'{Fore.RED}ERROR in config file: {body.name} has invalid semi-major axis a.')
                 sys.exit(1)
@@ -269,21 +270,21 @@ class CurveSimBodies(list):
         ends =   [  1300000, 10100000, 21100000, 55321000, 56989000, 179053200+500*120]
         dts =    [     1800,     1800,      120,     1800,      120,                120]
         max_iterations = [int((end - start) / dt) + 1 for start, end, dt in zip(starts, ends, dts)]
-
-        lightcurve = CurveSimLightcurve(sum(max_iterations))  # Initialize lightcurve (essentially a np.ndarray)
-        timeline = CurveSimLightcurve(sum(max_iterations))
-
-        ########  erst jetzt koennen die position arrays der bodies initialisiert werden! Das fehlt noch!  ######################
+        total_iterations = sum(max_iterations)
+        lightcurve = CurveSimLightcurve(total_iterations)  # Initialize lightcurve (essentially a np.ndarray)
+        timeaxis = CurveSimLightcurve(total_iterations)
+        for body in self:
+            body.positions = ndarray((total_iterations, 3), dtype=float)
 
         i = 0
         for start, dt, max_iteration in zip(starts, dts, max_iterations):
             for j in range(max_iteration):
-                timeline[i] = start + j * dt
+                timeaxis[i] = start + j * dt
                 i += 1
         initial_energy = rebound_sim.energy()
         initial_sim_state = CurveSimRebound(rebound_sim)
         for iteration in range(sum(max_iterations)):
-            rebound_sim.integrate(timeline[iteration])
+            rebound_sim.integrate(timeaxis[iteration])
             for body in self:
                 CurveSimBodies.update_position(body, iteration, rebound_sim)
             lightcurve[iteration] = self.total_luminosity(stars, iteration, p)  # Update lightcurve.
@@ -298,7 +299,7 @@ class CurveSimBodies(list):
             energy_change = math.log10(abs(rebound_sim.energy() / initial_energy - 1))  # Magnitude of the relative change of energy during simulation
         new_sim_state = CurveSimRebound(rebound_sim)
         initial_sim_state.sim_check_deltas(new_sim_state)
-        return lightcurve, self, rebound_sim, energy_change
+        return lightcurve, timeaxis, self, rebound_sim, energy_change
 
     def calc_physics(self, p):
         """Calculate body positions and the resulting lightcurve."""
@@ -309,14 +310,14 @@ class CurveSimBodies(list):
                   f' ({p.dt * p.sampling_rate * p.fps / 60 / 60 / 24:.2f} earth days per video second.)')
             print(f'Calculating {p.iterations:,} iterations: ', end="")  #print(f"{b=:_}
             tic = time.perf_counter()
-        lightcurve, bodies, rebound_sim, energy_change = self.calc_positions_eclipses_luminosity_2(p)
+        lightcurve, timeaxis, bodies, rebound_sim, energy_change = self.calc_positions_eclipses_luminosity_2(p)
         if p.verbose:
             toc = time.perf_counter()
-            print(f' {toc - tic:7.2f} seconds  ({p.iterations / (toc - tic):.0f} iterations/second)')
+            print(f' {toc - tic:7.3f} seconds  ({p.iterations / (toc - tic):.0f} iterations/second)')
             print(f"Log10 of the relative change of energy during simulation: {energy_change:.0f}")
         if energy_change > -6:
-            print(f"{Fore.RED}The energy must not change significantly! Consider using a smaller time step (dt).{Style.RESET_ALL}")
-        return lightcurve, rebound_sim
+            print(f"{Fore.YELLOW}The energy must not change significantly! Consider using a smaller time step (dt).{Style.RESET_ALL}")
+        return lightcurve, timeaxis, rebound_sim
 
     def calc_patch_radii(self, p):
         """If autoscaling is on, this function calculates the radii of the circles (matplotlib patches) of the animation."""
@@ -358,6 +359,7 @@ class CurveSimBodies(list):
 
     def find_transits(self, rebound_sim, p, lightcurve):
         print()
+        rebound_sim.dt = 1000  # debug :  dt hart auf einen niedrigen Wert gesetzt
         results = CurveSimResults(self)
         for i in range(1, p.iterations):
             for j, body1 in enumerate(self):

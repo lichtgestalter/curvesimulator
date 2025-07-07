@@ -36,7 +36,7 @@ class CurveSimBody:
 
         self.mean_intensity = CurveSimPhysics.calc_mean_intensity(self.limb_darkening)
         self.intensity = luminosity / self.area_2d  # luminosity per (apparent) area [W/m**2]
-        self.positions = np.zeros((p.iterations, 3), dtype=float)  # position for each frame
+        # self.positions = np.zeros((p.iterations, 3), dtype=float)  # position for each frame
 
         self.e = e  # [1] eccentricity
         self.i = None if i is None else math.radians(i)  # [deg] inclination
@@ -57,26 +57,26 @@ class CurveSimBody:
 
         self.mu = None  # Gravitational Parameter. Depends on the masses of at least 2 bodies.
 
-        if not primary and startposition is not None and velocity is not None:  # State vectors are already in config file.
-            pos = []
-            for x in startposition.split(","):
-                pos.append(eval(x))
-            vel = []
-            for x in velocity.split(","):
-                vel.append(eval(x))
-            if len(pos) != 3:
-                print(f'{Fore.RED}ERROR in config file: invalid or missing start position. {pos=}')
-                sys.exit(1)
-            if len(vel) != 3:
-                print(f'{Fore.RED}ERROR in config file: invalid or missing initial velocity. {vel=}')
-                sys.exit(1)
-            self.positions[0] = np.array(pos, dtype=float)  # [m] initial position
-            self.velocity = np.array(vel, dtype=float)  # [m/s]
-        elif primary:
-            self.positions[0] = np.array([0.0, 0.0, 0.0], dtype=float)  # [m] initial position
-            self.velocity = np.array([0.0, 0.0, 0.0], dtype=float)  # [m/s] initial velocity will be updated after all other state vectors have been calculated.
-        else:  # State vectors are not in config file. They will be calculated from Kepler orbit parameters later on after all bodies are initialized.
-            self.velocity = None
+        # if not primary and startposition is not None and velocity is not None:  # State vectors are already in config file.
+        #     pos = []
+        #     for x in startposition.split(","):
+        #         pos.append(eval(x))
+        #     vel = []
+        #     for x in velocity.split(","):
+        #         vel.append(eval(x))
+        #     if len(pos) != 3:
+        #         print(f'{Fore.RED}ERROR in config file: invalid or missing start position. {pos=}')
+        #         sys.exit(1)
+        #     if len(vel) != 3:
+        #         print(f'{Fore.RED}ERROR in config file: invalid or missing initial velocity. {vel=}')
+        #         sys.exit(1)
+        #     self.positions[0] = np.array(pos, dtype=float)  # [m] initial position
+        #     self.velocity = np.array(vel, dtype=float)  # [m/s]
+        # elif primary:
+        #     self.positions[0] = np.array([0.0, 0.0, 0.0], dtype=float)  # [m] initial position
+        #     self.velocity = np.array([0.0, 0.0, 0.0], dtype=float)  # [m/s] initial velocity will be updated after all other state vectors have been calculated.
+        # else:  # State vectors are not in config file. They will be calculated from Kepler orbit parameters later on after all bodies are initialized.
+        #     self.velocity = None
 
         # Used for calculation of eclipsed area in function eclipsed_by.
         self.d, self.h, self.angle, self.eclipsed_area = 0.0, 0.0, 0.0, 0.0
