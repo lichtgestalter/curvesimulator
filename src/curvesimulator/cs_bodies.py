@@ -14,7 +14,6 @@ from curvesimulator.cs_physics import CurveSimPhysics
 from curvesimulator.cs_rebound import CurveSimRebound
 from curvesimulator.cs_results import CurveSimResults
 from curvesimulator.cs_results import Transit
-# from numpy import ndarray
 
 
 class CurveSimBodies(list):
@@ -27,7 +26,7 @@ class CurveSimBodies(list):
             simulation.integrator = "whfast"
             simulation.dt = p.dt
         if p.verbose:
-            print(f"Rebound uses integrator {simulation.integrator}.")
+            print(f"using Rebound integrator {simulation.integrator}:", end="")
         if star_count == 0:
             print(f"{Fore.RED}ERROR: No body in config file has body type star.{Style.RESET_ALL}")
             exit(1)
@@ -228,9 +227,9 @@ class CurveSimBodies(list):
 
     @staticmethod
     def progress_bar(iteration, p):
-        if p.iterations > 5:  # prevent DIV/0 in next line
-            if iteration % int(round(p.iterations / 10)) == 0:  # Inform user about program's progress.
-                print(f'{round(iteration / p.iterations * 10) * 10:3d}% ', end="")
+        if p.total_iterations > 5:  # prevent DIV/0 in next line
+            if iteration % int(round(p.total_iterations / 10)) == 0:  # Inform user about program's progress.
+                print(f'{round(iteration / p.total_iterations * 10) * 10:3d}% ', end="")
                 # print(self.energy(iteration, p))
 
     def calc_positions_eclipses_luminosity(self, p):
@@ -264,25 +263,16 @@ class CurveSimBodies(list):
         The resulting body positions and the lightcurve are stored for later use in the animation."""
         rebound_sim = CurveSimBodies.init_rebound(self, p)
         stars = [body for body in self if body.body_type == "star"]
-
-        # t_check = 1800 * 99474 = 179 053 200 seconds
-        # starts = [  1000000, 10000000, 21000000, 54321000, 56789000, 179053200-500*120]
-        # ends =   [  1300000, 10100000, 21100000, 55321000, 56989000, 179053200+500*120]
-        # dts =    [     1800,     1800,      120,     1800,      120,                120]
-        # max_iterations = [int((end - start) / dt) + 1 for start, end, dt in zip(starts, ends, dts)]
-        # total_iterations = sum(max_iterations)
         lightcurve = CurveSimLightcurve(p.total_iterations)  # Initialize lightcurve (essentially a np.ndarray)
         timeaxis = CurveSimLightcurve(p.total_iterations)
-        # for body in self:
-        #     body.positions = ndarray((total_iterations, 3), dtype=float)
         i = 0
         for start, dt, max_iteration in zip(p.starts, p.dts, p.max_iterations):
             for j in range(max_iteration):
                 timeaxis[i] = start + j * dt
                 i += 1
-        initial_energy = rebound_sim.energy()
+        # initial_energy = rebound_sim.energy()
         initial_sim_state = CurveSimRebound(rebound_sim)
-        for iteration in range(sum(p.max_iterations)):
+        for iteration in range(p.total_iterations):
             rebound_sim.integrate(timeaxis[iteration])
             for body in self:
                 CurveSimBodies.update_position(body, iteration, rebound_sim)
@@ -292,27 +282,24 @@ class CurveSimBodies(list):
         lightcurve_max = float(lightcurve.max(initial=None))
         lightcurve /= lightcurve_max  # Normalize flux.
         new_energy = rebound_sim.energy()
-        if initial_energy == new_energy:
-            energy_change = 0
-        else:
-            energy_change = math.log10(abs(rebound_sim.energy() / initial_energy - 1))  # Magnitude of the relative change of energy during simulation
+        # if initial_energy == new_energy:
+        #     energy_change = 0
+        # else:
+        #     energy_change = math.log10(abs(rebound_sim.energy() / initial_energy - 1))  # Magnitude of the relative change of energy during simulation
         new_sim_state = CurveSimRebound(rebound_sim)
-        initial_sim_state.sim_check_deltas(new_sim_state)
+        energy_change = initial_sim_state.sim_check_deltas(new_sim_state)
         return lightcurve, timeaxis, self, rebound_sim, energy_change
 
     def calc_physics(self, p):
         """Calculate body positions and the resulting lightcurve."""
-        days = p.dt * p.iterations / p.day
-        years = days / 365.25
         if p.verbose:
-            print(f'Producing {p.frames / p.fps:.0f} seconds long video, covering {days:.0f} earth days / {years:.1f} earth years.'
-                  f' ({p.dt * p.sampling_rate * p.fps / 60 / 60 / 24:.2f} earth days per video second.)')
-            print(f'Calculating {p.iterations:,} iterations: ', end="")  #print(f"{b=:_}
+            print(f'Generating {p.frames} frames for a {p.frames / p.fps:.0f} seconds long video.')
+            print(f'Calculating {p.total_iterations:,} iterations ', end="")
             tic = time.perf_counter()
         lightcurve, timeaxis, bodies, rebound_sim, energy_change = self.calc_positions_eclipses_luminosity_2(p)
         if p.verbose:
             toc = time.perf_counter()
-            print(f' {toc - tic:7.3f} seconds  ({p.iterations / (toc - tic):.0f} iterations/second)')
+            print(f' {toc - tic:7.3f} seconds  ({p.total_iterations / (toc - tic):.0f} iterations/second)')
             print(f"Log10 of the relative change of energy during simulation: {energy_change:.0f}")
         if energy_change > -6:
             print(f"{Fore.YELLOW}The energy must not change significantly! Consider using a smaller time step (dt).{Style.RESET_ALL}")

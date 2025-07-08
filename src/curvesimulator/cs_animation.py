@@ -100,11 +100,12 @@ class CurveSimAnimation:
 
         # lightcurve data (white line)
         # time_axis = np.linspace(0, round(p.iterations * p.dt), p.iterations, dtype=float)  # debug deactivated because timeaxis is now a parameter
-        timeaxis /= spd  # seconds -> days
+        timeaxis = timeaxis / p.day #+ p.start_date
         ax_lightcurve.plot(timeaxis, lightcurve, color="white")
 
         # lightcurve red dot
-        red_dot = matplotlib.patches.Ellipse((0, 0), p.iterations * p.dt * p.red_dot_width / spd, scope * p.red_dot_height)  # matplotlib patch
+        red_dot = matplotlib.patches.Ellipse((0, 0), (timeaxis[-1] - timeaxis[0]) * p.red_dot_width, scope * p.red_dot_height)  # matplotlib patch
+        # red_dot = matplotlib.patches.Ellipse((0, 0), p.iterations * p.dt * p.red_dot_width / spd, scope * p.red_dot_height)  # matplotlib patch
         red_dot.set(zorder=2)  # Dot in front of lightcurve.
         red_dot.set_color((1, 0, 0))  # red
         ax_lightcurve.add_patch(red_dot)

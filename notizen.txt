@@ -61,15 +61,22 @@ Programming Hinter MCMC-Integration zurueckgestellt:
     Option in config_file einbauen: sollen eclipsees in find_transits() auf sterne eingeschraenkt sein?
         Besser: Jeder Body kriegt die Parameter relevant_eclipser  (yes/no) und relevant_eclipsee (yes/no)
 
+    init_rebound() verallgemeinern. Auch Hierarchie ermoeglichen (=wer kreist um wen?)
+
     Result evaluation komfortabel fuer User nutzbar machen.
 
     Orbitparameter regelmaessig (z.B. bei jedem Transit) im Resultfile speichern.
 
-    init_rebound() verallgemeinern. Auch Hierarchie ermoeglichen (=wer kreist um wen?)
+    Defaultwerte fuer starts, ends, dts errechnen, so dass User, die nur simple Videos machen wollen, diese Parameter weglassen koennen?
+        starts = [start_date], dts = [dt], ends = [start_date + frames * dt]
 
     Neu eingefuehrte Konstanten in Parameterfile statt hart im Code, z.B.
         Mindestgenauigkeit bei binary search von Transittimes
         Akzeptable Energieveraenderung
+
+    Meine Untersuchungen zum optimalen dt fuer ein konkretes System (Tabelle Rebound in TOI-4504.xlsx):
+        Kann ich das userfreundlich automatisieren?
+        Sonst zumindest halbautomatisch unterstuetzen und eine Anleitung fuer die Durchfuehrung schreiben.
 
     Damit CurveSimulator auch fuer andere Systeme ausser TOI4504 funktioniert:
         Aus dem User Input die Kepler-Parameter berechnen, die Rebound braucht, und Rebound damit fuettern.

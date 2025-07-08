@@ -1,5 +1,6 @@
 from colorama import Fore, Style
 import configparser
+import numpy as np
 import sys
 
 class CurveSimParameters:
@@ -34,9 +35,11 @@ class CurveSimParameters:
         # [Simulation]
         self.verbose = eval(config.get("Simulation", "verbose", fallback="True"))
         self.start_date = eval(config.get("Simulation", "start_date", fallback="0.0"))
-        self.starts = list(eval(config.get("Simulation", "starts", fallback="None")))[0],
-        self.ends = list(eval(config.get("Simulation", "ends", fallback="None")))[0],
-        self.dts = list(eval(config.get("Simulation", "dts", fallback="None")))[0],
+        self.starts = np.array(eval(config.get("Simulation", "starts", fallback="None")))
+        self.ends = np.array(eval(config.get("Simulation", "ends", fallback="None")))
+        self.dts = np.array(eval(config.get("Simulation", "dts", fallback="None")))
+        self.starts = (self.starts - self.start_date) * day
+        self.ends = (self.ends - self.start_date) * day
         self.max_iterations = [int((end - start) / dt) + 1 for start, end, dt in zip(self.starts, self.ends, self.dts)]
         self.total_iterations = sum(self.max_iterations)
 
@@ -50,7 +53,7 @@ class CurveSimParameters:
         self.dt = eval(config.get("Video", "dt"))
         self.sampling_rate = (self.total_iterations - 1) // self.frames + 1
         # self.sampling_rate = int(eval(config.get("Video", "sampling_rate")))
-        self.iterations = self.frames * self.sampling_rate
+        # self.iterations = self.frames * self.sampling_rate
 
         # [Scale]
         self.scope_left = eval(config.get("Scale", "scope_left"))
@@ -72,7 +75,7 @@ class CurveSimParameters:
         self.red_dot_width = eval(config.get("Plot", "red_dot_width", fallback="0.005"))
         # Checking all parameters defined so far
         for key in vars(self):
-            if type(getattr(self, key)) not in [str, dict, bool, list, tuple]:
+            if type(getattr(self, key)) not in [str, dict, bool, list, tuple, np.ndarray]:
                 if getattr(self, key) < 0:
                     print(f"{Fore.RED}ERROR in configuration file.")
                     print(f'{self=}   {key=}   {getattr(self, key)=}    {type(getattr(self, key))=}')

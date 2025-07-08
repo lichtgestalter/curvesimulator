@@ -31,7 +31,10 @@ def curvesim(config_file=""):
         parameters = CurveSimParameters(config_file)  # Read program parameters from config file.
         bodies = CurveSimBodies(parameters)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
         lightcurve, timeaxis, rebound_sim = bodies.calc_physics(parameters)  # Calculate all body positions and the resulting lightcurve
+        # area, impact = bodies[0].eclipsed_by(bodies[2], 729, parameters)
+        # print(f"{area=:.6e}  {impact=:.6f}")
         # results = bodies.find_transits(rebound_sim, parameters, lightcurve)
         # results.save_results(parameters)
+        results = None
         CurveSimAnimation(parameters, bodies, lightcurve, timeaxis)  # Create the video
         return parameters, bodies, results, lightcurve
