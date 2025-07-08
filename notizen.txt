@@ -1,16 +1,11 @@
 Next / in progress:
 
-    laufen lassen. erzeugt null frames!
-    check starts und ends
-        monoton steigend
-        Intervallbreite >= 0
+     results an flex dt anpassen
+        verhindern, dass ueber Intervallgrenzen hinweg interpoliert wird
 
-
-    Funktion schreiben, die die corresponding lightcurve ausliest und daraus berechnet, wie viele Iterationen mit welchem dt laufen muessen
 
     Simulationscheck klappt fuer Drehimpuls, Energie und Center of Mass, aber nicht fuer Impuls.
-        Vermutlich Berechnungsfehler des Impulses?
-        Ausserdem komisch, dass CoM am Sim-Start nicht im Ursprung liegt.
+        Vielleicht Berechnungsfehler des Impulses?
 
 
 
@@ -30,8 +25,6 @@ Next / in progress:
         Histogramm mit max likelihood
         Chain-Grafiken (auch verbesserte Uli-Version mit ueberlagerten halbtransparenten Grautoenen start Farbspaghetti?)
         HDI (Highest density interval)
-
-    Neue Programmparameter in (neue) vernuenftige Abschnitte in Config-File organisieren
 
 
 Fragen an Simon:
@@ -66,9 +59,6 @@ Programming Hinter MCMC-Integration zurueckgestellt:
     Result evaluation komfortabel fuer User nutzbar machen.
 
     Orbitparameter regelmaessig (z.B. bei jedem Transit) im Resultfile speichern.
-
-    Defaultwerte fuer starts, ends, dts errechnen, so dass User, die nur simple Videos machen wollen, diese Parameter weglassen koennen?
-        starts = [start_date], dts = [dt], ends = [start_date + frames * dt]
 
     Neu eingefuehrte Konstanten in Parameterfile statt hart im Code, z.B.
         Mindestgenauigkeit bei binary search von Transittimes
@@ -121,9 +111,12 @@ Example videos
             Zunaechst nur Systeme mit nur einem Stern
 
 Wiki aktualisieren.
+    Wenn man mehrere Intervalle in starts/ends hat:
+        Anzahl in starts/ends/dt muss gleich sein (sonst wird Rest ignoriert)
+        Wenn lightcurve doof aussieht liegt das wahrscheinlich daran, dass eines der Intervalle mitten in einem Transit startet oder endet.
+        Man kann starts/ends/dt komplett weglassen (Hinweis auf default Werte)
+
     Results Output auf eigener Seite im Wiki dokumentieren.
-    Programm ist optimiert fuer Visualisierung. Nicht fuer numerische Praezision. Kleines dt bei kleinen Perioden notwendig. Trotzdem ungenau.
-        Obsolet mit Verlet???
     Im Wiki die Videos verlinken.
     Evtl. restliche Formulierungen von AI verbessern lassen.
         Take a look at this text on a page of a wiki about a python library. The text is written in mark-up language.
@@ -383,6 +376,11 @@ I implemented all suggestions from zoom call 29.03.2022, but tried and dismissed
         Added cs_flux_data.py to CurveSimulator
         First rudimentary integration of emcee (MCMC library) with just one Parameter (Planet-b Period).
         Introduced silent mode (so Curvesimulator does not write into the console during MCMC)
+    0.5.4 Flexible dt and intervals
+        Now intervals can be defined, inside of which body positions and flux is recorded.
+        Outside of these intervals the integration is calculated with a (potentially very large) default dt.
+        This speeds the integration up significantly.
+        dt can be set to different values in each time interval.
 
 
 

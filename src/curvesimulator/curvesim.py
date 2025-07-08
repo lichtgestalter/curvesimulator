@@ -7,17 +7,9 @@ from .cs_flux_data import *
 
 
 def curvesim(config_file=""):
-    # mode = "rebound_debug"
     # mode = "mcmc"
     mode = "video"
     flux_debug = False
-    if mode == "rebound_debug":
-        parameters = CurveSimParameters(config_file)  # Read program parameters from config file.
-        bodies = CurveSimBodies(parameters)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
-        lightcurve, rebound_sim = bodies.calc_physics(parameters)  # Calculate all body positions and the resulting lightcurve
-        area, impact = bodies[0].eclipsed_by(bodies[2], 3780, parameters)
-        print(f"{area=:.6e}  {impact=:.6f}")
-        return parameters, bodies, None, None
     if mode == "mcmc":
         parameters = CurveSimParameters(config_file)  # Read program parameters from config file.
         bodies = CurveSimBodies(parameters)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
@@ -31,10 +23,13 @@ def curvesim(config_file=""):
         parameters = CurveSimParameters(config_file)  # Read program parameters from config file.
         bodies = CurveSimBodies(parameters)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
         lightcurve, timeaxis, rebound_sim = bodies.calc_physics(parameters)  # Calculate all body positions and the resulting lightcurve
-        # area, impact = bodies[0].eclipsed_by(bodies[2], 729, parameters)
-        # print(f"{area=:.6e}  {impact=:.6f}")
-        # results = bodies.find_transits(rebound_sim, parameters, lightcurve)
-        # results.save_results(parameters)
-        results = None
-        CurveSimAnimation(parameters, bodies, lightcurve, timeaxis)  # Create the video
+        # _, impact = bodies[0].eclipsed_by(bodies[2], 729, parameters)
+        # print(f"{impact=:.6f}")
+        if parameters.result_file:
+            results = bodies.find_transits(rebound_sim, parameters, lightcurve)
+            results.save_results(parameters)
+        else:
+            results = None
+        if parameters.video_file:
+            CurveSimAnimation(parameters, bodies, lightcurve, timeaxis)  # Create the video
         return parameters, bodies, results, lightcurve

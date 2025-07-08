@@ -37,7 +37,7 @@ class CurveSimBodies(list):
             simulation.add(primary=simulation.particles[self[0].name], m=body.mass, r=body.radius, hash=body.name, P=body.P, inc=body.i, e=body.e, Omega=body.Ω, omega=body.ω, M=body.ma)
             i += 1
         simulation.move_to_com()  # move origin to center of mass before integrating -> better numerical stability
-        # simulation.ri_whfast.safe_mode = 0  # does not help!
+        # simulation.ri_whfast.safe_mode = 0  # does not help! see https://rebound.readthedocs.io/en/latest/ipython_examples/AdvWHFast/
         # simulation.ri_whfast.corrector = 11  # does not help!
         return simulation
 
@@ -237,32 +237,6 @@ class CurveSimBodies(list):
         The resulting body positions and the lightcurve are stored for later use in the animation."""
         rebound_sim = CurveSimBodies.init_rebound(self, p)
         stars = [body for body in self if body.body_type == "star"]
-        lightcurve = CurveSimLightcurve(p.iterations)  # Initialize lightcurve (essentially a np.ndarray)
-        initial_energy = rebound_sim.energy()
-        initial_sim_state = CurveSimRebound(rebound_sim)
-        for iteration in range(p.iterations):
-            rebound_sim.integrate(iteration * p.dt)
-            for body in self:
-                CurveSimBodies.update_position(body, iteration, rebound_sim)
-            lightcurve[iteration] = self.total_luminosity(stars, iteration, p)  # Update lightcurve.
-            if p.verbose:
-                CurveSimBodies.progress_bar(iteration, p)
-        lightcurve_max = float(lightcurve.max(initial=None))
-        lightcurve /= lightcurve_max  # Normalize flux.
-        new_energy = rebound_sim.energy()
-        if initial_energy == new_energy:
-            energy_change = 0
-        else:
-            energy_change = math.log10(abs(rebound_sim.energy() / initial_energy - 1))  # Magnitude of the relative change of energy during simulation
-        new_sim_state = CurveSimRebound(rebound_sim)
-        initial_sim_state.sim_check_deltas(new_sim_state)
-        return lightcurve, self, rebound_sim, energy_change
-
-    def calc_positions_eclipses_luminosity_2(self, p):
-        """Calculate distances, forces, accelerations, velocities of the bodies for each iteration.
-        The resulting body positions and the lightcurve are stored for later use in the animation."""
-        rebound_sim = CurveSimBodies.init_rebound(self, p)
-        stars = [body for body in self if body.body_type == "star"]
         lightcurve = CurveSimLightcurve(p.total_iterations)  # Initialize lightcurve (essentially a np.ndarray)
         timeaxis = CurveSimLightcurve(p.total_iterations)
         i = 0
@@ -270,8 +244,8 @@ class CurveSimBodies(list):
             for j in range(max_iteration):
                 timeaxis[i] = start + j * dt
                 i += 1
-        # initial_energy = rebound_sim.energy()
         initial_sim_state = CurveSimRebound(rebound_sim)
+
         for iteration in range(p.total_iterations):
             rebound_sim.integrate(timeaxis[iteration])
             for body in self:
@@ -279,15 +253,11 @@ class CurveSimBodies(list):
             lightcurve[iteration] = self.total_luminosity(stars, iteration, p)  # Update lightcurve.
             if p.verbose:
                 CurveSimBodies.progress_bar(iteration, p)
-        lightcurve_max = float(lightcurve.max(initial=None))
-        lightcurve /= lightcurve_max  # Normalize flux.
-        new_energy = rebound_sim.energy()
-        # if initial_energy == new_energy:
-        #     energy_change = 0
-        # else:
-        #     energy_change = math.log10(abs(rebound_sim.energy() / initial_energy - 1))  # Magnitude of the relative change of energy during simulation
+
         new_sim_state = CurveSimRebound(rebound_sim)
         energy_change = initial_sim_state.sim_check_deltas(new_sim_state)
+        lightcurve_max = float(lightcurve.max(initial=None))
+        lightcurve /= lightcurve_max  # Normalize flux.
         return lightcurve, timeaxis, self, rebound_sim, energy_change
 
     def calc_physics(self, p):
@@ -296,7 +266,7 @@ class CurveSimBodies(list):
             print(f'Generating {p.frames} frames for a {p.frames / p.fps:.0f} seconds long video.')
             print(f'Calculating {p.total_iterations:,} iterations ', end="")
             tic = time.perf_counter()
-        lightcurve, timeaxis, bodies, rebound_sim, energy_change = self.calc_positions_eclipses_luminosity_2(p)
+        lightcurve, timeaxis, bodies, rebound_sim, energy_change = self.calc_positions_eclipses_luminosity(p)
         if p.verbose:
             toc = time.perf_counter()
             print(f' {toc - tic:7.3f} seconds  ({p.total_iterations / (toc - tic):.0f} iterations/second)')
@@ -347,6 +317,7 @@ class CurveSimBodies(list):
         print()
         rebound_sim.dt = 1000  # debug :  dt hart auf einen niedrigen Wert gesetzt
         results = CurveSimResults(self)
+for schleife durch die intervalle
         for i in range(1, p.iterations):
             for j, body1 in enumerate(self):
                 for k, body2 in enumerate(self):

@@ -33,27 +33,26 @@ class CurveSimParameters:
         self.hour, self.day, self.year = hour, day, year
 
         # [Simulation]
+        self.result_file = config.get("Simulation", "result_file", fallback="None")
+        if self.result_file == "None":
+            self.result_file = None
+        self.comment = config.get("Simulation", "comment", fallback="No comment")
         self.verbose = eval(config.get("Simulation", "verbose", fallback="True"))
         self.start_date = eval(config.get("Simulation", "start_date", fallback="0.0"))
         self.starts = np.array(eval(config.get("Simulation", "starts", fallback="None")))
         self.ends = np.array(eval(config.get("Simulation", "ends", fallback="None")))
         self.dts = np.array(eval(config.get("Simulation", "dts", fallback="None")))
-        self.starts = (self.starts - self.start_date) * day
-        self.ends = (self.ends - self.start_date) * day
-        self.max_iterations = [int((end - start) / dt) + 1 for start, end, dt in zip(self.starts, self.ends, self.dts)]
-        self.total_iterations = sum(self.max_iterations)
 
         # [Video]
         self.config_file = config_file
-        self.comment = config.get("Video", "comment", fallback="No comment")
-        self.video_file = config.get("Video", "video_file")
-        self.result_file = config.get("Video", "result_file")
+        self.video_file = config.get("Video", "video_file", fallback="None")
+        if self.video_file == "None":
+            self.video_file = None
         self.frames = eval(config.get("Video", "frames"))
         self.fps = eval(config.get("Video", "fps"))
         self.dt = eval(config.get("Video", "dt"))
+        self.start_indices, self.max_iterations, self.total_iterations = self.check_intervals()
         self.sampling_rate = (self.total_iterations - 1) // self.frames + 1
-        # self.sampling_rate = int(eval(config.get("Video", "sampling_rate")))
-        # self.iterations = self.frames * self.sampling_rate
 
         # [Scale]
         self.scope_left = eval(config.get("Scale", "scope_left"))
@@ -74,18 +73,47 @@ class CurveSimParameters:
         self.red_dot_height = eval(config.get("Plot", "red_dot_height", fallback="0.077"))
         self.red_dot_width = eval(config.get("Plot", "red_dot_width", fallback="0.005"))
         # Checking all parameters defined so far
-        for key in vars(self):
-            if type(getattr(self, key)) not in [str, dict, bool, list, tuple, np.ndarray]:
-                if getattr(self, key) < 0:
-                    print(f"{Fore.RED}ERROR in configuration file.")
-                    print(f'{self=}   {key=}   {getattr(self, key)=}    {type(getattr(self, key))=}')
-                    print(f"No parameter in sections {self.standard_sections} may be negative.{Style.RESET_ALL}")
+        # for key in vars(self):
+        #     if type(getattr(self, key)) not in [str, dict, bool, list, tuple, np.ndarray]:
+        #         if getattr(self, key) < 0:
+        #             print(f"{Fore.RED}ERROR in configuration file.")
+        #             print(f'{self=}   {key=}   {getattr(self, key)=}    {type(getattr(self, key))=}')
+        #             print(f"No parameter in sections {self.standard_sections} may be negative.{Style.RESET_ALL}")
 
         # [Debug]
         # self.debug_L = list(eval(config.get("Debug", "debug_L", fallback="[0]")))
 
     def __repr__(self):
         return f'CurveSimParameters from {self.config_file}'
+
+
+    def check_intervals(self):
+        if not (len(self.starts) == len(self.ends) == len(self.dts)):
+            print(f"{Fore.YELLOW}WARNING: Parameters starts, ends and dts do not have the same number of items.{Style.RESET_ALL}")
+            print(f"{Fore.YELLOW}Only the first {min(len(self.starts), len(self.ends), len(self.dts))} intervalls will be processed.{Style.RESET_ALL}")
+        for start, end in zip(self.starts, self.ends):
+            if start > end:
+                print(f"{Fore.RED}ERROR in parameters starts/ends: One interval ends before it begins.{Style.RESET_ALL}")
+                exit(1)
+        for nextstart, end in zip(self.starts[1:], self.ends[:-1]):
+            if end > nextstart:
+                print(f"{Fore.RED}ERROR in parameters starts/ends: One interval starts before its predecessor ends.{Style.RESET_ALL}")
+                exit(1)
+        if self.start_date > self.starts[0]:
+            print(f"{Fore.RED}ERROR in parameter starts: First interval starts before the simulation's start_date.{Style.RESET_ALL}")
+            exit(1)
+        if self.starts is None or self.ends is None or self.dts is None:
+            print("At least on of the parameters starts/ends/dts is missing. Default values take effect.")
+            self.starts = [self.start_date]
+            self.dts = [self.dt]
+            self.ends = [self.start_date + self.frames * self.fps * self.dt]  # default value. Assumes the video shall last 'frames' seconds.
+        self.starts = (self.starts - self.start_date) * self.day  # convert BJD to seconds and start at zero
+        self.ends = (self.ends - self.start_date) * self.day  # convert BJD to seconds and start at zero
+        max_iterations = [int((end - start) / dt) + 1 for start, end, dt in zip(self.starts, self.ends, self.dts)]  # each interval's number of iterations
+        start_indices = [sum(max_iterations[:i]) for i in range(len(max_iterations))]  # indices of each interval's first iteration
+        total_iterations = sum(max_iterations)
+        return start_indices, max_iterations, total_iterations
+
 
     @staticmethod
     def find_and_check_config_file(config_file, standard_sections):
@@ -106,9 +134,9 @@ class CurveSimParameters:
         red = "\u001b[31m"
         reset = "\u001b[0m"
         if len(config.read(config_file)) < 1:  # does opening the config file fail?
-            print(red + f'Config file {config_file} not found. ' + reset)
-            print(red + f'Provide the config file name as the argument of the function curvesim. ' + reset)
-            print(red + f'More information on https://github.com/lichtgestalter/curvesimulator/wiki ' + reset)
+            print(f"{Fore.RED}ERROR: Config file {config_file} not found.{Style.RESET_ALL}")
+            print(f"{Fore.RED}Provide the config file name as the argument of the function curvesim.{Style.RESET_ALL}")
+            print(f"{Fore.RED}More information on https://github.com/lichtgestalter/curvesimulator/wiki '{Style.RESET_ALL}")
             sys.exit(1)
         if not config_file.endswith(".ini"):
             print(red + f'Please only use config files with the .ini extension. (You tried to use {config_file}.)' + reset)
