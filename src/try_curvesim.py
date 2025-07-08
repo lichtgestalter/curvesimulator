@@ -31,6 +31,6 @@ def main():
         print(results)
         print(lightcurve)
 
-laufen lassen. erzeugt null frames!
+
 if __name__ == '__main__':
     main()
