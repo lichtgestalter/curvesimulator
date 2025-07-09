@@ -331,26 +331,26 @@ class CurveSimBodies(list):
                                     else:
                                         eclipser, eclipsee = body2, body1
                                     tt, b, depth = eclipsee.find_tt(eclipser, i-1, rebound_sim, p, lightcurve, timeaxis, start_index, end_index, dt)
-                                    # t1 = eclipsee.find_t1234(eclipser, i, rebound_sim, p, transittimetype="T1")
-                                    # t2 = eclipsee.find_t1234(eclipser, i, rebound_sim, p, transittimetype="T2")
-                                    # t3 = eclipsee.find_t1234(eclipser, i - 1, rebound_sim, p, transittimetype="T3")
-                                    # t4 = eclipsee.find_t1234(eclipser, i - 1, rebound_sim, p, transittimetype="T4")
-                                    # t12, t23, t34, t14 = CurveSimPhysics.calc_transit_intervals(t1, t2, t3, t4)
+                                    t1 = eclipsee.find_t1234(eclipser, i, rebound_sim, timeaxis, start_index, end_index, p, transittimetype="T1")
+                                    t2 = eclipsee.find_t1234(eclipser, i, rebound_sim, timeaxis, start_index, end_index, p, transittimetype="T2")
+                                    t3 = eclipsee.find_t1234(eclipser, i - 1, rebound_sim, timeaxis, start_index, end_index, p, transittimetype="T3")
+                                    t4 = eclipsee.find_t1234(eclipser, i - 1, rebound_sim, timeaxis, start_index, end_index, p, transittimetype="T4")
+                                    t12, t23, t34, t14 = CurveSimPhysics.calc_transit_intervals(t1, t2, t3, t4)
 
                                     # print(f"{eclipser.name} eclipses {eclipsee.name}: {1-lightcurve[i-1]=:.6f} {depth=:.6f} {1-lightcurve[i]=:.6f} ")
                                     # print(f"{eclipser.name} eclipses {eclipsee.name} {b=:.3f} {t1=:.3f} {t2=:.3f} {tt=:.3f} {t3=:.3f} {t4=:.3f} {t12=:.3f} {t23=:.3f} {t34=:.3f} {t14=:.3f}")
 
                                     results["Bodies"][eclipser.name]["Transits"].append(Transit(eclipsee))
                                     results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["EclipsedBody"] = eclipsee.name
-                                    # results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T1"] = t1
-                                    # results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T2"] = t2
+                                    results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T1"] = t1
+                                    results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T2"] = t2
                                     results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["TT"] = tt
-                                    # results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T3"] = t3
-                                    # results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T4"] = t4
-                                    # results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T12"] = t12
-                                    # results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T23"] = t23
-                                    # results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T34"] = t34
-                                    # results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T14"] = t14
+                                    results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T3"] = t3
+                                    results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T4"] = t4
+                                    results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T12"] = t12
+                                    results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T23"] = t23
+                                    results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T34"] = t34
+                                    results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T14"] = t14
                                     results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["b"] = b
                                     results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["depth"] = depth
 

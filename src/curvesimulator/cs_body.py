@@ -315,15 +315,8 @@ class CurveSimBody:
             counter += 1
         if counter > 0:
             print(f"{Fore.YELLOW}WARNING in function find_tt: Rebound integration results are possibly not accurate enough.")
-            print(f"Try again with half the overall iteration time step parameter 'dt'.{Style.RESET_ALL}")
+            print(f"Try again with half the overall iteration time step parameter 'dt'.{Style.RESET_ALL}   ", end="")
             print(f"{iteration=}   {counter=}")
-        # if dx_left * dx_right >= 0:  # dx per definition 0 at TT. If dx_left and dx_right have the same sign due to numeric instability in rebound, enlarge the search interval.
-        #     rebound_sim.integrate(timeaxis[iteration - 1])
-        #     dx_left = eclipser.x - eclipsee.x
-        #     t_left = rebound_sim.t
-        #     rebound_sim.integrate(timeaxis[iteration + 2])
-        #     t_right = rebound_sim.t
-        #     dx_right = eclipser.x - eclipsee.x
         if dx_left * dx_right < 0 and eclipser.z >= eclipsee.z:  # sign of dx changed and eclipser in front of eclipsee
             while t_right - t_left > 1e-2:  # bisect until desired precision reached
                 t_middle = (t_right + t_left) / 2
@@ -343,7 +336,7 @@ class CurveSimBody:
             print(f"If that does not help, please open an issue on https://github.com/lichtgestalter/curvesimulator/issues and provide your config file.{Style.RESET_ALL}")
             return -1, -1, -1
 
-    def find_t1234(self, other, iteration, rebound_sim, p, transittimetype):
+    def find_t1234(self, other, iteration, rebound_sim, timeaxis, start_index, end_index, p, transittimetype):
         """other eclipses self. Find where ingress starts (T1) or egress ends (T4)."""
         eclipser = rebound_sim.particles[other.name]
         eclipsee = rebound_sim.particles[self.name]
@@ -357,14 +350,14 @@ class CurveSimBody:
         # T1/T2: go backwards from iteration (this should be the one right _after_ TT) to find the iteration before the eclipse starts
         # T3/T4: go forward from iteration (this should be the one right _before_ TT) to find the iteration after the eclipse ends
         while d < d_max:
-            if iteration + iteration_delta == p.iterations - 1 or iteration + iteration_delta == 0:
-                return None  # incomplete transit at start or end of simulation
+            if iteration + iteration_delta >= end_index or iteration + iteration_delta < start_index:
+                return None  # incomplete transit at start or end of current simulation interval
             iteration_delta += step
             d = CurveSimPhysics.distance_2d(other, self, iteration + iteration_delta)
-        rebound_sim.integrate((iteration + iteration_delta) * p.dt)
+        rebound_sim.integrate((timeaxis[iteration + iteration_delta]))
         d_old = CurveSimPhysics.distance_2d_particle(eclipser, eclipsee)
         t_old = rebound_sim.t
-        rebound_sim.integrate(iteration * p.dt)
+        rebound_sim.integrate(timeaxis[iteration])
         t_new = rebound_sim.t
         d_new = CurveSimPhysics.distance_2d_particle(eclipser, eclipsee)
         if transittimetype not in ["T1", "T2"]:
@@ -384,7 +377,7 @@ class CurveSimBody:
                     else:
                         t_new = rebound_sim.t
             return rebound_sim.t / p.day + p.start_date
-        else:  # grazing transit
+        else:  # grazing transit (or rebound inaccuracy?)
             return None
 
     def eclipsed_by(self, other, iteration, p):
