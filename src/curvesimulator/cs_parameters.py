@@ -7,7 +7,7 @@ class CurveSimParameters:
 
     def __init__(self, config_file):
         """Read program parameters and properties of the physical bodies from config file."""
-        self.standard_sections = ["Astronomical Constants", "Simulation", "Video", "Plot", "Scale", "Debug"]  # These sections must be present in the config file.
+        self.standard_sections = ["Astronomical Constants", "Results", "Simulation", "Video", "Plot", "Scale", "Debug"]  # These sections must be present in the config file.
         config = configparser.ConfigParser(inline_comment_prefixes='#')  # Inline comments in the config file start with "#".
         config.optionxform = str  # Preserve case of the keys.
         CurveSimParameters.find_and_check_config_file(config_file, standard_sections=self.standard_sections)
@@ -32,16 +32,20 @@ class CurveSimParameters:
         self.r_jup, self.m_jup, self.r_earth, self.m_earth, self.v_earth = r_jup, m_jup, r_earth, m_earth, v_earth
         self.hour, self.day, self.year = hour, day, year
 
-        # [Simulation]
-        self.result_file = config.get("Simulation", "result_file", fallback="None")
+        # [Results]
+        self.result_file = config.get("Results", "result_file", fallback="None")
         if self.result_file == "None":
             self.result_file = None
-        self.comment = config.get("Simulation", "comment", fallback="No comment")
-        self.verbose = eval(config.get("Simulation", "verbose", fallback="True"))
+        self.result_dt = eval(config.get("Results", "result_dt", fallback="100"))
+        self.comment = config.get("Results", "comment", fallback="No comment")
+        self.verbose = eval(config.get("Results", "verbose", fallback="True"))
+
+        # [Simulation]
+        self.dt = eval(config.get("Simulation", "dt"))
         self.start_date = eval(config.get("Simulation", "start_date", fallback="0.0"))
-        self.starts = np.array(eval(config.get("Simulation", "starts", fallback="None")))
-        self.ends = np.array(eval(config.get("Simulation", "ends", fallback="None")))
-        self.dts = np.array(eval(config.get("Simulation", "dts", fallback="None")))
+        self.starts = np.array(eval(config.get("Simulation", "starts", fallback="[]")))
+        self.ends = np.array(eval(config.get("Simulation", "ends", fallback="[]")))
+        self.dts = np.array(eval(config.get("Simulation", "dts", fallback="[]")))
 
         # [Video]
         self.config_file = config_file
@@ -50,7 +54,6 @@ class CurveSimParameters:
             self.video_file = None
         self.frames = eval(config.get("Video", "frames"))
         self.fps = eval(config.get("Video", "fps"))
-        self.dt = eval(config.get("Video", "dt"))
         self.start_indices, self.max_iterations, self.total_iterations = self.check_intervals()
         self.sampling_rate = (self.total_iterations - 1) // self.frames + 1
 
@@ -88,6 +91,12 @@ class CurveSimParameters:
 
 
     def check_intervals(self):
+        # if self.starts is None or self.ends is None or self.dts is None:
+        if len(self.starts) == 0 or len(self.ends) == 0 or len(self.dts) == 0:
+            print("At least on of the parameters starts/ends/dts is missing. Default values take effect.")
+            self.starts = np.array([self.start_date])
+            self.dts = np.array([self.dt])
+            self.ends = np.array([self.start_date + (self.frames * self.fps * self.dt) / self.day])  # default value. Assumes the video shall last 'frames' seconds.
         if not (len(self.starts) == len(self.ends) == len(self.dts)):
             print(f"{Fore.YELLOW}WARNING: Parameters starts, ends and dts do not have the same number of items.{Style.RESET_ALL}")
             print(f"{Fore.YELLOW}Only the first {min(len(self.starts), len(self.ends), len(self.dts))} intervalls will be processed.{Style.RESET_ALL}")
@@ -102,15 +111,10 @@ class CurveSimParameters:
         if self.start_date > self.starts[0]:
             print(f"{Fore.RED}ERROR in parameter starts: First interval starts before the simulation's start_date.{Style.RESET_ALL}")
             exit(1)
-        if self.starts is None or self.ends is None or self.dts is None:
-            print("At least on of the parameters starts/ends/dts is missing. Default values take effect.")
-            self.starts = [self.start_date]
-            self.dts = [self.dt]
-            self.ends = [self.start_date + self.frames * self.fps * self.dt]  # default value. Assumes the video shall last 'frames' seconds.
         self.starts = (self.starts - self.start_date) * self.day  # convert BJD to seconds and start at zero
         self.ends = (self.ends - self.start_date) * self.day  # convert BJD to seconds and start at zero
         max_iterations = [int((end - start) / dt) + 1 for start, end, dt in zip(self.starts, self.ends, self.dts)]  # each interval's number of iterations
-        start_indices = [sum(max_iterations[:i]) for i in range(len(max_iterations))]  # indices of each interval's first iteration
+        start_indices = [sum(max_iterations[:i]) for i in range(len(max_iterations)+1)]  # indices of each interval's first iteration
         total_iterations = sum(max_iterations)
         return start_indices, max_iterations, total_iterations
 

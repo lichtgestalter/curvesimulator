@@ -26,7 +26,7 @@ def curvesim(config_file=""):
         # _, impact = bodies[0].eclipsed_by(bodies[2], 729, parameters)
         # print(f"{impact=:.6f}")
         if parameters.result_file:
-            results = bodies.find_transits(rebound_sim, parameters, lightcurve)
+            results = bodies.find_transits(rebound_sim, parameters, lightcurve, timeaxis)
             results.save_results(parameters)
         else:
             results = None

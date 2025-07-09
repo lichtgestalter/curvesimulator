@@ -291,24 +291,39 @@ class CurveSimBody:
         relative_radius = (self.radius + self.d - other.h) / (2 * self.radius)  # Relative distance between approximated center C of eclipsed area and center of self
         return area, relative_radius
 
-    def find_tt(self, other, iteration, rebound_sim, p, lightcurve):
+    def find_tt(self, other, iteration, rebound_sim, p, lightcurve, timeaxis, start_index, end_index, dt):
         """other eclipses self. Find the exact time of transit (TT).
             iteration should be the last one before TT. """
         eclipser = rebound_sim.particles[other.name]
         eclipsee = rebound_sim.particles[self.name]
-        rebound_sim.integrate(iteration * p.dt)
+        rebound_sim.integrate(timeaxis[iteration])
         dx_left = eclipser.x - eclipsee.x
         t_left = rebound_sim.t
-        rebound_sim.integrate((iteration + 1) * p.dt)
+        rebound_sim.integrate(timeaxis[iteration + 1])
         t_right = rebound_sim.t
         dx_right = eclipser.x - eclipsee.x
-        if dx_left * dx_right >= 0:  # dx per definition 0 at TT. If dx_left and dx_right have the same sign due to numeric instability in rebound, enlarge the search interval.
-            rebound_sim.integrate((iteration - 1) * p.dt)
+        counter = 0
+        while dx_left * dx_right >= 0:  # dx per definition 0 at TT. If dx_left and dx_right have the same sign due to numeric instability in rebound, enlarge the search interval.
+            t_left -= dt
+            t_right += dt
+            rebound_sim.integrate(t_left)
             dx_left = eclipser.x - eclipsee.x
             t_left = rebound_sim.t
-            rebound_sim.integrate((iteration + 2) * p.dt)
+            rebound_sim.integrate(t_right)
             t_right = rebound_sim.t
             dx_right = eclipser.x - eclipsee.x
+            counter += 1
+        if counter > 0:
+            print(f"{Fore.YELLOW}WARNING in function find_tt: Rebound integration results are possibly not accurate enough.")
+            print(f"Try again with half the overall iteration time step parameter 'dt'.{Style.RESET_ALL}")
+            print(f"{iteration=}   {counter=}")
+        # if dx_left * dx_right >= 0:  # dx per definition 0 at TT. If dx_left and dx_right have the same sign due to numeric instability in rebound, enlarge the search interval.
+        #     rebound_sim.integrate(timeaxis[iteration - 1])
+        #     dx_left = eclipser.x - eclipsee.x
+        #     t_left = rebound_sim.t
+        #     rebound_sim.integrate(timeaxis[iteration + 2])
+        #     t_right = rebound_sim.t
+        #     dx_right = eclipser.x - eclipsee.x
         if dx_left * dx_right < 0 and eclipser.z >= eclipsee.z:  # sign of dx changed and eclipser in front of eclipsee
             while t_right - t_left > 1e-2:  # bisect until desired precision reached
                 t_middle = (t_right + t_left) / 2
@@ -321,10 +336,10 @@ class CurveSimBody:
                     dx_left = eclipser.x - eclipsee.x
             tt = rebound_sim.t / p.day + p.start_date
             impact = CurveSimPhysics.distance_2d_particle(eclipser, eclipsee) / self.radius
-            depth = 1 - lightcurve.interpolate_max_depth(tt, p, iteration)
+            depth = 1 - lightcurve.interpolate_max_depth(tt, p, iteration, start_index, end_index, dt, timeaxis)
             return tt, impact, depth
         else:
-            print(f"{Fore.RED}Error in function find_tt. Try with a smaller iteration time step dt.")
+            print(f"{Fore.RED}ERROR in function find_tt: Try with a smaller iteration time step dt.")
             print(f"If that does not help, please open an issue on https://github.com/lichtgestalter/curvesimulator/issues and provide your config file.{Style.RESET_ALL}")
             return -1, -1, -1
 

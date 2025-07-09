@@ -88,6 +88,9 @@ class CurveSimResults(dict):
 
     def save_results(self, parameters):
         del parameters.standard_sections
+        parameters.starts = [float(i) for i in parameters.starts]
+        parameters.ends = [float(i) for i in parameters.ends]
+        parameters.dts = [float(i) for i in parameters.dts]
         self["ProgramParameters"] = parameters.__dict__
         resultfilename = CurveSimResults.check_resultfilename(parameters.result_file)
         self.results2json(resultfilename, parameters)

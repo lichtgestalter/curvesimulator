@@ -39,7 +39,7 @@ class CurveSimLightcurve(np.ndarray):
     #
     #     return minima
     #
-    def interpolate_max_depth(self, tt, p, iteration):
+    def interpolate_max_depth(self, tt, p, iteration, start_index, end_index, dt, timeaxis):
         """
         Interpolates the 'self' value at a given 'tt' using cubic interpolation
         (Catmull-Rom like) based on surrounding 'iteration' points.
@@ -49,21 +49,21 @@ class CurveSimLightcurve(np.ndarray):
             tt: The time value for which to interpolate [BJD]
             p: CurveSimulator parameters
             iteration: index of the simulation right before TT (iteration < iteration_tt < iteration + 1).
+            start_index: index of the first iteration in the current interval (parameters 'starts' and 'ends')
+            end_index: index + 1 of the last iteration in the current interval (parameters 'starts' and 'ends')
 
         Returns:
-            The interpolated value at tt, or None if interpolation indices are out of bounds.
+            The interpolated value at tt, or 1 if interpolation indices are out of bounds. (flux = 1 means depth = 0)
         """
-        if not (1 <= iteration < len(self) - 2):  # Ensure indices are within bounds
+        # if not (1 <= iteration < len(self) - 2):  # Ensure indices are within bounds
+        if not (start_index < iteration < end_index - 2):  # Ensure indices are within bounds
             if p.verbose:
-                print(f"{Fore.YELLOW}Function interpolate_max_depth: Interpolation indices out of bounds at {iteration=}")
+                print(f"{Fore.YELLOW}WARNING: Function interpolate_max_depth: Interpolation indices out of bounds at {iteration=}")
                 print(f"Depth of this transit has been stored in result file as 0.")
-                if iteration < 1:
-                    print(f"Try to increase start_date (t0), the start of the simulation a bit.{Style.RESET_ALL}")
-                else:
-                    print(f"Try to increase or decrease the number of iterations a bit.{Style.RESET_ALL}")
+                print(f"Try to move the intervals (parameters 'starts' and 'ends') a bit.{Style.RESET_ALL}")
             return 1
-
-        iteration_tt = ((tt - p.start_date) * p.day % p.dt) / p.dt + iteration
+        # iteration_tt = ((tt - p.start_date) * p.day % p.dt) / p.dt + iteration
+        iteration_tt = (tt - (timeaxis[iteration] / p.day + p.start_date)) / (dt /p.day) + iteration
         P0 = self[iteration - 1]  # f_im1
         P1 = self[iteration]  # f_i
         P2 = self[iteration + 1]  # f_ip1

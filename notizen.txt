@@ -2,6 +2,8 @@ Next / in progress:
 
      results an flex dt anpassen
         verhindern, dass ueber Intervallgrenzen hinweg interpoliert wird
+            in find_tt()
+            in interpolate_max_depth()
 
 
     Simulationscheck klappt fuer Drehimpuls, Energie und Center of Mass, aber nicht fuer Impuls.
