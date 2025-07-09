@@ -1,6 +1,6 @@
 Next / in progress:
 
-    "generating 60 frames..." Meldung in Console vermeiden, wenn gar kein Video erzeugt werden soll
+    "generating 60 frames...." Meldung in Console vermeiden, wenn gar kein Video erzeugt werden soll
 
     flux Daten neu zusammenstellen
         besserer author fuer sektoren 1-13?
