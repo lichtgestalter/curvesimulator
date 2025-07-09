@@ -37,7 +37,8 @@ class CurveSimBodies(list):
             simulation.add(primary=simulation.particles[self[0].name], m=body.mass, r=body.radius, hash=body.name, P=body.P, inc=body.i, e=body.e, Omega=body.Ω, omega=body.ω, M=body.ma)
             i += 1
         simulation.move_to_com()  # move origin to center of mass before integrating -> better numerical stability
-        if p.result_file:  # does not seem to help for MCMC, but is a good choice when creating result file with transit times
+        if p.result_file:  # does not seem to help for MCMC, but is a good choice when creating a result file including transit times
+        # if False:  # debug
             simulation.ri_whfast.safe_mode = 0  # see https://rebound.readthedocs.io/en/latest/ipython_examples/AdvWHFast/
             simulation.ri_whfast.corrector = 11  # hopefully more accuracy
         return simulation
@@ -90,9 +91,6 @@ class CurveSimBodies(list):
                                          t=eval(config.get(section, "t", fallback="0.0")),
                                          ))
         self.check_body_parameters()
-        # for body in self:
-        #     body.calc_state_vector(p, self)
-        # self.calc_primary_body_initial_velocity()
         self.generate_patches(p)
 
     def __repr__(self):
@@ -336,10 +334,8 @@ class CurveSimBodies(list):
                                     t3 = eclipsee.find_t1234(eclipser, i - 1, rebound_sim, timeaxis, start_index, end_index, p, transittimetype="T3")
                                     t4 = eclipsee.find_t1234(eclipser, i - 1, rebound_sim, timeaxis, start_index, end_index, p, transittimetype="T4")
                                     t12, t23, t34, t14 = CurveSimPhysics.calc_transit_intervals(t1, t2, t3, t4)
-
                                     # print(f"{eclipser.name} eclipses {eclipsee.name}: {1-lightcurve[i-1]=:.6f} {depth=:.6f} {1-lightcurve[i]=:.6f} ")
                                     # print(f"{eclipser.name} eclipses {eclipsee.name} {b=:.3f} {t1=:.3f} {t2=:.3f} {tt=:.3f} {t3=:.3f} {t4=:.3f} {t12=:.3f} {t23=:.3f} {t34=:.3f} {t14=:.3f}")
-
                                     results["Bodies"][eclipser.name]["Transits"].append(Transit(eclipsee))
                                     results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["EclipsedBody"] = eclipsee.name
                                     results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T1"] = t1

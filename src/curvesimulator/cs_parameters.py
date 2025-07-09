@@ -135,22 +135,16 @@ class CurveSimParameters:
         #     print(f'Using {config_file} as config file. Further program parameters are ignored.')
         config = configparser.ConfigParser(inline_comment_prefixes='#')
         config.optionxform = str  # Preserve case of the keys.
-        red = "\u001b[31m"
-        reset = "\u001b[0m"
         if len(config.read(config_file)) < 1:  # does opening the config file fail?
             print(f"{Fore.RED}ERROR: Config file {config_file} not found.{Style.RESET_ALL}")
             print(f"{Fore.RED}Provide the config file name as the argument of the function curvesim.{Style.RESET_ALL}")
             print(f"{Fore.RED}More information on https://github.com/lichtgestalter/curvesimulator/wiki '{Style.RESET_ALL}")
             sys.exit(1)
         if not config_file.endswith(".ini"):
-            print(red + f'Please only use config files with the .ini extension. (You tried to use {config_file}.)' + reset)
+            print(f"{Fore.RED}Please only use config files with the .ini extension. (You tried to use {config_file}.){Style.RESET_ALL}")
             sys.exit(1)
 
         for section in standard_sections:  # Does the config file contain all standard sections?
             if section not in config.sections() and section != "Debug":
-                print(red + f'Section {section} missing in config file.' + reset)
+                print(f"{Fore.RED}Section {section} missing in config file.{Style.RESET_ALL}")
                 sys.exit(1)
-
-    @staticmethod
-    def resultfile_from_configfile(config_file):
-        return "xxx"
