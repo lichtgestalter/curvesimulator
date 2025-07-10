@@ -52,6 +52,9 @@ class CurveSimParameters:
         self.flux_file = config.get("Fitting", "flux_file", fallback="None")
         if self.flux_file == "None":
             self.flux_file = None
+        self.walkers = eval(config.get("Fitting", "walkers"))
+        self.steps = eval(config.get("Fitting", "steps"))
+        self.burn_in = eval(config.get("Fitting", "burn_in"))
 
         # [Video]
         self.video_file = config.get("Video", "video_file", fallback="None")
@@ -157,3 +160,15 @@ class CurveSimParameters:
             if section not in config.sections() and section != "Debug":
                 print(f"{Fore.RED}Section {section} missing in config file.{Style.RESET_ALL}")
                 sys.exit(1)
+
+    @staticmethod
+    def init_time_arrays(p):
+        time_s0 = np.zeros(p.total_iterations)
+        i = 0
+        for start, dt, max_iteration in zip(p.starts_s0, p.dts, p.max_iterations):
+            for j in range(max_iteration):
+                time_s0[i] = start + j * dt
+                i += 1
+        time_d = time_s0 / p.day + p.start_date
+        return time_s0, time_d
+

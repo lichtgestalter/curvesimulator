@@ -1,7 +1,7 @@
 import numpy as np
 
 # data_file = 'data/TOI4504_88+89.csv'
-data_file = '../research/star_systems/TOI-4504/lightkurve/TOI4504_88+89_reduced_normalized.csv'
+data_file = '../research/star_systems/TOI-4504/lightkurve/TOI4504_88+89_reduced_normalized_d_transits.csv'
 # data_file = '../research/star_systems/TOI-4504/lightkurve/88/TOI4504_88_reduced_normalized.csv'
 # data_file = '../research/star_systems/TOI-4504/lightkurve/89/TOI4504_89_reduced_normalized.csv'
 

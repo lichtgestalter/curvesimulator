@@ -1,11 +1,19 @@
 Next / in progress:
+0.5.5   MCMC integration, part 2
 
-    meine schoene corresponding flux Funktion muss vermutlich neu geschrieben werden, jetzt, wo ich intervalle und flex dt habe
+    Zumindest so viel MCMC Auswertungen programmieren, dass ich sehen kann, ob im MCMC ueberhaupt was sinnvolles passiert
+
+    Auswertungen nach durchgefuehrtem mcmc:
+        Corner plots
+        Histogramm mit max likelihood
+        Chain-Grafiken (auch verbesserte Uli-Version mit ueberlagerten halbtransparenten Grautoenen start Farbspaghetti?)
+        HDI (Highest density interval)
 
     flux Daten neu zusammenstellen
         besserer author fuer sektoren 1-13?
         nur c und d transits
-        dafuer flexible Funktion schreiben mit delta (Zeit vor und nach TT als Parameter)
+            dafuer flexible Funktion schreiben, die die relevanten Daten aus dem grossen csv holt und in ein kleines schreibt
+                mit Parameter delta (Zeit vor und nach TT als Parameter)
 
     In log_likelihood() die residuals durch uncertainty teilen?
 
@@ -17,12 +25,6 @@ Next / in progress:
         cs_mcmc nutzen oder abschaffen
         Klasse in flux_data anlegen? (import * ist haesslich)
         Package mal wieder hochladen und mit pip testen.
-
-    Auswertungen nach durchgefuehrtem mcmc:
-        Corner plots
-        Histogramm mit max likelihood
-        Chain-Grafiken (auch verbesserte Uli-Version mit ueberlagerten halbtransparenten Grautoenen start Farbspaghetti?)
-        HDI (Highest density interval)
 
     Simulationscheck klappt fuer Drehimpuls, Energie und Center of Mass, aber nicht fuer Impuls.
         Vielleicht Berechnungsfehler des Impulses?
@@ -383,7 +385,7 @@ I implemented all suggestions from zoom call 29.03.2022, but tried and dismissed
         Outside of these intervals the integration is calculated with a (potentially very large) default dt.
         This speeds the integration up significantly.
         dt can be set to different values in each time interval.
-
+    0.5.5   MCMC integration, part 2
 
 
 -----------------------------------------------------------------------

@@ -1,3 +1,4 @@
+from colorama import Fore, Style
 import lightkurve as lk
 from matplotlib import pyplot as plt
 from matplotlib import rcParams
@@ -137,55 +138,83 @@ def periodogram(results):
         ax.axvline(period / n, alpha=0.4, lw=1, linestyle="dashed")
 
 
-def corresponding_flux(df, t0, dt, iterations, max_exp_delta):
+def corresponding_flux(df, time_d, max_exp_delta, p):
     """
     df: <pandas DataFrame> Contains at least columns 'time' and 'flux'.
-    t0: start of a lightcurve simulation [BJD days]
-    dt: iteration step size of this lightcurve simulation [seconds]
-    iterations: number of iterations of this sim_flux simulation
-    max_exp_delta: maximum acceptable difference between
-        an item of df['time'] (middle of exposure) and
+        unit of time is [days]
+        time must be in ascending order!
+    !t0: start of a lightcurve simulation [BJD days]
+    !dt: iteration step size of this lightcurve simulation [seconds]
+    !iterations: number of iterations of this sim_flux simulation
+    max_exp_delta: maximum acceptable difference in days
+        between an item of df['time'] (middle of exposure) and
         the time of a simulation iteration t0 + i * dt
         for this item to be considered correspondig to iteration i.
 
     Returns:
-    cor_flux <np.ndarray> with cor_flux.shape = (iterations,)
-        cor_flux[i] is the actual flux value corresponding to simulated value sim_flux[i]
+    measured_flux <np.ndarray> with measured_flux.shape = (iterations,)
+        measured_flux[i] is the actual flux value corresponding to simulated value sim_flux[i]
         Only flux data with a time value close enough to the simulation's time value will be accepted (abs(exp_delta[i]) <= max_exp_delta)
-        If there is no flux data inside the acceptable time intervall, then cor_flux[i] is 0.
-        If there are several flux data inside the acceptable time intervall, then cor_flux[i] is their average.
+        If there is no flux data inside the acceptable time intervall, then measured_flux[i] is 0.
+        If there are several flux data inside the acceptable time intervall, then measured_flux[i] is their average.
 
-    data_points <np.ndarray> with cor_flux.shape = (iterations,)
+    data_points <np.ndarray> with measured_flux.shape = (iterations,)
         ...
-    mask <np.ndarray> with cor_flux.shape = (iterations,)
+    mask <np.ndarray> with measured_flux.shape = (iterations,)
         ...
-    exp_delta <np.ndarray> with cor_flux.shape = (iterations,)
+    exp_delta <np.ndarray> with measured_flux.shape = (iterations,)
         ...
 
 
     """
-    cor_flux = np.zeros(iterations)
-    data_points = np.zeros(iterations)
-    exp_delta = np.zeros(iterations)
-    dt /= 60*60*24  # seconds - > days
-    max_exp_delta /= 60*60*24  # seconds - > days
-    df['time'] -= t0
+    measured_flux = np.zeros(p.total_iterations)
+    data_points = np.zeros(p.total_iterations)
+    exp_delta = np.zeros(p.total_iterations)
+    # dt /= 60*60*24  # seconds - > days
+    i = 0  # current time_d index
     for t_index, t in df['time'].items():
-        if t < -max_exp_delta:
-            continue  # we are not interested in data significantly before the scope of the simulation (starts at t0)
-        i = round(t // dt)
-        if i > iterations - 1:
-            break  # we are not interested in data after the scope of the simulation (ends at t0 + dt * iterations)
-        exp_delta_tmp = t - i * dt
-        if exp_delta_tmp > dt / 2:
+        if t < time_d[0] - max_exp_delta:
+            continue  # we are not interested in data significantly before the scope of the simulation
+        # i = round(t // dt)
+        if t > time_d[-1]:
+            break  # we are not interested in data after the scope of the simulation
+        i = i + np.argmin(np.abs(t - time_d[i:]))  # find the index of time_d where time_d is closest to t
+        dt = 120  # debug DEBUG !!!!!!!!!!!!!!!!!!! ###################################################################################################
+        exp_delta_tmp = t - time_d[i]
+        if exp_delta_tmp > dt / 2:  # keep the exposure delta between -dt/2 and +dt/2
             exp_delta_tmp -= dt
-        if abs(exp_delta_tmp) <= max_exp_delta:
+        if abs(t - time_d[i]) < max_exp_delta:
             data_points[i] += 1
-            cor_flux[i] = (cor_flux[i] * (data_points[i] - 1)  + df['flux'][t_index]) / data_points[i]  # update average
+            measured_flux[i] = (measured_flux[i] * (data_points[i] - 1)  + df['flux'][t_index]) / data_points[i]  # update average
             exp_delta[i] = (exp_delta[i] * (data_points[i] - 1)  + exp_delta_tmp) / data_points[i]  # update average
-    mask = data_points > 0
+    no_flux_count = np.sum(data_points == 0)  # Count items in data_points that are 0
+    print(f"{Fore.YELLOW}WARNING: Could not find flux measurements for {no_flux_count} iteration steps of the simulation.")
+    print(f"Try to set parameter max_exp_delta to a higher value.{Style.RESET_ALL}")
+    return measured_flux, data_points, exp_delta
 
-    return cor_flux, mask, data_points, exp_delta
+
+# def corresponding_flux_alt(df, t0, dt, iterations, max_exp_delta):
+#     cor_flux = np.zeros(iterations)
+#     data_points = np.zeros(iterations)
+#     exp_delta = np.zeros(iterations)
+#     dt /= 60*60*24  # seconds - > days
+#     max_exp_delta /= 60*60*24  # seconds - > days
+#     df['time'] -= t0
+#     for t_index, t in df['time'].items():
+#         if t < -max_exp_delta:
+#             continue  # we are not interested in data significantly before the scope of the simulation (starts at t0)
+#         i = round(t // dt)
+#         if i > iterations - 1:
+#             break  # we are not interested in data after the scope of the simulation (ends at t0 + dt * iterations)
+#         exp_delta_tmp = t - i * dt
+#         if exp_delta_tmp > dt / 2:
+#             exp_delta_tmp -= dt
+#         if abs(exp_delta_tmp) <= max_exp_delta:
+#             data_points[i] += 1
+#             cor_flux[i] = (cor_flux[i] * (data_points[i] - 1)  + df['flux'][t_index]) / data_points[i]  # update average
+#             exp_delta[i] = (exp_delta[i] * (data_points[i] - 1)  + exp_delta_tmp) / data_points[i]  # update average
+#     mask = data_points > 0
+#     return cor_flux, mask, data_points, exp_delta
 
 
 def process_88_89():
@@ -220,7 +249,7 @@ def process_88_89():
 
     # append t89d_df to t88d_df
     t88_89_df = pd.concat([t88d_df, t89d_df], ignore_index=True)
-    t88_89_df.to_csv(path + 'TOI4504_88+89_reduced_normalized.csv', sep=',', decimal='.', index=False)
+    t88_89_df.to_csv(path + 'TOI4504_88+89_reduced_normalized_d_transits.csv', sep=',', decimal='.', index=False)
 
     plot_this(t88_89_df.time, [t88_89_df.flux], ["flux"], plot_file=path+"88_89_rn.png")
     plot_this(t88_89_df.time, [t88_89_df.flux], ["flux"], left=t88d - half_sample_duration, right=t88d + half_sample_duration,
@@ -270,51 +299,57 @@ def combine_flux_data(start_sec, end_sec, filename):
     df2csv(combined_df, path + filename)
 
 
-def try_corresponding_flux(p):
+def get_measured_flux(p):
     # process_88_89()
     # combine_flux_data(1, 90, "all_p.csv")
     # combine_flux_data(1, 13, "01-13_p.csv")
     # combine_flux_data(27, 38, "27-38_p.csv")
     # combine_flux_data(61, 69, "61-69_p.csv")
-
     # path = '../../../research/star_systems/TOI-4504/lightkurve/'  # path to example lightcurve data. Change this if required.
     # path = '../../research/star_systems/TOI-4504/lightkurve/'  # path to example lightcurve data. Change this if required.
-    path = '../research/star_systems/TOI-4504/lightkurve/'  # path to example lightcurve data. Change this if required.
-    df = csv2df(path + "01-13_p.csv")  # path and file name of example lightcurve data. Change this if required.
-    cor_flux, mask, hits, exp_delta = corresponding_flux(df, p.start_date, p.dt, p.iterations, max_exp_delta=p.dt / 2.1)
+    # path = '../research/star_systems/TOI-4504/lightkurve/'  # path to example lightcurve data. Change this if required.
+    # df = csv2df(path + "01-13_p.csv")  # path and file name of example lightcurve data. Change this if required.
+
+    # measured_flux = corresponding_flux(df, time_d, p.dt / 2.1, p)
     # x = np.arange(0, p.iterations)
     # plot_this(x, [cor_flux], title="Corresponding Flux")
     # plot_this(x, [cor_flux], title="Corresponding Flux", bottom=0.98, top=1.02)
     # plot_this(x, [hits], title="Hits")
     # plot_this(x, [exp_delta*60*60*24], title="Exposure Delta [s]")
-    return cor_flux, mask
+
+    df = csv2df(p.flux_file)
+    df = df[df["time"] >= p.start_date]
+    df["time"] -= p.start_date
+    df["time"] *= p.day
+    time_s0 = np.array(df["time"])
+    measured_flux = df["flux"]
+    flux_uncertainty = df["flux_err"]
+    p.total_iterations = len(time_s0)
+    return time_s0, measured_flux, flux_uncertainty
 
 
-def debug_flux(parameters, flux, mask, sim_flux):
+
+def debug_flux(parameters, measured_flux, mask, sim_flux):
     left = 50
     right = 80
     x = np.arange(0, parameters.iterations)
-    residuals = (flux - sim_flux) * mask
+    residuals = (measured_flux - sim_flux) * mask
     plot_this(x, [sim_flux], title="Simulated Lightcurve")
     plot_this(x, [residuals], title="Residuals")
-    plot_this(x, [flux], title="Flux", left=left, right=right, bottom=0.985, top=1.015)
+    plot_this(x, [measured_flux], title="Flux", left=left, right=right, bottom=0.985, top=1.015)
     plot_this(x, [sim_flux], title="Simulated Lightcurve", left=left, right=right)
     plot_this(x, [residuals], title="Residuals", left=left, right=right)
 
 
-def mcmc(mask, bodies, flux, parameters):
-    # MCMC setup
+def mcmc(bodies, time_s0, measured_flux, flux_uncertainty, p):
     theta_references = ["bodies[1].P"]  # list of names of fitting parameters. Needed so these parameters can be updated inside log_likelihood().
     initial_values = [bodies[1].P]  # initial values of the fitting parameters
     theta_bounds = [(bodies[1].P * 0.9, bodies[1].P * 1.1)]
     ndim = len(theta_references)
-    nwalkers = 2  # 32
-    nsteps = 1  # 2000
-    # number_of_points_disregarded = 1  # burn-in phase
-    theta0 = np.array(initial_values) + 1e-4 * np.random.randn(nwalkers, ndim)  # slightly randomized initial values of the fitting parameters
-    sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability, args=(theta_bounds, theta_references, flux, mask, bodies, parameters))
+    theta0 = np.array(initial_values) + 1e-4 * np.random.randn(p.walkers, ndim)  # slightly randomized initial values of the fitting parameters
+    sampler = emcee.EnsembleSampler(p.walkers, ndim, log_probability, args=(theta_bounds, theta_references, bodies, time_s0, measured_flux, flux_uncertainty, p))
     print("Running MCMC...")
-    sampler.run_mcmc(theta0, nsteps, progress=True)
+    sampler.run_mcmc(theta0, p.steps, progress=True)
     print("MCMC finished!")
 
 
@@ -326,7 +361,7 @@ def log_prior(theta, theta_bounds):
     return 0
 
 
-def log_likelihood(theta, theta_references, flux, mask, bodies, parameters):
+def log_likelihood(theta, theta_references, bodies, time_s0, measured_flux, flux_uncertainty, p):
     """
     theta:
         List containing the current numerical values of the `theta_references` (see below).
@@ -340,23 +375,15 @@ def log_likelihood(theta, theta_references, flux, mask, bodies, parameters):
     """
     bodies[1].P = theta[0]  # update all parameters from theta. parameter names are to be found in theta_references
     # print(f"{theta=}")
-    sim_flux, _ = bodies.calc_physics(parameters)  # run simulation
-    residuals = (flux - sim_flux) * mask
+    sim_flux, _ = bodies.calc_physics(p, time_s0)  # run simulation
+    residuals = (measured_flux - sim_flux) / flux_uncertainty
     residuals_phot_sum_squared = np.sum(residuals ** 2)
-
-
-
-    # residuals durch uncertainty teilen?  ##############################################
-
-
-
-    # print(f"Log Likelihood={-0.5 * residuals_phot_sum_squared:.18f}")
     return -0.5 * residuals_phot_sum_squared
 
 
-def log_probability(theta, theta_bounds, theta_references, flux, mask, bodies, parameters):
+def log_probability(theta, theta_bounds, theta_references, bodies, time_s0, measured_flux, flux_uncertainty, p):
     lp = log_prior(theta, theta_bounds)
     if not np.isfinite(lp):
         return -np.inf
-    return lp + log_likelihood(theta, theta_references, flux, mask, bodies, parameters)
+    return lp + log_likelihood(theta, theta_references, bodies, time_s0, measured_flux, flux_uncertainty, p)
 

@@ -231,19 +231,12 @@ class CurveSimBodies(list):
                 print(f'{round(iteration / p.total_iterations * 10) * 10:3d}% ', end="")
                 # print(self.energy(iteration, p))
 
-    def calc_positions_eclipses_luminosity(self, p):
+    def calc_positions_eclipses_luminosity(self, p, time_s0):
         """Calculate distances, forces, accelerations, velocities of the bodies for each iteration.
         The resulting body positions and the lightcurve are stored for later use in the animation."""
         rebound_sim = CurveSimBodies.init_rebound(self, p)
         stars = [body for body in self if body.body_type == "star"]
         sim_flux = CurveSimLightcurve(p.total_iterations)  # Initialize lightcurve (essentially a np.ndarray)
-        time_s0 = CurveSimLightcurve(p.total_iterations)
-        i = 0
-        for start, dt, max_iteration in zip(p.starts_s0, p.dts, p.max_iterations):
-            for j in range(max_iteration):
-                time_s0[i] = start + j * dt
-                i += 1
-        time_d = time_s0 / p.day + p.start_date
         initial_sim_state = CurveSimRebound(rebound_sim)
 
         for iteration in range(p.total_iterations):
@@ -258,23 +251,23 @@ class CurveSimBodies(list):
         energy_change = initial_sim_state.sim_check_deltas(new_sim_state)
         lightcurve_max = float(sim_flux.max(initial=None))
         sim_flux /= lightcurve_max  # Normalize flux.
-        return sim_flux, time_s0, time_d, self, rebound_sim, energy_change
+        return sim_flux, self, rebound_sim, energy_change
 
-    def calc_physics(self, p):
+    def calc_physics(self, p, time_s0):
         """Calculate body positions and the resulting lightcurve."""
         if p.verbose:
             if p.video_file:
                 print(f'Generating {p.frames} frames for a {p.frames / p.fps:.0f} seconds long video.')
             print(f'Calculating {p.total_iterations:,} iterations ', end="")
             tic = time.perf_counter()
-        sim_flux, time_s0, time_d, bodies, rebound_sim, energy_change = self.calc_positions_eclipses_luminosity(p)
+        sim_flux, bodies, rebound_sim, energy_change = self.calc_positions_eclipses_luminosity(p, time_s0)
         if p.verbose:
             toc = time.perf_counter()
             print(f' {toc - tic:7.3f} seconds  ({p.total_iterations / (toc - tic):.0f} iterations/second)')
             print(f"Log10 of the relative change of energy during simulation: {energy_change:.0f}")
         if energy_change > -6:
             print(f"{Fore.YELLOW}The energy must not change significantly! Consider using a smaller time step (dt).{Style.RESET_ALL}")
-        return sim_flux, time_s0, time_d, rebound_sim
+        return sim_flux, rebound_sim
 
     def calc_patch_radii(self, p):
         """If autoscaling is on, this function calculates the radii of the circles (matplotlib patches) of the animation."""

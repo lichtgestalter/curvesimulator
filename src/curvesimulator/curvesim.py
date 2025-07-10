@@ -7,28 +7,25 @@ from .cs_flux_data import *
 
 
 def curvesim(config_file=""):
-    # mode = "mcmc"
-    mode = "video"
     flux_debug = False
-    if mode == "mcmc":
-        parameters = CurveSimParameters(config_file)  # Read program parameters from config file.
-        bodies = CurveSimBodies(parameters)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
-        if parameters.flux_file:
-            flux, mask = try_corresponding_flux(parameters)
-        if flux_debug:
-            sim_flux, rebound_sim = bodies.calc_physics(parameters)  # Calculate all body positions and the resulting lightcurve
-            debug_flux(parameters, flux, mask, sim_flux)
-        mcmc(mask, bodies, flux, parameters)
+
+    parameters = CurveSimParameters(config_file)  # Read program parameters from config file.
+    bodies = CurveSimBodies(parameters)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
+    time_s0, time_d = CurveSimParameters.init_time_arrays(parameters)
+
+    if parameters.flux_file:
+        time_s0, measured_flux, flux_uncertainty = get_measured_flux(parameters)
+        # if flux_debug:
+            # sim_flux, rebound_sim = bodies.calc_physics(parameters, time_s0)  # Calculate all body positions and the resulting lightcurve
+            # debug_flux(parameters, measured_flux, sim_flux)
+        mcmc(bodies, time_s0, measured_flux, flux_uncertainty, parameters)
         return parameters, bodies, None, None
     else:
-        parameters = CurveSimParameters(config_file)  # Read program parameters from config file.
-        bodies = CurveSimBodies(parameters)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
-        sim_flux, time_s0, time_d, rebound_sim = bodies.calc_physics(parameters)  # Calculate all body positions and the resulting lightcurve
+        sim_flux, rebound_sim = bodies.calc_physics(parameters, time_s0)  # Calculate all body positions and the resulting lightcurve
+        results = None
         if parameters.result_file:
             results = bodies.find_transits(rebound_sim, parameters, sim_flux, time_s0, time_d)
             results.save_results(parameters)
-        else:
-            results = None
         if parameters.video_file:
             CurveSimAnimation(parameters, bodies, sim_flux, time_s0)  # Create the video
         return parameters, bodies, results, sim_flux
