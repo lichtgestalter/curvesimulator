@@ -7,11 +7,12 @@ class CurveSimParameters:
 
     def __init__(self, config_file):
         """Read program parameters and properties of the physical bodies from config file."""
-        self.standard_sections = ["Astronomical Constants", "Results", "Simulation", "Video", "Plot", "Scale", "Debug"]  # These sections must be present in the config file.
+        self.standard_sections = ["Astronomical Constants", "Results", "Simulation", "Fitting", "Video", "Plot", "Scale", "Debug"]  # These sections must be present in the config file.
         config = configparser.ConfigParser(inline_comment_prefixes='#')  # Inline comments in the config file start with "#".
         config.optionxform = str  # Preserve case of the keys.
         CurveSimParameters.find_and_check_config_file(config_file, standard_sections=self.standard_sections)
         config.read(config_file)
+        self.config_file = config_file
 
         # [Astronomical Constants]
         # For ease of use of these constants in the config file they are additionally defined here without the prefix "self.".
@@ -43,12 +44,16 @@ class CurveSimParameters:
         # [Simulation]
         self.dt = eval(config.get("Simulation", "dt"))
         self.start_date = eval(config.get("Simulation", "start_date", fallback="0.0"))
-        self.starts = np.array(eval(config.get("Simulation", "starts", fallback="[]")))
-        self.ends = np.array(eval(config.get("Simulation", "ends", fallback="[]")))
+        self.starts_d = np.array(eval(config.get("Simulation", "starts", fallback="[]")))
+        self.ends_d = np.array(eval(config.get("Simulation", "ends", fallback="[]")))
         self.dts = np.array(eval(config.get("Simulation", "dts", fallback="[]")))
 
+        # [Fitting]
+        self.flux_file = config.get("Fitting", "flux_file", fallback="None")
+        if self.flux_file == "None":
+            self.flux_file = None
+
         # [Video]
-        self.config_file = config_file
         self.video_file = config.get("Video", "video_file", fallback="None")
         if self.video_file == "None":
             self.video_file = None
@@ -91,29 +96,33 @@ class CurveSimParameters:
 
 
     def check_intervals(self):
-        # if self.starts is None or self.ends is None or self.dts is None:
-        if len(self.starts) == 0 or len(self.ends) == 0 or len(self.dts) == 0:
+        """Checks if the intervals in parameters starts_d, ends_d and dts are well defined.
+           Calculates the indices for time_s0, time_d and sim_flux where the intervals start and end.
+           Calculates the total number of iterations for which body positions and flux will be simulated and stored.
+           Creates alternative parameters starts_s0, ends_s0 in seconds instead of days and starting with 0 at start_date.
+         """
+        if len(self.starts_d) == 0 or len(self.ends_d) == 0 or len(self.dts) == 0:
             print("At least on of the parameters starts/ends/dts is missing. Default values take effect.")
-            self.starts = np.array([self.start_date])
+            self.starts_d = np.array([self.start_date])
             self.dts = np.array([self.dt])
-            self.ends = np.array([self.start_date + (self.frames * self.fps * self.dt) / self.day])  # default value. Assumes the video shall last 'frames' seconds.
-        if not (len(self.starts) == len(self.ends) == len(self.dts)):
+            self.ends_d = np.array([self.start_date + (self.frames * self.fps * self.dt) / self.day])  # default value. Assumes the video shall last 'frames' seconds.
+        if not (len(self.starts_d) == len(self.ends_d) == len(self.dts)):
             print(f"{Fore.YELLOW}WARNING: Parameters starts, ends and dts do not have the same number of items.{Style.RESET_ALL}")
-            print(f"{Fore.YELLOW}Only the first {min(len(self.starts), len(self.ends), len(self.dts))} intervalls will be processed.{Style.RESET_ALL}")
-        for start, end in zip(self.starts, self.ends):
+            print(f"{Fore.YELLOW}Only the first {min(len(self.starts_d), len(self.ends_d), len(self.dts))} intervalls will be processed.{Style.RESET_ALL}")
+        for start, end in zip(self.starts_d, self.ends_d):
             if start > end:
                 print(f"{Fore.RED}ERROR in parameters starts/ends: One interval ends before it begins.{Style.RESET_ALL}")
                 exit(1)
-        for nextstart, end in zip(self.starts[1:], self.ends[:-1]):
+        for nextstart, end in zip(self.starts_d[1:], self.ends_d[:-1]):
             if end > nextstart:
                 print(f"{Fore.RED}ERROR in parameters starts/ends: One interval starts before its predecessor ends.{Style.RESET_ALL}")
                 exit(1)
-        if self.start_date > self.starts[0]:
+        if self.start_date > self.starts_d[0]:
             print(f"{Fore.RED}ERROR in parameter starts: First interval starts before the simulation's start_date.{Style.RESET_ALL}")
             exit(1)
-        self.starts = (self.starts - self.start_date) * self.day  # convert BJD to seconds and start at zero
-        self.ends = (self.ends - self.start_date) * self.day  # convert BJD to seconds and start at zero
-        max_iterations = [int((end - start) / dt) + 1 for start, end, dt in zip(self.starts, self.ends, self.dts)]  # each interval's number of iterations
+        self.starts_s0 = (self.starts_d - self.start_date) * self.day  # convert BJD to seconds and start at zero
+        self.ends_s0 = (self.ends_d - self.start_date) * self.day  # convert BJD to seconds and start at zero
+        max_iterations = [int((end - start) / dt) + 1 for start, end, dt in zip(self.starts_s0, self.ends_s0, self.dts)]  # each interval's number of iterations
         start_indices = [sum(max_iterations[:i]) for i in range(len(max_iterations)+1)]  # indices of each interval's first iteration
         total_iterations = sum(max_iterations)
         return start_indices, max_iterations, total_iterations

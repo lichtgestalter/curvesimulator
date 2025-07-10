@@ -86,11 +86,13 @@ class CurveSimResults(dict):
             new_resultfilename = f"{base}.v{num:04}{ext}"
         return new_resultfilename
 
-    def save_results(self, parameters):
-        del parameters.standard_sections
-        parameters.starts = [float(i) for i in parameters.starts]
-        parameters.ends = [float(i) for i in parameters.ends]
-        parameters.dts = [float(i) for i in parameters.dts]
-        self["ProgramParameters"] = parameters.__dict__
-        resultfilename = CurveSimResults.check_resultfilename(parameters.result_file)
-        self.results2json(resultfilename, parameters)
+    def save_results(self, p):
+        del p.standard_sections
+        p.starts_s0 = [float(i) for i in p.starts_s0]
+        p.starts_d = [float(i) for i in p.starts_d]
+        p.ends_s0 = [float(i) for i in p.ends_s0]
+        p.ends_d = [float(i) for i in p.ends_d]
+        p.dts = [float(i) for i in p.dts]
+        self["ProgramParameters"] = p.__dict__
+        resultfilename = CurveSimResults.check_resultfilename(p.result_file)
+        self.results2json(resultfilename, p)

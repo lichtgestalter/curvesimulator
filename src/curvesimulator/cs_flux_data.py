@@ -142,29 +142,29 @@ def corresponding_flux(df, t0, dt, iterations, max_exp_delta):
     df: <pandas DataFrame> Contains at least columns 'time' and 'flux'.
     t0: start of a lightcurve simulation [BJD days]
     dt: iteration step size of this lightcurve simulation [seconds]
-    iterations: number of iterations of this lightcurve simulation
+    iterations: number of iterations of this sim_flux simulation
     max_exp_delta: maximum acceptable difference between
         an item of df['time'] (middle of exposure) and
         the time of a simulation iteration t0 + i * dt
         for this item to be considered correspondig to iteration i.
 
     Returns:
-    rel_flux <np.ndarray> with rel_flux.shape = (iterations,)
-        rel_flux[i] is the actual flux value corresponding to simulated value lightcurve[i]
+    cor_flux <np.ndarray> with cor_flux.shape = (iterations,)
+        cor_flux[i] is the actual flux value corresponding to simulated value sim_flux[i]
         Only flux data with a time value close enough to the simulation's time value will be accepted (abs(exp_delta[i]) <= max_exp_delta)
-        If there is no flux data inside the acceptable time intervall, then rel_flux[i] is 0.
-        If there are several flux data inside the acceptable time intervall, then rel_flux[i] is their average.
+        If there is no flux data inside the acceptable time intervall, then cor_flux[i] is 0.
+        If there are several flux data inside the acceptable time intervall, then cor_flux[i] is their average.
 
-    data_points <np.ndarray> with rel_flux.shape = (iterations,)
+    data_points <np.ndarray> with cor_flux.shape = (iterations,)
         ...
-    mask <np.ndarray> with rel_flux.shape = (iterations,)
+    mask <np.ndarray> with cor_flux.shape = (iterations,)
         ...
-    exp_delta <np.ndarray> with rel_flux.shape = (iterations,)
+    exp_delta <np.ndarray> with cor_flux.shape = (iterations,)
         ...
 
 
     """
-    rel_flux = np.zeros(iterations)
+    cor_flux = np.zeros(iterations)
     data_points = np.zeros(iterations)
     exp_delta = np.zeros(iterations)
     dt /= 60*60*24  # seconds - > days
@@ -181,11 +181,11 @@ def corresponding_flux(df, t0, dt, iterations, max_exp_delta):
             exp_delta_tmp -= dt
         if abs(exp_delta_tmp) <= max_exp_delta:
             data_points[i] += 1
-            rel_flux[i] = (rel_flux[i] * (data_points[i] - 1)  + df['flux'][t_index]) / data_points[i]  # update average
+            cor_flux[i] = (cor_flux[i] * (data_points[i] - 1)  + df['flux'][t_index]) / data_points[i]  # update average
             exp_delta[i] = (exp_delta[i] * (data_points[i] - 1)  + exp_delta_tmp) / data_points[i]  # update average
     mask = data_points > 0
 
-    return rel_flux, mask, data_points, exp_delta
+    return cor_flux, mask, data_points, exp_delta
 
 
 def process_88_89():
@@ -281,24 +281,24 @@ def try_corresponding_flux(p):
     # path = '../../research/star_systems/TOI-4504/lightkurve/'  # path to example lightcurve data. Change this if required.
     path = '../research/star_systems/TOI-4504/lightkurve/'  # path to example lightcurve data. Change this if required.
     df = csv2df(path + "01-13_p.csv")  # path and file name of example lightcurve data. Change this if required.
-    rel_flux, mask, hits, exp_delta = corresponding_flux(df, p.start_date, p.dt, p.iterations, max_exp_delta=p.dt / 2.1)
+    cor_flux, mask, hits, exp_delta = corresponding_flux(df, p.start_date, p.dt, p.iterations, max_exp_delta=p.dt / 2.1)
     # x = np.arange(0, p.iterations)
-    # plot_this(x, [rel_flux], title="Corresponding Flux")
-    # plot_this(x, [rel_flux], title="Corresponding Flux", bottom=0.98, top=1.02)
+    # plot_this(x, [cor_flux], title="Corresponding Flux")
+    # plot_this(x, [cor_flux], title="Corresponding Flux", bottom=0.98, top=1.02)
     # plot_this(x, [hits], title="Hits")
     # plot_this(x, [exp_delta*60*60*24], title="Exposure Delta [s]")
-    return rel_flux, mask
+    return cor_flux, mask
 
 
-def debug_flux(parameters, flux, mask, lightcurve):
+def debug_flux(parameters, flux, mask, sim_flux):
     left = 50
     right = 80
     x = np.arange(0, parameters.iterations)
-    residuals = (flux - lightcurve) * mask
-    plot_this(x, [lightcurve], title="Simulated Lightcurve")
+    residuals = (flux - sim_flux) * mask
+    plot_this(x, [sim_flux], title="Simulated Lightcurve")
     plot_this(x, [residuals], title="Residuals")
     plot_this(x, [flux], title="Flux", left=left, right=right, bottom=0.985, top=1.015)
-    plot_this(x, [lightcurve], title="Simulated Lightcurve", left=left, right=right)
+    plot_this(x, [sim_flux], title="Simulated Lightcurve", left=left, right=right)
     plot_this(x, [residuals], title="Residuals", left=left, right=right)
 
 
@@ -340,8 +340,8 @@ def log_likelihood(theta, theta_references, flux, mask, bodies, parameters):
     """
     bodies[1].P = theta[0]  # update all parameters from theta. parameter names are to be found in theta_references
     # print(f"{theta=}")
-    lightcurve, _ = bodies.calc_physics(parameters)  # run simulation
-    residuals = (flux - lightcurve) * mask
+    sim_flux, _ = bodies.calc_physics(parameters)  # run simulation
+    residuals = (flux - sim_flux) * mask
     residuals_phot_sum_squared = np.sum(residuals ** 2)
 
 

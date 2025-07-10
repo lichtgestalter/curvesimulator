@@ -236,43 +236,45 @@ class CurveSimBodies(list):
         The resulting body positions and the lightcurve are stored for later use in the animation."""
         rebound_sim = CurveSimBodies.init_rebound(self, p)
         stars = [body for body in self if body.body_type == "star"]
-        lightcurve = CurveSimLightcurve(p.total_iterations)  # Initialize lightcurve (essentially a np.ndarray)
-        timeaxis = CurveSimLightcurve(p.total_iterations)
+        sim_flux = CurveSimLightcurve(p.total_iterations)  # Initialize lightcurve (essentially a np.ndarray)
+        time_s0 = CurveSimLightcurve(p.total_iterations)
         i = 0
-        for start, dt, max_iteration in zip(p.starts, p.dts, p.max_iterations):
+        for start, dt, max_iteration in zip(p.starts_s0, p.dts, p.max_iterations):
             for j in range(max_iteration):
-                timeaxis[i] = start + j * dt
+                time_s0[i] = start + j * dt
                 i += 1
+        time_d = time_s0 / p.day + p.start_date
         initial_sim_state = CurveSimRebound(rebound_sim)
 
         for iteration in range(p.total_iterations):
-            rebound_sim.integrate(timeaxis[iteration])
+            rebound_sim.integrate(time_s0[iteration])
             for body in self:
                 CurveSimBodies.update_position(body, iteration, rebound_sim)
-            lightcurve[iteration] = self.total_luminosity(stars, iteration, p)  # Update lightcurve.
+            sim_flux[iteration] = self.total_luminosity(stars, iteration, p)  # Update sim_flux.
             if p.verbose:
                 CurveSimBodies.progress_bar(iteration, p)
 
         new_sim_state = CurveSimRebound(rebound_sim)
         energy_change = initial_sim_state.sim_check_deltas(new_sim_state)
-        lightcurve_max = float(lightcurve.max(initial=None))
-        lightcurve /= lightcurve_max  # Normalize flux.
-        return lightcurve, timeaxis, self, rebound_sim, energy_change
+        lightcurve_max = float(sim_flux.max(initial=None))
+        sim_flux /= lightcurve_max  # Normalize flux.
+        return sim_flux, time_s0, time_d, self, rebound_sim, energy_change
 
     def calc_physics(self, p):
         """Calculate body positions and the resulting lightcurve."""
         if p.verbose:
-            print(f'Generating {p.frames} frames for a {p.frames / p.fps:.0f} seconds long video.')
+            if p.video_file:
+                print(f'Generating {p.frames} frames for a {p.frames / p.fps:.0f} seconds long video.')
             print(f'Calculating {p.total_iterations:,} iterations ', end="")
             tic = time.perf_counter()
-        lightcurve, timeaxis, bodies, rebound_sim, energy_change = self.calc_positions_eclipses_luminosity(p)
+        sim_flux, time_s0, time_d, bodies, rebound_sim, energy_change = self.calc_positions_eclipses_luminosity(p)
         if p.verbose:
             toc = time.perf_counter()
             print(f' {toc - tic:7.3f} seconds  ({p.total_iterations / (toc - tic):.0f} iterations/second)')
             print(f"Log10 of the relative change of energy during simulation: {energy_change:.0f}")
         if energy_change > -6:
             print(f"{Fore.YELLOW}The energy must not change significantly! Consider using a smaller time step (dt).{Style.RESET_ALL}")
-        return lightcurve, timeaxis, rebound_sim
+        return sim_flux, time_s0, time_d, rebound_sim
 
     def calc_patch_radii(self, p):
         """If autoscaling is on, this function calculates the radii of the circles (matplotlib patches) of the animation."""
@@ -312,7 +314,7 @@ class CurveSimBodies(list):
     #                     potential_energy += body1.mass * body2.mass / distance
     #     return kinetic_energy - p.g * potential_energy
 
-    def find_transits(self, rebound_sim, p, lightcurve, timeaxis):
+    def find_transits(self, rebound_sim, p, sim_flux, time_s0, time_d):
         print()
         rebound_sim.dt = p.result_dt
         results = CurveSimResults(self)
@@ -328,13 +330,13 @@ class CurveSimBodies(list):
                                         eclipser, eclipsee = body1, body2
                                     else:
                                         eclipser, eclipsee = body2, body1
-                                    tt, b, depth = eclipsee.find_tt(eclipser, i-1, rebound_sim, p, lightcurve, timeaxis, start_index, end_index, dt)
-                                    t1 = eclipsee.find_t1234(eclipser, i, rebound_sim, timeaxis, start_index, end_index, p, transittimetype="T1")
-                                    t2 = eclipsee.find_t1234(eclipser, i, rebound_sim, timeaxis, start_index, end_index, p, transittimetype="T2")
-                                    t3 = eclipsee.find_t1234(eclipser, i - 1, rebound_sim, timeaxis, start_index, end_index, p, transittimetype="T3")
-                                    t4 = eclipsee.find_t1234(eclipser, i - 1, rebound_sim, timeaxis, start_index, end_index, p, transittimetype="T4")
+                                    tt, b, depth = eclipsee.find_tt(eclipser, i-1, rebound_sim, p, sim_flux, time_s0, time_d, start_index, end_index, dt)
+                                    t1 = eclipsee.find_t1234(eclipser, i, rebound_sim, time_s0, start_index, end_index, p, transittimetype="T1")
+                                    t2 = eclipsee.find_t1234(eclipser, i, rebound_sim, time_s0, start_index, end_index, p, transittimetype="T2")
+                                    t3 = eclipsee.find_t1234(eclipser, i - 1, rebound_sim, time_s0, start_index, end_index, p, transittimetype="T3")
+                                    t4 = eclipsee.find_t1234(eclipser, i - 1, rebound_sim, time_s0, start_index, end_index, p, transittimetype="T4")
                                     t12, t23, t34, t14 = CurveSimPhysics.calc_transit_intervals(t1, t2, t3, t4)
-                                    # print(f"{eclipser.name} eclipses {eclipsee.name}: {1-lightcurve[i-1]=:.6f} {depth=:.6f} {1-lightcurve[i]=:.6f} ")
+                                    # print(f"{eclipser.name} eclipses {eclipsee.name}: {1-sim_flux[i-1]=:.6f} {depth=:.6f} {1-sim_flux[i]=:.6f} ")
                                     # print(f"{eclipser.name} eclipses {eclipsee.name} {b=:.3f} {t1=:.3f} {t2=:.3f} {tt=:.3f} {t3=:.3f} {t4=:.3f} {t12=:.3f} {t23=:.3f} {t34=:.3f} {t14=:.3f}")
                                     results["Bodies"][eclipser.name]["Transits"].append(Transit(eclipsee))
                                     results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["EclipsedBody"] = eclipsee.name

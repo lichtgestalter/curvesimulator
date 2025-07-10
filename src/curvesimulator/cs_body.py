@@ -291,15 +291,15 @@ class CurveSimBody:
         relative_radius = (self.radius + self.d - other.h) / (2 * self.radius)  # Relative distance between approximated center C of eclipsed area and center of self
         return area, relative_radius
 
-    def find_tt(self, other, iteration, rebound_sim, p, lightcurve, timeaxis, start_index, end_index, dt):
+    def find_tt(self, other, iteration, rebound_sim, p, sim_flux, time_s0, time_d, start_index, end_index, dt):
         """other eclipses self. Find the exact time of transit (TT).
             iteration should be the last one before TT. """
         eclipser = rebound_sim.particles[other.name]
         eclipsee = rebound_sim.particles[self.name]
-        rebound_sim.integrate(timeaxis[iteration])
+        rebound_sim.integrate(time_s0[iteration])
         dx_left = eclipser.x - eclipsee.x
         t_left = rebound_sim.t
-        rebound_sim.integrate(timeaxis[iteration + 1])
+        rebound_sim.integrate(time_s0[iteration + 1])
         t_right = rebound_sim.t
         dx_right = eclipser.x - eclipsee.x
         counter = 0
@@ -329,14 +329,14 @@ class CurveSimBody:
                     dx_left = eclipser.x - eclipsee.x
             tt = rebound_sim.t / p.day + p.start_date
             impact = CurveSimPhysics.distance_2d_particle(eclipser, eclipsee) / self.radius
-            depth = 1 - lightcurve.interpolate_max_depth(tt, p, iteration, start_index, end_index, dt, timeaxis)
+            depth = 1 - sim_flux.interpolate_max_depth(tt, p, iteration, start_index, end_index, dt, time_d)
             return tt, impact, depth
         else:
             print(f"{Fore.RED}ERROR in function find_tt: Try with a smaller iteration time step dt.")
             print(f"If that does not help, please open an issue on https://github.com/lichtgestalter/curvesimulator/issues and provide your config file.{Style.RESET_ALL}")
             return -1, -1, -1
 
-    def find_t1234(self, other, iteration, rebound_sim, timeaxis, start_index, end_index, p, transittimetype):
+    def find_t1234(self, other, iteration, rebound_sim, time_s0, start_index, end_index, p, transittimetype):
         """other eclipses self. Find where ingress starts (T1) or egress ends (T4)."""
         eclipser = rebound_sim.particles[other.name]
         eclipsee = rebound_sim.particles[self.name]
@@ -354,10 +354,10 @@ class CurveSimBody:
                 return None  # incomplete transit at start or end of current simulation interval
             iteration_delta += step
             d = CurveSimPhysics.distance_2d(other, self, iteration + iteration_delta)
-        rebound_sim.integrate((timeaxis[iteration + iteration_delta]))
+        rebound_sim.integrate((time_s0[iteration + iteration_delta]))
         d_old = CurveSimPhysics.distance_2d_particle(eclipser, eclipsee)
         t_old = rebound_sim.t
-        rebound_sim.integrate(timeaxis[iteration])
+        rebound_sim.integrate(time_s0[iteration])
         t_new = rebound_sim.t
         d_new = CurveSimPhysics.distance_2d_particle(eclipser, eclipsee)
         if transittimetype not in ["T1", "T2"]:

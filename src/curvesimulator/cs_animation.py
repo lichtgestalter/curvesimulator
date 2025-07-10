@@ -6,19 +6,17 @@ import numpy as np
 import shutil
 import time
 
-spd = 3600 * 24  # seconds per day
-
 class CurveSimAnimation:
 
-    def __init__(self, p, bodies, lightcurve, timeaxis):
+    def __init__(self, p, bodies, sim_flux, time_s0):
         CurveSimAnimation.check_ffmpeg()
-        self.fig, ax_right, ax_left, ax_lightcurve, self.red_dot = CurveSimAnimation.init_plot(p, lightcurve, timeaxis)  # Adjust constants in section [Plot] of config file to fit your screen.
+        self.fig, ax_right, ax_left, ax_lightcurve, self.red_dot = CurveSimAnimation.init_plot(p, sim_flux, time_s0)  # Adjust constants in section [Plot] of config file to fit your screen.
         for body in bodies:  # Circles represent the bodies in the animation. Set their colors and add them to the matplotlib axis.
             body.circle_right.set_color(body.color)
             body.circle_left.set_color(body.color)
             ax_right.add_patch(body.circle_right)
             ax_left.add_patch(body.circle_left)
-        self.render(p, bodies, lightcurve, timeaxis)
+        self.render(p, bodies, sim_flux, time_s0)
 
     @staticmethod
     def check_ffmpeg():
@@ -66,7 +64,7 @@ class CurveSimAnimation:
         return ax_right
 
     @staticmethod
-    def init_lightcurve_plot(lightcurve, timeaxis, p):
+    def init_lightcurve_plot(sim_flux, time_s0, p):
         # lightcurve
         ax_lightcurve = plt.subplot2grid(shape=(5, 1), loc=(4, 0), rowspan=1, colspan=1)
         ax_lightcurve.set_facecolor("black")  # background color
@@ -74,8 +72,7 @@ class CurveSimAnimation:
 
         # lightcurve x-ticks, x-labels
         ax_lightcurve.tick_params(axis='x', colors='grey')
-        xmax = timeaxis[-1] / spd  # debug new time axis
-        # xmax = p.iterations * p.dt / spd
+        xmax = time_s0[-1] / p.day
         ax_lightcurve.set_xlim(0, xmax)
         x_listticdelta = CurveSimAnimation.tic_delta(xmax)
         digits = max(0, round(-math.log10(x_listticdelta) + 0.4))  # The labels get as many decimal places as the intervals between the tics.
@@ -85,8 +82,8 @@ class CurveSimAnimation:
 
         # lightcurve y-ticks, y-labels
         ax_lightcurve.tick_params(axis='y', colors='grey')
-        minl = lightcurve.min(initial=None)
-        maxl = lightcurve.max(initial=None)
+        minl = sim_flux.min(initial=None)
+        maxl = sim_flux.max(initial=None)
         if minl == maxl:
             minl *= 0.99
         scope = maxl - minl
@@ -99,12 +96,10 @@ class CurveSimAnimation:
         ax_lightcurve.set_yticks(yvalues, labels=ylabels)
 
         # lightcurve data (white line)
-        # time_axis = np.linspace(0, round(p.iterations * p.dt), p.iterations, dtype=float)  # debug deactivated because timeaxis is now a parameter
-        timeaxis = timeaxis / p.day #+ p.start_date
-        ax_lightcurve.plot(timeaxis, lightcurve, color="white")
+        ax_lightcurve.plot(time_s0 / p.day, sim_flux, color="white")
 
         # lightcurve red dot
-        red_dot = matplotlib.patches.Ellipse((0, 0), (timeaxis[-1] - timeaxis[0]) * p.red_dot_width, scope * p.red_dot_height)  # matplotlib patch
+        red_dot = matplotlib.patches.Ellipse((0, 0), (time_s0[-1] - time_s0[0]) * p.red_dot_width / p.day, scope * p.red_dot_height)  # matplotlib patch
         # red_dot = matplotlib.patches.Ellipse((0, 0), p.iterations * p.dt * p.red_dot_width / spd, scope * p.red_dot_height)  # matplotlib patch
         red_dot.set(zorder=2)  # Dot in front of lightcurve.
         red_dot.set_color((1, 0, 0))  # red
@@ -112,7 +107,7 @@ class CurveSimAnimation:
         return ax_lightcurve, red_dot
 
     @staticmethod
-    def init_plot(p, lightcurve, timeaxis):
+    def init_plot(p, sim_flux, time_s0):
         """Initialize the matplotlib figure containing 3 axis:
         Top left: overhead view
         Top right: edge-on view
@@ -126,13 +121,13 @@ class CurveSimAnimation:
 
         ax_left = CurveSimAnimation.init_left_plot(p)
         ax_right = CurveSimAnimation.init_right_plot(p)
-        ax_lightcurve, red_dot = CurveSimAnimation.init_lightcurve_plot(lightcurve, timeaxis, p)
+        ax_lightcurve, red_dot = CurveSimAnimation.init_lightcurve_plot(sim_flux, time_s0, p)
         plt.tight_layout()  # Automatically adjust padding horizontally as well as vertically.
 
         return fig, ax_right, ax_left, ax_lightcurve, red_dot
 
     @staticmethod
-    def next_frame(frame, p, bodies, red_dot, lightcurve, timeaxis):
+    def next_frame(frame, p, bodies, red_dot, sim_flux, time_s0):
         """Update patches. Send new circle positions to animation function.
         First parameter comes from iterator frames (a parameter of FuncAnimation).
         The other parameters are given to this function via the parameter fargs of FuncAnimation."""
@@ -148,19 +143,19 @@ class CurveSimAnimation:
         for body in bodies:  # right view: projection (x,y,z) -> (x,y), order = z (z-axis points to viewer)
             body.circle_right.set(zorder=body.positions[frame * p.sampling_rate][2])
             body.circle_right.center = body.positions[frame * p.sampling_rate][0] / p.scope_right, body.positions[frame * p.sampling_rate][1] / p.scope_right
-        red_dot.center = timeaxis[frame * p.sampling_rate] / p.day, lightcurve[frame * p.sampling_rate]
-        # red_dot.center = p.dt * p.sampling_rate * frame / spd, lightcurve[frame * p.sampling_rate]
+        red_dot.center = time_s0[frame * p.sampling_rate] / p.day, sim_flux[frame * p.sampling_rate]
+        # red_dot.center = p.dt * p.sampling_rate * frame / spd, sim_flux[frame * p.sampling_rate]
         if frame >= 10 and frame % int(round(p.frames / 10)) == 0:  # Inform user about program's progress.
             print(f'{round(frame / p.frames * 10) * 10:3d}% ', end="")
 
-    def render(self, p, bodies, lightcurve, timeaxis):
+    def render(self, p, bodies, sim_flux, time_s0):
         """Calls next_frame() for each frame and saves the video."""
         if p.verbose:
             print(f'Animating {p.frames:8d} frames:     ', end="")
             tic = time.perf_counter()
-        frames = len(lightcurve) // p.sampling_rate  # debug new timeline
-        anim = matplotlib.animation.FuncAnimation(self.fig, CurveSimAnimation.next_frame, fargs=(p, bodies, self.red_dot, lightcurve, timeaxis), interval=1000 / p.fps, frames=frames, blit=False)
-        # anim = matplotlib.animation.FuncAnimation(self.fig, CurveSimAnimation.next_frame, fargs=(p, bodies, self.red_dot, lightcurve), interval=1000 / p.fps, frames=p.frames, blit=False)
+        frames = len(sim_flux) // p.sampling_rate  # debug new timeline
+        anim = matplotlib.animation.FuncAnimation(self.fig, CurveSimAnimation.next_frame, fargs=(p, bodies, self.red_dot, sim_flux, time_s0), interval=1000 / p.fps, frames=frames, blit=False)
+        # anim = matplotlib.animation.FuncAnimation(self.fig, CurveSimAnimation.next_frame, fargs=(p, bodies, self.red_dot, sim_flux), interval=1000 / p.fps, frames=p.frames, blit=False)
         anim.save(
             p.video_file,
             fps=p.fps,

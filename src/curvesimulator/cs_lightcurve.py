@@ -11,13 +11,13 @@ class CurveSimLightcurve(np.ndarray):
     def __str__(self):
         return f'CurveSimLightcurve: max={max(self)*100:.4f}%, min={min(self)*100:.4f}%, len={len(self)}'
 
-    def interpolate_max_depth(self, tt, p, iteration, start_index, end_index, dt, timeaxis):
+    def interpolate_max_depth(self, tt, p, iteration, start_index, end_index, dt, time_d):
         """
         Interpolates the 'self' value at a given 'tt' using cubic interpolation
         (Catmull-Rom like) based on surrounding 'iteration' points.
 
         Args:
-            self: lightcurve
+            self: sim_flux (Lightcurve)
             tt: The time value for which to interpolate [BJD]
             p: CurveSimulator parameters
             iteration: index of the simulation right before TT (iteration < iteration_tt < iteration + 1).
@@ -34,8 +34,8 @@ class CurveSimLightcurve(np.ndarray):
                 print(f"Depth of this transit has been stored in result file as 0.")
                 print(f"Try to move the intervals (parameters 'starts' and 'ends') a bit.{Style.RESET_ALL}")
             return 1
-        # iteration_tt = ((tt - p.start_date) * p.day % p.dt) / p.dt + iteration
-        iteration_tt = (tt - (timeaxis[iteration] / p.day + p.start_date)) / (dt /p.day) + iteration
+        # iteration_tt = (tt - (time_s0[iteration] / p.day + p.start_date)) / (dt /p.day) + iteration
+        iteration_tt = (tt - time_d[iteration]) / (dt /p.day) + iteration
         P0 = self[iteration - 1]  # f_im1
         P1 = self[iteration]  # f_i
         P2 = self[iteration + 1]  # f_ip1

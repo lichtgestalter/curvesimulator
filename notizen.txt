@@ -1,17 +1,15 @@
 Next / in progress:
 
-    "generating 60 frames...." Meldung in Console vermeiden, wenn gar kein Video erzeugt werden soll
+    meine schoene corresponding flux Funktion muss vermutlich neu geschrieben werden, jetzt, wo ich intervalle und flex dt habe
 
     flux Daten neu zusammenstellen
         besserer author fuer sektoren 1-13?
         nur c und d transits
         dafuer flexible Funktion schreiben mit delta (Zeit vor und nach TT als Parameter)
 
-    meine schoene corresponding flux Funktion muss vermutlich neu geschrieben werden, jetzt, wo ich intervalle und flex dt habe
-
     In log_likelihood() die residuals durch uncertainty teilen?
 
-    Simons Methoden einbauen zur Anpassung von abhaengigen Parametern, falls MCMC die zugrundeliegenden Parameter aendern darf.
+    Simons Methoden einbauen zur Anpassung von abhaengigen Parametern, falls MCMC die zugrundeliegenden Parameter aendern darf?
         (class TransformationManager)
 
     Orga/Refactoring:
@@ -59,6 +57,8 @@ Programming Hinter MCMC-Integration zurueckgestellt:
     init_rebound() verallgemeinern. Auch Hierarchie ermoeglichen (=wer kreist um wen?)
 
     Result evaluation komfortabel fuer User nutzbar machen.
+
+    Optional time_d und sim_flux als csv abspeichern.
 
     Orbitparameter regelmaessig (z.B. bei jedem Transit) im Resultfile speichern.
 
@@ -422,7 +422,7 @@ Next Steps nach Call mit Simon, 16.06.25:
 
     Zuerst nach d-Transits in den alten Daten suchen:
         BLS benutzen! https://github.com/spacetelescope/tessworkshop_tutorials/blob/master/bls/bls-tutorial.ipynb
-        (Ganz eventuell auch Lightcurve benutzen: https://lightkurve.github.io/lightkurve/tutorials/1-getting-started/what-are-periodogram-objects.html )
+        (Ganz eventuell auch Lightkurve benutzen: https://lightkurve.github.io/lightkurve/tutorials/1-getting-started/what-are-periodogram-objects.html )
         b- und c-Transits aus den Daten entweder ganz entfernen oder rausrechnen.
         Letzteres haette den Vorteil, dass dann nicht potenziell d-Transits als Kollateralschaden mit entfernt werden.
         Moegliche Tests:
