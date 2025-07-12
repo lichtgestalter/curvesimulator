@@ -3,37 +3,37 @@ import numpy as np
 import emcee
 import matplotlib.pyplot as plt
 import corner
-from importlib import import_module
+# from importlib import import_module
 from cal_phot import PhotDataset
 # from cal_spec import SpecDataset
 from cal_transformation import TransformationManager
 # from scipy.optimize import minimize
-
+import TOI4504_system as system
 
 # Import system-specific modules
-system_name = "TOI4504"
-spec = 0
-phot = 1
+# system_name = "TOI4504"
+spec = False
+phot = True
 
-system_module = import_module(f"{system_name}_system")
+# system_module = import_module(f"{system_name}_system")
 
 # Extract system functions and parameters
-spectroscopy = getattr(system_module, "spectroscopy")  # Es gibt eine Funktion spectroscopy() in TOI4504_system.py, aber diese Codezeile scheint nix zu tun
-photometry = getattr(system_module, "photometry")  # Es gibt eine Funktion photometry() in TOI4504_system.py, aber diese Codezeile scheint nix zu tun
-spec_setup = getattr(system_module, "spec_setup")
-phot_setup = getattr(system_module, "phot_setup")
-parameters = getattr(system_module, "parameters")
-parse_parameters = getattr(system_module, "parse_parameters")
+# spectroscopy = getattr(system_module, "spectroscopy")  # Es gibt eine Funktion spectroscopy() in TOI4504_system.py, aber diese Codezeile scheint nix zu tun
+# photometry = getattr(system_module, "photometry")  # Es gibt eine Funktion photometry() in TOI4504_system.py, aber diese Codezeile scheint nix zu tun
+# spec_setup = getattr(system_module, "spec_setup")
+# phot_setup = getattr(system_module, "phot_setup")
+# parameters = getattr(system_module, "parameters")
+# parse_parameters = getattr(system_module, "parse_parameters") # Es gibt eine Funktion parse_parameters() in TOI4504_system.py, aber diese Codezeile scheint nix zu tun
 
 # Initialize transformer
-transformer = TransformationManager(parameters)
+transformer = TransformationManager(system.parameters)
 transformer.update_dependent_parameters()
 
 # Create `para` as the central dictionary
-para = {name: info["value"] for name, info in parameters.items()}
+para = {name: info["value"] for name, info in system.parameters.items()}
 
 # Extract fitting parameters
-fitting_indices, parameter_bounds, initial_values, step_sizes = parse_parameters(parameters)
+fitting_indices, parameter_bounds, initial_values, step_sizes = system.parse_parameters(system.parameters)
 
 # Initialize datasets
 phot_data, spec_data = None, None
@@ -41,26 +41,26 @@ phot_data, spec_data = None, None
 
 if spec:
     print("Loading spectroscopy data...")
-    bjd, ccfs, velocity_vectors = spectroscopy()
+    bjd, ccfs, velocity_vectors = system.spectroscopy()
     spec_data = SpecDataset(
-        name=f"{system_name} - Spectroscopy",
+        name=f"{system.name} - Spectroscopy",
         time_vector=bjd,
         observed_lines=ccfs,
         velocity_vectors=velocity_vectors,
         para=para,
-        spec_setup=spec_setup,
+        spec_setup=system.spec_setup,
     )
 
 if phot:
     print("Loading photometry data...")
-    excluded_epochs = phot_setup["primary"]["excluded_epochs"] + phot_setup["secondary"]["excluded_epochs"]
-    bjd, flux, flux_unc = photometry(excluded_epochs=excluded_epochs,transformer=transformer)
+    excluded_epochs = system.phot_setup["primary"]["excluded_epochs"] + system.phot_setup["secondary"]["excluded_epochs"]
+    bjd, flux, flux_unc = system.photometry(excluded_epochs=excluded_epochs,transformer=transformer)
     phot_data = PhotDataset(
-        name=f"{system_name} - Photometry",
+        name=f"{system.name} - Photometry",
         time_vector=bjd,
         observed_flux=flux,
         para=para,
-        phot_setup=phot_setup,
+        phot_setup=system.phot_setup,
     )
 
 
@@ -76,9 +76,9 @@ def log_prior(theta):
 def log_likelihood(theta, phot_data, spec_data, para, fitting_indices, transformer):
     # Update parameter dictionary with current values
     for i, key in enumerate(fitting_indices):
-        parameters[key]["value"] = theta[i]
+        system.parameters[key]["value"] = theta[i]
     transformer.update_dependent_parameters()
-    para = {name: info["value"] for name, info in parameters.items()}
+    para = {name: info["value"] for name, info in system.parameters.items()}
 
     # Photometry likelihood
     residuals_phot_sum_squared = 0
@@ -122,7 +122,7 @@ def hdi(data, credible_mass=0.68):
 # MCMC setup
 ndim = len(fitting_indices)
 nwalkers = 32
-nsteps = 10
+nsteps = 510
 number_of_points_disregarded = 1  # Uli: hiermit spielen
 
 # Initial positions
