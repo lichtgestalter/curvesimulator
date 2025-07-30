@@ -1,7 +1,13 @@
 Next / in progress:
 0.5.5   MCMC integration, part 2
 
-    Typengemisch (Lightcurve, Series): alles zu nativen np arrays machen zwecks Performancegewinn?
+    Make it possible for MCMC to change every parameter of every body (if it shall be fitted)
+        Which parameters shall be fitted? What are the upper and lower bounds of the fitting parameters?
+            How to store this information in the config file?
+            How to store this information so MCMC can update parameters after each iteration?
+
+
+
     Zumindest so viel MCMC Auswertungen programmieren, dass ich sehen kann, ob im MCMC ueberhaupt was sinnvolles passiert
 
     Auswertungen nach durchgefuehrtem mcmc:

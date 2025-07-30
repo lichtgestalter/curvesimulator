@@ -32,9 +32,13 @@ class CurveSimBody:
         self.radius = radius  # [m]
         self.area_2d = math.pi * radius ** 2  # [m**2]
         self.luminosity = luminosity  # [W]
-        self.limb_darkening = CurveSimPhysics.get_limbdarkening_parameters(limb_darkening, limb_darkening_parameter_type)
+        limb_darkening = CurveSimPhysics.get_limbdarkening_parameters(limb_darkening, limb_darkening_parameter_type)
+        if limb_darkening is None:
+            self.limb_darkening_u1, self.limb_darkening_u2 = None, None
+        else:
+            self.limb_darkening_u1, self.limb_darkening_u2 = CurveSimPhysics.get_limbdarkening_parameters(limb_darkening, limb_darkening_parameter_type)
 
-        self.mean_intensity = CurveSimPhysics.calc_mean_intensity(self.limb_darkening)
+        self.mean_intensity = CurveSimPhysics.calc_mean_intensity(self.limb_darkening_u1, self.limb_darkening_u2)
         self.intensity = luminosity / self.area_2d  # luminosity per (apparent) area [W/m**2]
         # self.positions = np.zeros((p.iterations, 3), dtype=float)  # position for each frame
         self.positions = np.ndarray((p.total_iterations, 3), dtype=float)

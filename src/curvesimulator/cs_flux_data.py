@@ -322,8 +322,8 @@ def get_measured_flux(p):
     df["time"] -= p.start_date
     df["time"] *= p.day
     time_s0 = np.array(df["time"])
-    measured_flux = df["flux"]
-    flux_uncertainty = df["flux_err"]
+    measured_flux = np.array(df["flux"])
+    flux_uncertainty = np.array(df["flux_err"])
     p.total_iterations = len(time_s0)
     return time_s0, measured_flux, flux_uncertainty
 
@@ -373,7 +373,11 @@ def log_likelihood(theta, theta_references, bodies, time_s0, measured_flux, flux
         List containing the names of the parameters to be fitted.
         For example: ['Tmin_pri', 'P_days', 'incl_deg', 'R1a', 'R2R1']
     """
-    bodies[1].P = theta[0]  # update all parameters from theta. parameter names are to be found in theta_references
+    body_index = 1
+    body_parameter = "P"
+    bodies[body_index].__dict__[body_parameter] = theta[0] hier weiter
+    # print(f"{bodies[1].P=}")
+    # bodies[1].P = theta[0]  # update all parameters from theta. parameter names are to be found in theta_references
     # print(f"{theta=}")
     sim_flux, _ = bodies.calc_physics(p, time_s0)  # run simulation
     residuals = (measured_flux - sim_flux) / flux_uncertainty

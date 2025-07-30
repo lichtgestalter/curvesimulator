@@ -86,23 +86,22 @@ class CurveSimPhysics:
         sys.exit(1)
 
     @staticmethod
-    def intensity(mu, limb_darkening_parameters):
+    def intensity(mu, u1, u2):
         """Apply quadratic limb darkening law"""
-        u1, u2 = limb_darkening_parameters
         return 1 - u1 * (1 - mu) - u2 * (1 - mu) ** 2
 
     @staticmethod
-    def calc_mean_intensity(limb_darkening_parameters):
+    def calc_mean_intensity(limb_darkening_u1, limb_darkening_u2):
         """Calculates the ratio of the mean intensity to the central intensity of a star based on
         the given quadratic law parameters for limb darkening by integrating the intensity over the stellar disk"""
-        if limb_darkening_parameters is None:
+        if limb_darkening_u1 is None or limb_darkening_u2 is None:
             return None
         mu_values = np.linspace(0, 1, 1000)
-        intensities = CurveSimPhysics.intensity(mu_values, limb_darkening_parameters)
+        intensities = CurveSimPhysics.intensity(mu_values, limb_darkening_u1, limb_darkening_u2)
         return 2 * np.trapz(intensities * mu_values, mu_values)
 
     @staticmethod
-    def limbdarkening(relative_radius, limb_darkening_parameters):
+    def limbdarkening(relative_radius, limb_darkening_u1, limb_darkening_u2):
         """
         Approximates the flux of a star at a point on the star seen from a very large distance.
         The point's apparent distance from the star's center is relative_radius * radius.
@@ -119,7 +118,7 @@ class CurveSimPhysics:
         if relative_radius > 1:
             relative_radius = 1.0
         mu = math.sqrt(1 - relative_radius ** 2)
-        return CurveSimPhysics.intensity(mu, limb_darkening_parameters)
+        return CurveSimPhysics.intensity(mu, limb_darkening_u1, limb_darkening_u2)
 
     @staticmethod
     def distance_3d(point1, point2):

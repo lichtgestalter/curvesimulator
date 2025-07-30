@@ -13,3 +13,20 @@ curvesim
     bodies
     parameters
 
+
+
+--------------------------
+All:
+
+curvesim
+    animation
+    bodies
+        body
+            physics
+            results
+        lightcurve
+        physics
+        results
+    flux_data
+    parameters
+

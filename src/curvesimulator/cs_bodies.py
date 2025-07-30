@@ -117,7 +117,7 @@ class CurveSimBodies(list):
             if body.luminosity < 0:
                 print(f'{Fore.RED}ERROR in config file: {body.name} has invalid luminosity {body.luminosity=}.')
                 sys.exit(1)
-            if body.luminosity > 0 and len(body.limb_darkening) < 1:  # if body.luminosity > 0 and list of limb darkening parameters empty
+            if body.luminosity > 0 and (body.limb_darkening_u1 is None or body.limb_darkening_u2 is None):  # if body.luminosity > 0 and limb darkening parameters are missing
                 print(f'{Fore.RED}ERROR in config file: {body.name} has luminosity but invalid limb darkening parameter {body.limb_darkening=}.')
                 sys.exit(1)
             for c in body.color:
@@ -166,7 +166,7 @@ class CurveSimBodies(list):
                 if body != star:  # an object cannot eclipse itself :)
                     eclipsed_area, relative_radius = star.eclipsed_by(body, iteration, p)
                     if eclipsed_area is not None:
-                        absolute_depth = star.intensity * eclipsed_area * CurveSimPhysics.limbdarkening(relative_radius, star.limb_darkening) / star.mean_intensity
+                        absolute_depth = star.intensity * eclipsed_area * CurveSimPhysics.limbdarkening(relative_radius, star.limb_darkening_u1, star.limb_darkening_u2) / star.mean_intensity
                         luminosity -= absolute_depth
                         # results["Bodies"][body.name]["Transits"][-1]["impacts_and_depths"][-1].depth = absolute_depth  # this depth is caused by this particular body eclipsing this particular star
         return luminosity
