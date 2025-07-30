@@ -2,7 +2,6 @@ Next / in progress:
 0.5.5   MCMC integration, part 2
 
     Typengemisch (Lightcurve, Series): alles zu nativen np arrays machen zwecks Performancegewinn?
-    Kann ich eigentlich irgendwo die Stepsize beeinflussen? Also wie doll die zu fittenden Parameter pro step veraendert werden?
     Zumindest so viel MCMC Auswertungen programmieren, dass ich sehen kann, ob im MCMC ueberhaupt was sinnvolles passiert
 
     Auswertungen nach durchgefuehrtem mcmc:

@@ -205,4 +205,4 @@ def check_for_new_data(sector):
 # get_targetpixelfiles()
 # get_old_lightcurves()
 # get_new_lightcurve(91)
-check_for_new_data([91, 92, 93, 94])
+check_for_new_data([90, 91, 92, 93, 94])

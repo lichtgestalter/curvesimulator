@@ -11,7 +11,7 @@ def curvesim(config_file=""):
 
     parameters = CurveSimParameters(config_file)  # Read program parameters from config file.
     bodies = CurveSimBodies(parameters)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
-    time_s0, time_d = CurveSimParameters.init_time_arrays(parameters)
+    time_s0, time_d = CurveSimParameters.init_time_arrays(parameters)  # s0 in seconds, starting at 0. d in BJD.
 
     if parameters.flux_file:
         time_s0, measured_flux, flux_uncertainty = get_measured_flux(parameters)
