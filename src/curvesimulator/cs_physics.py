@@ -61,25 +61,20 @@ class CurveSimPhysics:
         return math.sqrt((dx ** 2 + dy ** 2))
 
     @staticmethod
-    def get_limbdarkening_parameters(parameters, parameter_type):
+    def get_limbdarkening_parameters(parameter_1, parameter_2, parameter_type):
         """converts limb darkening parameters to quadratic law parameters u1,u2 if necessary"""
         if parameter_type == "u":
-            if len(parameters) == 2:
-                return parameters[0], parameters[1]
+            return parameter_1, parameter_2
         if parameter_type == "a":
-            if len(parameters) == 3:
-                _, a1, a2 = parameters
-                u1 = a1 + 2 * a2
-                u2 = -a2
-                return u1, u2
+            u1 = parameter_1 + 2 * parameter_2
+            u2 = -parameter_2
+            return u1, u2
         if parameter_type == "q":
-            if len(parameters) == 2:
-                q1, q2 = parameters
-                u1 = 2 * math.sqrt(q1) * q2
-                u2 = np.sqrt(q1) * (1 - 2 * q2)
-                return u1, u2
-        if parameter_type is None and parameters is None:
-            return None
+            u1 = 2 * math.sqrt(parameter_1) * parameter_2
+            u2 = np.sqrt(parameter_1) * (1 - 2 * parameter_2)
+            return u1, u2
+        if parameter_type is None:
+            return None, None
         print(f"{Fore.RED}ERROR in config file: limb_darkening_parameter_type must be a or u or q.")
         print(f"                      limb_darkening must be [a0,a1,a2] or [u1,u2] or [q1,q2] correspondingly.")
         print(f"                      But config file contains: limb_darkening_parameter_type = {parameter_type} and limb_darkening = {parameters}{Style.RESET_ALL}")

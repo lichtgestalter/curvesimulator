@@ -10,6 +10,7 @@ import time
 
 from curvesimulator.cs_body import CurveSimBody
 from curvesimulator.cs_lightcurve import CurveSimLightcurve
+from curvesimulator.cs_parameters import CurveSimParameters
 from curvesimulator.cs_physics import CurveSimPhysics
 from curvesimulator.cs_rebound import CurveSimRebound
 from curvesimulator.cs_results import CurveSimResults
@@ -72,12 +73,14 @@ class CurveSimBodies(list):
                                          mass=eval(config.get(section, "mass", fallback="-1")),
                                          radius=eval(config.get(section, "radius", fallback="-1")),
                                          luminosity=eval(config.get(section, "luminosity", fallback="0.0")),
-                                         limb_darkening=eval(config.get(section, "limb_darkening", fallback="None")),
+                                         limb_darkening_1=eval(config.get(section, "limb_darkening_1", fallback="None")),
+                                         limb_darkening_2=eval(config.get(section, "limb_darkening_2", fallback="None")),
                                          limb_darkening_parameter_type=config.get(section, "limb_darkening_parameter_type", fallback=None),
                                          startposition=config.get(section, "startposition", fallback=None),
                                          velocity=config.get(section, "velocity", fallback=None),
                                          e=eval(config.get(section, "e", fallback="-1")),
-                                         i=eval(config.get(section, "i", fallback="-1111")),
+                                         # i=eval(config.get(section, "i", fallback="-1111")),
+                                         i=CurveSimParameters.read_param(config, section, "i", fallback="-1111"),
                                          P=eval(config.get(section, "P", fallback="None")),
                                          a=eval(config.get(section, "a", fallback="None")),
                                          Ω=eval(config.get(section, "longitude_of_ascending_node", fallback="None")),

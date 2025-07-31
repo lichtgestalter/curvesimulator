@@ -172,3 +172,15 @@ class CurveSimParameters:
         time_d = time_s0 / p.day + p.start_date
         return time_s0, time_d
 
+    @staticmethod
+    def read_param(config, section, param, fallback):
+        line = config.get(section, param, fallback=fallback)
+        value = line.split(",")[0]
+        return eval(value)
+
+    @staticmethod
+    def read_param_and_bounds(config, section, param, fallback):
+        line = config.get(section, param, fallback=fallback)
+        value, lower, upper = line.split(",")
+        return eval(value), eval(lower, eval(upper)) diese Funktion benutzen bei mcmc setup
+
