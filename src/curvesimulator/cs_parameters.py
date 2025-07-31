@@ -90,9 +90,8 @@ class CurveSimParameters:
         #             print(f"{Fore.RED}ERROR in configuration file.")
         #             print(f'{self=}   {key=}   {getattr(self, key)=}    {type(getattr(self, key))=}')
         #             print(f"No parameter in sections {self.standard_sections} may be negative.{Style.RESET_ALL}")
-
-        # [Debug]
-        # self.debug_L = list(eval(config.get("Debug", "debug_L", fallback="[0]")))
+        CurveSimParameters.read_fitting_parameters(self)
+        exit(543)
 
     def __repr__(self):
         return f'CurveSimParameters from {self.config_file}'
@@ -182,5 +181,20 @@ class CurveSimParameters:
     def read_param_and_bounds(config, section, param, fallback):
         line = config.get(section, param, fallback=fallback)
         value, lower, upper = line.split(",")
-        return eval(value), eval(lower, eval(upper)) diese Funktion benutzen bei mcmc setup
+        return eval(value), eval(lower, eval(upper))
+
+    @staticmethod
+    def read_fitting_parameters(p):
+        """Search for body parameters in the config file that are meant to
+        be used as fitting parameters in MCMC.
+        Fitting parameters are have 3 values instead of 1, separated by commas:
+        Initial Value, Lower Bound, Upper Bound."""
+        config = configparser.ConfigParser(inline_comment_prefixes='#')
+        config.optionxform = str  # Preserve case of the keys.
+        config.read(p.config_file)  # Read config file.
+        body_counter = 0
+        for section in config.sections():
+            if section not in p.standard_sections:  # section describes a physical object
+                body_counter += 1
+        hier weiter
 

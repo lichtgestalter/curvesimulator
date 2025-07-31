@@ -5,6 +5,7 @@ body
 bodies
     body
     lightcurve
+    parameters
     physics
     results
 
@@ -25,8 +26,8 @@ curvesim
             physics
             results
         lightcurve
+        parameters
         physics
         results
     flux_data
     parameters
-

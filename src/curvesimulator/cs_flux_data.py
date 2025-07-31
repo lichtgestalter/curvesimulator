@@ -342,6 +342,7 @@ def debug_flux(parameters, measured_flux, mask, sim_flux):
 
 
 def mcmc(bodies, time_s0, measured_flux, flux_uncertainty, p):
+
     theta_references = ["bodies[1].P"]  # list of names of fitting parameters. Needed so these parameters can be updated inside log_likelihood().
     initial_values = [bodies[1].P]  # initial values of the fitting parameters
     theta_bounds = [(bodies[1].P * 0.9, bodies[1].P * 1.1)]
