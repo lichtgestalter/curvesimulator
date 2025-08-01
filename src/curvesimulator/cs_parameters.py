@@ -178,10 +178,17 @@ class CurveSimParameters:
         return eval(value)
 
     @staticmethod
-    def read_param_and_bounds(config, section, param, fallback):
-        line = config.get(section, param, fallback=fallback)
-        value, lower, upper = line.split(",")
-        return eval(value), eval(lower, eval(upper))
+    def read_param_and_bounds(config, section, param):
+        line = config.get(section, param, fallback=None)
+        if line is None:
+            return None, None, None
+        else:
+            items = line.split(",")
+        if len(items) == 3:
+            value, lower, upper = items
+            return eval(value), eval(lower), eval(upper)
+        else:
+            return None, None, None
 
     @staticmethod
     def read_fitting_parameters(p):
@@ -195,6 +202,20 @@ class CurveSimParameters:
         body_counter = 0
         for section in config.sections():
             if section not in p.standard_sections:  # section describes a physical object
+                for parameter_name in ["mass", "radius", "e", "i", "a", "P", "longitude_of_ascending_node", "longitude_of_periapsis", "argument_of_periapsis", "L", "nu", "ma", "ea", "T"]:
+                    value, lower, upper = CurveSimParameters.read_param_and_bounds(config, section, parameter_name)
+                    print(f"{body_counter=} {parameter_name=} {value=} {lower=} {upper=}")
                 body_counter += 1
-        hier weiter
+
+
+# Texts for config demo file:
+# Longitude of ascending node: Omega            Ω
+# Longitude of periapsis/pericenter: pomega     ϖ
+# Argument of periapsis/pericenter: omega       ω
+
+# Rename:
+# longitude_of_ascending_node Ω: Omega
+# longitude_of_periapsis      ϖ: pomega
+# argument_of_periapsis       ω: omega
+
 
