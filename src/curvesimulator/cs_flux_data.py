@@ -328,7 +328,6 @@ def get_measured_flux(p):
     return time_s0, measured_flux, flux_uncertainty
 
 
-
 def debug_flux(parameters, measured_flux, mask, sim_flux):
     left = 50
     right = 80
@@ -342,10 +341,12 @@ def debug_flux(parameters, measured_flux, mask, sim_flux):
 
 
 def mcmc(bodies, time_s0, measured_flux, flux_uncertainty, p):
-
-    theta_references = ["bodies[1].P"]  # list of names of fitting parameters. Needed so these parameters can be updated inside log_likelihood().
-    initial_values = [bodies[1].P]  # initial values of the fitting parameters
-    theta_bounds = [(bodies[1].P * 0.9, bodies[1].P * 1.1)]
+    # theta_references = ["bodies[1].P"]  # list of names of fitting parameters. Needed so these parameters can be updated inside log_likelihood().
+    # initial_values = [bodies[1].P]  # initial values of the fitting parameters
+    # theta_bounds = [(bodies[1].P * 0.9, bodies[1].P * 1.1)]
+    theta_references = [(fp.body_index, fp.parameter_name) for fp in p.fitting_parameters]
+    initial_values = [fp.value for fp in p.fitting_parameters]
+    theta_bounds = [(fp.lower, fp.upper) for fp in p.fitting_parameters]
     ndim = len(theta_references)
     theta0 = np.array(initial_values) + 1e-4 * np.random.randn(p.walkers, ndim)  # slightly randomized initial values of the fitting parameters
     sampler = emcee.EnsembleSampler(p.walkers, ndim, log_probability, args=(theta_bounds, theta_references, bodies, time_s0, measured_flux, flux_uncertainty, p))
@@ -374,12 +375,14 @@ def log_likelihood(theta, theta_references, bodies, time_s0, measured_flux, flux
         List containing the names of the parameters to be fitted.
         For example: ['Tmin_pri', 'P_days', 'incl_deg', 'R1a', 'R2R1']
     """
-    body_index = 1
-    body_parameter = "P"
-    bodies[body_index].__dict__[body_parameter] = theta[0]  # update all parameters from theta. parameter names are to be found in theta_references
+    # body_index = 1
+    # body_parameter = "P"
+    # bodies[body_index].__dict__[body_parameter] = theta[0]  # update all parameters from theta. parameter names are to be found in theta_references
     # print(f"{bodies[1].P=}")
     # bodies[1].P = theta[0]
     # print(f"{theta=}")
+    for body_index ,parameter_name in theta_references:
+        bodies[body_index].__dict__[parameter_name] = theta[0]  # update all parameters from theta. parameter names are to be found in theta_references
     sim_flux, _ = bodies.calc_physics(p, time_s0)  # run simulation
     residuals = (measured_flux - sim_flux) / flux_uncertainty
     residuals_phot_sum_squared = np.sum(residuals ** 2)

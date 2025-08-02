@@ -54,6 +54,8 @@ class CurveSimBodies(list):
         try:
             g, au, r_sun, m_sun, l_sun = p.g, p.au, p.r_sun, p.m_sun, p.l_sun
             r_jup, m_jup, r_earth, m_earth, v_earth = p.r_jup, p.m_jup, p.r_earth, p.m_earth, p.v_earth
+            hour, day, year = p.hour, p.day, p.year
+
         except AttributeError:
             print(f"{Fore.YELLOW}WARNING: Section 'Astronomical Constants' in the configuration file is incomplete.")
             print(f"See https://github.com/lichtgestalter/curvesimulator/wiki.{Style.RESET_ALL}")
@@ -70,28 +72,27 @@ class CurveSimBodies(list):
                                          name=section,
                                          body_type=config.get(section, "body_type", fallback=None),
                                          color=tuple([eval(x) for x in config.get(section, "color", fallback="-1").split(",")]),
-                                         mass=eval(config.get(section, "mass", fallback="-1")),
-                                         radius=eval(config.get(section, "radius", fallback="-1")),
-                                         luminosity=eval(config.get(section, "luminosity", fallback="0.0")),
-                                         limb_darkening_1=eval(config.get(section, "limb_darkening_1", fallback="None")),
-                                         limb_darkening_2=eval(config.get(section, "limb_darkening_2", fallback="None")),
+                                         mass=            p.read_param(config, section, "mass", fallback="-1"),
+                                         radius=          p.read_param(config, section, "radius", fallback="-1"),
+                                         luminosity=      p.read_param(config, section, "luminosity", fallback="0.0"),
+                                         limb_darkening_1=p.read_param(config, section, "limb_darkening_1", fallback="None"),
+                                         limb_darkening_2=p.read_param(config, section, "limb_darkening_2", fallback="None"),
                                          limb_darkening_parameter_type=config.get(section, "limb_darkening_parameter_type", fallback=None),
-                                         startposition=config.get(section, "startposition", fallback=None),
-                                         velocity=config.get(section, "velocity", fallback=None),
-                                         e=eval(config.get(section, "e", fallback="-1")),
-                                         # i=eval(config.get(section, "i", fallback="-1111")),
-                                         i=CurveSimParameters.read_param(config, section, "i", fallback="-1111"),
-                                         P=eval(config.get(section, "P", fallback="None")),
-                                         a=eval(config.get(section, "a", fallback="None")),
-                                         Omega=eval(config.get(section, "Omega", fallback="None")),
-                                         omega=eval(config.get(section, "omega", fallback="None")),
-                                         pomega=eval(config.get(section, "pomega", fallback="None")),
-                                         L=eval(config.get(section, "L", fallback="None")),
-                                         ma=eval(config.get(section, "ma", fallback="None")),
-                                         ea=eval(config.get(section, "ea", fallback="None")),
-                                         nu=eval(config.get(section, "nu", fallback="None")),
-                                         T=eval(config.get(section, "T", fallback="None")),
-                                         t=eval(config.get(section, "t", fallback="0.0")),
+                                         startposition=                config.get(section, "startposition", fallback=None),
+                                         velocity=                     config.get(section, "velocity", fallback=None),
+                                         e=               p.read_param(config, section, "e", fallback="-1"),
+                                         i=               p.read_param(config, section, "i", fallback="-1111"),
+                                         P=               p.read_param(config, section, "P", fallback="None"),
+                                         a=               p.read_param(config, section, "a", fallback="None"),
+                                         Omega=           p.read_param(config, section, "Omega", fallback="None"),
+                                         omega=           p.read_param(config, section, "omega", fallback="None"),
+                                         pomega=          p.read_param(config, section, "pomega", fallback="None"),
+                                         L=               p.read_param(config, section, "L", fallback="None"),
+                                         ma=              p.read_param(config, section, "ma", fallback="None"),
+                                         ea=              p.read_param(config, section, "ea", fallback="None"),
+                                         nu=              p.read_param(config, section, "nu", fallback="None"),
+                                         T=               p.read_param(config, section, "T", fallback="None"),
+                                         t=               p.read_param(config, section, "t", fallback="0.0"),
                                          ))
         self.check_body_parameters()
         self.generate_patches(p)
@@ -269,7 +270,8 @@ class CurveSimBodies(list):
             print(f' {toc - tic:7.3f} seconds  ({p.total_iterations / (toc - tic):.0f} iterations/second)')
             print(f"Log10 of the relative change of energy during simulation: {energy_change:.0f}")
         if energy_change > -6:
-            print(f"{Fore.YELLOW}The energy must not change significantly! Consider using a smaller time step (dt).{Style.RESET_ALL}")
+            print(f"{Fore.YELLOW}The energy must not change significantly! Consider using a smaller time step (dt).")
+            print(f"Log10 of the relative change of energy during simulation: {energy_change:.0f}{Style.RESET_ALL}")
         return sim_flux, rebound_sim
 
     def calc_patch_radii(self, p):

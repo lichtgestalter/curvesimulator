@@ -11,6 +11,7 @@ class CurveSimRebound:
 
     def sim_check_deltas(self, newer):
         energy_change = (newer.energy - self.energy) / self.energy
+        # print(f"Energy at Start: {self.energy=:.1e}   End: {newer.energy=:.1e}")
         # to avoid div/0 i calculate the norm _before_ dividing by self.total_momentum
         # something is wrong with self.calc_total_momentum(). Therefore I currently ignore it.
         # total_momentum_change = (np.linalg.norm(newer.total_momentum) - np.linalg.norm(self.total_momentum)) / np.linalg.norm(self.total_momentum)

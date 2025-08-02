@@ -90,7 +90,8 @@ class CurveSimParameters:
         #             print(f"{Fore.RED}ERROR in configuration file.")
         #             print(f'{self=}   {key=}   {getattr(self, key)=}    {type(getattr(self, key))=}')
         #             print(f"No parameter in sections {self.standard_sections} may be negative.{Style.RESET_ALL}")
-        CurveSimParameters.read_fitting_parameters(self)
+        if self.flux_file:
+            self.fitting_parameters = self.read_fitting_parameters(config)
         # exit(543)
 
     def __repr__(self):
@@ -171,52 +172,56 @@ class CurveSimParameters:
         time_d = time_s0 / p.day + p.start_date
         return time_s0, time_d
 
-    @staticmethod
-    def read_param(config, section, param, fallback):
+    def read_param(self, config, section, param, fallback):
+        # For ease of use of these constants in the config file they are additionally defined here without the prefix "self.".
+        g, au, r_sun, m_sun, l_sun = self.g, self.au, self.r_sun, self.m_sun, self.l_sun
+        r_jup, m_jup, r_earth, m_earth, v_earth = self.r_jup, self.m_jup, self.r_earth, self.m_earth, self.v_earth
+        hour, day, year = self.hour, self.day, self.year
         line = config.get(section, param, fallback=fallback)
         value = line.split(",")[0]
         return eval(value)
 
-    @staticmethod
-    def read_param_and_bounds(config, section, param):
+    def read_param_and_bounds(self, config, section, param):
+        # For ease of use of these constants in the config file they are additionally defined here without the prefix "self.".
+        g, au, r_sun, m_sun, l_sun = self.g, self.au, self.r_sun, self.m_sun, self.l_sun
+        r_jup, m_jup, r_earth, m_earth, v_earth = self.r_jup, self.m_jup, self.r_earth, self.m_earth, self.v_earth
+        hour, day, year = self.hour, self.day, self.year
         line = config.get(section, param, fallback=None)
         if line is None:
             return None, None, None
         else:
-            items = line.split(",")
+            items = line.split("#")[0].split(",")
         if len(items) == 3:
             value, lower, upper = items
             return eval(value), eval(lower), eval(upper)
         else:
             return None, None, None
 
-    @staticmethod
-    def read_fitting_parameters(p):
+    def read_fitting_parameters(self, config):
         """Search for body parameters in the config file that are meant to
         be used as fitting parameters in MCMC.
-        Fitting parameters are have 3 values instead of 1, separated by commas:
+        Fitting parameters have 3 values instead of 1, separated by commas:
         Initial Value, Lower Bound, Upper Bound."""
-        config = configparser.ConfigParser(inline_comment_prefixes='#')
-        config.optionxform = str  # Preserve case of the keys.
-        config.read(p.config_file)  # Read config file.
-        body_counter = 0
+        # config = configparser.ConfigParser(inline_comment_prefixes='#')
+        # config.optionxform = str  # Preserve case of the keys.
+        # config.read(self.config_file)  # Read config file.
+        body_index = 0
+        fitting_parameters = []
         for section in config.sections():
-            if section not in p.standard_sections:  # section describes a physical object
+            if section not in self.standard_sections:  # section describes a physical object
                 for parameter_name in ["mass", "radius", "e", "i", "a", "P", "Omega", "pomega", "omega", "L", "nu", "ma", "ea", "T"]:
-                    value, lower, upper = CurveSimParameters.read_param_and_bounds(config, section, parameter_name)
+                    value, lower, upper = self.read_param_and_bounds(config, section, parameter_name)
                     if value is not None:
-                        print(f"{body_counter=} {parameter_name=} {value=} {lower=} {upper=}")
-                body_counter += 1
+                        print(f"Fitting Parameter:  {body_index=} {parameter_name=} {value=} {lower=} {upper=}")
+                        fitting_parameters.append(FittingParameter(body_index, parameter_name, value, lower, upper))
+                body_index += 1
+        return fitting_parameters
 
 
-# Texts for config demo file:
-# Longitude of ascending node: Omega            Ω
-# Longitude of periapsis/pericenter: pomega     ϖ
-# Argument of periapsis/pericenter: omega       ω
-
-# Rename:
-# longitude_of_ascending_node Ω: Omega
-# longitude_of_periapsis      ϖ: pomega
-# argument_of_periapsis       ω: omega
-
-
+class FittingParameter:
+    def __init__(self, body_index, parameter_name, value, lower, upper):
+        self.body_index = body_index
+        self.parameter_name = parameter_name
+        self.value = value
+        self.lower = lower
+        self.upper = upper
