@@ -346,9 +346,9 @@ I implemented all suggestions from zoom call 29.03.2022, but tried and dismissed
                     Save plots
                     Sensitivity analysis:  What happens wenn parameters are changed + or - 3 standard deviations?
                         Checked for mass, e, i, P of planets c and d.
-                        Checked for longitude_of_ascending_node and argument_of_periapsis of planet c.
+                        Checked for Omega and omega of planet c.
                         Result:
-                            For some changes of longitude_of_ascending_node (e.g. +3 or +6 standard deviations) the decline
+                            For some changes of Omega (e.g. +3 or +6 standard deviations) the decline
                             of planet c's transit durations is significantly delayed.
                             In each scenario, planets c and d have alternately longer phases with transits.
                      Manually extracted transit parameters (T1, T2, TT, T3, T4, depth) with high accuracy from TESS data.

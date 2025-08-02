@@ -35,7 +35,7 @@ class CurveSimBodies(list):
         for body in self[0:1]:  # hack debug: works only when the first body is the only star and all other bodies are orbiting this star (no binary, no moons, ...)
             simulation.add(m=body.mass, r=body.radius, hash=body.name)
         for body in self[1:]:  # hack debug: works only when the first body is the only star and all other bodies are orbiting this star (no binary, no moons, ...)
-            simulation.add(primary=simulation.particles[self[0].name], m=body.mass, r=body.radius, hash=body.name, P=body.P, inc=body.i, e=body.e, Omega=body.Ω, omega=body.ω, M=body.ma)
+            simulation.add(primary=simulation.particles[self[0].name], m=body.mass, r=body.radius, hash=body.name, P=body.P, inc=body.i, e=body.e, Omega=body.Omega, omega=body.omega, M=body.ma)
             i += 1
         simulation.move_to_com()  # move origin to center of mass before integrating -> better numerical stability
         if p.result_file:  # does not seem to help for MCMC, but is a good choice when creating a result file including transit times
@@ -83,9 +83,9 @@ class CurveSimBodies(list):
                                          i=CurveSimParameters.read_param(config, section, "i", fallback="-1111"),
                                          P=eval(config.get(section, "P", fallback="None")),
                                          a=eval(config.get(section, "a", fallback="None")),
-                                         Ω=eval(config.get(section, "longitude_of_ascending_node", fallback="None")),
-                                         ω=eval(config.get(section, "argument_of_periapsis", fallback="None")),
-                                         ϖ=eval(config.get(section, "longitude_of_periapsis", fallback="None")),
+                                         Omega=eval(config.get(section, "Omega", fallback="None")),
+                                         omega=eval(config.get(section, "omega", fallback="None")),
+                                         pomega=eval(config.get(section, "pomega", fallback="None")),
                                          L=eval(config.get(section, "L", fallback="None")),
                                          ma=eval(config.get(section, "ma", fallback="None")),
                                          ea=eval(config.get(section, "ea", fallback="None")),

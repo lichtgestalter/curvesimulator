@@ -18,7 +18,7 @@ def multiple_transit_error():
 # noinspection NonAsciiCharacters,PyPep8Naming,PyUnusedLocal
 class CurveSimBody:
 
-    def __init__(self, primary, p, name, body_type, mass, radius, luminosity, startposition, velocity, P, a, e, i, Ω, ω, ϖ, L, ma, ea,
+    def __init__(self, primary, p, name, body_type, mass, radius, luminosity, startposition, velocity, P, a, e, i, Omega, omega, pomega, L, ma, ea,
                  # pot_transit_date,
                  nu, T, t, limb_darkening_1, limb_darkening_2, limb_darkening_parameter_type, color):
         """Initialize instance of physical body."""
@@ -49,9 +49,9 @@ class CurveSimBody:
         self.P = P  # [s] period
         self.a = a  # [m] semi-major axis
 
-        self.Ω = None if Ω is None else math.radians(Ω)  # [deg] longitude of ascending node
-        self.ω = None if ω is None else math.radians(ω)  # [deg] argument of periapsis
-        self.ϖ = None if ϖ is None else math.radians(ϖ)  # [deg] longitude of periapsis
+        self.Omega = None if Omega is None else math.radians(Omega)  # [deg] longitude of ascending node
+        self.omega = None if omega is None else math.radians(omega)  # [deg] argument of periapsis
+        self.pomega = None if pomega is None else math.radians(pomega)  # [deg] longitude of periapsis
 
         self.L = None if L is None else math.radians(L)  # [deg] mean longitude
         self.ma = None if ma is None else math.radians(ma)  # [deg] mean anomaly
@@ -91,20 +91,20 @@ class CurveSimBody:
 
     # noinspection NonAsciiCharacters,PyPep8Naming,PyUnusedLocal
     # def calc_orbit_angles(self):
-    #     if self.ω is None:
-    #         self.ω = self.ϖ - self.Ω
-    #     elif self.ϖ is None:
-    #         self.ϖ = self.ω + self.Ω
-    #     elif self.Ω is None:
-    #         self.Ω = self.ϖ - self.ω
+    #     if self.omega is None:
+    #         self.omega = self.pomega - self.Omega
+    #     elif self.pomega is None:
+    #         self.pomega = self.omega + self.Omega
+    #     elif self.Omega is None:
+    #         self.Omega = self.pomega - self.omega
     #     else:
-    #         error = abs(self.ω - self.ϖ + self.Ω)
+    #         error = abs(self.omega - self.pomega + self.Omega)
     #         if error > 0.00001:
     #             print(f"{Fore.RED}ERROR in config file, body {self.name}:")
-    #             print(f"ω, ϖ, Ω have been defined in the config file for this body.")
+    #             print(f"omega, pomega, Omega have been defined in the config file for this body.")
     #             print("This is redundant and in this case contradictory.")
     #             print("Remove one of these parameters from the config file or")
-    #             print("make sure that ω - ϖ + Ω = 0")
+    #             print("make sure that omega - pomega + Omega = 0")
     #             sys.exit(1)
     #
     # def calc_period_or_semi_major_axis(self):
@@ -131,12 +131,12 @@ class CurveSimBody:
     #        [b]: https://web.archive.org/web/20170810015111/http://ccar.colorado.edu/asen5070/handouts/kep2cart_2002.doc
     #        Numbers in comments refer to numbered formulas in [a] and [b]."""
     #
-    #     a, e, L, ϖ = self.a, self.e, self.L, self.ϖ  # for readability of formulas
+    #     a, e, L, pomega = self.a, self.e, self.L, self.pomega  # for readability of formulas
     #     ma, ea, nu, T, t, mu = self.ma, self.ea, self.nu, self.T, self.t, self.mu  # for readability of formulas
     #
     #     if ma is None and L is not None:
-    #         ma = L - ϖ
-    #         # print("Variant 1: ma-  ϖ+  L+, calc ma")
+    #         ma = L - pomega
+    #         # print("Variant 1: ma-  pomega+  L+, calc ma")
     #     if ea is not None:  # ea provided
     #         nu = 2 * math.atan(math.sqrt((1 + e) / (1 - e)) * math.tan(ea / 2))  # 3b: true anomaly (from eccentric anomaly)
     #         ma = ea - e * math.sin(ea)  # 2b: Mean anomaly (from eccentric anomaly). Just for completeness.
@@ -183,21 +183,21 @@ class CurveSimBody:
     #     Code based on [c]. Added calculation of eccentric anomaly based on the explanations
     #     in [d] using a stripped down version of [e]."""
     #
-    #     self.calc_orbit_angles()  # Ω, ω, ϖ
+    #     self.calc_orbit_angles()  # Omega, omega, pomega
     #     self.calc_period_or_semi_major_axis()  # P, a
     #     self.calc_anomalies()  # L, ma, ea, nu, T
-    #     P, a, e, i, Ω, ω, ϖ, L = self.P, self.a, self.e, self.i, self.Ω, self.ω, self.ϖ, self.L  # for readability of formulas
+    #     P, a, e, i, Omega, omega, pomega, L = self.P, self.a, self.e, self.i, self.Omega, self.omega, self.pomega, self.L  # for readability of formulas
     #     ma, ea, nu, T, t, mu = self.ma, self.ea, self.nu, self.T, self.t, self.mu  # for readability of formulas
     #
     #     r = a * (1 - e * math.cos(ea))  # 4b: radius r
     #     h = math.sqrt(mu * a * (1 - e ** 2))  # 5b: specific angular momentum h
-    #     x = r * (math.cos(Ω) * math.cos(ω + nu) - math.sin(Ω) * math.sin(ω + nu) * math.cos(i))  # 6b: position component x
-    #     y = r * (math.sin(Ω) * math.cos(ω + nu) + math.cos(Ω) * math.sin(ω + nu) * math.cos(i))  # 6b: position component y
-    #     z = r * (math.sin(i) * math.sin(ω + nu))  # 6b: position component z
+    #     x = r * (math.cos(Omega) * math.cos(omega + nu) - math.sin(Omega) * math.sin(omega + nu) * math.cos(i))  # 6b: position component x
+    #     y = r * (math.sin(Omega) * math.cos(omega + nu) + math.cos(Omega) * math.sin(omega + nu) * math.cos(i))  # 6b: position component y
+    #     z = r * (math.sin(i) * math.sin(omega + nu))  # 6b: position component z
     #     p = a * (1 - e ** 2)  # 7b: Semi-latus rectum. Used in velocity calculation.
-    #     dx = (x * h * e / (r * p)) * math.sin(nu) - (h / r) * (math.cos(Ω) * math.sin(ω + nu) + math.sin(Ω) * math.cos(ω + nu) * math.cos(i))  # 7b: velocity component x
-    #     dy = (y * h * e / (r * p)) * math.sin(nu) - (h / r) * (math.sin(Ω) * math.sin(ω + nu) - math.cos(Ω) * math.cos(ω + nu) * math.cos(i))  # 7b: velocity component y
-    #     dz = (z * h * e / (r * p)) * math.sin(nu) + (h / r) * (math.cos(ω + nu) * math.sin(i))  # 7b: velocity component z
+    #     dx = (x * h * e / (r * p)) * math.sin(nu) - (h / r) * (math.cos(Omega) * math.sin(omega + nu) + math.sin(Omega) * math.cos(omega + nu) * math.cos(i))  # 7b: velocity component x
+    #     dy = (y * h * e / (r * p)) * math.sin(nu) - (h / r) * (math.sin(Omega) * math.sin(omega + nu) - math.cos(Omega) * math.cos(omega + nu) * math.cos(i))  # 7b: velocity component y
+    #     dz = (z * h * e / (r * p)) * math.sin(nu) + (h / r) * (math.cos(omega + nu) * math.sin(i))  # 7b: velocity component z
     #     return np.array([x, y, z]), np.array([dx, dy, dz]), nu, ma, ea, T  # state vectors
     #
     # def calc_state_vector(self, p, bodies):
@@ -241,19 +241,19 @@ class CurveSimBody:
     #     n_vec = np.cross([0, 0, 1], h_vec)
     #     n = np.linalg.norm(n_vec)
     #     if n != 0:
-    #         Ω = np.arccos(n_vec[0] / n)
+    #         Omega = np.arccos(n_vec[0] / n)
     #         if n_vec[1] < 0:
-    #             Ω = 2 * np.pi - Ω
+    #             Omega = 2 * np.pi - Omega
     #     else:
-    #         Ω = 0
+    #         Omega = 0
     #
     #     # Calculate the argument of periapsis
     #     if n != 0:
-    #         ω = np.arccos(np.dot(n_vec, e_vec) / (n * e))
+    #         omega = np.arccos(np.dot(n_vec, e_vec) / (n * e))
     #         if e_vec[2] < 0:
-    #             ω = 2 * np.pi - ω
+    #             omega = 2 * np.pi - omega
     #     else:
-    #         ω = 0
+    #         omega = 0
     #
     #     # Calculate the true anomaly
     #     nu = np.arccos(np.dot(e_vec, [x, y, z]) / (e * r))
@@ -264,11 +264,11 @@ class CurveSimBody:
     #     self.a = a
     #     self.e = e
     #     self.i = np.degrees(i)
-    #     self.Ω = np.degrees(Ω)
-    #     self.ω = np.degrees(ω)
+    #     self.Omega = np.degrees(Omega)
+    #     self.omega = np.degrees(omega)
     #     self.nu = np.degrees(nu)
     #
-    #     return a, e, np.degrees(i), np.degrees(Ω), np.degrees(ω), np.degrees(nu)
+    #     return a, e, np.degrees(i), np.degrees(Omega), np.degrees(omega), np.degrees(nu)
 
     def full_eclipse(self, other, d):
         if self.radius < other.radius:  # Total eclipse

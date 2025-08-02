@@ -69,15 +69,15 @@ def keplers_equation_root(e, MA, EA_guess=0, tolerance=1e-10, max_steps=50):
     raise RuntimeError('Newton\'s root solver did not converge.')
 
 
-def keplerian_elements_to_state_vectors(gravitational_parameter, semi_major_axis, eccentricity, inclination, argument_of_periapsis, longitude_of_ascending_node,
+def keplerian_elements_to_state_vectors(gravitational_parameter, semi_major_axis, eccentricity, inclination, omega, Omega,
                                         true_anomaly=None, mean_anomaly=None, eccentric_anomaly=None, time_of_periapsis=None):
     mu = gravitational_parameter     # [m**3/s**2]
 
     a = semi_major_axis              # [m]
     e = eccentricity                 # [1]
     i = inclination                  # [rad]
-    ω = argument_of_periapsis        # [rad]
-    Ω = longitude_of_ascending_node  # [rad]
+    ω = omega        # [rad]
+    Ω = Omega  # [rad]
 
     nu = true_anomaly                # [rad]  Only nu or MA or EA or T has to be provided.
     MA = mean_anomaly                # [rad]

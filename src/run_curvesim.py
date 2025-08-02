@@ -33,4 +33,5 @@ def main():
 
 
 if __name__ == '__main__':
+    # p.total_iterations = 1152 vs p.max_iterations = [169]
     main()

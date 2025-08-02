@@ -36,9 +36,9 @@ def init_rebound(base):
     e = 0.0
     i = 87.4
     P = 2.42614 * day
-    longitude_of_ascending_node = 0
-    argument_of_periapsis = 90
-    sim.add(m=mass, r=radius, hash="TOI-4504b", P=P, inc=i, e=e, Omega=longitude_of_ascending_node, omega=argument_of_periapsis)
+    Omega = 0
+    omega = 90
+    sim.add(m=mass, r=radius, hash="TOI-4504b", P=P, inc=i, e=e, Omega=Omega, omega=omega)
 
     sim.move_to_com()  # move origin to center of mass before integrating -> better numerical stability
 

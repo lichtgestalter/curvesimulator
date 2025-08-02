@@ -91,7 +91,7 @@ class CurveSimParameters:
         #             print(f'{self=}   {key=}   {getattr(self, key)=}    {type(getattr(self, key))=}')
         #             print(f"No parameter in sections {self.standard_sections} may be negative.{Style.RESET_ALL}")
         CurveSimParameters.read_fitting_parameters(self)
-        exit(543)
+        # exit(543)
 
     def __repr__(self):
         return f'CurveSimParameters from {self.config_file}'
@@ -202,9 +202,10 @@ class CurveSimParameters:
         body_counter = 0
         for section in config.sections():
             if section not in p.standard_sections:  # section describes a physical object
-                for parameter_name in ["mass", "radius", "e", "i", "a", "P", "longitude_of_ascending_node", "longitude_of_periapsis", "argument_of_periapsis", "L", "nu", "ma", "ea", "T"]:
+                for parameter_name in ["mass", "radius", "e", "i", "a", "P", "Omega", "pomega", "omega", "L", "nu", "ma", "ea", "T"]:
                     value, lower, upper = CurveSimParameters.read_param_and_bounds(config, section, parameter_name)
-                    print(f"{body_counter=} {parameter_name=} {value=} {lower=} {upper=}")
+                    if value is not None:
+                        print(f"{body_counter=} {parameter_name=} {value=} {lower=} {upper=}")
                 body_counter += 1
 
 

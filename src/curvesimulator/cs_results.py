@@ -28,12 +28,12 @@ class CurveSimResults(dict):
             for key in body.__dict__.keys():
                 if key not in exclude:
                     self["Bodies"][body.name]["BodyParameters"][key] = getattr(body, key)
-            if body.Ω is not None:
-                self["Bodies"][body.name]["BodyParameters"]["Ω_deg"] = body.Ω * (180 / math.pi)
-            if body.ω is not None:
-                self["Bodies"][body.name]["BodyParameters"]["ω_deg"] = body.ω * (180 / math.pi)
-            if body.ϖ is not None:
-                self["Bodies"][body.name]["BodyParameters"]["ϖ_deg"] = body.ϖ * (180 / math.pi)
+            if body.Omega is not None:
+                self["Bodies"][body.name]["BodyParameters"]["Omega_deg"] = body.Omega * (180 / math.pi)
+            if body.omega is not None:
+                self["Bodies"][body.name]["BodyParameters"]["omega_deg"] = body.omega * (180 / math.pi)
+            if body.pomega is not None:
+                self["Bodies"][body.name]["BodyParameters"]["pomega_deg"] = body.pomega * (180 / math.pi)
             if body.L is not None:
                 self["Bodies"][body.name]["BodyParameters"]["L_deg"] = body.L * (180 / math.pi)
             if body.ma is not None:
