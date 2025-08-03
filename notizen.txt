@@ -1,11 +1,16 @@
-Datenpunkte; Steps; Laufzeit
-       1152;  2000; 00:47:19
+Datenpunkte;  Chains;  Steps;  Laufzeit;  s/it
+       1152;      32;   2000;  00:47:19;  1.42
+       1152;      32;   4000;  01:36:42;  1.45
 
 
 Next / in progress:
 0.5.5   MCMC integration, part 2
 
     Zumindest so viel MCMC Auswertungen programmieren, dass ich sehen kann, ob im MCMC ueberhaupt was sinnvolles passiert
+        Auswertungen abspeichern!
+        Config fuer MCMC-Test_System machen
+        Simulierte Lichtkurve mit Rauschen abspeichern (Fake Satelliten-Daten)
+        MCMC mit diesen Fake-Daten testen
 
     Fehler!?! Vorzeichen der Energie wechselt, wenn e fitting parameter ist!
     Wenn P veraendert wird, auch a updaten?

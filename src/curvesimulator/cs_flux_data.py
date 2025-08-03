@@ -396,7 +396,7 @@ def log_probability(theta, theta_bounds, theta_references, bodies, time_s0, meas
     return lp + log_likelihood(theta, theta_references, bodies, time_s0, measured_flux, flux_uncertainty, p)
 
 
-def evaluate_mcmc(p, sampler, fitting_parameter_names, ndim):
+def mcmc_results(p, sampler, fitting_parameter_names, ndim):
 
     def hdi(data, credible_mass=0.68):
         # Function to calculate HDI (1-sigma interval with highest density)
@@ -409,55 +409,75 @@ def evaluate_mcmc(p, sampler, fitting_parameter_names, ndim):
         hdi_max = sorted_data[min_idx + interval_idx_inc]
         return hdi_min, hdi_max
 
-    # Flatten the chain and discard burn-in
-    flat_samples = sampler.get_chain(discard=p.burn_in, thin=10, flat=True)
 
-    # Trace plots
-    fig, axes = plt.subplots(ndim, figsize=(10, ndim * 2), sharex=True)
-    if ndim == 1:
-        axes = [axes]
-    chains = np.moveaxis(sampler.get_chain(discard=p.burn_in, flat=False), -1, 0)
-    for chain, ax, name in zip(chains, axes, fitting_parameter_names):
-        ax.plot(chain, alpha=0.5)
-        ax.set_ylabel(name)
-        ax.set_xlabel("Step")
-    plt.tight_layout()
-    plt.show()
-
-    # Maximum likelihood parameters
-    log_prob_samples = sampler.get_log_prob(flat=True, discard=p.burn_in, thin=10)
-    max_likelihood_idx = np.argmax(log_prob_samples)
-    max_likelihood_params = flat_samples[max_likelihood_idx]
-
-    # Calculate HDI and print results
-    print("\nPosterior HDI Intervals and Maximum Likelihood Parameters:")
-    hdi_results = {}
-    for i, name in enumerate(fitting_parameter_names):
-        hdi_min, hdi_max = hdi(flat_samples[:, i])
-        hdi_results[name] = (hdi_min, hdi_max)
-        print(f"{name}: HDI = [{hdi_min:.6f}, {hdi_max:.6f}], Max Likelihood = {max_likelihood_params[i]:.6f}")
-
-    # Histograms for each parameter
-    fig, axes = plt.subplots(ndim, figsize=(10, ndim * 2))
-    if ndim == 1:
-        axes = [axes]
-    for sample, param, ax, name in zip(flat_samples.T, max_likelihood_params, axes, fitting_parameter_names):
-        ax.hist(sample, bins=30, density=True, alpha=0.7, color="blue", edgecolor="black")
-        ax.axvline(param, color="red", linestyle="--", label="Max Likelihood")
-        ax.axvline(hdi_results[name][0], color="green", linestyle="--", label="HDI Lower Bound")
-        ax.axvline(hdi_results[name][1], color="green", linestyle="--", label="HDI Upper Bound")
-        ax.set_xlabel(name)
-        ax.set_ylabel("Density")
-        ax.legend()
-    plt.tight_layout()
-    plt.show()
-
-    # Corner plot with best-fit parameters
-    if ndim > 1:
-        fig = corner.corner(
-            flat_samples,
-            labels=fitting_parameter_names,
-            truths=max_likelihood_params,
-            title_fmt=".4f",
-        )
+    def mcmc_trace_plots(fitting_parameter_names, ndim, p, sampler, plot_filename=None):
+        fig, axes = plt.subplots(ndim, figsize=(10, ndim * 2), sharex=True)
+        if ndim == 1:
+            axes = [axes]
+        chains = np.moveaxis(sampler.get_chain(discard=p.burn_in, flat=False), -1, 0)
+        for chain, ax, name in zip(chains, axes, fitting_parameter_names):
+            ax.plot(chain, alpha=0.5)
+            ax.set_ylabel(name)
+            ax.set_xlabel("Step")
+        plt.tight_layout()
+        if plot_filename:
+            plt.savefig(plot_filename)
         plt.show()
+
+
+    def mcmc_max_likelihood_parameters(flat_samples, p, sampler):
+        log_prob_samples = sampler.get_log_prob(flat=True, discard=p.burn_in, thin=10)
+        max_likelihood_idx = np.argmax(log_prob_samples)
+        max_likelihood_params = flat_samples[max_likelihood_idx]
+        return max_likelihood_params
+
+
+    def mcmc_high_density_intervals(fitting_parameter_names, flat_samples, max_likelihood_params):
+        # Calculate HDI and print results
+        print("\nPosterior HDI Intervals and Maximum Likelihood Parameters:")
+        hdi_results = {}
+        for i, name in enumerate(fitting_parameter_names):
+            hdi_min, hdi_max = hdi(flat_samples[:, i])
+            hdi_results[name] = (hdi_min, hdi_max)
+            print(f"{name}: HDI = [{hdi_min:.6f}, {hdi_max:.6f}], Max Likelihood = {max_likelihood_params[i]:.6f}")
+        return hdi_results
+
+
+    def mcmc_histograms(fitting_parameter_names, flat_samples, hdi_results, max_likelihood_params, ndim, plot_filename=None):
+        # Histograms for each parameter
+        fig, axes = plt.subplots(ndim, figsize=(10, ndim * 2))
+        if ndim == 1:
+            axes = [axes]
+        for sample, param, ax, name in zip(flat_samples.T, max_likelihood_params, axes, fitting_parameter_names):
+            ax.hist(sample, bins=30, density=True, alpha=0.7, color="blue", edgecolor="black")
+            ax.axvline(param, color="red", linestyle="--", label="Max Likelihood")
+            ax.axvline(hdi_results[name][0], color="green", linestyle="--", label="HDI Lower Bound")
+            ax.axvline(hdi_results[name][1], color="green", linestyle="--", label="HDI Upper Bound")
+            ax.set_xlabel(name)
+            ax.set_ylabel("Density")
+            ax.legend()
+        plt.tight_layout()
+        if plot_filename:
+            plt.savefig(plot_filename)
+        plt.show()
+
+
+    def mcmc_corner_plot(fitting_parameter_names, flat_samples, max_likelihood_params, ndim, plot_filename=None):
+        # Corner plot with best-fit parameters
+        if ndim > 1:
+            fig = corner.corner(
+                flat_samples,
+                labels=fitting_parameter_names,
+                truths=max_likelihood_params,
+                title_fmt=".4f",
+            )
+            if plot_filename:
+                plt.savefig(plot_filename)
+            plt.show()
+
+    flat_samples = sampler.get_chain(discard=p.burn_in, thin=10, flat=True)  # Flatten the chain and discard burn-in
+    mcmc_trace_plots(fitting_parameter_names, ndim, p, sampler, "trace.png")
+    max_likelihood_params = mcmc_max_likelihood_parameters(flat_samples, p, sampler)
+    hdi_results = mcmc_high_density_intervals(fitting_parameter_names, flat_samples, max_likelihood_params)
+    mcmc_histograms(fitting_parameter_names, flat_samples, hdi_results, max_likelihood_params, ndim, "histograms.png")
+    mcmc_corner_plot(fitting_parameter_names, flat_samples, max_likelihood_params, ndim, "corner.png")
