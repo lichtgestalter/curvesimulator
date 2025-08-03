@@ -5,6 +5,7 @@ from matplotlib import rcParams
 import numpy as np
 import pandas as pd
 import emcee
+import corner
 
 C_TRANSITS = [2458401.41, 2458483.21, 2458565.09, 2458647.33, 2459065.24, 2459148.48, 2459231.11, 2459313.25, 2459976.05, 2460059.62, 2460142.60]
 
@@ -340,19 +341,18 @@ def debug_flux(parameters, measured_flux, mask, sim_flux):
     plot_this(x, [residuals], title="Residuals", left=left, right=right)
 
 
-def mcmc(bodies, time_s0, measured_flux, flux_uncertainty, p):
-    # theta_references = ["bodies[1].P"]  # list of names of fitting parameters. Needed so these parameters can be updated inside log_likelihood().
-    # initial_values = [bodies[1].P]  # initial values of the fitting parameters
-    # theta_bounds = [(bodies[1].P * 0.9, bodies[1].P * 1.1)]
-    theta_references = [(fp.body_index, fp.parameter_name) for fp in p.fitting_parameters]
+def run_mcmc(p, bodies, time_s0, measured_flux, flux_uncertainty):
+    theta_references = [(fp.body_index, fp.parameter_name) for fp in p.fitting_parameters]  # list of names of fitting parameters. Needed so these parameters can be updated inside log_likelihood().
+    fitting_parameter_names = [f"{bodies[fp.body_index].name}.{fp.parameter_name}" for fp in p.fitting_parameters]
     initial_values = [fp.value for fp in p.fitting_parameters]
     theta_bounds = [(fp.lower, fp.upper) for fp in p.fitting_parameters]
     ndim = len(theta_references)
     theta0 = np.array(initial_values) + 1e-4 * np.random.randn(p.walkers, ndim)  # slightly randomized initial values of the fitting parameters
     sampler = emcee.EnsembleSampler(p.walkers, ndim, log_probability, args=(theta_bounds, theta_references, bodies, time_s0, measured_flux, flux_uncertainty, p))
-    print("Running MCMC...")
+    print("Starting MCMC......", end="")
     sampler.run_mcmc(theta0, p.steps, progress=True)
-    print("MCMC finished!")
+    print("MCMC completed.")
+    return sampler, fitting_parameter_names, ndim
 
 
 def log_prior(theta, theta_bounds):
@@ -395,3 +395,69 @@ def log_probability(theta, theta_bounds, theta_references, bodies, time_s0, meas
         return -np.inf
     return lp + log_likelihood(theta, theta_references, bodies, time_s0, measured_flux, flux_uncertainty, p)
 
+
+def evaluate_mcmc(p, sampler, fitting_parameter_names, ndim):
+
+    def hdi(data, credible_mass=0.68):
+        # Function to calculate HDI (1-sigma interval with highest density)
+        sorted_data = np.sort(data)
+        n = len(sorted_data)
+        interval_idx_inc = int(np.floor(credible_mass * n))
+        intervals = sorted_data[interval_idx_inc:] - sorted_data[:n - interval_idx_inc]
+        min_idx = np.argmin(intervals)
+        hdi_min = sorted_data[min_idx]
+        hdi_max = sorted_data[min_idx + interval_idx_inc]
+        return hdi_min, hdi_max
+
+    # Flatten the chain and discard burn-in
+    flat_samples = sampler.get_chain(discard=p.burn_in, thin=10, flat=True)
+
+    # Trace plots
+    fig, axes = plt.subplots(ndim, figsize=(10, ndim * 2), sharex=True)
+    if ndim == 1:
+        axes = [axes]
+    chains = np.moveaxis(sampler.get_chain(discard=p.burn_in, flat=False), -1, 0)
+    for chain, ax, name in zip(chains, axes, fitting_parameter_names):
+        ax.plot(chain, alpha=0.5)
+        ax.set_ylabel(name)
+        ax.set_xlabel("Step")
+    plt.tight_layout()
+    plt.show()
+
+    # Maximum likelihood parameters
+    log_prob_samples = sampler.get_log_prob(flat=True, discard=p.burn_in, thin=10)
+    max_likelihood_idx = np.argmax(log_prob_samples)
+    max_likelihood_params = flat_samples[max_likelihood_idx]
+
+    # Calculate HDI and print results
+    print("\nPosterior HDI Intervals and Maximum Likelihood Parameters:")
+    hdi_results = {}
+    for i, name in enumerate(fitting_parameter_names):
+        hdi_min, hdi_max = hdi(flat_samples[:, i])
+        hdi_results[name] = (hdi_min, hdi_max)
+        print(f"{name}: HDI = [{hdi_min:.6f}, {hdi_max:.6f}], Max Likelihood = {max_likelihood_params[i]:.6f}")
+
+    # Histograms for each parameter
+    fig, axes = plt.subplots(ndim, figsize=(10, ndim * 2))
+    if ndim == 1:
+        axes = [axes]
+    for sample, param, ax, name in zip(flat_samples.T, max_likelihood_params, axes, fitting_parameter_names):
+        ax.hist(sample, bins=30, density=True, alpha=0.7, color="blue", edgecolor="black")
+        ax.axvline(param, color="red", linestyle="--", label="Max Likelihood")
+        ax.axvline(hdi_results[name][0], color="green", linestyle="--", label="HDI Lower Bound")
+        ax.axvline(hdi_results[name][1], color="green", linestyle="--", label="HDI Upper Bound")
+        ax.set_xlabel(name)
+        ax.set_ylabel("Density")
+        ax.legend()
+    plt.tight_layout()
+    plt.show()
+
+    # Corner plot with best-fit parameters
+    if ndim > 1:
+        fig = corner.corner(
+            flat_samples,
+            labels=fitting_parameter_names,
+            truths=max_likelihood_params,
+            title_fmt=".4f",
+        )
+        plt.show()

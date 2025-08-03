@@ -1,14 +1,18 @@
+Datenpunkte; Steps; Laufzeit
+       1152;  2000; 00:47:19
+
+
 Next / in progress:
 0.5.5   MCMC integration, part 2
 
-    Make it possible for MCMC to change every parameter of every body (if it shall be fitted)
-        Which parameters shall be fitted? What are the upper and lower bounds of the fitting parameters?
-            How to store this information in the config file?
-            How to store this information so MCMC can update parameters after each iteration?
-
-
-
     Zumindest so viel MCMC Auswertungen programmieren, dass ich sehen kann, ob im MCMC ueberhaupt was sinnvolles passiert
+
+    Fehler!?! Vorzeichen der Energie wechselt, wenn e fitting parameter ist!
+    Wenn P veraendert wird, auch a updaten?
+        Eindeutige Abhaengigkeits/Update-Ketten definieren?
+            zB.: a->P d.h., an Rebound wird immer nur P geliefert, wenn a veraendert wird, muss P aktualisiert werden
+            entsprechend fuer Omega/omega/pomega
+            entsprechend fuer ea, ma, T, L, nu
 
     Auswertungen nach durchgefuehrtem mcmc:
         Corner plots
@@ -393,6 +397,7 @@ I implemented all suggestions from zoom call 29.03.2022, but tried and dismissed
         This speeds the integration up significantly.
         dt can be set to different values in each time interval.
     0.5.5   MCMC integration, part 2
+        MCMC can now change every parameter of every body (if it shall be fitted)
 
 
 -----------------------------------------------------------------------

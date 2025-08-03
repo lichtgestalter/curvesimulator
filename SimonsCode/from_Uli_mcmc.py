@@ -107,8 +107,8 @@ def log_probability(theta, phot_data, spec_data, para, fitting_indices, transfor
     return lp + log_likelihood(theta, phot_data, spec_data, para, fitting_indices, transformer)
 
 
-# Function to calculate HDI (1-sigma interval)
 def hdi(data, credible_mass=0.68):
+    # Function to calculate HDI (1-sigma interval with highest density)
     sorted_data = np.sort(data)
     n = len(sorted_data)
     interval_idx_inc = int(np.floor(credible_mass * n))

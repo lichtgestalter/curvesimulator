@@ -207,12 +207,13 @@ class CurveSimParameters:
         # config.read(self.config_file)  # Read config file.
         body_index = 0
         fitting_parameters = []
+        print(f"Running MCMC with fitting parameters:")
         for section in config.sections():
             if section not in self.standard_sections:  # section describes a physical object
                 for parameter_name in ["mass", "radius", "e", "i", "a", "P", "Omega", "pomega", "omega", "L", "nu", "ma", "ea", "T"]:
                     value, lower, upper = self.read_param_and_bounds(config, section, parameter_name)
                     if value is not None:
-                        print(f"Fitting Parameter:  {body_index=} {parameter_name=} {value=} {lower=} {upper=}")
+                        print(f"body {body_index}: {parameter_name}")
                         fitting_parameters.append(FittingParameter(body_index, parameter_name, value, lower, upper))
                 body_index += 1
         return fitting_parameters
