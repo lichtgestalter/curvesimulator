@@ -6,15 +6,8 @@ Datenpunkte;  Chains;  Steps;  Laufzeit;  s/it
 Next / in progress:
 0.5.5   MCMC integration, part 2
 
-    Config fuer MCMC-Test_System machen
-
-    Simulierte Lichtkurve mit Rauschen abspeichern (Fake Satelliten-Daten)
-        sim_flux_file
-        sim_flux_err = 0.004
-
-    MCMC mit diesen Fake-Daten testen
-
     MCMC-Auswertungen abspeichern:
+        Output aus MCMC in verstaendlichen Einheiten (P in Tagen statt Sekunden)
         Parameter fuer MCMC-Results top directory in config file
             fitting_results_directory = ../results/mcmc
         Alle Resultate eines Laufs werden in einem eigenen Unterordner gespeichert (laufende Nummerierung?)
@@ -59,7 +52,8 @@ Next / in progress:
 Fragen an Simon:
     Was macht flatten/thin mit den Chains?
     Energie wechselt Vorzeichen, wenn e gefittet wird!?!
-    Kommt aus MCMC auch die Standardabweichung der gefitteten Parameter raus?
+    Kommt aus MCMC auch die Standardabweichung der gefitteten Parameter raus? Oder wie kriegt man die raus?
+    Verstehst du die MCMC-Resultate (Inhalt von sampler)? ZB. acceptance_fraction?
 
     Hast du Literatur zu multiple Transits / Fallunterscheidung bei gegenseitiger Ueberdeckung von 3 oder mehr Kreisen?
 
@@ -416,7 +410,8 @@ I implemented all suggestions from zoom call 29.03.2022, but tried and dismissed
         dt can be set to different values in each time interval.
     0.5.5   MCMC integration, part 2
         MCMC can now change every parameter of every body (if it shall be fitted)
-
+        CurveSimulator can now save a simulated lightcurve plus white noise as a csv-file.
+        This file can be used as "measured" data to check if mcmc can generate meaningful results in this configuration.
 
 -----------------------------------------------------------------------
 

@@ -381,8 +381,10 @@ def log_likelihood(theta, theta_references, bodies, time_s0, measured_flux, flux
     # print(f"{bodies[1].P=}")
     # bodies[1].P = theta[0]
     # print(f"{theta=}")
+    i = 0
     for body_index ,parameter_name in theta_references:
-        bodies[body_index].__dict__[parameter_name] = theta[0]  # update all parameters from theta. parameter names are to be found in theta_references
+        bodies[body_index].__dict__[parameter_name] = theta[i]  # update all parameters from theta. parameter names are to be found in theta_references
+        i += 1
     sim_flux, _ = bodies.calc_physics(p, time_s0)  # run simulation
     residuals = (measured_flux - sim_flux) / flux_uncertainty
     residuals_phot_sum_squared = np.sum(residuals ** 2)
