@@ -8,7 +8,7 @@ from .cs_flux_data import *
 
 def curvesim(config_file=""):
     parameters = CurveSimParameters(config_file)  # Read program parameters from config file.
-    if parameters.flux_file:
+    if parameters.flux_file:  # run mcmc?
         time_s0, measured_flux, flux_uncertainty = get_measured_flux(parameters)
         bodies = CurveSimBodies(parameters)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
         sampler, fitting_parameter_names, ndim = run_mcmc(parameters, bodies, time_s0, measured_flux, flux_uncertainty)
@@ -24,4 +24,6 @@ def curvesim(config_file=""):
             results.save_results(parameters)
         if parameters.video_file:
             CurveSimAnimation(parameters, bodies, sim_flux, time_s0)  # Create the video
+        if parameters.sim_flux_file:
+            sim_flux.save_sim_flux(parameters, time_d)
         return parameters, bodies, results, sim_flux

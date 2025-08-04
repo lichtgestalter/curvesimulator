@@ -51,3 +51,12 @@ class CurveSimLightcurve(np.ndarray):
                 (-P0 + 3 * P1 - 3 * P2 + P3) * alpha3
         )
         return interpolated_value
+
+    def save_sim_flux(self, p, time_d):
+        noisy_flux = self + np.random.normal(0, p.sim_flux_err, self.shape)
+        flux_err = np.full(self.shape, p.sim_flux_err)
+        data = np.column_stack((time_d, noisy_flux, flux_err))
+        np.savetxt(p.sim_flux_file, data, delimiter=",", header="time,flux,flux_err", comments="")
+        if p.verbose:
+            print(f"Saved simulated flux to {p.sim_flux_file} including white noise with standard deviation {p.sim_flux_err}")
+

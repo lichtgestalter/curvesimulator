@@ -47,6 +47,10 @@ class CurveSimParameters:
         self.starts_d = np.array(eval(config.get("Simulation", "starts", fallback="[]")))
         self.ends_d = np.array(eval(config.get("Simulation", "ends", fallback="[]")))
         self.dts = np.array(eval(config.get("Simulation", "dts", fallback="[]")))
+        self.sim_flux_file = config.get("Simulation", "sim_flux_file", fallback="None")
+        if self.sim_flux_file == "None":
+            self.sim_flux_file = None
+        self.sim_flux_err = eval(config.get("Simulation", "sim_flux_err", fallback="0.0"))
 
         # [Fitting]
         self.flux_file = config.get("Fitting", "flux_file", fallback="None")

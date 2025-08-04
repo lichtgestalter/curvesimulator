@@ -476,8 +476,8 @@ def mcmc_results(p, sampler, fitting_parameter_names, ndim):
             plt.show()
 
     flat_samples = sampler.get_chain(discard=p.burn_in, thin=10, flat=True)  # Flatten the chain and discard burn-in
-    mcmc_trace_plots(fitting_parameter_names, ndim, p, sampler, "trace.png")
+    mcmc_trace_plots(fitting_parameter_names, ndim, p, sampler, "trace_test1_25000_5.png")
     max_likelihood_params = mcmc_max_likelihood_parameters(flat_samples, p, sampler)
     hdi_results = mcmc_high_density_intervals(fitting_parameter_names, flat_samples, max_likelihood_params)
-    mcmc_histograms(fitting_parameter_names, flat_samples, hdi_results, max_likelihood_params, ndim, "histograms.png")
-    mcmc_corner_plot(fitting_parameter_names, flat_samples, max_likelihood_params, ndim, "corner.png")
+    mcmc_histograms(fitting_parameter_names, flat_samples, hdi_results, max_likelihood_params, ndim, "histograms_test1_25000_5.png")
+    mcmc_corner_plot(fitting_parameter_names, flat_samples, max_likelihood_params, ndim, "corner_test1_25000_5.png")
