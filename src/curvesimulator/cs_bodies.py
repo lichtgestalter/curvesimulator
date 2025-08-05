@@ -35,7 +35,25 @@ class CurveSimBodies(list):
         for body in self[0:1]:  # hack debug: works only when the first body is the only star and all other bodies are orbiting this star (no binary, no moons, ...)
             simulation.add(m=body.mass, r=body.radius, hash=body.name)
         for body in self[1:]:  # hack debug: works only when the first body is the only star and all other bodies are orbiting this star (no binary, no moons, ...)
-            simulation.add(primary=simulation.particles[self[0].name], m=body.mass, r=body.radius, hash=body.name, P=body.P, inc=body.i, e=body.e, Omega=body.Omega, omega=body.omega, M=body.ma)
+            kwargs = {}
+            kwargs["primary"] = simulation.particles[self[0].name]
+            kwargs["m"] = body.mass
+            kwargs["r"] = body.radius
+            kwargs["hash"] = body.name
+            kwargs["inc"] = body.i
+            kwargs["e"] = body.e
+            kwargs["P"] = None if body.P is None else body.P
+            kwargs["a"] = None if body.a is None else body.a
+            kwargs["Omega"] = None if body.Omega is None else body.Omega
+            kwargs["omega"] = None if body.omega is None else body.omega
+            kwargs["pomega"] = None if body.pomega is None else body.pomega
+            kwargs["M"] = None if body.ma is None else body.ma
+            kwargs["f"] = None if body.nu is None else body.nu
+            kwargs["E"] = None if body.ea is None else body.ea
+            kwargs["T"] = None if body.T is None else body.T
+            kwargs["l"] = None if body.L is None else body.L
+            simulation.add(**kwargs)
+            # simulation.add(primary=simulation.particles[self[0].name], **kwargs)
             i += 1
         simulation.move_to_com()  # move origin to center of mass before integrating -> better numerical stability
         if p.result_file:  # does not seem to help for MCMC, but is a good choice when creating a result file including transit times

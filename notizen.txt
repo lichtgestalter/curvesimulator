@@ -98,25 +98,6 @@ Programming Hinter MCMC-Integration zurueckgestellt:
 
     Damit CurveSimulator auch fuer andere Systeme ausser TOI4504 funktioniert:
         Aus dem User Input die Kepler-Parameter berechnen, die Rebound braucht, und Rebound damit fuettern.
-        Fuer mich relevante Parameter, die Reboundklasse Orbit akzeptiert:
-            P :         orbital period
-            a :         semimajor axis
-
-            e :         eccentricity
-            inc :       inclination
-
-            Omega :     longitude of ascending node
-            omega :     argument of pericenter
-            pomega :    longitude of pericenter
-
-            f :         true anomaly
-            M :         mean anomaly
-            E :         eccentric anomaly (requires solving Kepler's equation - only calculated when needed)
-
-            l :         mean longitude = Omega + omega + M
-            theta :     true longitude = Omega + omega + f
-
-            T:          time of pericenter passage
 
 
     Code entsorgen, der durch rebound abgedeckt wird.
@@ -232,7 +213,7 @@ VERSION 1.0.0 veroeffentlichen !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     Kleines Tool (mit tkinter) als separates Programm, zum Planen des Videos (siehe Seite "Planner" in TOI4504.xlsx)?
 
-    Systeme mit mehr als einem Stern korrekt hantieren (Initial Velocity)
+    Systeme mit mehr als einem Stern korrekt hantieren
 
     Multiple Eclipses (e.g. Triply Eclipsing Triples, >=3 bodies in line of sight):
         Handle them correctly
@@ -471,6 +452,4 @@ Call mit Simon, 03.07.25:
     Waere gut, wenn Curvesimulator zwischen den Transits moeglichst schnell integrieren wuerde. (Veraenderliches dt, oder zumindest Vielfache von dt).
     Residuen durch Uncertainty teilen, damit die Residuen von ungenauen Daten weniger gewichtet werden.
     Next Date: spontan/kurzfristig, falls ich feststecke.
-
-
 

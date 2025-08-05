@@ -56,6 +56,9 @@ class CurveSimParameters:
         self.flux_file = config.get("Fitting", "flux_file", fallback="None")
         if self.flux_file == "None":
             self.flux_file = None
+        self.fitting_results_directory = config.get("Fitting", "fitting_results_directory", fallback="None")
+        if self.fitting_results_directory == "None":
+            self.fitting_results_directory = None
         self.walkers = eval(config.get("Fitting", "walkers"))
         self.steps = eval(config.get("Fitting", "steps"))
         self.burn_in = eval(config.get("Fitting", "burn_in"))
@@ -211,7 +214,7 @@ class CurveSimParameters:
         # config.read(self.config_file)  # Read config file.
         body_index = 0
         fitting_parameters = []
-        print(f"Running MCMC with fitting parameters:")
+        print(f"Running MCMC with fitting parameters")
         for section in config.sections():
             if section not in self.standard_sections:  # section describes a physical object
                 for parameter_name in ["mass", "radius", "e", "i", "a", "P", "Omega", "pomega", "omega", "L", "nu", "ma", "ea", "T"]:
