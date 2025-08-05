@@ -15,13 +15,15 @@ Next / in progress:
             programm parameter (JSON)
             hdi, max likelihood (im gleichen JSON)
 
-    Fehler!?! Vorzeichen der Energie wechselt, wenn e fitting parameter ist!
-    Wue gebe ich sinnvolle upper/lower bounds fuer z.B. ma=359 Grad an?
+    Wie gebe ich sinnvolle upper/lower bounds fuer z.B. ma=359 Grad an?
     Wenn P veraendert wird, auch a updaten?
         Eindeutige Abhaengigkeits/Update-Ketten definieren?
             zB.: a->P d.h., an Rebound wird immer nur P geliefert, wenn a veraendert wird, muss P aktualisiert werden
             entsprechend fuer Omega/omega/pomega
             entsprechend fuer ea, ma, T, L, nu
+    Simons Methoden einbauen zur Anpassung von abhaengigen Parametern, falls MCMC die zugrundeliegenden Parameter aendern darf?
+        (class TransformationManager)
+
 
     Auswertungen nach durchgefuehrtem mcmc:
         Corner plots
@@ -37,21 +39,20 @@ Next / in progress:
 
     In log_likelihood() die residuals durch uncertainty teilen?
 
-    Simons Methoden einbauen zur Anpassung von abhaengigen Parametern, falls MCMC die zugrundeliegenden Parameter aendern darf?
-        (class TransformationManager)
-
     Orga/Refactoring:
         Soll Code fuer mcmc in flux-data bleiben?
         cs_mcmc nutzen oder abschaffen
         Klasse in flux_data anlegen? (import * ist haesslich)
         Package mal wieder hochladen und mit pip testen.
+        in run_curvesim cursimulator = Curvesimulator()
+            also Klasse statt Funktion
+            Klasse kann saemtliche Variablen/Resultate als Atrribute enthalten.
 
     Simulationscheck klappt fuer Drehimpuls, Energie und Center of Mass, aber nicht fuer Impuls.
         Vielleicht Berechnungsfehler des Impulses?
 
 Fragen an Simon:
     Was macht flatten/thin mit den Chains?
-    Energie wechselt Vorzeichen, wenn e gefittet wird!?!
     Kommt aus MCMC auch die Standardabweichung der gefitteten Parameter raus? Oder wie kriegt man die raus?
     Verstehst du die MCMC-Resultate (Inhalt von sampler)? ZB. acceptance_fraction?
 
