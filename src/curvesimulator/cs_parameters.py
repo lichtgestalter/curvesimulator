@@ -59,6 +59,8 @@ class CurveSimParameters:
         self.fitting_results_directory = config.get("Fitting", "fitting_results_directory", fallback="None")
         if self.fitting_results_directory == "None":
             self.fitting_results_directory = None
+        else:
+            self.find_fitting_results_subdirectory()
         self.walkers = eval(config.get("Fitting", "walkers"))
         self.steps = eval(config.get("Fitting", "steps"))
         self.burn_in = eval(config.get("Fitting", "burn_in"))
@@ -225,6 +227,22 @@ class CurveSimParameters:
                 body_index += 1
         return fitting_parameters
 
+    def find_fitting_results_subdirectory(self):
+        """Find the name of the non-existing subdirectory with
+        the lowest number and create this subdirectory."""
+        import os
+
+        if not os.path.isdir(self.fitting_results_directory):
+            print(f"{Fore.RED}ERROR: Fitting results directory {self.fitting_results_directory} does not exist.{Style.RESET_ALL}")
+            sys.exit(1)
+        # Filter numeric subdirectory names and checks if they are directories.
+        existing_subdirectories = [int(subdir) for subdir in os.listdir(self.fitting_results_directory)
+                                   if subdir.isdigit() and os.path.isdir(os.path.join(self.fitting_results_directory, subdir))]
+        next_subdirectory = 0
+        while next_subdirectory in existing_subdirectories:
+            next_subdirectory += 1
+        self.fitting_results_directory = self.fitting_results_directory + f"/{next_subdirectory:04d}"
+        os.makedirs(self.fitting_results_directory)
 
 class FittingParameter:
     def __init__(self, body_index, parameter_name, value, lower, upper):

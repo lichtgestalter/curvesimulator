@@ -11,8 +11,9 @@ def curvesim(config_file=""):
     if parameters.flux_file:  # run mcmc?
         time_s0, measured_flux, flux_uncertainty = get_measured_flux(parameters)
         bodies = CurveSimBodies(parameters)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
-        sampler, fitting_parameter_names, ndim = run_mcmc(parameters, bodies, time_s0, measured_flux, flux_uncertainty)
-        mcmc_results(parameters, sampler, fitting_parameter_names, ndim)
+        sampler, fitting_parameter_names, ndim = run_mcmc(parameters, bodies, time_s0, measured_flux, flux_uncertainty, 1e-4)
+        mcmc_results(parameters, sampler, fitting_parameter_names, ndim, 10, 0.68, 30)
+
         return parameters, bodies, None, None
     else:
         time_s0, time_d = CurveSimParameters.init_time_arrays(parameters)  # s0 in seconds, starting at 0. d in BJD.

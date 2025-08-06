@@ -341,13 +341,13 @@ def debug_flux(parameters, measured_flux, mask, sim_flux):
     plot_this(x, [residuals], title="Residuals", left=left, right=right)
 
 
-def run_mcmc(p, bodies, time_s0, measured_flux, flux_uncertainty):
+def run_mcmc(p, bodies, time_s0, measured_flux, flux_uncertainty, initial_noise=1e-4):
     theta_references = [(fp.body_index, fp.parameter_name) for fp in p.fitting_parameters]  # list of names of fitting parameters. Needed so these parameters can be updated inside log_likelihood().
     fitting_parameter_names = [f"{bodies[fp.body_index].name}.{fp.parameter_name}" for fp in p.fitting_parameters]
     initial_values = [fp.value for fp in p.fitting_parameters]
     theta_bounds = [(fp.lower, fp.upper) for fp in p.fitting_parameters]
     ndim = len(theta_references)
-    theta0 = np.array(initial_values) + 1e-4 * np.random.randn(p.walkers, ndim)  # slightly randomized initial values of the fitting parameters
+    theta0 = np.array(initial_values) + initial_noise * np.random.randn(p.walkers, ndim)  # slightly randomized initial values of the fitting parameters
     sampler = emcee.EnsembleSampler(p.walkers, ndim, log_probability, args=(theta_bounds, theta_references, bodies, time_s0, measured_flux, flux_uncertainty, p))
     print("Starting MCMC......", end="")
     sampler.run_mcmc(theta0, p.steps, progress=True)
@@ -375,18 +375,12 @@ def log_likelihood(theta, theta_references, bodies, time_s0, measured_flux, flux
         List containing the names of the parameters to be fitted.
         For example: ['Tmin_pri', 'P_days', 'incl_deg', 'R1a', 'R2R1']
     """
-    # body_index = 1
-    # body_parameter = "P"
-    # bodies[body_index].__dict__[body_parameter] = theta[0]  # update all parameters from theta. parameter names are to be found in theta_references
-    # print(f"{bodies[1].P=}")
-    # bodies[1].P = theta[0]
-    # print(f"{theta=}")
     i = 0
     for body_index ,parameter_name in theta_references:
-        bodies[body_index].__dict__[parameter_name] = theta[i]  # update all parameters from theta. parameter names are to be found in theta_references
+        bodies[body_index].__dict__[parameter_name] = theta[i]  # update all parameters from theta
         i += 1
     sim_flux, _ = bodies.calc_physics(p, time_s0)  # run simulation
-    residuals = (measured_flux - sim_flux) / flux_uncertainty
+    residuals = (measured_flux - sim_flux) / flux_uncertainty  # residuals are weighted with uncertainty!
     residuals_phot_sum_squared = np.sum(residuals ** 2)
     return -0.5 * residuals_phot_sum_squared
 
@@ -398,13 +392,13 @@ def log_probability(theta, theta_bounds, theta_references, bodies, time_s0, meas
     return lp + log_likelihood(theta, theta_references, bodies, time_s0, measured_flux, flux_uncertainty, p)
 
 
-def hdi_std(data, credible_mass=0.68):
+def hdi_std_mean(data, credible_mass=0.68):
     # Calculate HDI (1-sigma interval with highest density).
     # Data contains samples from the flattened and thinned mcmc-chains and gets sorted.
     # The interval's length is calculated from the number of data and the credible mass percentage.
     # 68% means the interval should contain data from mean minus the standard_deviation til mean plus the standard_deviation.
     # The interval with the smallest difference between its highest (last) and lowest (first) item is chosen
-    # Calculate also the standard deviation of the sample.
+    # Calculate also standard deviation and mean of the sample.
     sorted_data = np.sort(data)
     n = len(sorted_data)
     interval_idx_inc = int(np.floor(credible_mass * n))
@@ -413,7 +407,8 @@ def hdi_std(data, credible_mass=0.68):
     hdi_min = sorted_data[min_idx]
     hdi_max = sorted_data[min_idx + interval_idx_inc]
     std = np.std(data, ddof=1)
-    return hdi_min, hdi_max, std
+    mean = np.mean(data)
+    return hdi_min, hdi_max, std, mean
 
 
 def mcmc_trace_plots(fitting_parameter_names, ndim, p, sampler, plot_filename=None):
@@ -438,30 +433,35 @@ def mcmc_max_likelihood_parameters(flat_samples, p, sampler, thin_samples):
     return max_likelihood_params
 
 
-def mcmc_high_density_intervals(fitting_parameter_names, flat_samples, max_likelihood_params):
-    # Calculate HDI and print results
-    print("\nPosterior HDI Intervals, Maximum Likelihood Parameters and Standard Deviation:")
-    hdi_results = {}
+def mcmc_high_density_intervals(fitting_parameter_names, flat_samples, max_likelihood_params, credible_mass=0.68):
+    # Calculate HDI
+    # Print and save hdi and other mcmc results
+    print("\nMCMC Results:")
+    results = {}
     for i, name in enumerate(fitting_parameter_names):
-        hdi_min, hdi_max, std = hdi_std(flat_samples[:, i])
-        hdi_results[name] = (hdi_min, hdi_max, std)
-        print(f"{name}: HDI = [{hdi_min:.6f}, {hdi_max:.6f}], Max Likelihood = {max_likelihood_params[i]:.6f}, Standard Deviation = {std:.6f}")
-    return hdi_results
+        hdi_min, hdi_max, std, mean = hdi_std_mean(flat_samples[:, i], credible_mass)
+        results[name] = {"hdi_min": hdi_min, "hdi_max": hdi_max, "std": std, "mean": mean, "max_likelihood": max_likelihood_params[i]}
+        print(f"{name}: HDI = [{results[name]["hdi_min"]:.6f}, {results[name]["hdi_max"]:.6f}], Max Likelihood = {max_likelihood_params[i]:.6f}, "
+              f"Standard Deviation = {results[name]["std"]:.6f}, Mean = {results[name]["mean"]:.6f}")
+    return results
 
 
-def mcmc_histograms(fitting_parameter_names, flat_samples, hdi_results, max_likelihood_params, ndim, bins, plot_filename=None):
-    # Histograms for each parameter
+def mcmc_histograms(fitting_parameter_names, flat_samples, hdi_results, ndim, bins, plot_filename=None):
     fig, axes = plt.subplots(ndim, figsize=(10, ndim * 2))
     if ndim == 1:
         axes = [axes]
-    for sample, param, ax, name in zip(flat_samples.T, max_likelihood_params, axes, fitting_parameter_names):
+    for i, (sample, ax, name) in enumerate(zip(flat_samples.T, axes, fitting_parameter_names)):
         ax.hist(sample, bins=bins, density=True, alpha=0.7, color="blue", edgecolor="black")
-        ax.axvline(param, color="red", linestyle="--", label="Max Likelihood")
-        ax.axvline(hdi_results[name][0], color="green", linestyle="--", label="HDI Lower Bound")
-        ax.axvline(hdi_results[name][1], color="green", linestyle="--", label="HDI Upper Bound")
+        ax.axvline(hdi_results[name]["hdi_min"], color="green", linestyle="dashed", label="HDI Lower Bound")
+        ax.axvline(hdi_results[name]["mean"] - hdi_results[name]["std"], color="gray", linestyle="dotted", label="Mean - Std")
+        ax.axvline(hdi_results[name]["max_likelihood"], color="red", linestyle="solid", label="Max Likelihood")
+        ax.axvline(hdi_results[name]["mean"], color="black", linestyle="dotted", label="Mean")
+        ax.axvline(hdi_results[name]["hdi_max"], color="green", linestyle="dashed", label="HDI Upper Bound")
+        ax.axvline(hdi_results[name]["mean"] + hdi_results[name]["std"], color="gray", linestyle="dotted", label="Mean + Std")
         ax.set_xlabel(name)
         ax.set_ylabel("Density")
-        ax.legend()
+        if i == 0:
+            ax.legend(loc='lower center', bbox_to_anchor=(0.5, 1.02), ncol=3, borderaxespad=0.)
     plt.tight_layout()
     if plot_filename:
         plt.savefig(plot_filename)
@@ -481,18 +481,14 @@ def mcmc_corner_plot(fitting_parameter_names, flat_samples, max_likelihood_param
             plt.savefig(plot_filename)
         plt.show()
 
-def mcmc_results(p, sampler, fitting_parameter_names, ndim):
-    thin_samples = 10
+def mcmc_results(p, sampler, fitting_parameter_names, ndim, thin_samples=10, credible_mass=0.68, histogram_bins=30):
     flat_samples = sampler.get_chain(discard=p.burn_in, thin=thin_samples, flat=True)
     # discard the initial p.burn_in steps from each chain to ensure only samples that represent the equilibrium distribution are analyzed.
     # thin=10: keep only every 10th sample from the chain to reduce autocorrelation in the chains and the size of the resulting arrays.
     # flat=True: return all chains in a single, two-dimensional array (shape: (n_samples, n_parameters))
 
-    mcmc_trace_plots(fitting_parameter_names, ndim, p, sampler, "trace_test1_25000_5.png")
+    mcmc_trace_plots(fitting_parameter_names, ndim, p, sampler, p.fitting_results_directory+"/traces.png")
     max_likelihood_params = mcmc_max_likelihood_parameters(flat_samples, p, sampler, thin_samples)
-    hdi_results = mcmc_high_density_intervals(fitting_parameter_names, flat_samples, max_likelihood_params)
-    mcmc_histograms(fitting_parameter_names, flat_samples, hdi_results, max_likelihood_params, ndim, 30, "histograms_test1_25000_5.png")
-    mcmc_corner_plot(fitting_parameter_names, flat_samples, max_likelihood_params, ndim, "corner_test1_25000_5.png")
-
-next: harte Werte zu Funktionsparamern machen (thin_samples und bins)
-Resultate -> JSON
+    mcmc_results = mcmc_high_density_intervals(fitting_parameter_names, flat_samples, max_likelihood_params, credible_mass)
+    mcmc_histograms(fitting_parameter_names, flat_samples, mcmc_results, ndim, histogram_bins, p.fitting_results_directory+"/histograms.png")
+    mcmc_corner_plot(fitting_parameter_names, flat_samples, max_likelihood_params, ndim, p.fitting_results_directory+"/corner.png")

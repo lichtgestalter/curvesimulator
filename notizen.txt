@@ -5,10 +5,7 @@ Datenpunkte;  Chains;  Steps;  Laufzeit;  s/it
 
 Next / in progress:
 0.5.5   MCMC integration
-    next: harte Werte zu Funktionsparamern machen (thin_samples und bins)
     Resultate -> JSON
-
-    Show mean and std in histogram
 
     MCMC-Auswertungen abspeichern:
         Output aus MCMC in verstaendlichen Einheiten (P in Tagen statt Sekunden)
@@ -28,20 +25,11 @@ Next / in progress:
     Simons Methoden einbauen zur Anpassung von abhaengigen Parametern, falls MCMC die zugrundeliegenden Parameter aendern darf?
         (class TransformationManager)
 
-
-    Auswertungen nach durchgefuehrtem mcmc:
-        Corner plots
-        Histogramm mit max likelihood
-        Chain-Grafiken (auch verbesserte Uli-Version mit ueberlagerten halbtransparenten Grautoenen start Farbspaghetti?)
-        HDI (Highest density interval)
-
     flux Daten neu zusammenstellen
         besserer author fuer sektoren 1-13?
         nur c und d transits
             dafuer flexible Funktion schreiben, die die relevanten Daten aus dem grossen csv holt und in ein kleines schreibt
                 mit Parameter delta (Zeit vor und nach TT als Parameter)
-
-    In log_likelihood() die residuals durch uncertainty teilen?
 
     Orga/Refactoring:
         Soll Code fuer mcmc in flux-data bleiben?
@@ -398,6 +386,8 @@ I implemented all suggestions from zoom call 29.03.2022, but tried and dismissed
         MCMC can now change every parameter of every body (if it shall be fitted)
         CurveSimulator can now save a simulated lightcurve plus white noise as a csv-file.
         This file can be used as "measured" data to check if mcmc can generate meaningful results in this configuration.
+        MCMC results and plots are now saved.
+
 
 -----------------------------------------------------------------------
 
