@@ -5,7 +5,11 @@ Datenpunkte;  Chains;  Steps;  Laufzeit;  s/it
 
 Next / in progress:
 0.5.5   MCMC integration
+    next: harte Werte zu Funktionsparamern machen (thin_samples und bins)
+    Resultate -> JSON
+
     Show mean and std in histogram
+
     MCMC-Auswertungen abspeichern:
         Output aus MCMC in verstaendlichen Einheiten (P in Tagen statt Sekunden)
         Parameter fuer MCMC-Results top directory in config file
