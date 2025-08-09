@@ -44,7 +44,6 @@ Next / in progress:
         Vielleicht Berechnungsfehler des Impulses?
 
 Fragen an Simon:
-    Was macht flatten/thin mit den Chains?
     Kommt aus MCMC auch die Standardabweichung der gefitteten Parameter raus? Oder wie kriegt man die raus?
     Verstehst du die MCMC-Resultate (Inhalt von sampler)? ZB. acceptance_fraction?
 

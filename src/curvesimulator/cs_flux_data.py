@@ -222,8 +222,8 @@ def process_88_89():
     path = '../../research/star_systems/TOI-4504/lightkurve/'
     half_sample_duration = 0.4  # time interval we are interested in: before and after time of transit transit
     half_ignore_duration = 0.07  # time interval we want to exclude: between T1 and T4
-    t88d = 2460695.535  # TT of TOI4504-d in sector 88
-    t89d = 2460736.635  # TT of TOI4504-d in sector 89
+    t88d = 2460695.535  # TT of TOI-4504-d in sector 88
+    t89d = 2460736.635  # TT of TOI-4504-d in sector 89
 
     csv_88_89 = path + 'TOI4504_88+89_all.csv'  # contains all flux data from sectors 88 and 89
     flux_df = csv2df(csv_88_89)  # usually contains df['time'], df['flux'], df['flux_err']

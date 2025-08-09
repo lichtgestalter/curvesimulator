@@ -11,7 +11,7 @@ from cal_transformation import TransformationManager
 
 
 # Import system-specific modules
-system_name = "TOI4504"
+system_name = "TOI-4504"
 spec = 0
 phot = 1
 

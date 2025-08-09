@@ -1,6 +1,6 @@
 import numpy as np
 
-name = "TOI4504"
+name = "TOI-4504"
 
 # data_file = 'data/TOI4504_88+89.csv'
 data_file = '../research/star_systems/TOI-4504/lightkurve/TOI4504_88+89_reduced_normalized_d_transits.csv'

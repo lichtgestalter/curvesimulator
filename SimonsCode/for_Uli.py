@@ -5,7 +5,7 @@ from cal_transformation import TransformationManager
 import os
 
 # Continue with photometry and spectroscopy setup...
-system_name = "TOI4504"
+system_name = "TOI-4504"
 spec = 0
 phot = 1
 
