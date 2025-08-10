@@ -1,7 +1,7 @@
 # from colorama import Fore, Style
+import json
 from matplotlib import pyplot as plt
 import numpy as np
-# import pandas as pd
 import emcee
 import corner
 from curvesimulator.cs_flux_data import plot_this, csv2df
@@ -18,23 +18,6 @@ class CurveSimMCMC():
 
     @staticmethod
     def get_measured_flux(p):
-        # process_88_89()
-        # combine_flux_data(1, 90, "all_p.csv")
-        # combine_flux_data(1, 13, "01-13_p.csv")
-        # combine_flux_data(27, 38, "27-38_p.csv")
-        # combine_flux_data(61, 69, "61-69_p.csv")
-        # path = '../../../research/star_systems/TOI-4504/lightkurve/'  # path to example lightcurve data. Change this if required.
-        # path = '../../research/star_systems/TOI-4504/lightkurve/'  # path to example lightcurve data. Change this if required.
-        # path = '../research/star_systems/TOI-4504/lightkurve/'  # path to example lightcurve data. Change this if required.
-        # df = csv2df(path + "01-13_p.csv")  # path and file name of example lightcurve data. Change this if required.
-
-        # measured_flux = corresponding_flux(df, time_d, p.dt / 2.1, p)
-        # x = np.arange(0, p.iterations)
-        # plot_this(x, [cor_flux], title="Corresponding Flux")
-        # plot_this(x, [cor_flux], title="Corresponding Flux", bottom=0.98, top=1.02)
-        # plot_this(x, [hits], title="Hits")
-        # plot_this(x, [exp_delta*60*60*24], title="Exposure Delta [s]")
-
         df = csv2df(p.flux_file)
         df = df[df["time"] >= p.start_date]
         df["time"] -= p.start_date
@@ -45,19 +28,17 @@ class CurveSimMCMC():
         p.total_iterations = len(time_s0)
         return time_s0, measured_flux, flux_uncertainty
 
-
-    @staticmethod
-    def debug_flux(parameters, measured_flux, mask, sim_flux):
-        left = 50
-        right = 80
-        x = np.arange(0, parameters.iterations)
-        residuals = (measured_flux - sim_flux) * mask
-        plot_this(x, [sim_flux], title="Simulated Lightcurve")
-        plot_this(x, [residuals], title="Residuals")
-        plot_this(x, [measured_flux], title="Flux", left=left, right=right, bottom=0.985, top=1.015)
-        plot_this(x, [sim_flux], title="Simulated Lightcurve", left=left, right=right)
-        plot_this(x, [residuals], title="Residuals", left=left, right=right)
-
+    # @staticmethod
+    # def debug_flux(parameters, measured_flux, mask, sim_flux):
+    #     left = 50
+    #     right = 80
+    #     x = np.arange(0, parameters.iterations)
+    #     residuals = (measured_flux - sim_flux) * mask
+    #     plot_this(x, [sim_flux], title="Simulated Lightcurve")
+    #     plot_this(x, [residuals], title="Residuals")
+    #     plot_this(x, [measured_flux], title="Flux", left=left, right=right, bottom=0.985, top=1.015)
+    #     plot_this(x, [sim_flux], title="Simulated Lightcurve", left=left, right=right)
+    #     plot_this(x, [residuals], title="Residuals", left=left, right=right)
 
     @staticmethod
     def run_mcmc(p, bodies, time_s0, measured_flux, flux_uncertainty, initial_noise=1e-4):
@@ -173,18 +154,18 @@ class CurveSimMCMC():
 
 
     @staticmethod
-    def mcmc_histograms(fitting_parameter_names, flat_samples, hdi_results, ndim, bins, plot_filename=None):
+    def mcmc_histograms(fitting_parameter_names, flat_samples, results, ndim, bins, plot_filename=None):
         fig, axes = plt.subplots(ndim, figsize=(10, ndim * 2))
         if ndim == 1:
             axes = [axes]
         for i, (sample, ax, name) in enumerate(zip(flat_samples.T, axes, fitting_parameter_names)):
             ax.hist(sample, bins=bins, density=True, alpha=0.7, color="blue", edgecolor="black")
-            ax.axvline(hdi_results[name]["hdi_min"], color="green", linestyle="dashed", label="HDI Lower Bound")
-            ax.axvline(hdi_results[name]["mean"] - hdi_results[name]["std"], color="gray", linestyle="dotted", label="Mean - Std")
-            ax.axvline(hdi_results[name]["max_likelihood"], color="red", linestyle="solid", label="Max Likelihood")
-            ax.axvline(hdi_results[name]["mean"], color="black", linestyle="dotted", label="Mean")
-            ax.axvline(hdi_results[name]["hdi_max"], color="green", linestyle="dashed", label="HDI Upper Bound")
-            ax.axvline(hdi_results[name]["mean"] + hdi_results[name]["std"], color="gray", linestyle="dotted", label="Mean + Std")
+            ax.axvline(results[name]["hdi_min"], color="green", linestyle="dashed", label="HDI Lower Bound")
+            ax.axvline(results[name]["mean"] - results[name]["std"], color="gray", linestyle="dotted", label="Mean - Std")
+            ax.axvline(results[name]["max_likelihood"], color="red", linestyle="solid", label="Max Likelihood")
+            ax.axvline(results[name]["mean"], color="black", linestyle="dotted", label="Mean")
+            ax.axvline(results[name]["hdi_max"], color="green", linestyle="dashed", label="HDI Upper Bound")
+            ax.axvline(results[name]["mean"] + results[name]["std"], color="gray", linestyle="dotted", label="Mean + Std")
             ax.set_xlabel(name)
             ax.set_ylabel("Density")
             if i == 0:
@@ -210,7 +191,51 @@ class CurveSimMCMC():
             plt.show()
 
     @staticmethod
-    def mcmc_results(p, sampler, fitting_parameter_names, ndim, thin_samples=10, credible_mass=0.68, histogram_bins=30):
+    def mcmc_results2json(results, p):
+        """Converts results to JSON and saves it."""
+        filename = p.fitting_results_directory + "/mcmc_results.json"
+        with open(filename, "w", encoding='utf8') as file:
+            json.dump(results, file, indent=4, ensure_ascii=False)
+        if p.verbose:
+            print(f" Saved MCMC results to {filename}")
+
+    @staticmethod
+    def save_mcmc_results(fitting_results, p, bodies):
+        results = {}
+        results["CurveSimulator Documentation"] = "https://github.com/lichtgestalter/curvesimulator/wiki"
+        results["Simulation Parameters"] = {}
+        results["Simulation Parameters"]["comment"] = p.comment
+        results["Simulation Parameters"]["start_date"] = p.start_date
+        results["Simulation Parameters"]["default_dt"] = p.dt
+        results["Simulation Parameters"]["mcmc walkers"] = p.walkers
+        results["Simulation Parameters"]["mcmc steps"] = p.steps
+        results["Simulation Parameters"]["mcmc burn_in"] = p.burn_in
+        results["Simulation Parameters"]["flux_file"] = p.flux_file
+        results["Simulation Parameters"]["fitting_results_directory"] = p.fitting_results_directory
+        results["Fitting Results"] = fitting_results
+        results["Bodies"] = {}
+        params = (["body_type", "primary", "mass", "radius", "luminosity"]
+                  + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
+                  + ["e", "i", "P", "a", "Omega", "Omega_deg", "omega", "omega_deg", "pomega", "pomega_deg"]
+                  + ["L", "L_deg", "ma", "ma_deg", "ea", "ea_deg", "nu", "nu_deg", "T", "t"])
+        for body in bodies:
+            results["Bodies"][body.name] = {}
+            for key in params:
+                attr = getattr(body, key)
+                if attr is not None:
+                    results["Bodies"][body.name][key] = attr
+
+            # for key in list(body.__dict__.keys()):  # uncomment to prevent null-values in result file
+            #     if body.__dict__[key] is None:
+            #         del body.__dict__[key]
+
+
+
+
+        CurveSimMCMC.mcmc_results2json(results, p)
+
+    @staticmethod
+    def mcmc_results(p, bodies, sampler, fitting_parameter_names, ndim, thin_samples=10, credible_mass=0.68, histogram_bins=30):
         flat_samples = sampler.get_chain(discard=p.burn_in, thin=thin_samples, flat=True)
         # discard the initial p.burn_in steps from each chain to ensure only samples that represent the equilibrium distribution are analyzed.
         # thin=10: keep only every 10th sample from the chain to reduce autocorrelation in the chains and the size of the resulting arrays.
@@ -218,6 +243,7 @@ class CurveSimMCMC():
 
         CurveSimMCMC.mcmc_trace_plots(fitting_parameter_names, ndim, p, sampler, p.fitting_results_directory+"/traces.png")
         max_likelihood_params = CurveSimMCMC.mcmc_max_likelihood_parameters(flat_samples, p, sampler, thin_samples)
-        mcmc_results = CurveSimMCMC.mcmc_high_density_intervals(fitting_parameter_names, flat_samples, max_likelihood_params, credible_mass)
-        CurveSimMCMC.mcmc_histograms(fitting_parameter_names, flat_samples, mcmc_results, ndim, histogram_bins, p.fitting_results_directory+"/histograms.png")
+        results = CurveSimMCMC.mcmc_high_density_intervals(fitting_parameter_names, flat_samples, max_likelihood_params, credible_mass)
+        CurveSimMCMC.mcmc_histograms(fitting_parameter_names, flat_samples, results, ndim, histogram_bins, p.fitting_results_directory+"/histograms.png")
         CurveSimMCMC.mcmc_corner_plot(fitting_parameter_names, flat_samples, max_likelihood_params, ndim, p.fitting_results_directory+"/corner.png")
+        CurveSimMCMC.save_mcmc_results(results, p, bodies)

@@ -19,7 +19,6 @@ def multiple_transit_error():
 class CurveSimBody:
 
     def __init__(self, primary, p, name, body_type, mass, radius, luminosity, startposition, velocity, P, a, e, i, Omega, omega, pomega, L, ma, ea,
-                 # pot_transit_date,
                  nu, T, t, limb_darkening_1, limb_darkening_2, limb_darkening_parameter_type, color):
         """Initialize instance of physical body."""
         # For ease of use of constants in the config file they are additionally defined here without the prefix "p.".
@@ -27,6 +26,7 @@ class CurveSimBody:
         r_jup, m_jup, r_earth, m_earth, v_earth = p.r_jup, p.m_jup, p.r_earth, p.m_earth, p.v_earth
         self.name = name  # name
         self.body_type = body_type  # "star" or "planet"
+        self.primary = primary
         self.color = color  # (R, G, B)  each between 0 and 1
         self.mass = mass  # [kg]
         self.radius = radius  # [m]
@@ -50,15 +50,22 @@ class CurveSimBody:
         self.a = a  # [m] semi-major axis
 
         self.Omega = None if Omega is None else math.radians(Omega)  # [deg] longitude of ascending node
+        self.Omega_deg = None if Omega is None else Omega
         self.omega = None if omega is None else math.radians(omega)  # [deg] argument of periapsis
+        self.omega_deg = None if omega is None else omega
         self.pomega = None if pomega is None else math.radians(pomega)  # [deg] longitude of periapsis
+        self.pomega_deg = None if pomega is None else pomega
 
         self.L = None if L is None else math.radians(L)  # [deg] mean longitude
+        self.L_deg = None if L is None else L
         self.ma = None if ma is None else math.radians(ma)  # [deg] mean anomaly
+        self.ma_deg = None if ma is None else ma
         self.ea = None if ea is None else math.radians(ea)  # [deg] eccentric anomaly
+        self.ea_deg = None if ea is None else ea
         self.nu = None if nu is None else math.radians(nu)  # [deg] true anomaly. Per definition = 270° at the time of an exoplanet's primary transit.
+        self.nu_deg = None if nu is None else nu
         self.T = T  # [s] Time of periapsis
-        self.t = t  # [s] time since last time of transit
+        self.t = t  # [s] optional additional time delta. For example time since last time of transit
 
         self.mu = None  # Gravitational Parameter. Depends on the masses of at least 2 bodies.
 

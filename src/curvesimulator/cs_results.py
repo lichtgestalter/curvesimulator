@@ -62,7 +62,7 @@ class CurveSimResults(dict):
         return p.start_date + iteration * p.dt / p.day
 
     def results2json(self, filename, p):
-        """Converts self to JSON and saves it in testjson.json"""
+        """Converts self to JSON and saves it."""
         with open(filename, "w", encoding='utf8') as file:
             json.dump(self, file, indent=4, ensure_ascii=False)
         if p.verbose:

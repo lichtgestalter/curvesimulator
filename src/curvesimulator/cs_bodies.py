@@ -86,7 +86,7 @@ class CurveSimBodies(list):
         for section in config.sections():
             if section not in p.standard_sections:  # section describes a physical object
                 self.append(CurveSimBody(p=p,
-                                         primary=len(self) == 0,
+                                         primary=config.get(section, "primary", fallback=None),
                                          name=section,
                                          body_type=config.get(section, "body_type", fallback=None),
                                          color=tuple([eval(x) for x in config.get(section, "color", fallback="-1").split(",")]),

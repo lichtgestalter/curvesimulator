@@ -5,16 +5,9 @@ Datenpunkte;  Chains;  Steps;  Laufzeit;  s/it
 
 Next / in progress:
 0.5.5   MCMC integration
-    Resultate -> JSON
 
     MCMC-Auswertungen abspeichern:
-        Output aus MCMC in verstaendlichen Einheiten (P in Tagen statt Sekunden)
-        Parameter fuer MCMC-Results top directory in config file
-            fitting_results_directory = ../results/mcmc
-        Alle Resultate eines Laufs werden in einem eigenen Unterordner gespeichert (laufende Nummerierung?)
-            plots: traces, histogram, corner
-            programm parameter (JSON)
-            hdi, max likelihood (im gleichen JSON)
+        Output aus MCMC in verstaendlichen Einheiten (P in Tagen statt Sekunden)?
 
     Wie gebe ich sinnvolle upper/lower bounds fuer z.B. ma=359 Grad an?
     Wenn P veraendert wird, auch a updaten?
@@ -43,7 +36,10 @@ Next / in progress:
         Vielleicht Berechnungsfehler des Impulses?
 
 Fragen an Simon:
-    Kommt aus MCMC auch die Standardabweichung der gefitteten Parameter raus? Oder wie kriegt man die raus?
+    Was wuerde binning von Flux-Daten fuer die Qualitaet von MCMC bedeuten? (Es wuerde auf jeden Fall viel schneller laufen.)
+    Kommt aus MCMC auch die Standardabweichung der gefitteten Parameter raus?
+        Ich hab einfach mal mean und std von den samples genommen.
+        War das korrekt oder wie kriegt man die raus?
     Verstehst du die MCMC-Resultate (Inhalt von sampler)? ZB. acceptance_fraction?
 
     Hast du Literatur zu multiple Transits / Fallunterscheidung bei gegenseitiger Ueberdeckung von 3 oder mehr Kreisen?

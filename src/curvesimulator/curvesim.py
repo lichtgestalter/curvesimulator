@@ -14,7 +14,7 @@ class CurveSimulator:
             time_s0, measured_flux, flux_uncertainty = CurveSimMCMC.get_measured_flux(parameters)
             bodies = CurveSimBodies(parameters)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
             sampler, fitting_parameter_names, ndim = CurveSimMCMC.run_mcmc(parameters, bodies, time_s0, measured_flux, flux_uncertainty, 1e-4)
-            CurveSimMCMC.mcmc_results(parameters, sampler, fitting_parameter_names, ndim, 10, 0.68, 30)
+            CurveSimMCMC.mcmc_results(parameters, bodies, sampler, fitting_parameter_names, ndim, 10, 0.68, 30)
         else:
             time_s0, time_d = CurveSimParameters.init_time_arrays(parameters)  # s0 in seconds, starting at 0. d in BJD.
             bodies = CurveSimBodies(parameters)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
