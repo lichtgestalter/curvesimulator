@@ -96,3 +96,5 @@ class CurveSimResults(dict):
         self["ProgramParameters"] = p.__dict__
         resultfilename = CurveSimResults.check_resultfilename(p.result_file)
         self.results2json(resultfilename, p)
+        if p.verbose:
+            print(self)

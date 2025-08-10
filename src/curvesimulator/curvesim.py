@@ -2,17 +2,18 @@
 from .cs_animation import CurveSimAnimation
 from .cs_bodies import CurveSimBodies
 from .cs_parameters import CurveSimParameters
-# from .cs_mcmc import CurveSimMCMC
-from .cs_flux_data import *
+from .cs_mcmc import CurveSimMCMC
+# from .cs_flux_data import *
 
 
 def curvesim(config_file=""):
     parameters = CurveSimParameters(config_file)  # Read program parameters from config file.
+    print(parameters)
     if parameters.flux_file:  # run mcmc?
-        time_s0, measured_flux, flux_uncertainty = get_measured_flux(parameters)
+        time_s0, measured_flux, flux_uncertainty = CurveSimMCMC.get_measured_flux(parameters)
         bodies = CurveSimBodies(parameters)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
-        sampler, fitting_parameter_names, ndim = run_mcmc(parameters, bodies, time_s0, measured_flux, flux_uncertainty, 1e-4)
-        mcmc_results(parameters, sampler, fitting_parameter_names, ndim, 10, 0.68, 30)
+        sampler, fitting_parameter_names, ndim = CurveSimMCMC.run_mcmc(parameters, bodies, time_s0, measured_flux, flux_uncertainty, 1e-4)
+        CurveSimMCMC.mcmc_results(parameters, sampler, fitting_parameter_names, ndim, 10, 0.68, 30)
 
         return parameters, bodies, None, None
     else:
