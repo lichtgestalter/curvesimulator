@@ -59,7 +59,7 @@ class CurveSimParameters:
         self.fitting_results_directory = config.get("Fitting", "fitting_results_directory", fallback="None")
         if self.fitting_results_directory == "None":
             self.fitting_results_directory = None
-        else:
+        if self.flux_file is not None and self.fitting_results_directory is not None:
             self.find_fitting_results_subdirectory()
         self.walkers = eval(config.get("Fitting", "walkers"))
         self.steps = eval(config.get("Fitting", "steps"))

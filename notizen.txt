@@ -31,14 +31,13 @@ Next / in progress:
             dafuer flexible Funktion schreiben, die die relevanten Daten aus dem grossen csv holt und in ein kleines schreibt
                 mit Parameter delta (Zeit vor und nach TT als Parameter)
 
+
+    ### MCMC ERNSTHAFT AUF TOI4504 LAUFEN LASSEN!!! ###
+
+
     Orga/Refactoring:
-        Soll Code fuer mcmc in flux-data bleiben?
-        cs_mcmc nutzen oder abschaffen
         Klasse in flux_data anlegen? (import * ist haesslich)
         Package mal wieder hochladen und mit pip testen.
-        in run_curvesim cursimulator = Curvesimulator()
-            also Klasse statt Funktion
-            Klasse kann saemtliche Variablen/Resultate als Atrribute enthalten.
 
     Simulationscheck klappt fuer Drehimpuls, Energie und Center of Mass, aber nicht fuer Impuls.
         Vielleicht Berechnungsfehler des Impulses?
