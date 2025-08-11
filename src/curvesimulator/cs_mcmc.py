@@ -116,12 +116,14 @@ class CurveSimMCMC():
 
     @staticmethod
     def scale_samples(fitting_parameter_names, flat_samples):
-        dimension = {"mass": "kg", "radius": "m", "i": "deg", "P": "s", "a": "m", "Omega": "deg", "omega": "deg", "pomega": "deg",
+        units = {"mass": "kg", "radius": "m", "i": "deg", "P": "s", "a": "m", "Omega": "deg", "omega": "deg", "pomega": "deg",
                      "L": "deg", "ma": "deg", "ea": "deg", "nu": "deg", "T": "s", "t": "s"}
-        hier weiter
+
+        fitting_parameter_names_with_units = []
         for fpn in fitting_parameter_names:
-            print(fpn.split(".")[-1])
-        return fitting_parameter_names, flat_samples
+            unit = units[fpn.split(".")[-1]]
+            fitting_parameter_names_with_units.append(fpn + " [" + unit +"]")
+        return fitting_parameter_names_with_units, flat_samples
 
     @staticmethod
     def mcmc_trace_plots(fitting_parameter_names, ndim, p, sampler, plot_filename=None):
@@ -167,7 +169,9 @@ class CurveSimMCMC():
         if ndim == 1:
             axes = [axes]
         for i, (sample, ax, name) in enumerate(zip(flat_samples.T, axes, fitting_parameter_names)):
-            ax.hist(sample, bins=bins, density=True, alpha=0.7, color="blue", edgecolor="black")
+            densities, bin_edges, _ = ax.hist(sample, bins=bins, density=True, alpha=0.7, color="blue", edgecolor="black")
+            results[name]["densities"] = list(densities)
+            results[name]["bin_edges"] = list(bin_edges)
             ax.axvline(results[name]["hdi_min"], color="green", linestyle="dashed", label="HDI Lower Bound")
             ax.axvline(results[name]["mean"] - results[name]["std"], color="gray", linestyle="dotted", label="Mean - Std")
             ax.axvline(results[name]["max_likelihood"], color="red", linestyle="solid", label="Max Likelihood")
@@ -182,7 +186,13 @@ class CurveSimMCMC():
         if plot_filename:
             plt.savefig(plot_filename)
         plt.show()
+        return results
 
+        # densities_per_param = []
+        # for i, (sample, ax, name) in enumerate(zip(flat_samples.T, axes, fitting_parameter_names)):
+        #     densities, bin_edges, _ = ax.hist(sample, bins=bins, density=True, alpha=0.7, color="blue", edgecolor="black")
+        #     densities_per_param.append(densities)
+        # return densities_per_param  # List of arrays, one per parameter
 
     @staticmethod
     def mcmc_corner_plot(fitting_parameter_names, flat_samples, max_likelihood_params, ndim, plot_filename=None):
@@ -253,6 +263,6 @@ class CurveSimMCMC():
         CurveSimMCMC.mcmc_trace_plots(fitting_parameter_names, ndim, p, sampler, p.fitting_results_directory+"/traces.png")
         max_likelihood_params = CurveSimMCMC.mcmc_max_likelihood_parameters(flat_samples, p, sampler, thin_samples)
         results = CurveSimMCMC.mcmc_high_density_intervals(fitting_parameter_names, flat_samples, max_likelihood_params, credible_mass)
-        CurveSimMCMC.mcmc_histograms(fitting_parameter_names, flat_samples, results, ndim, histogram_bins, p.fitting_results_directory+"/histograms.png")
+        results = CurveSimMCMC.mcmc_histograms(fitting_parameter_names, flat_samples, results, ndim, histogram_bins, p.fitting_results_directory+"/histograms.png")
         CurveSimMCMC.mcmc_corner_plot(fitting_parameter_names, flat_samples, max_likelihood_params, ndim, p.fitting_results_directory+"/corner.png")
         CurveSimMCMC.save_mcmc_results(results, p, bodies)

@@ -6,10 +6,6 @@ Datenpunkte;  Chains;  Steps;  Laufzeit;  s/it
 Next / in progress:
 0.5.5   MCMC integration
 
-    MCMC-Auswertungen abspeichern:
-        Output aus MCMC in verstaendlichen Einheiten (P in Tagen statt Sekunden)?
-        Histogram bins?
-
     Wie gebe ich sinnvolle upper/lower bounds fuer z.B. ma=359 Grad an?
     Wenn P veraendert wird, auch a updaten?
         Eindeutige Abhaengigkeits/Update-Ketten definieren?
