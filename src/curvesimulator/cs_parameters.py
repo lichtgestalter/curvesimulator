@@ -35,7 +35,7 @@ class CurveSimParameters:
 
         # [Results]
         self.comment = config.get("Results", "comment", fallback="No comment")
-        self.verbose = eval(config.get("Results", "verbose", fallback="True"))
+        self.verbose = eval(config.get("Results", "verbose", fallback="False"))
 
         # [Simulation]
         self.dt = eval(config.get("Simulation", "dt"))
@@ -173,10 +173,10 @@ class CurveSimParameters:
             print(f"{Fore.RED}Please only use config files with the .ini extension. (You tried to use {config_file}.){Style.RESET_ALL}")
             sys.exit(1)
 
-        for section in standard_sections:  # Does the config file contain all standard sections?
-            if section not in config.sections() and section != "Debug":
-                print(f"{Fore.RED}Section {section} missing in config file.{Style.RESET_ALL}")
-                sys.exit(1)
+        # for section in standard_sections:  # Does the config file contain all standard sections?
+        #     if section not in config.sections() and section != "Debug":
+        #         print(f"{Fore.RED}Section {section} missing in config file.{Style.RESET_ALL}")
+        #         sys.exit(1)
 
     @staticmethod
     def init_time_arrays(p):
