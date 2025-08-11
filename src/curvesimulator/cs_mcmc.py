@@ -116,6 +116,11 @@ class CurveSimMCMC():
 
     @staticmethod
     def scale_samples(fitting_parameter_names, flat_samples):
+        dimension = {"mass": "kg", "radius": "m", "i": "deg", "P": "s", "a": "m", "Omega": "deg", "omega": "deg", "pomega": "deg",
+                     "L": "deg", "ma": "deg", "ea": "deg", "nu": "deg", "T": "s", "t": "s"}
+        hier weiter
+        for fpn in fitting_parameter_names:
+            print(fpn.split(".")[-1])
         return fitting_parameter_names, flat_samples
 
     @staticmethod
