@@ -114,6 +114,9 @@ class CurveSimMCMC():
         mean = np.mean(data)
         return hdi_min, hdi_max, std, mean
 
+    @staticmethod
+    def scale_samples(fitting_parameter_names, flat_samples):
+        return fitting_parameter_names, flat_samples
 
     @staticmethod
     def mcmc_trace_plots(fitting_parameter_names, ndim, p, sampler, plot_filename=None):
@@ -241,6 +244,7 @@ class CurveSimMCMC():
         # thin=10: keep only every 10th sample from the chain to reduce autocorrelation in the chains and the size of the resulting arrays.
         # flat=True: return all chains in a single, two-dimensional array (shape: (n_samples, n_parameters))
 
+        fitting_parameter_names, flat_samples = CurveSimMCMC.scale_samples(fitting_parameter_names, flat_samples)
         CurveSimMCMC.mcmc_trace_plots(fitting_parameter_names, ndim, p, sampler, p.fitting_results_directory+"/traces.png")
         max_likelihood_params = CurveSimMCMC.mcmc_max_likelihood_parameters(flat_samples, p, sampler, thin_samples)
         results = CurveSimMCMC.mcmc_high_density_intervals(fitting_parameter_names, flat_samples, max_likelihood_params, credible_mass)

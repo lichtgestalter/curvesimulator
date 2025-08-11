@@ -34,74 +34,82 @@ class CurveSimParameters:
         self.hour, self.day, self.year = hour, day, year
 
         # [Results]
-        self.result_file = config.get("Results", "result_file", fallback="None")
-        if self.result_file == "None":
-            self.result_file = None
-        self.result_dt = eval(config.get("Results", "result_dt", fallback="100"))
         self.comment = config.get("Results", "comment", fallback="No comment")
         self.verbose = eval(config.get("Results", "verbose", fallback="True"))
 
         # [Simulation]
         self.dt = eval(config.get("Simulation", "dt"))
         self.start_date = eval(config.get("Simulation", "start_date", fallback="0.0"))
-        self.starts_d = np.array(eval(config.get("Simulation", "starts", fallback="[]")))
-        self.ends_d = np.array(eval(config.get("Simulation", "ends", fallback="[]")))
-        self.dts = np.array(eval(config.get("Simulation", "dts", fallback="[]")))
-        self.sim_flux_file = config.get("Simulation", "sim_flux_file", fallback="None")
-        if self.sim_flux_file == "None":
-            self.sim_flux_file = None
-        self.sim_flux_err = eval(config.get("Simulation", "sim_flux_err", fallback="0.0"))
-
-        # [Fitting]
-        self.flux_file = config.get("Fitting", "flux_file", fallback="None")
-        if self.flux_file == "None":
-            self.flux_file = None
-        self.fitting_results_directory = config.get("Fitting", "fitting_results_directory", fallback="None")
-        if self.fitting_results_directory == "None":
-            self.fitting_results_directory = None
-        if self.flux_file is not None and self.fitting_results_directory is not None:
-            self.find_fitting_results_subdirectory()
-        self.walkers = eval(config.get("Fitting", "walkers"))
-        self.steps = eval(config.get("Fitting", "steps"))
-        self.burn_in = eval(config.get("Fitting", "burn_in"))
 
         # [Video]
         self.video_file = config.get("Video", "video_file", fallback="None")
         if self.video_file == "None":
             self.video_file = None
-        self.frames = eval(config.get("Video", "frames"))
-        self.fps = eval(config.get("Video", "fps"))
-        self.start_indices, self.max_iterations, self.total_iterations = self.check_intervals()
-        self.sampling_rate = (self.total_iterations - 1) // self.frames + 1
 
-        # [Scale]
-        self.scope_left = eval(config.get("Scale", "scope_left"))
-        self.star_scale_left = eval(config.get("Scale", "star_scale_left"))
-        self.planet_scale_left = eval(config.get("Scale", "planet_scale_left"))
-        self.scope_right = eval(config.get("Scale", "scope_right"))
-        self.star_scale_right = eval(config.get("Scale", "star_scale_right"))
-        self.planet_scale_right = eval(config.get("Scale", "planet_scale_right"))
-        self.autoscaling = config.get("Scale", "autoscaling") == "on"
-        self.min_radius = eval(config.get("Scale", "min_radius")) / 100.0
-        self.max_radius = eval(config.get("Scale", "max_radius")) / 100.0
+        # [Fitting]
+        self.flux_file = config.get("Fitting", "flux_file", fallback="None")
+        if self.flux_file == "None":
+            self.flux_file = None
 
-        # [Plot]
-        self.figure_width = eval(config.get("Plot", "figure_width", fallback="16"))
-        self.figure_height = eval(config.get("Plot", "figure_height", fallback="8"))
-        self.xlim = eval(config.get("Plot", "xlim", fallback="1.25"))
-        self.ylim = eval(config.get("Plot", "ylim", fallback="1.0"))
-        self.red_dot_height = eval(config.get("Plot", "red_dot_height", fallback="0.077"))
-        self.red_dot_width = eval(config.get("Plot", "red_dot_width", fallback="0.005"))
-        # Checking all parameters defined so far
-        # for key in vars(self):
-        #     if type(getattr(self, key)) not in [str, dict, bool, list, tuple, np.ndarray]:
-        #         if getattr(self, key) < 0:
-        #             print(f"{Fore.RED}ERROR in configuration file.")
-        #             print(f'{self=}   {key=}   {getattr(self, key)=}    {type(getattr(self, key))=}')
-        #             print(f"No parameter in sections {self.standard_sections} may be negative.{Style.RESET_ALL}")
-        if self.flux_file:
+        if self.flux_file is None:  # run simulation, generate video and transit results
+
+            # [Results]
+            self.result_file = config.get("Results", "result_file", fallback="None")
+            if self.result_file == "None":
+                self.result_file = None
+            self.result_dt = eval(config.get("Results", "result_dt", fallback="100"))
+
+            # [Simulation]
+            self.starts_d = np.array(eval(config.get("Simulation", "starts", fallback="[]")))
+            self.ends_d = np.array(eval(config.get("Simulation", "ends", fallback="[]")))
+            self.dts = np.array(eval(config.get("Simulation", "dts", fallback="[]")))
+            self.sim_flux_file = config.get("Simulation", "sim_flux_file", fallback="None")
+            if self.sim_flux_file == "None":
+                self.sim_flux_file = None
+            self.sim_flux_err = eval(config.get("Simulation", "sim_flux_err", fallback="0.0"))
+
+            # [Video]
+            self.frames = eval(config.get("Video", "frames"))
+            self.fps = eval(config.get("Video", "fps"))
+            self.start_indices, self.max_iterations, self.total_iterations = self.check_intervals()
+            self.sampling_rate = (self.total_iterations - 1) // self.frames + 1
+
+            # [Scale]
+            self.scope_left = eval(config.get("Scale", "scope_left"))
+            self.star_scale_left = eval(config.get("Scale", "star_scale_left"))
+            self.planet_scale_left = eval(config.get("Scale", "planet_scale_left"))
+            self.scope_right = eval(config.get("Scale", "scope_right"))
+            self.star_scale_right = eval(config.get("Scale", "star_scale_right"))
+            self.planet_scale_right = eval(config.get("Scale", "planet_scale_right"))
+            self.autoscaling = config.get("Scale", "autoscaling") == "on"
+            self.min_radius = eval(config.get("Scale", "min_radius")) / 100.0
+            self.max_radius = eval(config.get("Scale", "max_radius")) / 100.0
+
+            # [Plot]
+            self.figure_width = eval(config.get("Plot", "figure_width", fallback="16"))
+            self.figure_height = eval(config.get("Plot", "figure_height", fallback="8"))
+            self.xlim = eval(config.get("Plot", "xlim", fallback="1.25"))
+            self.ylim = eval(config.get("Plot", "ylim", fallback="1.0"))
+            self.red_dot_height = eval(config.get("Plot", "red_dot_height", fallback="0.077"))
+            self.red_dot_width = eval(config.get("Plot", "red_dot_width", fallback="0.005"))
+            # Checking all parameters defined so far
+            # for key in vars(self):
+            #     if type(getattr(self, key)) not in [str, dict, bool, list, tuple, np.ndarray]:
+            #         if getattr(self, key) < 0:
+            #             print(f"{Fore.RED}ERROR in configuration file.")
+            #             print(f'{self=}   {key=}   {getattr(self, key)=}    {type(getattr(self, key))=}')
+            #             print(f"No parameter in sections {self.standard_sections} may be negative.{Style.RESET_ALL}")
+        else: # run MCMC, fit parameters to flux measurements
+            # [Fitting]
+            self.fitting_results_directory = config.get("Fitting", "fitting_results_directory", fallback="None")
+            if self.fitting_results_directory == "None":
+                self.fitting_results_directory = None
+            if self.fitting_results_directory is not None:
+                self.find_fitting_results_subdirectory()
+            self.walkers = eval(config.get("Fitting", "walkers"))
+            self.steps = eval(config.get("Fitting", "steps"))
+            self.burn_in = eval(config.get("Fitting", "burn_in"))
             self.fitting_parameters = self.read_fitting_parameters(config)
-        # exit(543)
 
     def __repr__(self):
         return f'CurveSimParameters from {self.config_file}'
@@ -114,7 +122,7 @@ class CurveSimParameters:
            Creates alternative parameters starts_s0, ends_s0 in seconds instead of days and starting with 0 at start_date.
          """
         if len(self.starts_d) == 0 or len(self.ends_d) == 0 or len(self.dts) == 0:
-            print("At least on of the parameters starts/ends/dts is missing. Default values take effect.")
+            print("At least one of the parameters starts/ends/dts is missing. Default values take effect.")
             self.starts_d = np.array([self.start_date])
             self.dts = np.array([self.dt])
             self.ends_d = np.array([self.start_date + (self.frames * self.fps * self.dt) / self.day])  # default value. Assumes the video shall last 'frames' seconds.

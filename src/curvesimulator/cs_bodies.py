@@ -56,10 +56,10 @@ class CurveSimBodies(list):
             # simulation.add(primary=simulation.particles[self[0].name], **kwargs)
             i += 1
         simulation.move_to_com()  # move origin to center of mass before integrating -> better numerical stability
-        if p.result_file:  # does not seem to help for MCMC, but is a good choice when creating a result file including transit times
-        # if False:  # debug
-            simulation.ri_whfast.safe_mode = 0  # see https://rebound.readthedocs.io/en/latest/ipython_examples/AdvWHFast/
-            simulation.ri_whfast.corrector = 11  # hopefully more accuracy
+        if p.flux_file is None:  # does not seem to help for MCMC, but is a good choice when creating a result file including transit times
+            if p.result_file:
+                simulation.ri_whfast.safe_mode = 0  # see https://rebound.readthedocs.io/en/latest/ipython_examples/AdvWHFast/
+                simulation.ri_whfast.corrector = 11  # hopefully more accurate
         return simulation
 
     # noinspection PyUnusedLocal
@@ -113,7 +113,8 @@ class CurveSimBodies(list):
                                          t=               p.read_param(config, section, "t", fallback="0.0"),
                                          ))
         self.check_body_parameters()
-        self.generate_patches(p)
+        if p.flux_file is None:
+            self.generate_patches(p)
 
     def __repr__(self):
         names = "CurveSimBodies: "
@@ -278,7 +279,7 @@ class CurveSimBodies(list):
     def calc_physics(self, p, time_s0):
         """Calculate body positions and the resulting lightcurve."""
         if p.verbose:
-            if p.video_file:
+            if p.video_file and p.flux_file is None:
                 print(f'Generating {p.frames} frames for a {p.frames / p.fps:.0f} seconds long video.')
             print(f'Calculating {p.total_iterations:,} iterations ', end="")
             tic = time.perf_counter()
