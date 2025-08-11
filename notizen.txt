@@ -8,6 +8,7 @@ Next / in progress:
 
     MCMC-Auswertungen abspeichern:
         Output aus MCMC in verstaendlichen Einheiten (P in Tagen statt Sekunden)?
+        Histogram bins?
 
     Wie gebe ich sinnvolle upper/lower bounds fuer z.B. ma=359 Grad an?
     Wenn P veraendert wird, auch a updaten?
