@@ -18,21 +18,25 @@ class Transit:
         self.processed_filename = processed_filename # normalized, corrected BJD, transits only
         self.df_download = csv2df(self.download_filename)  # original TESS data
         self.df_normalized = self.normalize()  # normalized, corrected BJD
-        self.df_processed = None  # normalized, corrected BJD, transits only
+        self.df_processed = self.process()  # normalized, corrected BJD, transits only
+        df2csv(self.df_processed, self.processed_filename)
 
 
     def normalize(self):
-        df = tesstime2bjd(self.df_download)  # correct BJD
-        for left, right in zip(self.lefts, self.rights):  # exclude transits before calculating median
+        df = tesstime2bjd(self.df_download.copy())
+        df2 = tesstime2bjd(self.df_download.copy())
+        for left, right in zip(self.lefts, self.rights):  # exclude transits before calculating median (prevents systematic transit depth error of about 1%)
             df = remove_from_df(df, left, right)
-        df = scale_flux(df, 1 / median_flux(df))  # normalize with median
+        df2 = scale_flux(df2, 1 / median_flux(df))  # normalize with median
+        return df2
+
+    def process(self):
+        lefts = self.lefts + [1e99]
+        rights = [-1e99] + self.rights
+        df = self.df_normalized.copy()
+        for left, right in zip(lefts, rights):  # remove all data outside of transits
+            df = remove_from_df(df, right, left)
         return df
-
-    def plot_transit(self):
-        0
-
-    def process_download(self):
-        0
 
 
 
@@ -61,6 +65,7 @@ def plot_this(
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.title(title)
+    plt.ticklabel_format(useOffset=False, style='plain', axis='x')   # show x-labels as they are
     if left or right:
         plt.xlim(left=left, right=right)
     if bottom or top:
@@ -74,6 +79,26 @@ def plot_this(
     if plot_file:
         plt.savefig(plot_file)
     plt.show()
+
+
+def plot_flux_df(
+        df: pd.DataFrame,         # dataframe with columns "time" and "flux"
+        title: str = None,        # plot title
+        x_label: str = None,      # label of x-axis
+        y_label: str = None,      # label of y-axis
+        plot_file: str = None,    # file name if the plot shall be saved as .png
+        legend: bool = None,      # display legend?
+        grid: bool = None,        # display grid?
+        marker: str = 'o',        # marker style for each data point
+        markersize: int = 1,      # marker size for each data point
+        linestyle: str = 'None',  # line connecting data points
+        left: float = None,       # cut off x-axis
+        right: float = None,      # cut off x-axis
+        bottom: float = None,     # cut off y-axis
+        top: float = None         # cut off y-axis
+) -> None:
+
+    plot_this(df.time, [df.flux], ["flux"], title, x_label, y_label, plot_file, legend, grid, marker, markersize, linestyle, left, right, bottom, top)
 
 
 def csv2df(filename):
@@ -308,3 +333,16 @@ def combine_flux_data(start_sec, end_sec, filename):
 
     combined_df = pd.concat(all_dfs, ignore_index=True)
     df2csv(combined_df, path + filename)
+
+
+if __name__ == "__main__":
+    path = '../../data/TOI-4504/'
+    C_TRANSITS = [2458401.41, 2458483.21, 2458565.09, 2458647.33, 2459065.24, 2459148.48, 2459231.11, 2459313.25, 2459976.05, 2460059.62, 2460142.60]
+    # spoc_sectors = [27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 61, 62, 63, 64, 65, 67, 68, 69, 87, 88, 89, 90, 94]
+    spoc_sectors = [28, 31, 34, 37, 61, 64, 67, 88, 89, 94]
+    sector = 28
+    transit28 = Transit(28, "cT8", [C_TRANSITS[4]-0.3], [C_TRANSITS[4]+0.3], path + f"downloads/{sector}_SPOC_120.csv", path + f"{sector}_SPOC_120.csv")
+    plot_flux_df(transit28.df_download, title="Download")
+    plot_flux_df(transit28.df_normalized, title="Normalized")
+    plot_flux_df(transit28.df_processed, title="Processed")
+    next: sektor 89 testen (weil hat 2 transits)
