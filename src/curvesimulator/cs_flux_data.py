@@ -7,6 +7,36 @@ import pandas as pd
 
 C_TRANSITS = [2458401.41, 2458483.21, 2458565.09, 2458647.33, 2459065.24, 2459148.48, 2459231.11, 2459313.25, 2459976.05, 2460059.62, 2460142.60]
 
+class Transit:
+
+    def __init__(self, sector, name, lefts, rights, download_filename, processed_filename):
+        self.sector = sector   # TESS sector
+        self.name = name       # e.g. cT8 for the 8th transit of planet c
+        self.lefts = lefts     # list of left borders of transits in this sector [BJD]
+        self.rights = rights   # list of right borders of transits in this sector [BJD]
+        self.download_filename = download_filename  # name of csv file with original TESS data
+        self.processed_filename = processed_filename # normalized, corrected BJD, transits only
+        self.df_download = csv2df(self.download_filename)  # original TESS data
+        self.df_normalized = self.normalize()  # normalized, corrected BJD
+        self.df_processed = None  # normalized, corrected BJD, transits only
+
+
+    def normalize(self):
+        df = tesstime2bjd(self.df_download)  # correct BJD
+        for left, right in zip(self.lefts, self.rights):  # exclude transits before calculating median
+            df = remove_from_df(df, left, right)
+        df = scale_flux(df, 1 / median_flux(df))  # normalize with median
+        return df
+
+    def plot_transit(self):
+        0
+
+    def process_download(self):
+        0
+
+
+
+
 def plot_this(
         x: np.ndarray,            # positions of data points on x-axis
         data_list: list,          # each list item is a list or numpy array which will be displayed as a curve
@@ -64,13 +94,15 @@ def lc2df(lc):
 
 
 def tesstime2bjd(df):
-    df.loc[:, 'time'] += 2457000  # offset in TESS data
-    return df
+    df2 = df.copy()
+    df2.loc[:, 'time'] += 2457000  # offset in TESS data
+    return df2
 
 
 def bjd2tess_time(df):
-    df.loc[:, 'time'] -= 2457000  # offset in TESS data
-    return df
+    df2 = df.copy()
+    df2.loc[:, 'time'] -= 2457000  # offset in TESS data
+    return df2
 
 
 def extract_from_df(df, start, end):
@@ -85,9 +117,10 @@ def remove_from_df(df, start, end):
 
 
 def scale_flux(df, factor):
-    df.loc[:, 'flux'] *= factor
-    df.loc[:, 'flux_err'] *= factor
-    return df
+    df2 = df.copy()
+    df2.loc[:, 'flux'] *= factor
+    df2.loc[:, 'flux_err'] *= factor
+    return df2
 
 
 def calculate_flux_err(df, window_length=101):
@@ -112,13 +145,14 @@ def median_flux(df, start=None, end=None, ignore_time_intervals=None):
     end:   <float> Use data stopping at this date (BJD)
     ignore_time_interval: <list(float, float)> For each tuple, exclude data between 1st item of tuple and 2nd item of tuple
     """
+    df2 = df.copy()
     if ignore_time_intervals is None:
         ignore_time_intervals = []
     if start and end:
-        df = extract_from_df(df, start, end)  # Keep only rows where start <= time <= end
+        df2 = extract_from_df(df2, start, end)  # Keep only rows where start <= time <= end
     for ignore_start, ignore_end in ignore_time_intervals:
-        df = remove_from_df(df, ignore_start, ignore_end)  # Remove rows from df where start <= time <= end
-    return df['flux'].median()
+        df2 = remove_from_df(df2, ignore_start, ignore_end)  # Remove rows from df2 where start <= time <= end
+    return df2['flux'].median()
 
 
 def periodogram(results):
