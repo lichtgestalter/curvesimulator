@@ -54,7 +54,6 @@ class CurveSimMCMC():
         print("MCMC completed.")
         return sampler, fitting_parameter_names, ndim
 
-
     @staticmethod
     def log_prior(theta, theta_bounds):
         """# If any parameter is outside resonable bounds: return -np.inf"""
@@ -62,7 +61,6 @@ class CurveSimMCMC():
             if not (lower < val < upper):
                 return -np.inf
         return 0
-
 
     @staticmethod
     def log_likelihood(theta, theta_references, bodies, time_s0, measured_flux, flux_uncertainty, p):
@@ -78,7 +76,7 @@ class CurveSimMCMC():
             For example: ['Tmin_pri', 'P_days', 'incl_deg', 'R1a', 'R2R1']
         """
         i = 0
-        for body_index ,parameter_name in theta_references:
+        for body_index, parameter_name in theta_references:
             bodies[body_index].__dict__[parameter_name] = theta[i]  # update all parameters from theta
             i += 1
         sim_flux, _ = bodies.calc_physics(p, time_s0)  # run simulation
@@ -86,14 +84,12 @@ class CurveSimMCMC():
         residuals_phot_sum_squared = np.sum(residuals ** 2)
         return -0.5 * residuals_phot_sum_squared
 
-
     @staticmethod
     def log_probability(theta, theta_bounds, theta_references, bodies, time_s0, measured_flux, flux_uncertainty, p):
         lp = CurveSimMCMC.log_prior(theta, theta_bounds)
         if not np.isfinite(lp):
             return -np.inf
         return lp + CurveSimMCMC.log_likelihood(theta, theta_references, bodies, time_s0, measured_flux, flux_uncertainty, p)
-
 
     @staticmethod
     def hdi_std_mean(data, credible_mass=0.68):
@@ -115,14 +111,13 @@ class CurveSimMCMC():
         return hdi_min, hdi_max, std, mean
 
     @staticmethod
-    def scale_samples(fitting_parameter_names, flat_samples):
+    def add_units_to_names(fitting_parameter_names, flat_samples):
         units = {"mass": "kg", "radius": "m", "i": "deg", "P": "s", "a": "m", "Omega": "deg", "omega": "deg", "pomega": "deg",
-                     "L": "deg", "ma": "deg", "ea": "deg", "nu": "deg", "T": "s", "t": "s"}
-
+                 "L": "deg", "ma": "deg", "ea": "deg", "nu": "deg", "T": "s", "t": "s"}
         fitting_parameter_names_with_units = []
         for fpn in fitting_parameter_names:
             unit = units[fpn.split(".")[-1]]
-            fitting_parameter_names_with_units.append(fpn + " [" + unit +"]")
+            fitting_parameter_names_with_units.append(fpn + " [" + unit + "]")
         return fitting_parameter_names_with_units, flat_samples
 
     @staticmethod
@@ -140,14 +135,12 @@ class CurveSimMCMC():
             plt.savefig(plot_filename)
         plt.show()
 
-
     @staticmethod
     def mcmc_max_likelihood_parameters(flat_samples, p, sampler, thin_samples):
         log_prob_samples = sampler.get_log_prob(flat=True, discard=p.burn_in, thin=thin_samples)
         max_likelihood_idx = np.argmax(log_prob_samples)
         max_likelihood_params = flat_samples[max_likelihood_idx]
         return max_likelihood_params
-
 
     @staticmethod
     def mcmc_high_density_intervals(fitting_parameter_names, flat_samples, max_likelihood_params, credible_mass=0.68):
@@ -161,7 +154,6 @@ class CurveSimMCMC():
             print(f"{name}: HDI = [{results[name]["hdi_min"]:.6f}, {results[name]["hdi_max"]:.6f}], Max Likelihood = {max_likelihood_params[i]:.6f}, "
                   f"Standard Deviation = {results[name]["std"]:.6f}, Mean = {results[name]["mean"]:.6f}")
         return results
-
 
     @staticmethod
     def mcmc_histograms(fitting_parameter_names, flat_samples, results, ndim, bins, plot_filename=None):
@@ -247,9 +239,6 @@ class CurveSimMCMC():
             #     if body.__dict__[key] is None:
             #         del body.__dict__[key]
 
-
-
-
         CurveSimMCMC.mcmc_results2json(results, p)
 
     @staticmethod
@@ -259,10 +248,10 @@ class CurveSimMCMC():
         # thin=10: keep only every 10th sample from the chain to reduce autocorrelation in the chains and the size of the resulting arrays.
         # flat=True: return all chains in a single, two-dimensional array (shape: (n_samples, n_parameters))
 
-        fitting_parameter_names, flat_samples = CurveSimMCMC.scale_samples(fitting_parameter_names, flat_samples)
-        CurveSimMCMC.mcmc_trace_plots(fitting_parameter_names, ndim, p, sampler, p.fitting_results_directory+"/traces.png")
+        fitting_parameter_names, flat_samples = CurveSimMCMC.add_units_to_names(fitting_parameter_names, flat_samples)
+        CurveSimMCMC.mcmc_trace_plots(fitting_parameter_names, ndim, p, sampler, p.fitting_results_directory + "/traces.png")
         max_likelihood_params = CurveSimMCMC.mcmc_max_likelihood_parameters(flat_samples, p, sampler, thin_samples)
         results = CurveSimMCMC.mcmc_high_density_intervals(fitting_parameter_names, flat_samples, max_likelihood_params, credible_mass)
-        results = CurveSimMCMC.mcmc_histograms(fitting_parameter_names, flat_samples, results, ndim, histogram_bins, p.fitting_results_directory+"/histograms.png")
-        CurveSimMCMC.mcmc_corner_plot(fitting_parameter_names, flat_samples, max_likelihood_params, ndim, p.fitting_results_directory+"/corner.png")
+        results = CurveSimMCMC.mcmc_histograms(fitting_parameter_names, flat_samples, results, ndim, histogram_bins, p.fitting_results_directory + "/histograms.png")
+        CurveSimMCMC.mcmc_corner_plot(fitting_parameter_names, flat_samples, max_likelihood_params, ndim, p.fitting_results_directory + "/corner.png")
         CurveSimMCMC.save_mcmc_results(results, p, bodies)
