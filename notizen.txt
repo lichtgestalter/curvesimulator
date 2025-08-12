@@ -4,7 +4,7 @@ Datenpunkte;  Chains;  Steps;  Laufzeit;  s/it
 
 
 Next / in progress:
-0.5.5   MCMC integration
+0.5.6 Fitting TOI-4504
 
     flux Daten neu zusammenstellen
         besserer author fuer sektoren 1-13?
@@ -372,6 +372,7 @@ I implemented all suggestions from zoom call 29.03.2022, but tried and dismissed
         CurveSimulator can now save a simulated lightcurve plus white noise as a csv-file.
         This file can be used as "measured" data to check if mcmc can generate meaningful results in this configuration.
         MCMC results and plots are now saved.
+    0.5.6 Fitting TOI-4504
 
 
 -----------------------------------------------------------------------
