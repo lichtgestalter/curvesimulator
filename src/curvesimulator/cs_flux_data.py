@@ -346,27 +346,27 @@ if __name__ == "__main__":
     path = '../../data/TOI-4504/'
     # spoc_sectors = [27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 61, 62, 63, 64, 65, 67, 68, 69, 87, 88, 89, 90, 94]
     spoc_sectors = [28, 31, 34, 37, 61, 64, 67, 88, 89, 94]
-    sm = 1.20  # safety margin
+    sm = 0.0  # safety margin
 
     transits03 = SectorData( 3,  [C_T1[0] - sm],  [C_T4[0] + sm], path +  f"downloads/3_TGLC_1800.csv", path + f"3_TGLC_1800.csv")
     transits06 = SectorData( 6,  [C_T1[1] - sm],  [C_T4[1] + sm], path +  f"downloads/6_QLP_1800.csv", path +  f"6_QLP_1800.csv")
     transits09 = SectorData( 9,  [C_T1[2] - sm],  [C_T4[2] + sm], path +  f"downloads/9_QLP_1800.csv", path +  f"9_QLP_1800.csv")
     transits12 = SectorData(12,  [C_T1[3] - sm],  [C_T4[3] + sm], path + f"downloads/12_QLP_1800.csv", path + f"12_QLP_1800.csv")
-    # transits28 = SectorData(28,  [C_T1[4] - sm],  [C_T4[4] + sm], path + f"downloads/28_SPOC_120.csv", path + f"28_SPOC_120.csv")
-    # transits31 = SectorData(31,  [C_T1[5] - sm],  [C_T4[5] + sm], path + f"downloads/31_SPOC_120.csv", path + f"31_SPOC_120.csv")
-    # transits34 = SectorData(34,  [C_T1[6] - sm],  [C_T4[6] + sm], path + f"downloads/34_SPOC_120.csv", path + f"34_SPOC_120.csv")
-    # transits37 = SectorData(37,  [C_T1[7] - sm],  [C_T4[7] + sm], path + f"downloads/37_SPOC_120.csv", path + f"37_SPOC_120.csv")
-    # transits61 = SectorData(61,  [C_T1[8] - sm],  [C_T4[8] + sm], path + f"downloads/61_QLP_200.csv", path + f"61_QLP_200.csv")
-    # transits61.df_processed.flux_err *= 3.0
-    # df2csv(transits61.df_processed, path + f"61_QLP_200.csv" )
-    # transits64 = SectorData(64,  [C_T1[9] - sm],  [C_T4[9] + sm], path + f"downloads/64_SPOC_120.csv", path + f"64_SPOC_120.csv")
-    # transits67 = SectorData(67, [C_T1[10] - sm], [C_T4[10] + sm], path + f"downloads/67_SPOC_120.csv", path + f"67_SPOC_120.csv")
-    # transits88 = SectorData(88,  [D_T1[0] - sm],  [D_T4[0] + sm], path + f"downloads/88_SPOC_120.csv", path + f"88_SPOC_120.csv")
-    # transits94 = SectorData(94,  [D_T1[2] - sm],  [D_T4[2] + sm], path + f"downloads/94_SPOC_120.csv", path + f"94_SPOC_120.csv")
-    # transits89 = SectorData(89, [C_T1[11] - sm, D_T1[1] - sm], [C_T4[11] + sm, D_T4[1] + sm], path + f"downloads/89_SPOC_120.csv", path + f"89_SPOC_120.csv")
+    transits28 = SectorData(28,  [C_T1[4] - sm],  [C_T4[4] + sm], path + f"downloads/28_SPOC_120.csv", path + f"28_SPOC_120.csv")
+    transits31 = SectorData(31,  [C_T1[5] - sm],  [C_T4[5] + sm], path + f"downloads/31_SPOC_120.csv", path + f"31_SPOC_120.csv")
+    transits34 = SectorData(34,  [C_T1[6] - sm],  [C_T4[6] + sm], path + f"downloads/34_SPOC_120.csv", path + f"34_SPOC_120.csv")
+    transits37 = SectorData(37,  [C_T1[7] - sm],  [C_T4[7] + sm], path + f"downloads/37_SPOC_120.csv", path + f"37_SPOC_120.csv")
+    transits61 = SectorData(61,  [C_T1[8] - sm],  [C_T4[8] + sm], path + f"downloads/61_QLP_200.csv", path + f"61_QLP_200.csv")
+    transits61.df_processed.flux_err *= 3.0
+    df2csv(transits61.df_processed, path + f"61_QLP_200.csv" )
+    transits64 = SectorData(64,  [C_T1[9] - sm],  [C_T4[9] + sm], path + f"downloads/64_SPOC_120.csv", path + f"64_SPOC_120.csv")
+    transits67 = SectorData(67, [C_T1[10] - sm], [C_T4[10] + sm], path + f"downloads/67_SPOC_120.csv", path + f"67_SPOC_120.csv")
+    transits88 = SectorData(88,  [D_T1[0] - sm],  [D_T4[0] + sm], path + f"downloads/88_SPOC_120.csv", path + f"88_SPOC_120.csv")
+    transits89 = SectorData(89, [C_T1[11] - sm, D_T1[1] - sm], [C_T4[11] + sm, D_T4[1] + sm], path + f"downloads/89_SPOC_120.csv", path + f"89_SPOC_120.csv")
+    transits94 = SectorData(94,  [D_T1[2] - sm],  [D_T4[2] + sm], path + f"downloads/94_SPOC_120.csv", path + f"94_SPOC_120.csv")
 
     transits = [transits03, transits06, transits09, transits12]
-    # transits = [transits28, transits31, transits34, transits37, transits61, transits64, transits67, transits88, transits89, transits94]
+    transits += [transits28, transits31, transits34, transits37, transits61, transits64, transits67, transits88, transits89, transits94]
     for t in transits:
         plot_flux_df(t.df_processed, title="Sector "+ str(t.sector) +" Processed")
 
@@ -378,3 +378,8 @@ if __name__ == "__main__":
     # plot_flux_df(transits3.df_processed, title="Processed")
     # plot_flux_df(transits89.df_processed, title="Processed", left=C_TT[11] - sm, right=C_TT[11] + sm)
     # plot_flux_df(transits89.df_processed, title="Processed", left=D_TT[1] - sm, right=D_TT[1] + sm)
+
+    all_processed_dfs = [t.df_processed for t in transits]
+
+    all_df = pd.concat(all_processed_dfs, ignore_index=True)
+    df2csv(all_df, path + "TOI4504_transits_sm0.csv")
