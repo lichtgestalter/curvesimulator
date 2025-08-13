@@ -98,7 +98,7 @@ def download_flux_lc(target, sector=None, author=None, exptime=None, save_plot=F
     # search = search_targetpixelfile("TIC 349972412", author="SPOC", sector=sectors)
 
     print(f"Looking for lightcurve with {target=}  {sector=}  {author=}  {exptime=}. ", end="")
-    search_result = lk.search_lightcurve(target=target, sector=sector, author=author, exptime=exptime)
+    search_result = lk.search_lightcurve(target=target, sector=sector, author=author, exptime=exptime)#[0]
     if len(search_result) == 0:
         print(f"{Fore.RED}No data found.{Style.RESET_ALL}")
         return
@@ -108,7 +108,8 @@ def download_flux_lc(target, sector=None, author=None, exptime=None, save_plot=F
         return
     else:
         print(f"{Fore.GREEN}Data found.{Style.RESET_ALL}")
-    lc = search_result.download().remove_outliers(sigma_lower=5.5, sigma_upper=4)
+        print(search_result)
+    lc = search_result.download()#.remove_outliers(sigma_lower=5.5, sigma_upper=4)
     cut = ""
     if start and end:
         lc = cut_lightcurve(lc, start, end)
@@ -123,7 +124,7 @@ def download_flux_lc(target, sector=None, author=None, exptime=None, save_plot=F
         plt.title(f'TOI 4504 Flux {sector=} {author=} {exptime=}')
         # plt.legend()
         plt.grid(True)
-        plt.savefig(f'../data/TOI-4504/{sector}_{author}_{exptime}{cut}.png')
+        plt.savefig(f'../data/TOI-4504/plots/{sector}_{author}_{exptime}{cut}.png')
         # plt.savefig(f'../research/star_systems/TOI-4504/lightkurve/{sector}/{sector}_{author}_{exptime}{cut}.png')
         plt.show()
     if save_error_plot:
@@ -134,13 +135,13 @@ def download_flux_lc(target, sector=None, author=None, exptime=None, save_plot=F
         plt.title(f'TOI 4504 Flux Error, TESS sector {sector}')
         # plt.legend()
         plt.grid(True)
-        plt.savefig(f'../data/TOI-4504/{sector}_{author}_{exptime}{cut}_err.png')
+        plt.savefig(f'../data/TOI-4504/plots/{sector}_{author}_{exptime}{cut}_err.png')
         plt.show()
     if save_csv:
-        pandas_file = f'../data/TOI-4504/{sector}_{author}_{exptime}{cut}.csv'
+        pandas_file = f'../data/TOI-4504/downloads/{sector}_{author}_{exptime}{cut}.csv'
         lc2csv(lc, pandas_file)
     if save_fits:
-        filename = f"../data/TOI-4504/{sector}_{author}_{exptime}{cut}.fits"
+        filename = f"../data/TOI-4504/downloads/{sector}_{author}_{exptime}{cut}.fits"
         lc.to_fits(filename, overwrite=True)
         print(f"Saved: {filename}")
 
@@ -205,5 +206,13 @@ def check_for_new_data(sector):
 
 # get_targetpixelfiles()
 # get_old_lightcurves()
-get_new_lightcurve(94)
+# get_new_lightcurve(94)
 # check_for_new_data([90, 91, 92, 93, 94])
+check_for_new_data([61])
+download_flux_lc('TIC349972412', 61, 'SPOC', 120, save_plot=True, save_error_plot=True, save_csv=True, save_fits=False, start=False, end=False)
+download_flux_lc('TIC349972412', 61, 'TESS-SPOC', 200, save_plot=True, save_error_plot=True, save_csv=True, save_fits=False, start=False, end=False)
+# download_flux_lc('TIC349972412', 61, 'QLP', 200, save_plot=True, save_error_plot=True, save_csv=True, save_fits=False, start=False, end=False)
+# download_flux_lc('TIC349972412', 9, 'GSFC-ELEANOR-LITE', 1800, save_plot=True, save_error_plot=True, save_csv=True, save_fits=False, start=False, end=False)
+# download_flux_lc('TIC349972412', 12, 'QLP', 1800, save_plot=True, save_error_plot=True, save_csv=True, save_fits=False, start=False, end=False)
+# download_flux_lc('TIC349972412', 9, 'TGLC', 1800, save_plot=True, save_error_plot=True, save_csv=True, save_fits=False, start=False, end=False)
+# download_flux_lc('TIC349972412', 3, 'TASOC', 1800, save_plot=True, save_error_plot=True, save_csv=True, save_fits=False, start=False, end=False)

@@ -7,10 +7,10 @@ Next / in progress:
 0.5.6 Fitting TOI-4504
 
     flux Daten neu zusammenstellen
-        besserer author fuer sektoren 1-13?
-        nur c und d transits
-            dafuer flexible Funktion schreiben, die die relevanten Daten aus dem grossen csv holt und in ein kleines schreibt
-                mit Parameter start und stop (Zeit vor T1 und nach T4 als Parameter)
+        besserer author fuer sektoren 1-13 und 61
+        nur c und d transits extrahieren
+            Sektor 3 flux_err hinzufuegen
+
 
 
     ### MCMC ERNSTHAFT AUF TOI4504 LAUFEN LASSEN!!! ###

@@ -5,13 +5,20 @@ from matplotlib import rcParams
 import numpy as np
 import pandas as pd
 
-C_TRANSITS = [2458401.41, 2458483.21, 2458565.09, 2458647.33, 2459065.24, 2459148.48, 2459231.11, 2459313.25, 2459976.05, 2460059.62, 2460142.60]
+# Sector    3           6           9          12          28          31          34          37          61          64          67          89
+C_T1 = [2458400.41,          0,          0,          0, 2459065.09, 2459148.34, 2459230.96, 2459313.11, 2459975.93, 2460059.48, 2460142.46, 2460718.48]
+C_TT = [2458401.41, 2458483.21, 2458565.09, 2458647.33, 2459065.24, 2459148.48, 2459231.11, 2459313.25, 2459976.05, 2460059.62, 2460142.60, 2460718.61]
+C_T4 = [2458402.41,          0,          0,          0, 2459065.39, 2459148.63, 2459231.25, 2459313.40, 2459976.21, 2460059.76, 2460142.74, 2460718.74]
 
-class Transit:
+# Sector   88          89          94
+D_T1 = [2460695.47, 2460736.58, 2460859.13]
+D_TT = [2460695.53, 2460736.63, 2460859.23]
+D_T4 = [2460695.60, 2460736.69, 2460859.31]
 
-    def __init__(self, sector, name, lefts, rights, download_filename, processed_filename):
+class SectorData:
+
+    def __init__(self, sector, lefts, rights, download_filename, processed_filename):
         self.sector = sector   # TESS sector
-        self.name = name       # e.g. cT8 for the 8th transit of planet c
         self.lefts = lefts     # list of left borders of transits in this sector [BJD]
         self.rights = rights   # list of right borders of transits in this sector [BJD]
         self.download_filename = download_filename  # name of csv file with original TESS data
@@ -295,7 +302,7 @@ def process_88_89():
 
 
 def remove_c_transits(df, delta):
-    for tt in C_TRANSITS:
+    for tt in C_TT:
         df = remove_from_df(df, tt - delta, tt + delta)
     return df
 
@@ -337,12 +344,32 @@ def combine_flux_data(start_sec, end_sec, filename):
 
 if __name__ == "__main__":
     path = '../../data/TOI-4504/'
-    C_TRANSITS = [2458401.41, 2458483.21, 2458565.09, 2458647.33, 2459065.24, 2459148.48, 2459231.11, 2459313.25, 2459976.05, 2460059.62, 2460142.60]
     # spoc_sectors = [27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 61, 62, 63, 64, 65, 67, 68, 69, 87, 88, 89, 90, 94]
     spoc_sectors = [28, 31, 34, 37, 61, 64, 67, 88, 89, 94]
-    sector = 28
-    transit28 = Transit(28, "cT8", [C_TRANSITS[4]-0.3], [C_TRANSITS[4]+0.3], path + f"downloads/{sector}_SPOC_120.csv", path + f"{sector}_SPOC_120.csv")
-    plot_flux_df(transit28.df_download, title="Download")
-    plot_flux_df(transit28.df_normalized, title="Normalized")
-    plot_flux_df(transit28.df_processed, title="Processed")
-    next: sektor 89 testen (weil hat 2 transits)
+    sm = 1.20  # safety margin
+
+    # transits28 = SectorData(28,  [C_T1[4] - sm],  [C_T4[4] + sm], path + f"downloads/28_SPOC_120.csv", path + f"28_SPOC_120.csv")
+    # transits31 = SectorData(31,  [C_T1[5] - sm],  [C_T4[5] + sm], path + f"downloads/31_SPOC_120.csv", path + f"31_SPOC_120.csv")
+    # transits34 = SectorData(34,  [C_T1[6] - sm],  [C_T4[6] + sm], path + f"downloads/34_SPOC_120.csv", path + f"34_SPOC_120.csv")
+    # transits37 = SectorData(37,  [C_T1[7] - sm],  [C_T4[7] + sm], path + f"downloads/37_SPOC_120.csv", path + f"37_SPOC_120.csv")
+    # transits61 = SectorData(61,  [C_T1[8] - sm],  [C_T4[8] + sm], path + f"downloads/61_QLP_200.csv", path + f"61_QLP_200.csv")
+    # transits61.df_processed.flux_err *= 3.0
+    # df2csv(transits61.df_processed, path + f"61_QLP_200.csv" )
+    # transits64 = SectorData(64,  [C_T1[9] - sm],  [C_T4[9] + sm], path + f"downloads/64_SPOC_120.csv", path + f"64_SPOC_120.csv")
+    # transits67 = SectorData(67, [C_T1[10] - sm], [C_T4[10] + sm], path + f"downloads/67_SPOC_120.csv", path + f"67_SPOC_120.csv")
+    # transits88 = SectorData(88,  [D_T1[0] - sm],  [D_T4[0] + sm], path + f"downloads/88_SPOC_120.csv", path + f"88_SPOC_120.csv")
+    # transits94 = SectorData(94,  [D_T1[2] - sm],  [D_T4[2] + sm], path + f"downloads/94_SPOC_120.csv", path + f"94_SPOC_120.csv")
+    # transits89 = SectorData(89, [C_T1[11] - sm, D_T1[1] - sm], [C_T4[11] + sm, D_T4[1] + sm], path + f"downloads/89_SPOC_120.csv", path + f"89_SPOC_120.csv")
+
+    # transits = [transits28, transits31, transits34, transits37, transits61, transits64, transits67, transits88, transits89, transits94]
+    # for t in transits:
+    #     plot_flux_df(t.df_processed, title="Sector "+ str(t.sector) +" Processed")
+
+    # plot_flux_df(transits94.df_download, title="Download")
+    # plot_flux_df(transits94.df_normalized, title="Normalized")
+    # plot_flux_df(transits94.df_processed, title="Processed")
+    plot_flux_df(transits3.df_download, title="Download")
+    plot_flux_df(transits3.df_normalized, title="Normalized")
+    plot_flux_df(transits3.df_processed, title="Processed")
+    # plot_flux_df(transits89.df_processed, title="Processed", left=C_TT[11] - sm, right=C_TT[11] + sm)
+    # plot_flux_df(transits89.df_processed, title="Processed", left=D_TT[1] - sm, right=D_TT[1] + sm)
