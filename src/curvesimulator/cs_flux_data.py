@@ -6,9 +6,9 @@ import numpy as np
 import pandas as pd
 
 # Sector    3           6           9          12          28          31          34          37          61          64          67          89
-C_T1 = [2458400.41,          0,          0,          0, 2459065.09, 2459148.34, 2459230.96, 2459313.11, 2459975.93, 2460059.48, 2460142.46, 2460718.48]
+C_T1 = [2458400.41, 2458482.21, 2458564.09, 2458646.33, 2459065.09, 2459148.34, 2459230.96, 2459313.11, 2459975.93, 2460059.48, 2460142.46, 2460718.48]
 C_TT = [2458401.41, 2458483.21, 2458565.09, 2458647.33, 2459065.24, 2459148.48, 2459231.11, 2459313.25, 2459976.05, 2460059.62, 2460142.60, 2460718.61]
-C_T4 = [2458402.41,          0,          0,          0, 2459065.39, 2459148.63, 2459231.25, 2459313.40, 2459976.21, 2460059.76, 2460142.74, 2460718.74]
+C_T4 = [2458402.41, 2458484.21, 2458566.09, 2458648.33, 2459065.39, 2459148.63, 2459231.25, 2459313.40, 2459976.21, 2460059.76, 2460142.74, 2460718.74]
 
 # Sector   88          89          94
 D_T1 = [2460695.47, 2460736.58, 2460859.13]
@@ -348,6 +348,10 @@ if __name__ == "__main__":
     spoc_sectors = [28, 31, 34, 37, 61, 64, 67, 88, 89, 94]
     sm = 1.20  # safety margin
 
+    transits03 = SectorData( 3,  [C_T1[0] - sm],  [C_T4[0] + sm], path +  f"downloads/3_TGLC_1800.csv", path + f"3_TGLC_1800.csv")
+    transits06 = SectorData( 6,  [C_T1[1] - sm],  [C_T4[1] + sm], path +  f"downloads/6_QLP_1800.csv", path +  f"6_QLP_1800.csv")
+    transits09 = SectorData( 9,  [C_T1[2] - sm],  [C_T4[2] + sm], path +  f"downloads/9_QLP_1800.csv", path +  f"9_QLP_1800.csv")
+    transits12 = SectorData(12,  [C_T1[3] - sm],  [C_T4[3] + sm], path + f"downloads/12_QLP_1800.csv", path + f"12_QLP_1800.csv")
     # transits28 = SectorData(28,  [C_T1[4] - sm],  [C_T4[4] + sm], path + f"downloads/28_SPOC_120.csv", path + f"28_SPOC_120.csv")
     # transits31 = SectorData(31,  [C_T1[5] - sm],  [C_T4[5] + sm], path + f"downloads/31_SPOC_120.csv", path + f"31_SPOC_120.csv")
     # transits34 = SectorData(34,  [C_T1[6] - sm],  [C_T4[6] + sm], path + f"downloads/34_SPOC_120.csv", path + f"34_SPOC_120.csv")
@@ -361,15 +365,16 @@ if __name__ == "__main__":
     # transits94 = SectorData(94,  [D_T1[2] - sm],  [D_T4[2] + sm], path + f"downloads/94_SPOC_120.csv", path + f"94_SPOC_120.csv")
     # transits89 = SectorData(89, [C_T1[11] - sm, D_T1[1] - sm], [C_T4[11] + sm, D_T4[1] + sm], path + f"downloads/89_SPOC_120.csv", path + f"89_SPOC_120.csv")
 
+    transits = [transits03, transits06, transits09, transits12]
     # transits = [transits28, transits31, transits34, transits37, transits61, transits64, transits67, transits88, transits89, transits94]
-    # for t in transits:
-    #     plot_flux_df(t.df_processed, title="Sector "+ str(t.sector) +" Processed")
+    for t in transits:
+        plot_flux_df(t.df_processed, title="Sector "+ str(t.sector) +" Processed")
 
     # plot_flux_df(transits94.df_download, title="Download")
     # plot_flux_df(transits94.df_normalized, title="Normalized")
     # plot_flux_df(transits94.df_processed, title="Processed")
-    plot_flux_df(transits3.df_download, title="Download")
-    plot_flux_df(transits3.df_normalized, title="Normalized")
-    plot_flux_df(transits3.df_processed, title="Processed")
+    # plot_flux_df(transits3.df_download, title="Download")
+    # plot_flux_df(transits3.df_normalized, title="Normalized")
+    # plot_flux_df(transits3.df_processed, title="Processed")
     # plot_flux_df(transits89.df_processed, title="Processed", left=C_TT[11] - sm, right=C_TT[11] + sm)
     # plot_flux_df(transits89.df_processed, title="Processed", left=D_TT[1] - sm, right=D_TT[1] + sm)
