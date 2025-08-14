@@ -144,7 +144,6 @@ class CurveSimAnimation:
             body.circle_right.set(zorder=body.positions[frame * p.sampling_rate][2])
             body.circle_right.center = body.positions[frame * p.sampling_rate][0] / p.scope_right, body.positions[frame * p.sampling_rate][1] / p.scope_right
         red_dot.center = time_s0[frame * p.sampling_rate] / p.day, sim_flux[frame * p.sampling_rate]
-        # red_dot.center = p.dt * p.sampling_rate * frame / spd, sim_flux[frame * p.sampling_rate]
         if frame >= 10 and frame % int(round(p.frames / 10)) == 0:  # Inform user about program's progress.
             print(f'{round(frame / p.frames * 10) * 10:3d}% ', end="")
 
@@ -153,9 +152,8 @@ class CurveSimAnimation:
         if p.verbose:
             print(f'Animating {p.frames:8d} frames:     ', end="")
             tic = time.perf_counter()
-        frames = len(sim_flux) // p.sampling_rate  # debug new timeline
+        frames = len(sim_flux) // p.sampling_rate
         anim = matplotlib.animation.FuncAnimation(self.fig, CurveSimAnimation.next_frame, fargs=(p, bodies, self.red_dot, sim_flux, time_s0), interval=1000 / p.fps, frames=frames, blit=False)
-        # anim = matplotlib.animation.FuncAnimation(self.fig, CurveSimAnimation.next_frame, fargs=(p, bodies, self.red_dot, sim_flux), interval=1000 / p.fps, frames=p.frames, blit=False)
         anim.save(
             p.video_file,
             fps=p.fps,

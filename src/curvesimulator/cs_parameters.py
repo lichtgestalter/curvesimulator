@@ -195,8 +195,11 @@ class CurveSimParameters:
         r_jup, m_jup, r_earth, m_earth, v_earth = self.r_jup, self.m_jup, self.r_earth, self.m_earth, self.v_earth
         hour, day, year = self.hour, self.day, self.year
         line = config.get(section, param, fallback=fallback)
-        value = line.split(",")[0]
-        return eval(value)
+        value = eval(line.split(",")[0])
+        # read_param(config, section, "ma", fallback="None")
+        if value is not None and param in ["i", "Omega", "omega", "pomega", "ma", "nu", "ea", "L"]:
+            value = np.radians(value)  # debug
+        return value
 
     def read_param_and_bounds(self, config, section, param):
         # For ease of use of these constants in the config file they are additionally defined here without the prefix "self.".
@@ -219,9 +222,6 @@ class CurveSimParameters:
         be used as fitting parameters in MCMC.
         Fitting parameters have 3 values instead of 1, separated by commas:
         Initial Value, Lower Bound, Upper Bound."""
-        # config = configparser.ConfigParser(inline_comment_prefixes='#')
-        # config.optionxform = str  # Preserve case of the keys.
-        # config.read(self.config_file)  # Read config file.
         body_index = 0
         fitting_parameters = []
         print(f"Running MCMC with fitting parameters")
@@ -231,7 +231,9 @@ class CurveSimParameters:
                     value, lower, upper = self.read_param_and_bounds(config, section, parameter_name)
                     if value is not None:
                         print(f"body {body_index}: {parameter_name}")
-                        fitting_parameters.append(FittingParameter(body_index, parameter_name, value, lower, upper))
+                        if parameter_name in ["i", "Omega", "omega", "pomega", "ma", "nu", "ea", "L"]:
+                            value = np.radians(value)
+                        fitting_parameters.append(FittingParameter(body_index, parameter_name, value, lower, upper))  # debug
                 body_index += 1
         return fitting_parameters
 
