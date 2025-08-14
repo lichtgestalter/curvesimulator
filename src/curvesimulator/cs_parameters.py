@@ -253,9 +253,9 @@ class CurveSimParameters:
         os.makedirs(self.fitting_results_directory)
 
 class FittingParameter:
-    def __init__(self, body_index, parameter_name, value, lower, upper):
+    def __init__(self, body_index, parameter_name, startvalue, lower, upper):
         self.body_index = body_index
         self.parameter_name = parameter_name
-        self.value = value
+        self.startvalue = startvalue
         self.lower = lower
         self.upper = upper

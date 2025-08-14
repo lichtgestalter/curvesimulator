@@ -121,7 +121,7 @@ def df2lc(df):
 
 
 def lc2df(lc):
-    df = pd.DataFrame({'time': lc.time.value, 'flux': lc.flux, 'flux_err': lc.flux_err})
+    df = pd.DataFrame({'time': lc.time.startvalue, 'flux': lc.flux, 'flux_err': lc.flux_err})
     return df
 
 

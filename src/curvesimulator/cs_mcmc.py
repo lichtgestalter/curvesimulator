@@ -44,7 +44,7 @@ class CurveSimMCMC():
     def run_mcmc(p, bodies, time_s0, measured_flux, flux_uncertainty, initial_noise=1e-4):
         theta_references = [(fp.body_index, fp.parameter_name) for fp in p.fitting_parameters]  # list of names of fitting parameters. Needed so these parameters can be updated inside log_likelihood().
         fitting_parameter_names = [f"{bodies[fp.body_index].name}.{fp.parameter_name}" for fp in p.fitting_parameters]
-        initial_values = [fp.value for fp in p.fitting_parameters]
+        initial_values = [fp.startvalue for fp in p.fitting_parameters]
         theta_bounds = [(fp.lower, fp.upper) for fp in p.fitting_parameters]
         ndim = len(theta_references)
         theta0 = np.array(initial_values) + initial_noise * np.random.randn(p.walkers, ndim)  # slightly randomized initial values of the fitting parameters
@@ -222,6 +222,7 @@ class CurveSimMCMC():
         results["Simulation Parameters"]["mcmc burn_in"] = p.burn_in
         results["Simulation Parameters"]["flux_file"] = p.flux_file
         results["Simulation Parameters"]["fitting_results_directory"] = p.fitting_results_directory
+        results["Fitting Parameters"] = [fp.__dict__ for fp in p.fitting_parameters]
         results["Fitting Results"] = fitting_results
         results["Bodies"] = {}
         params = (["body_type", "primary", "mass", "radius", "luminosity"]
