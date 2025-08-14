@@ -8,9 +8,7 @@ Next / in progress:
 
     flux Daten neu zusammenstellen
         nur c und d transits extrahieren
-            T1 und T4 von sektor 3, 6, 9, 12 realistischer machen
             Sektor 3 flux_err hinzufuegen
-            alle Daten in einem CSV zusammenpappen
 
 
 

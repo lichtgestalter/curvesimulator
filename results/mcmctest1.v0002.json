@@ -1,0 +1,238 @@
+{
+    "CurveSimulator Documentation": "https://github.com/lichtgestalter/curvesimulator/wiki",
+    "ProgramParameters": {
+        "config_file": "../configurations/mcmctest1.ini",
+        "g": 6.6743e-11,
+        "au": 149597870700.0,
+        "r_sun": 696342000.0,
+        "m_sun": 1.98847e+30,
+        "l_sun": 3.83e+26,
+        "r_jup": 71492000.0,
+        "m_jup": 1.8981246e+27,
+        "r_earth": 6378135.0,
+        "m_earth": 5.972e+24,
+        "v_earth": 29785.2,
+        "hour": 3600,
+        "day": 86400,
+        "year": 31556925.216,
+        "comment": "mcmctest1",
+        "verbose": true,
+        "dt": 20000,
+        "start_date": 2458400,
+        "video_file": "../animations/mcmctest1.mp4",
+        "flux_file": null,
+        "result_file": "../results/mcmctest1.json",
+        "result_dt": 100,
+        "starts_d": [
+            2458400.0
+        ],
+        "ends_d": [
+            2458538.888888889
+        ],
+        "dts": [
+            20000.0
+        ],
+        "sim_flux_file": "../data/simulations/mcmctest1_simflux.csv",
+        "sim_flux_err": 0.004,
+        "frames": 60,
+        "fps": 10,
+        "starts_s0": [
+            0.0
+        ],
+        "ends_s0": [
+            12000000.00000894
+        ],
+        "start_indices": [
+            0,
+            601
+        ],
+        "max_iterations": [
+            601
+        ],
+        "total_iterations": 601,
+        "sampling_rate": 11,
+        "scope_left": 59839148280.0,
+        "star_scale_left": 100.0,
+        "planet_scale_left": 1000.0,
+        "scope_right": 59839148280.0,
+        "star_scale_right": 100.0,
+        "planet_scale_right": 1000.0,
+        "autoscaling": true,
+        "min_radius": 0.004,
+        "max_radius": 0.02,
+        "figure_width": 16,
+        "figure_height": 8,
+        "xlim": 1.25,
+        "ylim": 1.0,
+        "red_dot_height": 0.05,
+        "red_dot_width": 0.00425531914893617
+    },
+    "Bodies": {
+        "TOI-4504": {
+            "BodyParameters": {
+                "name": "TOI-4504",
+                "body_type": "star",
+                "primary": "self",
+                "color": [
+                    0.99,
+                    0.99,
+                    0.99
+                ],
+                "mass": 1.75979595e+30,
+                "radius": 640634640.0,
+                "area_2d": 1.289349655106091e+18,
+                "luminosity": 2.3746e+26,
+                "limb_darkening_u1": 0.4825125661576079,
+                "limb_darkening_u2": 0.20777722805928472,
+                "mean_intensity": 0.8045331357961647,
+                "intensity": 184170367.64201963,
+                "e": -1,
+                "i": -19.390607989657003,
+                "P": null,
+                "a": null,
+                "Omega": null,
+                "Omega_deg": null,
+                "omega": null,
+                "omega_deg": null,
+                "pomega": null,
+                "pomega_deg": null,
+                "L": null,
+                "L_deg": null,
+                "ma": null,
+                "ma_deg": null,
+                "ea": null,
+                "ea_deg": null,
+                "nu": null,
+                "nu_deg": null,
+                "T": null,
+                "t": 0.0,
+                "mu": null
+            },
+            "Transits": [
+                {
+                    "Transit_params": {
+                        "EclipsedBody": "TOI-4504d",
+                        "T1": 2458421.059677667,
+                        "T2": 2458421.091641872,
+                        "TT": 2458421.1963656875,
+                        "T3": null,
+                        "T4": 2458421.333051942,
+                        "T12": 0.03196420520544052,
+                        "T23": null,
+                        "T34": null,
+                        "T14": 0.2733742748387158,
+                        "b": 3.369172411990301,
+                        "depth": 0.0
+                    }
+                },
+                {
+                    "Transit_params": {
+                        "EclipsedBody": "TOI-4504d",
+                        "T1": 2458462.0456776135,
+                        "T2": 2458462.077641818,
+                        "TT": 2458462.1823658547,
+                        "T3": null,
+                        "T4": null,
+                        "T12": 0.031964204739779234,
+                        "T23": null,
+                        "T34": null,
+                        "T14": null,
+                        "b": 3.3691724122148803,
+                        "depth": 0.0
+                    }
+                },
+                {
+                    "Transit_params": {
+                        "EclipsedBody": "TOI-4504d",
+                        "T1": 2458503.0316775595,
+                        "T2": 2458503.0636417647,
+                        "TT": 2458503.1683658008,
+                        "T3": null,
+                        "T4": null,
+                        "T12": 0.03196420520544052,
+                        "T23": null,
+                        "T34": null,
+                        "T14": null,
+                        "b": 3.369172412138485,
+                        "depth": 0.0
+                    }
+                }
+            ]
+        },
+        "TOI-4504d": {
+            "BodyParameters": {
+                "name": "TOI-4504d",
+                "body_type": "planet",
+                "primary": "TOI-4504",
+                "color": [
+                    0.5,
+                    0.5,
+                    0.99
+                ],
+                "mass": 2.68888330836e+27,
+                "radius": 72349904.0,
+                "area_2d": 1.6444693790587562e+16,
+                "luminosity": 0.0,
+                "limb_darkening_u1": null,
+                "limb_darkening_u2": null,
+                "mean_intensity": null,
+                "intensity": 0.0,
+                "e": 0.0445,
+                "i": 1.5638150097869192,
+                "P": 3541190.4,
+                "a": null,
+                "Omega": 0.0,
+                "Omega_deg": 0.0,
+                "omega": 1.631882850614698,
+                "omega_deg": 93.5,
+                "pomega": null,
+                "pomega_deg": null,
+                "L": null,
+                "L_deg": null,
+                "ma": 6.1086523819801535,
+                "ma_deg": 350.0,
+                "ea": null,
+                "ea_deg": null,
+                "nu": null,
+                "nu_deg": null,
+                "T": null,
+                "t": 0.0,
+                "mu": null
+            },
+            "Transits": [
+                {
+                    "Transit_params": {
+                        "EclipsedBody": "TOI-4504",
+                        "T1": 2458482.619918386,
+                        "T2": null,
+                        "TT": 2458482.7463201904,
+                        "T3": null,
+                        "T4": 2458482.87272354,
+                        "T12": null,
+                        "T23": null,
+                        "T34": null,
+                        "T14": 0.25280515383929014,
+                        "b": 0.3481330550129381,
+                        "depth": 0.004288620738887583
+                    }
+                },
+                {
+                    "Transit_params": {
+                        "EclipsedBody": "TOI-4504",
+                        "T1": 2458523.6059183325,
+                        "T2": null,
+                        "TT": 2458523.7323201364,
+                        "T3": null,
+                        "T4": 2458523.858723486,
+                        "T12": null,
+                        "T23": null,
+                        "T34": null,
+                        "T14": 0.25280515337362885,
+                        "b": 0.3481330550210273,
+                        "depth": 0.0036960462520163606
+                    }
+                }
+            ]
+        }
+    }
+}

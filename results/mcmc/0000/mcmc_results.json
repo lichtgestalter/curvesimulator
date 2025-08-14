@@ -1,0 +1,77 @@
+{
+    "CurveSimulator Documentation": "https://github.com/lichtgestalter/curvesimulator/wiki",
+    "Simulation Parameters": {
+        "comment": "mcmctest1",
+        "start_date": 2458400,
+        "default_dt": 20000,
+        "mcmc walkers": 16,
+        "mcmc steps": 30,
+        "mcmc burn_in": 1,
+        "flux_file": "../data/simulations/mcmctest1_simflux.csv",
+        "fitting_results_directory": "../results/mcmc/0000"
+    },
+    "Fitting Results": {
+        "TOI-4504d.radius": {
+            "hdi_min": 72349903.99669994,
+            "hdi_max": 72349904.0038233,
+            "std": 0.0047292658448106935,
+            "mean": 72349903.99972698,
+            "max_likelihood": 72349904.00678247
+        },
+        "TOI-4504d.P": {
+            "hdi_min": 3541190.388339014,
+            "hdi_max": 3541190.405379798,
+            "std": 0.010544311930496946,
+            "mean": 3541190.4011280285,
+            "max_likelihood": 3541190.3889280297
+        },
+        "TOI-4504d.omega": {
+            "hdi_min": 93.49624088693437,
+            "hdi_max": 93.50464177690375,
+            "std": 0.007506910302472201,
+            "mean": 93.5003391266577,
+            "max_likelihood": 93.51027315186532
+        },
+        "TOI-4504d.ma": {
+            "hdi_min": 349.9917619649003,
+            "hdi_max": 350.0074898406741,
+            "std": 0.010754463969921541,
+            "mean": 350.0020681141796,
+            "max_likelihood": 350.0138447700983
+        }
+    },
+    "Bodies": {
+        "TOI-4504": {
+            "body_type": "star",
+            "primary": "self",
+            "mass": 1.75979595e+30,
+            "radius": 640634640.0,
+            "luminosity": 2.3746e+26,
+            "limb_darkening_u1": 0.4825125661576079,
+            "limb_darkening_u2": 0.20777722805928472,
+            "mean_intensity": 0.8045331357961647,
+            "intensity": 184170367.64201963,
+            "e": -1,
+            "i": -19.390607989657003,
+            "t": 0.0
+        },
+        "TOI-4504d": {
+            "body_type": "planet",
+            "primary": "TOI-4504",
+            "mass": 2.68888330836e+27,
+            "radius": 72349904.00607283,
+            "luminosity": 0.0,
+            "intensity": 0.0,
+            "e": 0.0445,
+            "i": 1.5638150097869192,
+            "P": 3541190.3905073507,
+            "Omega": 0.0,
+            "Omega_deg": 0,
+            "omega": 93.50959855930427,
+            "omega_deg": 93.5,
+            "ma": 350.01454522256176,
+            "ma_deg": 350,
+            "t": 0.0
+        }
+    }
+}
