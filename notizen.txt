@@ -5,10 +5,10 @@ Datenpunkte;  Chains;  Steps;  Laufzeit;  s/it
 
 Next / in progress:
 0.5.6 Fitting TOI-4504
-
-    ### MCMC ERNSTHAFT AUF TOI4504 LAUFEN LASSEN!!! ###
-
+    Laaaaaaange laufen lassen
+    Simon schreiben
     Fitting parameters mit upper+lower bound ins mcmc result json
+    Mit Simulation checken, worauf ich hoffen kann
 
 
 Fragen an Simon:
