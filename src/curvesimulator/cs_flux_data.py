@@ -374,9 +374,6 @@ if __name__ == "__main__":
     # plot_flux_df(transits94.df_download, title="Download")
     # plot_flux_df(transits94.df_normalized, title="Normalized")
     # plot_flux_df(transits94.df_processed, title="Processed")
-    # plot_flux_df(transits3.df_download, title="Download")
-    # plot_flux_df(transits3.df_normalized, title="Normalized")
-    # plot_flux_df(transits3.df_processed, title="Processed")
     # plot_flux_df(transits89.df_processed, title="Processed", left=C_TT[11] - sm, right=C_TT[11] + sm)
     # plot_flux_df(transits89.df_processed, title="Processed", left=D_TT[1] - sm, right=D_TT[1] + sm)
 
