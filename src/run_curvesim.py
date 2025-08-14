@@ -23,10 +23,12 @@ from curvesimulator import CurveSimulator
 
 def main():
     # parameters, bodies, results, sim_flux = curvesim(config_file="../configurations/Occultquad-Test.ini")
-    curvesimulation = CurveSimulator(config_file="../configurations/mcmctest1.ini")
+    # curvesimulation = CurveSimulator(config_file="../configurations/mcmctest1.ini")
     # parameters, bodies, results, sim_flux = curvesim(config_file="../configurations/TOI-4504.ini")
-    if curvesimulation.parameters.verbose:
-        print(curvesimulation)
+    # if curvesimulation.parameters.verbose:
+    #     print(curvesimulation)
+
+    curvesimulation = CurveSimulator(config_file="../configurations/TOI-4504.ini")
 
 if __name__ == '__main__':
     main()

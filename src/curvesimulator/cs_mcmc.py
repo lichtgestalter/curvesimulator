@@ -112,7 +112,7 @@ class CurveSimMCMC():
 
     @staticmethod
     def add_units_to_names(fitting_parameter_names, flat_samples):
-        units = {"mass": "kg", "radius": "m", "i": "deg", "P": "s", "a": "m", "Omega": "deg", "omega": "deg", "pomega": "deg",
+        units = {"mass": "kg", "radius": "m", "e": "1", "i": "deg", "P": "s", "a": "m", "Omega": "deg", "omega": "deg", "pomega": "deg",
                  "L": "deg", "ma": "deg", "ea": "deg", "nu": "deg", "T": "s", "t": "s"}
         fitting_parameter_names_with_units = []
         for fpn in fitting_parameter_names:
