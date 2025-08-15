@@ -1,13 +1,9 @@
-Datenpunkte;  Chains;  Steps;  Laufzeit;  s/it
-       1152;      32;   2000;  00:47:19;  1.42
-       1152;      32;   4000;  01:36:42;  1.45
-
-
 Next / in progress:
 0.5.6 Fitting TOI-4504
     Laaaaaaange laufen lassen
-    Simon schreiben
     Mit Simulation checken, worauf ich hoffen kann
+    MCMC findet eine Inklination von Planet d an T0 nahe bei 90 Grad plausibel.
+        Das koennte ich vielleicht verhindern, indem ich die TESS-Daten der Zeitpunkte, an denen d-Transits waeren, dem Fluxfile hinzufuege.
 
 
 Fragen an Simon:
@@ -57,7 +53,8 @@ Programming Hinter MCMC-Integration zurueckgestellt:
 
     Result evaluation komfortabel fuer User nutzbar machen.
 
-    Optional time_d und sim_flux als csv abspeichern.
+    Skalierung der mcmc-Ergebnisse ist derzeit hardcoded in add_units_scale_values().
+        In config file waehlen lassen, ob z.B. Radius in km oder r_jup oder r_earth gezeigt wird?
 
     Orbitparameter regelmaessig (z.B. bei jedem Transit) im Resultfile speichern.
 

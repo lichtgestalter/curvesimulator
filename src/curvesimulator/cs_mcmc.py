@@ -260,5 +260,5 @@ class CurveSimMCMC():
         max_likelihood_params = CurveSimMCMC.mcmc_max_likelihood_parameters(flat_samples, p, sampler, thin_samples)
         results = CurveSimMCMC.mcmc_high_density_intervals(fitting_parameter_names, flat_samples, max_likelihood_params, credible_mass)
         results = CurveSimMCMC.mcmc_histograms(fitting_parameter_names, flat_samples, results, ndim, histogram_bins, p.fitting_results_directory + "/histograms.png")
-        CurveSimMCMC.mcmc_corner_plot(fitting_parameter_names, flat_samples, max_likelihood_params, ndim, p.fitting_results_directory + "/corner.png")
         CurveSimMCMC.save_mcmc_results(results, p, bodies)
+        CurveSimMCMC.mcmc_corner_plot(fitting_parameter_names, flat_samples, max_likelihood_params, ndim, p.fitting_results_directory + "/corner.png")
