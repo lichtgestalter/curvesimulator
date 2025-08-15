@@ -13,8 +13,8 @@ class CurveSimulator:
         if parameters.flux_file:  # run mcmc?
             time_s0, measured_flux, flux_uncertainty = CurveSimMCMC.get_measured_flux(parameters)
             bodies = CurveSimBodies(parameters)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
-            sampler, fitting_parameter_names, ndim = CurveSimMCMC.run_mcmc(parameters, bodies, time_s0, measured_flux, flux_uncertainty, 1e-4)
-            CurveSimMCMC.mcmc_results(parameters, bodies, sampler, fitting_parameter_names, ndim, 10, 0.68, 30)
+            sampler, fitting_parameter_names, ndim, results = CurveSimMCMC.mcmc(parameters, bodies, time_s0, measured_flux, flux_uncertainty, 1e-4)
+            self.sampler = sampler
         else:
             time_s0, time_d = CurveSimParameters.init_time_arrays(parameters)  # s0 in seconds, starting at 0. d in BJD.
             bodies = CurveSimBodies(parameters)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
@@ -27,8 +27,8 @@ class CurveSimulator:
                 CurveSimAnimation(parameters, bodies, sim_flux, time_s0)  # Create the video
             if parameters.sim_flux_file:
                 sim_flux.save_sim_flux(parameters, time_d)
-            self.results = results
             self.sim_flux = sim_flux
+        self.results = results
         self.parameters = parameters
         self.bodies = bodies
 

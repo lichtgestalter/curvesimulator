@@ -42,7 +42,7 @@ class CurveSimMCMC():
     #     plot_this(x, [residuals], title="Residuals", left=left, right=right)
 
     @staticmethod
-    def run_mcmc(p, bodies, time_s0, measured_flux, flux_uncertainty, initial_noise=1e-4):
+    def mcmc(p, bodies, time_s0, measured_flux, flux_uncertainty, initial_noise=1e-4):
         theta_references = [(fp.body_index, fp.parameter_name) for fp in p.fitting_parameters]  # list of names of fitting parameters. Needed so these parameters can be updated inside log_likelihood().
         fitting_parameter_names = [f"{bodies[fp.body_index].name}.{fp.parameter_name}" for fp in p.fitting_parameters]
         initial_values = [fp.startvalue for fp in p.fitting_parameters]
@@ -51,9 +51,13 @@ class CurveSimMCMC():
         theta0 = np.array(initial_values) + initial_noise * np.random.randn(p.walkers, ndim)  # slightly randomized initial values of the fitting parameters
         sampler = emcee.EnsembleSampler(p.walkers, ndim, CurveSimMCMC.log_probability, args=(theta_bounds, theta_references, bodies, time_s0, measured_flux, flux_uncertainty, p))
         print("Starting MCMC......", end="")
-        sampler.run_mcmc(theta0, p.steps, progress=True)
+        results = None
+        theta = sampler.run_mcmc(theta0, p.burn_in, progress=True)
+        for i in range(0, p.steps, p.chunk_size):
+            theta = sampler.run_mcmc(theta, p.chunk_size, progress=True)
+            results = CurveSimMCMC.mcmc_results(p, bodies, sampler, fitting_parameter_names, ndim, i+p.chunk_size, 10, 0.68, 30)
         print("MCMC completed.")
-        return sampler, fitting_parameter_names, ndim
+        return sampler, fitting_parameter_names, ndim, results
 
     @staticmethod
     def log_prior(theta, theta_bounds):
@@ -150,14 +154,14 @@ class CurveSimMCMC():
     @staticmethod
     def mcmc_high_density_intervals(fitting_parameter_names, flat_samples, max_likelihood_params, credible_mass=0.68):
         # Calculate HDI
-        # Print and save hdi and other mcmc results
-        print("\nMCMC Results:")
+        # Store hdi and other mcmc results
+        # print("\nMCMC Results:")
         results = {}
         for i, name in enumerate(fitting_parameter_names):
             hdi_min, hdi_max, std, mean = CurveSimMCMC.hdi_std_mean(flat_samples[:, i], credible_mass)
             results[name] = {"hdi_min": hdi_min, "hdi_max": hdi_max, "std": std, "mean": mean, "max_likelihood": max_likelihood_params[i]}
-            print(f"{name}: HDI = [{results[name]["hdi_min"]:.6f}, {results[name]["hdi_max"]:.6f}], Max Likelihood = {max_likelihood_params[i]:.6f}, "
-                  f"Standard Deviation = {results[name]["std"]:.6f}, Mean = {results[name]["mean"]:.6f}")
+            # print(f"{name}: HDI = [{results[name]["hdi_min"]:.6f}, {results[name]["hdi_max"]:.6f}], Max Likelihood = {max_likelihood_params[i]:.6f}, "
+            #       f"Standard Deviation = {results[name]["std"]:.6f}, Mean = {results[name]["mean"]:.6f}")
         return results
 
     @staticmethod
@@ -207,16 +211,16 @@ class CurveSimMCMC():
             plt.show()
 
     @staticmethod
-    def mcmc_results2json(results, p):
+    def mcmc_results2json(results, p, steps_done):
         """Converts results to JSON and saves it."""
-        filename = p.fitting_results_directory + "/mcmc_results.json"
+        filename = p.fitting_results_directory + f"/mcmc_results_{steps_done:07d}.json"
         with open(filename, "w", encoding='utf8') as file:
             json.dump(results, file, indent=4, ensure_ascii=False)
         if p.verbose:
             print(f" Saved MCMC results to {filename}")
 
     @staticmethod
-    def save_mcmc_results(fitting_results, p, bodies):
+    def save_mcmc_results(fitting_results, p, bodies, steps_done):
         results = {}
         results["CurveSimulator Documentation"] = "https://github.com/lichtgestalter/curvesimulator/wiki"
         results["Simulation Parameters"] = {}
@@ -246,19 +250,20 @@ class CurveSimMCMC():
             #     if body.__dict__[key] is None:
             #         del body.__dict__[key]
 
-        CurveSimMCMC.mcmc_results2json(results, p)
+        CurveSimMCMC.mcmc_results2json(results, p, steps_done)
 
     @staticmethod
-    def mcmc_results(p, bodies, sampler, fitting_parameter_names, ndim, thin_samples=10, credible_mass=0.68, histogram_bins=30):
+    def mcmc_results(p, bodies, sampler, fitting_parameter_names, ndim, steps_done, thin_samples=10, credible_mass=0.68, histogram_bins=30):
         flat_samples = sampler.get_chain(discard=p.burn_in, thin=thin_samples, flat=True)
         # discard the initial p.burn_in steps from each chain to ensure only samples that represent the equilibrium distribution are analyzed.
         # thin=10: keep only every 10th sample from the chain to reduce autocorrelation in the chains and the size of the resulting arrays.
         # flat=True: return all chains in a single, two-dimensional array (shape: (n_samples, n_parameters))
-
+        print(f"{steps_done} steps done.  ", end="")
         fitting_parameter_names, flat_samples = CurveSimMCMC.add_units_scale_values(p, fitting_parameter_names, flat_samples)
-        CurveSimMCMC.mcmc_trace_plots(fitting_parameter_names, ndim, p, sampler, p.fitting_results_directory + "/traces.png")
+        CurveSimMCMC.mcmc_trace_plots(fitting_parameter_names, ndim, p, sampler, p.fitting_results_directory + f"/traces_{steps_done:07d}.png")
         max_likelihood_params = CurveSimMCMC.mcmc_max_likelihood_parameters(flat_samples, p, sampler, thin_samples)
         results = CurveSimMCMC.mcmc_high_density_intervals(fitting_parameter_names, flat_samples, max_likelihood_params, credible_mass)
-        results = CurveSimMCMC.mcmc_histograms(fitting_parameter_names, flat_samples, results, ndim, histogram_bins, p.fitting_results_directory + "/histograms.png")
-        CurveSimMCMC.save_mcmc_results(results, p, bodies)
-        CurveSimMCMC.mcmc_corner_plot(fitting_parameter_names, flat_samples, max_likelihood_params, ndim, p.fitting_results_directory + "/corner.png")
+        results = CurveSimMCMC.mcmc_histograms(fitting_parameter_names, flat_samples, results, ndim, histogram_bins, p.fitting_results_directory + f"/histograms_{steps_done:07d}.png")
+        CurveSimMCMC.save_mcmc_results(results, p, bodies, steps_done)
+        CurveSimMCMC.mcmc_corner_plot(fitting_parameter_names, flat_samples, max_likelihood_params, ndim, p.fitting_results_directory + f"/corner_{steps_done:07d}.png")
+        return results

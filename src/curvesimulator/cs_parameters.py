@@ -109,6 +109,7 @@ class CurveSimParameters:
             self.walkers = eval(config.get("Fitting", "walkers"))
             self.steps = eval(config.get("Fitting", "steps"))
             self.burn_in = eval(config.get("Fitting", "burn_in"))
+            self.chunk_size = eval(config.get("Fitting", "chunk_size"))
             self.fitting_parameters = self.read_fitting_parameters(config)
 
     def __repr__(self):
@@ -224,7 +225,7 @@ class CurveSimParameters:
         Initial Value, Lower Bound, Upper Bound."""
         body_index = 0
         fitting_parameters = []
-        print(f"Running MCMC with fitting parameters")
+        print(f"Running MCMC with these fitting parameters:")
         for section in config.sections():
             if section not in self.standard_sections:  # section describes a physical object
                 for parameter_name in ["mass", "radius", "e", "i", "a", "P", "Omega", "pomega", "omega", "L", "nu", "ma", "ea", "T"]:

@@ -24,7 +24,7 @@ from curvesimulator import CurveSimulator
 def main():
     # curvesimulation = CurveSimulator(config_file="../configurations/mcmctest1.ini")
     curvesimulation = CurveSimulator(config_file="../configurations/TOI-4504.ini")
-    if curvesimulation.parameters.verbose:
+    if True or curvesimulation.parameters.verbose:
         print(curvesimulation)
 
 
