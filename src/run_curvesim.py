@@ -27,5 +27,6 @@ def main():
     if curvesimulation.parameters.verbose:
         print(curvesimulation)
 
+
 if __name__ == '__main__':
     main()

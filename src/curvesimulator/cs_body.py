@@ -33,39 +33,34 @@ class CurveSimBody:
         self.area_2d = math.pi * radius ** 2  # [m**2]
         self.luminosity = luminosity  # [W]
         self.limb_darkening_u1, self.limb_darkening_u2 = CurveSimPhysics.get_limbdarkening_parameters(limb_darkening_1, limb_darkening_2, limb_darkening_parameter_type)
-        # if limb_darkening_1 is None:
-        #     self.limb_darkening_u1, self.limb_darkening_u2 = None, None
-        # else:
-        #     self.limb_darkening_u1, self.limb_darkening_u2 = CurveSimPhysics.get_limbdarkening_parameters(limb_darkening, limb_darkening_parameter_type)
-
         self.mean_intensity = CurveSimPhysics.calc_mean_intensity(self.limb_darkening_u1, self.limb_darkening_u2)
         self.intensity = luminosity / self.area_2d  # luminosity per (apparent) area [W/m**2]
-        # self.positions = np.zeros((p.iterations, 3), dtype=float)  # position for each frame
         self.positions = np.ndarray((p.total_iterations, 3), dtype=float)
 
-        self.e = e  # [1] eccentricity
-        self.i = None if i is None else math.radians(i)  # [deg] inclination
+        self.e = e                                           # [1] eccentricity
+        self.i = i                                           # [rad] inclination
+        self.i_deg = None if i is None else math.degrees(i)  # [deg] inclination
 
         self.P = P  # [s] period
         self.a = a  # [m] semi-major axis
 
-        self.Omega = None if Omega is None else math.radians(Omega)  # [deg] longitude of ascending node
-        self.Omega_deg = None if Omega is None else Omega
-        self.omega = None if omega is None else math.radians(omega)  # [deg] argument of periapsis
-        self.omega_deg = None if omega is None else omega
-        self.pomega = None if pomega is None else math.radians(pomega)  # [deg] longitude of periapsis
-        self.pomega_deg = None if pomega is None else pomega
+        self.Omega = Omega                                                  # [rad] longitude of ascending node
+        self.Omega_deg = None if Omega is None else math.degrees(Omega)     # [deg] longitude of ascending node
+        self.omega = omega                                                  # [rad] argument of periapsis
+        self.omega_deg = None if omega is None else math.degrees(omega)     # [deg] argument of periapsis
+        self.pomega = pomega                                                # [rad] longitude of periapsis
+        self.pomega_deg = None if pomega is None else math.degrees(pomega)  # [deg] longitude of periapsis
 
-        self.L = None if L is None else math.radians(L)  # [deg] mean longitude
-        self.L_deg = None if L is None else L
-        self.ma = None if ma is None else math.radians(ma)  # [deg] mean anomaly
-        self.ma_deg = None if ma is None else ma
-        self.ea = None if ea is None else math.radians(ea)  # [deg] eccentric anomaly
-        self.ea_deg = None if ea is None else ea
-        self.nu = None if nu is None else math.radians(nu)  # [deg] true anomaly. Per definition = 270° at the time of an exoplanet's primary transit.
-        self.nu_deg = None if nu is None else nu
-        self.T = T  # [s] Time of periapsis
-        self.t = t  # [s] optional additional time delta. For example time since last time of transit
+        self.L = L                                               # [rad] mean longitude
+        self.L_deg = None if L is None else math.degrees(L)      # [deg] mean longitude
+        self.ma = ma                                             # [rad] mean anomaly
+        self.ma_deg = None if ma is None else math.degrees(ma)   # [deg] mean anomaly
+        self.ea = ea                                             # [rad] eccentric anomaly
+        self.ea_deg = None if ea is None else math.degrees(ea)   # [deg] eccentric anomaly
+        self.nu = nu                                             # [rad] true anomaly
+        self.nu_deg = None if nu is None else math.degrees(nu)   # [deg] true anomaly. Per definition = 270° at the time of an exoplanet's primary transit.
+        self.T = T                                               # [s] Time of periapsis
+        self.t = t                                               # [s] optional additional time delta. For example time since last time of transit
 
         self.mu = None  # Gravitational Parameter. Depends on the masses of at least 2 bodies.
 

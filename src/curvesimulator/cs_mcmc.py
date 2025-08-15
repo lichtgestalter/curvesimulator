@@ -1,5 +1,6 @@
 # from colorama import Fore, Style
 import json
+import math
 from matplotlib import pyplot as plt
 import numpy as np
 import emcee
@@ -111,13 +112,17 @@ class CurveSimMCMC():
         return hdi_min, hdi_max, std, mean
 
     @staticmethod
-    def add_units_to_names(fitting_parameter_names, flat_samples):
-        units = {"mass": "kg", "radius": "m", "e": "1", "i": "deg", "P": "s", "a": "m", "Omega": "deg", "omega": "deg", "pomega": "deg",
+    def add_units_scale_values(p, fitting_parameter_names, flat_samples):
+        units = {"mass": "m_jup", "radius": "r_jup", "e": "1", "i": "deg", "P": "d", "a": "AU", "Omega": "deg", "omega": "deg", "pomega": "deg",
                  "L": "deg", "ma": "deg", "ea": "deg", "nu": "deg", "T": "s", "t": "s"}
+        rad2deg = 180 / math.pi
+        scale = {"mass": 1/p.m_jup, "radius": 1/p.r_jup, "e": 1, "i": rad2deg, "P": 1/p.day, "a": 1/p.au, "Omega": rad2deg, "omega": rad2deg, "pomega": rad2deg,
+                 "L": rad2deg, "ma": rad2deg, "ea": rad2deg, "nu": rad2deg, "T": "s", "t": "s"}
         fitting_parameter_names_with_units = []
-        for fpn in fitting_parameter_names:
-            unit = units[fpn.split(".")[-1]]
-            fitting_parameter_names_with_units.append(fpn + " [" + unit + "]")
+        for fpn, fs in zip(fitting_parameter_names, flat_samples.T):
+            param = fpn.split(".")[-1]
+            fitting_parameter_names_with_units.append(fpn + " [" + units[param] + "]")
+            fs *= scale[param]
         return fitting_parameter_names_with_units, flat_samples
 
     @staticmethod
@@ -172,6 +177,7 @@ class CurveSimMCMC():
             ax.axvline(results[name]["mean"] + results[name]["std"], color="gray", linestyle="dotted", label="Mean + Std")
             ax.set_xlabel(name)
             ax.set_ylabel("Density")
+            ax.ticklabel_format(useOffset=False, style='plain', axis='x')  # show x-labels as they are
             if i == 0:
                 ax.legend(loc='lower center', bbox_to_anchor=(0.5, 1.02), ncol=3, borderaxespad=0.)
         plt.tight_layout()
@@ -249,7 +255,7 @@ class CurveSimMCMC():
         # thin=10: keep only every 10th sample from the chain to reduce autocorrelation in the chains and the size of the resulting arrays.
         # flat=True: return all chains in a single, two-dimensional array (shape: (n_samples, n_parameters))
 
-        fitting_parameter_names, flat_samples = CurveSimMCMC.add_units_to_names(fitting_parameter_names, flat_samples)
+        fitting_parameter_names, flat_samples = CurveSimMCMC.add_units_scale_values(p, fitting_parameter_names, flat_samples)
         CurveSimMCMC.mcmc_trace_plots(fitting_parameter_names, ndim, p, sampler, p.fitting_results_directory + "/traces.png")
         max_likelihood_params = CurveSimMCMC.mcmc_max_likelihood_parameters(flat_samples, p, sampler, thin_samples)
         results = CurveSimMCMC.mcmc_high_density_intervals(fitting_parameter_names, flat_samples, max_likelihood_params, credible_mass)
