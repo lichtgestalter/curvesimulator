@@ -106,10 +106,10 @@ class CurveSimParameters:
                 self.fitting_results_directory = None
             if self.fitting_results_directory is not None:
                 self.find_fitting_results_subdirectory()
-            self.walkers = eval(config.get("Fitting", "walkers"))
-            self.steps = eval(config.get("Fitting", "steps"))
-            self.burn_in = eval(config.get("Fitting", "burn_in"))
-            self.chunk_size = eval(config.get("Fitting", "chunk_size"))
+            self.walkers = int(eval(config.get("Fitting", "walkers")))
+            self.steps = int(eval(config.get("Fitting", "steps")))
+            self.burn_in = int(eval(config.get("Fitting", "burn_in")))
+            self.chunk_size = int(eval(config.get("Fitting", "chunk_size")))
             self.fitting_parameters = self.read_fitting_parameters(config)
 
     def __repr__(self):
