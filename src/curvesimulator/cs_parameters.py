@@ -232,7 +232,7 @@ class CurveSimParameters:
                     if value is not None:
                         print(f"body {body_index}: {parameter_name}")
                         if parameter_name in ["i", "Omega", "omega", "pomega", "ma", "nu", "ea", "L"]:
-                            value = np.radians(value)
+                            value, lower, upper = np.radians(value), np.radians(lower), np.radians(upper)
                         fitting_parameters.append(FittingParameter(body_index, parameter_name, value, lower, upper))  # debug
                 body_index += 1
         return fitting_parameters
