@@ -246,7 +246,7 @@ def corresponding_flux(df, time_d, max_exp_delta, p):
         if t > time_d[-1]:
             break  # we are not interested in data after the scope of the simulation
         i = i + np.argmin(np.abs(t - time_d[i:]))  # find the index of time_d where time_d is closest to t
-        dt = 120  # debug DEBUG !!!!!!!!!!!!!!!!!!! ###################################################################################################
+        dt = 120  # debug
         exp_delta_tmp = t - time_d[i]
         if exp_delta_tmp > dt / 2:  # keep the exposure delta between -dt/2 and +dt/2
             exp_delta_tmp -= dt
@@ -374,9 +374,6 @@ if __name__ == "__main__":
     # plot_flux_df(transits94.df_download, title="Download")
     # plot_flux_df(transits94.df_normalized, title="Normalized")
     # plot_flux_df(transits94.df_processed, title="Processed")
-    # plot_flux_df(transits3.df_download, title="Download")
-    # plot_flux_df(transits3.df_normalized, title="Normalized")
-    # plot_flux_df(transits3.df_processed, title="Processed")
     # plot_flux_df(transits89.df_processed, title="Processed", left=C_TT[11] - sm, right=C_TT[11] + sm)
     # plot_flux_df(transits89.df_processed, title="Processed", left=D_TT[1] - sm, right=D_TT[1] + sm)
 
