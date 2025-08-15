@@ -12,7 +12,7 @@ Fragen an Simon:
     Kommt aus MCMC auch die Standardabweichung der gefitteten Parameter raus?
         Ich hab einfach mal mean und std von den samples genommen.
         War das korrekt oder wie kriegt man die raus?
-    Verstehst du die MCMC-Resultate (Inhalt von sampler)? ZB. acceptance_fraction?
+    Verstehst du die MCMC-Resultate (Inhalt von sampler)? ZB. acceptance_fraction wird fuer Regulierung der Stepsize genutzt?
     Wie gebe ich sinnvolle upper/lower bounds fuer z.B. ma=359 Grad an?
     Ich glaube, deine Methoden zur Anpassung von abhaengigen Parametern sind fuer mich nicht relevant? (class TransformationManager)
 
@@ -426,3 +426,32 @@ Call mit Simon, 03.07.25:
     Residuen durch Uncertainty teilen, damit die Residuen von ungenauen Daten weniger gewichtet werden.
     Next Date: spontan/kurzfristig, falls ich feststecke.
 
+-------------------
+
+I am using the emcee.EnsembleSampler. Can I get it to every 1000 steps call a function print_results() and to give its intermediary results to this function? How?
+
+You can achieve this by using the call_back parameter of the emcee.EnsembleSampler.run_mcmc method.
+This parameter allows you to specify a function that will be called at regular intervals during the sampling process.
+
+Here's how you can implement it:
+
+Define your print_results function to accept the sampler and its current state as arguments.
+Pass this function to the call_back parameter of run_mcmc.
+
+call_back is a lambda function that checks if the current iteration is a multiple of 1000.
+If true, it calls print_results with the sampler and the current iteration.
+
+Example:
+
+def print_results(sampler, iteration):
+    print(f"Iteration {iteration}:")
+    print(f"Mean acceptance fraction: {np.mean(sampler.acceptance_fraction):.3f}")
+    print(f"Current log-probability: {sampler.get_log_prob()[-1]}")
+
+# Modify the run_mcmc call
+sampler.run_mcmc(
+    theta0,
+    p.steps,
+    progress=True,
+    call_back=lambda state: print_results(sampler, state.iteration) if state.iteration % 1000 == 0 else None
+)
