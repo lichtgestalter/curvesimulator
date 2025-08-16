@@ -1,33 +1,55 @@
 Next / in progress:
 0.5.6 Fitting TOI-4504
 
-    autocorrelation im result file pro Parameter speichern
+    steps_so_far -> result json !
 
-        Bug? Masse bleibt konstant bei MCMC! -> Corner Plot stuerzt ab
+    im result file nicht die fitting parameters in den bodies zeigen (enthalten zufaellige zuletzt ausprobierte Werte)!
 
+    extra histogramm mit 150 bins?
+
+    sinnvolle Einheiten (deg statt rad etc) auch im Traces Chart!
+
+    Bug? Masse bleibt konstant bei MCMC! -> Corner Plot stuerzt ab
+
+    sim mit den max likelihoods laufen lassen. simflux in plot mit TESSflux vergleichen!!!
+
+    transit-times results (oder das ganze normale resultfile) als Teil der MCMC-Resultate abspeichern?
+
+    mcmc objekt abspeichern (pickle?) und spaeter (mit ggf. geandertem python code) fortsetzen
+
+    calculate autocorrelation
         # Suppose you have run an MCMC and have a sampler object
         # sampler.get_chain() returns the samples (nwalkers, nsteps, ndim)
         samples = sampler.get_chain()
-
         # Compute autocorrelation time
         tau = emcee.autocorr.integrated_time(samples, quiet=True)
         print("Autocorrelation time per parameter: ", tau)
 
-    Laaaaaaange laufen lassen
     Mit Simulation checken, worauf ich hoffen kann
-    MCMC findet eine Inklination von Planet d an T0 nahe bei 90 Grad plausibel.
+
+    MCMC findet eine Inklination von Planet d an T0 nahe bei 90 Grad plausibel?
         Das koennte ich vielleicht verhindern, indem ich die TESS-Daten der Zeitpunkte, an denen d-Transits waeren, dem Fluxfile hinzufuege.
+
+    Copy the whole config file into the mcmc result directory?
 
 
 Fragen an Simon:
     Erste Results interpretieren. Was nu?
+    Masse als fitting Parameter veraendert sich nicht -> emcee stuerzt ab
+    Radius veraendert sich oft auch kaum (4 Sekunden nach 5000 steps)
     Was wuerde binning von Flux-Daten fuer die Qualitaet von MCMC bedeuten? (Es wuerde auf jeden Fall viel schneller laufen.)
     Kommt aus MCMC auch die Standardabweichung der gefitteten Parameter raus?
         Ich hab einfach mal mean und std von den samples genommen.
         War das korrekt oder wie kriegt man die raus?
-    Verstehst du die MCMC-Resultate (Inhalt von sampler)? ZB. acceptance_fraction wird fuer Regulierung der Stepsize genutzt?
+    Inhalt von sampler: acceptance_fraction wird fuer Regulierung der Stepsize genutzt?
     Wie gebe ich sinnvolle upper/lower bounds fuer z.B. ma=359 Grad an?
     Ich glaube, deine Methoden zur Anpassung von abhaengigen Parametern sind fuer mich nicht relevant? (class TransformationManager)
+
+    Programm Features:
+        Multiprocessing -> 18000 Iterationen mit 32 Chains pro Stunde!
+        Zwischenergebnisse
+        Unit + Scale  Sinnvolle Parameternamen mit sinnvoller Skalierung
+
 
     Hast du Literatur zu multiple Transits / Fallunterscheidung bei gegenseitiger Ueberdeckung von 3 oder mehr Kreisen?
 
@@ -59,6 +81,9 @@ Programming Hinter MCMC-Integration zurueckgestellt:
 
     BUG! Ich speichere fuer den Stern ueberfluessige Parameter mit falschen Werten ab? Z.B. e und i.
 
+    Ermoeglichen, dass Body-Parameter von anderen Body-Parametern abhaengen?
+        Bsp.: Radius planet c  = 1.2 * Radius planet d
+
     Option in config_file einbauen: sollen eclipsees in find_transits() auf sterne eingeschraenkt sein?
         Besser: Jeder Body kriegt die Parameter relevant_eclipser  (yes/no) und relevant_eclipsee (yes/no)
 
@@ -86,6 +111,8 @@ Programming Hinter MCMC-Integration zurueckgestellt:
     Code entsorgen, der durch rebound abgedeckt wird.
 
     Alle kritischen Textmeldungen mit colorama einfaerben (siehe color.py in Ordner debug)
+
+    Config File (optional) per GUI erstellen?
 
     Multiple transits (und secondary eclipses?) korrekt hantieren.
         Siehe circle_eclipses.py
@@ -379,7 +406,7 @@ I implemented all suggestions from zoom call 29.03.2022, but tried and dismissed
         This file can be used as "measured" data to check if mcmc can generate meaningful results in this configuration.
         MCMC results and plots are now saved.
     0.5.6 Fitting TOI-4504
-
+        MCMC uses multiprocessing now.
 
 -----------------------------------------------------------------------
 

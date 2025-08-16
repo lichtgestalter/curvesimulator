@@ -1,11 +1,12 @@
 # from colorama import Fore, Style
+import corner
+import emcee
 import json
 import math
 from matplotlib import pyplot as plt
+from multiprocessing import Pool
 import numpy as np
-import emcee
-import corner
-from curvesimulator.cs_flux_data import plot_this, csv2df
+from curvesimulator.cs_flux_data import csv2df
 
 
 class CurveSimMCMC():
@@ -49,15 +50,17 @@ class CurveSimMCMC():
         theta_bounds = [(fp.lower, fp.upper) for fp in p.fitting_parameters]
         ndim = len(theta_references)
         theta0 = np.array(initial_values) + initial_noise * np.random.randn(p.walkers, ndim)  # slightly randomized initial values of the fitting parameters
-        sampler = emcee.EnsembleSampler(p.walkers, ndim, CurveSimMCMC.log_probability, args=(theta_bounds, theta_references, bodies, time_s0, measured_flux, flux_uncertainty, p))
-        print("Starting MCMC......", end="")
-        results = None
-        theta = sampler.run_mcmc(theta0, p.burn_in, progress=True)
-        for i in range(0, p.steps, p.chunk_size):
-            theta = sampler.run_mcmc(theta, p.chunk_size, progress=True)
-            results = CurveSimMCMC.mcmc_results(p, bodies, sampler, fitting_parameter_names, ndim, i+p.chunk_size, 10, 0.68, 30)
-        print("MCMC completed.")
-        return sampler, fitting_parameter_names, ndim, results
+
+        with Pool() as pool:
+            sampler = emcee.EnsembleSampler(p.walkers, ndim, CurveSimMCMC.log_probability, pool=pool, args=(theta_bounds, theta_references, bodies, time_s0, measured_flux, flux_uncertainty, p))
+            print("Starting MCMC......", end="")
+            results = None
+            theta = sampler.run_mcmc(theta0, p.burn_in, progress=True)
+            for i in range(0, p.steps, p.chunk_size):
+                theta = sampler.run_mcmc(theta, p.chunk_size, progress=True)
+                results = CurveSimMCMC.mcmc_results(p, bodies, sampler, fitting_parameter_names, ndim, i+p.chunk_size, 10, 0.68, 30)
+            print("MCMC completed.")
+            return sampler, fitting_parameter_names, ndim, results
 
     @staticmethod
     def log_prior(theta, theta_bounds):
@@ -116,18 +119,34 @@ class CurveSimMCMC():
         return hdi_min, hdi_max, std, mean
 
     @staticmethod
-    def add_units_scale_values(p, fitting_parameter_names, flat_samples):
-        units = {"mass": "m_jup", "radius": "r_jup", "e": "1", "i": "deg", "P": "d", "a": "AU", "Omega": "deg", "omega": "deg", "pomega": "deg",
+    def add_units_scale_values_backup(p, fitting_parameter_names, flat_samples):
+        unit= {"mass": "m_jup", "radius": "r_jup", "e": "1", "i": "deg", "P": "d", "a": "AU", "Omega": "deg", "omega": "deg", "pomega": "deg",
                  "L": "deg", "ma": "deg", "ea": "deg", "nu": "deg", "T": "s", "t": "s"}
         rad2deg = 180 / math.pi
         scale = {"mass": 1/p.m_jup, "radius": 1/p.r_jup, "e": 1, "i": rad2deg, "P": 1/p.day, "a": 1/p.au, "Omega": rad2deg, "omega": rad2deg, "pomega": rad2deg,
-                 "L": rad2deg, "ma": rad2deg, "ea": rad2deg, "nu": rad2deg, "T": "s", "t": "s"}
+                 "L": rad2deg, "ma": rad2deg, "ea": rad2deg, "nu": rad2deg, "T": 1, "t": 1}
         fitting_parameter_names_with_units = []
         for fpn, fs in zip(fitting_parameter_names, flat_samples.T):
             param = fpn.split(".")[-1]
-            fitting_parameter_names_with_units.append(fpn + " [" + units[param] + "]")
+            fitting_parameter_names_with_units.append(fpn + " [" + unit[param] + "]")
             fs *= scale[param]
         return fitting_parameter_names_with_units, flat_samples
+
+    @staticmethod
+    def add_units_scale_values(p, fitting_parameter_names, flat_samples):
+        # unit= {"mass": "m_jup", "radius": "r_jup", "e": "1", "i": "deg", "P": "d", "a": "AU", "Omega": "deg", "omega": "deg", "pomega": "deg",
+        #          "L": "deg", "ma": "deg", "ea": "deg", "nu": "deg", "T": "s", "t": "s"}
+        # rad2deg = 180 / math.pi
+        # scale = {"mass": 1/p.m_jup, "radius": 1/p.r_jup, "e": 1, "i": rad2deg, "P": 1/p.day, "a": 1/p.au, "Omega": rad2deg, "omega": rad2deg, "pomega": rad2deg,
+        #          "L": rad2deg, "ma": rad2deg, "ea": rad2deg, "nu": rad2deg, "T": 1, "t": 1}
+        hier weiter
+        fitting_parameter_names_with_units = []
+        for fpn, fs in zip(fitting_parameter_names, flat_samples.T):
+            param = fpn.split(".")[-1]
+            fitting_parameter_names_with_units.append(fpn + " [" + unit[param] + "]")
+            fs *= scale[param]
+        return fitting_parameter_names_with_units, flat_samples
+
 
     @staticmethod
     def mcmc_trace_plots(fitting_parameter_names, ndim, p, sampler, plot_filename=None):
@@ -142,7 +161,7 @@ class CurveSimMCMC():
         plt.tight_layout()
         if plot_filename:
             plt.savefig(plot_filename)
-        plt.show()
+        # plt.show()
 
     @staticmethod
     def mcmc_max_likelihood_parameters(flat_samples, p, sampler, thin_samples):
@@ -187,7 +206,7 @@ class CurveSimMCMC():
         plt.tight_layout()
         if plot_filename:
             plt.savefig(plot_filename)
-        plt.show()
+        # plt.show()
         return results
 
         # densities_per_param = []
@@ -208,7 +227,7 @@ class CurveSimMCMC():
             )
             if plot_filename:
                 plt.savefig(plot_filename)
-            plt.show()
+            # plt.show()
 
     @staticmethod
     def mcmc_results2json(results, p, steps_done):

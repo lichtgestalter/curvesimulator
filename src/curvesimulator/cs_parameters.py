@@ -1,4 +1,5 @@
 from colorama import Fore, Style
+import ast
 import configparser
 import numpy as np
 import sys
@@ -29,9 +30,10 @@ class CurveSimParameters:
         hour = eval(config.get("Astronomical Constants", "hour", fallback="None"))
         day = eval(config.get("Astronomical Constants", "day", fallback="None"))
         year = eval(config.get("Astronomical Constants", "year", fallback="None"))
+        rad2deg = eval(config.get("Astronomical Constants", "rad2deg", fallback="None"))
         self.g, self.au, self.r_sun, self.m_sun, self.l_sun = g, au, r_sun, m_sun, l_sun,
         self.r_jup, self.m_jup, self.r_earth, self.m_earth, self.v_earth = r_jup, m_jup, r_earth, m_earth, v_earth
-        self.hour, self.day, self.year = hour, day, year
+        self.hour, self.day, self.year, self.rad2deg = hour, day, year, rad2deg
 
         # [Results]
         self.comment = config.get("Results", "comment", fallback="No comment")
@@ -110,6 +112,12 @@ class CurveSimParameters:
             self.steps = int(eval(config.get("Fitting", "steps")))
             self.burn_in = int(eval(config.get("Fitting", "burn_in")))
             self.chunk_size = int(eval(config.get("Fitting", "chunk_size")))
+            default_unit = '{"mass": "m_jup", "radius": "r_jup", "e": "1", "i": "deg", "P": "d", "a": "AU", "Omega": "deg", "omega": "deg", "pomega": "deg", "L": "deg", "ma": "deg", "ea": "deg", "nu": "deg", "T": "s", "t": "s"}'
+            dict_str = config.get('Fitting', 'unit', fallback=default_unit)
+            self.unit = eval(dict_str)
+            default_scale = '{"mass": 1/m_jup, "radius": 1/r_jup, "e": 1, "i": rad2deg, "P": 1/day, "a": 1/au, "Omega": rad2deg, "omega": rad2deg, "pomega": rad2deg, "L": rad2deg, "ma": rad2deg, "ea": rad2deg, "nu": rad2deg, "T": 1, "t": 1}'
+            dict_str = config.get('Fitting', 'scale', fallback=default_scale)
+            self.scale = eval(dict_str)
             self.fitting_parameters = self.read_fitting_parameters(config)
 
     def __repr__(self):
@@ -234,7 +242,7 @@ class CurveSimParameters:
                         print(f"body {body_index}: {parameter_name}")
                         if parameter_name in ["i", "Omega", "omega", "pomega", "ma", "nu", "ea", "L"]:
                             value, lower, upper = np.radians(value), np.radians(lower), np.radians(upper)
-                        fitting_parameters.append(FittingParameter(body_index, parameter_name, value, lower, upper))  # debug
+                        fitting_parameters.append(FittingParameter(self, body_index, parameter_name, value, lower, upper))  # debug
                 body_index += 1
         return fitting_parameters
 
@@ -256,9 +264,11 @@ class CurveSimParameters:
         os.makedirs(self.fitting_results_directory)
 
 class FittingParameter:
-    def __init__(self, body_index, parameter_name, startvalue, lower, upper):
+    def __init__(self, p, body_index, parameter_name, startvalue, lower, upper):
         self.body_index = body_index
         self.parameter_name = parameter_name
+        self.long_parameter_name = p.unit[parameter_name]
+        self.scale = p.scale[parameter_name]
         self.startvalue = startvalue
         self.lower = lower
         self.upper = upper
