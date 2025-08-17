@@ -267,7 +267,8 @@ class FittingParameter:
     def __init__(self, p, body_index, parameter_name, startvalue, lower, upper):
         self.body_index = body_index
         self.parameter_name = parameter_name
-        self.long_parameter_name = p.unit[parameter_name]
+        self.unit = p.unit[parameter_name]
+        self.long_parameter_name = parameter_name + "[" + p.unit[parameter_name] + "]"
         self.scale = p.scale[parameter_name]
         self.startvalue = startvalue
         self.lower = lower

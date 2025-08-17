@@ -1,19 +1,23 @@
 Next / in progress:
 0.5.6 Fitting TOI-4504
 
+    corner Warnungen wegen contours unterdruecken
+
+    Startwerte der einzelnen Chains viel mehr verteilen!
+
     steps_so_far -> result json !
 
     im result file nicht die fitting parameters in den bodies zeigen (enthalten zufaellige zuletzt ausprobierte Werte)!
 
     extra histogramm mit 150 bins?
 
-    sinnvolle Einheiten (deg statt rad etc) auch im Traces Chart!
-
     Bug? Masse bleibt konstant bei MCMC! -> Corner Plot stuerzt ab
 
     sim mit den max likelihoods laufen lassen. simflux in plot mit TESSflux vergleichen!!!
 
     transit-times results (oder das ganze normale resultfile) als Teil der MCMC-Resultate abspeichern?
+
+    Copy the whole config file into the mcmc result directory?
 
     mcmc objekt abspeichern (pickle?) und spaeter (mit ggf. geandertem python code) fortsetzen
 
@@ -30,7 +34,6 @@ Next / in progress:
     MCMC findet eine Inklination von Planet d an T0 nahe bei 90 Grad plausibel?
         Das koennte ich vielleicht verhindern, indem ich die TESS-Daten der Zeitpunkte, an denen d-Transits waeren, dem Fluxfile hinzufuege.
 
-    Copy the whole config file into the mcmc result directory?
 
 
 Fragen an Simon:
@@ -44,6 +47,8 @@ Fragen an Simon:
     Inhalt von sampler: acceptance_fraction wird fuer Regulierung der Stepsize genutzt?
     Wie gebe ich sinnvolle upper/lower bounds fuer z.B. ma=359 Grad an?
     Ich glaube, deine Methoden zur Anpassung von abhaengigen Parametern sind fuer mich nicht relevant? (class TransformationManager)
+    Zeitliche Abstaende zwischen simulierten und gemessenen TT als (stark gewichtete) Residuals mit aufnehmen? Puh.
+
 
     Programm Features:
         Multiprocessing -> 18000 Iterationen mit 32 Chains pro Stunde!

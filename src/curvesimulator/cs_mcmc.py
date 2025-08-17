@@ -6,6 +6,7 @@ import math
 from matplotlib import pyplot as plt
 from multiprocessing import Pool
 import numpy as np
+
 from curvesimulator.cs_flux_data import csv2df
 
 
@@ -30,37 +31,26 @@ class CurveSimMCMC():
         p.total_iterations = len(time_s0)
         return time_s0, measured_flux, flux_uncertainty
 
-    # @staticmethod
-    # def debug_flux(parameters, measured_flux, mask, sim_flux):
-    #     left = 50
-    #     right = 80
-    #     x = np.arange(0, parameters.iterations)
-    #     residuals = (measured_flux - sim_flux) * mask
-    #     plot_this(x, [sim_flux], title="Simulated Lightcurve")
-    #     plot_this(x, [residuals], title="Residuals")
-    #     plot_this(x, [measured_flux], title="Flux", left=left, right=right, bottom=0.985, top=1.015)
-    #     plot_this(x, [sim_flux], title="Simulated Lightcurve", left=left, right=right)
-    #     plot_this(x, [residuals], title="Residuals", left=left, right=right)
-
     @staticmethod
-    def mcmc(p, bodies, time_s0, measured_flux, flux_uncertainty, initial_noise=1e-4):
+    def mcmc(p, bodies, time_s0, measured_flux, flux_uncertainty, noise_factor=1e-4):
         theta_references = [(fp.body_index, fp.parameter_name) for fp in p.fitting_parameters]  # list of names of fitting parameters. Needed so these parameters can be updated inside log_likelihood().
         fitting_parameter_names = [f"{bodies[fp.body_index].name}.{fp.parameter_name}" for fp in p.fitting_parameters]
+        fitting_parameter_names_with_units = [fpn + " [" + p.unit[fpn.split(".")[-1]] + "]" for fpn in fitting_parameter_names]
         initial_values = [fp.startvalue for fp in p.fitting_parameters]
         theta_bounds = [(fp.lower, fp.upper) for fp in p.fitting_parameters]
         ndim = len(theta_references)
-        theta0 = np.array(initial_values) + initial_noise * np.random.randn(p.walkers, ndim)  # slightly randomized initial values of the fitting parameters
-
-        with Pool() as pool:
+        noise = 1 + noise_factor * np.random.randn(p.walkers, ndim)
+        theta0 = np.array(initial_values) * noise  # randomized initial values of the fitting parameters
+        with Pool() as pool:  # enable multi processing
             sampler = emcee.EnsembleSampler(p.walkers, ndim, CurveSimMCMC.log_probability, pool=pool, args=(theta_bounds, theta_references, bodies, time_s0, measured_flux, flux_uncertainty, p))
             print("Starting MCMC......", end="")
             results = None
             theta = sampler.run_mcmc(theta0, p.burn_in, progress=True)
             for i in range(0, p.steps, p.chunk_size):
                 theta = sampler.run_mcmc(theta, p.chunk_size, progress=True)
-                results = CurveSimMCMC.mcmc_results(p, bodies, sampler, fitting_parameter_names, ndim, i+p.chunk_size, 10, 0.68, 30)
+                results = CurveSimMCMC.mcmc_results(p, bodies, sampler, fitting_parameter_names, fitting_parameter_names_with_units, ndim, i+p.chunk_size, 10, 0.68, 30)
             print("MCMC completed.")
-            return sampler, fitting_parameter_names, ndim, results
+            return sampler, theta, results
 
     @staticmethod
     def log_prior(theta, theta_bounds):
@@ -119,49 +109,30 @@ class CurveSimMCMC():
         return hdi_min, hdi_max, std, mean
 
     @staticmethod
-    def add_units_scale_values_backup(p, fitting_parameter_names, flat_samples):
-        unit= {"mass": "m_jup", "radius": "r_jup", "e": "1", "i": "deg", "P": "d", "a": "AU", "Omega": "deg", "omega": "deg", "pomega": "deg",
-                 "L": "deg", "ma": "deg", "ea": "deg", "nu": "deg", "T": "s", "t": "s"}
-        rad2deg = 180 / math.pi
-        scale = {"mass": 1/p.m_jup, "radius": 1/p.r_jup, "e": 1, "i": rad2deg, "P": 1/p.day, "a": 1/p.au, "Omega": rad2deg, "omega": rad2deg, "pomega": rad2deg,
-                 "L": rad2deg, "ma": rad2deg, "ea": rad2deg, "nu": rad2deg, "T": 1, "t": 1}
-        fitting_parameter_names_with_units = []
-        for fpn, fs in zip(fitting_parameter_names, flat_samples.T):
+    def scale_samples(p, fitting_parameter_names, flat_samples):
+        scaled_samples = np.copy(flat_samples)
+        scales = []
+        for fpn, ss in zip(fitting_parameter_names, scaled_samples.T):
             param = fpn.split(".")[-1]
-            fitting_parameter_names_with_units.append(fpn + " [" + unit[param] + "]")
-            fs *= scale[param]
-        return fitting_parameter_names_with_units, flat_samples
+            ss *= p.scale[param]
+            scales.append(p.scale[param])
+        return scales, scaled_samples
 
     @staticmethod
-    def add_units_scale_values(p, fitting_parameter_names, flat_samples):
-        # unit= {"mass": "m_jup", "radius": "r_jup", "e": "1", "i": "deg", "P": "d", "a": "AU", "Omega": "deg", "omega": "deg", "pomega": "deg",
-        #          "L": "deg", "ma": "deg", "ea": "deg", "nu": "deg", "T": "s", "t": "s"}
-        # rad2deg = 180 / math.pi
-        # scale = {"mass": 1/p.m_jup, "radius": 1/p.r_jup, "e": 1, "i": rad2deg, "P": 1/p.day, "a": 1/p.au, "Omega": rad2deg, "omega": rad2deg, "pomega": rad2deg,
-        #          "L": rad2deg, "ma": rad2deg, "ea": rad2deg, "nu": rad2deg, "T": 1, "t": 1}
-        hier weiter
-        fitting_parameter_names_with_units = []
-        for fpn, fs in zip(fitting_parameter_names, flat_samples.T):
-            param = fpn.split(".")[-1]
-            fitting_parameter_names_with_units.append(fpn + " [" + unit[param] + "]")
-            fs *= scale[param]
-        return fitting_parameter_names_with_units, flat_samples
-
-
-    @staticmethod
-    def mcmc_trace_plots(fitting_parameter_names, ndim, p, sampler, plot_filename=None):
+    def mcmc_trace_plots(fitting_parameter_names, ndim, p, sampler, scales, plot_filename=None):
         fig, axes = plt.subplots(ndim, figsize=(10, ndim * 2), sharex=True)
         if ndim == 1:
             axes = [axes]
         chains = np.moveaxis(sampler.get_chain(discard=p.burn_in, flat=False), -1, 0)
-        for chain, ax, name in zip(chains, axes, fitting_parameter_names):
-            ax.plot(chain, color='black', alpha=0.1)
+        for chain, ax, name, scale in zip(chains, axes, fitting_parameter_names, scales):
+            ax.plot(chain * scale, color='black', alpha=0.1)
             ax.set_ylabel(name)
             ax.set_xlabel("Step")
         plt.tight_layout()
         if plot_filename:
             plt.savefig(plot_filename)
         # plt.show()
+        plt.close(fig)
 
     @staticmethod
     def mcmc_max_likelihood_parameters(flat_samples, p, sampler, thin_samples):
@@ -207,13 +178,8 @@ class CurveSimMCMC():
         if plot_filename:
             plt.savefig(plot_filename)
         # plt.show()
+        plt.close(fig)
         return results
-
-        # densities_per_param = []
-        # for i, (sample, ax, name) in enumerate(zip(flat_samples.T, axes, fitting_parameter_names)):
-        #     densities, bin_edges, _ = ax.hist(sample, bins=bins, density=True, alpha=0.7, color="blue", edgecolor="black")
-        #     densities_per_param.append(densities)
-        # return densities_per_param  # List of arrays, one per parameter
 
     @staticmethod
     def mcmc_corner_plot(fitting_parameter_names, flat_samples, max_likelihood_params, ndim, plot_filename=None):
@@ -228,6 +194,7 @@ class CurveSimMCMC():
             if plot_filename:
                 plt.savefig(plot_filename)
             # plt.show()
+            plt.close(fig)
 
     @staticmethod
     def mcmc_results2json(results, p, steps_done):
@@ -272,17 +239,17 @@ class CurveSimMCMC():
         CurveSimMCMC.mcmc_results2json(results, p, steps_done)
 
     @staticmethod
-    def mcmc_results(p, bodies, sampler, fitting_parameter_names, ndim, steps_done, thin_samples=10, credible_mass=0.68, histogram_bins=30):
+    def mcmc_results(p, bodies, sampler, fitting_parameter_names, fitting_parameter_names_with_units, ndim, steps_done, thin_samples=10, credible_mass=0.68, histogram_bins=30):
         flat_samples = sampler.get_chain(discard=p.burn_in, thin=thin_samples, flat=True)
         # discard the initial p.burn_in steps from each chain to ensure only samples that represent the equilibrium distribution are analyzed.
         # thin=10: keep only every 10th sample from the chain to reduce autocorrelation in the chains and the size of the resulting arrays.
         # flat=True: return all chains in a single, two-dimensional array (shape: (n_samples, n_parameters))
         print(f"{steps_done} steps done.  ", end="")
-        fitting_parameter_names, flat_samples = CurveSimMCMC.add_units_scale_values(p, fitting_parameter_names, flat_samples)
-        CurveSimMCMC.mcmc_trace_plots(fitting_parameter_names, ndim, p, sampler, p.fitting_results_directory + f"/traces_{steps_done:07d}.png")
-        max_likelihood_params = CurveSimMCMC.mcmc_max_likelihood_parameters(flat_samples, p, sampler, thin_samples)
-        results = CurveSimMCMC.mcmc_high_density_intervals(fitting_parameter_names, flat_samples, max_likelihood_params, credible_mass)
-        results = CurveSimMCMC.mcmc_histograms(fitting_parameter_names, flat_samples, results, ndim, histogram_bins, p.fitting_results_directory + f"/histograms_{steps_done:07d}.png")
+        scales, scaled_samples = CurveSimMCMC.scale_samples(p, fitting_parameter_names, flat_samples)
+        CurveSimMCMC.mcmc_trace_plots(fitting_parameter_names_with_units, ndim, p, sampler, scales, p.fitting_results_directory + f"/traces_{steps_done:07d}.png")
+        max_likelihood_params = CurveSimMCMC.mcmc_max_likelihood_parameters(scaled_samples, p, sampler, thin_samples)
+        results = CurveSimMCMC.mcmc_high_density_intervals(fitting_parameter_names_with_units, scaled_samples, max_likelihood_params, credible_mass)
+        results = CurveSimMCMC.mcmc_histograms(fitting_parameter_names_with_units, scaled_samples, results, ndim, histogram_bins, p.fitting_results_directory + f"/histograms_{steps_done:07d}.png")
         CurveSimMCMC.save_mcmc_results(results, p, bodies, steps_done)
-        CurveSimMCMC.mcmc_corner_plot(fitting_parameter_names, flat_samples, max_likelihood_params, ndim, p.fitting_results_directory + f"/corner_{steps_done:07d}.png")
+        CurveSimMCMC.mcmc_corner_plot(fitting_parameter_names_with_units, scaled_samples, max_likelihood_params, ndim, p.fitting_results_directory + f"/corner_{steps_done:07d}.png")
         return results
