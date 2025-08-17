@@ -229,20 +229,20 @@ class CurveSimParameters:
     def read_fitting_parameters(self, config):
         """Search for body parameters in the config file that are meant to
         be used as fitting parameters in MCMC.
-        Fitting parameters have 3 values instead of 1, separated by commas:
-        Initial Value, Lower Bound, Upper Bound."""
+        Fitting parameters have 4 values instead of 1, separated by commas:
+        Initial Value, Lower Bound, Upper Bound, Standard Deviation of the Initial Values of all chains (with mean = Initial Value)."""
         body_index = 0
         fitting_parameters = []
         print(f"Running MCMC with these fitting parameters:")
         for section in config.sections():
             if section not in self.standard_sections:  # section describes a physical object
                 for parameter_name in ["mass", "radius", "e", "i", "a", "P", "Omega", "pomega", "omega", "L", "nu", "ma", "ea", "T"]:
-                    value, lower, upper = self.read_param_and_bounds(config, section, parameter_name)
+                    value, lower, upper, sigma = self.read_param_and_bounds(config, section, parameter_name)
                     if value is not None:
                         print(f"body {body_index}: {parameter_name}")
                         if parameter_name in ["i", "Omega", "omega", "pomega", "ma", "nu", "ea", "L"]:
-                            value, lower, upper = np.radians(value), np.radians(lower), np.radians(upper)
-                        fitting_parameters.append(FittingParameter(self, body_index, parameter_name, value, lower, upper))  # debug
+                            value, lower, upper, sigma = np.radians(value), np.radians(lower), np.radians(upper), np.radians(sigma)
+                        fitting_parameters.append(FittingParameter(self, body_index, parameter_name, value, lower, upper, sigma))  # debug
                 body_index += 1
         return fitting_parameters
 
@@ -264,7 +264,7 @@ class CurveSimParameters:
         os.makedirs(self.fitting_results_directory)
 
 class FittingParameter:
-    def __init__(self, p, body_index, parameter_name, startvalue, lower, upper):
+    def __init__(self, p, body_index, parameter_name, startvalue, lower, upper, sigma):
         self.body_index = body_index
         self.parameter_name = parameter_name
         self.unit = p.unit[parameter_name]
@@ -273,3 +273,13 @@ class FittingParameter:
         self.startvalue = startvalue
         self.lower = lower
         self.upper = upper
+        self.sigma = sigma
+
+
+    def initial_values(self, rng, size):
+        result = []
+        while len(result) < size:
+            sample = rng.normal(self.startvalue, self.sigma)
+            if self.lower <= sample <= self.upper:
+                result.append(sample)
+        return np.array(result)
