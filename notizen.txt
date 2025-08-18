@@ -1,10 +1,6 @@
 Next / in progress:
 0.5.6 Fitting TOI-4504
 
-    corner Warnungen wegen contours unterdruecken
-
-    Startwerte der einzelnen Chains viel mehr verteilen!
-
     Unterwegs die Groesse der residuals (von max likelihood?) ausdrucken
 
     steps_so_far -> result json !
@@ -12,8 +8,6 @@ Next / in progress:
     im result file nicht die fitting parameters in den bodies zeigen (enthalten zufaellige zuletzt ausprobierte Werte)!
 
     extra histogramm mit 150 bins?
-
-    Bug? Masse bleibt konstant bei MCMC! -> Corner Plot stuerzt ab
 
     sim mit den max likelihoods laufen lassen. simflux in plot mit TESSflux vergleichen!!!
 
@@ -44,7 +38,6 @@ Next / in progress:
 
 Fragen an Simon:
     Erste Results interpretieren. Was nu?
-    Masse als fitting Parameter veraendert sich nicht -> emcee stuerzt ab
     Radius veraendert sich oft auch kaum (4 Sekunden nach 5000 steps)
     Was wuerde binning von Flux-Daten fuer die Qualitaet von MCMC bedeuten? (Es wuerde auf jeden Fall viel schneller laufen.)
     Kommt aus MCMC auch die Standardabweichung der gefitteten Parameter raus?
