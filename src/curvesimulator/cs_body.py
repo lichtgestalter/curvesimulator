@@ -4,8 +4,8 @@ import numpy as np
 import sys
 
 from curvesimulator.cs_physics import CurveSimPhysics
-from curvesimulator.cs_results import Transit
-from curvesimulator.cs_results import CurveSimResults
+# from curvesimulator.cs_results import Transit
+# from curvesimulator.cs_results import CurveSimResults
 
 
 def multiple_transit_error():

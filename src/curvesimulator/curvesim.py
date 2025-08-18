@@ -13,7 +13,7 @@ class CurveSimulator:
         if parameters.flux_file:  # run mcmc?
             time_s0, measured_flux, flux_uncertainty = CurveSimMCMC.get_measured_flux(parameters)
             bodies = CurveSimBodies(parameters)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
-            sampler, theta, results = CurveSimMCMC.mcmc(parameters, bodies, time_s0, measured_flux, flux_uncertainty, 1e-4)
+            sampler, theta, results = CurveSimMCMC.mcmc(parameters, bodies, time_s0, measured_flux, flux_uncertainty)
             self.sampler = sampler  # mcmc object
             self.theta = theta  # current state of mcmc chains
             # By saving sampler and theta it is possible to continue the mcmc later on

@@ -32,7 +32,7 @@ class CurveSimMCMC():
         return time_s0, measured_flux, flux_uncertainty
 
     @staticmethod
-    def random_initial_values_backup(initial_values, ndim, noise_factor, p):
+    def random_initial_values_old(initial_values, ndim, noise_factor, p):
         noise = 1 + noise_factor * np.random.randn(p.walkers, ndim)
         theta0 = np.array(initial_values) * noise  # randomized initial values of the fitting parameters
         return theta0
@@ -41,20 +41,23 @@ class CurveSimMCMC():
     def random_initial_values(ndim, p):
         """return randomized initial values of the fitting parameters"""
         rng = np.random.default_rng()  # init random number generator
-        initial_values = [fp.initial_values(rng, ndim) for fp in p.fitting_parameters]
+        initial_values = [fp.initial_values(rng, p.walkers) for fp in p.fitting_parameters]
         theta0 = np.array(initial_values)
-        hier weiter: die shape von theta0 richtig hinkriegen (Transponieren oder so)
-        return theta0
+        # hier weiter: die shape von theta0 richtig hinkriegen (Transponieren oder so)
+        return theta0.T
 
     @staticmethod
-    def mcmc(p, bodies, time_s0, measured_flux, flux_uncertainty, noise_factor=1e-3):
+    def mcmc(p, bodies, time_s0, measured_flux, flux_uncertainty):
         theta_references = [(fp.body_index, fp.parameter_name) for fp in p.fitting_parameters]  # list of names of fitting parameters. Needed so these parameters can be updated inside log_likelihood().
         fitting_parameter_names = [f"{bodies[fp.body_index].name}.{fp.parameter_name}" for fp in p.fitting_parameters]
         fitting_parameter_names_with_units = [fpn + " [" + p.unit[fpn.split(".")[-1]] + "]" for fpn in fitting_parameter_names]
-        initial_values = [fp.startvalue for fp in p.fitting_parameters]
         theta_bounds = [(fp.lower, fp.upper) for fp in p.fitting_parameters]
         ndim = len(theta_references)
-        theta0 = CurveSimMCMC.random_initial_values(initial_values, ndim, noise_factor, p)
+
+        # initial_values = [fp.startvalue for fp in p.fitting_parameters]
+        # theta0 = CurveSimMCMC.random_initial_values(initial_values, ndim, 0.01, p)
+        theta0 = CurveSimMCMC.random_initial_values(ndim, p)
+
         with Pool() as pool:  # enable multi processing
             sampler = emcee.EnsembleSampler(p.walkers, ndim, CurveSimMCMC.log_probability, pool=pool, args=(theta_bounds, theta_references, bodies, time_s0, measured_flux, flux_uncertainty, p))
             print("Starting MCMC......", end="")

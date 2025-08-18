@@ -10,7 +10,7 @@ import time
 
 from curvesimulator.cs_body import CurveSimBody
 from curvesimulator.cs_lightcurve import CurveSimLightcurve
-from curvesimulator.cs_parameters import CurveSimParameters
+# from curvesimulator.cs_parameters import CurveSimParameters
 from curvesimulator.cs_physics import CurveSimPhysics
 from curvesimulator.cs_rebound import CurveSimRebound
 from curvesimulator.cs_results import CurveSimResults

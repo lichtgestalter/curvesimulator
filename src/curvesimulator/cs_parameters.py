@@ -217,14 +217,14 @@ class CurveSimParameters:
         hour, day, year = self.hour, self.day, self.year
         line = config.get(section, param, fallback=None)
         if line is None:
-            return None, None, None
+            return None, None, None, None
         else:
             items = line.split("#")[0].split(",")
-        if len(items) == 3:
-            value, lower, upper = items
-            return eval(value), eval(lower), eval(upper)
+        if len(items) == 4:
+            value, lower, upper, sigma = items
+            return eval(value), eval(lower), eval(upper), eval(sigma)
         else:
-            return None, None, None
+            return None, None, None, None
 
     def read_fitting_parameters(self, config):
         """Search for body parameters in the config file that are meant to
