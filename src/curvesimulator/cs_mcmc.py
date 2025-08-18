@@ -6,6 +6,7 @@ import math
 from matplotlib import pyplot as plt
 from multiprocessing import Pool
 import numpy as np
+import os
 
 from curvesimulator.cs_flux_data import csv2df
 
@@ -38,35 +39,32 @@ class CurveSimMCMC():
         return theta0
 
     @staticmethod
-    def random_initial_values(ndim, p):
+    def random_initial_values(p):
         """return randomized initial values of the fitting parameters"""
         rng = np.random.default_rng()  # init random number generator
         initial_values = [fp.initial_values(rng, p.walkers) for fp in p.fitting_parameters]
         theta0 = np.array(initial_values)
-        # hier weiter: die shape von theta0 richtig hinkriegen (Transponieren oder so)
         return theta0.T
 
     @staticmethod
     def mcmc(p, bodies, time_s0, measured_flux, flux_uncertainty):
+        os.environ["OMP_NUM_THREADS"] = "1"
+        # Some builds of NumPy automatically parallelize some operations.
+        # This can cause problems when multi processing inside emcee is enabled.
+        # Turn that off by setting the environment variable OMP_NUM_THREADS=1.
         theta_references = [(fp.body_index, fp.parameter_name) for fp in p.fitting_parameters]  # list of names of fitting parameters. Needed so these parameters can be updated inside log_likelihood().
         fitting_parameter_names = [f"{bodies[fp.body_index].name}.{fp.parameter_name}" for fp in p.fitting_parameters]
         fitting_parameter_names_with_units = [fpn + " [" + p.unit[fpn.split(".")[-1]] + "]" for fpn in fitting_parameter_names]
         theta_bounds = [(fp.lower, fp.upper) for fp in p.fitting_parameters]
         ndim = len(theta_references)
-
-        # initial_values = [fp.startvalue for fp in p.fitting_parameters]
-        # theta0 = CurveSimMCMC.random_initial_values(initial_values, ndim, 0.01, p)
-        theta0 = CurveSimMCMC.random_initial_values(ndim, p)
-
+        theta0 = CurveSimMCMC.random_initial_values(p)
         with Pool() as pool:  # enable multi processing
             sampler = emcee.EnsembleSampler(p.walkers, ndim, CurveSimMCMC.log_probability, pool=pool, args=(theta_bounds, theta_references, bodies, time_s0, measured_flux, flux_uncertainty, p))
-            print("Starting MCMC......", end="")
             results = None
             theta = sampler.run_mcmc(theta0, p.burn_in, progress=True)
             for i in range(0, p.steps, p.chunk_size):
                 theta = sampler.run_mcmc(theta, p.chunk_size, progress=True)
-                results = CurveSimMCMC.mcmc_results(p, bodies, sampler, fitting_parameter_names, fitting_parameter_names_with_units, ndim, i+p.chunk_size, 10, 0.68, 30)
-            print("MCMC completed.")
+                results = CurveSimMCMC.mcmc_results(p, bodies, sampler, fitting_parameter_names, fitting_parameter_names_with_units, ndim, i+p.chunk_size, 0.68)
             return sampler, theta, results
 
     @staticmethod
@@ -217,7 +215,7 @@ class CurveSimMCMC():
     @staticmethod
     def mcmc_results2json(results, p, steps_done):
         """Converts results to JSON and saves it."""
-        filename = p.fitting_results_directory + f"/mcmc_results_{steps_done:07d}.json"
+        filename = p.fitting_results_directory + f"/{steps_done:07d}_mcmc_results.json"
         with open(filename, "w", encoding='utf8') as file:
             json.dump(results, file, indent=4, ensure_ascii=False)
         if p.verbose:
@@ -232,7 +230,7 @@ class CurveSimMCMC():
         results["Simulation Parameters"]["start_date"] = p.start_date
         results["Simulation Parameters"]["default_dt"] = p.dt
         results["Simulation Parameters"]["mcmc walkers"] = p.walkers
-        results["Simulation Parameters"]["mcmc steps"] = p.steps
+        results["Simulation Parameters"]["mcmc steps"] = steps_done
         results["Simulation Parameters"]["mcmc burn_in"] = p.burn_in
         results["Simulation Parameters"]["flux_file"] = p.flux_file
         results["Simulation Parameters"]["fitting_results_directory"] = p.fitting_results_directory
@@ -243,31 +241,30 @@ class CurveSimMCMC():
                   + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
                   + ["e", "i", "P", "a", "Omega", "Omega_deg", "omega", "omega_deg", "pomega", "pomega_deg"]
                   + ["L", "L_deg", "ma", "ma_deg", "ea", "ea_deg", "nu", "nu_deg", "T", "t"])
-        for body in bodies:
+        fitting_params = [(fp.body_index, fp.parameter_name) for fp in p.fitting_parameters]
+        for i, body in enumerate(bodies):
             results["Bodies"][body.name] = {}
             for key in params:
-                attr = getattr(body, key)
-                if attr is not None:
-                    results["Bodies"][body.name][key] = attr
-
-            # for key in list(body.__dict__.keys()):  # uncomment to prevent null-values in result file
-            #     if body.__dict__[key] is None:
-            #         del body.__dict__[key]
-
+                if (i, key) not in fitting_params and (i, key.split("_deg")[0]) not in fitting_params:
+                    attr = getattr(body, key)
+                    if attr is not None:
+                        results["Bodies"][body.name][key] = attr
         CurveSimMCMC.mcmc_results2json(results, p, steps_done)
 
     @staticmethod
-    def mcmc_results(p, bodies, sampler, fitting_parameter_names, fitting_parameter_names_with_units, ndim, steps_done, thin_samples=10, credible_mass=0.68, histogram_bins=30):
-        flat_samples = sampler.get_chain(discard=p.burn_in, thin=thin_samples, flat=True)
+    def mcmc_results(p, bodies, sampler, fitting_parameter_names, fitting_parameter_names_with_units, ndim, steps_done, credible_mass=0.68):
+        flat_samples = sampler.get_chain(discard=p.burn_in, thin=p.thin_samples, flat=True)
         # discard the initial p.burn_in steps from each chain to ensure only samples that represent the equilibrium distribution are analyzed.
         # thin=10: keep only every 10th sample from the chain to reduce autocorrelation in the chains and the size of the resulting arrays.
         # flat=True: return all chains in a single, two-dimensional array (shape: (n_samples, n_parameters))
         print(f"{steps_done} steps done.  ", end="")
         scales, scaled_samples = CurveSimMCMC.scale_samples(p, fitting_parameter_names, flat_samples)
-        CurveSimMCMC.mcmc_trace_plots(fitting_parameter_names_with_units, ndim, p, sampler, scales, p.fitting_results_directory + f"/traces_{steps_done:07d}.png")
-        max_likelihood_params = CurveSimMCMC.mcmc_max_likelihood_parameters(scaled_samples, p, sampler, thin_samples)
+        CurveSimMCMC.mcmc_trace_plots(fitting_parameter_names_with_units, ndim, p, sampler, scales, p.fitting_results_directory + f"/{steps_done:07d}_traces.png")
+        max_likelihood_params = CurveSimMCMC.mcmc_max_likelihood_parameters(scaled_samples, p, sampler, p.thin_samples)
         results = CurveSimMCMC.mcmc_high_density_intervals(fitting_parameter_names_with_units, scaled_samples, max_likelihood_params, credible_mass)
-        results = CurveSimMCMC.mcmc_histograms(fitting_parameter_names_with_units, scaled_samples, results, ndim, histogram_bins, p.fitting_results_directory + f"/histograms_{steps_done:07d}.png")
+        results["Autocorrelation"] = list(emcee.autocorr.integrated_time(sampler.get_chain(discard=p.burn_in), quiet=True))
+        for bins in p.bins:
+            results = CurveSimMCMC.mcmc_histograms(fitting_parameter_names_with_units, scaled_samples, results, ndim, bins, p.fitting_results_directory + f"/{steps_done:07d}_histograms_{bins}.png")
         CurveSimMCMC.save_mcmc_results(results, p, bodies, steps_done)
-        CurveSimMCMC.mcmc_corner_plot(fitting_parameter_names_with_units, scaled_samples, max_likelihood_params, ndim, p.fitting_results_directory + f"/corner_{steps_done:07d}.png")
+        CurveSimMCMC.mcmc_corner_plot(fitting_parameter_names_with_units, scaled_samples, max_likelihood_params, ndim, p.fitting_results_directory + f"/{steps_done:07d}_corner.png")
         return results

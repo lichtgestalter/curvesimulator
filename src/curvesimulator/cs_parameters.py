@@ -108,10 +108,12 @@ class CurveSimParameters:
                 self.fitting_results_directory = None
             if self.fitting_results_directory is not None:
                 self.find_fitting_results_subdirectory()
-            self.walkers = int(eval(config.get("Fitting", "walkers")))
-            self.steps = int(eval(config.get("Fitting", "steps")))
-            self.burn_in = int(eval(config.get("Fitting", "burn_in")))
-            self.chunk_size = int(eval(config.get("Fitting", "chunk_size")))
+            self.walkers = int(eval(config.get("Fitting", "walkers", fallback="32")))
+            self.steps = int(eval(config.get("Fitting", "steps", fallback="10000")))
+            self.burn_in = int(eval(config.get("Fitting", "burn_in", fallback="500")))
+            self.chunk_size = int(eval(config.get("Fitting", "chunk_size", fallback="500")))
+            self.bins = tuple([eval(x) for x in config.get("Fitting", "bins", fallback="30").split("#")[0].split(",")])
+            self.thin_samples = int(eval(config.get("Fitting", "thin_samples", fallback="10")))
             default_unit = '{"mass": "m_jup", "radius": "r_jup", "e": "1", "i": "deg", "P": "d", "a": "AU", "Omega": "deg", "omega": "deg", "pomega": "deg", "L": "deg", "ma": "deg", "ea": "deg", "nu": "deg", "T": "s", "t": "s"}'
             dict_str = config.get('Fitting', 'unit', fallback=default_unit)
             self.unit = eval(dict_str)
@@ -233,17 +235,20 @@ class CurveSimParameters:
         Initial Value, Lower Bound, Upper Bound, Standard Deviation of the Initial Values of all chains (with mean = Initial Value)."""
         body_index = 0
         fitting_parameters = []
-        print(f"Running MCMC with these fitting parameters:")
+        if self.verbose:
+            print(f"Running MCMC with these fitting parameters:")
         for section in config.sections():
             if section not in self.standard_sections:  # section describes a physical object
                 for parameter_name in ["mass", "radius", "e", "i", "a", "P", "Omega", "pomega", "omega", "L", "nu", "ma", "ea", "T"]:
                     value, lower, upper, sigma = self.read_param_and_bounds(config, section, parameter_name)
                     if value is not None:
-                        print(f"body {body_index}: {parameter_name}")
+                        if self.verbose:
+                            print(f"body {body_index}: {parameter_name}")
                         if parameter_name in ["i", "Omega", "omega", "pomega", "ma", "nu", "ea", "L"]:
                             value, lower, upper, sigma = np.radians(value), np.radians(lower), np.radians(upper), np.radians(sigma)
                         fitting_parameters.append(FittingParameter(self, body_index, parameter_name, value, lower, upper, sigma))  # debug
                 body_index += 1
+        print(f"Fitting {len(fitting_parameters)} parameters.")
         return fitting_parameters
 
     def find_fitting_results_subdirectory(self):
