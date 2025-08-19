@@ -252,6 +252,16 @@ class CurveSimMCMC():
         CurveSimMCMC.mcmc_results2json(results, p, steps_done)
 
     @staticmethod
+    def save_autocorrelation(autocorrelation, steps_done, filename):
+        string = str(steps_done)
+        for ac in autocorrelation:
+            string += f",{ac:.0f}"
+        for ac in autocorrelation:
+            string += f",{steps_done/ac:.0f}"
+        with open(filename, "a") as file:  # append
+            file.writelines(f"{string}\n")
+
+    @staticmethod
     def mcmc_results(p, bodies, sampler, fitting_parameter_names, fitting_parameter_names_with_units, ndim, steps_done, credible_mass=0.68):
         flat_samples = sampler.get_chain(discard=p.burn_in, thin=p.thin_samples, flat=True)
         # discard the initial p.burn_in steps from each chain to ensure only samples that represent the equilibrium distribution are analyzed.
@@ -262,7 +272,9 @@ class CurveSimMCMC():
         CurveSimMCMC.mcmc_trace_plots(fitting_parameter_names_with_units, ndim, p, sampler, scales, p.fitting_results_directory + f"/{steps_done:07d}_traces.png")
         max_likelihood_params = CurveSimMCMC.mcmc_max_likelihood_parameters(scaled_samples, p, sampler, p.thin_samples)
         results = CurveSimMCMC.mcmc_high_density_intervals(fitting_parameter_names_with_units, scaled_samples, max_likelihood_params, credible_mass)
-        results["Autocorrelation"] = list(emcee.autocorr.integrated_time(sampler.get_chain(discard=p.burn_in), quiet=True))
+        autocorrelation = list(emcee.autocorr.integrated_time(sampler.get_chain(discard=p.burn_in), quiet=True))
+        results["Autocorrelation"] = autocorrelation
+        CurveSimMCMC.save_autocorrelation(autocorrelation, steps_done, p.fitting_results_directory + f"/autocorrelation.csv")
         for bins in p.bins:
             results = CurveSimMCMC.mcmc_histograms(fitting_parameter_names_with_units, scaled_samples, results, ndim, bins, p.fitting_results_directory + f"/{steps_done:07d}_histograms_{bins}.png")
         CurveSimMCMC.save_mcmc_results(results, p, bodies, steps_done)
