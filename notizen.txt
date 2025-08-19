@@ -1,8 +1,6 @@
 Next / in progress:
 0.5.6 Fitting TOI-4504
 
-    Autocorrelation nach jedem Chunk wegschreiben. Nur eine Datei, an die angehaengt wird.
-
     Nach jedem Chunk 5 Sekunden Zeit, aus einem Menue auszuwaehlen, sonst laueft der naechste Chunk
         Eine Option: Erstelle Video/Resultfile/Simflux fuer die aktuelle max likelihood
 
