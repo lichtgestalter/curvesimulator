@@ -1,6 +1,11 @@
 Next / in progress:
 0.5.6 Fitting TOI-4504
 
+    Autocorrelation nach jedem Chunk wegschreiben. Nur eine Datei, an die angehaengt wird.
+
+    Nach jedem Chunk 5 Sekunden Zeit, aus einem Menue auszuwaehlen, sonst laueft der naechste Chunk
+        Eine Option: Erstelle Video/Resultfile/Simflux fuer die aktuelle max likelihood
+
     Unterwegs die Groesse der residuals (von max likelihood?) ausdrucken
 
     nach _jeder_ Simulation die Transit Times berechnen
@@ -27,11 +32,14 @@ Next / in progress:
 
 Fragen an Simon:
     Erste Results interpretieren. Was nu?
-    Radius veraendert sich oft auch kaum (4 Sekunden nach 5000 steps)
+    Chains bleiben oft fast konstant. Autocorrelation super hoch?
+    Brauchen wir Radial Velocity?
+        Wie komme ich an die Messdaten?
     Was wuerde binning von Flux-Daten fuer die Qualitaet von MCMC bedeuten? (Es wuerde auf jeden Fall viel schneller laufen.)
     Kommt aus MCMC auch die Standardabweichung der gefitteten Parameter raus?
         Ich hab einfach mal mean und std von den samples genommen.
         War das korrekt oder wie kriegt man die raus?
+        Mit Wurzel der Autokorrelation multiplizieren?
     Inhalt von sampler: acceptance_fraction wird fuer Regulierung der Stepsize genutzt?
     Wie gebe ich sinnvolle upper/lower bounds fuer z.B. ma=359 Grad an?
     Ich glaube, deine Methoden zur Anpassung von abhaengigen Parametern sind fuer mich nicht relevant? (class TransformationManager)
