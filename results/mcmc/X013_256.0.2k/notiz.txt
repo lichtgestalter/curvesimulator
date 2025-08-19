@@ -1,0 +1,3 @@
+moves = [(emcee.moves.StretchMove(a=2.0))]
+256 walker
+acceptance nach 1400 steps: 7%
