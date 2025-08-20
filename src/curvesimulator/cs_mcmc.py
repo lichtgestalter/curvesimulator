@@ -36,7 +36,7 @@ class CurveSimMCMC():
         args = (theta_bounds, theta_references, bodies, time_s0, measured_flux, flux_uncertainty, p)
         # moves = [(emcee.moves.DEMove(), 0.8),(emcee.moves.DESnookerMove(), 0.2)]
         moves = [(emcee.moves.StretchMove(a=8.0))]  # 32 walkers: a=2 or a=8: after 1800 steps under 9%, a=1: 100%
-        moves = [(emcee.moves.StretchMove(a=2.0))]  # 256 walker: a=2
+        moves = [(emcee.moves.StretchMove(a=2.0))]
         acceptance_fractions = []
         with Pool() as pool:  # enable multi processing
             sampler = emcee.EnsembleSampler(p.walkers, ndim, CurveSimMCMC.log_probability, pool=pool, moves=moves, args=args)
