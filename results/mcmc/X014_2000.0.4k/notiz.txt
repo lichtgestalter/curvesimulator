@@ -1,0 +1,6 @@
+moves = [(emcee.moves.StretchMove(a=2.0))]
+2000 walkers
+acceptance nach 2800 steps: 6% (1-11)
+acceptance nach 4000 steps: 5% (1-9)
+burn in: 2000 haetten im wesentlichen gereicht
+Omega von c und d sind extrem korreliert und vermutlich fast identisch und vermutlich beide nahe 0. Ab jetzt setze ich einen der beiden fest auf 0.

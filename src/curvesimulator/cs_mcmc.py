@@ -1,8 +1,9 @@
 # from colorama import Fore, Style
 import corner
 import emcee
+import emcee.autocorr
 import json
-import math
+# import math
 from matplotlib import pyplot as plt
 from multiprocessing import Pool
 import numpy as np
@@ -45,6 +46,9 @@ class CurveSimMCMC():
                 theta = sampler.run_mcmc(theta, p.chunk_size, progress=True)
                 acceptance_fractions.append(sampler.acceptance_fraction)
                 results = CurveSimMCMC.mcmc_results(p, bodies, sampler, acceptance_fractions, fitting_parameter_names, fitting_parameter_names_with_units, ndim, i+p.chunk_size, 0.68)
+
+            CurveSimMCMC.plot_autocorrelation(ndim, sampler)
+
             return sampler, theta, results
 
     @staticmethod
@@ -140,7 +144,7 @@ class CurveSimMCMC():
             axes = [axes]
         chains = np.moveaxis(sampler.get_chain(discard=p.burn_in, flat=False), -1, 0)
         for chain, ax, name, scale in zip(chains, axes, fitting_parameter_names, scales):
-            ax.plot(chain * scale, color='black', alpha=0.1)
+            ax.plot(chain * scale, color='black', alpha=0.05)
             ax.set_ylabel(name)
             ax.set_xlabel("Step")
         plt.tight_layout()
@@ -252,6 +256,28 @@ class CurveSimMCMC():
         CurveSimMCMC.mcmc_results2json(results, p)
 
     @staticmethod
+    def plot_autocorrelation(ndim, sampler):
+        autocorrs = []
+        samples = sampler.get_chain(discard=0, flat=False)  # shape: (steps, walkers, ndim)
+        nwalkers = samples.shape[1]
+        for walker in range(nwalkers):
+            walker_autocorr = []
+            for dim in range(ndim):
+                chain_1d = samples[:, walker, dim]
+                ac = emcee.autocorr.function_1d(chain_1d)
+                walker_autocorr.append(ac)
+            autocorrs.append(walker_autocorr)
+        autocorrs = np.array(autocorrs)  # shape (nwalkers, ndim, len_of_autocorr_function_output)
+
+        #############################################################################
+        ######################## diesen ai vorschlag testen  ########################
+        #############################################################################
+
+
+        # Now autocorrs holds autocorrelation functions per walker per parameter
+        # You can process or log autocorrs as needed
+
+    @staticmethod
     def save_autocorrelation(autocorrelation, steps_done, filename):
         string = str(steps_done)
         for ac in autocorrelation:
@@ -262,12 +288,13 @@ class CurveSimMCMC():
             file.writelines(f"{string}\n")
 
     @staticmethod
-    def acceptance_fraction_plot(acceptance_fractions, plot_filename=None):
+    def acceptance_fraction_plot(p, steps_done, acceptance_fractions, plot_filename=None):
         acceptance_fractions_array = np.stack(acceptance_fractions, axis=0).T    # shape: (num_lines, 32)
+        steps = [step for step in range(p.chunk_size, steps_done+1, p.chunk_size)]
         fig, ax = plt.subplots(figsize=(10, 6))
         for i in range(acceptance_fractions_array.shape[0]):
-            ax.plot(acceptance_fractions_array[i], label=f'Line {i+1}')
-        ax.set_xlabel('Step Chunks')
+            ax.plot(steps, acceptance_fractions_array[i], label=f'Line {i+1}', color='green', alpha=0.15)
+        ax.set_xlabel('Steps')
         ax.set_ylabel('Acceptance Fraction')
         ax.set_title('Acceptance Fractions per Walker')
         plt.tight_layout()
@@ -283,7 +310,7 @@ class CurveSimMCMC():
         # thin=10: keep only every 10th sample from the chain to reduce autocorrelation in the chains and the size of the resulting arrays.
         # flat=True: return all chains in a single, two-dimensional array (shape: (n_samples, n_parameters))
         print(f"{steps_done} steps done.  ", end="")
-        CurveSimMCMC.acceptance_fraction_plot(acceptance_fractions, p.fitting_results_directory + f"/acceptance.png")
+        CurveSimMCMC.acceptance_fraction_plot(p, steps_done, acceptance_fractions, p.fitting_results_directory + f"/acceptance.png")
         scales, scaled_samples = CurveSimMCMC.scale_samples(p, fitting_parameter_names, flat_samples)
         CurveSimMCMC.mcmc_trace_plots(fitting_parameter_names_with_units, ndim, p, sampler, scales, p.fitting_results_directory + f"/traces.png")
         max_likelihood_params = CurveSimMCMC.mcmc_max_likelihood_parameters(scaled_samples, p, sampler, p.thin_samples)

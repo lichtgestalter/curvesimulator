@@ -1,0 +1,181 @@
+Next / in progress:
+0.5.6 Fitting TOI-4504
+
+    Andere Art, die auto correlation zu berechnen (verzichtet hoffentlich auf die daemlichen Warnungen)
+        https://emcee.readthedocs.io/en/stable/tutorials/autocorr/
+        https://emcee.readthedocs.io/en/stable/user/autocorr/
+
+    Schaetzung(!) fuer autocorr einbauen (function_1d)
+
+    Autocorrelation nach jedem Chunk plotten!
+
+    moves in mcmc-result file
+
+    Startwert in Histogramme einzeichnen
+
+    Unterwegs die Groesse der residuals (von max likelihood?) ausdrucken
+
+    In mcmc-results, die "Fitting Results" in die "Fitting Parameters" einarbeiten.
+        Ausserdem zum Kopieren in ein Configfile die Body-Configuration bereitstellen:
+          1. mit den mean-Werten
+          2. den max-likelihood Werten
+
+    Nach jedem Chunk 5 Sekunden Zeit, aus einem Menue auszuwaehlen, sonst laueft der naechste Chunk
+        Eine Option: Erstelle Video/Resultfile/Simflux fuer die aktuelle max likelihood
+
+    nach _jeder_ Simulation die Transit Times berechnen
+        deren Abweichung von den manuell ermittelten Werten als Residuen (schwer) gewichtet in Logprob von MCMC einfliessen lassen
+
+    sim mit den max likelihoods laufen lassen. simflux in plot mit TESSflux vergleichen!!!
+
+    transit-times results (oder das ganze normale resultfile) als Teil der MCMC-Resultate abspeichern?
+
+    Copy the whole config file into the mcmc result directory?
+
+    mcmc objekt abspeichern (pickle?) und spaeter (mit ggf. geandertem python code) fortsetzen
+
+    Kompliziertere Fitting-Parameter Bereiche zulassen. Z.B. i in [86;88] oder [92;94]
+
+    Errechnete Standardabweichung der Chain mit sqrt(autocorrelation) multiplizieren?
+
+    MCMC findet eine Inklination von Planet d an T0 nahe bei 90 Grad plausibel?
+        Das koennte ich vielleicht verhindern, indem ich die TESS-Daten der Zeitpunkte, an denen d-Transits waeren, dem Fluxfile hinzufuege.
+
+    Orga/Refactoring:
+        Klasse in flux_data anlegen? (import * ist haesslich)
+        Package mal wieder hochladen und mit pip testen.
+
+    Simulationscheck klappt fuer Drehimpuls, Energie und Center of Mass, aber nicht fuer Impuls.
+        Vielleicht Berechnungsfehler des Impulses?
+
+    Lassen sich die Flux-Daten durch eine manuell von mir gemachte alternative Pixelmaske verbessern? Z.B. 4x4 statt 3x2?
+
+
+Programming Hinter MCMC-Integration zurueckgestellt:
+
+    BUG! Ich speichere fuer den Stern ueberfluessige Parameter mit falschen Werten ab? Z.B. e und i.
+
+    Ermoeglichen, dass Body-Parameter von anderen Body-Parametern abhaengen?
+        Bsp.: Radius planet c  = 1.2 * Radius planet d
+
+    Option in config_file einbauen: sollen eclipsees in find_transits() auf sterne eingeschraenkt sein?
+        Besser: Jeder Body kriegt die Parameter relevant_eclipser  (yes/no) und relevant_eclipsee (yes/no)
+
+    init_rebound() verallgemeinern. Auch Hierarchie ermoeglichen (=wer kreist um wen?)
+
+    Result evaluation komfortabel fuer User nutzbar machen.
+
+    Skalierung der mcmc-Ergebnisse ist derzeit hardcoded in add_units_scale_values().
+        In config file waehlen lassen, ob z.B. Radius in km oder r_jup oder r_earth gezeigt wird?
+
+    Orbitparameter regelmaessig (z.B. bei jedem Transit) im Resultfile speichern.
+
+    Neu eingefuehrte Konstanten in Parameterfile statt hart im Code, z.B.
+        Mindestgenauigkeit bei binary search von Transittimes
+        Akzeptable Energieveraenderung
+
+    Meine Untersuchungen zum optimalen dt fuer ein konkretes System (Tabelle Rebound in TOI-4504.xlsx):
+        Kann ich das userfreundlich automatisieren?
+        Sonst zumindest halbautomatisch unterstuetzen und eine Anleitung fuer die Durchfuehrung schreiben.
+
+    Damit CurveSimulator auch fuer andere Systeme ausser TOI4504 funktioniert:
+        Aus dem User Input die Kepler-Parameter berechnen, die Rebound braucht, und Rebound damit fuettern.
+
+    Code entsorgen, der durch rebound abgedeckt wird.
+
+    Alle kritischen Textmeldungen mit colorama einfaerben (siehe color.py in Ordner debug)
+
+    Config File (optional) per GUI erstellen?
+
+    Multiple transits (und secondary eclipses?) korrekt hantieren.
+        Siehe circle_eclipses.py
+
+    Lohnt es sich die Verdunklung durch secondary eclipses und eclipses unter Planeten (fx planet c verdeckt planet d) zu modellieren?
+    Bei Albedo von 50% muesste eine secondary eclipse halb so tief sein wie eine primary eclipse, korrekt?
+            Nein, der Effekt ist viel kleiner und kann vorerst vernachlaessigt werden. Kann ich irgendwann spaeter mal einbauen.
+
+    GUI fuer alles
+
+    Systeme mit mehr als einem Stern korrekt hantieren
+
+
+VERSION 1.0.0 veroeffentlichen !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+    Multiple Eclipses (e.g. Triply Eclipsing Triples, >=3 bodies in line of sight):
+        Handle them correctly
+        Example systems: https://arxiv.org/pdf/2204.02539.pdf
+
+    Secondary eclipses (Sonne verdeckt Planet)
+
+    Indirect light / Planet Albedo
+        Bei Total System Luminosity beruecksichtigen -> kleiner dip in lightcurve bei secondary eclipse
+        Phasen beruecksichtigen: Halbplanet, Vollplanet, ...
+
+        AI-Anfrage: Wir beobachten die Helligkeit eines viele Lichtjahre entfernten Sternsystems mit einem Stern und einem Exoplaneten.
+        Die Blickrichtung von der Erde zu dem Stern bildet mit der Verbindung von dem Stern zu dem Exoplaneten einen Winkel alpha.
+        Wenn alpha = 0 Grad, befindet sich der Exoplanet von der Erde aus gesehen genau vor dem Stern. Bei alpha=180 Grad befindet
+        sich der Exoplanet genau hinter dem Stern. Bei alpha=90 Grad befindet sich der Exoplanet seitlich vom Stern und es wird von
+        der Erde aus gesehen genau die Haelfte des Exoplaneten von dem Stern angeleuchtet. Sei max_light die maximale Lichtmenge
+        (Luminosity), die der Exoplanet von dem Stern Richtung Erde reflektieren kann, wenn die komplette der Erde zugewandte
+        Haelfte des Exoplaneten von dem Stern angeleuchtet wird.  Schreibe eine Pythonfunktion, die abhaengig von alpha errechnet,
+        wie viel Prozent von max_light von dem Exoplaneten Richtung Erde reflektiert wird.
+
+        def reflected_light_percentage(alpha):
+            # Konvertiere alpha in Radiant
+            alpha_rad = math.radians(alpha)
+
+            # Berechne den Prozentsatz des reflektierten Lichts
+            percentage = 50 * (1 + math.cos(alpha_rad))
+
+            return percentage
+
+
+    Add Neptun's mass and radius to astronomical constants in config file?
+
+    Orbits einzeichnen?
+        Kleiner Punkt (nur 1 Pixel?) fuer jeden Frame fuer jeden Koerper
+        Option draw_orbits (on/off) (pro Video oder pro Koerper?)
+        Option orbit_color
+
+    Radial velocity:
+        Extraplot im Video oder als PNG-file speichern: Lightcurve und die Geschwindigkeit in Beobachterrichtung (y-Achse) für jeden Stern.
+        Plot radial velocity (movement of star to/from viewer). Provides a check if the simulation is realistic.
+        Farbe des Sterns abhängig von RV varieren?
+
+    Model variable stars:
+        Parameter für regelmäßige Helligkeitsänderungen: variation = [(amplitude, periode, phase(shift?))]
+        Das deckt auch Sunspots ab. Die wären sonst zu beschwerlich.
+        Evtl. ermoeglichen, als Parameter den Namen einer Funktion anzugeben, die die Helligkeit des Sterns abhaengig vom Zeitpunkt (in BJD?) berechnet.
+
+
+############################################################################################
+
+
+Dokumentation:
+
+    Example videos
+        Videos erstellen und (auf youtube? eher vimeo wg. Bildqualitaet) veröffentlichen.
+        Auf Video-Seite im Wiki (letzter Satz) ungefaehr sowas ergaenzen:
+            Or watch this [version with awful compression artefacts](https://youtu.be/7diyCCIqiIc), courtesy of youtube.
+            Sternsysteme aus weiteren Papern visualisieren.
+                Zunaechst nur Systeme mit nur einem Stern
+
+    Dokumentation (Wiki) aktualisieren.
+        Wenn man mehrere Intervalle in starts/ends hat:
+            Anzahl in starts/ends/dt muss gleich sein (sonst wird Rest ignoriert)
+            Wenn lightcurve doof aussieht liegt das wahrscheinlich daran, dass eines der Intervalle mitten in einem Transit startet oder endet.
+            Man kann starts/ends/dt komplett weglassen (Hinweis auf default Werte)
+
+        Results Output auf eigener Seite im Wiki dokumentieren.
+        Im Wiki die Videos verlinken.
+        Evtl. restliche Formulierungen von AI verbessern lassen.
+            Take a look at this text on a page of a wiki about a python library. The text is written in mark-up language.
+            Improve the language, for example by removing spelling errors and making the formulations more elegant.
+            Format your improvements in the same mark-up language: ""
+
+    Um Hinweis auf CurveSimulator(-Paper?) bei Veroeffentlichungen bitten
+        Im GitHubWiki
+        Print in Konsole
+        Im JSON File
+        Copyright notice ins Video?
