@@ -18,6 +18,19 @@ Fragen an Simon:
         Mehrere Histogramme (bins in config file sind Tupel!)
 
     Erste Results interpretieren. Was nu?
+    Massnahmen:
+        Planet b:
+            Stimmen meine TT von Planet b ueberhaupt?
+            An Parametern spielen, bis ich t0=2459038.458 treffe.
+            Alle TESS-Daten (ausser den c- und d-Transits) nehmen und damit b fitten.
+        RV
+            Wie komme ich an die Messdaten?
+                https://github.com/rabrahm/ceres ???
+                    Python2 und Unix :(
+        TT
+            probability zusaetzlich (und am Anfang ausschliesslich) aus Abstand zu den gemessenen TT berechnen
+        Planet e
+            Noch einen Planeten erfinden? Puh.
 
     Chains bleiben oft fast konstant. Autocorrelation hoch. Acceptance rate niedrig.
         Viele Walker helfen sehr, aber Autocorrelation weiterhin nur 5%!
@@ -28,8 +41,6 @@ Fragen an Simon:
                 Separate Laeufe mit stark eingeschraenktem lower-upper-Intervall?
 
 
-    Brauchen wir Radial Velocity?
-        Wie komme ich an die Messdaten?
     Was wuerde binning von Flux-Daten fuer die Qualitaet von MCMC bedeuten?
         (Es wuerde auf jeden Fall noch schneller laufen.)
 
@@ -183,3 +194,6 @@ PR:
         https://www.reddit.com/r/space/
 
 
+
+Frage: Observations of TOI-4504 were performed with the FEROS spectrograph (Kaufer et al. 1999). How can I obtain these measurements using Python? For example by using the ceres pipeline (Brahm et al. 2017a) to process the data and obtain RV and stellar activity indicator such as CCF bisector spans.
+Antwort: CERES is designed to be an automated and standardized tool, minimizing human intervention, and has been successfully used on FEROS data as described in related research. You can find the code on GitHub (rabrahm/ceres), where full instructions and usage examples are provided.
