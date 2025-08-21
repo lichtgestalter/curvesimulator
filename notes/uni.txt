@@ -1,48 +1,12 @@
 Inhalt:
 Fragen an Simon
 Calls mit Simon
-Fragen an Akademiker
+Allgemeine Fragen an Akademiker
+PR-Kontakte
 
 #####################################################################################################
 
 Fragen an Simon:
-    Programm Features:
-        MCMC voll integriert (zumindest fuer 1-Stern-Systeme)
-        Multiprocessing -> 18000 Iterationen mit 32 Chains pro Stunde!
-        Zwischenergebnisse
-        Huebsche Traces-Plots
-        Tracking acceptance rate
-        Tracking autocorrelation
-        Unit + Scale  Sinnvolle Parameternamen mit sinnvoller Skalierung
-        Bug bei Initial values beseitigt!!!
-        Mehrere Histogramme (bins in config file sind Tupel!)
-
-    Erste Results interpretieren. Was nu?
-    Massnahmen:
-        MCMC:
-            20k Walker, Startwerte ueber sehr grossen Wertebereich fast gleichverteilt
-            Andere Moves (a erhoehen brachte nix)
-        Planet b:
-            Alle TESS-Daten (ausser den c- und d-Transits) nehmen und damit b fitten.
-        TT
-            probability zusaetzlich (und am Anfang ausschliesslich) aus Abstand zu den gemessenen TT berechnen
-        Planet e
-            Noch einen Planeten erfinden? Puh.
-        RV
-            Wie komme ich an die Messdaten?
-                https://github.com/rabrahm/ceres ???, alt, Python2 und Linux :(
-
-    Chains bleiben oft fast konstant. Autocorrelation hoch. Acceptance rate niedrig.
-        Viele Walker helfen sehr, aber Autocorrelation weiterhin nur 5%!
-        Was ist die Ursache, was schafft Abhilfe?
-            Andere Walker halfen zunaechst mal nicht.
-            Habe ich (zu) starke Korrelationen?
-            Bei lokalen Minima:
-                Separate Laeufe mit stark eingeschraenktem lower-upper-Intervall?
-
-
-    Was wuerde binning von Flux-Daten fuer die Qualitaet von MCMC bedeuten?
-        (Es wuerde auf jeden Fall noch schneller laufen.)
 
     Kommt aus MCMC auch die Standardabweichung der gefitteten Parameter raus?
         Ich hab einfach mal mean und std von den samples genommen.
@@ -50,15 +14,11 @@ Fragen an Simon:
         Varianz mit der Autokorrelation multiplizieren?
         Varianz durch die Anzahl walker dividieren?
 
-    acceptance_fraction
-
     Wie gebe ich sinnvolle upper/lower bounds fuer z.B. ma=359 Grad an?
     Ich glaube, deine Methoden zur Anpassung von abhaengigen Parametern sind fuer mich nicht relevant? (class TransformationManager)
-    Zeitliche Abstaende zwischen simulierten und gemessenen TT als (stark gewichtete) Residuals mit aufnehmen? Puh.
 
 
-
-Hast du Literatur zu multiple Transits / Fallunterscheidung bei gegenseitiger Ueberdeckung von 3 oder mehr Kreisen?
+    Hast du Literatur zu multiple Transits / Fallunterscheidung bei gegenseitiger Ueberdeckung von 3 oder mehr Kreisen?
 
 
 #####################################################################################################
@@ -114,19 +74,53 @@ Next Steps nach Call mit Simon, 16.06.25:
         Meine simulierten Fluxdaten muss ich so anpassen, dass sie in jedem Sektor ueber den gleichen Zeitraum integrert sind, wie die jeweiligen TESS-Daten
         Simon schickt Update von seinem Code
 
+
 Call mit Simon, 03.07.25:
+
     Am besten alle Flux-Daten ausserhalb von Transits vom MCMC fernhalten.
     Waere gut, wenn Curvesimulator zwischen den Transits moeglichst schnell integrieren wuerde. (Veraenderliches dt, oder zumindest Vielfache von dt).
     Residuen durch Uncertainty teilen, damit die Residuen von ungenauen Daten weniger gewichtet werden.
     Next Date: spontan/kurzfristig, falls ich feststecke.
 
+
 Call mit Simon, 21.08.25:
+
+
+    Alle Messungen auf 1800s binnen
+
+    Ulis Ideen fuer gut befunden:
+        Zuerst Check: veraendern sich c und d TT, wenn ich b rausnehme?
+        Planet b: Alle TESS-Daten (ausser den c- und d-Transits) nehmen und damit b fitten.
+        probability zusaetzlich (und am Anfang ausschliesslich) aus Abstand zu den gemessenen TT berechnen
+        Planet e: gibt es bestimmt, aber puh.
+        RV, allerdings sind die Messdaten schlecht
+
+    Erstmal statt MCMC mit einfacherer Methode nur die TT fitten:
+        Levenberg Marquardt LMfit
+            https://pypi.org/project/lmfit/0.9.0/
+            https://lmfit.github.io/lmfit-py/
+
+    Beispiele fuer Systeme mit TTVs, die ich nutzen kann, um CureSimulator zu testen:
+        Am besten KEPLER-9. Viele Paper. Klassiker.
+        TOI-1130: https://ui.adsabs.harvard.edu/abs/2023A%26A...675A.115K/abstract
+            Allerdings stammen nur ein Teil der benutzten Photometriedaten von TESS :(
+            In den Referenzen dieses Papers nach geeigneteren Systemen suchen?
+        TOI-1136
+
+    Wenn ich nur Photometrie habe und keine Planeten mit Wechselwirkungen, kann ich nur diese Parameter bestimmen:
+        T0, P, a, i, r (weil Stern-r fix)
+        Das ist z.B. relevant, wenn ich nur Planet b alleine fitte
+        P und a separat, weil die Masse von b unbekannt
+        eigentlich a / r-Stern und r / r-Stern statt a und r, aber weil ich ja alle Sternparameter fix halte, passt das so.
+
+    MCMC testen:
+        von hand gucken, welche Transits passen, die anderen aus den daten werfen, dann nur einen Param leicht veraendern und nur den fitten
 
 
 #####################################################################################################
 
 
-Fragen an Akademiker:
+Allgemeine Fragen an Akademiker:
 
     How do I get my project used by others?
         Publish as a paper?
@@ -143,7 +137,12 @@ Fragen an Akademiker:
         Nora said (in episode 37, at 15:30): Peaks in frequency spectrum are random.
     Should flares be modeled or are they too unpredictable?
 
-PR:
+
+#####################################################################################################
+
+
+PR-Kontakte:
+
     Bekannte:
         https://www.noraeisner.com/
         Aiden
@@ -192,8 +191,3 @@ PR:
         https://www.reddit.com/r/Astronomy/
         https://www.reddit.com/r/astrophysics/
         https://www.reddit.com/r/space/
-
-
-
-Frage: Observations of TOI-4504 were performed with the FEROS spectrograph (Kaufer et al. 1999). How can I obtain these measurements using Python? For example by using the ceres pipeline (Brahm et al. 2017a) to process the data and obtain RV and stellar activity indicator such as CCF bisector spans.
-Antwort: CERES is designed to be an automated and standardized tool, minimizing human intervention, and has been successfully used on FEROS data as described in related research. You can find the code on GitHub (rabrahm/ceres), where full instructions and usage examples are provided.

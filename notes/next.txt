@@ -1,6 +1,18 @@
 Next / in progress:
 0.5.6 Fitting TOI-4504
 
+    Noch schnell autocorr plots fertig machen :)
+
+    Ulis Ideen fuer gut befunden:
+        Zuerst Check: veraendern sich c und d TT, wenn ich b rausnehme?
+        Planet b: Alle TESS-Daten (ausser den c- und d-Transits) nehmen und damit b fitten.
+        probability zusaetzlich (und am Anfang ausschliesslich) aus Abstand zu den gemessenen TT berechnen
+            nach _jeder_ Simulation die Transit Times berechnen
+            deren Abweichung von den manuell ermittelten Werten als Residuen (schwer) gewichtet in Logprob von MCMC einfliessen lassen
+        sim mit den max likelihoods laufen lassen. simflux in plot mit TESSflux vergleichen!!!
+        RV, allerdings sind die Messdaten schlecht
+
+
     Autocorrelation nach jedem Chunk plotten!
         plot_autocorrelation() fertig schreiben
     Andere Art, die auto correlation zu berechnen (verzichtet hoffentlich auf die daemlichen Warnungen)
@@ -14,19 +26,20 @@ Next / in progress:
           1. mit den mean-Werten
           2. den max-likelihood Werten
 
-    moves in mcmc-result file
+    moves in mcmc-result file schreiben
 
-    Startwert in Histogramme einzeichnen
+    Startwert und Median in Histogramme einzeichnen
 
     Unterwegs die Groesse der residuals (von max likelihood?) ausdrucken
 
+    MCMC mit 20k Walker, Startwerte ueber sehr grossen Wertebereich fast gleichverteilt
+        Andere Moves probieren (Parameter a von Stretching erhoehen brachte erstmal nix)
+
+    Bei lokalen Minima:
+        Separate MCMC-Laeufe mit stark eingeschraenktem lower-upper-Intervall?
+
     Nach jedem Chunk 5 Sekunden Zeit, aus einem Menue auszuwaehlen, sonst laueft der naechste Chunk
         Eine Option: Erstelle Video/Resultfile/Simflux fuer die aktuelle max likelihood
-
-    nach _jeder_ Simulation die Transit Times berechnen
-        deren Abweichung von den manuell ermittelten Werten als Residuen (schwer) gewichtet in Logprob von MCMC einfliessen lassen
-
-    sim mit den max likelihoods laufen lassen. simflux in plot mit TESSflux vergleichen!!!
 
     transit-times results (oder das ganze normale resultfile) als Teil der MCMC-Resultate abspeichern?
 
