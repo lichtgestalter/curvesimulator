@@ -19,15 +19,18 @@ Fragen an Simon:
 
     Erste Results interpretieren. Was nu?
     Massnahmen:
+        MCMC:
+            20k Walker, Startwerte ueber sehr grossen Wertebereich fast gleichverteilt
+            Andere Moves (a erhoehen brachte nix)
         Planet b:
             Alle TESS-Daten (ausser den c- und d-Transits) nehmen und damit b fitten.
-        RV
-            Wie komme ich an die Messdaten?
-                https://github.com/rabrahm/ceres ???, alt, Python2 und Linux :(
         TT
             probability zusaetzlich (und am Anfang ausschliesslich) aus Abstand zu den gemessenen TT berechnen
         Planet e
             Noch einen Planeten erfinden? Puh.
+        RV
+            Wie komme ich an die Messdaten?
+                https://github.com/rabrahm/ceres ???, alt, Python2 und Linux :(
 
     Chains bleiben oft fast konstant. Autocorrelation hoch. Acceptance rate niedrig.
         Viele Walker helfen sehr, aber Autocorrelation weiterhin nur 5%!

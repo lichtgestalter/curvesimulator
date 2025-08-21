@@ -9,16 +9,16 @@ Next / in progress:
 
     Schaetzung(!) fuer autocorr einbauen (function_1d)
 
+    In mcmc-results, die "Fitting Results" in die "Fitting Parameters" einarbeiten (oder umgekehrt)
+        Ausserdem zum Kopieren in ein Configfile die Body-Configuration bereitstellen:
+          1. mit den mean-Werten
+          2. den max-likelihood Werten
+
     moves in mcmc-result file
 
     Startwert in Histogramme einzeichnen
 
     Unterwegs die Groesse der residuals (von max likelihood?) ausdrucken
-
-    In mcmc-results, die "Fitting Results" in die "Fitting Parameters" einarbeiten.
-        Ausserdem zum Kopieren in ein Configfile die Body-Configuration bereitstellen:
-          1. mit den mean-Werten
-          2. den max-likelihood Werten
 
     Nach jedem Chunk 5 Sekunden Zeit, aus einem Menue auszuwaehlen, sonst laueft der naechste Chunk
         Eine Option: Erstelle Video/Resultfile/Simflux fuer die aktuelle max likelihood

@@ -274,11 +274,16 @@ class CurveSimMCMC():
         plt.close(fig)
 
     @staticmethod
-    def integrated_autocorrelation_time(p, integrated_autocorrelation_time, steps_done, plot_filename):
+    def integrated_autocorrelation_time(p, fitting_parameter_names, integrated_autocorrelation_time, steps_done, plot_filename):
+        integrated_autocorrelation_time = np.array(integrated_autocorrelation_time).T
         steps = [step for step in range(p.chunk_size, steps_done + 1, p.chunk_size)]
         fig, ax = plt.subplots(figsize=(10, 6))
-        for dim, autocorr_times in enumerate(zip(*integrated_autocorrelation_time)):
-            ax.plot(steps, autocorr_times, label=f"Dimension {dim + 1}")
+        colors = plt.cm.tab20.colors  # 20 distinct colors
+        linestyles = ['solid', 'dashed', 'dotted', 'dashdot']
+        for idx, (autocorr_times, fpn) in enumerate(zip(integrated_autocorrelation_time, fitting_parameter_names)):
+            color = colors[idx % len(colors)]
+            linestyle = linestyles[idx % len(linestyles)]
+            ax.plot(steps, autocorr_times, label=fpn, color=color, linestyle=linestyle)
         ax.set_xlabel("Steps")
         ax.set_ylabel("Integrated Autocorrelation Time")
         ax.set_title("Integrated Autocorrelation Time per Dimension")
@@ -287,9 +292,10 @@ class CurveSimMCMC():
         if plot_filename:
             plt.savefig(plot_filename)
         plt.close(fig)
-        steps_done_div_integrated_autocorrelation_time = steps_done / integrated_autocorrelation_time
-
-        hier weiter
+        # steps_done_div_integrated_autocorrelation_time = steps_done / integrated_autocorrelation_time
+#########################################################################
+        # hier weiter
+#########################################################################
 
 
     @staticmethod
@@ -321,7 +327,7 @@ class CurveSimMCMC():
         results = CurveSimMCMC.mcmc_high_density_intervals(fitting_parameter_names_with_units, scaled_samples, max_likelihood_params, credible_mass)
 
         integrated_autocorrelation_time.append(list(emcee.autocorr.integrated_time(sampler.get_chain(discard=p.burn_in), quiet=True)))
-        CurveSimMCMC.integrated_autocorrelation_time(p, integrated_autocorrelation_time, steps_done, p.fitting_results_directory + f"/i_autocorrelation_t.png")
+        CurveSimMCMC.integrated_autocorrelation_time(p, fitting_parameter_names_with_units, integrated_autocorrelation_time, steps_done, p.fitting_results_directory + f"/i_autocorrelation_t.png")
         CurveSimMCMC.autocorrelation_function(fitting_parameter_names_with_units, ndim, sampler, p.fitting_results_directory + f"/autocorrelation.png")
 
         for bins in p.bins:
