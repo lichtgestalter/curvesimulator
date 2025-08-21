@@ -41,11 +41,12 @@ class CurveSimMCMC():
         with Pool() as pool:  # enable multi processing
             sampler = emcee.EnsembleSampler(p.walkers, ndim, CurveSimMCMC.log_probability, pool=pool, moves=moves, args=args)
             results = None
+            integrated_autocorrelation_time = []
             theta = sampler.run_mcmc(theta0, p.burn_in, progress=True)
             for i in range(0, p.steps, p.chunk_size):
                 theta = sampler.run_mcmc(theta, p.chunk_size, progress=True)
                 acceptance_fractions.append(sampler.acceptance_fraction)
-                results = CurveSimMCMC.mcmc_results(p, bodies, sampler, acceptance_fractions, fitting_parameter_names, fitting_parameter_names_with_units, ndim, i + p.chunk_size, 0.68)
+                results, integrated_autocorrelation_time = CurveSimMCMC.mcmc_results(p, bodies, sampler, acceptance_fractions, fitting_parameter_names, fitting_parameter_names_with_units, ndim, i + p.chunk_size, integrated_autocorrelation_time, 0.68)
             return sampler, theta, results
 
     @staticmethod
@@ -254,7 +255,7 @@ class CurveSimMCMC():
         CurveSimMCMC.mcmc_results2json(results, p)
 
     @staticmethod
-    def autocorrelation_plot(fitting_parameter_names, ndim, sampler, plot_filename):
+    def autocorrelation_function(fitting_parameter_names, ndim, sampler, plot_filename):
         samples = sampler.get_chain(discard=0, flat=False)  # shape: (steps, walkers, ndim)
         nwalkers = samples.shape[1]
         fig, axes = plt.subplots(ndim, figsize=(10, ndim * 2), sharex=True)
@@ -273,14 +274,23 @@ class CurveSimMCMC():
         plt.close(fig)
 
     @staticmethod
-    def save_autocorrelation(autocorrelation, steps_done, filename):
-        string = str(steps_done)
-        for ac in autocorrelation:
-            string += f",{ac:.0f}"
-        for ac in autocorrelation:
-            string += f",{steps_done / ac:.0f}"
-        with open(filename, "a") as file:  # append
-            file.writelines(f"{string}\n")
+    def integrated_autocorrelation_time(p, integrated_autocorrelation_time, steps_done, plot_filename):
+        steps = [step for step in range(p.chunk_size, steps_done + 1, p.chunk_size)]
+        fig, ax = plt.subplots(figsize=(10, 6))
+        for dim, autocorr_times in enumerate(zip(*integrated_autocorrelation_time)):
+            ax.plot(steps, autocorr_times, label=f"Dimension {dim + 1}")
+        ax.set_xlabel("Steps")
+        ax.set_ylabel("Integrated Autocorrelation Time")
+        ax.set_title("Integrated Autocorrelation Time per Dimension")
+        ax.legend()
+        plt.tight_layout()
+        if plot_filename:
+            plt.savefig(plot_filename)
+        plt.close(fig)
+        steps_done_div_integrated_autocorrelation_time = steps_done / integrated_autocorrelation_time
+
+        hier weiter
+
 
     @staticmethod
     def acceptance_fraction_plot(p, steps_done, acceptance_fractions, plot_filename=None):
@@ -298,7 +308,7 @@ class CurveSimMCMC():
         plt.close(fig)
 
     @staticmethod
-    def mcmc_results(p, bodies, sampler, acceptance_fractions, fitting_parameter_names, fitting_parameter_names_with_units, ndim, steps_done, credible_mass=0.68):
+    def mcmc_results(p, bodies, sampler, acceptance_fractions, fitting_parameter_names, fitting_parameter_names_with_units, ndim, steps_done, integrated_autocorrelation_time, credible_mass=0.68):
         flat_samples = sampler.get_chain(discard=p.burn_in, thin=p.thin_samples, flat=True)
         # discard the initial p.burn_in steps from each chain to ensure only samples that represent the equilibrium distribution are analyzed.
         # thin=10: keep only every 10th sample from the chain to reduce autocorrelation in the chains and the size of the resulting arrays.
@@ -310,14 +320,13 @@ class CurveSimMCMC():
         max_likelihood_params = CurveSimMCMC.mcmc_max_likelihood_parameters(scaled_samples, p, sampler, p.thin_samples)
         results = CurveSimMCMC.mcmc_high_density_intervals(fitting_parameter_names_with_units, scaled_samples, max_likelihood_params, credible_mass)
 
-        autocorrelation = list(emcee.autocorr.integrated_time(sampler.get_chain(discard=p.burn_in), quiet=True))
-        results["Autocorrelation"] = autocorrelation
-        CurveSimMCMC.save_autocorrelation(autocorrelation, steps_done, p.fitting_results_directory + f"/autocorrelation.csv")
-        CurveSimMCMC.autocorrelation_plot(fitting_parameter_names_with_units, ndim, sampler, p.fitting_results_directory + f"/autocorrelation.png")
+        integrated_autocorrelation_time.append(list(emcee.autocorr.integrated_time(sampler.get_chain(discard=p.burn_in), quiet=True)))
+        CurveSimMCMC.integrated_autocorrelation_time(p, integrated_autocorrelation_time, steps_done, p.fitting_results_directory + f"/i_autocorrelation_t.png")
+        CurveSimMCMC.autocorrelation_function(fitting_parameter_names_with_units, ndim, sampler, p.fitting_results_directory + f"/autocorrelation.png")
 
         for bins in p.bins:
             # results = CurveSimMCMC.mcmc_histograms(fitting_parameter_names_with_units, scaled_samples, results, ndim, bins, p.fitting_results_directory + f"/{steps_done:07d}_histograms_{bins}.png")
             results = CurveSimMCMC.mcmc_histograms(fitting_parameter_names_with_units, scaled_samples, results, ndim, bins, p.fitting_results_directory + f"/histograms_{bins}.png")
         CurveSimMCMC.save_mcmc_results(results, p, bodies, steps_done)
         CurveSimMCMC.mcmc_corner_plot(fitting_parameter_names_with_units, scaled_samples, max_likelihood_params, ndim, p.fitting_results_directory + f"/corner.png")
-        return results
+        return results, integrated_autocorrelation_time
