@@ -1,13 +1,13 @@
 Next / in progress:
 0.5.6 Fitting TOI-4504
 
+    Autocorrelation nach jedem Chunk plotten!
+        plot_autocorrelation() fertig schreiben
     Andere Art, die auto correlation zu berechnen (verzichtet hoffentlich auf die daemlichen Warnungen)
         https://emcee.readthedocs.io/en/stable/tutorials/autocorr/
         https://emcee.readthedocs.io/en/stable/user/autocorr/
 
     Schaetzung(!) fuer autocorr einbauen (function_1d)
-
-    Autocorrelation nach jedem Chunk plotten!
 
     moves in mcmc-result file
 

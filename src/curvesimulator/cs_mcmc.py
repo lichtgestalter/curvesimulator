@@ -45,10 +45,7 @@ class CurveSimMCMC():
             for i in range(0, p.steps, p.chunk_size):
                 theta = sampler.run_mcmc(theta, p.chunk_size, progress=True)
                 acceptance_fractions.append(sampler.acceptance_fraction)
-                results = CurveSimMCMC.mcmc_results(p, bodies, sampler, acceptance_fractions, fitting_parameter_names, fitting_parameter_names_with_units, ndim, i+p.chunk_size, 0.68)
-
-            CurveSimMCMC.plot_autocorrelation(ndim, sampler)
-
+                results = CurveSimMCMC.mcmc_results(p, bodies, sampler, acceptance_fractions, fitting_parameter_names, fitting_parameter_names_with_units, ndim, i + p.chunk_size, 0.68)
             return sampler, theta, results
 
     @staticmethod
@@ -142,11 +139,12 @@ class CurveSimMCMC():
         fig, axes = plt.subplots(ndim, figsize=(10, ndim * 2), sharex=True)
         if ndim == 1:
             axes = [axes]
-        chains = np.moveaxis(sampler.get_chain(discard=p.burn_in, flat=False), -1, 0)
+        chains = np.moveaxis(sampler.get_chain(flat=False), -1, 0)
         for chain, ax, name, scale in zip(chains, axes, fitting_parameter_names, scales):
             ax.plot(chain * scale, color='black', alpha=0.05)
             ax.set_ylabel(name)
             ax.set_xlabel("Step")
+            ax.axvline(p.burn_in, color="red", linestyle="solid", label="Burn in")
         plt.tight_layout()
         if plot_filename:
             plt.savefig(plot_filename)
@@ -256,26 +254,23 @@ class CurveSimMCMC():
         CurveSimMCMC.mcmc_results2json(results, p)
 
     @staticmethod
-    def plot_autocorrelation(ndim, sampler):
-        autocorrs = []
+    def autocorrelation_plot(fitting_parameter_names, ndim, sampler, plot_filename):
         samples = sampler.get_chain(discard=0, flat=False)  # shape: (steps, walkers, ndim)
         nwalkers = samples.shape[1]
-        for walker in range(nwalkers):
-            walker_autocorr = []
-            for dim in range(ndim):
+        fig, axes = plt.subplots(ndim, figsize=(10, ndim * 2), sharex=True)
+        if ndim == 1:
+            axes = [axes]
+        for dim, param_name in zip(range(ndim), fitting_parameter_names):
+            ax = axes[dim]
+            for walker in range(nwalkers):
                 chain_1d = samples[:, walker, dim]
                 ac = emcee.autocorr.function_1d(chain_1d)
-                walker_autocorr.append(ac)
-            autocorrs.append(walker_autocorr)
-        autocorrs = np.array(autocorrs)  # shape (nwalkers, ndim, len_of_autocorr_function_output)
-
-        #############################################################################
-        ######################## diesen ai vorschlag testen  ########################
-        #############################################################################
-
-
-        # Now autocorrs holds autocorrelation functions per walker per parameter
-        # You can process or log autocorrs as needed
+                ax.plot(ac, alpha=0.5)
+            ax.set_ylabel(param_name)
+        plt.tight_layout()
+        if plot_filename:
+            plt.savefig(plot_filename)
+        plt.close(fig)
 
     @staticmethod
     def save_autocorrelation(autocorrelation, steps_done, filename):
@@ -283,25 +278,24 @@ class CurveSimMCMC():
         for ac in autocorrelation:
             string += f",{ac:.0f}"
         for ac in autocorrelation:
-            string += f",{steps_done/ac:.0f}"
+            string += f",{steps_done / ac:.0f}"
         with open(filename, "a") as file:  # append
             file.writelines(f"{string}\n")
 
     @staticmethod
     def acceptance_fraction_plot(p, steps_done, acceptance_fractions, plot_filename=None):
-        acceptance_fractions_array = np.stack(acceptance_fractions, axis=0).T    # shape: (num_lines, 32)
-        steps = [step for step in range(p.chunk_size, steps_done+1, p.chunk_size)]
+        acceptance_fractions_array = np.stack(acceptance_fractions, axis=0).T  # shape: (num_lines, 32)
+        steps = [step for step in range(p.chunk_size, steps_done + 1, p.chunk_size)]
         fig, ax = plt.subplots(figsize=(10, 6))
         for i in range(acceptance_fractions_array.shape[0]):
-            ax.plot(steps, acceptance_fractions_array[i], label=f'Line {i+1}', color='green', alpha=0.15)
+            ax.plot(steps, acceptance_fractions_array[i], label=f'Line {i + 1}', color='green', alpha=0.15)
         ax.set_xlabel('Steps')
         ax.set_ylabel('Acceptance Fraction')
-        ax.set_title('Acceptance Fractions per Walker')
+        ax.set_title('Acceptance Fraction per Walker')
         plt.tight_layout()
         if plot_filename:
             plt.savefig(plot_filename)
         plt.close(fig)
-
 
     @staticmethod
     def mcmc_results(p, bodies, sampler, acceptance_fractions, fitting_parameter_names, fitting_parameter_names_with_units, ndim, steps_done, credible_mass=0.68):
@@ -315,9 +309,12 @@ class CurveSimMCMC():
         CurveSimMCMC.mcmc_trace_plots(fitting_parameter_names_with_units, ndim, p, sampler, scales, p.fitting_results_directory + f"/traces.png")
         max_likelihood_params = CurveSimMCMC.mcmc_max_likelihood_parameters(scaled_samples, p, sampler, p.thin_samples)
         results = CurveSimMCMC.mcmc_high_density_intervals(fitting_parameter_names_with_units, scaled_samples, max_likelihood_params, credible_mass)
+
         autocorrelation = list(emcee.autocorr.integrated_time(sampler.get_chain(discard=p.burn_in), quiet=True))
         results["Autocorrelation"] = autocorrelation
         CurveSimMCMC.save_autocorrelation(autocorrelation, steps_done, p.fitting_results_directory + f"/autocorrelation.csv")
+        CurveSimMCMC.autocorrelation_plot(fitting_parameter_names_with_units, ndim, sampler, p.fitting_results_directory + f"/autocorrelation.png")
+
         for bins in p.bins:
             # results = CurveSimMCMC.mcmc_histograms(fitting_parameter_names_with_units, scaled_samples, results, ndim, bins, p.fitting_results_directory + f"/{steps_done:07d}_histograms_{bins}.png")
             results = CurveSimMCMC.mcmc_histograms(fitting_parameter_names_with_units, scaled_samples, results, ndim, bins, p.fitting_results_directory + f"/histograms_{bins}.png")

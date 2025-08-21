@@ -20,13 +20,10 @@ Fragen an Simon:
     Erste Results interpretieren. Was nu?
     Massnahmen:
         Planet b:
-            Stimmen meine TT von Planet b ueberhaupt?
-            An Parametern spielen, bis ich t0=2459038.458 treffe.
             Alle TESS-Daten (ausser den c- und d-Transits) nehmen und damit b fitten.
         RV
             Wie komme ich an die Messdaten?
-                https://github.com/rabrahm/ceres ???
-                    Python2 und Unix :(
+                https://github.com/rabrahm/ceres ???, alt, Python2 und Linux :(
         TT
             probability zusaetzlich (und am Anfang ausschliesslich) aus Abstand zu den gemessenen TT berechnen
         Planet e
