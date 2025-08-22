@@ -1,8 +1,6 @@
 Next / in progress:
 0.5.6 Fitting TOI-4504
 
-    Noch schnell autocorr plots fertig machen :)
-
     Ulis Ideen fuer gut befunden:
         Zuerst Check: veraendern sich c und d TT, wenn ich b rausnehme?
         Planet b: Alle TESS-Daten (ausser den c- und d-Transits) nehmen und damit b fitten.
@@ -13,22 +11,12 @@ Next / in progress:
         RV, allerdings sind die Messdaten schlecht
 
 
-    Autocorrelation nach jedem Chunk plotten!
-        plot_autocorrelation() fertig schreiben
-    Andere Art, die auto correlation zu berechnen (verzichtet hoffentlich auf die daemlichen Warnungen)
-        https://emcee.readthedocs.io/en/stable/tutorials/autocorr/
-        https://emcee.readthedocs.io/en/stable/user/autocorr/
-
-    Schaetzung(!) fuer autocorr einbauen (function_1d)
-
-    In mcmc-results, die "Fitting Results" in die "Fitting Parameters" einarbeiten (oder umgekehrt)
-        Ausserdem zum Kopieren in ein Configfile die Body-Configuration bereitstellen:
+    In mcmc-results zum Kopieren in ein Configfile die Body-Configuration bereitstellen:
           1. mit den mean-Werten
           2. den max-likelihood Werten
+          3. den Median-Werten
 
     moves in mcmc-result file schreiben
-
-    Startwert und Median in Histogramme einzeichnen
 
     Unterwegs die Groesse der residuals (von max likelihood?) ausdrucken
 
@@ -66,7 +54,11 @@ Next / in progress:
 
 Programming Hinter MCMC-Integration zurueckgestellt:
 
+    Irrelevante Attribute aus den Bodies entfernen, bevor Result-JSON gespeichert wird
     BUG! Ich speichere fuer den Stern ueberfluessige Parameter mit falschen Werten ab? Z.B. e und i.
+
+    Im Config file steuern, ob Histogramm densities und bin_edges im MCMC-Result-JSON gespeichert werden sollen
+        Ist derzeit auskommentiert in mcmc_histograms()
 
     Ermoeglichen, dass Body-Parameter von anderen Body-Parametern abhaengen?
         Bsp.: Radius planet c  = 1.2 * Radius planet d

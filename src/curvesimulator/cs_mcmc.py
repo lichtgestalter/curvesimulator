@@ -3,7 +3,6 @@ import corner
 import emcee
 import emcee.autocorr
 import json
-# import math
 from matplotlib import pyplot as plt
 from multiprocessing import Pool
 import numpy as np
@@ -12,7 +11,7 @@ import os
 from curvesimulator.cs_flux_data import csv2df
 
 
-class CurveSimMCMC():
+class CurveSimMCMC:
 
     def __init__(self):
         self.dummy = "dummy"
@@ -28,8 +27,11 @@ class CurveSimMCMC():
         # This can cause problems when multi processing inside emcee is enabled.
         # Turn that off by setting the environment variable OMP_NUM_THREADS=1.
         theta_references = [(fp.body_index, fp.parameter_name) for fp in p.fitting_parameters]  # list of names of fitting parameters. Needed so these parameters can be updated inside log_likelihood().
-        fitting_parameter_names = [f"{bodies[fp.body_index].name}.{fp.parameter_name}" for fp in p.fitting_parameters]
-        fitting_parameter_names_with_units = [fpn + " [" + p.unit[fpn.split(".")[-1]] + "]" for fpn in fitting_parameter_names]
+        body_parameter_names = [f"{bodies[fp.body_index].name}.{fp.parameter_name}" for fp in p.fitting_parameters]
+        long_body_parameter_names = [fpn + " [" + p.unit[fpn.split(".")[-1]] + "]" for fpn in body_parameter_names]
+        for fp, fpn, fpnu in zip(p.fitting_parameters, body_parameter_names, long_body_parameter_names):
+            fp.body_parameter_name = fpn
+            fp.long_body_parameter_name = fpnu
         theta_bounds = [(fp.lower, fp.upper) for fp in p.fitting_parameters]
         ndim = len(theta_references)
         theta0 = CurveSimMCMC.random_initial_values(p)
@@ -40,14 +42,13 @@ class CurveSimMCMC():
         acceptance_fractions = []
         with Pool() as pool:  # enable multi processing
             sampler = emcee.EnsembleSampler(p.walkers, ndim, CurveSimMCMC.log_probability, pool=pool, moves=moves, args=args)
-            results = None
             integrated_autocorrelation_time = []
             theta = sampler.run_mcmc(theta0, p.burn_in, progress=True)
             for i in range(0, p.steps, p.chunk_size):
                 theta = sampler.run_mcmc(theta, p.chunk_size, progress=True)
                 acceptance_fractions.append(sampler.acceptance_fraction)
-                results, integrated_autocorrelation_time = CurveSimMCMC.mcmc_results(p, bodies, sampler, acceptance_fractions, fitting_parameter_names, fitting_parameter_names_with_units, ndim, i + p.chunk_size, integrated_autocorrelation_time, 0.68)
-            return sampler, theta, results
+                integrated_autocorrelation_time = CurveSimMCMC.mcmc_results(p, bodies, sampler, acceptance_fractions, body_parameter_names, long_body_parameter_names, ndim, i + p.chunk_size, integrated_autocorrelation_time, 0.68)
+            return sampler, theta
 
     @staticmethod
     def log_prior(theta, theta_bounds):
@@ -123,33 +124,32 @@ class CurveSimMCMC():
         hdi_max = sorted_data[min_idx + interval_idx_inc]
         std = np.std(data, ddof=1)
         mean = np.mean(data)
-        return hdi_min, hdi_max, std, mean
+        median = np.median(data)
+        return hdi_min, hdi_max, std, mean, median
 
     @staticmethod
-    def scale_samples(p, fitting_parameter_names, flat_samples):
+    def scale_samples(p, body_parameter_names, flat_samples):
         scaled_samples = np.copy(flat_samples)
         scales = []
-        for fpn, ss in zip(fitting_parameter_names, scaled_samples.T):
+        for fpn, ss in zip(body_parameter_names, scaled_samples.T):
             param = fpn.split(".")[-1]
             ss *= p.scale[param]
             scales.append(p.scale[param])
         return scales, scaled_samples
 
     @staticmethod
-    def mcmc_trace_plots(fitting_parameter_names, ndim, p, sampler, scales, plot_filename=None):
+    def mcmc_trace_plots(long_body_parameter_names, ndim, p, sampler, scales, plot_filename):
         fig, axes = plt.subplots(ndim, figsize=(10, ndim * 2), sharex=True)
         if ndim == 1:
             axes = [axes]
         chains = np.moveaxis(sampler.get_chain(flat=False), -1, 0)
-        for chain, ax, name, scale in zip(chains, axes, fitting_parameter_names, scales):
+        for chain, ax, name, scale in zip(chains, axes, long_body_parameter_names, scales):
             ax.plot(chain * scale, color='black', alpha=0.05)
             ax.set_ylabel(name)
             ax.set_xlabel("Step")
             ax.axvline(p.burn_in, color="red", linestyle="solid", label="Burn in")
         plt.tight_layout()
-        if plot_filename:
-            plt.savefig(plot_filename)
-        # plt.show()
+        plt.savefig(plot_filename)
         plt.close(fig)
 
     @staticmethod
@@ -160,59 +160,56 @@ class CurveSimMCMC():
         return max_likelihood_params
 
     @staticmethod
-    def mcmc_high_density_intervals(fitting_parameter_names, flat_samples, max_likelihood_params, credible_mass=0.68):
-        # Calculate HDI
-        # Store hdi and other mcmc results
-        # print("\nMCMC Results:")
-        results = {}
-        for i, name in enumerate(fitting_parameter_names):
-            hdi_min, hdi_max, std, mean = CurveSimMCMC.hdi_std_mean(flat_samples[:, i], credible_mass)
-            results[name] = {"hdi_min": hdi_min, "hdi_max": hdi_max, "std": std, "mean": mean, "max_likelihood": max_likelihood_params[i]}
-            # print(f"{name}: HDI = [{results[name]["hdi_min"]:.6f}, {results[name]["hdi_max"]:.6f}], Max Likelihood = {max_likelihood_params[i]:.6f}, "
-            #       f"Standard Deviation = {results[name]["std"]:.6f}, Mean = {results[name]["mean"]:.6f}")
-        return results
+    def mcmc_high_density_intervals(p, flat_samples, max_likelihood_params, credible_mass=0.68):
+        # Calculate HDI and other mcmc results.
+        for i, fp in enumerate(p.fitting_parameters):
+            hdi_min, hdi_max, std, mean, median = CurveSimMCMC.hdi_std_mean(flat_samples[:, i], credible_mass)
+            fp.hdi_min = hdi_min
+            fp.hdi_max = hdi_max
+            fp.std = std
+            fp.mean = mean
+            fp.median = median
+            fp.max_likelihood = max_likelihood_params[i]
 
     @staticmethod
-    def mcmc_histograms(fitting_parameter_names, flat_samples, results, ndim, bins, plot_filename=None):
+    def mcmc_histograms(p, flat_samples, ndim, bins, plot_filename):
         fig, axes = plt.subplots(ndim, figsize=(10, ndim * 2))
+        startvalues = [fp.startvalue * fp.scale for fp in p.fitting_parameters]
         if ndim == 1:
             axes = [axes]
-        for i, (sample, ax, name) in enumerate(zip(flat_samples.T, axes, fitting_parameter_names)):
-            densities, bin_edges, _ = ax.hist(sample, bins=bins, density=True, alpha=0.7, color="blue", edgecolor="black")
-            results[name]["densities"] = list(densities)
-            results[name]["bin_edges"] = list(bin_edges)
-            ax.axvline(results[name]["hdi_min"], color="green", linestyle="dashed", label="HDI Lower Bound")
-            ax.axvline(results[name]["mean"] - results[name]["std"], color="gray", linestyle="dotted", label="Mean - Std")
-            ax.axvline(results[name]["max_likelihood"], color="red", linestyle="solid", label="Max Likelihood")
-            ax.axvline(results[name]["mean"], color="black", linestyle="dotted", label="Mean")
-            ax.axvline(results[name]["hdi_max"], color="green", linestyle="dashed", label="HDI Upper Bound")
-            ax.axvline(results[name]["mean"] + results[name]["std"], color="gray", linestyle="dotted", label="Mean + Std")
-            ax.set_xlabel(name)
+        for i, (sample, ax, fp, startvalue) in enumerate(zip(flat_samples.T, axes, p.fitting_parameters, startvalues)):
+            densities, bin_edges, _ = ax.hist(sample, bins=bins, density=True, alpha=0.7, color="xkcd:light blue", edgecolor="black")
+            # fp.densities = list(densities)
+            # fp.bin_edges = list(bin_edges)
+            ax.axvline(fp.hdi_min, color="green", linestyle="dashed", label="HDI Lower Bound")
+            ax.axvline(fp.mean - fp.std, color="gray", linestyle="dotted", label="Mean - Std")
+            ax.axvline(fp.max_likelihood, color="red", linestyle="solid", label="Max Likelihood")
+            ax.axvline(fp.mean, color="black", linestyle="dotted", label="Mean")
+            ax.axvline(fp.hdi_max, color="green", linestyle="dashed", label="HDI Upper Bound")
+            ax.axvline(fp.mean + fp.std, color="gray", linestyle="dotted", label="Mean + Std")
+            ax.axvline(fp.median, color="blue", linestyle="solid", label="Median")
+            ax.axvline(startvalue, color="orange", linestyle="solid", label="Startvalue")
+            ax.set_xlabel(fp.long_body_parameter_name)
             ax.set_ylabel("Density")
             ax.ticklabel_format(useOffset=False, style='plain', axis='x')  # show x-labels as they are
             if i == 0:
                 ax.legend(loc='lower center', bbox_to_anchor=(0.5, 1.02), ncol=3, borderaxespad=0.)
         plt.tight_layout()
-        if plot_filename:
-            plt.savefig(plot_filename)
-        # plt.show()
+        plt.savefig(plot_filename)
         plt.close(fig)
-        return results
 
     @staticmethod
-    def mcmc_corner_plot(fitting_parameter_names, flat_samples, max_likelihood_params, ndim, plot_filename=None):
+    def mcmc_corner_plot(long_body_parameter_names, flat_samples, max_likelihood_params, ndim, plot_filename):
         # Corner plot with best-fit parameters
         if ndim > 1:
             fig = corner.corner(
                 flat_samples,
-                labels=fitting_parameter_names,
+                labels=long_body_parameter_names,
                 truths=max_likelihood_params,
                 title_fmt=".4f",
                 quiet=True
             )
-            if plot_filename:
-                plt.savefig(plot_filename)
-            # plt.show()
+            plt.savefig(plot_filename)
             plt.close(fig)
 
     @staticmethod
@@ -225,7 +222,7 @@ class CurveSimMCMC():
             print(f" Saved MCMC results to {filename}")
 
     @staticmethod
-    def save_mcmc_results(fitting_results, p, bodies, steps_done):
+    def save_mcmc_results(p, bodies, steps_done):
         results = {}
         results["CurveSimulator Documentation"] = "https://github.com/lichtgestalter/curvesimulator/wiki"
         results["Simulation Parameters"] = {}
@@ -237,8 +234,6 @@ class CurveSimMCMC():
         results["Simulation Parameters"]["mcmc burn_in"] = p.burn_in
         results["Simulation Parameters"]["flux_file"] = p.flux_file
         results["Simulation Parameters"]["fitting_results_directory"] = p.fitting_results_directory
-        results["Fitting Parameters"] = [fp.__dict__ for fp in p.fitting_parameters]
-        results["Fitting Results"] = fitting_results
         results["Bodies"] = {}
         params = (["body_type", "primary", "mass", "radius", "luminosity"]
                   + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
@@ -252,16 +247,19 @@ class CurveSimMCMC():
                     attr = getattr(body, key)
                     if attr is not None:
                         results["Bodies"][body.name][key] = attr
+        results["Fitting Parameters"] = {fp.body_parameter_name: fp.__dict__ for fp in p.fitting_parameters}
+        # results["Fitting Parameters"] = [fp.__dict__ for fp in p.fitting_parameters]
         CurveSimMCMC.mcmc_results2json(results, p)
 
     @staticmethod
-    def autocorrelation_function(fitting_parameter_names, ndim, sampler, plot_filename):
+    def autocorrelation_function(long_body_parameter_names, ndim, sampler, plot_filename):
         samples = sampler.get_chain(discard=0, flat=False)  # shape: (steps, walkers, ndim)
         nwalkers = samples.shape[1]
         fig, axes = plt.subplots(ndim, figsize=(10, ndim * 2), sharex=True)
+        fig.suptitle("Autocorrelation")
         if ndim == 1:
             axes = [axes]
-        for dim, param_name in zip(range(ndim), fitting_parameter_names):
+        for dim, param_name in zip(range(ndim), long_body_parameter_names):
             ax = axes[dim]
             for walker in range(nwalkers):
                 chain_1d = samples[:, walker, dim]
@@ -269,51 +267,42 @@ class CurveSimMCMC():
                 ax.plot(ac, alpha=0.5)
             ax.set_ylabel(param_name)
         plt.tight_layout()
-        if plot_filename:
-            plt.savefig(plot_filename)
+        plt.savefig(plot_filename)
         plt.close(fig)
 
     @staticmethod
-    def integrated_autocorrelation_time(p, fitting_parameter_names, integrated_autocorrelation_time, steps_done, plot_filename1, plot_filename2):
+    def integrated_autocorrelation_time(p, long_body_parameter_names, integrated_autocorrelation_time, steps_done, plot_filename1, plot_filename2):
         integrated_autocorrelation_time = np.array(integrated_autocorrelation_time).T
         steps = [step for step in range(p.chunk_size, steps_done + 1, p.chunk_size)]
         fig, ax = plt.subplots(figsize=(10, 6))
         colors = plt.cm.tab20.colors  # 20 distinct colors
         linestyles = ['solid', 'dashed', 'dotted', 'dashdot']
-        for idx, (autocorr_times, fpn) in enumerate(zip(integrated_autocorrelation_time, fitting_parameter_names)):
+        for idx, (autocorr_times, fpn) in enumerate(zip(integrated_autocorrelation_time, long_body_parameter_names)):
             color = colors[idx % len(colors)]
             linestyle = linestyles[idx % len(linestyles)]
             ax.plot(steps, autocorr_times, label=fpn, color=color, linestyle=linestyle)
         ax.set_xlabel("Steps")
-        ax.set_ylabel("Integrated Autocorrelation Time")
         ax.set_title("Integrated Autocorrelation Time per Dimension")
-        ax.legend()
+        ax.legend(loc="upper left")
         plt.tight_layout()
-        if plot_filename1:
-            plt.savefig(plot_filename1)
+        plt.savefig(plot_filename1)
         plt.close(fig)
-        steps_done_div_integrated_autocorrelation_time = steps_done / integrated_autocorrelation_time
+
+        steps_done_div_integrated_autocorrelation_time = steps / integrated_autocorrelation_time
         fig, ax = plt.subplots(figsize=(10, 6))
-        for idx, (autocorr_times, fpn) in enumerate(zip(steps_done_div_integrated_autocorrelation_time, fitting_parameter_names)):
+        for idx, (autocorr_times, fpn) in enumerate(zip(steps_done_div_integrated_autocorrelation_time, long_body_parameter_names)):
             color = colors[idx % len(colors)]
             linestyle = linestyles[idx % len(linestyles)]
             ax.plot(steps, autocorr_times, label=fpn, color=color, linestyle=linestyle)
         ax.set_xlabel("Steps")
-        ax.set_ylabel("Steps divided by Integrated Autocorrelation Time per Dimension")
         ax.set_title("Steps divided by Integrated Autocorrelation Time per Dimension")
-        ax.legend()
+        ax.legend(loc="upper left")
         plt.tight_layout()
-        if plot_filename2:
-            plt.savefig(plot_filename2)
+        plt.savefig(plot_filename2)
         plt.close(fig)
-
-#########################################################################
-        # hier weiter
-#########################################################################
-
 
     @staticmethod
-    def acceptance_fraction_plot(p, steps_done, acceptance_fractions, plot_filename=None):
+    def acceptance_fraction_plot(p, steps_done, acceptance_fractions, plot_filename):
         acceptance_fractions_array = np.stack(acceptance_fractions, axis=0).T  # shape: (num_lines, 32)
         steps = [step for step in range(p.chunk_size, steps_done + 1, p.chunk_size)]
         fig, ax = plt.subplots(figsize=(10, 6))
@@ -323,30 +312,29 @@ class CurveSimMCMC():
         ax.set_ylabel('Acceptance Fraction')
         ax.set_title('Acceptance Fraction per Walker')
         plt.tight_layout()
-        if plot_filename:
-            plt.savefig(plot_filename)
+        plt.savefig(plot_filename)
         plt.close(fig)
 
     @staticmethod
-    def mcmc_results(p, bodies, sampler, acceptance_fractions, fitting_parameter_names, fitting_parameter_names_with_units, ndim, steps_done, integrated_autocorrelation_time, credible_mass=0.68):
+    def mcmc_results(p, bodies, sampler, acceptance_fractions, body_parameter_names, long_body_parameter_names, ndim, steps_done, integrated_autocorrelation_time, credible_mass=0.68):
         flat_samples = sampler.get_chain(discard=p.burn_in, thin=p.thin_samples, flat=True)
         # discard the initial p.burn_in steps from each chain to ensure only samples that represent the equilibrium distribution are analyzed.
         # thin=10: keep only every 10th sample from the chain to reduce autocorrelation in the chains and the size of the resulting arrays.
         # flat=True: return all chains in a single, two-dimensional array (shape: (n_samples, n_parameters))
         print(f"{steps_done} steps done.  ", end="")
+
         CurveSimMCMC.acceptance_fraction_plot(p, steps_done, acceptance_fractions, p.fitting_results_directory + f"/acceptance.png")
-        scales, scaled_samples = CurveSimMCMC.scale_samples(p, fitting_parameter_names, flat_samples)
-        CurveSimMCMC.mcmc_trace_plots(fitting_parameter_names_with_units, ndim, p, sampler, scales, p.fitting_results_directory + f"/traces.png")
+        scales, scaled_samples = CurveSimMCMC.scale_samples(p, body_parameter_names, flat_samples)
+        CurveSimMCMC.mcmc_trace_plots(long_body_parameter_names, ndim, p, sampler, scales, p.fitting_results_directory + f"/traces.png")
         max_likelihood_params = CurveSimMCMC.mcmc_max_likelihood_parameters(scaled_samples, p, sampler, p.thin_samples)
-        results = CurveSimMCMC.mcmc_high_density_intervals(fitting_parameter_names_with_units, scaled_samples, max_likelihood_params, credible_mass)
+        CurveSimMCMC.mcmc_high_density_intervals(p, scaled_samples, max_likelihood_params, credible_mass)
 
         integrated_autocorrelation_time.append(list(emcee.autocorr.integrated_time(sampler.get_chain(discard=p.burn_in), quiet=True)))
-        CurveSimMCMC.integrated_autocorrelation_time(p, fitting_parameter_names_with_units, integrated_autocorrelation_time, steps_done, p.fitting_results_directory + f"/i_autocorr_t.png", p.fitting_results_directory + f"/steps_per_i_autocorr.png")
-        CurveSimMCMC.autocorrelation_function(fitting_parameter_names_with_units, ndim, sampler, p.fitting_results_directory + f"/autocorrelation.png")
+        CurveSimMCMC.integrated_autocorrelation_time(p, long_body_parameter_names, integrated_autocorrelation_time, steps_done, p.fitting_results_directory + f"/int_autocorr_time.png", p.fitting_results_directory + f"/steps_per_i_ac_time.png")
+        CurveSimMCMC.autocorrelation_function(long_body_parameter_names, ndim, sampler, p.fitting_results_directory + f"/autocorrelation.png")
 
         for bins in p.bins:
-            # results = CurveSimMCMC.mcmc_histograms(fitting_parameter_names_with_units, scaled_samples, results, ndim, bins, p.fitting_results_directory + f"/{steps_done:07d}_histograms_{bins}.png")
-            results = CurveSimMCMC.mcmc_histograms(fitting_parameter_names_with_units, scaled_samples, results, ndim, bins, p.fitting_results_directory + f"/histograms_{bins}.png")
-        CurveSimMCMC.save_mcmc_results(results, p, bodies, steps_done)
-        CurveSimMCMC.mcmc_corner_plot(fitting_parameter_names_with_units, scaled_samples, max_likelihood_params, ndim, p.fitting_results_directory + f"/corner.png")
-        return results, integrated_autocorrelation_time
+            CurveSimMCMC.mcmc_histograms(p, scaled_samples, ndim, bins, p.fitting_results_directory + f"/histograms_{bins}.png")
+        CurveSimMCMC.save_mcmc_results(p, bodies, steps_done)
+        CurveSimMCMC.mcmc_corner_plot(long_body_parameter_names, scaled_samples, max_likelihood_params, ndim, p.fitting_results_directory + f"/corner.png")
+        return integrated_autocorrelation_time
