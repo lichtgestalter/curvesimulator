@@ -80,30 +80,33 @@ def period(results, savefilename, bodies, show_plot=True, save_plot=True, ybotto
 
 def transit_times_to_csv(results, savefile, bodies):
     """Save transit times as csv file."""
-    transits_c = results["Bodies"]["TOI-4504c"]["Transits"]
-    transit_times_c = [transit["Transit_params"]["TT"] for transit in transits_c]
-    transit_times_c_jd = [Time(transit_time, format='jd', scale='utc').datetime.strftime('%d/%m/%Y') for transit_time in transit_times_c]
+    transits = results["Bodies"]["TOI-4504d"]["Transits"]
+    transit_times = [transit["Transit_params"]["TT"] for transit in transits if transit["Transit_params"]["EclipsedBody"] == "TOI-4504"]
+    # transit_times_c_jd = [Time(transit_time, format='jd', scale='utc').datetime.strftime('%d/%m/%Y') for transit_time in transit_times]
     with open(savefile, mode='w', newline='') as file:
         writer = csv.writer(file, delimiter=';')
-        for t_bjd, t_jd in zip(transit_times_c, transit_times_c_jd):
-            writer.writerow([str(t_bjd).replace('.', ','), t_jd])
+        # for t_bjd, t_jd in zip(transit_times, transit_times_c_jd):
+        #     writer.writerow([str(t_bjd).replace('.', ','), t_jd])
+        for t_bjd in transit_times:
+            writer.writerow([str(t_bjd).replace('.', ',')])
 
 def main(resultfile):
     resultpath = "../results/"
     resultextension = ".json"
     with open(resultpath + resultfile + resultextension, "r") as file:
         results = json.load(file)
-    # bodies = [body for body in results["Bodies"]]
     planets = [body for body in results["Bodies"] if results["Bodies"][body]["BodyParameters"]["body_type"] == "planet"]
-    depth(results, resultpath + "depth/" + resultfile + '_depth.png', planets, show_plot=True, save_plot=True, ybottom=None, ytop=None)
-    impact_parameter(results, resultpath + "impact/" + resultfile + '_impact.png', planets, show_plot=True, save_plot=True, ybottom=0.89243, ytop=0.89334)
-    transit_duration(results, resultpath + "duration_14/" + resultfile + '_duration_14.png', planets, show_plot=True, save_plot=True, full_eclipse_only=False)
-    transit_duration(results, resultpath + "duration_23/" + resultfile + '_duration_23.png', planets, show_plot=True, save_plot=True, full_eclipse_only=True)
-    period(results, resultpath + "period/" + resultfile + '_period.png', planets, show_plot=True, save_plot=True, ybottom=39.0, ytop=42.0)
-    period(results, resultpath + "period/" + resultfile + '_period.png', [planets[-1]], show_plot=True, save_plot=True, ybottom=39.0, ytop=42.0)
-    # transit_times(results, resultpath + resultfile + ".csv", planets)
+    # depth(results, resultpath + "depth/" + resultfile + '_depth.png', planets, show_plot=True, save_plot=True, ybottom=None, ytop=None)
+    # impact_parameter(results, resultpath + "impact/" + resultfile + '_impact.png', planets, show_plot=True, save_plot=True, ybottom=0.89243, ytop=0.89334)
+    # transit_duration(results, resultpath + "duration_14/" + resultfile + '_duration_14.png', planets, show_plot=True, save_plot=True, full_eclipse_only=False)
+    # transit_duration(results, resultpath + "duration_23/" + resultfile + '_duration_23.png', planets, show_plot=True, save_plot=True, full_eclipse_only=True)
+    # period(results, resultpath + "period/" + resultfile + '_period.png', planets, show_plot=True, save_plot=True, ybottom=39.0, ytop=42.0)
+    # period(results, resultpath + "period/" + resultfile + '_period.png', [planets[-1]], show_plot=True, save_plot=True, ybottom=39.0, ytop=42.0)
+
+    bodies = [body for body in results["Bodies"]]
+    transit_times_to_csv(results, resultpath + resultfile + ".csv", bodies)
 
 
-# main("Sim001.v0007")
+main("TOI-4504.without_b")
 # main("TOI-4504.v0003")
-main("TOI-4504.v0002")
+# main("TOI-4504.v0002")

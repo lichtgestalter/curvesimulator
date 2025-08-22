@@ -2,7 +2,6 @@ Next / in progress:
 0.5.6 Fitting TOI-4504
 
     Ulis Ideen fuer gut befunden:
-        Zuerst Check: veraendern sich c und d TT, wenn ich b rausnehme?
         Planet b: Alle TESS-Daten (ausser den c- und d-Transits) nehmen und damit b fitten.
         probability zusaetzlich (und am Anfang ausschliesslich) aus Abstand zu den gemessenen TT berechnen
             nach _jeder_ Simulation die Transit Times berechnen

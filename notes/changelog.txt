@@ -95,3 +95,4 @@
         MCMC results and plots are now saved.
     0.5.6 Fitting TOI-4504
         MCMC uses multiprocessing now.
+        c- and d-transits change significantly when b is missing!
