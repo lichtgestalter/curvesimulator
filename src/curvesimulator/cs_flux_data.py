@@ -1,11 +1,13 @@
 # from colorama import Fore, Style
 import lightkurve as lk
+import math
 from matplotlib import pyplot as plt
 from matplotlib import rcParams
 import numpy as np
 import pandas as pd
 
 path = '../../data/TOI-4504/'
+day = 60 * 60 *24
 
 # Sector    3           6           9          12          28          31          34          37          61          64          67          89
 C_T1 = [2458401.24, 2458483.05, 2458564.92, 2458647.17, 2459065.09, 2459148.34, 2459230.96, 2459313.11, 2459975.93, 2460059.48, 2460142.46, 2460718.48]
@@ -233,14 +235,45 @@ def periodogram(results):
         ax.axvline(period / n, alpha=0.4, lw=1, linestyle="dashed")
 
 
-def fold(df, start, period):
+def fold_flux(df, start, period, average_scope):
     df2 = df.copy()
     df2["time"] = (df2["time"] - start) % period
-    df2.sort_values(by="time", ascending=True)
+    df2 = df2.sort_values(by="time", ascending=True)
+    avg_time = np.linspace(0, period, num=int(period/average_scope))
+    avg_flux = [df2.loc[(df2["time"] > t - average_scope / 2) & (df2["time"] < t + average_scope / 2), "flux"].mean() for t in avg_time]
+    df_avg = pd.DataFrame({"time": avg_time, "flux": avg_flux})
+    return df2, df_avg
+
+
+def bin_flux(df, exposure_time, bin_scope):
+    min_data_points = int(bin_scope / exposure_time) - 1
+    binned = []
+    i = 0
+    while i < len(df):
+        group = df.iloc[i:i+min_data_points]
+        if len(group) < min_data_points:
+            break
+        time_diff = group.iloc[-1]["time"] - group.iloc[0]["time"]
+        if time_diff < bin_scope:
+            avg_time = group["time"].mean()
+            avg_flux = group["flux"].mean()
+            avg_flux_err = group["flux_err"].mean() / math.sqrt(min_data_points)
+            binned.append({"time": avg_time, "flux": avg_flux, "flux_err": avg_flux_err})
+        i += min_data_points
+    df2 = pd.DataFrame(binned)
     return df2
 
+
+def extract_regular_transits(df, start, period, left, right):
+    # copy the rows from df to df2, where left < df["time"] - start) % period < right
+    df2 = df.copy()
+    phase = (df2["time"] - start) % period
+    mask = (phase > left) & (phase < right)
+    return df2[mask]
+
+
 ###################################################################################################################
-##########################    TOI-4504 specific function from here on    ##########################################
+##########################    TOI-4504 specific functions from here on    ##########################################
 ###################################################################################################################
 
 
@@ -350,17 +383,26 @@ def combine_all_flux():
 
 
 if __name__ == "__main__":
-
-    # plot_flux_df(transits94.df_download, title="Download")
-    # plot_flux_df(transits94.df_normalized, title="Normalized")
-    # plot_flux_df(transits94.df_processed, title="Processed")
-    # plot_flux_df(transits89.df_processed, title="Processed", left=C_TT[11] - sm, right=C_TT[11] + sm)
-    # plot_flux_df(transits89.df_processed, title="Processed", left=D_TT[1] - sm, right=D_TT[1] + sm)
-
     # get_all_c_d_transits()
     #
     # combine_all_flux()
-    df = csv2df(path + "TOI4504_no_transits_sm0_27til94.csv")
-    df = fold(df, 2458400, 2.42614)
-    plot_flux_df(df)
 
+    df = csv2df(path + "TOI4504_no_transits_sm0_27til94.csv")
+
+    # for scope in range(200, 1801, 200):
+    #     d2, df_avg = fold_flux(df, 2458400, 2.42614, scope / day)
+    #     # plot_flux_df(df, title=f"fold {scope=}")
+    #     # plot_flux_df(df_avg, title=f"avg {scope=}")
+    #     plot_flux_df(df_avg, title=f"avg {scope=}", left=0.33, right=0.45)
+
+    # scope = 120
+    exposure_time = 120
+    bin_scope = 1200
+    df_binned = bin_flux(df, exposure_time, bin_scope)
+    # df_folded, df_avg = fold_flux(df_binned, 2458400, 2.42614, scope / day)
+    plot_flux_df(df_binned)
+    # plot_flux_df(df_folded, title="Folded")
+    # plot_flux_df(df_avg, title=f"avg {scope=}", left=0.33, right=0.45)
+
+    df_extracted = extract_regular_transits(df_binned, 2458400, 2.42614, 0.33, 0.45)
+    df2csv(df_extracted, path + f"TOI4504_b_transits_bin{bin_scope}_27til94.csv")

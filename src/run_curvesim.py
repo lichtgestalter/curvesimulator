@@ -22,7 +22,7 @@
 from curvesimulator import CurveSimulator
 
 def main():
-    curvesimulation = CurveSimulator(config_file="../configurations/TOI-4504.ini")
+    curvesimulation = CurveSimulator(config_file="../configurations/TOI-4504_mcmc_b.ini")
     # curvesimulation = CurveSimulator(config_file="../configurations/TOI-4504_fitb.ini")
     if True or curvesimulation.parameters.verbose:
         print(curvesimulation)

@@ -1,6 +1,10 @@
 Next / in progress:
 0.5.6 Fitting TOI-4504
 
+    binning b:
+        720 ist optimal, aber warum wandert die Delle?
+
+
     Ulis Ideen fuer gut befunden:
         Planet b: Alle TESS-Daten (ausser den c- und d-Transits) nehmen und damit b fitten.
         probability zusaetzlich (und am Anfang ausschliesslich) aus Abstand zu den gemessenen TT berechnen
