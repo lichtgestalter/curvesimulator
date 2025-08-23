@@ -1,9 +1,11 @@
-from colorama import Fore, Style
+# from colorama import Fore, Style
 import lightkurve as lk
 from matplotlib import pyplot as plt
 from matplotlib import rcParams
 import numpy as np
 import pandas as pd
+
+path = '../../data/TOI-4504/'
 
 # Sector    3           6           9          12          28          31          34          37          61          64          67          89
 C_T1 = [2458401.24, 2458483.05, 2458564.92, 2458647.17, 2459065.09, 2459148.34, 2459230.96, 2459313.11, 2459975.93, 2460059.48, 2460142.46, 2460718.48]
@@ -15,37 +17,56 @@ D_T1 = [2460695.47, 2460736.58, 2460859.13]
 D_TT = [2460695.53, 2460736.63, 2460859.23]
 D_T4 = [2460695.60, 2460736.69, 2460859.31]
 
+spoc_sectors_all = [27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 61, 62, 63, 64, 65, 67, 68, 69, 87, 88, 89, 90, 94]
+spoc_sectors_c_d = [28, 31, 34, 37, 61, 64, 67, 88, 89, 94]
+spoc_sectors_no_c_d =                                      [27, 29, 30, 32, 33, 35, 36, 38, 62, 63, 65, 68, 69, 87, 90]
+
+
 class SectorData:
 
-    def __init__(self, sector, lefts, rights, download_filename, processed_filename):
+    def __init__(self, sector, download_filename, transits_filename=None, no_transits_filename=None, all_filename=None, lefts=None, rights=None):
         self.sector = sector   # TESS sector
-        self.lefts = lefts     # list of left borders of transits in this sector [BJD]
-        self.rights = rights   # list of right borders of transits in this sector [BJD]
+        self.lefts = lefts  # list of left borders of transits in this sector [BJD]
+        self.rights = rights  # list of right borders of transits in this sector [BJD]
         self.download_filename = download_filename  # name of csv file with original TESS data
-        self.processed_filename = processed_filename # normalized, corrected BJD, transits only
+        self.transits_filename = transits_filename # normalized, corrected BJD, transits only
+        self.no_transits_filename = no_transits_filename # normalized, corrected BJD, transits only
         self.df_download = csv2df(self.download_filename)  # original TESS data
         self.df_normalized = self.normalize()  # normalized, corrected BJD
-        self.df_processed = self.process()  # normalized, corrected BJD, transits only
-        df2csv(self.df_processed, self.processed_filename)
+        self.df_transits = self.transits()  # normalized, corrected BJD, transits only
+        self.df_no_transits = self.no_transits()  # normalized, corrected BJD, transits only
+        if transits_filename:
+            df2csv(self.df_transits, self.transits_filename)
+        if no_transits_filename:
+            df2csv(self.df_no_transits, self.no_transits_filename)
 
 
     def normalize(self):
         df = tesstime2bjd(self.df_download.copy())
         df2 = tesstime2bjd(self.df_download.copy())
-        for left, right in zip(self.lefts, self.rights):  # exclude transits before calculating median (prevents systematic transit depth error of about 1%)
-            df = remove_from_df(df, left, right)
+        if self.lefts and self.rights:
+            for left, right in zip(self.lefts, self.rights):  # exclude transits before calculating median (prevents systematic transit depth error of about 1%)
+                df = remove_from_df(df, left, right)
         df2 = scale_flux(df2, 1 / median_flux(df))  # normalize with median
         return df2
 
-    def process(self):
-        lefts = self.lefts + [1e99]
-        rights = [-1e99] + self.rights
+    def transits(self):
+        """remove all data outside of transits"""
         df = self.df_normalized.copy()
-        for left, right in zip(lefts, rights):  # remove all data outside of transits
-            df = remove_from_df(df, right, left)
+        if self.lefts and self.rights:
+            lefts = self.lefts + [1e99]
+            rights = [-1e99] + self.rights
+            for left, right in zip(lefts, rights):
+                df = remove_from_df(df, right, left)
         return df
 
-
+    def no_transits(self):
+        """remove all data inside of transits"""
+        df = self.df_normalized.copy()
+        if self.lefts and self.rights:
+            for left, right in zip(self.lefts, self.rights):
+                df = remove_from_df(df, left, right)
+        return df
 
 
 def plot_this(
@@ -114,6 +135,14 @@ def csv2df(filename):
 
 def df2csv(df, filename):
     return df.to_csv(filename, index=False)
+
+
+def df2csv_deutsch(df, filename):
+    df_copy = df.copy()
+    float_cols = df_copy.select_dtypes(include=['float', 'float64']).columns
+    for col in float_cols:
+        df_copy[col] = df_copy[col].apply(lambda x: f"{x:.8f}".replace('.', ',') if pd.notnull(x) else "")
+    return df_copy.to_csv(filename, sep=';', index=False)
 
 
 def df2lc(df):
@@ -188,6 +217,7 @@ def median_flux(df, start=None, end=None, ignore_time_intervals=None):
 
 
 def periodogram(results):
+    # Visuaæizing BLS results
     period = results.period[np.argmax(results.power)]
     rcParams["figure.dpi"] = 150
     fig, ax = plt.subplots(1, 1, figsize=(6, 3))
@@ -203,108 +233,16 @@ def periodogram(results):
         ax.axvline(period / n, alpha=0.4, lw=1, linestyle="dashed")
 
 
-def corresponding_flux(df, time_d, max_exp_delta, p):
-    """
-    Obsolete!
+def fold(df, start, period):
+    df2 = df.copy()
+    df2["time"] = (df2["time"] - start) % period
+    df2.sort_values(by="time", ascending=True)
+    return df2
 
-    df: <pandas DataFrame> Contains at least columns 'time' and 'flux'.
-        unit of time is [days]
-        time must be in ascending order!
-    !t0: start of a lightcurve simulation [BJD days]
-    !dt: iteration step size of this lightcurve simulation [seconds]
-    !iterations: number of iterations of this sim_flux simulation
-    max_exp_delta: maximum acceptable difference in days
-        between an item of df['time'] (middle of exposure) and
-        the time of a simulation iteration t0 + i * dt
-        for this item to be considered correspondig to iteration i.
+###################################################################################################################
+##########################    TOI-4504 specific function from here on    ##########################################
+###################################################################################################################
 
-    Returns:
-    measured_flux <np.ndarray> with measured_flux.shape = (iterations,)
-        measured_flux[i] is the actual flux value corresponding to simulated value sim_flux[i]
-        Only flux data with a time value close enough to the simulation's time value will be accepted (abs(exp_delta[i]) <= max_exp_delta)
-        If there is no flux data inside the acceptable time intervall, then measured_flux[i] is 0.
-        If there are several flux data inside the acceptable time intervall, then measured_flux[i] is their average.
-
-    data_points <np.ndarray> with measured_flux.shape = (iterations,)
-        ...
-    mask <np.ndarray> with measured_flux.shape = (iterations,)
-        ...
-    exp_delta <np.ndarray> with measured_flux.shape = (iterations,)
-        ...
-
-
-    """
-    measured_flux = np.zeros(p.total_iterations)
-    data_points = np.zeros(p.total_iterations)
-    exp_delta = np.zeros(p.total_iterations)
-    # dt /= 60*60*24  # seconds - > days
-    i = 0  # current time_d index
-    for t_index, t in df['time'].items():
-        if t < time_d[0] - max_exp_delta:
-            continue  # we are not interested in data significantly before the scope of the simulation
-        # i = round(t // dt)
-        if t > time_d[-1]:
-            break  # we are not interested in data after the scope of the simulation
-        i = i + np.argmin(np.abs(t - time_d[i:]))  # find the index of time_d where time_d is closest to t
-        dt = 120  # debug
-        exp_delta_tmp = t - time_d[i]
-        if exp_delta_tmp > dt / 2:  # keep the exposure delta between -dt/2 and +dt/2
-            exp_delta_tmp -= dt
-        if abs(t - time_d[i]) < max_exp_delta:
-            data_points[i] += 1
-            measured_flux[i] = (measured_flux[i] * (data_points[i] - 1)  + df['flux'][t_index]) / data_points[i]  # update average
-            exp_delta[i] = (exp_delta[i] * (data_points[i] - 1)  + exp_delta_tmp) / data_points[i]  # update average
-    no_flux_count = np.sum(data_points == 0)  # Count items in data_points that are 0
-    print(f"{Fore.YELLOW}WARNING: Could not find flux measurements for {no_flux_count} iteration steps of the simulation.")
-    print(f"Try to set parameter max_exp_delta to a higher value.{Style.RESET_ALL}")
-    return measured_flux, data_points, exp_delta
-
-
-def process_88_89():
-    path = '../../research/star_systems/TOI-4504/lightkurve/'
-    half_sample_duration = 0.4  # time interval we are interested in: before and after time of transit transit
-    half_ignore_duration = 0.07  # time interval we want to exclude: between T1 and T4
-    t88d = 2460695.535  # TT of TOI-4504-d in sector 88
-    t89d = 2460736.635  # TT of TOI-4504-d in sector 89
-
-    csv_88_89 = path + 'TOI4504_88+89_all.csv'  # contains all flux data from sectors 88 and 89
-    flux_df = csv2df(csv_88_89)  # usually contains df['time'], df['flux'], df['flux_err']
-    flux_df = tesstime2bjd(flux_df)
-    # flux_df.time += 2457000  # offset in TESS data
-
-    # find median flux shortly before and after the planet-d transit in sector 88.
-    # Include only data near the transit. Exclude data inside the transit.
-    median88 = median_flux(flux_df, start=t88d - half_sample_duration, end=t88d + half_sample_duration,
-                           ignore_time_intervals=[(t88d - half_ignore_duration, t88d + half_ignore_duration)])
-    print(f"d-transit sector 88:   {half_sample_duration=}   {half_ignore_duration=}   {median88=:.2f}")
-
-    t88d_df = extract_from_df(flux_df, t88d - half_sample_duration, t88d + half_sample_duration)  # df reduced to data of and around the transit
-    t88d_df = scale_flux(t88d_df, 1 / median88)  # normalize flux
-
-    # find median flux shortly before and after the planet-d transit in sector 89.
-    # Include only data near the transit. Exclude data inside the transit.
-    median89 = median_flux(flux_df, start=t89d-half_sample_duration, end=t89d+half_sample_duration,
-                           ignore_time_intervals=[(t89d - half_ignore_duration, t89d + half_ignore_duration)])
-    print(f"d-transit sector 89:   {half_sample_duration=}   {half_ignore_duration=}   {median89=:.2f}")
-
-    t89d_df = extract_from_df(flux_df, t89d - half_sample_duration, t89d + half_sample_duration)  # df reduced to data of and around the transit
-    t89d_df = scale_flux(t89d_df, 1 / median89)  # normalize flux
-
-    # append t89d_df to t88d_df
-    t88_89_df = pd.concat([t88d_df, t89d_df], ignore_index=True)
-    t88_89_df.to_csv(path + 'TOI4504_88+89_reduced_normalized_d_transits.csv', sep=',', decimal='.', index=False)
-
-    plot_this(t88_89_df.time, [t88_89_df.flux], ["flux"], plot_file=path+"88_89_rn.png")
-    plot_this(t88_89_df.time, [t88_89_df.flux], ["flux"], left=t88d - half_sample_duration, right=t88d + half_sample_duration,
-              plot_file=path+"88/88_rn.png")
-    plot_this(t88_89_df.time, [t88_89_df.flux], ["flux"], left=t89d - half_sample_duration, right=t89d + half_sample_duration,
-              plot_file=path+"89/89_rn.png")
-
-
-def remove_c_transits(df, delta):
-    for tt in C_TT:
-        df = remove_from_df(df, tt - delta, tt + delta)
-    return df
 
 def combine_flux_data(start_sec, end_sec, filename):
     path = '../research/star_systems/TOI-4504/lightkurve/'
@@ -342,34 +280,76 @@ def combine_flux_data(start_sec, end_sec, filename):
     df2csv(combined_df, path + filename)
 
 
-if __name__ == "__main__":
-    path = '../../data/TOI-4504/'
-    # spoc_sectors = [27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 61, 62, 63, 64, 65, 67, 68, 69, 87, 88, 89, 90, 94]
-    spoc_sectors = [28, 31, 34, 37, 61, 64, 67, 88, 89, 94]
+def get_all_c_d_transits(spoc_only=False, no_transits=False):
     sm = 0.0  # safety margin
+    if not spoc_only:
+        transits03 = SectorData(3,  path + f"downloads/3_TGLC_1800.csv",  transits_filename=path + f"3_TGLC_1800_t.csv",  no_transits_filename=path + f"3_TGLC_1800_not.csv",   lefts=[C_T1[0] - sm],  rights=[C_T4[0] + sm])
+        transits06 = SectorData(6,  path + f"downloads/6_QLP_1800.csv",   transits_filename=path +  f"6_QLP_1800_t.csv",  no_transits_filename=path +  f"6_QLP_1800_not.csv",   lefts=[C_T1[1] - sm],  rights=[C_T4[1] + sm])
+        transits09 = SectorData(9,  path + f"downloads/9_QLP_1800.csv",   transits_filename=path +  f"9_QLP_1800_t.csv",  no_transits_filename=path +  f"9_QLP_1800_not.csv",   lefts=[C_T1[2] - sm],  rights=[C_T4[2] + sm])
+        transits12 = SectorData(12, path + f"downloads/12_QLP_1800.csv",  transits_filename=path + f"12_QLP_1800_t.csv",  no_transits_filename=path + f"12_QLP_1800_not.csv",   lefts=[C_T1[3] - sm],  rights=[C_T4[3] + sm])
+        transits03.df_transits['flux_err'] = transits03.df_transits['flux_err'].apply(lambda x: 0.002 if pd.isna(x) or x == 0 else x)
+    transits28 = SectorData(28, path + f"downloads/28_SPOC_120.csv",  transits_filename=path + f"28_SPOC_120_t.csv",  no_transits_filename=path + f"28_SPOC_120_not.csv",   lefts=[C_T1[4] - sm],  rights=[C_T4[4] + sm])
+    transits31 = SectorData(31, path + f"downloads/31_SPOC_120.csv",  transits_filename=path + f"31_SPOC_120_t.csv",  no_transits_filename=path + f"31_SPOC_120_not.csv",   lefts=[C_T1[5] - sm],  rights=[C_T4[5] + sm])
+    transits34 = SectorData(34, path + f"downloads/34_SPOC_120.csv",  transits_filename=path + f"34_SPOC_120_t.csv",  no_transits_filename=path + f"34_SPOC_120_not.csv",   lefts=[C_T1[6] - sm],  rights=[C_T4[6] + sm])
+    transits37 = SectorData(37, path + f"downloads/37_SPOC_120.csv",  transits_filename=path + f"37_SPOC_120_t.csv",  no_transits_filename=path + f"37_SPOC_120_not.csv",   lefts=[C_T1[7] - sm],  rights=[C_T4[7] + sm])
+    transits61 = SectorData(61, path + f"downloads/61_QLP_200.csv",   transits_filename=path +  f"61_QLP_200_t.csv",  no_transits_filename=path +  f"61_QLP_200_not.csv",   lefts=[C_T1[8] - sm],  rights=[C_T4[8] + sm])
+    transits64 = SectorData(64, path + f"downloads/64_SPOC_120.csv",  transits_filename=path + f"64_SPOC_120_t.csv",  no_transits_filename=path + f"64_SPOC_120_not.csv",   lefts=[C_T1[9] - sm],  rights=[C_T4[9] + sm])
+    transits67 = SectorData(67, path + f"downloads/67_SPOC_120.csv",  transits_filename=path + f"67_SPOC_120_t.csv",  no_transits_filename=path + f"67_SPOC_120_not.csv",   lefts=[C_T1[10] - sm], rights=[C_T4[10] + sm])
+    transits88 = SectorData(88, path + f"downloads/88_SPOC_120.csv",  transits_filename=path + f"88_SPOC_120_t.csv",  no_transits_filename=path + f"88_SPOC_120_not.csv",   lefts=[D_T1[0] - sm],  rights=[D_T4[0] + sm])
+    transits94 = SectorData(94, path + f"downloads/94_SPOC_120.csv",  transits_filename=path + f"94_SPOC_120_t.csv",  no_transits_filename=path + f"94_SPOC_120_not.csv",   lefts=[D_T1[2] - sm],  rights=[D_T4[2] + sm])
+    transits89 = SectorData(89, path + f"downloads/89_SPOC_120.csv",  transits_filename=path + f"89_SPOC_120_t.csv",  no_transits_filename=path + f"89_SPOC_120_not.csv",   lefts=[C_T1[11] - sm, D_T1[1] - sm], rights=[C_T4[11] + sm, D_T4[1] + sm])
 
-    transits03 = SectorData( 3,  [C_T1[0] - sm],  [C_T4[0] + sm], path +  f"downloads/3_TGLC_1800.csv", path + f"3_TGLC_1800.csv")
-    transits03.df_processed['flux_err'] = transits03.df_processed['flux_err'].apply(lambda x: 0.002 if pd.isna(x) or x == 0 else x)
-    transits06 = SectorData( 6,  [C_T1[1] - sm],  [C_T4[1] + sm], path +  f"downloads/6_QLP_1800.csv", path +  f"6_QLP_1800.csv")
-    transits09 = SectorData( 9,  [C_T1[2] - sm],  [C_T4[2] + sm], path +  f"downloads/9_QLP_1800.csv", path +  f"9_QLP_1800.csv")
-    transits12 = SectorData(12,  [C_T1[3] - sm],  [C_T4[3] + sm], path + f"downloads/12_QLP_1800.csv", path + f"12_QLP_1800.csv")
-    transits28 = SectorData(28,  [C_T1[4] - sm],  [C_T4[4] + sm], path + f"downloads/28_SPOC_120.csv", path + f"28_SPOC_120.csv")
-    transits31 = SectorData(31,  [C_T1[5] - sm],  [C_T4[5] + sm], path + f"downloads/31_SPOC_120.csv", path + f"31_SPOC_120.csv")
-    transits34 = SectorData(34,  [C_T1[6] - sm],  [C_T4[6] + sm], path + f"downloads/34_SPOC_120.csv", path + f"34_SPOC_120.csv")
-    transits37 = SectorData(37,  [C_T1[7] - sm],  [C_T4[7] + sm], path + f"downloads/37_SPOC_120.csv", path + f"37_SPOC_120.csv")
-    transits61 = SectorData(61,  [C_T1[8] - sm],  [C_T4[8] + sm], path + f"downloads/61_QLP_200.csv", path + f"61_QLP_200.csv")
-    transits61.df_processed.flux_err *= 3.0
-    df2csv(transits61.df_processed, path + f"61_QLP_200.csv" )
-    transits64 = SectorData(64,  [C_T1[9] - sm],  [C_T4[9] + sm], path + f"downloads/64_SPOC_120.csv", path + f"64_SPOC_120.csv")
-    transits67 = SectorData(67, [C_T1[10] - sm], [C_T4[10] + sm], path + f"downloads/67_SPOC_120.csv", path + f"67_SPOC_120.csv")
-    transits88 = SectorData(88,  [D_T1[0] - sm],  [D_T4[0] + sm], path + f"downloads/88_SPOC_120.csv", path + f"88_SPOC_120.csv")
-    transits89 = SectorData(89, [C_T1[11] - sm, D_T1[1] - sm], [C_T4[11] + sm, D_T4[1] + sm], path + f"downloads/89_SPOC_120.csv", path + f"89_SPOC_120.csv")
-    transits94 = SectorData(94,  [D_T1[2] - sm],  [D_T4[2] + sm], path + f"downloads/94_SPOC_120.csv", path + f"94_SPOC_120.csv")
+    transits61.df_transits.flux_err *= 3.0
+    df2csv(transits61.df_transits, path + f"61_QLP_200.csv")
 
-    transits = [transits03, transits06, transits09, transits12]
+    transits = []
+    if not spoc_only:
+        transits = [transits03, transits06, transits09, transits12]
     transits += [transits28, transits31, transits34, transits37, transits61, transits64, transits67, transits88, transits89, transits94]
-    for t in transits:
-        plot_flux_df(t.df_processed, title="Sector " + str(t.sector) +" Processed")
+
+    if no_transits:
+        transits61.df_no_transits = remove_from_df(transits61.df_no_transits, 2000000.0, 2459965.0)
+        transits61.df_no_transits = remove_from_df(transits61.df_no_transits, 2459973.5, 2459977.5)
+        transits61.df_no_transits = remove_from_df(transits61.df_no_transits, 2459986.5, 3000000.5)
+        plot_flux_df(transits61.df_no_transits, title="Sector " + str(61) + " Processed")
+        all_processed_dfs = [t.df_no_transits for t in transits]
+    else:
+        # for t in transits:
+        #     plot_flux_df(t.df_transits, title="Sector " + str(t.sector) + " Processed")
+        all_processed_dfs = [t.df_transits for t in transits]
+        all_df = pd.concat(all_processed_dfs, ignore_index=True)
+        all_df = all_df.dropna(subset=["flux"]).sort_values(by="time", ascending=True)
+        df2csv(all_df, path + "TOI4504_transits_sm0_3til94.csv")
+
+    return all_processed_dfs
+
+
+def get_other_flux_for_b_transits():
+    transits = []
+    for sector in spoc_sectors_no_c_d:
+        transits.append(SectorData(sector, path + f"downloads/{sector}_SPOC_120.csv",   no_transits_filename=path + f"{sector}_SPOC_120_not.csv"))
+        if sector == 61:
+            plot_flux_df(transits[-1].df_no_transits, title="Sector " + str(sector) + " Processed")
+    all_processed_dfs = [t.df_no_transits for t in transits]
+    return all_processed_dfs
+
+
+def combine_all_flux():
+    # download all SPOC data (from sectors without c/d transits)
+    # process/normalize it
+    # read all downloaded SPOC data from sectors >= 27 and save it as one file
+    # remove c and d transits and save this file as well
+
+    dfs_cleaned_from_cd_transits = get_all_c_d_transits(spoc_only=True, no_transits=True)
+    dfs_from_other_sectors = get_other_flux_for_b_transits()
+    all_df = pd.concat(dfs_cleaned_from_cd_transits + dfs_from_other_sectors, ignore_index=True)
+    all_df = all_df.dropna(subset=["flux"]).sort_values(by="time", ascending=True)
+    all_df = all_df[(all_df["flux"] >= 0.98) & (all_df["flux"] <= 1.02)]
+    df2csv(all_df, path + "TOI4504_no_transits_sm0_27til94.csv")
+    df2csv_deutsch(all_df, path + "TOI4504_no_transits_sm0_27til94_DE.csv")
+
+
+if __name__ == "__main__":
 
     # plot_flux_df(transits94.df_download, title="Download")
     # plot_flux_df(transits94.df_normalized, title="Normalized")
@@ -377,7 +357,10 @@ if __name__ == "__main__":
     # plot_flux_df(transits89.df_processed, title="Processed", left=C_TT[11] - sm, right=C_TT[11] + sm)
     # plot_flux_df(transits89.df_processed, title="Processed", left=D_TT[1] - sm, right=D_TT[1] + sm)
 
-    all_processed_dfs = [t.df_processed for t in transits]
+    # get_all_c_d_transits()
+    #
+    # combine_all_flux()
+    df = csv2df(path + "TOI4504_no_transits_sm0_27til94.csv")
+    df = fold(df, 2458400, 2.42614)
+    plot_flux_df(df)
 
-    all_df = pd.concat(all_processed_dfs, ignore_index=True)
-    df2csv(all_df, path + "TOI4504_transits_sm0.csv")

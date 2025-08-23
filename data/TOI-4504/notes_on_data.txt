@@ -1,0 +1,10 @@
+TOI4504_transits_sm0_3til94.csv
+    Made using get_all_c_d_transits()
+    12 c transits and 3 d transits in sectors 3 - 94
+    Sector 3: TGLC 1800s. No flux error provided. We set normalized flux error = 0.002
+    Sector 6, 9, 12: QLP 1800s
+    Sector 61: QLP 200. We multiplied flux error by 3 (at transit, sun came almost into TESS' field of view).
+    Other sectors: SPOC 120s
+
+TOI4504_no_transits_sm0_27til94.csv
+
