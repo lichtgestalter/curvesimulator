@@ -320,18 +320,19 @@ def get_all_c_d_transits(spoc_only=False, no_transits=False):
         transits06 = SectorData(6,  path + f"downloads/6_QLP_1800.csv",   transits_filename=path +  f"6_QLP_1800_t.csv",  no_transits_filename=path +  f"6_QLP_1800_not.csv",   lefts=[C_T1[1] - sm],  rights=[C_T4[1] + sm])
         transits09 = SectorData(9,  path + f"downloads/9_QLP_1800.csv",   transits_filename=path +  f"9_QLP_1800_t.csv",  no_transits_filename=path +  f"9_QLP_1800_not.csv",   lefts=[C_T1[2] - sm],  rights=[C_T4[2] + sm])
         transits12 = SectorData(12, path + f"downloads/12_QLP_1800.csv",  transits_filename=path + f"12_QLP_1800_t.csv",  no_transits_filename=path + f"12_QLP_1800_not.csv",   lefts=[C_T1[3] - sm],  rights=[C_T4[3] + sm])
-        transits03.df_transits['flux_err'] = transits03.df_transits['flux_err'].apply(lambda x: 0.002 if pd.isna(x) or x == 0 else x)
-    transits28 = SectorData(28, path + f"downloads/28_SPOC_120.csv",  transits_filename=path + f"28_SPOC_120_t.csv",  no_transits_filename=path + f"28_SPOC_120_not.csv",   lefts=[C_T1[4] - sm],  rights=[C_T4[4] + sm])
-    transits31 = SectorData(31, path + f"downloads/31_SPOC_120.csv",  transits_filename=path + f"31_SPOC_120_t.csv",  no_transits_filename=path + f"31_SPOC_120_not.csv",   lefts=[C_T1[5] - sm],  rights=[C_T4[5] + sm])
-    transits34 = SectorData(34, path + f"downloads/34_SPOC_120.csv",  transits_filename=path + f"34_SPOC_120_t.csv",  no_transits_filename=path + f"34_SPOC_120_not.csv",   lefts=[C_T1[6] - sm],  rights=[C_T4[6] + sm])
-    transits37 = SectorData(37, path + f"downloads/37_SPOC_120.csv",  transits_filename=path + f"37_SPOC_120_t.csv",  no_transits_filename=path + f"37_SPOC_120_not.csv",   lefts=[C_T1[7] - sm],  rights=[C_T4[7] + sm])
-    transits61 = SectorData(61, path + f"downloads/61_QLP_200.csv",   transits_filename=path +  f"61_QLP_200_t.csv",  no_transits_filename=path +  f"61_QLP_200_not.csv",   lefts=[C_T1[8] - sm],  rights=[C_T4[8] + sm])
-    transits64 = SectorData(64, path + f"downloads/64_SPOC_120.csv",  transits_filename=path + f"64_SPOC_120_t.csv",  no_transits_filename=path + f"64_SPOC_120_not.csv",   lefts=[C_T1[9] - sm],  rights=[C_T4[9] + sm])
-    transits67 = SectorData(67, path + f"downloads/67_SPOC_120.csv",  transits_filename=path + f"67_SPOC_120_t.csv",  no_transits_filename=path + f"67_SPOC_120_not.csv",   lefts=[C_T1[10] - sm], rights=[C_T4[10] + sm])
-    transits88 = SectorData(88, path + f"downloads/88_SPOC_120.csv",  transits_filename=path + f"88_SPOC_120_t.csv",  no_transits_filename=path + f"88_SPOC_120_not.csv",   lefts=[D_T1[0] - sm],  rights=[D_T4[0] + sm])
-    transits94 = SectorData(94, path + f"downloads/94_SPOC_120.csv",  transits_filename=path + f"94_SPOC_120_t.csv",  no_transits_filename=path + f"94_SPOC_120_not.csv",   lefts=[D_T1[2] - sm],  rights=[D_T4[2] + sm])
-    transits89 = SectorData(89, path + f"downloads/89_SPOC_120.csv",  transits_filename=path + f"89_SPOC_120_t.csv",  no_transits_filename=path + f"89_SPOC_120_not.csv",   lefts=[C_T1[11] - sm, D_T1[1] - sm], rights=[C_T4[11] + sm, D_T4[1] + sm])
+    transits28 =     SectorData(28, path + f"downloads/28_SPOC_120.csv",  transits_filename=path + f"28_SPOC_120_t.csv",  no_transits_filename=path + f"28_SPOC_120_not.csv",   lefts=[C_T1[4] - sm],  rights=[C_T4[4] + sm])
+    transits31 =     SectorData(31, path + f"downloads/31_SPOC_120.csv",  transits_filename=path + f"31_SPOC_120_t.csv",  no_transits_filename=path + f"31_SPOC_120_not.csv",   lefts=[C_T1[5] - sm],  rights=[C_T4[5] + sm])
+    transits34 =     SectorData(34, path + f"downloads/34_SPOC_120.csv",  transits_filename=path + f"34_SPOC_120_t.csv",  no_transits_filename=path + f"34_SPOC_120_not.csv",   lefts=[C_T1[6] - sm],  rights=[C_T4[6] + sm])
+    transits37 =     SectorData(37, path + f"downloads/37_SPOC_120.csv",  transits_filename=path + f"37_SPOC_120_t.csv",  no_transits_filename=path + f"37_SPOC_120_not.csv",   lefts=[C_T1[7] - sm],  rights=[C_T4[7] + sm])
+    transits61 =     SectorData(61, path + f"downloads/61_QLP_200.csv",   transits_filename=path +  f"61_QLP_200_t.csv",  no_transits_filename=path +  f"61_QLP_200_not.csv",   lefts=[C_T1[8] - sm],  rights=[C_T4[8] + sm])
+    transits64 =     SectorData(64, path + f"downloads/64_SPOC_120.csv",  transits_filename=path + f"64_SPOC_120_t.csv",  no_transits_filename=path + f"64_SPOC_120_not.csv",   lefts=[C_T1[9] - sm],  rights=[C_T4[9] + sm])
+    transits67 =     SectorData(67, path + f"downloads/67_SPOC_120.csv",  transits_filename=path + f"67_SPOC_120_t.csv",  no_transits_filename=path + f"67_SPOC_120_not.csv",   lefts=[C_T1[10] - sm], rights=[C_T4[10] + sm])
+    transits88 =     SectorData(88, path + f"downloads/88_SPOC_120.csv",  transits_filename=path + f"88_SPOC_120_t.csv",  no_transits_filename=path + f"88_SPOC_120_not.csv",   lefts=[D_T1[0] - sm],  rights=[D_T4[0] + sm])
+    transits94 =     SectorData(94, path + f"downloads/94_SPOC_120.csv",  transits_filename=path + f"94_SPOC_120_t.csv",  no_transits_filename=path + f"94_SPOC_120_not.csv",   lefts=[D_T1[2] - sm],  rights=[D_T4[2] + sm])
+    transits89 =     SectorData(89, path + f"downloads/89_SPOC_120.csv",  transits_filename=path + f"89_SPOC_120_t.csv",  no_transits_filename=path + f"89_SPOC_120_not.csv",   lefts=[C_T1[11] - sm, D_T1[1] - sm], rights=[C_T4[11] + sm, D_T4[1] + sm])
 
+    if not spoc_only:
+        transits03.df_transits['flux_err'] = transits03.df_transits['flux_err'].apply(lambda x: 0.002 if pd.isna(x) or x == 0 else x)
     transits61.df_transits.flux_err *= 3.0
     df2csv(transits61.df_transits, path + f"61_QLP_200.csv")
 
@@ -396,13 +397,17 @@ if __name__ == "__main__":
     #     plot_flux_df(df_avg, title=f"avg {scope=}", left=0.33, right=0.45)
 
     # scope = 120
-    exposure_time = 120
-    bin_scope = 1200
-    df_binned = bin_flux(df, exposure_time, bin_scope)
+    # exposure_time = 120
+    # bin_scope = 1200
+    # df_binned = bin_flux(df, exposure_time, bin_scope)
     # df_folded, df_avg = fold_flux(df_binned, 2458400, 2.42614, scope / day)
-    plot_flux_df(df_binned)
+    # plot_flux_df(df_binned)
     # plot_flux_df(df_folded, title="Folded")
     # plot_flux_df(df_avg, title=f"avg {scope=}", left=0.33, right=0.45)
 
-    df_extracted = extract_regular_transits(df_binned, 2458400, 2.42614, 0.33, 0.45)
-    df2csv(df_extracted, path + f"TOI4504_b_transits_bin{bin_scope}_27til94.csv")
+    df_extracted = extract_regular_transits(df, 2458400, 2.42614, 0.33, 0.45)
+    df2csv(df_extracted, path + f"TOI4504_b_transits_27til94.csv")
+
+
+
+
