@@ -3,6 +3,7 @@ import corner
 import emcee
 import emcee.autocorr
 import json
+import math
 from matplotlib import pyplot as plt
 from multiprocessing import Pool
 import numpy as np
@@ -43,11 +44,12 @@ class CurveSimMCMC:
         with Pool() as pool:  # enable multi processing
             sampler = emcee.EnsembleSampler(p.walkers, ndim, CurveSimMCMC.log_probability, pool=pool, moves=moves, args=args)
             integrated_autocorrelation_time = []
+            average_residual_in_std = []
             theta = sampler.run_mcmc(theta0, p.burn_in, progress=True)
             for i in range(0, p.steps, p.chunk_size):
                 theta = sampler.run_mcmc(theta, p.chunk_size, progress=True)
                 acceptance_fractions.append(sampler.acceptance_fraction)
-                integrated_autocorrelation_time = CurveSimMCMC.mcmc_results(p, bodies, sampler, acceptance_fractions, body_parameter_names, long_body_parameter_names, ndim, i + p.chunk_size, integrated_autocorrelation_time, 0.68)
+                integrated_autocorrelation_time, average_residual_in_std = CurveSimMCMC.mcmc_results(p, bodies, sampler, average_residual_in_std, acceptance_fractions, body_parameter_names, long_body_parameter_names, ndim, i + p.chunk_size, integrated_autocorrelation_time, 0.68)
             return sampler, theta
 
     @staticmethod
@@ -59,7 +61,8 @@ class CurveSimMCMC:
         return 0
 
     @staticmethod
-    def log_likelihood(theta, theta_references, bodies, time_s0, measured_flux, flux_uncertainty, p):
+    def log_likelihood(theta, theta_references, bodies, time_s0, measured_flux, flux_err, p):
+    # def log_likelihood(theta, theta_references, bodies, time_s0, measured_flux, flux_err, measured_tt, tt_err, measured_rv, rv_err, p):
         """
         theta:
             List containing the current numerical values of the `theta_references` (see below).
@@ -76,9 +79,16 @@ class CurveSimMCMC:
             bodies[body_index].__dict__[parameter_name] = theta[i]  # update all parameters from theta
             i += 1
         sim_flux, _ = bodies.calc_physics(p, time_s0)  # run simulation
-        residuals = (measured_flux - sim_flux) / flux_uncertainty  # residuals are weighted with uncertainty!
-        residuals_phot_sum_squared = np.sum(residuals ** 2)
-        return -0.5 * residuals_phot_sum_squared
+        # sim_flux, sim_tt, sim_rv, _ = bodies.calc_physics(p, time_s0)  # run simulation
+        residuals_flux = (measured_flux - sim_flux) / flux_err  # residuals are weighted with uncertainty!
+        residuals_flux_sum_squared = np.sum(residuals_flux ** 2)
+        # residuals_tt = (measured_tt - sim_tt) / tt_err  # residuals are weighted with uncertainty!
+        # residuals_tt_sum_squared = np.sum(residuals_tt ** 2)
+        # residuals_rv = (measured_rv - sim_rv) / rv_err  # residuals are weighted with uncertainty!
+        # residuals_rv_sum_squared = np.sum(residuals_rv ** 2)
+        # residuals_sum_squared = residuals_flux_sum_squared + residuals_tt_sum_squared + residuals_rv_sum_squared
+        # return -0.5 * residuals_sum_squared
+        return -0.5 * residuals_flux_sum_squared
 
     @staticmethod
     def log_probability(theta, theta_bounds, theta_references, bodies, time_s0, measured_flux, flux_uncertainty, p):
@@ -157,7 +167,8 @@ class CurveSimMCMC:
         log_prob_samples = sampler.get_log_prob(flat=True, discard=p.burn_in, thin=thin_samples)
         max_likelihood_idx = np.argmax(log_prob_samples)
         max_likelihood_params = flat_samples[max_likelihood_idx]
-        return max_likelihood_params
+        max_log_prob = log_prob_samples[max_likelihood_idx]
+        return max_likelihood_params, max_log_prob
 
     @staticmethod
     def mcmc_high_density_intervals(p, flat_samples, max_likelihood_params, credible_mass=0.68):
@@ -211,45 +222,6 @@ class CurveSimMCMC:
             )
             plt.savefig(plot_filename)
             plt.close(fig)
-
-    @staticmethod
-    def mcmc_results2json(results, p):
-        """Converts results to JSON and saves it."""
-        filename = p.fitting_results_directory + f"/mcmc_results.json"
-        with open(filename, "w", encoding='utf8') as file:
-            json.dump(results, file, indent=4, ensure_ascii=False)
-        if p.verbose:
-            print(f" Saved MCMC results to {filename}")
-
-    @staticmethod
-    def save_mcmc_results(p, bodies, steps_done):
-        results = {}
-        results["CurveSimulator Documentation"] = "https://github.com/lichtgestalter/curvesimulator/wiki"
-        results["Simulation Parameters"] = {}
-        results["Simulation Parameters"]["comment"] = p.comment
-        results["Simulation Parameters"]["start_date"] = p.start_date
-        results["Simulation Parameters"]["default_dt"] = p.dt
-        results["Simulation Parameters"]["mcmc walkers"] = p.walkers
-        results["Simulation Parameters"]["mcmc steps"] = steps_done
-        results["Simulation Parameters"]["mcmc burn_in"] = p.burn_in
-        results["Simulation Parameters"]["flux_file"] = p.flux_file
-        results["Simulation Parameters"]["fitting_results_directory"] = p.fitting_results_directory
-        results["Bodies"] = {}
-        params = (["body_type", "primary", "mass", "radius", "luminosity"]
-                  + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
-                  + ["e", "i", "P", "a", "Omega", "Omega_deg", "omega", "omega_deg", "pomega", "pomega_deg"]
-                  + ["L", "L_deg", "ma", "ma_deg", "ea", "ea_deg", "nu", "nu_deg", "T", "t"])
-        fitting_params = [(fp.body_index, fp.parameter_name) for fp in p.fitting_parameters]
-        for i, body in enumerate(bodies):
-            results["Bodies"][body.name] = {}
-            for key in params:
-                if (i, key) not in fitting_params and (i, key.split("_deg")[0]) not in fitting_params:
-                    attr = getattr(body, key)
-                    if attr is not None:
-                        results["Bodies"][body.name][key] = attr
-        results["Fitting Parameters"] = {fp.body_parameter_name: fp.__dict__ for fp in p.fitting_parameters}
-        # results["Fitting Parameters"] = [fp.__dict__ for fp in p.fitting_parameters]
-        CurveSimMCMC.mcmc_results2json(results, p)
 
     @staticmethod
     def autocorrelation_function(long_body_parameter_names, ndim, sampler, plot_filename):
@@ -316,7 +288,72 @@ class CurveSimMCMC:
         plt.close(fig)
 
     @staticmethod
-    def mcmc_results(p, bodies, sampler, acceptance_fractions, body_parameter_names, long_body_parameter_names, ndim, steps_done, integrated_autocorrelation_time, credible_mass=0.68):
+    def average_residual_in_std_plot(p, steps_done, average_residual_in_std, plot_filename):
+        steps = [step for step in range(p.chunk_size, steps_done + 1, p.chunk_size)]
+        # plot steps on the x axis and average_residual_in_std on the y axis
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.plot(steps, average_residual_in_std, marker='o', color='blue', alpha=0.7)
+        ax.set_xlabel('Steps')
+        ax.ticklabel_format(useOffset=False, style='plain', axis='x')  # show x-labels as they are
+        ax.set_title('Average Residual for Max Likelihood Parameters (in Standard Deviations)')
+        plt.tight_layout()
+        plt.savefig(plot_filename)
+        plt.close(fig)
+
+    @staticmethod
+    def average_residual_in_std(p):
+        flux = getattr(p, "total_iterations", 0)
+        rv = getattr(p, "rv_datasize", 0)
+        tt = getattr(p, "tt_datasize", 0)
+        average_residual_in_std = math.sqrt(-2 * p.max_log_prob / (flux + rv + tt))
+        return average_residual_in_std
+
+    @staticmethod
+    def save_mcmc_results(p, bodies, steps_done):
+        results = {}
+        results["CurveSimulator Documentation"] = "https://github.com/lichtgestalter/curvesimulator/wiki"
+        results["Simulation Parameters"] = {}
+        results["Simulation Parameters"]["comment"] = getattr(p, "comment", None)
+        results["Simulation Parameters"]["start_date"] = p.start_date
+        results["Simulation Parameters"]["default_dt"] = p.dt
+        results["Simulation Parameters"]["flux_data_points"] = getattr(p, "total_iterations", None)
+        results["Simulation Parameters"]["mcmc walkers"] = p.walkers
+        results["Simulation Parameters"]["mcmc steps"] = steps_done
+        results["Simulation Parameters"]["mcmc burn_in"] = p.burn_in
+        results["Simulation Parameters"]["thin_samples"] = p.thin_samples
+        results["Simulation Parameters"]["flux_file"] = p.flux_file
+        results["Simulation Parameters"]["max_likelihood_params"] = list(p.max_likelihood_params)
+        results["Simulation Parameters"]["max_log_prob"] = p.max_log_prob
+        results["Simulation Parameters"]["average_residual_in_std"] = CurveSimMCMC.average_residual_in_std(p)
+        results["Simulation Parameters"]["fitting_results_directory"] = p.fitting_results_directory
+        results["Bodies"] = {}
+        params = (["body_type", "primary", "mass", "radius", "luminosity"]
+                  + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
+                  + ["e", "i", "P", "a", "Omega", "Omega_deg", "omega", "omega_deg", "pomega", "pomega_deg"]
+                  + ["L", "L_deg", "ma", "ma_deg", "ea", "ea_deg", "nu", "nu_deg", "T", "t"])
+        fitting_params = [(fp.body_index, fp.parameter_name) for fp in p.fitting_parameters]
+        for i, body in enumerate(bodies):
+            results["Bodies"][body.name] = {}
+            for key in params:
+                if (i, key) not in fitting_params and (i, key.split("_deg")[0]) not in fitting_params:
+                    attr = getattr(body, key)
+                    if attr is not None:
+                        results["Bodies"][body.name][key] = attr
+        results["Fitting Parameters"] = {fp.body_parameter_name: fp.__dict__ for fp in p.fitting_parameters}
+        # results["Fitting Parameters"] = [fp.__dict__ for fp in p.fitting_parameters]
+        CurveSimMCMC.mcmc_results2json(results, p)
+
+    @staticmethod
+    def mcmc_results2json(results, p):
+        """Converts results to JSON and saves it."""
+        filename = p.fitting_results_directory + f"/mcmc_results.json"
+        with open(filename, "w", encoding='utf8') as file:
+            json.dump(results, file, indent=4, ensure_ascii=False)
+        if p.verbose:
+            print(f" Saved MCMC results to {filename}")
+
+    @staticmethod
+    def mcmc_results(p, bodies, sampler, average_residual_in_std, acceptance_fractions, body_parameter_names, long_body_parameter_names, ndim, steps_done, integrated_autocorrelation_time, credible_mass=0.68):
         flat_samples = sampler.get_chain(discard=p.burn_in, thin=p.thin_samples, flat=True)
         # discard the initial p.burn_in steps from each chain to ensure only samples that represent the equilibrium distribution are analyzed.
         # thin=10: keep only every 10th sample from the chain to reduce autocorrelation in the chains and the size of the resulting arrays.
@@ -326,8 +363,10 @@ class CurveSimMCMC:
         CurveSimMCMC.acceptance_fraction_plot(p, steps_done, acceptance_fractions, p.fitting_results_directory + f"/acceptance.png")
         scales, scaled_samples = CurveSimMCMC.scale_samples(p, body_parameter_names, flat_samples)
         CurveSimMCMC.mcmc_trace_plots(long_body_parameter_names, ndim, p, sampler, scales, p.fitting_results_directory + f"/traces.png")
-        max_likelihood_params = CurveSimMCMC.mcmc_max_likelihood_parameters(scaled_samples, p, sampler, p.thin_samples)
-        CurveSimMCMC.mcmc_high_density_intervals(p, scaled_samples, max_likelihood_params, credible_mass)
+        p.max_likelihood_params, p.max_log_prob = CurveSimMCMC.mcmc_max_likelihood_parameters(scaled_samples, p, sampler, p.thin_samples)
+        average_residual_in_std.append(CurveSimMCMC.average_residual_in_std(p))
+        CurveSimMCMC.average_residual_in_std_plot(p, steps_done, average_residual_in_std, p.fitting_results_directory + f"/avg_residual.png")
+        CurveSimMCMC.mcmc_high_density_intervals(p, scaled_samples, p.max_likelihood_params, credible_mass)
 
         integrated_autocorrelation_time.append(list(emcee.autocorr.integrated_time(sampler.get_chain(discard=p.burn_in), quiet=True)))
         CurveSimMCMC.integrated_autocorrelation_time(p, long_body_parameter_names, integrated_autocorrelation_time, steps_done, p.fitting_results_directory + f"/int_autocorr_time.png", p.fitting_results_directory + f"/steps_per_i_ac_time.png")
@@ -336,5 +375,5 @@ class CurveSimMCMC:
         for bins in p.bins:
             CurveSimMCMC.mcmc_histograms(p, scaled_samples, ndim, bins, p.fitting_results_directory + f"/histograms_{bins}.png")
         CurveSimMCMC.save_mcmc_results(p, bodies, steps_done)
-        CurveSimMCMC.mcmc_corner_plot(long_body_parameter_names, scaled_samples, max_likelihood_params, ndim, p.fitting_results_directory + f"/corner.png")
-        return integrated_autocorrelation_time
+        CurveSimMCMC.mcmc_corner_plot(long_body_parameter_names, scaled_samples, p.max_likelihood_params, ndim, p.fitting_results_directory + f"/corner.png")
+        return integrated_autocorrelation_time, average_residual_in_std
