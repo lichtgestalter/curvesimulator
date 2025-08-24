@@ -1,18 +1,15 @@
 Next / in progress:
 0.5.6 Fitting TOI-4504
 
-    binning b:
-        720 ist optimal, aber warum wandert die Delle?
-
-
     Ulis Ideen fuer gut befunden:
-        Planet b: Alle TESS-Daten (ausser den c- und d-Transits) nehmen und damit b fitten.
         probability zusaetzlich (und am Anfang ausschliesslich) aus Abstand zu den gemessenen TT berechnen
             nach _jeder_ Simulation die Transit Times berechnen
             deren Abweichung von den manuell ermittelten Werten als Residuen (schwer) gewichtet in Logprob von MCMC einfliessen lassen
         sim mit den max likelihoods laufen lassen. simflux in plot mit TESSflux vergleichen!!!
         RV, allerdings sind die Messdaten schlecht
 
+    Unterwegs die Groesse der residuals (von max likelihood?) ausdrucken
+    Residuals der max-likelihood in Results abspeichern (bzw. probability)
 
     In mcmc-results zum Kopieren in ein Configfile die Body-Configuration bereitstellen:
           1. mit den mean-Werten
@@ -21,7 +18,6 @@ Next / in progress:
 
     moves in mcmc-result file schreiben
 
-    Unterwegs die Groesse der residuals (von max likelihood?) ausdrucken
 
     MCMC mit 20k Walker, Startwerte ueber sehr grossen Wertebereich fast gleichverteilt
         Andere Moves probieren (Parameter a von Stretching erhoehen brachte erstmal nix)
