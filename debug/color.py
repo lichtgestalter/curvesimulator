@@ -17,3 +17,4 @@ color_names = Fore.BLACK, Fore.RED, Fore.GREEN, Fore.YELLOW, Fore.BLUE, Fore.MAG
 
 for c, cn in zip(colors, color_names):
     print(f"{cn}This is {c}{Style.RESET_ALL}")
+

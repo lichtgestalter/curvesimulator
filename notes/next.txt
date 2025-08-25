@@ -1,26 +1,25 @@
 Next / in progress:
 0.5.6 Fitting TOI-4504
 
-    avg_residual fuer mean, median und mitte von HDI ausrechnen und in result speichern
-    avg_residual in %-Rate getroffener Punkte umrechnen
     Gesamt-Laufzeit des Programms ins Resultfile
+    moves in mcmc-result file schreiben
+    avg_residual fuer mean, median und mitte von HDI ausrechnen und in result speichern
+
+    TT-MCMC !!!
 
 
-    Ulis Ideen fuer gut befunden:
         probability zusaetzlich (und am Anfang ausschliesslich) aus Abstand zu den gemessenen TT berechnen
             nach _jeder_ Simulation die Transit Times berechnen
             deren Abweichung von den manuell ermittelten Werten als Residuen (schwer) gewichtet in Logprob von MCMC einfliessen lassen
         sim mit den max likelihoods laufen lassen. simflux in plot mit TESSflux vergleichen!!!
-        RV, allerdings sind die Messdaten schlecht
+
+    RV-MCMC
 
 
-    In mcmc-results zum Kopieren in ein Configfile die Body-Configuration bereitstellen:
+    In mcmc-results zum Kopieren in ein Configfile die Body-Configuration bereitstellen?
           1. mit den mean-Werten
           2. den max-likelihood Werten
           3. den Median-Werten
-
-    moves in mcmc-result file schreiben
-
 
     MCMC mit 20k Walker, Startwerte ueber sehr grossen Wertebereich fast gleichverteilt
         Andere Moves probieren (Parameter a von Stretching erhoehen brachte erstmal nix)
@@ -33,18 +32,11 @@ Next / in progress:
 
     transit-times results (oder das ganze normale resultfile) als Teil der MCMC-Resultate abspeichern?
 
-    Copy the whole config file into the mcmc result directory?
-
     mcmc objekt abspeichern (pickle?) und spaeter (mit ggf. geandertem python code) fortsetzen
 
     Kompliziertere Fitting-Parameter Bereiche zulassen. Z.B. i in [86;88] oder [92;94]
 
-    Errechnete Standardabweichung der Chain mit sqrt(autocorrelation) multiplizieren?
-
-    MCMC findet eine Inklination von Planet d an T0 nahe bei 90 Grad plausibel?
-        Das koennte ich vielleicht verhindern, indem ich die TESS-Daten der Zeitpunkte, an denen d-Transits waeren, dem Fluxfile hinzufuege.
-
-    Orga/Refactoring:
+    Housekeeping:
         Klasse in flux_data anlegen? (import * ist haesslich)
         Package mal wieder hochladen und mit pip testen.
 

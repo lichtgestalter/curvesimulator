@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 from multiprocessing import Pool
 import numpy as np
 import os
-
+import time
 from curvesimulator.cs_flux_data import csv2df
 
 
@@ -41,6 +41,7 @@ class CurveSimMCMC:
         moves = [(emcee.moves.StretchMove(a=8.0))]  # 32 walkers: a=2 or a=8: after 1800 steps under 9%, a=1: 100%
         moves = [(emcee.moves.StretchMove(a=2.0))]
         acceptance_fractions = []
+        p.start_timestamp = time.perf_counter()
         with Pool() as pool:  # enable multi processing
             sampler = emcee.EnsembleSampler(p.walkers, ndim, CurveSimMCMC.log_probability, pool=pool, moves=moves, args=args)
             integrated_autocorrelation_time = []
@@ -294,7 +295,7 @@ class CurveSimMCMC:
         fig, ax = plt.subplots(figsize=(10, 6))
         ax.plot(steps, average_residual_in_std, marker='o', color='blue', alpha=0.7)
         ax.set_xlabel('Steps')
-        ax.ticklabel_format(useOffset=False, style='plain', axis='x')  # show x-labels as they are
+        ax.ticklabel_format(useOffset=False, style='plain', axis='y')  # show y-labels as they are
         ax.set_title('Average Residual for Max Likelihood Parameters [Standard Deviations]')
         plt.tight_layout()
         plt.savefig(plot_filename)
@@ -307,6 +308,14 @@ class CurveSimMCMC:
         tt = getattr(p, "tt_datasize", 0)
         average_residual_in_std = math.sqrt(-2 * p.max_log_prob / (flux + rv + tt))
         return average_residual_in_std
+
+    @staticmethod
+    def seconds2readable(seconds):
+        days = int(seconds // 86400)
+        hours = int((seconds % 86400) // 3600)
+        minutes = int((seconds % 3600) // 60)
+        secs = seconds % 60
+        return f"{days:02d}:{hours:02d}:{minutes:02d}:{secs:06.0f} [dd:hh:mm:ss]"
 
     @staticmethod
     def save_mcmc_results(p, bodies, steps_done):
@@ -326,6 +335,11 @@ class CurveSimMCMC:
         results["Simulation Parameters"]["max_log_prob"] = p.max_log_prob
         results["Simulation Parameters"]["average_residual_in_std"] = CurveSimMCMC.average_residual_in_std(p)
         results["Simulation Parameters"]["fitting_results_directory"] = p.fitting_results_directory
+        results["Simulation Parameters"]["start_timestamp"] = p.start_timestamp
+        runtime = time.perf_counter() - p.start_timestamp
+        results["Simulation Parameters"]["mcmc_run_time"] = CurveSimMCMC.seconds2readable(runtime)
+        results["Simulation Parameters"]["run_time_per_iteration"] = f"{runtime/steps_done:.3f}"
+
         results["Bodies"] = {}
         params = (["body_type", "primary", "mass", "radius", "luminosity"]
                   + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
