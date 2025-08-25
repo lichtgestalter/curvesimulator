@@ -358,7 +358,6 @@ class CurveSimMCMC:
         # results["Simulation Parameters"]["tt_file"] = p.tt_file
         results["Simulation Parameters"]["max_log_prob"] = p.max_log_prob
         results["Simulation Parameters"]["maxml_avg_residual_in_std"] = CurveSimMCMC.calc_maxml_avg_residual_in_std(p)
-        results["Simulation Parameters"]["max_likelihood_params"] = list(p.max_likelihood_params)
 
         results["Bodies"] = {}
         params = (["body_type", "primary", "mass", "radius", "luminosity"]
