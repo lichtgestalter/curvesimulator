@@ -38,8 +38,8 @@ class CurveSimMCMC:
         theta0 = CurveSimMCMC.random_initial_values(p)
         args = (theta_bounds, theta_references, bodies, time_s0, measured_flux, flux_err, p)
         moves = [eval(p.moves)]
-        acceptance_fractions = []
-        integrated_autocorrelation_time = []
+        p.acceptance_fractions = []
+        p.integrated_autocorrelation_time = []
         p.start_real_time = time.strftime("%d.%m.%y %H:%M:%S")
         p.start_timestamp = time.perf_counter()
         p.maxml_avg_residual_in_std = []
@@ -50,8 +50,8 @@ class CurveSimMCMC:
             theta = sampler.run_mcmc(theta0, p.burn_in, progress=True)
             for i in range(0, p.steps, p.chunk_size):
                 theta = sampler.run_mcmc(theta, p.chunk_size, progress=True)
-                acceptance_fractions.append(sampler.acceptance_fraction)
-                integrated_autocorrelation_time = CurveSimMCMC.mcmc_results(p, bodies, sampler, acceptance_fractions, body_parameter_names, long_body_parameter_names, ndim, i + p.chunk_size, integrated_autocorrelation_time, theta_references, time_s0, measured_flux, flux_err, 0.68)
+                # p.acceptance_fractions.append(sampler.acceptance_fraction)
+                CurveSimMCMC.mcmc_results(p, bodies, sampler, body_parameter_names, long_body_parameter_names, ndim, i + p.chunk_size, theta_references, time_s0, measured_flux, flux_err, 0.68)
             return sampler, theta
 
     @staticmethod
@@ -256,8 +256,8 @@ class CurveSimMCMC:
         plt.close(fig)
 
     @staticmethod
-    def integrated_autocorrelation_time(p, long_body_parameter_names, integrated_autocorrelation_time, steps_done, plot_filename1, plot_filename2):
-        integrated_autocorrelation_time = np.array(integrated_autocorrelation_time).T
+    def integrated_autocorrelation_time_plot(p, long_body_parameter_names, steps_done, plot_filename1, plot_filename2):
+        integrated_autocorrelation_time = np.array(p.integrated_autocorrelation_time).T
         steps = [step for step in range(p.chunk_size, steps_done + 1, p.chunk_size)]
         fig, ax = plt.subplots(figsize=(10, 6))
         colors = plt.cm.tab20.colors  # 20 distinct colors
@@ -287,8 +287,8 @@ class CurveSimMCMC:
         plt.close(fig)
 
     @staticmethod
-    def acceptance_fraction_plot(p, steps_done, acceptance_fractions, plot_filename):
-        acceptance_fractions_array = np.stack(acceptance_fractions, axis=0).T  # shape: (num_lines, 32)
+    def acceptance_fraction_plot(p, steps_done, plot_filename):
+        acceptance_fractions_array = np.stack(p.acceptance_fractions, axis=0).T  # shape: (num_lines, 32)
         steps = [step for step in range(p.chunk_size, steps_done + 1, p.chunk_size)]
         fig, ax = plt.subplots(figsize=(10, 6))
         for i in range(acceptance_fractions_array.shape[0]):
@@ -387,16 +387,20 @@ class CurveSimMCMC:
             print(f" Saved MCMC results to {filename}")
 
     @staticmethod
-    def mcmc_results(p, bodies, sampler, acceptance_fractions, body_parameter_names, long_body_parameter_names, ndim, steps_done, integrated_autocorrelation_time, theta_references, time_s0, measured_flux, flux_err, credible_mass=0.68):
+    def mcmc_results(p, bodies, sampler, body_parameter_names, long_body_parameter_names, ndim, steps_done, theta_references, time_s0, measured_flux, flux_err, credible_mass=0.68):
         flat_samples = sampler.get_chain(discard=p.burn_in, thin=p.thin_samples, flat=True)
         # discard the initial p.burn_in steps from each chain to ensure only samples that represent the equilibrium distribution are analyzed.
         # thin=10: keep only every 10th sample from the chain to reduce autocorrelation in the chains and the size of the resulting arrays.
         # flat=True: return all chains in a single, two-dimensional array (shape: (n_samples, n_parameters))
-        print(f"{steps_done} steps done.  ", end="")
+        print(f"{steps_done} steps done.  ")
 
-        CurveSimMCMC.acceptance_fraction_plot(p, steps_done, acceptance_fractions, p.fitting_results_directory + f"/acceptance.png")
+        p.acceptance_fractions.append(sampler.acceptance_fraction)
+        CurveSimMCMC.acceptance_fraction_plot(p, steps_done, p.fitting_results_directory + f"/acceptance.png")
+
         scales, scaled_samples = CurveSimMCMC.scale_samples(p, body_parameter_names, flat_samples)
+
         CurveSimMCMC.mcmc_trace_plots(long_body_parameter_names, ndim, p, sampler, scales, p.fitting_results_directory + f"/traces.png")
+
         p.max_likelihood_params, p.max_log_prob = CurveSimMCMC.mcmc_max_likelihood_parameters(scaled_samples, p, sampler, p.thin_samples)
         p.maxml_avg_residual_in_std.append(CurveSimMCMC.calc_maxml_avg_residual_in_std(p))
 
@@ -404,18 +408,16 @@ class CurveSimMCMC:
 
         median_residuals_flux_sum_squared = CurveSimMCMC.residuals_flux_sum_squared(p.median_params, theta_references, bodies, time_s0, measured_flux, flux_err, p)
         mean_residuals_flux_sum_squared = CurveSimMCMC.residuals_flux_sum_squared(p.mean_params, theta_references, bodies, time_s0, measured_flux, flux_err, p)
-        flux = getattr(p, "total_iterations", 0)
-        p.mean_avg_residual_in_std.append(math.sqrt(mean_residuals_flux_sum_squared / flux))
-        p.median_avg_residual_in_std.append(math.sqrt(median_residuals_flux_sum_squared / flux))
-
+        flux_data_points = getattr(p, "total_iterations", 0)
+        p.mean_avg_residual_in_std.append(math.sqrt(mean_residuals_flux_sum_squared / flux_data_points))
+        p.median_avg_residual_in_std.append(math.sqrt(median_residuals_flux_sum_squared / flux_data_points))
         CurveSimMCMC.average_residual_in_std_plot(p, steps_done, p.fitting_results_directory + f"/avg_residual.png")
 
-        integrated_autocorrelation_time.append(list(emcee.autocorr.integrated_time(sampler.get_chain(discard=p.burn_in), quiet=True)))
-        CurveSimMCMC.integrated_autocorrelation_time(p, long_body_parameter_names, integrated_autocorrelation_time, steps_done, p.fitting_results_directory + f"/int_autocorr_time.png", p.fitting_results_directory + f"/steps_per_i_ac_time.png")
+        p.integrated_autocorrelation_time.append(list(emcee.autocorr.integrated_time(sampler.get_chain(discard=p.burn_in), quiet=True)))
+        CurveSimMCMC.integrated_autocorrelation_time_plot(p, long_body_parameter_names, steps_done, p.fitting_results_directory + f"/int_autocorr_time.png", p.fitting_results_directory + f"/steps_per_i_ac_time.png")
         CurveSimMCMC.autocorrelation_function(p, long_body_parameter_names, ndim, sampler, p.fitting_results_directory + f"/autocorrelation.png")
 
         for bins in p.bins:
             CurveSimMCMC.mcmc_histograms(p, scaled_samples, ndim, bins, p.fitting_results_directory + f"/histograms_{bins}.png")
         CurveSimMCMC.save_mcmc_results(p, bodies, steps_done)
         CurveSimMCMC.mcmc_corner_plot(long_body_parameter_names, scaled_samples, p.max_likelihood_params, ndim, p.fitting_results_directory + f"/corner.png")
-        return integrated_autocorrelation_time
