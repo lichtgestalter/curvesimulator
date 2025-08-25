@@ -3,7 +3,7 @@
 # curvesim("../configurations/MyFirstConfigFile.ini")
 #
 #
-# Long version:
+# Long version :
 # from curvesimulator import curvesim
 #
 # def main():
