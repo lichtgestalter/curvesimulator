@@ -41,6 +41,7 @@ class CurveSimMCMC:
         moves = [(emcee.moves.StretchMove(a=8.0))]  # 32 walkers: a=2 or a=8: after 1800 steps under 9%, a=1: 100%
         moves = [(emcee.moves.StretchMove(a=2.0))]
         acceptance_fractions = []
+        p.start_real_time = time.strftime("%d.%m.%y %H:%M:%S")
         p.start_timestamp = time.perf_counter()
         with Pool() as pool:  # enable multi processing
             sampler = emcee.EnsembleSampler(p.walkers, ndim, CurveSimMCMC.log_probability, pool=pool, moves=moves, args=args)
@@ -157,7 +158,7 @@ class CurveSimMCMC:
         for chain, ax, name, scale in zip(chains, axes, long_body_parameter_names, scales):
             ax.plot(chain * scale, color='black', alpha=0.05)
             ax.set_ylabel(name)
-            ax.set_xlabel("Step")
+            ax.set_xlabel("Steps including Burn in (red line)")
             ax.axvline(p.burn_in, color="red", linestyle="solid", label="Burn in")
         plt.tight_layout()
         plt.savefig(plot_filename)
@@ -225,7 +226,7 @@ class CurveSimMCMC:
             plt.close(fig)
 
     @staticmethod
-    def autocorrelation_function(long_body_parameter_names, ndim, sampler, plot_filename):
+    def autocorrelation_function(p, long_body_parameter_names, ndim, sampler, plot_filename):
         samples = sampler.get_chain(discard=0, flat=False)  # shape: (steps, walkers, ndim)
         nwalkers = samples.shape[1]
         fig, axes = plt.subplots(ndim, figsize=(10, ndim * 2), sharex=True)
@@ -234,6 +235,8 @@ class CurveSimMCMC:
             axes = [axes]
         for dim, param_name in zip(range(ndim), long_body_parameter_names):
             ax = axes[dim]
+            ax.set_xlabel("Steps including Burn in (red line)")
+            ax.axvline(p.burn_in, color="red", linestyle="solid", label="Burn in")
             for walker in range(nwalkers):
                 chain_1d = samples[:, walker, dim]
                 ac = emcee.autocorr.function_1d(chain_1d)
@@ -254,7 +257,7 @@ class CurveSimMCMC:
             color = colors[idx % len(colors)]
             linestyle = linestyles[idx % len(linestyles)]
             ax.plot(steps, autocorr_times, label=fpn, color=color, linestyle=linestyle)
-        ax.set_xlabel("Steps")
+        ax.set_xlabel("Steps after Burn in")
         ax.set_title("Integrated Autocorrelation Time per Dimension")
         ax.legend(loc="upper left")
         plt.tight_layout()
@@ -267,7 +270,7 @@ class CurveSimMCMC:
             color = colors[idx % len(colors)]
             linestyle = linestyles[idx % len(linestyles)]
             ax.plot(steps, autocorr_times, label=fpn, color=color, linestyle=linestyle)
-        ax.set_xlabel("Steps")
+        ax.set_xlabel("Steps after Burn in")
         ax.set_title("Steps divided by Integrated Autocorrelation Time per Dimension")
         ax.legend(loc="upper left")
         plt.tight_layout()
@@ -281,7 +284,7 @@ class CurveSimMCMC:
         fig, ax = plt.subplots(figsize=(10, 6))
         for i in range(acceptance_fractions_array.shape[0]):
             ax.plot(steps, acceptance_fractions_array[i], label=f'Line {i + 1}', color='green', alpha=0.15)
-        ax.set_xlabel('Steps')
+        ax.set_xlabel('Steps after Burn in')
         ax.set_ylabel('Acceptance Fraction')
         ax.set_title('Acceptance Fraction per Walker')
         plt.tight_layout()
@@ -294,7 +297,7 @@ class CurveSimMCMC:
         # plot steps on the x axis and average_residual_in_std on the y axis
         fig, ax = plt.subplots(figsize=(10, 6))
         ax.plot(steps, average_residual_in_std, marker='o', color='blue', alpha=0.7)
-        ax.set_xlabel('Steps')
+        ax.set_xlabel('Steps after Burn in')
         ax.ticklabel_format(useOffset=False, style='plain', axis='y')  # show y-labels as they are
         ax.set_title('Average Residual for Max Likelihood Parameters [Standard Deviations]')
         plt.tight_layout()
@@ -315,7 +318,7 @@ class CurveSimMCMC:
         hours = int((seconds % 86400) // 3600)
         minutes = int((seconds % 3600) // 60)
         secs = seconds % 60
-        return f"{days:02d}:{hours:02d}:{minutes:02d}:{secs:06.0f} [dd:hh:mm:ss]"
+        return f"{days:02d}:{hours:02d}:{minutes:02d}:{secs:02.0f} [dd:hh:mm:ss]"
 
     @staticmethod
     def save_mcmc_results(p, bodies, steps_done):
@@ -335,10 +338,12 @@ class CurveSimMCMC:
         results["Simulation Parameters"]["max_log_prob"] = p.max_log_prob
         results["Simulation Parameters"]["average_residual_in_std"] = CurveSimMCMC.average_residual_in_std(p)
         results["Simulation Parameters"]["fitting_results_directory"] = p.fitting_results_directory
-        results["Simulation Parameters"]["start_timestamp"] = p.start_timestamp
+        results["Simulation Parameters"]["mcmc_start_realtime"] = p.start_real_time + " [DD.MM.YY hh:mm:ss]"
+        results["Simulation Parameters"]["mcmc_end_realtime"] = time.strftime("%d.%m.%y %H:%M:%S") + " [DD.MM.YY hh:mm:ss]"
         runtime = time.perf_counter() - p.start_timestamp
         results["Simulation Parameters"]["mcmc_run_time"] = CurveSimMCMC.seconds2readable(runtime)
-        results["Simulation Parameters"]["run_time_per_iteration"] = f"{runtime/steps_done:.3f}"
+        results["Simulation Parameters"]["run_time_per_iteration"] = f"{runtime / (p.burn_in + steps_done):.3f} [s]"
+        results["Simulation Parameters"]["simulations_per_second"] = f"{(p.burn_in + steps_done) * p.walkers / runtime :.3f} [iterations*walkers/runtime]"
 
         results["Bodies"] = {}
         params = (["body_type", "primary", "mass", "radius", "luminosity"]
@@ -384,7 +389,7 @@ class CurveSimMCMC:
 
         integrated_autocorrelation_time.append(list(emcee.autocorr.integrated_time(sampler.get_chain(discard=p.burn_in), quiet=True)))
         CurveSimMCMC.integrated_autocorrelation_time(p, long_body_parameter_names, integrated_autocorrelation_time, steps_done, p.fitting_results_directory + f"/int_autocorr_time.png", p.fitting_results_directory + f"/steps_per_i_ac_time.png")
-        CurveSimMCMC.autocorrelation_function(long_body_parameter_names, ndim, sampler, p.fitting_results_directory + f"/autocorrelation.png")
+        CurveSimMCMC.autocorrelation_function(p, long_body_parameter_names, ndim, sampler, p.fitting_results_directory + f"/autocorrelation.png")
 
         for bins in p.bins:
             CurveSimMCMC.mcmc_histograms(p, scaled_samples, ndim, bins, p.fitting_results_directory + f"/histograms_{bins}.png")
