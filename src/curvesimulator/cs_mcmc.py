@@ -295,7 +295,7 @@ class CurveSimMCMC:
         ax.plot(steps, average_residual_in_std, marker='o', color='blue', alpha=0.7)
         ax.set_xlabel('Steps')
         ax.ticklabel_format(useOffset=False, style='plain', axis='x')  # show x-labels as they are
-        ax.set_title('Average Residual for Max Likelihood Parameters (in Standard Deviations)')
+        ax.set_title('Average Residual for Max Likelihood Parameters [Standard Deviations]')
         plt.tight_layout()
         plt.savefig(plot_filename)
         plt.close(fig)
