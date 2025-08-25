@@ -5,7 +5,7 @@
         "start_date": 2458400,
         "default_dt": 10000,
         "mcmc walkers": 500,
-        "mcmc steps": 16000,
+        "mcmc steps": 42000,
         "mcmc burn_in": 1000,
         "flux_file": "../data/TOI-4504/TOI4504_b_transits_bin1200_27til94.csv",
         "fitting_results_directory": "../results/mcmc/0000"
@@ -87,12 +87,12 @@
             "sigma": 5.972000000000001e+25,
             "body_parameter_name": "TOI-4504b.mass",
             "long_body_parameter_name": "TOI-4504b.mass [m_earth]",
-            "hdi_min": 6.886562364923721,
-            "hdi_max": 19.7630074542071,
-            "std": 5.479356165861209,
-            "mean": 10.512409106900591,
-            "median": 10.532048093431406,
-            "max_likelihood": 1.9380883789597942
+            "hdi_min": 3.2830314730445,
+            "hdi_max": 16.178937744351252,
+            "std": 5.481674856136071,
+            "mean": 10.490541076304018,
+            "median": 10.48218939583609,
+            "max_likelihood": 15.209891268314086
         },
         "TOI-4504b.radius": {
             "body_index": 1,
@@ -106,12 +106,12 @@
             "sigma": 12756270.0,
             "body_parameter_name": "TOI-4504b.radius",
             "long_body_parameter_name": "TOI-4504b.radius [r_earth]",
-            "hdi_min": 1.8543615039512584,
-            "hdi_max": 3.563798009835981,
-            "std": 0.7783182443320946,
-            "mean": 2.4965037856782555,
-            "median": 2.5741818455303953,
-            "max_likelihood": 3.8864222823202597
+            "hdi_min": 1.850449575787132,
+            "hdi_max": 3.5591310712598183,
+            "std": 0.7780774699012283,
+            "mean": 2.4960246428063018,
+            "median": 2.574219662201681,
+            "max_likelihood": 3.9288143592628173
         },
         "TOI-4504b.i": {
             "body_index": 1,
@@ -125,12 +125,12 @@
             "sigma": 0.026179938779914945,
             "body_parameter_name": "TOI-4504b.i",
             "long_body_parameter_name": "TOI-4504b.i [deg]",
-            "hdi_min": 85.97765538034469,
-            "hdi_max": 86.9601962665355,
-            "std": 0.5001179179013004,
-            "mean": 86.53160034166068,
-            "median": 86.5026046704638,
-            "max_likelihood": 86.05074252855646
+            "hdi_min": 85.98538499849649,
+            "hdi_max": 86.96847419544093,
+            "std": 0.5005363490480663,
+            "mean": 86.53223413287006,
+            "median": 86.50327120422642,
+            "max_likelihood": 86.06664307498012
         },
         "TOI-4504b.P": {
             "body_index": 1,
@@ -144,12 +144,12 @@
             "sigma": 4.32,
             "body_parameter_name": "TOI-4504b.P",
             "long_body_parameter_name": "TOI-4504b.P [d]",
-            "hdi_min": 2.426147262649873,
-            "hdi_max": 2.4261588090744715,
-            "std": 5.7918517487904785e-06,
-            "mean": 2.426152627688941,
-            "median": 2.4261526650632774,
-            "max_likelihood": 2.42614423633519
+            "hdi_min": 2.4261473665025397,
+            "hdi_max": 2.4261588618547316,
+            "std": 5.77809122066427e-06,
+            "mean": 2.426152631397127,
+            "median": 2.4261526752655533,
+            "max_likelihood": 2.4261441308982006
         },
         "TOI-4504b.ma": {
             "body_index": 1,
@@ -163,12 +163,12 @@
             "sigma": 0.017453292519943295,
             "body_parameter_name": "TOI-4504b.ma",
             "long_body_parameter_name": "TOI-4504b.ma [deg]",
-            "hdi_min": 302.96047960664606,
-            "hdi_max": 304.24853636358836,
-            "std": 0.6448787451463034,
-            "mean": 303.60381478919123,
-            "median": 303.6373021276937,
-            "max_likelihood": 302.5933425070824
+            "hdi_min": 302.9602831290007,
+            "hdi_max": 304.24173553552225,
+            "std": 0.6428460150716814,
+            "mean": 303.6039894192707,
+            "median": 303.63656798666153,
+            "max_likelihood": 302.58623609728863
         }
     }
 }
