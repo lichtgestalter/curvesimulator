@@ -110,6 +110,7 @@ class CurveSimParameters:
                 self.find_fitting_results_subdirectory()
             self.walkers = int(eval(config.get("Fitting", "walkers", fallback="32")))
             self.steps = int(eval(config.get("Fitting", "steps", fallback="10000")))
+            self.moves = config.get("Fitting", "moves", fallback="None")
             self.burn_in = int(eval(config.get("Fitting", "burn_in", fallback="500")))
             self.chunk_size = int(eval(config.get("Fitting", "chunk_size", fallback="500")))
             self.bins = tuple([eval(x) for x in config.get("Fitting", "bins", fallback="30").split("#")[0].split(",")])
