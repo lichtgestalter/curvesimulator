@@ -50,7 +50,6 @@ class CurveSimMCMC:
             theta = sampler.run_mcmc(theta0, p.burn_in, progress=True)
             for i in range(0, p.steps, p.chunk_size):
                 theta = sampler.run_mcmc(theta, p.chunk_size, progress=True)
-                # p.acceptance_fractions.append(sampler.acceptance_fraction)
                 CurveSimMCMC.mcmc_results(p, bodies, sampler, body_parameter_names, long_body_parameter_names, ndim, i + p.chunk_size, theta_references, time_s0, measured_flux, flux_err, 0.68)
             return sampler, theta
 
