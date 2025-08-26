@@ -4,6 +4,7 @@ import math
 import matplotlib
 import matplotlib.animation
 import numpy as np
+import pandas
 import rebound
 import sys
 import time
@@ -90,7 +91,7 @@ class CurveSimBodies(list):
             print(f"using Rebound integrator {simulation.integrator}:", end="")
         if star_count == 0:
             print(f"{Fore.RED}ERROR: No body in config file has body type star.{Style.RESET_ALL}")
-            exit(1)
+            sys.exit(1)
         i = 0
         for body in self[0:1]:  # hack debug: works only when the first body is the only star and all other bodies are orbiting this star (no binary, no moons, ...)
             simulation.add(m=body.mass, r=body.radius, hash=body.name)
@@ -369,3 +370,31 @@ class CurveSimBodies(list):
                                     results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["depth"] = depth
 
         return results
+
+
+    def find_primary_tt(self, rebound_sim, p, sim_flux, time_s0, time_d):
+        tts = []
+        rebound_sim.dt = p.result_dt
+        for start_index, end_index, dt in zip(p.start_indices[:-1], p.start_indices[1:], p.dts):
+            for i in range(start_index, end_index):
+
+                for potential_eclipser in p.eclipsers:
+                    for potential_eclipsee in p.eclipsees:
+                        if (potential_eclipser.positions[i][0] - potential_eclipsee.positions[i][0]) * (potential_eclipser.positions[i-1][0] - potential_eclipsee.positions[i-1][0]) <= 0:  # transit between i-1 and i?
+                            d = CurveSimPhysics.distance_2d(potential_eclipser, potential_eclipsee, i)
+                            if d < potential_eclipser.radius + potential_eclipsee.radius:  # close enough for eclipse?
+                                if potential_eclipser.positions[i][2] > potential_eclipsee.positions[i][2]:  # who eclipses whom?
+                                    eclipser, eclipsee = potential_eclipser, potential_eclipsee
+                                else:
+                                    eclipser, eclipsee = potential_eclipsee, potential_eclipser
+                                tt, b, depth = eclipsee.find_tt(eclipser, i-1, rebound_sim, p, sim_flux, time_s0, time_d, start_index, end_index, dt)
+                                tts.append([eclipser.name, eclipsee.name, tt])
+        # convert tts into a pandas Dataframe with columns eclipser, eclipsee, tt
+        return tts
+
+
+# class TT:
+#     def __init__(self, eclipser, eclipsee, tt):
+#         self.eclipser = eclipser
+#         self.eclipsee = eclipsee
+#         self.tt = tt

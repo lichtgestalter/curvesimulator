@@ -4,6 +4,7 @@ import matplotlib
 import matplotlib.pyplot as plt  # from matplotlib import pyplot as plt
 import numpy as np
 import shutil
+import sys
 import time
 
 class CurveSimAnimation:
@@ -25,7 +26,7 @@ class CurveSimAnimation:
             print(f"{Fore.RED}ERROR: ffmpeg is not available. Please install ffmpeg to save the video.")
             print("Visit ffmpeg.org to download an executable version.")
             print(f"Extract the zip file and add the bin directory to your system's PATH environment variable.{Style.RESET_ALL}")
-            exit(1)
+            sys.exit(1)
 
     @staticmethod
     def tic_delta(scope):

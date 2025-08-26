@@ -1,6 +1,9 @@
 Next / in progress:
 0.5.6 Fitting TOI-4504
 
+
+    weiter in curve_sim.py Zeile 16
+
     TT-MCMC !!!
         probability zusaetzlich (und am Anfang ausschliesslich) aus Abstand zu den gemessenen TT berechnen
             nach _jeder_ Simulation die Transit Times berechnen

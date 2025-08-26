@@ -144,14 +144,14 @@ class CurveSimParameters:
         for start, end in zip(self.starts_d, self.ends_d):
             if start > end:
                 print(f"{Fore.RED}ERROR in parameters starts/ends: One interval ends before it begins.{Style.RESET_ALL}")
-                exit(1)
+                sys.exit(1)
         for nextstart, end in zip(self.starts_d[1:], self.ends_d[:-1]):
             if end > nextstart:
                 print(f"{Fore.RED}ERROR in parameters starts/ends: One interval starts before its predecessor ends.{Style.RESET_ALL}")
-                exit(1)
+                sys.exit(1)
         if self.start_date > self.starts_d[0]:
             print(f"{Fore.RED}ERROR in parameter starts: First interval starts before the simulation's start_date.{Style.RESET_ALL}")
-            exit(1)
+            sys.exit(1)
         self.starts_s0 = (self.starts_d - self.start_date) * self.day  # convert BJD to seconds and start at zero
         self.ends_s0 = (self.ends_d - self.start_date) * self.day  # convert BJD to seconds and start at zero
         max_iterations = [int((end - start) / dt) + 1 for start, end, dt in zip(self.starts_s0, self.ends_s0, self.dts)]  # each interval's number of iterations
@@ -266,7 +266,7 @@ class CurveSimParameters:
         next_subdirectory = 0
         while next_subdirectory in existing_subdirectories:
             next_subdirectory += 1
-        self.fitting_results_directory = self.fitting_results_directory + f"/{next_subdirectory:04d}"
+        self.fitting_results_directory = self.fitting_results_directory + f"/{next_subdirectory:04d}/"
         os.makedirs(self.fitting_results_directory)
 
 class FittingParameter:
