@@ -116,6 +116,11 @@ class CurveSimMCMC:
         sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # run simulation
         bodies.find_primary_tt(rebound_sim, p, sim_flux, time_s0, time_d)
         residuals_tt_sum_squared = 0
+
+        #######################################################################################
+        ################ Hier fehlt noch die Logik zum Errechnen der Residuals  ###############
+        #######################################################################################
+
         # residuals_tt = (measured_tt - sim_tt) / tt_err  # residuals are weighted with uncertainty!
         # residuals_tt_sum_squared = np.sum(residuals_tt ** 2)
         return residuals_tt_sum_squared
@@ -139,6 +144,13 @@ class CurveSimMCMC:
         p.total_iterations = len(time_s0)
         time_d = time_s0 / p.day + p.start_date
         return time_s0, time_d, measured_flux, flux_err
+
+    @staticmethod
+    def get_measured_tt(p):
+        #######################################################################################
+        ################ Hier fehlt noch das Einlesen der TT. In einen df?      ###############
+        #######################################################################################
+        0
 
     def random_initial_values(self):
         """return randomized initial values of the fitting parameters"""

@@ -5,27 +5,27 @@ Next / in progress:
     weiter in curve_sim.py Zeile 16
 
     TT-MCMC !!!
+        zunaechst nur moeglich nach TT ODER flux zu fitten
+
         probability zusaetzlich (und am Anfang ausschliesslich) aus Abstand zu den gemessenen TT berechnen
             nach _jeder_ Simulation die Transit Times berechnen
             deren Abweichung von den manuell ermittelten Werten als Residuen (schwer) gewichtet in Logprob von MCMC einfliessen lassen
         sim mit den max likelihoods laufen lassen. simflux in plot mit TESSflux vergleichen!!!
 
     RV-MCMC
+        zunaechst nur moeglich nach TT ODER flux ODER RV zu fitten
 
 
-    In mcmc-results zum Kopieren in ein Configfile die Body-Configuration bereitstellen?
-          1. mit den mean-Werten
-          2. den max-likelihood Werten
-          3. den Median-Werten
 
-    MCMC mit 20k Walker, Startwerte ueber sehr grossen Wertebereich fast gleichverteilt
-        Andere Moves probieren (Parameter a von Stretching erhoehen brachte erstmal nix)
 
     Bei lokalen Minima:
         Separate MCMC-Laeufe mit stark eingeschraenktem lower-upper-Intervall?
 
     Nach jedem Chunk 5 Sekunden Zeit, aus einem Menue auszuwaehlen, sonst laueft der naechste Chunk
         Eine Option: Erstelle Video/Resultfile/Simflux fuer die aktuelle max likelihood
+
+    MCMC mit 20k Walker, Startwerte ueber sehr grossen Wertebereich fast gleichverteilt
+        Andere Moves probieren (Parameter a von Stretching erhoehen brachte erstmal nix)
 
     transit-times results (oder das ganze normale resultfile) als Teil der MCMC-Resultate abspeichern?
 

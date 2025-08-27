@@ -11,11 +11,7 @@ class CurveSimulator:
         if p.verbose:
             print(p)
         if p.flux_file or p.tt_file:  # run mcmc?
-            measured_flux, flux_uncertainty, measured_tt = None, None, None
-
-            hier weiter
-
-
+            measured_flux, flux_uncertainty, measured_tt, time_s0, time_d = None, None, None, None, None
             if p.flux_file:
                 time_s0, time_d, measured_flux, flux_uncertainty = CurveSimMCMC.get_measured_flux(p)
             elif p.tt_file:

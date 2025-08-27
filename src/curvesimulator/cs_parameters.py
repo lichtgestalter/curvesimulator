@@ -108,6 +108,14 @@ class CurveSimParameters:
                 self.fitting_results_directory = None
             if self.fitting_results_directory is not None:
                 self.find_fitting_results_subdirectory()
+            self.tt_file = config.get("Fitting", "tt_file", fallback="None")
+            if self.tt_file == "None":
+                self.tt_file = None
+            self.rv_file = config.get("Firving", "rv_file", fallback="None")
+            if self.rv_file == "None":
+                self.rv_file = None
+
+
             self.walkers = int(eval(config.get("Fitting", "walkers", fallback="32")))
             self.steps = int(eval(config.get("Fitting", "steps", fallback="10000")))
             self.moves = config.get("Fitting", "moves", fallback="None")
