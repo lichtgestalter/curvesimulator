@@ -109,21 +109,30 @@ class CurveSimMCMC:
 
     @staticmethod
     def residuals_tt_sum_squared(theta, theta_references, bodies, time_s0, time_d, measured_tt, p):
+        # measured_tt: pandas DataFrame with columns eclipser, tt, tt_err
         i = 0
         for body_index, parameter_name in theta_references:
             bodies[body_index].__dict__[parameter_name] = theta[i]  # update all parameters from theta
             i += 1
         sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # run simulation
-        bodies.find_primary_tt(rebound_sim, p, sim_flux, time_s0, time_d)
-        residuals_tt_sum_squared = 0
-
-        #######################################################################################
-        ################ Hier fehlt noch die Logik zum Errechnen der Residuals  ###############
-        #######################################################################################
-
-        # residuals_tt = (measured_tt - sim_tt) / tt_err  # residuals are weighted with uncertainty!
-        # residuals_tt_sum_squared = np.sum(residuals_tt ** 2)
+        sim_tt = bodies.find_tts(rebound_sim, p, sim_flux, time_s0, time_d)  # list of tuples (eclipser, eclipsee, tt)
+        nearest_sim_tt = []
+        for idx, row in measured_tt.iterrows():
+            eclipser = row["eclipser"]
+            measured_tt_val = row["tt"]
+            # Filter sim_tt for matching eclipser
+            sim_tt_filtered = [tt for tt in sim_tt if tt[0] == eclipser]
+            if sim_tt_filtered:
+                # Find sim_tt with minimal |measured_tt - sim_tt|
+                closest_tt = min(sim_tt_filtered, key=lambda x: abs(x[2] - measured_tt_val))
+                nearest_sim_tt.append(closest_tt[2])
+            else:
+                nearest_sim_tt.append(np.nan)  # No match found
+        measured_tt["nearest_sim"] = nearest_sim_tt
+        residuals_tt = (measured_tt["tt"] - measured_tt["nearest_sim"]) / measured_tt["tt_err"]  # residuals are weighted with uncertainty!
+        residuals_tt_sum_squared = np.sum(residuals_tt ** 2)
         return residuals_tt_sum_squared
+
 
     @staticmethod
     def log_probability(theta, theta_bounds, theta_references, bodies, time_s0, measured_flux, flux_err, measured_tt, p):
@@ -147,10 +156,8 @@ class CurveSimMCMC:
 
     @staticmethod
     def get_measured_tt(p):
-        #######################################################################################
-        ################ Hier fehlt noch das Einlesen der TT. In einen df?      ###############
-        #######################################################################################
-        0
+        df = csv2df(p.tt_file)
+        return df
 
     def random_initial_values(self):
         """return randomized initial values of the fitting parameters"""

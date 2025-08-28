@@ -372,7 +372,7 @@ class CurveSimBodies(list):
         return results
 
 
-    def find_primary_tt(self, rebound_sim, p, sim_flux, time_s0, time_d):
+    def find_tts(self, rebound_sim, p, sim_flux, time_s0, time_d):
         tts = []
         rebound_sim.dt = p.result_dt
         for start_index, end_index, dt in zip(p.start_indices[:-1], p.start_indices[1:], p.dts):

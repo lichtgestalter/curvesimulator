@@ -2,7 +2,8 @@ Next / in progress:
 0.5.6 Fitting TOI-4504
 
 
-    weiter in curve_sim.py Zeile 16
+    In mcmc Results: Max likelihood simflux vs measure flux plotten. Oder direkt nur die Residuen plotten.
+
 
     TT-MCMC !!!
         zunaechst nur moeglich nach TT ODER flux zu fitten
@@ -16,7 +17,9 @@ Next / in progress:
         zunaechst nur moeglich nach TT ODER flux ODER RV zu fitten
 
 
-
+    Testen ob Performance besser, wenn bodies.find_tts einen Dataframe returniert
+    und CurveSimMCMC.residuals_tt_sum_squared entsprechend angepasst wird.
+    (Vermutlich nicht schneller, aber etwas eleganter?)
 
     Bei lokalen Minima:
         Separate MCMC-Laeufe mit stark eingeschraenktem lower-upper-Intervall?
