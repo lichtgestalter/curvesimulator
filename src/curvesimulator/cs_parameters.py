@@ -52,9 +52,14 @@ class CurveSimParameters:
         self.flux_file = config.get("Fitting", "flux_file", fallback="None")
         if self.flux_file == "None":
             self.flux_file = None
+        self.tt_file = config.get("Fitting", "tt_file", fallback="None")
+        if self.tt_file == "None":
+            self.tt_file = None
+        self.rv_file = config.get("Fitting", "rv_file", fallback="None")
+        if self.rv_file == "None":
+            self.rv_file = None
 
-        if self.flux_file is None:  # run simulation, generate video and transit results
-
+        if self.flux_file is None and self.tt_file is None and self.rv_file is None:  # run simulation, generate video and transit results
             # [Results]
             self.result_file = config.get("Results", "result_file", fallback="None")
             if self.result_file == "None":
@@ -108,14 +113,16 @@ class CurveSimParameters:
                 self.fitting_results_directory = None
             if self.fitting_results_directory is not None:
                 self.find_fitting_results_subdirectory()
-            self.tt_file = config.get("Fitting", "tt_file", fallback="None")
-            if self.tt_file == "None":
-                self.tt_file = None
-            self.rv_file = config.get("Firving", "rv_file", fallback="None")
-            if self.rv_file == "None":
-                self.rv_file = None
+            if self.tt_file:
+                self.starts_d = np.array(eval(config.get("Simulation", "starts", fallback="[]")))
+                self.ends_d = np.array(eval(config.get("Simulation", "ends", fallback="[]")))
+                self.dts = np.array(eval(config.get("Simulation", "dts", fallback="[]")))
+                self.start_indices, self.max_iterations, self.total_iterations = self.check_intervals()
+                # self.sampling_rate = (self.total_iterations - 1) // self.frames + 1
 
 
+            self.flux_weight = int(eval(config.get("Fitting", "flux_weight", fallback="1")))
+            self.tt_weight = int(eval(config.get("Fitting", "tt_weight", fallback="1")))
             self.walkers = int(eval(config.get("Fitting", "walkers", fallback="32")))
             self.steps = int(eval(config.get("Fitting", "steps", fallback="10000")))
             self.moves = config.get("Fitting", "moves", fallback="None")

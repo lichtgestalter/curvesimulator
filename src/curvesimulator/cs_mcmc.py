@@ -135,11 +135,11 @@ class CurveSimMCMC:
 
 
     @staticmethod
-    def log_probability(theta, theta_bounds, theta_references, bodies, time_s0, measured_flux, flux_err, measured_tt, p):
+    def log_probability(theta, theta_bounds, theta_references, bodies, time_s0, time_d, measured_flux, flux_err, measured_tt, p):
         lp = CurveSimMCMC.log_prior(theta, theta_bounds)
         if not np.isfinite(lp):
             return -np.inf
-        return lp + CurveSimMCMC.log_likelihood(theta, theta_references, bodies, time_s0, measured_flux, flux_err, measured_tt, p)
+        return lp + CurveSimMCMC.log_likelihood(theta, theta_references, bodies, time_s0, time_d, measured_flux, flux_err, measured_tt, p)
 
     @staticmethod
     def get_measured_flux(p):
@@ -157,7 +157,11 @@ class CurveSimMCMC:
     @staticmethod
     def get_measured_tt(p):
         df = csv2df(p.tt_file)
-        return df
+        df = df[df["tt"] >= p.start_date]
+        time_d = np.array(df["tt"])
+        time_s0 = (time_d - p.start_date) * p.day
+        return time_s0, time_d, df
+
 
     def random_initial_values(self):
         """return randomized initial values of the fitting parameters"""

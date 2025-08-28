@@ -71,7 +71,7 @@ class CurveSimBodies(list):
                                          t=               p.read_param(config, section, "t", fallback="0.0"),
                                          ))
         self.check_body_parameters()
-        if p.flux_file is None:
+        if p.flux_file is None and p.tt_file is None and p.rv_file is None:
             self.generate_patches(p)
 
     def __repr__(self):
@@ -116,7 +116,7 @@ class CurveSimBodies(list):
             simulation.add(**kwargs)
             i += 1
         simulation.move_to_com()  # move origin to center of mass before integrating -> better numerical stability
-        if p.flux_file is None:  # does not seem to help for MCMC, but is a good choice when creating a result file including transit times
+        if p.flux_file is None and p.tt_file is None and p.rv_file is None:  # does not seem to help for MCMC, but is a good choice when creating a result file including transit times
             if p.result_file:
                 simulation.ri_whfast.safe_mode = 0  # see https://rebound.readthedocs.io/en/latest/ipython_examples/AdvWHFast/
                 simulation.ri_whfast.corrector = 11  # hopefully more accurate

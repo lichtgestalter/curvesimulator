@@ -1,17 +1,19 @@
 Next / in progress:
 0.5.6 Fitting TOI-4504
 
+    TT-MCMC
+        es ist kompliziert: Parameter wie total_iterations werden fuer die simulation des flux benutzt
+        aber es wird auch vorausgesetzt, dass time_d und time_s0 die entsprechende Laenge haben
+        die enthalten aber nur die paar TT.
+        Vielleicht sollten die Anzahl TT extra Attribute time_d_tt und time_s0_tt kriegen
+            Beispiel fuer Problem: self.start_indices, self.max_iterations, self.total_iterations = self.check_intervals()
+
+        zunaechst nur moeglich nach TT ODER flux zu fitten
+        spaeter gerne auch in Kombination
+
 
     In mcmc Results: Max likelihood simflux vs measure flux plotten. Oder direkt nur die Residuen plotten.
 
-
-    TT-MCMC !!!
-        zunaechst nur moeglich nach TT ODER flux zu fitten
-
-        probability zusaetzlich (und am Anfang ausschliesslich) aus Abstand zu den gemessenen TT berechnen
-            nach _jeder_ Simulation die Transit Times berechnen
-            deren Abweichung von den manuell ermittelten Werten als Residuen (schwer) gewichtet in Logprob von MCMC einfliessen lassen
-        sim mit den max likelihoods laufen lassen. simflux in plot mit TESSflux vergleichen!!!
 
     RV-MCMC
         zunaechst nur moeglich nach TT ODER flux ODER RV zu fitten
