@@ -15,15 +15,15 @@ from curvesimulator.cs_flux_data import csv2df
 
 class CurveSimMCMC:
 
-    def __init__(self, p, bodies, time_s0, time_d, measured_flux, flux_err, measured_tt):
+    def __init__(self, p, bodies, time_s0, time_d, measured_flux, flux_err, tt_s0, tt_d, measured_tt):
         os.environ["OMP_NUM_THREADS"] = "1"
         # Some builds of NumPy automatically parallelize some operations.
         # This can cause problems when multi processing inside emcee is enabled.
         # Turn that off by setting the environment variable OMP_NUM_THREADS=1.
 
-        # if not (p.flux_file or p.tt_file or p.rv_file):
-        #     print(f"{Fore.RED}ERROR: No measurements for fitting hve been provided.{Style.RESET_ALL}")
-        #     sys.exit(1)
+        if not (p.flux_file or p.tt_file or p.rv_file):
+            print(f"{Fore.RED}ERROR: No measurements for fitting hve been provided.{Style.RESET_ALL}")
+            sys.exit(1)
         self.fitting_results_directory = p.fitting_results_directory
         self.fitting_parameters = p.fitting_parameters
         self.moves = p.moves
@@ -45,7 +45,7 @@ class CurveSimMCMC:
         self.theta_bounds = [(fp.lower, fp.upper) for fp in self.fitting_parameters]
         self.ndim = len(self.theta_references)
         self.theta0 = self.random_initial_values()
-        self.args = (self.theta_bounds, self.theta_references, bodies, time_s0, time_d, measured_flux, flux_err, measured_tt, p)
+        self.args = (self.theta_bounds, self.theta_references, bodies, time_s0, time_d, measured_flux, flux_err, tt_s0, tt_d, measured_tt, p)
         self.moves = [eval(self.moves)]
         self.acceptance_fractions = []
         self.integrated_autocorrelation_time = []
@@ -62,8 +62,14 @@ class CurveSimMCMC:
                 self.results(p, bodies, steps_done, time_s0, measured_flux, flux_err)
 
     def __repr__(self):
-        string = ""
-        return string
+        return f"CurveSimMCMC with {self.walkers} walkers."
+
+    @staticmethod
+    def log_probability(theta, theta_bounds, theta_references, bodies, time_s0, time_d, measured_flux, flux_err, tt_s0, tt_d, measured_tt, p):
+        lp = CurveSimMCMC.log_prior(theta, theta_bounds)
+        if not np.isfinite(lp):
+            return -np.inf
+        return lp + CurveSimMCMC.log_likelihood(theta, theta_references, bodies, time_s0, time_d, measured_flux, flux_err, tt_s0, tt_d, measured_tt, p)
 
     @staticmethod
     def log_prior(theta, theta_bounds):
@@ -74,7 +80,7 @@ class CurveSimMCMC:
         return 0
 
     @staticmethod
-    def log_likelihood(theta, theta_references, bodies, time_s0, time_d, measured_flux, flux_err, measured_tt, p):
+    def log_likelihood(theta, theta_references, bodies, time_s0, time_d, measured_flux, flux_err, tt_s0, tt_d, measured_tt, p):
     # def log_likelihood(theta, theta_references, bodies, time_s0, measured_flux, flux_err, measured_tt, tt_err, measured_rv, rv_err, p):
         """
         theta:
@@ -91,7 +97,7 @@ class CurveSimMCMC:
         if p.flux_file:
             residuals_sum_squared += p.flux_weight * CurveSimMCMC.residuals_flux_sum_squared(theta, theta_references, bodies, time_s0, measured_flux, flux_err, p)
         if p.tt_file:
-            residuals_sum_squared += p.tt_weight * CurveSimMCMC.residuals_tt_sum_squared(theta, theta_references, bodies, time_s0, time_d, measured_tt, p)
+            residuals_sum_squared += p.tt_weight * CurveSimMCMC.residuals_tt_sum_squared(theta, theta_references, bodies, time_s0, time_d, tt_s0, tt_d, measured_tt, p)
         # if p.rv_file:
         #     residuals_sum_squared += p.rv_weight * CurveSimMCMC.residuals_rv_sum_squared(theta, theta_references, bodies, time_s0, time_d, measured_flux, flux_err, p)
         return -0.5 * residuals_sum_squared
@@ -108,14 +114,14 @@ class CurveSimMCMC:
         return residuals_flux_sum_squared
 
     @staticmethod
-    def residuals_tt_sum_squared(theta, theta_references, bodies, time_s0, time_d, measured_tt, p):
+    def residuals_tt_sum_squared(theta, theta_references, bodies, time_s0, time_d, tt_s0, tt_d, measured_tt, p):
         # measured_tt: pandas DataFrame with columns eclipser, tt, tt_err
         i = 0
         for body_index, parameter_name in theta_references:
             bodies[body_index].__dict__[parameter_name] = theta[i]  # update all parameters from theta
             i += 1
         sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # run simulation
-        sim_tt = bodies.find_tts(rebound_sim, p, sim_flux, time_s0, time_d)  # list of tuples (eclipser, eclipsee, tt)
+        sim_tt = bodies.find_tts(rebound_sim, p, sim_flux, time_s0, time_d)  # sim_tt is a list of tuples (eclipser, eclipsee, tt)
         nearest_sim_tt = []
         for idx, row in measured_tt.iterrows():
             eclipser = row["eclipser"]
@@ -132,14 +138,6 @@ class CurveSimMCMC:
         residuals_tt = (measured_tt["tt"] - measured_tt["nearest_sim"]) / measured_tt["tt_err"]  # residuals are weighted with uncertainty!
         residuals_tt_sum_squared = np.sum(residuals_tt ** 2)
         return residuals_tt_sum_squared
-
-
-    @staticmethod
-    def log_probability(theta, theta_bounds, theta_references, bodies, time_s0, time_d, measured_flux, flux_err, measured_tt, p):
-        lp = CurveSimMCMC.log_prior(theta, theta_bounds)
-        if not np.isfinite(lp):
-            return -np.inf
-        return lp + CurveSimMCMC.log_likelihood(theta, theta_references, bodies, time_s0, time_d, measured_flux, flux_err, measured_tt, p)
 
     @staticmethod
     def get_measured_flux(p):
@@ -158,17 +156,9 @@ class CurveSimMCMC:
     def get_measured_tt(p):
         df = csv2df(p.tt_file)
         df = df[df["tt"] >= p.start_date]
-        time_d = np.array(df["tt"])
-        time_s0 = (time_d - p.start_date) * p.day
-        return time_s0, time_d, df
-
-
-    def random_initial_values(self):
-        """return randomized initial values of the fitting parameters"""
-        rng = np.random.default_rng()  # init random number generator
-        initial_values = [fp.initial_values(rng, self.walkers) for fp in self.fitting_parameters]
-        theta0 = np.array(initial_values)
-        return theta0.T
+        tt_d = np.array(df["tt"])
+        tt_s0 = (tt_d - p.start_date) * p.day
+        return tt_s0, tt_d, df
 
     @staticmethod
     def hdi_std_mean(data, credible_mass=0.68):
@@ -189,6 +179,13 @@ class CurveSimMCMC:
         mean = np.mean(data)
         median = np.median(data)
         return hdi_min, hdi_max, std, mean, median
+
+    def random_initial_values(self):
+        """return randomized initial values of the fitting parameters"""
+        rng = np.random.default_rng()  # init random number generator
+        initial_values = [fp.initial_values(rng, self.walkers) for fp in self.fitting_parameters]
+        theta0 = np.array(initial_values)
+        return theta0.T
 
     def scale_samples(self, flat_samples):
         self.scaled_samples = np.copy(flat_samples)

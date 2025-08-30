@@ -11,13 +11,14 @@ class CurveSimulator:
         if p.verbose:
             print(p)
         if p.flux_file or p.tt_file:  # run mcmc?
-            measured_flux, flux_uncertainty, measured_tt, time_s0, time_d = None, None, None, None, None
+            measured_flux, flux_uncertainty, measured_tt, time_s0, time_d, tt_s0, tt_d = (None,) * 7
             if p.flux_file:
                 time_s0, time_d, measured_flux, flux_uncertainty = CurveSimMCMC.get_measured_flux(p)
             elif p.tt_file:
-                time_s0, time_d, measured_tt = CurveSimMCMC.get_measured_tt(p)
+                hier time_s0, time_d initialisieren
+                tt_s0, tt_d, measured_tt = CurveSimMCMC.get_measured_tt(p)
             bodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
-            mcmc = CurveSimMCMC(p, bodies, time_s0, time_d, measured_flux, flux_uncertainty, measured_tt)
+            mcmc = CurveSimMCMC(p, bodies, time_s0, time_d, measured_flux, flux_uncertainty, tt_s0, tt_d, measured_tt)
             self.sampler = mcmc.sampler  # mcmc object
             self.theta = mcmc.theta  # current state of mcmc chains
             # By saving sampler and theta it is possible to continue the mcmc later on

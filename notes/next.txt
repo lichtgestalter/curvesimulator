@@ -8,9 +8,11 @@ Next / in progress:
         Vielleicht sollten die Anzahl TT extra Attribute time_d_tt und time_s0_tt kriegen
             Beispiel fuer Problem: self.start_indices, self.max_iterations, self.total_iterations = self.check_intervals()
 
+        find_tts:
+            # convert tts into a pandas Dataframe with columns eclipser, eclipsee, tt
+
         zunaechst nur moeglich nach TT ODER flux zu fitten
         spaeter gerne auch in Kombination
-
 
     In mcmc Results: Max likelihood simflux vs measure flux plotten. Oder direkt nur die Residuen plotten.
 

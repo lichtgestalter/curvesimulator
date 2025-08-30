@@ -377,7 +377,6 @@ class CurveSimBodies(list):
         rebound_sim.dt = p.result_dt
         for start_index, end_index, dt in zip(p.start_indices[:-1], p.start_indices[1:], p.dts):
             for i in range(start_index, end_index):
-
                 for potential_eclipser in p.eclipsers:
                     for potential_eclipsee in p.eclipsees:
                         if (potential_eclipser.positions[i][0] - potential_eclipsee.positions[i][0]) * (potential_eclipser.positions[i-1][0] - potential_eclipsee.positions[i-1][0]) <= 0:  # transit between i-1 and i?
@@ -385,10 +384,8 @@ class CurveSimBodies(list):
                             if d < potential_eclipser.radius + potential_eclipsee.radius:  # close enough for eclipse?
                                 if potential_eclipser.positions[i][2] > potential_eclipsee.positions[i][2]:  # who eclipses whom?
                                     eclipser, eclipsee = potential_eclipser, potential_eclipsee
-                                else:
-                                    eclipser, eclipsee = potential_eclipsee, potential_eclipser
-                                tt, b, depth = eclipsee.find_tt(eclipser, i-1, rebound_sim, p, sim_flux, time_s0, time_d, start_index, end_index, dt)
-                                tts.append([eclipser.name, eclipsee.name, tt])
+                                    tt, b, depth = eclipsee.find_tt(eclipser, i-1, rebound_sim, p, sim_flux, time_s0, time_d, start_index, end_index, dt)
+                                    tts.append([eclipser.name, eclipsee.name, tt])
         # convert tts into a pandas Dataframe with columns eclipser, eclipsee, tt
         return tts
 
