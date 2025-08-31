@@ -97,7 +97,7 @@ class CurveSimMCMC:
         if p.flux_file:
             residuals_sum_squared += p.flux_weight * CurveSimMCMC.residuals_flux_sum_squared(theta, theta_references, bodies, time_s0, measured_flux, flux_err, p)
         if p.tt_file:
-            residuals_sum_squared += p.tt_weight * CurveSimMCMC.residuals_tt_sum_squared(theta, theta_references, bodies, time_s0, time_d, tt_s0, tt_d, measured_tt, p)
+            residuals_sum_squared += p.tt_weight * CurveSimMCMC.residuals_tt_sum_squared_simple(theta, theta_references, bodies, time_s0, p)
         # if p.rv_file:
         #     residuals_sum_squared += p.rv_weight * CurveSimMCMC.residuals_rv_sum_squared(theta, theta_references, bodies, time_s0, time_d, measured_flux, flux_err, p)
         return -0.5 * residuals_sum_squared
@@ -136,6 +136,22 @@ class CurveSimMCMC:
                 nearest_sim_tt.append(np.nan)  # No match found
         measured_tt["nearest_sim"] = nearest_sim_tt
         residuals_tt = (measured_tt["tt"] - measured_tt["nearest_sim"]) / measured_tt["tt_err"]  # residuals are weighted with uncertainty!
+        residuals_tt_sum_squared = np.sum(residuals_tt ** 2)
+        return residuals_tt_sum_squared
+
+    @staticmethod
+    def residuals_tt_sum_squared_simple(theta, theta_references, bodies, time_s0, p):
+        """Useful when the config file values of starts and ends are
+        chosen so that all simulated flux should be inside transits.
+         In that case it is sufficient to merely compare all simulated
+         flux to the target flux, which is a single value of about the flux at TT """
+        i = 0
+        for body_index, parameter_name in theta_references:
+            bodies[body_index].__dict__[parameter_name] = theta[i]  # update all parameters from theta
+            i += 1
+        sim_flux, _ = bodies.calc_physics(p, time_s0)  # run simulation
+
+        residuals_tt = sim_flux - p.target_flux
         residuals_tt_sum_squared = np.sum(residuals_tt ** 2)
         return residuals_tt_sum_squared
 
@@ -337,13 +353,14 @@ class CurveSimMCMC:
         plt.savefig(plot_filename)
         plt.close(fig)
 
-    def average_residual_in_std_plot(self, steps_done, plot_filename):
+    def average_residual_in_std_plot(self, p, steps_done, plot_filename):
         plot_filename = self.fitting_results_directory + plot_filename
         steps = [step for step in range(self.chunk_size, steps_done + 1, self.chunk_size)]
         fig, ax = plt.subplots(figsize=(10, 6))
         ax.plot(steps, self.max_likelihood_avg_residual_in_std, label="Max Likelihood Parameters", marker='o', color='red', alpha=0.7)
-        ax.plot(steps, self.median_avg_residual_in_std, label="Median Parameters", marker='o', color='blue', alpha=0.7)
-        ax.plot(steps, self.mean_avg_residual_in_std, label="Mean Parameters", marker='o', color='black', alpha=0.7)
+        if p.flux_file:
+            ax.plot(steps, self.median_avg_residual_in_std, label="Median Parameters", marker='o', color='blue', alpha=0.7)
+            ax.plot(steps, self.mean_avg_residual_in_std, label="Mean Parameters", marker='o', color='black', alpha=0.7)
         ax.set_xlabel('Steps after Burn in')
         ax.ticklabel_format(useOffset=False, style='plain', axis='y')  # show y-labels as they are
         ax.set_title('Average Residual [Standard Deviations]')
@@ -372,12 +389,14 @@ class CurveSimMCMC:
         results["CurveSimulator Documentation"] = "https://github.com/lichtgestalter/curvesimulator/wiki"
         results["Simulation Parameters"] = {}
         results["Simulation Parameters"]["comment"] = getattr(p, "comment", None)
+
         results["Simulation Parameters"]["start_realtime"] = self.start_real_time + " [DD.MM.YY hh:mm:ss]"
         results["Simulation Parameters"]["end_realtime"] = time.strftime("%d.%m.%y %H:%M:%S") + " [DD.MM.YY hh:mm:ss]"
         runtime = time.perf_counter() - self.start_timestamp
         results["Simulation Parameters"]["run_time"] = CurveSimMCMC.seconds2readable(runtime)
         results["Simulation Parameters"]["run_time_per_iteration"] = f"{runtime / (self.burn_in + steps_done):.3f} [s]"
         results["Simulation Parameters"]["simulations_per_second"] = f"{(self.burn_in + steps_done) * self.walkers / runtime :.3f} [iterations*walkers/runtime]"
+
         results["Simulation Parameters"]["fitting_results_directory"] = self.fitting_results_directory
         results["Simulation Parameters"]["start_date"] = p.start_date
         results["Simulation Parameters"]["default_dt"] = p.dt
@@ -387,19 +406,24 @@ class CurveSimMCMC:
         results["Simulation Parameters"]["steps_after_burn_in"] = steps_done
         results["Simulation Parameters"]["moves"] = p.moves
         results["Simulation Parameters"]["thin_samples"] = self.thin_samples
-        results["Simulation Parameters"]["flux_file"] = p.flux_file
-        # results["Simulation Parameters"]["rv_file"] = p.rv_file
-        # results["Simulation Parameters"]["tt_file"] = p.tt_file
+
+        if p.flux_file:
+            results["Simulation Parameters"]["flux_file"] = p.flux_file
+            results["Simulation Parameters"]["mean_avg_residual_in_std"] = self.mean_avg_residual_in_std[-1]
+            results["Simulation Parameters"]["median_avg_residual_in_std"] = self.median_avg_residual_in_std[-1]
+        if p.flux_file:
+            results["Simulation Parameters"]["tt_file"] = p.tt_file
+            # results["Simulation Parameters"]["rv_file"] = p.rv_file
+
         results["Simulation Parameters"]["max_log_prob"] = self.max_log_prob
         results["Simulation Parameters"]["max_likelihood_avg_residual_in_std"] = self.max_likelihood_avg_residual_in_std[-1]
-        results["Simulation Parameters"]["mean_avg_residual_in_std"] = self.mean_avg_residual_in_std[-1]
-        results["Simulation Parameters"]["median_avg_residual_in_std"] = self.median_avg_residual_in_std[-1]
 
         results["Bodies"] = {}
         params = (["body_type", "primary", "mass", "radius", "luminosity"]
                   + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
                   + ["e", "i", "P", "a", "Omega", "Omega_deg", "omega", "omega_deg", "pomega", "pomega_deg"]
                   + ["L", "L_deg", "ma", "ma_deg", "ea", "ea_deg", "nu", "nu_deg", "T", "t"])
+
         fitting_params = [(fp.body_index, fp.parameter_name) for fp in self.fitting_parameters]
         for i, body in enumerate(bodies):
             results["Bodies"][body.name] = {}
@@ -434,12 +458,13 @@ class CurveSimMCMC:
         self.calc_maxlikelihood_avg_residual_in_std(p)
         self.high_density_intervals()
 
-        median_residuals_flux_sum_squared = CurveSimMCMC.residuals_flux_sum_squared(self.median_params, self.theta_references, bodies, time_s0, measured_flux, flux_err, p)
-        mean_residuals_flux_sum_squared = CurveSimMCMC.residuals_flux_sum_squared(self.mean_params, self.theta_references, bodies, time_s0, measured_flux, flux_err, p)
-        flux_data_points = getattr(p, "total_iterations", 0)
-        self.mean_avg_residual_in_std.append(math.sqrt(mean_residuals_flux_sum_squared / flux_data_points))
-        self.median_avg_residual_in_std.append(math.sqrt(median_residuals_flux_sum_squared / flux_data_points))
-        self.average_residual_in_std_plot(steps_done, "avg_residual.png")
+        if p.flux_file:
+            median_residuals_flux_sum_squared = CurveSimMCMC.residuals_flux_sum_squared(self.median_params, self.theta_references, bodies, time_s0, measured_flux, flux_err, p)
+            mean_residuals_flux_sum_squared = CurveSimMCMC.residuals_flux_sum_squared(self.mean_params, self.theta_references, bodies, time_s0, measured_flux, flux_err, p)
+            flux_data_points = getattr(p, "total_iterations", 0)
+            self.mean_avg_residual_in_std.append(math.sqrt(mean_residuals_flux_sum_squared / flux_data_points))
+            self.median_avg_residual_in_std.append(math.sqrt(median_residuals_flux_sum_squared / flux_data_points))
+        self.average_residual_in_std_plot(p, steps_done, "avg_residual.png")
 
         self.integrated_autocorrelation_time.append(list(emcee.autocorr.integrated_time(self.sampler.get_chain(discard=self.burn_in), quiet=True)))
         self.integrated_autocorrelation_time_plot(steps_done, "int_autocorr_time.png", "steps_per_i_ac_time.png")

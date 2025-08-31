@@ -127,6 +127,7 @@ class CurveSimParameters:
             self.walkers = int(eval(config.get("Fitting", "walkers", fallback="32")))
             self.eclipsers = list([x for x in config.get("Fitting", "eclipsers", fallback="None").split("#")[0].split(",")])
             self.eclipsees = list([x for x in config.get("Fitting", "eclipsees", fallback="None").split("#")[0].split(",")])
+            self.target_flux = eval(config.get("Fitting", "target_flux", fallback="None"))
             self.steps = int(eval(config.get("Fitting", "steps", fallback="10000")))
             self.moves = config.get("Fitting", "moves", fallback="None")
             self.burn_in = int(eval(config.get("Fitting", "burn_in", fallback="500")))
@@ -286,6 +287,16 @@ class CurveSimParameters:
             next_subdirectory += 1
         self.fitting_results_directory = self.fitting_results_directory + f"/{next_subdirectory:04d}/"
         os.makedirs(self.fitting_results_directory)
+
+    def bodynames2bodies(self, bodies):
+        eclipsers, eclipsees = [], []
+        for body in bodies:
+            if body.name in self.eclipsers:
+                eclipsers.append(body)
+            if body.name in self.eclipsees:
+                eclipsees.append(body)
+        self.eclipsers, self.eclipsees = eclipsers, eclipsees
+
 
 class FittingParameter:
     def __init__(self, p, body_index, parameter_name, startvalue, lower, upper, sigma):

@@ -73,6 +73,8 @@ class CurveSimBodies(list):
         self.check_body_parameters()
         if p.flux_file is None and p.tt_file is None and p.rv_file is None:
             self.generate_patches(p)
+        if p.tt_file is not None:
+            p.bodynames2bodies(self)
 
     def __repr__(self):
         names = "CurveSimBodies: "
