@@ -15,14 +15,14 @@ class CurveSimulator:
             if p.flux_file:
                 time_s0, time_d, measured_flux, flux_uncertainty = CurveSimMCMC.get_measured_flux(p)
             elif p.tt_file:
-                hier time_s0, time_d initialisieren
+                time_s0, time_d = CurveSimParameters.init_time_arrays(p)  # s0 in seconds, starting at 0. d in BJD.
                 tt_s0, tt_d, measured_tt = CurveSimMCMC.get_measured_tt(p)
             bodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
             mcmc = CurveSimMCMC(p, bodies, time_s0, time_d, measured_flux, flux_uncertainty, tt_s0, tt_d, measured_tt)
             self.sampler = mcmc.sampler  # mcmc object
             self.theta = mcmc.theta  # current state of mcmc chains
             # By saving sampler and theta it is possible to continue the mcmc later on
-        else:
+        else:  # run a single simulation
             time_s0, time_d = CurveSimParameters.init_time_arrays(p)  # s0 in seconds, starting at 0. d in BJD.
             bodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
             sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # Calculate all body positions and the resulting lightcurve

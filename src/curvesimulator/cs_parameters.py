@@ -59,17 +59,18 @@ class CurveSimParameters:
         if self.rv_file == "None":
             self.rv_file = None
 
-        if self.flux_file is None and self.tt_file is None and self.rv_file is None:  # run simulation, generate video and transit results
-            # [Results]
-            self.result_file = config.get("Results", "result_file", fallback="None")
-            if self.result_file == "None":
-                self.result_file = None
-            self.result_dt = eval(config.get("Results", "result_dt", fallback="100"))
+        # [Results]
+        self.result_file = config.get("Results", "result_file", fallback="None")
+        if self.result_file == "None":
+            self.result_file = None
+        self.result_dt = eval(config.get("Results", "result_dt", fallback="100"))
 
-            # [Simulation]
-            self.starts_d = np.array(eval(config.get("Simulation", "starts", fallback="[]")))
-            self.ends_d = np.array(eval(config.get("Simulation", "ends", fallback="[]")))
-            self.dts = np.array(eval(config.get("Simulation", "dts", fallback="[]")))
+        # [Simulation]
+        self.starts_d = np.array(eval(config.get("Simulation", "starts", fallback="[]")))
+        self.ends_d = np.array(eval(config.get("Simulation", "ends", fallback="[]")))
+        self.dts = np.array(eval(config.get("Simulation", "dts", fallback="[]")))
+
+        if self.flux_file is None and self.tt_file is None and self.rv_file is None:  # run simulation, generate video and transit results
             self.sim_flux_file = config.get("Simulation", "sim_flux_file", fallback="None")
             if self.sim_flux_file == "None":
                 self.sim_flux_file = None
@@ -124,6 +125,8 @@ class CurveSimParameters:
             self.flux_weight = int(eval(config.get("Fitting", "flux_weight", fallback="1")))
             self.tt_weight = int(eval(config.get("Fitting", "tt_weight", fallback="1")))
             self.walkers = int(eval(config.get("Fitting", "walkers", fallback="32")))
+            self.eclipsers = list([x for x in config.get("Fitting", "eclipsers", fallback="None").split("#")[0].split(",")])
+            self.eclipsees = list([x for x in config.get("Fitting", "eclipsees", fallback="None").split("#")[0].split(",")])
             self.steps = int(eval(config.get("Fitting", "steps", fallback="10000")))
             self.moves = config.get("Fitting", "moves", fallback="None")
             self.burn_in = int(eval(config.get("Fitting", "burn_in", fallback="500")))
