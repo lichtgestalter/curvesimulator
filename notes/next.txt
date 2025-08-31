@@ -2,12 +2,6 @@ Next / in progress:
 0.5.6 Fitting TOI-4504
 
     TT-MCMC
-        es ist kompliziert: Parameter wie total_iterations werden fuer die simulation des flux benutzt
-        aber es wird auch vorausgesetzt, dass time_d und time_s0 die entsprechende Laenge haben
-        die enthalten aber nur die paar TT.
-        Vielleicht sollten die Anzahl TT extra Attribute time_d_tt und time_s0_tt kriegen
-            Beispiel fuer Problem: self.start_indices, self.max_iterations, self.total_iterations = self.check_intervals()
-
         find_tts:
             # convert tts into a pandas Dataframe with columns eclipser, eclipsee, tt
 
