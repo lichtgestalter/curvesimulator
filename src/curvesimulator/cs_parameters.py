@@ -119,7 +119,7 @@ class CurveSimParameters:
                 self.ends_d = np.array(eval(config.get("Simulation", "ends", fallback="[]")))
                 self.dts = np.array(eval(config.get("Simulation", "dts", fallback="[]")))
                 self.start_indices, self.max_iterations, self.total_iterations = self.check_intervals()
-                # self.sampling_rate = (self.total_iterations - 1) // self.frames + 1
+                self.best_residuals_tt_sum_squared = 1e99
 
 
             self.flux_weight = int(eval(config.get("Fitting", "flux_weight", fallback="1")))
