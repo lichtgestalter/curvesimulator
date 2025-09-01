@@ -308,7 +308,7 @@ class CurveSimBody:
         rebound_sim.integrate(time_s0[iteration + 1])
         t_right = rebound_sim.t
         dx_right = eclipser.x - eclipsee.x
-        counter = 0
+        intervall_extensions = 0
         while dx_left * dx_right >= 0:  # dx per definition 0 at TT. If dx_left and dx_right have the same sign due to numeric instability in rebound, enlarge the search interval.
             t_left -= dt
             t_right += dt
@@ -318,11 +318,11 @@ class CurveSimBody:
             rebound_sim.integrate(t_right)
             t_right = rebound_sim.t
             dx_right = eclipser.x - eclipsee.x
-            counter += 1
-        if counter > 0:
+            intervall_extensions += 1
+        if intervall_extensions > 0 and p.verbose:
             print(f"{Fore.YELLOW}WARNING in function find_tt: Rebound integration results are possibly not accurate enough.")
             print(f"Try again with half the overall iteration time step parameter 'dt'.{Style.RESET_ALL}   ", end="")
-            print(f"{iteration=}   {counter=}")
+            print(f"{iteration=}   {intervall_extensions=}")
         if dx_left * dx_right < 0 and eclipser.z >= eclipsee.z:  # sign of dx changed and eclipser in front of eclipsee
             while t_right - t_left > 1e-2:  # bisect until desired precision reached
                 t_middle = (t_right + t_left) / 2
