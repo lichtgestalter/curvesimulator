@@ -3,7 +3,13 @@ Next / in progress:
 
     welche der Auswertungen sind langsam? Diese seltener machen?
 
+
     TT-MCMC
+
+        Eine Simulation laufen lassen. Deren entsprechende 12 c und 3 d Transits in tt_sim.csv
+        speichern und mcmc darauf laufen lassen.
+        Wenn das konvergiert, sehe ich das als endgueltigen Beweis fuer Planet e!!!
+
         find_tts:
             # convert tts into a pandas Dataframe with columns eclipser, eclipsee, tt
 
@@ -50,6 +56,11 @@ Programming Hinter MCMC-Integration zurueckgestellt:
 
     Irrelevante Attribute aus den Bodies entfernen, bevor Result-JSON gespeichert wird
     BUG! Ich speichere fuer den Stern ueberfluessige Parameter mit falschen Werten ab? Z.B. e und i.
+
+    Warnung unterdruecken??? Nervt jedenfalls waehrend mcmc
+    Vielleicht ist die Loesung auch, einen eigenen mcmc Fortschrittscounter zu machen
+        WARNING in function find_tt: Rebound integration results are possibly not accurate enough.
+        Try again with half the overall iteration time step parameter 'dt'.
 
     Im Config file steuern, ob Histogramm densities und bin_edges im MCMC-Result-JSON gespeichert werden sollen
         Ist derzeit auskommentiert in mcmc_histograms()

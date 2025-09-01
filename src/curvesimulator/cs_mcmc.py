@@ -133,13 +133,14 @@ class CurveSimMCMC:
                 nearest_sim_tt.append(closest_tt[2])
             else:
                 nearest_sim_tt.append(0)  # No match found
-        measured_tt["nearest_sim"] = nearest_sim_tt   # add this column to data frame
-        residuals_tt = (measured_tt["tt"] - measured_tt["nearest_sim"]) / measured_tt["tt_err"]  # residuals are weighted with uncertainty!
+        measured_tt["nearest_sim"] = nearest_sim_tt   # add 2 columns to data frame
+        measured_tt["delta"] = measured_tt["nearest_sim"] - measured_tt["tt"]
+        residuals_tt = measured_tt["delta"] / measured_tt["tt_err"]  # residuals are weighted with uncertainty!
         residuals_tt_sum_squared = np.sum(residuals_tt ** 2)
-        if residuals_tt_sum_squared < p.best_residuals_tt_sum_squared:
-            p.best_residuals_tt_sum_squared = residuals_tt_sum_squared
-            p.best_tt_df = measured_tt.copy()
-            print(p.best_tt_df)
+        # if residuals_tt_sum_squared < p.best_residuals_tt_sum_squared:
+        #     p.best_residuals_tt_sum_squared = residuals_tt_sum_squared
+            # p.best_tt_df = measured_tt.copy()
+            # print(p.best_tt_df)
         return residuals_tt_sum_squared
 
     @staticmethod
@@ -177,6 +178,7 @@ class CurveSimMCMC:
         df = df[df["tt"] >= p.start_date]
         tt_d = np.array(df["tt"])
         tt_s0 = (tt_d - p.start_date) * p.day
+        p.tt_datasize = len(tt_d)
         return tt_s0, tt_d, df
 
     @staticmethod
@@ -373,9 +375,13 @@ class CurveSimMCMC:
         plt.close(fig)
 
     def calc_maxlikelihood_avg_residual_in_std(self, p):
-        flux = getattr(p, "total_iterations", 0)
-        rv = getattr(p, "rv_datasize", 0)
-        tt = getattr(p, "tt_datasize", 0)
+        flux, rv, tt = 0, 0, 0
+        if p.flux_file:
+            flux = getattr(p, "total_iterations", 0)
+        if p.rv_file:
+            rv = getattr(p, "rv_datasize", 0)
+        if p.tt_file:
+            tt = getattr(p, "tt_datasize", 0)
         maxlikelihood_avg_residual_in_std = math.sqrt(-2 * self.max_log_prob / (flux + rv + tt))
         self.max_likelihood_avg_residual_in_std.append(maxlikelihood_avg_residual_in_std)
 
@@ -417,9 +423,9 @@ class CurveSimMCMC:
         if p.flux_file:
             results["Simulation Parameters"]["tt_file"] = p.tt_file
             # results["Simulation Parameters"]["rv_file"] = p.rv_file
-        if p.tt_file:
-            results["Simulation Parameters"]["tt_measured"] = list(p.best_tt_df["tt"])
-            results["Simulation Parameters"]["tt_best_sim"] = list(p.best_tt_df["nearest_sim"])
+        # if p.tt_file:
+        #     results["Simulation Parameters"]["tt_measured"] = list(p.best_tt_df["tt"])
+        #     results["Simulation Parameters"]["tt_best_sim"] = list(p.best_tt_df["nearest_sim"])
 
         results["Simulation Parameters"]["max_log_prob"] = self.max_log_prob
         results["Simulation Parameters"]["max_likelihood_avg_residual_in_std"] = self.max_likelihood_avg_residual_in_std[-1]
