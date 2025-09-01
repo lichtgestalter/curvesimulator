@@ -125,7 +125,19 @@ class CurveSimParameters:
             self.flux_weight = int(eval(config.get("Fitting", "flux_weight", fallback="1")))
             self.tt_weight = int(eval(config.get("Fitting", "tt_weight", fallback="1")))
             self.walkers = int(eval(config.get("Fitting", "walkers", fallback="32")))
-            self.eclipsers = list([x for x in config.get("Fitting", "eclipsers", fallback="None").split("#")[0].split(",")])
+
+
+
+
+            self.eclipsers = list([x.strip() for x in config.get("Fitting", "eclipsers", fallback="None").split("#")[0].split(",")])
+            # self.eclipsers = config.get("Fitting", "eclipsers", fallback="None").split("#")[0].split(",")
+            # x1 = config.get("Fitting", "eclipsers", fallback="None")
+            # x2 = x1.split("#")[0]
+            # x3 = x2.split(",")
+            # self.eclipsers = list([x for x in x3])
+
+
+
             self.eclipsees = list([x for x in config.get("Fitting", "eclipsees", fallback="None").split("#")[0].split(",")])
             self.target_flux = eval(config.get("Fitting", "target_flux", fallback="None"))
             self.steps = int(eval(config.get("Fitting", "steps", fallback="10000")))

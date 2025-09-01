@@ -97,7 +97,8 @@ class CurveSimMCMC:
         if p.flux_file:
             residuals_sum_squared += p.flux_weight * CurveSimMCMC.residuals_flux_sum_squared(theta, theta_references, bodies, time_s0, measured_flux, flux_err, p)
         if p.tt_file:
-            residuals_sum_squared += p.tt_weight * CurveSimMCMC.residuals_tt_sum_squared_simple(theta, theta_references, bodies, time_s0, p)
+            residuals_sum_squared += p.tt_weight * CurveSimMCMC.residuals_tt_sum_squared(theta, theta_references, bodies, time_s0, time_d, tt_s0, tt_d, measured_tt, p)
+            # residuals_sum_squared += p.tt_weight * CurveSimMCMC.residuals_tt_sum_squared_simple(theta, theta_references, bodies, time_s0, p)
         # if p.rv_file:
         #     residuals_sum_squared += p.rv_weight * CurveSimMCMC.residuals_rv_sum_squared(theta, theta_references, bodies, time_s0, time_d, measured_flux, flux_err, p)
         return -0.5 * residuals_sum_squared
@@ -130,11 +131,13 @@ class CurveSimMCMC:
             sim_tt_filtered = [tt for tt in sim_tt if tt[0] == eclipser]
             if sim_tt_filtered:
                 # Find sim_tt with minimal |measured_tt - sim_tt|
+                # if eclipser == "TOI-4504d":
+                #     print("+", end="")
                 closest_tt = min(sim_tt_filtered, key=lambda x: abs(x[2] - measured_tt_val))
                 nearest_sim_tt.append(closest_tt[2])
             else:
-                nearest_sim_tt.append(np.nan)  # No match found
-        measured_tt["nearest_sim"] = nearest_sim_tt
+                nearest_sim_tt.append(0)  # No match found
+        measured_tt["nearest_sim"] = nearest_sim_tt   # add this column to data frame
         residuals_tt = (measured_tt["tt"] - measured_tt["nearest_sim"]) / measured_tt["tt_err"]  # residuals are weighted with uncertainty!
         residuals_tt_sum_squared = np.sum(residuals_tt ** 2)
         return residuals_tt_sum_squared
