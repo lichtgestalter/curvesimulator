@@ -208,8 +208,6 @@ def check_for_new_data(sector):
 # get_old_lightcurves()
 # get_new_lightcurve(94)
 
-# check_for_new_data([94, 95, 96, 97, 98])
-
 # download_flux_lc('TIC349972412', 61, 'SPOC', 120, save_plot=True, save_error_plot=True, save_csv=True, save_fits=False, start=False, end=False)
 # download_flux_lc('TIC349972412', 61, 'TESS-SPOC', 200, save_plot=True, save_error_plot=True, save_csv=True, save_fits=False, start=False, end=False)
 # download_flux_lc('TIC349972412', 61, 'QLP', 200, save_plot=True, save_error_plot=True, save_csv=True, save_fits=False, start=False, end=False)
@@ -219,6 +217,8 @@ def check_for_new_data(sector):
 # download_flux_lc('TIC349972412', 9, 'TGLC', 1800, save_plot=True, save_error_plot=True, save_csv=True, save_fits=False, start=False, end=False)
 # download_flux_lc('TIC349972412', 3, 'TASOC', 1800, save_plot=True, save_error_plot=True, save_csv=True, save_fits=False, start=False, end=False)
 
-spoc_sectors_no_c_d = [27, 29, 30, 32, 33, 35, 36, 38, 62, 63, 65, 68, 69, 87, 90]
-for sector in spoc_sectors_no_c_d:
-    get_new_lightcurve(sector)
+# spoc_sectors_no_c_d = [27, 29, 30, 32, 33, 35, 36, 38, 62, 63, 65, 68, 69, 87, 90]
+# for sector in spoc_sectors_no_c_d:
+#     get_new_lightcurve(sector)
+
+check_for_new_data([94, 95, 96, 97, 98])
