@@ -9,6 +9,7 @@ Next / in progress:
         Eine Simulation laufen lassen. Deren entsprechende 12 c und 3 d Transits in tt_sim.csv
         speichern und mcmc darauf laufen lassen.
         Wenn das konvergiert, sehe ich das als endgueltigen Beweis fuer Planet e!!!
+        Mit 11 (ohne r, i), 13 (ohne r) und 15 Parametern testen. Evtl. mit weiteren Parameterteilmengen.
 
         find_tts:
             # convert tts into a pandas Dataframe with columns eclipser, eclipsee, tt

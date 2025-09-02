@@ -12,7 +12,11 @@ bodies
 curvesim
     animation
     bodies
+    mcmc
     parameters
+
+mcmc
+    flux_data
 
 
 

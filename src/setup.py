@@ -19,7 +19,12 @@ setup(
         # List your dependencies here
         "colorama",
         "configparser",
+        "corner",
+        "emcee",
+        # "emcee.autocorr",
+        "json",
         "matplotlib",
+        "multiprocessing",
         "numpy",
         "rebound"
     ],
