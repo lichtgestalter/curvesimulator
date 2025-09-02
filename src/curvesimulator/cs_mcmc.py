@@ -1,4 +1,5 @@
 from colorama import Fore, Style
+import copy
 import corner
 import emcee
 import emcee.autocorr
@@ -450,6 +451,29 @@ class CurveSimMCMC:
                     if attr is not None:
                         results["Bodies"][body.name][key] = attr
         results["Fitting Parameters"] = {fp.body_parameter_name: fp.__dict__ for fp in p.fitting_parameters}
+
+        p_copy = copy.deepcopy(p)
+        del p_copy.fitting_parameters
+        del p_copy.standard_sections
+        del p_copy.eclipsers
+        del p_copy.eclipsees
+        del p_copy.tt_file
+        del p_copy.total_iterations
+        del p_copy.walkers
+        del p_copy.moves
+        del p_copy.burn_in
+        del p_copy.thin_samples
+        del p_copy.tt_datasize
+        del p_copy.comment
+        del p_copy.start_date
+        del p_copy.fitting_results_directory
+        p_copy.starts_s0 = [float(i) for i in p_copy.starts_s0]
+        p_copy.starts_d = [float(i) for i in p_copy.starts_d]
+        p_copy.ends_s0 = [float(i) for i in p_copy.ends_s0]
+        p_copy.ends_d = [float(i) for i in p_copy.ends_d]
+        p_copy.dts = [float(i) for i in p_copy.dts]
+        results["ProgramParameters"] = p_copy.__dict__
+
         self.mcmc_results2json(results, p)
 
     def mcmc_results2json(self, results, p):

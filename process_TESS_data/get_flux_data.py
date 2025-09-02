@@ -221,4 +221,4 @@ def check_for_new_data(sector):
 # for sector in spoc_sectors_no_c_d:
 #     get_new_lightcurve(sector)
 
-check_for_new_data([94, 95, 96, 97, 98])
+check_for_new_data([91, 92, 93, 94, 95, 96, 97, 98])

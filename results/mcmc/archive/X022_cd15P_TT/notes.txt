@@ -1,0 +1,1 @@
+Bug: avg residual wird um cirka Fakto 1000 zu klein angezeigt
