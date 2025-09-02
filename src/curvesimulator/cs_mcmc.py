@@ -233,9 +233,13 @@ class CurveSimMCMC:
 
     def max_likelihood_parameters(self):
         log_prob_samples = self.sampler.get_log_prob(flat=True, discard=self.burn_in, thin=self.thin_samples)
-        max_likelihood_idx = np.argmax(log_prob_samples)
-        self.max_likelihood_params = self.scaled_samples[max_likelihood_idx]
-        self.max_log_prob = log_prob_samples[max_likelihood_idx]
+        if len(log_prob_samples):
+            max_likelihood_idx = np.argmax(log_prob_samples)
+            self.max_likelihood_params = self.scaled_samples[max_likelihood_idx]
+            self.max_log_prob = log_prob_samples[max_likelihood_idx]
+        else:
+            self.max_likelihood_params = None
+            self.max_log_prob = None
 
     def high_density_intervals(self):
         # Calculate HDI and other mcmc results.
@@ -420,8 +424,9 @@ class CurveSimMCMC:
             results["Simulation Parameters"]["flux_file"] = p.flux_file
             results["Simulation Parameters"]["mean_avg_residual_in_std"] = self.mean_avg_residual_in_std[-1]
             results["Simulation Parameters"]["median_avg_residual_in_std"] = self.median_avg_residual_in_std[-1]
-        if p.flux_file:
+        if p.tt_file:
             results["Simulation Parameters"]["tt_file"] = p.tt_file
+            results["Simulation Parameters"]["tt_data_points"] = p.tt_datasize
             # results["Simulation Parameters"]["rv_file"] = p.rv_file
         # if p.tt_file:
         #     results["Simulation Parameters"]["tt_measured"] = list(p.best_tt_df["tt"])
