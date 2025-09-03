@@ -72,6 +72,7 @@ Programming Hinter MCMC-Integration zurueckgestellt:
             Jeder Body kriegt die Parameter relevant_eclipser  (yes/no) und relevant_eclipsee (yes/no) zum Ankreuzen.
 
 
+
     Rebound:
         init_rebound() verallgemeinern. Auch Hierarchie ermoeglichen (=wer kreist um wen?)
         Systeme mit mehr als einem Stern korrekt hantieren
@@ -134,6 +135,10 @@ Programming Hinter MCMC-Integration zurueckgestellt:
 
 
     Video:
+        #### BUG ####
+            Seit ich keine Sampling rate mehr als Parameter habe laueft irgendwas schief
+            Beispiel: Teilweise werden weniger frames erzeugt als im Config File angegeben
+
         Orbits einzeichnen?
             Kleiner Punkt (nur 1 Pixel?) fuer jeden Frame fuer jeden Koerper
             Option draw_orbits (on/off) (pro Video oder pro Koerper?)
@@ -145,6 +150,8 @@ Programming Hinter MCMC-Integration zurueckgestellt:
             Farbe des Sterns abhängig von RV varieren?
 
         Option einbauen, die ein png Bild der Lichtkurve (und RV-Kurve?) erzeugt, statt ein Video (oder zusaetzlich)
+
+        Realtime zwischen 2 frames ausrechnen und direkt im GUI anzeigen (muss nicht in jedem Intervall gleich sein)
 
     Dokumentation:
 
