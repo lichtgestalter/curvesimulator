@@ -43,7 +43,6 @@ Next / in progress:
 
     Housekeeping:
         Klasse in flux_data anlegen? (import * ist haesslich)
-        Package mal wieder hochladen und mit pip testen.
 
     Simulationscheck klappt fuer Drehimpuls, Energie und Center of Mass, aber nicht fuer Impuls.
         Vielleicht Berechnungsfehler des Impulses?
@@ -70,7 +69,6 @@ Programming Hinter MCMC-Integration zurueckgestellt:
             Z.B. Radius Mars oder Luminosity Alpha Centauri
         Besser als eclipsers_names/eclipsees_names:
             Jeder Body kriegt die Parameter relevant_eclipser  (yes/no) und relevant_eclipsee (yes/no) zum Ankreuzen.
-
 
 
     Rebound:
@@ -132,6 +130,11 @@ Programming Hinter MCMC-Integration zurueckgestellt:
 
         Im Config file steuern, ob Histogramm densities und bin_edges im MCMC-Result-JSON gespeichert werden sollen
             Ist derzeit auskommentiert in mcmc_histograms()
+
+        Package mal wieder hochladen und mit pip testen.
+                Dependencies checken
+                    Sind __init__.py und setup.py aktuell?
+                    Dafuer auch benutzen: https://github.com/lichtgestalter/curvesimulator/network/dependencies
 
 
     Video:
