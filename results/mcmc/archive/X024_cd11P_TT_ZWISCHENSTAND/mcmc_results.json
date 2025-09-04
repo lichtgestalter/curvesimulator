@@ -3,23 +3,23 @@
     "Simulation Parameters": {
         "comment": "xxx",
         "start_realtime": "02.09.25 09:05:01 [DD.MM.YY hh:mm:ss]",
-        "end_realtime": "04.09.25 12:33:52 [DD.MM.YY hh:mm:ss]",
-        "run_time": "02:03:28:49 [dd:hh:mm:ss]",
-        "run_time_per_iteration": "28.080 [s]",
-        "simulations_per_second": "7.122 [iterations*walkers/runtime]",
+        "end_realtime": "04.09.25 14:14:12 [DD.MM.YY hh:mm:ss]",
+        "run_time": "02:05:09:09 [dd:hh:mm:ss]",
+        "run_time_per_iteration": "28.140 [s]",
+        "simulations_per_second": "7.107 [iterations*walkers/runtime]",
         "fitting_results_directory": "../results/mcmc/0000/",
         "start_date": 2458400,
         "default_dt": 10000,
         "flux_data_points": 59569,
         "walkers": 200,
         "burn_in_steps": 3000,
-        "steps_after_burn_in": 3600,
+        "steps_after_burn_in": 3800,
         "moves": "(emcee.moves.StretchMove(a=2.0))",
         "thin_samples": 30,
         "tt_file": "../data/TOI-4504/tt.csv",
         "tt_data_points": 15,
-        "max_log_prob": -1063.5866624348434,
-        "max_likelihood_avg_residual_in_std": 11.908465685860309
+        "max_log_prob": -1063.5117828026255,
+        "max_likelihood_avg_residual_in_std": 11.90804648296059
     },
     "Bodies": {
         "TOI-4504": {
@@ -89,11 +89,11 @@
             "body_parameter_name": "TOI-4504d.mass",
             "long_body_parameter_name": "TOI-4504d.mass [m_jup]",
             "hdi_min": 0.10000133798845985,
-            "hdi_max": 1.30898622239291,
-            "std": 0.8685698953350792,
-            "mean": 1.2433368398246916,
-            "median": 1.2837407825279512,
-            "max_likelihood": 1.31555900433355
+            "hdi_max": 1.3099445763591098,
+            "std": 0.8696635080038152,
+            "mean": 1.2448432245670908,
+            "median": 1.2849986378683655,
+            "max_likelihood": 1.3159699880586082
         },
         "TOI-4504d.e": {
             "body_index": 2,
@@ -107,12 +107,12 @@
             "sigma": 0.035,
             "body_parameter_name": "TOI-4504d.e",
             "long_body_parameter_name": "TOI-4504d.e [1]",
-            "hdi_min": 0.10223203837957004,
-            "hdi_max": 0.11217061761359388,
-            "std": 0.03733351756904142,
-            "mean": 0.08390436070689596,
-            "median": 0.10484904785763259,
-            "max_likelihood": 0.10535276369873686
+            "hdi_min": 0.10235738751860733,
+            "hdi_max": 0.11233930050799984,
+            "std": 0.0373756604372019,
+            "mean": 0.08405361023870568,
+            "median": 0.10488995660506097,
+            "max_likelihood": 0.1056183232475905
         },
         "TOI-4504d.P": {
             "body_index": 2,
@@ -126,12 +126,12 @@
             "sigma": 34560.0,
             "body_parameter_name": "TOI-4504d.P",
             "long_body_parameter_name": "TOI-4504d.P [d]",
-            "hdi_min": 40.49892905735799,
-            "hdi_max": 41.19808847592767,
-            "std": 0.41667170204885823,
-            "mean": 40.89361179207518,
-            "median": 41.15966360413739,
-            "max_likelihood": 41.1639879137631
+            "hdi_min": 40.499405264468365,
+            "hdi_max": 41.19757236731092,
+            "std": 0.41622494343899935,
+            "mean": 40.89322838771726,
+            "median": 41.15938456829875,
+            "max_likelihood": 41.163289977388565
         },
         "TOI-4504d.Omega": {
             "body_index": 2,
@@ -145,12 +145,12 @@
             "sigma": 0.13962634015954636,
             "body_parameter_name": "TOI-4504d.Omega",
             "long_body_parameter_name": "TOI-4504d.Omega [deg]",
-            "hdi_min": 0.5183063178935187,
-            "hdi_max": 3.5516834331788534,
-            "std": 1.6088174908979591,
-            "mean": 2.4130852995749876,
-            "median": 1.9345897945623494,
-            "max_likelihood": 4.94090345324945
+            "hdi_min": 0.4710620567289523,
+            "hdi_max": 3.5591342083618245,
+            "std": 1.633594120837638,
+            "mean": 2.431316173760086,
+            "median": 1.953489987739216,
+            "max_likelihood": 4.878290511994999
         },
         "TOI-4504d.omega": {
             "body_index": 2,
@@ -164,12 +164,12 @@
             "sigma": 0.3490658503988659,
             "body_parameter_name": "TOI-4504d.omega",
             "long_body_parameter_name": "TOI-4504d.omega [deg]",
-            "hdi_min": 75.02795513027178,
-            "hdi_max": 87.58389249026774,
-            "std": 12.616443963767061,
-            "mean": 91.8593598289598,
-            "median": 86.95276305999609,
-            "max_likelihood": 87.25111209016005
+            "hdi_min": 75.02902264899427,
+            "hdi_max": 87.59226111221311,
+            "std": 12.612502898483328,
+            "mean": 91.85628024279018,
+            "median": 86.97729568358803,
+            "max_likelihood": 87.31684369062593
         },
         "TOI-4504d.ma": {
             "body_index": 2,
@@ -183,12 +183,12 @@
             "sigma": 0.3490658503988659,
             "body_parameter_name": "TOI-4504d.ma",
             "long_body_parameter_name": "TOI-4504d.ma [deg]",
-            "hdi_min": 299.22340556979316,
+            "hdi_min": 299.5447880178056,
             "hdi_max": 329.99999579370126,
-            "std": 31.529312361693687,
-            "mean": 307.3909069083064,
-            "median": 329.66536501176097,
-            "max_likelihood": 329.9448478544745
+            "std": 31.141949986451856,
+            "mean": 307.6691306429544,
+            "median": 329.6710028245632,
+            "max_likelihood": 329.97370305581273
         },
         "TOI-4504c.mass": {
             "body_index": 3,
@@ -202,12 +202,12 @@
             "sigma": 9.490623e+26,
             "body_parameter_name": "TOI-4504c.mass",
             "long_body_parameter_name": "TOI-4504c.mass [m_jup]",
-            "hdi_min": 1.4807857327652385,
-            "hdi_max": 3.7015070067596327,
-            "std": 1.7641070498980918,
-            "mean": 3.9505784270267967,
-            "median": 3.581662293213956,
-            "max_likelihood": 3.575434270011932
+            "hdi_min": 1.4954720949688707,
+            "hdi_max": 3.706424509515984,
+            "std": 1.7785326344198251,
+            "mean": 3.9584333601312705,
+            "median": 3.580801205969323,
+            "max_likelihood": 3.570309205818636
         },
         "TOI-4504c.e": {
             "body_index": 3,
@@ -221,12 +221,12 @@
             "sigma": 0.025,
             "body_parameter_name": "TOI-4504c.e",
             "long_body_parameter_name": "TOI-4504c.e [1]",
-            "hdi_min": 0.03194725569477039,
-            "hdi_max": 0.05377847959341585,
-            "std": 0.01848105621703676,
-            "mean": 0.039099551395199876,
-            "median": 0.051465483462449,
-            "max_likelihood": 0.0516684951357839
+            "hdi_min": 0.03148356112633568,
+            "hdi_max": 0.05371926404799717,
+            "std": 0.018507841342538342,
+            "mean": 0.03899385979265181,
+            "median": 0.051441033203054785,
+            "max_likelihood": 0.051517870772716544
         },
         "TOI-4504c.P": {
             "body_index": 3,
@@ -240,12 +240,12 @@
             "sigma": 17280.0,
             "body_parameter_name": "TOI-4504c.P",
             "long_body_parameter_name": "TOI-4504c.P [d]",
-            "hdi_min": 82.9485390353124,
-            "hdi_max": 83.3192333280255,
-            "std": 0.21780064392767873,
-            "mean": 83.10906190581908,
-            "median": 83.2350404285368,
-            "max_likelihood": 83.2905076062703
+            "hdi_min": 82.9475295041389,
+            "hdi_max": 83.32376778329723,
+            "std": 0.21916563177778958,
+            "mean": 83.11241901988426,
+            "median": 83.23828110870235,
+            "max_likelihood": 83.29277920949512
         },
         "TOI-4504c.omega": {
             "body_index": 3,
@@ -259,12 +259,12 @@
             "sigma": 0.3490658503988659,
             "body_parameter_name": "TOI-4504c.omega",
             "long_body_parameter_name": "TOI-4504c.omega [deg]",
-            "hdi_min": 295.7973947057137,
+            "hdi_min": 295.81642124294206,
             "hdi_max": 299.9999686181537,
-            "std": 14.746745371583318,
-            "mean": 287.4936343710335,
-            "median": 296.0281566108132,
-            "max_likelihood": 296.07598685008423
+            "std": 14.873139828377846,
+            "mean": 287.440523477066,
+            "median": 296.02928605439644,
+            "max_likelihood": 296.0657196082443
         },
         "TOI-4504c.ma": {
             "body_index": 3,
@@ -278,12 +278,12 @@
             "sigma": 0.3490658503988659,
             "body_parameter_name": "TOI-4504c.ma",
             "long_body_parameter_name": "TOI-4504c.ma [deg]",
-            "hdi_min": 150.0000008746691,
-            "hdi_max": 152.20472011365044,
-            "std": 9.934037157308756,
-            "mean": 156.11837467407977,
-            "median": 150.1268393240162,
-            "max_likelihood": 150.01002629795332
+            "hdi_min": 150.00000674603183,
+            "hdi_max": 152.23119001500206,
+            "std": 10.044414920089435,
+            "mean": 156.1703101013902,
+            "median": 150.12503142947543,
+            "max_likelihood": 150.01065887503358
         }
     }
 }
