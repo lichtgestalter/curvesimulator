@@ -206,7 +206,7 @@ def check_for_new_data(sector):
 
 # get_targetpixelfiles()
 # get_old_lightcurves()
-# get_new_lightcurve(94)
+get_new_lightcurve(95)
 
 # download_flux_lc('TIC349972412', 61, 'SPOC', 120, save_plot=True, save_error_plot=True, save_csv=True, save_fits=False, start=False, end=False)
 # download_flux_lc('TIC349972412', 61, 'TESS-SPOC', 200, save_plot=True, save_error_plot=True, save_csv=True, save_fits=False, start=False, end=False)
@@ -221,4 +221,4 @@ def check_for_new_data(sector):
 # for sector in spoc_sectors_no_c_d:
 #     get_new_lightcurve(sector)
 
-check_for_new_data([91, 92, 93, 94, 95, 96, 97, 98])
+# check_for_new_data([91, 92, 93, 94, 95, 96, 97, 98])
