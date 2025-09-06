@@ -513,5 +513,6 @@ class CurveSimMCMC:
 
         for bins in self.bins:
             self.mcmc_histograms(bins, f"histograms_{bins}.png")
+
         self.save_mcmc_results(p, bodies, steps_done)
         self.mcmc_corner_plot("corner.png")

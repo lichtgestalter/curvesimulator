@@ -97,7 +97,7 @@ Call mit Simon, 21.08.25:
 
     Erstmal statt MCMC mit einfacherer Methode nur die TT fitten:
         Levenberg Marquardt LMfit
-            https://pypi.org/project/lmfit/0.9.0/
+            https://pypi.org/project/lmfit/
             https://lmfit.github.io/lmfit-py/
 
     Beispiele fuer Systeme mit TTVs, die ich nutzen kann, um CureSimulator zu testen:
