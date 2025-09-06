@@ -21,38 +21,43 @@ speichern und mcmc darauf laufen lassen.
 - zunaechst nur moeglich nach TT ODER flux zu fitten
 - spaeter gerne auch in Kombination
 
-In mcmc Results: Max likelihood simflux vs measure flux plotten.  Oder 
+### Sonstige
+- In mcmc Results: Max likelihood simflux vs measure flux plotten.  Oder 
 direkt nur die Residuen plotten.
-
-
-RV-MCMC
-    zunaechst nur moeglich nach TT ODER flux ODER RV zu fitten
-
-
-Testen ob Performance besser, wenn bodies.find_tts einen Dataframe returniert
+- RV-MCMC
+    - zunaechst nur moeglich nach TT ODER flux ODER RV zu fitten
+- Testen ob Performance besser, wenn bodies.find_tts einen Dataframe returniert
 und CurveSimMCMC.residuals_tt_sum_squared entsprechend angepasst wird.
 (Vermutlich nicht schneller, aber etwas eleganter?)
 
-Bei lokalen Minima:
+- Bei lokalen Minima:
     Separate MCMC-Laeufe mit stark eingeschraenktem lower-upper-Intervall?
 
-Nach jedem Chunk 5 Sekunden Zeit, aus einem Menue auszuwaehlen, sonst laueft der naechste Chunk
-    Eine Option: Erstelle Video/Resultfile/Simflux fuer die aktuelle max likelihood
+- Nach jedem Chunk 5 Sekunden Zeit, aus einem Menue auszuwaehlen, 
+  - sonst  laueft der naechste Chunk
+  - Eine Option: Erstelle Video/Resultfile/Simflux fuer die aktuelle max 
+    likelihood
 
-MCMC mit 20k Walker, Startwerte ueber sehr grossen Wertebereich fast gleichverteilt
-    Andere Moves probieren (Parameter a von Stretching erhoehen brachte erstmal nix)
+- MCMC mit 20k Walker, Startwerte ueber sehr grossen Wertebereich fast 
+gleichverteilt
+- Andere Moves probieren (Parameter a von Stretching erhoehen brachte erstmal 
+  nix)
 
-mcmc objekt abspeichern (pickle?) und spaeter (mit ggf. geandertem python code) fortsetzen
+- mcmc objekt abspeichern (pickle?) und spaeter (mit ggf. geandertem python 
+code) fortsetzen
 
-Kompliziertere Fitting-Parameter Bereiche zulassen. Z.B. i in [86;88] oder [92;94]
+-Kompliziertere Fitting-Parameter Bereiche zulassen. Z.B. i in [86;88] oder 
+[92;94]
 
-Housekeeping:
-    Klasse in flux_data anlegen? (import * ist haesslich)
+### Housekeeping:
+- Klasse in flux_data anlegen? (import * ist haesslich)
 
-Simulationscheck klappt fuer Drehimpuls, Energie und Center of Mass, aber nicht fuer Impuls.
-    Vielleicht Berechnungsfehler des Impulses?
+- Simulationscheck klappt fuer Drehimpuls, Energie und Center of Mass, aber 
+nicht fuer Impuls.
+    - Vielleicht Berechnungsfehler des Impulses?
 
-Lassen sich die Flux-Daten durch eine manuell von mir gemachte alternative Pixelmaske verbessern? Z.B. 4x4 statt 3x2?
+- Lassen sich die Flux-Daten durch eine manuell von mir gemachte alternative 
+Pixelmaske verbessern? Z.B. 4x4 statt 3x2?
 
 
 ## Programming Hinter MCMC-Integration zurueckgestellt:
