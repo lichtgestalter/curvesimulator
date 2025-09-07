@@ -1,9 +1,14 @@
 # Next / in progress:
 ## 0.5.6 Fitting TOI-4504
 
-- welche der Auswertungen sind langsam? Diese seltener machen?
 
-- lower und upper in mcmc result skalieren (wie die anderen Werte auch)
+
+### LMfit
+- Ergebnis speichern
+- Bounds an das Modell geben
+- Zwischen-Lebenszeichen einbauen
+- Verschiedene Methoden ausprobieren (Nelder, ...)
+
 
 ### TT-MCMC
 - Residen fuer MaxLikelihood automatisch ausrechnen (Auch mean und median?)
@@ -22,10 +27,12 @@ speichern und mcmc darauf laufen lassen.
 - spaeter gerne auch in Kombination
 
 ### Sonstige
+- welche der Auswertungen sind langsam? Diese seltener machen?
+
+- lower und upper in mcmc result skalieren (wie die anderen Werte auch)
+- 
 - In mcmc Results: Max likelihood simflux vs measure flux plotten.  Oder 
 direkt nur die Residuen plotten.
-- RV-MCMC
-    - zunaechst nur moeglich nach TT ODER flux ODER RV zu fitten
 - Testen ob Performance besser, wenn bodies.find_tts einen Dataframe returniert
 und CurveSimMCMC.residuals_tt_sum_squared entsprechend angepasst wird.
 (Vermutlich nicht schneller, aber etwas eleganter?)
@@ -49,6 +56,9 @@ code) fortsetzen
 -Kompliziertere Fitting-Parameter Bereiche zulassen. Z.B. i in [86;88] oder 
 [92;94]
 
+### RV-MCMC
+- zunaechst nur moeglich nach TT ODER flux ODER RV zu fitten
+
 ### Housekeeping:
 - Klasse in flux_data anlegen? (import * ist haesslich)
 
@@ -71,7 +81,11 @@ sinnvoll vereinigen oder mit einer Hierarchie versehen.
   Werten ab? Z.B. e und i.
 - Orbitparameter regelmaessig (z.B. bei jedem Transit) im Resultfile speichern.
 
-
+### Parameters/Config File
+- Falls ich LMfit in CurveSimulator behalte: Den User warnen, wenn ein 
+  illegaler Bodyname gewaehlt wurde (Kein Leerzeichen, kein Bindestrich, 
+  keine fuehrende Ziffer)
+ 
 ### GUI:
 - GUI fuer alles!!!
 - Config File (optional) per GUI erstellen?

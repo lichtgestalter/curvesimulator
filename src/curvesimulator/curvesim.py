@@ -2,7 +2,7 @@
 from .cs_animation import CurveSimAnimation
 from .cs_bodies import CurveSimBodies
 from .cs_parameters import CurveSimParameters
-from .cs_mcmc import CurveSimMCMC
+from .cs_mcmc import CurveSimMCMC, CurveSimLMfit
 
 class CurveSimulator:
 
@@ -16,12 +16,17 @@ class CurveSimulator:
                 time_s0, time_d, measured_flux, flux_uncertainty = CurveSimMCMC.get_measured_flux(p)
             elif p.tt_file:
                 time_s0, time_d = CurveSimParameters.init_time_arrays(p)  # s0 in seconds, starting at 0. d in BJD.
-                tt_s0, tt_d, measured_tt = CurveSimMCMC.get_measured_tt(p)
+                measured_tt = CurveSimMCMC.get_measured_tt(p)
             bodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
-            mcmc = CurveSimMCMC(p, bodies, time_s0, time_d, measured_flux, flux_uncertainty, tt_s0, tt_d, measured_tt)
-            self.sampler = mcmc.sampler  # mcmc object
-            self.theta = mcmc.theta  # current state of mcmc chains
-            # By saving sampler and theta it is possible to continue the mcmc later on
+            lmfit = True  # debug
+            if lmfit:
+                self.lmfit = CurveSimLMfit(p, bodies, time_s0, time_d, measured_tt)
+                self.lmfit.save_lmfit_results(p, bodies)
+            else:
+                mcmc = CurveSimMCMC(p, bodies, time_s0, time_d, measured_flux, flux_uncertainty, measured_tt)
+                self.sampler = mcmc.sampler  # mcmc object
+                self.theta = mcmc.theta  # current state of mcmc chains
+                # By saving sampler and theta it is possible to continue the mcmc later on
         else:  # run a single simulation
             time_s0, time_d = CurveSimParameters.init_time_arrays(p)  # s0 in seconds, starting at 0. d in BJD.
             bodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
