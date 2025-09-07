@@ -52,7 +52,6 @@ class CurveSimMCMC:
         self.max_likelihood_avg_residual_in_std = []
         self.mean_avg_residual_in_std = []
         self.median_avg_residual_in_std = []
-        p.counter = 0
         with Pool() as pool:  # enable multi processing
             self.sampler = emcee.EnsembleSampler(p.walkers, self.ndim, CurveSimMCMC.log_probability, pool=pool, moves=self.moves, args=self.args)
             self.theta = self.sampler.run_mcmc(self.theta0, self.burn_in, progress=True)
@@ -80,7 +79,6 @@ class CurveSimMCMC:
         measured_tt["delta"] = measured_tt["nearest_sim"] - measured_tt["tt"]
         residuals_tt = measured_tt["delta"] / measured_tt["tt_err"]  # residuals are weighted with uncertainty!
         residuals_tt_sum_squared = np.sum(residuals_tt ** 2)
-        p.counter += 1
         return residuals_tt_sum_squared
 
     @staticmethod
@@ -543,17 +541,33 @@ class CurveSimLMfit:
         for (body_index, parameter_name), (lower, upper) in zip(self.param_references, self.param_bounds):
             self.params.add(bodies[body_index].name + "_" + parameter_name, value=bodies[body_index].__dict__[parameter_name], min=lower, max=upper)
 
-        self.result = lmfit.minimize(CurveSimLMfit.lmfit_residual_tt, self.params, method="nelder", args=(self.param_references, bodies, time_s0, time_d, measured_tt, p))
+        self.result = lmfit.minimize(CurveSimLMfit.lmfit_residual_tt, self.params, method="ampgo", args=(self.param_references, bodies, time_s0, time_d, measured_tt, p))
+        # ***** METHODS ******
+        # 'leastsq': Levenberg-Marquardt (default, for least-squares problems)
+        # 'least_squares': SciPy’s least_squares (Trust Region Reflective, Dogbox, Levenberg-Marquardt)
+        # 'nelder': Nelder-Mead simplex
+        # 'lbfgsb': L-BFGS-B (bounded minimization)
+        # 'powell': Powell’s method
+        # 'cg': Conjugate Gradient
+        # 'newton': Newton-CG
+        # 'cobyla': COBYLA
+        # 'bfgs': BFGS
+        # 'tnc': Truncated Newton
+        # 'trust-constr': Trust Region Constrained
+        # 'differential_evolution': Differential Evolution (global optimization)
+        # 'brute': Brute force grid search
+        # 'ampgo': Adaptive Memory Programming for Global Optimization
+        # 'emcee': Markov Chain Monte Carlo (MCMC, for Bayesian inference)
 
     @staticmethod
     def lmfit_residual_tt(params, param_references, bodies, time_s0, time_d, measured_tt, p):
         # measured_tt: pandas DataFrame with columns eclipser, tt, tt_err
         for body_index, parameter_name in param_references:
-            bodies[body_index].__dict__[parameter_name] = params[bodies[body_index].name + "_" + parameter_name]  # update all parameters from params
+            bodies[body_index].__dict__[parameter_name] = params[bodies[body_index].name + "_" + parameter_name].value  # update all parameters from params
         sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # run simulation
-        p.counter = 0
         residuals_tt_sum_squared = CurveSimMCMC.match_transit_times(bodies, measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
-        print(p.lmfit_counter)
+        # print(".", end="")
+        print(residuals_tt_sum_squared)
         return residuals_tt_sum_squared
 
     def save_lmfit_results(self, p, bodies):
@@ -624,13 +638,16 @@ class CurveSimLMfit:
         # p_copy.dts = [float(i) for i in p_copy.dts]
         results["ProgramParameters"] = p_copy.__dict__
 
-        result_copy = copy.deepcopy(self)
+        result_copy = copy.deepcopy(self.result)
         result_copy.last_internal_values = list(result_copy.last_internal_values)
         result_copy.residual = list(result_copy.residual)
         result_copy.x = list(result_copy.x)
-        result_copy.params = [p.__dict__ for p in result_copy.params]
+        result_copy.params = json.loads(result_copy.params.dumps())
 
         results["LMfitParameters"] = result_copy.__dict__
+
+        find_ndarrays(results)
+
         self.lmfit_results2json(results, p)
 
 
@@ -641,3 +658,16 @@ class CurveSimLMfit:
             json.dump(results, file, indent=4, ensure_ascii=False)
         if p.verbose:
             print(f" Saved LMfit results to {filename}")
+
+
+def find_ndarrays(obj, path="root"):
+    if isinstance(obj, np.ndarray):
+        print(f"{path}: numpy.ndarray, shape={obj.shape}, dtype={obj.dtype}")
+    elif isinstance(obj, dict):
+        for k, v in obj.items():
+            find_ndarrays(v, f"{path}[{repr(k)}]")
+    elif isinstance(obj, list):
+        for i, v in enumerate(obj):
+            find_ndarrays(v, f"{path}[{i}]")
+    elif hasattr(obj, "__dict__"):
+        find_ndarrays(obj.__dict__, f"{path}.__dict__")
