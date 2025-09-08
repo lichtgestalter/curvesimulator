@@ -561,6 +561,8 @@ class CurveSimLMfit:
         # 'brute': Brute force grid search
         # 'ampgo': Adaptive Memory Programming for Global Optimization
         # 'emcee': Markov Chain Monte Carlo (MCMC, for Bayesian inference)
+        if os.path.exists("residual.tmp"):
+            os.remove("residual.tmp")
 
     @staticmethod
     def lmfit_residual_tt(params, param_references, bodies, time_s0, time_d, measured_tt, p):

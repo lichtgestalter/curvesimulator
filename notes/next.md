@@ -1,13 +1,13 @@
 # Next / in progress:
 ## 0.5.6 Fitting TOI-4504
 
-
-
 ### LMfit
-- Ergebnis speichern
-- Bounds an das Modell geben
-- Zwischen-Lebenszeichen einbauen
+- War X024 wirklich so schlecht? (Durch die beiden neuen Transits aus Sektor 
+  95?)
+- Simulierte Daten fitten lassen
 - Verschiedene Methoden ausprobieren (Nelder, ...)
+- LMfit mit Fluxdaten laufen lassen?
+- In den Resultfiles sinnvoll skalieren (deg statt rad etc.)
 
 
 ### TT-MCMC
