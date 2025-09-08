@@ -1,3 +1,0 @@
-basiert auf X024
-Methode Powell
-
