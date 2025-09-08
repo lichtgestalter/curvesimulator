@@ -79,10 +79,7 @@ class CurveSimMCMC:
         measured_tt["delta"] = measured_tt["nearest_sim"] - measured_tt["tt"]
         residuals_tt = measured_tt["delta"] / measured_tt["tt_err"]  # residuals are weighted with uncertainty!
         residuals_tt_sum_squared = np.sum(residuals_tt ** 2)
-        max_delta = max(np.abs(measured_tt["delta"]))
-        mean_delta = np.mean(np.abs(measured_tt["delta"]))
-        print(f"{max_delta=:2.4f}   {mean_delta=:2.4f}    [days]")  # debug
-        return residuals_tt_sum_squared
+        return residuals_tt_sum_squared, measured_tt
 
     @staticmethod
     def log_probability(theta, param_bounds, param_references, bodies, time_s0, time_d, measured_flux, flux_err, measured_tt, p):
@@ -142,7 +139,7 @@ class CurveSimMCMC:
             bodies[body_index].__dict__[parameter_name] = theta[i]  # update all parameters from theta
             i += 1
         sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # run simulation
-        residuals_tt_sum_squared = CurveSimMCMC.match_transit_times(bodies, measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
+        residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(bodies, measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
         return residuals_tt_sum_squared
 
     @staticmethod
@@ -525,6 +522,8 @@ class CurveSimLMfit:
         if not (p.flux_file or p.tt_file or p.rv_file):
             print(f"{Fore.RED}ERROR: No measurements for fitting hve been provided.{Style.RESET_ALL}")
             sys.exit(1)
+        if os.path.exists("residual.tmp"):
+            os.remove("residual.tmp")
         self.fitting_results_directory = p.fitting_results_directory
         self.fitting_parameters = p.fitting_parameters
         self.unit = p.unit
@@ -544,7 +543,8 @@ class CurveSimLMfit:
         for (body_index, parameter_name), (lower, upper) in zip(self.param_references, self.param_bounds):
             self.params.add(bodies[body_index].name + "_" + parameter_name, value=bodies[body_index].__dict__[parameter_name], min=lower, max=upper)
 
-        self.result = lmfit.minimize(CurveSimLMfit.lmfit_residual_tt, self.params, method="nelder", args=(self.param_references, bodies, time_s0, time_d, measured_tt, p))
+        # self.result = lmfit.minimize(CurveSimLMfit.lmfit_residual_tt, self.params, method="nelder", args=(self.param_references, bodies, time_s0, time_d, measured_tt, p))
+        self.result = lmfit.minimize(CurveSimLMfit.lmfit_residual_tt, self.params, method="powell", args=(self.param_references, bodies, time_s0, time_d, measured_tt, p))
         # ***** METHODS ******
         # 'leastsq': Levenberg-Marquardt (default, for least-squares problems)
         # 'least_squares': SciPy’s least_squares (Trust Region Reflective, Dogbox, Levenberg-Marquardt)
@@ -568,9 +568,15 @@ class CurveSimLMfit:
         for body_index, parameter_name in param_references:
             bodies[body_index].__dict__[parameter_name] = params[bodies[body_index].name + "_" + parameter_name].value  # update all parameters from params
         sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # run simulation
-        residuals_tt_sum_squared = CurveSimMCMC.match_transit_times(bodies, measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
-        # print(".", end="")
-        # print(residuals_tt_sum_squared)
+        residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(bodies, measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
+        improved = CurveSimLMfit.check_for_fit_improvement(residuals_tt_sum_squared)
+        if improved:
+            max_delta = max(np.abs(measured_tt["delta"]))
+            mean_delta = np.mean(np.abs(measured_tt["delta"]))
+            print(f"\n{max_delta=:2.4f}   {mean_delta=:2.4f}    [days] ")
+            CurveSimLMfit.save_intermediate_lmfit_results(p, bodies, measured_tt)
+        else:
+            print(".", end="")
         return residuals_tt_sum_squared
 
     def save_lmfit_results(self, p, bodies):
@@ -608,7 +614,8 @@ class CurveSimLMfit:
         for i, body in enumerate(bodies):
             results["Bodies"][body.name] = {}
             for key in params:
-                if (i, key) not in fitting_params and (i, key.split("_deg")[0]) not in fitting_params:
+                # if (i, key) not in fitting_params and (i, key.split("_deg")[0]) not in fitting_params:
+                if True:  # debug
                     attr = getattr(body, key)
                     if attr is not None:
                         results["Bodies"][body.name][key] = attr
@@ -647,12 +654,104 @@ class CurveSimLMfit:
         result_copy.x = list(result_copy.x)
         result_copy.params = json.loads(result_copy.params.dumps())
 
-        results["LMfitParameters"] = result_copy.__dict__
-
-        find_ndarrays(results)
+        results["LMfitParameters"] = find_ndarrays(result_copy.__dict__)
 
         self.lmfit_results2json(results, p)
 
+    @staticmethod
+    def check_for_fit_improvement(residual):
+        try:
+            with open("residual.tmp", "r", encoding='utf8') as file:
+                best_residual = float(file.read().strip())
+        except (FileNotFoundError, ValueError):
+            best_residual = float("inf")
+        improvement = residual < best_residual
+        if improvement:
+            with open("residual.tmp", "w", encoding='utf8') as file:
+                file.write(str(residual))
+        return improvement
+
+
+
+    @staticmethod
+    def save_intermediate_lmfit_results(p, bodies, measured_tt):
+        results = {}
+        results["CurveSimulator Documentation"] = "https://github.com/lichtgestalter/curvesimulator/wiki"
+        results["Simulation Parameters"] = {}
+        results["Simulation Parameters"]["comment"] = getattr(p, "comment", None)
+        results["Simulation Parameters"]["end_realtime"] = time.strftime("%d.%m.%y %H:%M:%S") + " [DD.MM.YY hh:mm:ss]"
+        if p.flux_file:
+            results["Simulation Parameters"]["flux_file"] = p.flux_file
+        if p.tt_file:
+            results["Simulation Parameters"]["tt_file"] = p.tt_file
+            results["Simulation Parameters"]["tt_data_points"] = p.tt_datasize
+            # results["Simulation Parameters"]["rv_file"] = p.rv_file
+        # if p.tt_file:
+        #     results["Simulation Parameters"]["tt_measured"] = list(p.best_tt_df["tt"])
+        #     results["Simulation Parameters"]["tt_best_sim"] = list(p.best_tt_df["nearest_sim"])
+
+        results["Bodies"] = {}
+        params = (["body_type", "primary", "mass", "radius", "luminosity"]
+                  + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
+                  + ["e", "i", "P", "a", "Omega", "Omega_deg", "omega", "omega_deg", "pomega", "pomega_deg"]
+                  + ["L", "L_deg", "ma", "ma_deg", "ea", "ea_deg", "nu", "nu_deg", "T", "t"])
+
+        fitting_params = [(fp.body_index, fp.parameter_name) for fp in p.fitting_parameters]
+        for i, body in enumerate(bodies):
+            results["Bodies"][body.name] = {}
+            for key in params:
+                # if (i, key) not in fitting_params and (i, key.split("_deg")[0]) not in fitting_params:
+                if True:  # debug
+                    attr = getattr(body, key)
+                    if attr is not None:
+                        results["Bodies"][body.name][key] = attr
+        results["Fitting Parameters"] = {fp.body_parameter_name: fp.__dict__ for fp in p.fitting_parameters}
+
+
+        results["measured_tt_list"] = measured_tt.to_dict(orient="list")  # Convert measured_tt DataFrame to a serializable format
+        results["measured_tt_records"] = measured_tt.to_dict(orient="records")  # Convert measured_tt DataFrame to a serializable format
+
+        p_copy = copy.deepcopy(p)
+        del p_copy.fitting_parameters
+        del p_copy.standard_sections
+        del p_copy.eclipsers
+        del p_copy.eclipsees
+        del p_copy.tt_file
+        del p_copy.total_iterations
+        del p_copy.walkers
+        del p_copy.moves
+        del p_copy.burn_in
+        del p_copy.thin_samples
+        del p_copy.tt_datasize
+        del p_copy.comment
+        del p_copy.start_date
+        del p_copy.fitting_results_directory
+        del p_copy.starts_s0
+        del p_copy.starts_d
+        del p_copy.ends_s0
+        del p_copy.ends_d
+        del p_copy.dts
+        # p_copy.starts_s0 = [float(i) for i in p_copy.starts_s0]
+        # p_copy.starts_d = [float(i) for i in p_copy.starts_d]
+        # p_copy.ends_s0 = [float(i) for i in p_copy.ends_s0]
+        # p_copy.ends_d = [float(i) for i in p_copy.ends_d]
+        # p_copy.dts = [float(i) for i in p_copy.dts]
+        results["ProgramParameters"] = p_copy.__dict__
+
+        # result_copy = copy.deepcopy(self.result)
+        # result_copy.last_internal_values = list(result_copy.last_internal_values)
+        # result_copy.residual = list(result_copy.residual)
+        # result_copy.x = list(result_copy.x)
+        # result_copy.params = json.loads(result_copy.params.dumps())
+
+        # results["LMfitParameters"] = result_copy.__dict__
+
+        find_ndarrays(results)
+        filename = p.fitting_results_directory + f"/lmfit_results.tmp.json"
+        with open(filename, "w", encoding='utf8') as file:
+            json.dump(results, file, indent=4, ensure_ascii=False)
+        if p.verbose:
+            print(f" Saved intermediate LMfit results to {filename}")
 
     def lmfit_results2json(self, results, p):
         """Converts results to JSON and saves it."""
@@ -666,11 +765,17 @@ class CurveSimLMfit:
 def find_ndarrays(obj, path="root"):
     if isinstance(obj, np.ndarray):
         print(f"{path}: numpy.ndarray, shape={obj.shape}, dtype={obj.dtype}")
+        return obj.tolist()
     elif isinstance(obj, dict):
         for k, v in obj.items():
-            find_ndarrays(v, f"{path}[{repr(k)}]")
+            obj[k] = find_ndarrays(v, f"{path}[{repr(k)}]")
+        return obj
     elif isinstance(obj, list):
         for i, v in enumerate(obj):
-            find_ndarrays(v, f"{path}[{i}]")
+            obj[i] = find_ndarrays(v, f"{path}[{i}]")
+        return obj
     elif hasattr(obj, "__dict__"):
-        find_ndarrays(obj.__dict__, f"{path}.__dict__")
+        obj.__dict__ = find_ndarrays(obj.__dict__, f"{path}.__dict__")
+        return obj
+    else:
+        return obj
