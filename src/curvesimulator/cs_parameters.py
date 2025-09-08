@@ -229,7 +229,7 @@ class CurveSimParameters:
         value = eval(line.split(",")[0])
         # read_param(config, section, "ma", fallback="None")
         if value is not None and param in ["i", "Omega", "omega", "pomega", "ma", "nu", "ea", "L"]:
-            value = np.radians(value)  # debug
+            value = np.radians(value)
         return value
 
     def read_param_and_bounds(self, config, section, param):
@@ -266,7 +266,7 @@ class CurveSimParameters:
                             print(f"body {body_index}: {parameter_name}")
                         if parameter_name in ["i", "Omega", "omega", "pomega", "ma", "nu", "ea", "L"]:
                             value, lower, upper, sigma = np.radians(value), np.radians(lower), np.radians(upper), np.radians(sigma)
-                        fitting_parameters.append(FittingParameter(self, body_index, parameter_name, value, lower, upper, sigma))  # debug
+                        fitting_parameters.append(FittingParameter(self, body_index, parameter_name, value, lower, upper, sigma))
                 body_index += 1
         print(f"Fitting {len(fitting_parameters)} parameters.")
         return fitting_parameters

@@ -79,6 +79,9 @@ class CurveSimMCMC:
         measured_tt["delta"] = measured_tt["nearest_sim"] - measured_tt["tt"]
         residuals_tt = measured_tt["delta"] / measured_tt["tt_err"]  # residuals are weighted with uncertainty!
         residuals_tt_sum_squared = np.sum(residuals_tt ** 2)
+        max_delta = max(np.abs(measured_tt["delta"]))
+        mean_delta = np.mean(np.abs(measured_tt["delta"]))
+        print(f"{max_delta=:2.4f}   {mean_delta=:2.4f}    [days]")  # debug
         return residuals_tt_sum_squared
 
     @staticmethod
@@ -541,7 +544,7 @@ class CurveSimLMfit:
         for (body_index, parameter_name), (lower, upper) in zip(self.param_references, self.param_bounds):
             self.params.add(bodies[body_index].name + "_" + parameter_name, value=bodies[body_index].__dict__[parameter_name], min=lower, max=upper)
 
-        self.result = lmfit.minimize(CurveSimLMfit.lmfit_residual_tt, self.params, method="ampgo", args=(self.param_references, bodies, time_s0, time_d, measured_tt, p))
+        self.result = lmfit.minimize(CurveSimLMfit.lmfit_residual_tt, self.params, method="nelder", args=(self.param_references, bodies, time_s0, time_d, measured_tt, p))
         # ***** METHODS ******
         # 'leastsq': Levenberg-Marquardt (default, for least-squares problems)
         # 'least_squares': SciPy’s least_squares (Trust Region Reflective, Dogbox, Levenberg-Marquardt)
@@ -567,7 +570,7 @@ class CurveSimLMfit:
         sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # run simulation
         residuals_tt_sum_squared = CurveSimMCMC.match_transit_times(bodies, measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
         # print(".", end="")
-        print(residuals_tt_sum_squared)
+        # print(residuals_tt_sum_squared)
         return residuals_tt_sum_squared
 
     def save_lmfit_results(self, p, bodies):
