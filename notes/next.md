@@ -5,6 +5,7 @@
 - War X024 wirklich so schlecht? (Durch die beiden neuen Transits aus Sektor 
   95?)
 - Simulierte Daten fitten lassen
+- Uncertainty von den ersten und letzten c-Transits massiv herabsetzen?
 - Verschiedene Methoden ausprobieren (Nelder, ...)
 - LMfit mit Fluxdaten laufen lassen?
 - In den Resultfiles sinnvoll skalieren (deg statt rad etc.)
