@@ -97,3 +97,4 @@ files in folder "debug".
 ### 0.5.6 Fitting TOI-4504
 - MCMC uses multiprocessing now.
 - c- and d-transits change significantly when b is missing!
+- At dt=20000 the maximum error of TT is < 2.5 seconds in comparison to dt=1

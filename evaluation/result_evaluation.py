@@ -1,9 +1,13 @@
-from astropy.time import Time
 import statistics
 import csv
 import json
 import matplotlib.pyplot as plt
+import pandas as pd
 import os
+import sys
+
+sys.path.append('../src/curvesimulator')
+from cs_flux_data import df2csv_deutsch, df2csv
 
 
 def plot_this1(results, save_plot, savefilename, show_plot, ylabel, ybottom=None, ytop=None):
@@ -90,12 +94,52 @@ def transit_times_to_csv(results, savefile, bodies):
         for t_bjd in transit_times:
             writer.writerow([str(t_bjd).replace('.', ',')])
 
-def main(resultfile):
-    resultpath = "../results/"
-    resultextension = ".json"
-    with open(resultpath + resultfile + resultextension, "r") as file:
+
+def results2list(transit_param, eclipser, eclipsee, path, file, extension):
+    with open(path + file + extension, "r") as file:
         results = json.load(file)
-    planets = [body for body in results["Bodies"] if results["Bodies"][body]["BodyParameters"]["body_type"] == "planet"]
+    result_list = [item["Transit_params"][transit_param] for item in results["Bodies"][eclipser]["Transits"] if item["Transit_params"]["EclipsedBody"] == eclipsee]
+    return result_list
+
+
+def pad_lists_to_max_length(lists_dict):
+    max_len = max(len(lst) for lst in lists_dict.values())
+    for key, lst in lists_dict.items():
+        if len(lst) < max_len:
+            lists_dict[key] = lst + [None] * (max_len - len(lst))
+    return lists_dict
+
+
+def main():
+    path = "../results/mcmc/archive/X024_cd11P_TT/"
+    eclipser = "TOI4504d"
+    transit_param = "TT"
+    tts1 = results2list(transit_param, eclipser, "TOI4504", path, "TOI-4504_X024_maxl_dt1", ".json")
+    tts60 = results2list(transit_param, eclipser, "TOI4504", path, "TOI-4504_X024_maxl_dt60", ".json")
+    tts600 = results2list(transit_param, eclipser, "TOI4504", path, "TOI-4504_X024_maxl_dt600", ".json")
+    tts6000 = results2list(transit_param, eclipser, "TOI4504", path, "TOI-4504_X024_maxl_dt6000", ".json")
+    tts10000 = results2list(transit_param, eclipser, "TOI4504", path, "TOI-4504_X024_maxl_dt10000", ".json")
+    tts20000 = results2list(transit_param, eclipser, "TOI4504", path, "TOI-4504_X024_maxl_dt20000", ".json")
+    lists_dict = {
+        'tts1_' + eclipser: tts1,
+        'tts60_' + eclipser: tts60,
+        'tts600_' + eclipser: tts600,
+        'tts6000_' + eclipser: tts6000,
+        'tts10000_' + eclipser: tts10000,
+        'tts20000_' + eclipser: tts20000
+    }
+    lists_dict = pad_lists_to_max_length(lists_dict)
+    df = pd.DataFrame(lists_dict)
+    df2csv_deutsch(df, path + transit_param + "_" + eclipser + "_DE.csv")
+    df2csv(df, path + transit_param + "_" + eclipser + ".csv")
+
+
+
+    # resultpath = "../results/"
+    # with open(resultpath + resultfile + resultextension, "r") as file:
+    #     results = json.load(file)
+    # planets = [body for body in results["Bodies"] if results["Bodies"][body]["BodyParameters"]["body_type"] == "planet"]
+
     # depth(results, resultpath + "depth/" + resultfile + '_depth.png', planets, show_plot=True, save_plot=True, ybottom=None, ytop=None)
     # impact_parameter(results, resultpath + "impact/" + resultfile + '_impact.png', planets, show_plot=True, save_plot=True, ybottom=0.89243, ytop=0.89334)
     # transit_duration(results, resultpath + "duration_14/" + resultfile + '_duration_14.png', planets, show_plot=True, save_plot=True, full_eclipse_only=False)
@@ -103,10 +147,11 @@ def main(resultfile):
     # period(results, resultpath + "period/" + resultfile + '_period.png', planets, show_plot=True, save_plot=True, ybottom=39.0, ytop=42.0)
     # period(results, resultpath + "period/" + resultfile + '_period.png', [planets[-1]], show_plot=True, save_plot=True, ybottom=39.0, ytop=42.0)
 
-    bodies = [body for body in results["Bodies"]]
-    transit_times_to_csv(results, resultpath + resultfile + ".csv", bodies)
+    # bodies = [body for body in results["Bodies"]]
+    # transit_times_to_csv(results, resultpath + resultfile + ".csv", bodies)
 
 
-main("TOI-4504.without_b")
+main()
+# main("TOI-4504.without_b")
 # main("TOI-4504.v0003")
 # main("TOI-4504.v0002")

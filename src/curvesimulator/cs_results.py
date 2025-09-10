@@ -88,6 +88,8 @@ class CurveSimResults(dict):
 
     def save_results(self, p):
         del p.standard_sections
+        del p.eclipsers
+        del p.eclipsees
         p.starts_s0 = [float(i) for i in p.starts_s0]
         p.starts_d = [float(i) for i in p.starts_d]
         p.ends_s0 = [float(i) for i in p.ends_s0]

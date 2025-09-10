@@ -58,6 +58,8 @@ class CurveSimParameters:
         self.rv_file = config.get("Fitting", "rv_file", fallback="None")
         if self.rv_file == "None":
             self.rv_file = None
+        self.eclipsers_names = list([x.strip() for x in config.get("Fitting", "eclipsers_names", fallback="None").split("#")[0].split(",")])
+        self.eclipsees_names = list([x for x in config.get("Fitting", "eclipsees_names", fallback="None").split("#")[0].split(",")])
 
         # [Results]
         self.result_file = config.get("Results", "result_file", fallback="None")
@@ -125,8 +127,6 @@ class CurveSimParameters:
             self.flux_weight = int(eval(config.get("Fitting", "flux_weight", fallback="1")))
             self.tt_weight = int(eval(config.get("Fitting", "tt_weight", fallback="1")))
             self.walkers = int(eval(config.get("Fitting", "walkers", fallback="32")))
-            self.eclipsers_names = list([x.strip() for x in config.get("Fitting", "eclipsers_names", fallback="None").split("#")[0].split(",")])
-            self.eclipsees_names = list([x for x in config.get("Fitting", "eclipsees_names", fallback="None").split("#")[0].split(",")])
             self.target_flux = eval(config.get("Fitting", "target_flux", fallback="None"))
             self.steps = int(eval(config.get("Fitting", "steps", fallback="10000")))
             self.moves = config.get("Fitting", "moves", fallback="None")

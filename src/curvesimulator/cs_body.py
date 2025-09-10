@@ -334,13 +334,15 @@ class CurveSimBody:
                     t_left = rebound_sim.t  # middle is now the new left
                     dx_left = eclipser.x - eclipsee.x
             tt = rebound_sim.t / p.day + p.start_date
-            impact = CurveSimPhysics.distance_2d_particle(eclipser, eclipsee) / self.radius
+            d = CurveSimPhysics.distance_2d_particle(eclipser, eclipsee)
+            impact = d / self.radius
+            eclipse = d <= self.radius + other.radius
             depth = 1 - sim_flux.interpolate_max_depth(tt, p, iteration, start_index, end_index, dt, time_d)
-            return tt, impact, depth
+            return tt, impact, depth, eclipse
         else:
             print(f"{Fore.RED}ERROR in function find_tt: Try with a smaller iteration time step dt.")
             print(f"If that does not help, please open an issue on https://github.com/lichtgestalter/curvesimulator/issues and provide your config file.{Style.RESET_ALL}")
-            return -1, -1, -1
+            return -1, -1, -1, False
 
     def find_t1234(self, other, iteration, rebound_sim, time_s0, start_index, end_index, p, transittimetype):
         """other eclipses self. Find where ingress starts (T1) or egress ends (T4)."""

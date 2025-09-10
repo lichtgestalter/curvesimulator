@@ -1,11 +1,11 @@
 # Next / in progress:
 ## 0.5.6 Fitting TOI-4504
 
+
+
+
 ### LMfit
-- War X024 wirklich so schlecht? (Durch die beiden neuen Transits aus Sektor 
-  95?)
 - Simulierte Daten fitten lassen
-- Uncertainty von den ersten und letzten c-Transits massiv herabsetzen?
 - Verschiedene Methoden ausprobieren (Nelder, ...)
 - LMfit mit Fluxdaten laufen lassen?
 - In den Resultfiles sinnvoll skalieren (deg statt rad etc.)
@@ -61,6 +61,9 @@ code) fortsetzen
 - zunaechst nur moeglich nach TT ODER flux ODER RV zu fitten
 
 ### Housekeeping:
+- checken ob die Bodynamen in eclipsers_names, eclipsees_names, primary 
+  existieren
+
 - Klasse in flux_data anlegen? (import * ist haesslich)
 
 - Simulationscheck klappt fuer Drehimpuls, Energie und Center of Mass, aber 

@@ -71,10 +71,9 @@ class CurveSimBodies(list):
                                          t=               p.read_param(config, section, "t", fallback="0.0"),
                                          ))
         self.check_body_parameters()
+        p.bodynames2bodies(self)
         if p.flux_file is None and p.tt_file is None and p.rv_file is None:
             self.generate_patches(p)
-        if p.tt_file is not None:
-            p.bodynames2bodies(self)
 
     def __repr__(self):
         names = "CurveSimBodies: "
@@ -339,38 +338,38 @@ class CurveSimBodies(list):
         results = CurveSimResults(self)
         for start_index, end_index, dt in zip(p.start_indices[:-1], p.start_indices[1:], p.dts):
             for i in range(start_index, end_index):
-                for j, body1 in enumerate(self):
-                    for k, body2 in enumerate(self):
-                        if j < k:
-                            if (body1.positions[i][0] - body2.positions[i][0]) * (body1.positions[i-1][0] - body2.positions[i-1][0]) <= 0:  # transit between i-1 and i?
-                                d = CurveSimPhysics.distance_2d(body1, body2, i)
-                                if d < body1.radius + body2.radius:  # close enough for eclipse?
-                                    if body1.positions[i][2] > body2.positions[i][2]:  # who eclipses whom?
-                                        eclipser, eclipsee = body1, body2
-                                    else:
-                                        eclipser, eclipsee = body2, body1
-                                    tt, b, depth = eclipsee.find_tt(eclipser, i-1, rebound_sim, p, sim_flux, time_s0, time_d, start_index, end_index, dt)
-                                    t1 = eclipsee.find_t1234(eclipser, i, rebound_sim, time_s0, start_index, end_index, p, transittimetype="T1")
-                                    t2 = eclipsee.find_t1234(eclipser, i, rebound_sim, time_s0, start_index, end_index, p, transittimetype="T2")
-                                    t3 = eclipsee.find_t1234(eclipser, i - 1, rebound_sim, time_s0, start_index, end_index, p, transittimetype="T3")
-                                    t4 = eclipsee.find_t1234(eclipser, i - 1, rebound_sim, time_s0, start_index, end_index, p, transittimetype="T4")
-                                    t12, t23, t34, t14 = CurveSimPhysics.calc_transit_intervals(t1, t2, t3, t4)
-                                    # print(f"{eclipser.name} eclipses {eclipsee.name}: {1-sim_flux[i-1]=:.6f} {depth=:.6f} {1-sim_flux[i]=:.6f} ")
-                                    # print(f"{eclipser.name} eclipses {eclipsee.name} {b=:.3f} {t1=:.3f} {t2=:.3f} {tt=:.3f} {t3=:.3f} {t4=:.3f} {t12=:.3f} {t23=:.3f} {t34=:.3f} {t14=:.3f}")
-                                    results["Bodies"][eclipser.name]["Transits"].append(Transit(eclipsee))
-                                    results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["EclipsedBody"] = eclipsee.name
-                                    results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T1"] = t1
-                                    results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T2"] = t2
-                                    results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["TT"] = tt
-                                    results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T3"] = t3
-                                    results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T4"] = t4
-                                    results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T12"] = t12
-                                    results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T23"] = t23
-                                    results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T34"] = t34
-                                    results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T14"] = t14
-                                    results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["b"] = b
-                                    results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["depth"] = depth
-
+                # for potential_eclipser in p.eclipsers:
+                #     for potential_eclipsee in p.eclipsees:
+                for eclipser in p.eclipsers:
+                    for eclipsee in p.eclipsees:
+                # for j, body1 in enumerate(self):
+                #     for k, body2 in enumerate(self):
+                #         if j < k:
+                        xxx = eclipser.positions[i][2] > eclipsee.positions[i][2]  # eclipser before eclipsee?
+                        yyy = (eclipser.positions[i][0] - eclipsee.positions[i][0]) * (eclipser.positions[i-1][0] - eclipsee.positions[i-1][0]) <= 0  # transit between i-1 and i?
+                        if xxx and yyy:  # zzzzzzzzzzzzz
+                            tt, b, depth, eclipse = eclipsee.find_tt(eclipser, i-1, rebound_sim, p, sim_flux, time_s0, time_d, start_index, end_index, dt)
+                            if eclipse:  # eclipser and eclipsee are close enough at actual TT
+                                t1 = eclipsee.find_t1234(eclipser, i, rebound_sim, time_s0, start_index, end_index, p, transittimetype="T1")
+                                t2 = eclipsee.find_t1234(eclipser, i, rebound_sim, time_s0, start_index, end_index, p, transittimetype="T2")
+                                t3 = eclipsee.find_t1234(eclipser, i - 1, rebound_sim, time_s0, start_index, end_index, p, transittimetype="T3")
+                                t4 = eclipsee.find_t1234(eclipser, i - 1, rebound_sim, time_s0, start_index, end_index, p, transittimetype="T4")
+                                t12, t23, t34, t14 = CurveSimPhysics.calc_transit_intervals(t1, t2, t3, t4)
+                                # print(f"{eclipser.name} eclipses {eclipsee.name}: {1-sim_flux[i-1]=:.6f} {depth=:.6f} {1-sim_flux[i]=:.6f} ")
+                                # print(f"{eclipser.name} eclipses {eclipsee.name} {b=:.3f} {t1=:.3f} {t2=:.3f} {tt=:.3f} {t3=:.3f} {t4=:.3f} {t12=:.3f} {t23=:.3f} {t34=:.3f} {t14=:.3f}")
+                                results["Bodies"][eclipser.name]["Transits"].append(Transit(eclipsee))
+                                results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["EclipsedBody"] = eclipsee.name
+                                results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T1"] = t1
+                                results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T2"] = t2
+                                results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["TT"] = tt
+                                results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T3"] = t3
+                                results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T4"] = t4
+                                results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T12"] = t12
+                                results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T23"] = t23
+                                results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T34"] = t34
+                                results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T14"] = t14
+                                results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["b"] = b
+                                results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["depth"] = depth
         return results
 
 
