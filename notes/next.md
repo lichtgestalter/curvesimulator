@@ -1,25 +1,30 @@
 # Next / in progress:
 ## 0.5.6 Fitting TOI-4504
 
-
-
-
+- warum hab ich kaum noch t1 t2 t3 t4????
+  - bei dt=23000 wird direkt der erste T1 von c bei 2458400.1 nicht gefunden
+  - bei dt=3000 schon
+  
 ### LMfit
 - Simulierte Daten fitten lassen
-- Verschiedene Methoden ausprobieren (Nelder, ...)
-- LMfit mit Fluxdaten laufen lassen?
+  - Generiere mit den X024ML Parametern Simulierten Flux und TT Sim002
+  - Ablage unter data/simulations
+  - Konvergiert LMFit wenn Startwerte = Richtige Werte? 
+  - Konvergiert LMFit wenn Startwerte = Richtige Werte + x% Rauschen? 
+  - Verschiedene Methoden ausprobieren (Nelder, ...)
+  - LMfit mit Fluxdaten laufen lassen? (erfordert neuen Code)
+  
 - In den Resultfiles sinnvoll skalieren (deg statt rad etc.)
 
 
 ### TT-MCMC
-- Residen fuer MaxLikelihood automatisch ausrechnen (Auch mean und median?)
-
-- Eine Simulation laufen lassen. Deren entsprechende 12 c und 3 d Transits in 
+- Residuen fuer MaxLikelihood automatisch ausrechnen (Auch mean und median?)
+- Eine Simulation laufen lassen. Deren entsprechende 13 c und 4 d Transits in 
 tt_sim.csv
 speichern und mcmc darauf laufen lassen.
 - Wenn das konvergiert, sehe ich das als endgueltigen Beweis fuer Planet e!!!
-- Mit 11 (ohne r, i), 13 (ohne r) und 15 Parametern testen. Evtl. mit 
-  weiteren Parameterteilmengen.
+- Mit 11 (ohne r, i), 13 (ohne r) und 15 Parametern (nur ein Omega) testen. 
+  Evtl. mit weiteren Parameterteilmengen.
 
 - find_tts:
     - convert tts into a pandas Dataframe with columns eclipser, eclipsee, tt

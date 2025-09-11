@@ -124,6 +124,7 @@ class CurveSimParameters:
                 self.best_residuals_tt_sum_squared = 1e99
 
 
+            self.lmfit = eval(config.get("Fitting", "lmfit", fallback="False"))
             self.flux_weight = int(eval(config.get("Fitting", "flux_weight", fallback="1")))
             self.tt_weight = int(eval(config.get("Fitting", "tt_weight", fallback="1")))
             self.walkers = int(eval(config.get("Fitting", "walkers", fallback="32")))

@@ -336,9 +336,9 @@ class CurveSimBody:
             tt = rebound_sim.t / p.day + p.start_date
             d = CurveSimPhysics.distance_2d_particle(eclipser, eclipsee)
             impact = d / self.radius
-            eclipse = d <= self.radius + other.radius
+            close_enough = d <= self.radius + other.radius
             depth = 1 - sim_flux.interpolate_max_depth(tt, p, iteration, start_index, end_index, dt, time_d)
-            return tt, impact, depth, eclipse
+            return tt, impact, depth, close_enough
         else:
             print(f"{Fore.RED}ERROR in function find_tt: Try with a smaller iteration time step dt.")
             print(f"If that does not help, please open an issue on https://github.com/lichtgestalter/curvesimulator/issues and provide your config file.{Style.RESET_ALL}")

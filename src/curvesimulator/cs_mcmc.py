@@ -12,8 +12,9 @@ import numpy as np
 import os
 import sys
 import time
-from curvesimulator.cs_flux_data import csv2df
 
+from curvesimulator.cs_flux_data import csv2df
+from curvesimulator.cs_bodies import CurveSimBodies
 
 class CurveSimMCMC:
 
@@ -64,7 +65,7 @@ class CurveSimMCMC:
 
     @staticmethod
     def match_transit_times(bodies, measured_tt, p, rebound_sim, sim_flux, time_d, time_s0):
-        sim_tt = bodies.find_tts(rebound_sim, p, sim_flux, time_s0, time_d)  # sim_tt is a list of tuples (eclipser, eclipsee, tt)
+        sim_tt = CurveSimBodies.find_tts(rebound_sim, p, sim_flux, time_s0, time_d)  # sim_tt is a list of tuples (eclipser, eclipsee, tt)
         nearest_sim_tt = []
         for idx, row in measured_tt.iterrows():
             eclipser = row["eclipser"]

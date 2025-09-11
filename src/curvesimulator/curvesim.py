@@ -18,8 +18,7 @@ class CurveSimulator:
                 time_s0, time_d = CurveSimParameters.init_time_arrays(p)  # s0 in seconds, starting at 0. d in BJD.
                 measured_tt = CurveSimMCMC.get_measured_tt(p)
             bodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
-            lmfit = True  # debug
-            if lmfit:
+            if p.lmfit:
                 self.lmfit = CurveSimLMfit(p, bodies, time_s0, time_d, measured_tt)
                 self.lmfit.save_lmfit_results(p, bodies)
             else:
