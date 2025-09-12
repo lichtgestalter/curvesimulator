@@ -1,12 +1,17 @@
 # Next / in progress:
 ## 0.5.6 Fitting TOI-4504
 
+
+- Parameter TT-precision und lmfit_method in config file aufnehmen
+
   
 ### LMfit
 - Simulierte Daten fitten lassen
   - Generiere mit den X024ML Parametern Simulierten Flux und TT Sim002
   - Ablage unter data/simulations
-  - Konvergiert LMFit wenn Startwerte = Richtige Werte? 
+  - Konvergiert LMFit wenn Startwerte = Richtige Werte?
+    - Nein. Debuggen, warum fast alle Methoden auf dem gleichen Optimum 
+      festhaengen. Ist da ein Bug???
   - Konvergiert LMFit wenn Startwerte = Richtige Werte + x% Rauschen? 
   - Verschiedene Methoden ausprobieren (Nelder, ...)
   - LMfit mit Fluxdaten laufen lassen? (erfordert neuen Code)
