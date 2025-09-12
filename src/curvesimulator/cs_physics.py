@@ -43,7 +43,7 @@ class CurveSimPhysics:
         return g * mass
 
     @staticmethod
-    def distance_2d(body1, body2, i):
+    def distance_2d_body(body1, body2, i):
         """Return distance of the centers of 2 physical bodies as seen by a viewer (projection x->0)."""
         # dy = body1.positions[i][1] - body2.positions[i][1]
         # dz = body1.positions[i][2] - body2.positions[i][2]

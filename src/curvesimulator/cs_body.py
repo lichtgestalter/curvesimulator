@@ -455,7 +455,7 @@ class CurveSimBody:
             if iteration + iteration_delta >= end_index or iteration + iteration_delta < start_index:
                 return None  # incomplete transit at start or end of current simulation interval
             iteration_delta += step
-            d = CurveSimPhysics.distance_2d(other, self, iteration + iteration_delta)
+            d = CurveSimPhysics.distance_2d_body(other, self, iteration + iteration_delta)
         rebound_sim.integrate((time_s0[iteration + iteration_delta]))
         d_old = CurveSimPhysics.distance_2d_particle(eclipser, eclipsee)
         t_old = rebound_sim.t
@@ -466,7 +466,8 @@ class CurveSimBody:
             t_new, t_old = t_old, t_new  # T1 or T2  or T3 or T4 lies between t_old and t_new
         while t_new - t_old > 1e-1:  # bisect until desired precision reached
             rebound_sim.integrate((t_new + t_old) / 2)
-            in_eclipse = CurveSimPhysics.distance_2d_particle(eclipser, eclipsee) < d_event
+            d = CurveSimPhysics.distance_2d_particle(eclipser, eclipsee)
+            in_eclipse = d < d_event
             if transittimetype in ["T1", "T2"]:
                 if in_eclipse: # T1 or T2 lies between t_old and (t_new + t_old) / 2
                     t_new = rebound_sim.t
@@ -488,7 +489,7 @@ class CurveSimBody:
         relative_radius: The distance of the approximated center of the eclipsed area from the center of self as a percentage of self.radius (used for limb darkening)."""
         # if other.positions[iteration][0] < self.positions[iteration][0]:  # Is other nearer to viewpoint than self? (i.e. its position has a smaller x-coordinate)
         if other.positions[iteration][2] > self.positions[iteration][2]:  # Is other nearer to viewpoint than self? (i.e. its position has a larger z-coordinate)
-            d = CurveSimPhysics.distance_2d(other, self, iteration)
+            d = CurveSimPhysics.distance_2d_body(other, self, iteration)
             if d < self.radius + other.radius:  # Does other eclipse self?
                 if d <= abs(self.radius - other.radius):  # Annular (i.e. ring) eclipse or total eclipse
                     area, relative_radius = self.full_eclipse(other, d)
@@ -501,23 +502,29 @@ class CurveSimBody:
             return None, None
 
     def eclipsed_by_at_tt(self, other, eclipser, eclipsee):
-        """Returns area, relative_radius
+        """ self, other: body
+        eclipser, eclipsee: Rebound Particle
+        eclipser is the Rebound Particle of self
+        eclipsee is the Rebound Particle of other
+        Returns area, relative_radius
         area: Area of self which is eclipsed by eclipser.
-        relative_radius: The distance of the approximated center of the eclipsed area from the center of eclipsee as a percentage of eclipsee.radius (used for limb darkening)."""
+        relative_radius: The distance of the approximated center
+        of the eclipsed area from the center of eclipsee as
+        a percentage of eclipsee.radius (used for limb darkening)."""
         if eclipser.z > eclipsee.z:  # Is eclipser nearer to viewpoint than eclipsee? (i.e. its position has a larger z-coordinate)
-            d = CurveSimPhysics.distance_2d(eclipser, eclipsee)
-            if d < eclipsee.radius + eclipser.radius:  # Does eclipser eclipse eclipsee?
-                if d <= abs(eclipsee.radius - eclipser.radius):  # Annular (i.e. ring) eclipse or total eclipse
-                    area, relative_radius = eclipsee.full_eclipse(eclipser, d)
+            d = CurveSimPhysics.distance_2d_particle(eclipser, eclipsee)
+            if d < self.radius + other.radius:  # Does other eclipse self?
+                if d <= abs(self.radius - other.radius):  # Annular (i.e. ring) eclipse or total eclipse
+                    area, relative_radius = self.full_eclipse(other, d)
                 else:  # Partial eclipse
-                    area, relative_radius = eclipsee.partial_eclipse(eclipser, d)
+                    area, relative_radius = self.partial_eclipse(other, d)
                 return area, relative_radius
             else:  # No eclipse because, seen from viewer, the bodies are not close enough to each eclipser
                 return None, None
         else:  # eclipser cannot eclipse eclipsee, because eclipsee is nearer to viewer than eclipser
             return None, None
 
-    def depth_at_tt(self, other, eclipser, eclipsee): Hier weiter
+    def depth_at_tt(self, other, eclipser, eclipsee):
         eclipsed_area, relative_radius = self.eclipsed_by_at_tt(other, eclipser, eclipsee)
         if eclipsed_area is not None:
             limbdarkening = CurveSimPhysics.limbdarkening(relative_radius, self.limb_darkening_u1, self.limb_darkening_u2)

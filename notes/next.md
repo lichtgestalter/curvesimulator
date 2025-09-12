@@ -1,9 +1,6 @@
 # Next / in progress:
 ## 0.5.6 Fitting TOI-4504
 
-- warum hab ich kaum noch t1 t2 t3 t4????
-  - bei dt=23000 wird direkt der erste T1 von c bei 2458400.1 nicht gefunden
-  - bei dt=3000 schon
   
 ### LMfit
 - Simulierte Daten fitten lassen
