@@ -531,6 +531,7 @@ class CurveSimLMfit:
         self.scale = p.scale
         self.param_references = [(fp.body_index, fp.parameter_name) for fp in self.fitting_parameters]  # list of names of fitting parameters. Needed so these parameters can be updated inside log_likelihood().
         self.body_parameter_names = [f"{bodies[fp.body_index].name}.{fp.parameter_name}" for fp in self.fitting_parameters]
+        p.index_from_bodyparamname = {bpn: fp.index for bpn, fp in zip(self.body_parameter_names, self.fitting_parameters)}
         self.long_body_parameter_names = [fpn + " [" + self.unit[fpn.split(".")[-1]] + "]" for fpn in self.body_parameter_names]
         for fp, fpn, fpnu in zip(p.fitting_parameters, self.body_parameter_names, self.long_body_parameter_names):
             fp.body_parameter_name = fpn
@@ -545,7 +546,7 @@ class CurveSimLMfit:
             self.params.add(bodies[body_index].name + "_" + parameter_name, value=bodies[body_index].__dict__[parameter_name], min=lower, max=upper)
 
         # self.result = lmfit.minimize(CurveSimLMfit.lmfit_residual_tt, self.params, method="nelder", args=(self.param_references, bodies, time_s0, time_d, measured_tt, p))
-        self.result = lmfit.minimize(CurveSimLMfit.lmfit_residual_tt, self.params, method="differential_evolution", args=(self.param_references, bodies, time_s0, time_d, measured_tt, p))
+        self.result = lmfit.minimize(CurveSimLMfit.lmfit_residual_tt, self.params, method="powell", args=(self.param_references, bodies, time_s0, time_d, measured_tt, p))
         # ***** METHODS ******
         # 'leastsq': Levenberg-Marquardt (default, for least-squares problems)
         # 'least_squares': SciPy’s least_squares (Trust Region Reflective, Dogbox, Levenberg-Marquardt)
@@ -699,7 +700,27 @@ class CurveSimLMfit:
                   + ["e", "i", "P", "a", "Omega", "Omega_deg", "omega", "omega_deg", "pomega", "pomega_deg"]
                   + ["L", "L_deg", "ma", "ma_deg", "ea", "ea_deg", "nu", "nu_deg", "T", "t"])
 
-        fitting_params = [(fp.body_index, fp.parameter_name) for fp in p.fitting_parameters]
+
+# Die folgenden Code-Fragmente koennten hilfreich sein, um aus body und parameter auf den fitting_parameter zu schliessen
+# Damit ich den letzten Wert des Bodyparams auch als Attribut lastvalue im passenden FittingParameter speichern kann.
+        hier weiter
+        # fitting_params = [(fp.body_index, fp.parameter_name) for fp in p.fitting_parameters]
+
+        # self.param_references = [(fp.body_index, fp.parameter_name) for fp in self.fitting_parameters]  # list of names of fitting parameters. Needed so these parameters can be updated inside log_likelihood().
+        # self.body_parameter_names = [f"{bodies[fp.body_index].name}.{fp.parameter_name}" for fp in self.fitting_parameters]
+        # p.index_from_bodyparamname = {bpn: fp.index for bpn, fp in zip(self.body_parameter_names, self.fitting_parameters)}
+        # self.long_body_parameter_names = [fpn + " [" + self.unit[fpn.split(".")[-1]] + "]" for fpn in self.body_parameter_names]
+
+        # self.params = lmfit.Parameters()
+        # for (body_index, parameter_name), (lower, upper) in zip(self.param_references, self.param_bounds):
+        #     self.params.add(bodies[body_index].name + "_" + parameter_name, value=bodies[body_index].__dict__[parameter_name], min=lower, max=upper)
+
+        # for body_index, parameter_name in param_references:
+        #     bodies[body_index].__dict__[parameter_name] = params[bodies[body_index].name + "_" + parameter_name].value  # update all parameters from params
+
+
+
+
         for i, body in enumerate(bodies):
             results["Bodies"][body.name] = {}
             for key in params:
@@ -708,8 +729,11 @@ class CurveSimLMfit:
                     attr = getattr(body, key)
                     if attr is not None:
                         results["Bodies"][body.name][key] = attr
-        results["Fitting Parameters"] = {fp.body_parameter_name: fp.__dict__ for fp in p.fitting_parameters}
+                        body_param_name = "test"
+                        p.fitting_parameters[p.index_from_bodyparamname[body_param_name]].last_value = attr
 
+
+        results["Fitting Parameters"] = {fp.body_parameter_name: fp.__dict__ for fp in p.fitting_parameters}
 
         results["measured_tt_list"] = measured_tt.to_dict(orient="list")  # Convert measured_tt DataFrame to a serializable format
         results["measured_tt_records"] = measured_tt.to_dict(orient="records")  # Convert measured_tt DataFrame to a serializable format
