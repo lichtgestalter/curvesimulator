@@ -366,10 +366,22 @@ class CurveSimBody:
             t_right = rebound_sim.t
             dx_right = eclipser.x - eclipsee.x
             intervall_extensions += 1
-        if intervall_extensions > 0 and p.verbose:
-            print(f"{Fore.YELLOW}WARNING in function find_tt: Rebound integration results are possibly not accurate enough.")
-            print(f"Try again with half the overall iteration time step parameter 'dt'.{Style.RESET_ALL}   ", end="")
-            print(f"{iteration=}   {intervall_extensions=}")
+            if intervall_extensions > p.max_intervall_extensions:
+                if p.verbose:
+                    print(f"{Fore.YELLOW}WARNING in function find_tt: Maximum acceptable intervall extension exceeded.")
+                    print(f"This is due to a too large iteration time step parameter 'dt'{Style.RESET_ALL}   ", end="")
+                    print(f"or due to an unstable star system.{Style.RESET_ALL}   ", end="")
+                    print(f"Try again with half the iteration time step parameter 'dt'{Style.RESET_ALL}   ", end="")
+                    print(f"or choose more plausible start values and more restrictive upper/lower limits for the body parameters{Style.RESET_ALL}  ", end="")
+                    print(f"Consider moving the time intervals a bit.{Style.RESET_ALL}   ", end="")
+                    print(f"{iteration=}  {time_d[iteration]=} {intervall_extensions=}")
+                return -1, -1, -1, False
+            if iteration - intervall_extensions <= start_index or iteration + intervall_extensions >= end_index:
+                if p.verbose:
+                    print(f"{Fore.YELLOW}WARNING in function find_tt: Possible TT at the edge of a time interval.")
+                    print(f"Consider moving the time intervals a bit.{Style.RESET_ALL}   ", end="")
+                    print(f"{iteration=}  {time_d[iteration]=}")
+                return -1, -1, -1, False
         if dx_left * dx_right < 0 and eclipser.z >= eclipsee.z:  # sign of dx changed and eclipser in front of eclipsee
             while t_right - t_left > 1e-1:  # bisect until desired precision reached
                 t_middle = (t_right + t_left) / 2
@@ -390,8 +402,14 @@ class CurveSimBody:
                 depth = 0
             return tt, impact, depth, close_enough
         else:
-            print(f"{Fore.RED}ERROR in function find_tt: Try with a smaller iteration time step dt.")
-            print(f"If that does not help, please open an issue on https://github.com/lichtgestalter/curvesimulator/issues and provide your config file.{Style.RESET_ALL}")
+            if p.verbose:
+                print(f"{Fore.YELLOW}WARNING in function find_tt: Eclipser not in front of eclipsee at expected TT.")
+                print(f"This is due to a too large iteration time step parameter 'dt'{Style.RESET_ALL}   ", end="")
+                print(f"or due to an unstable star system.{Style.RESET_ALL}   ", end="")
+                print(f"Try again with half the iteration time step parameter 'dt'{Style.RESET_ALL}   ", end="")
+                print(f"or choose more plausible start values and more restrictive upper/lower limits for the body parameters{Style.RESET_ALL}  ", end="")
+                print(f"Consider moving the time intervals a bit.{Style.RESET_ALL}   ", end="")
+                print(f"{iteration=}  {time_d[iteration]=} {intervall_extensions=}")
             return -1, -1, -1, False
 
     # def find_t1234_old(self, other, iteration, rebound_sim, time_s0, start_index, end_index, p, transittimetype):

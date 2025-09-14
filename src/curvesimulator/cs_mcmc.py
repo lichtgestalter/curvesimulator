@@ -703,7 +703,7 @@ class CurveSimLMfit:
 
 # Die folgenden Code-Fragmente koennten hilfreich sein, um aus body und parameter auf den fitting_parameter zu schliessen
 # Damit ich den letzten Wert des Bodyparams auch als Attribut lastvalue im passenden FittingParameter speichern kann.
-        hier weiter
+
         # fitting_params = [(fp.body_index, fp.parameter_name) for fp in p.fitting_parameters]
 
         # self.param_references = [(fp.body_index, fp.parameter_name) for fp in self.fitting_parameters]  # list of names of fitting parameters. Needed so these parameters can be updated inside log_likelihood().
@@ -719,8 +719,6 @@ class CurveSimLMfit:
         #     bodies[body_index].__dict__[parameter_name] = params[bodies[body_index].name + "_" + parameter_name].value  # update all parameters from params
 
 
-
-
         for i, body in enumerate(bodies):
             results["Bodies"][body.name] = {}
             for key in params:
@@ -729,9 +727,16 @@ class CurveSimLMfit:
                     attr = getattr(body, key)
                     if attr is not None:
                         results["Bodies"][body.name][key] = attr
-                        body_param_name = "test"
-                        p.fitting_parameters[p.index_from_bodyparamname[body_param_name]].last_value = attr
 
+
+        for fp in p.fitting_parameters:
+            # i = fp.body_index
+            # print(i)
+            # pn = fp.parameter_name
+            # print(pn)
+            # fp.last_value = bodies[i].__dict__[pn]
+            fp.last_value = bodies[fp.body_index].__dict__[fp.parameter_name]
+            print(f"{fp.body_index=}  {fp.parameter_name=}  {fp.last_value}=")
 
         results["Fitting Parameters"] = {fp.body_parameter_name: fp.__dict__ for fp in p.fitting_parameters}
 

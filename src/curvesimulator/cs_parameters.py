@@ -66,6 +66,7 @@ class CurveSimParameters:
         if self.result_file == "None":
             self.result_file = None
         self.result_dt = eval(config.get("Results", "result_dt", fallback="100"))
+        self.max_intervall_extensions = eval(config.get("Results", "max_intervall_extensions", fallback="10"))
 
         # [Simulation]
         self.starts_d = np.array(eval(config.get("Simulation", "starts", fallback="[]")))
