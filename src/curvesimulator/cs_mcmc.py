@@ -546,7 +546,8 @@ class CurveSimLMfit:
             self.params.add(bodies[body_index].name + "_" + parameter_name, value=bodies[body_index].__dict__[parameter_name], min=lower, max=upper)
 
         # self.result = lmfit.minimize(CurveSimLMfit.lmfit_residual_tt, self.params, method="nelder", args=(self.param_references, bodies, time_s0, time_d, measured_tt, p))
-        self.result = lmfit.minimize(CurveSimLMfit.lmfit_residual_tt, self.params, method="powell", args=(self.param_references, bodies, time_s0, time_d, measured_tt, p))
+        self.result = lmfit.minimize(CurveSimLMfit.lmfit_residual_tt, self.params, method="shgo", args=(self.param_references, bodies, time_s0, time_d, measured_tt, p))
+        # self.result = lmfit.minimize(CurveSimLMfit.lmfit_residual_tt, self.params, method="powell", args=(self.param_references, bodies, time_s0, time_d, measured_tt, p))
         # ***** METHODS ******
         # 'leastsq': Levenberg-Marquardt (default, for least-squares problems)
         # 'least_squares': SciPy’s least_squares (Trust Region Reflective, Dogbox, Levenberg-Marquardt)
@@ -562,6 +563,19 @@ class CurveSimLMfit:
         # 'differential_evolution': Differential Evolution (global optimization)
         # 'brute': Brute force grid search
         # 'ampgo': Adaptive Memory Programming for Global Optimization
+
+            # basinhopping	Basinhopping
+        # dogleg	Dogleg
+        # dual_annealing	DualAnnealing
+            # shgo	SimplicialHomologyGlobalOptimization
+        # slsqp	SequentialLinearSquaresProgramming
+        # trust-exact	Exacttrust-region
+        # trust-krylov	NewtonGLTRtrust-region
+        # trust-ncg	NewtonCGtrust-region
+
+
+
+
         if os.path.exists("residual.tmp"):
             os.remove("residual.tmp")
 
@@ -676,7 +690,8 @@ class CurveSimLMfit:
             fp.upper *= fp.scale
             fp.last_value = bodies[fp.body_index].__dict__[fp.parameter_name]
             fp.last_value *= fp.scale
-            print(f"{fp.body_index=}  {fp.parameter_name=}  {fp.last_value}=")
+            width = 25 - len(fp.body_parameter_name)
+            print(f"{fp.body_parameter_name}:{fp.last_value:{width}.5f}")
 
         results["Fitting Parameters"] = {fp.body_parameter_name: fp.__dict__ for fp in fitting_parameters}
 

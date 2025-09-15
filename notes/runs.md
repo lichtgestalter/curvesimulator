@@ -17,19 +17,9 @@
     - c: m e P O ma
   - Methoden powell, nelder, lbfgsb, cg, cobyla, bfgs, tnc, trust-constr, 
   ampgo:
-    - starten alle mit max_delta=0.0047, mean_delta=0.0017
-    - verbessern sich danach nicht oder nur unwesentlich
-    - nelder noch am besten mit max_delta=0.0028, mean_delta=0.
-      0015
-    - die Deltas liegen zwar deutlich unter den von mir angegebenen 
-      Uncertainties der TT, 
-    - aber warum gehen die Deltas nicht noch naeher an Null?
-    - Ich habe mal Uncertainties der TT um Faktor 1000 verkleinert. Das 
-      hat nichts geaendert.
-  - Method differential_evolution:
-    - max_delta=0.0047   mean_delta=0.0017 nach 1. Iteration
-    - max_delta=0.1190   mean_delta=0.0565 nach 5k Iterationen
-    - max_delta=0.0452   mean_delta=0.0193 nach 20k Iterationen
+    - starten und enden alle mit max_delta=0.0047, mean_delta=0.0017
+    - besser geht es nicht, weil ich die TT zu grob gerundet hatte
+  - Method differential_evolution divergiert trotz optimaler Startwerte
  
 #### Warum gehen die Residuen bei simulierten Daten nicht naeher an NUll?
 - max_delta=0.0047, mean_delta=0.0017 scheint ungefaehr die Untergrenze zu sein
