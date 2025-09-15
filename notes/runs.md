@@ -31,8 +31,13 @@
     - max_delta=0.1190   mean_delta=0.0565 nach 5k Iterationen
     - max_delta=0.0452   mean_delta=0.0193 nach 20k Iterationen
  
+#### Warum gehen die Residuen bei simulierten Daten nicht naeher an NUll?
+- max_delta=0.0047, mean_delta=0.0017 scheint ungefaehr die Untergrenze zu sein
+- URSACHE: Ich hatte die TT nur mit 2 Nachkommastellen Genauigkeit angegeben.
+- Mit genaueren TT bekomme ich max_delta=0.0001, mean_delta=0.0000.
+
         
-- Konvergiert LMFit wenn Startwerte = Richtige Werte + cirka 1%?
+#### Konvergiert LMFit wenn Startwerte = Richtige Werte + cirka 1%?
   - `TOI-4504_simX024_01.ini`
   - Methode nelder findet den ersten TT (direkt einen Tag nach StartDate) nicht
   - Methode powell findet den ersten TT nach ca. 60 Iterationen, aber kommt 
@@ -40,7 +45,7 @@
     wurden.
       - max_delta=1.4991, mean_delta=0.4837 [days] 
 
-- Konvergiert LMFit wenn ich mehr Parameter festhalte?
+#### Konvergiert LMFit wenn ich mehr Parameter festhalte?
   - `TOI-4504_simX024_03.ini`
   - d.mass fitten, alle anderen Parameter auf 
     richtigen Wert festgesetzt
@@ -50,11 +55,11 @@
       mit ihrem richtigen Wert.
 
 
-- Konvergiert LMFit fuer ein 1-Planeten-System?
+#### Konvergiert LMFit fuer ein 1-Planeten-System?
+...
 
-
-- Konvergiert LMFit fuer b (fest) und c (fitten), aber ohne d?
-
+#### Konvergiert LMFit fuer b (fest) und c (fitten), aber ohne d?
+...
 
 
 ### MCMC fit von Flux inklusive Sektor 95

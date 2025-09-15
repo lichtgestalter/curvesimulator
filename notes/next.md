@@ -1,8 +1,9 @@
 # Next / in progress:
 ## 0.5.6 Fitting TOI-4504
 
-- measured_tt_list etc.  nicht nur in tmp, sondern auch in endresultat von lmfit
 - Parameter TT-precision und lmfit_method in config file aufnehmen
+- measured_tt_list etc.  nicht nur in tmp, sondern auch in endresultat von 
+  lmfit? Oder lieber Endresultat ausduennen, um Dopplungen zu vermeiden.
 
   
 ### LMfit

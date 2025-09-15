@@ -562,7 +562,6 @@ class CurveSimLMfit:
         # 'differential_evolution': Differential Evolution (global optimization)
         # 'brute': Brute force grid search
         # 'ampgo': Adaptive Memory Programming for Global Optimization
-        # 'emcee': Markov Chain Monte Carlo (MCMC, for Bayesian inference)
         if os.path.exists("residual.tmp"):
             os.remove("residual.tmp")
 
@@ -579,6 +578,9 @@ class CurveSimLMfit:
             mean_delta = np.mean(np.abs(measured_tt["delta"]))
             print(f"\n{max_delta=:2.4f}   {mean_delta=:2.4f}    [days] ")
             CurveSimLMfit.save_intermediate_lmfit_results(p, bodies, measured_tt)
+            if max_delta < 1e-4:
+                print("Terminated succesfully, because residuals are very small.")
+                sys.exit(0)
         else:
             print(".", end="")
         return residuals_tt_sum_squared
@@ -604,53 +606,6 @@ class CurveSimLMfit:
             results["Simulation Parameters"]["tt_file"] = p.tt_file
             results["Simulation Parameters"]["tt_data_points"] = p.tt_datasize
             # results["Simulation Parameters"]["rv_file"] = p.rv_file
-        # if p.tt_file:
-        #     results["Simulation Parameters"]["tt_measured"] = list(p.best_tt_df["tt"])
-        #     results["Simulation Parameters"]["tt_best_sim"] = list(p.best_tt_df["nearest_sim"])
-
-        results["Bodies"] = {}
-        params = (["body_type", "primary", "mass", "radius", "luminosity"]
-                  + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
-                  + ["e", "i", "P", "a", "Omega", "Omega_deg", "omega", "omega_deg", "pomega", "pomega_deg"]
-                  + ["L", "L_deg", "ma", "ma_deg", "ea", "ea_deg", "nu", "nu_deg", "T", "t"])
-
-        fitting_params = [(fp.body_index, fp.parameter_name) for fp in self.fitting_parameters]
-        for i, body in enumerate(bodies):
-            results["Bodies"][body.name] = {}
-            for key in params:
-                # if (i, key) not in fitting_params and (i, key.split("_deg")[0]) not in fitting_params:
-                if True:  # debug
-                    attr = getattr(body, key)
-                    if attr is not None:
-                        results["Bodies"][body.name][key] = attr
-        results["Fitting Parameters"] = {fp.body_parameter_name: fp.__dict__ for fp in p.fitting_parameters}
-
-        p_copy = copy.deepcopy(p)
-        del p_copy.fitting_parameters
-        del p_copy.standard_sections
-        del p_copy.eclipsers
-        del p_copy.eclipsees
-        del p_copy.tt_file
-        del p_copy.total_iterations
-        del p_copy.walkers
-        del p_copy.moves
-        del p_copy.burn_in
-        del p_copy.thin_samples
-        del p_copy.tt_datasize
-        del p_copy.comment
-        del p_copy.start_date
-        del p_copy.fitting_results_directory
-        del p_copy.starts_s0
-        del p_copy.starts_d
-        del p_copy.ends_s0
-        del p_copy.ends_d
-        del p_copy.dts
-        # p_copy.starts_s0 = [float(i) for i in p_copy.starts_s0]
-        # p_copy.starts_d = [float(i) for i in p_copy.starts_d]
-        # p_copy.ends_s0 = [float(i) for i in p_copy.ends_s0]
-        # p_copy.ends_d = [float(i) for i in p_copy.ends_d]
-        # p_copy.dts = [float(i) for i in p_copy.dts]
-        results["ProgramParameters"] = p_copy.__dict__
 
         result_copy = copy.deepcopy(self.result)
         result_copy.last_internal_values = list(result_copy.last_internal_values)
@@ -684,6 +639,7 @@ class CurveSimLMfit:
         results["Simulation Parameters"] = {}
         results["Simulation Parameters"]["comment"] = getattr(p, "comment", None)
         results["Simulation Parameters"]["end_realtime"] = time.strftime("%d.%m.%y %H:%M:%S") + " [DD.MM.YY hh:mm:ss]"
+
         if p.flux_file:
             results["Simulation Parameters"]["flux_file"] = p.flux_file
         if p.tt_file:
@@ -697,48 +653,32 @@ class CurveSimLMfit:
         results["Bodies"] = {}
         params = (["body_type", "primary", "mass", "radius", "luminosity"]
                   + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
-                  + ["e", "i", "P", "a", "Omega", "Omega_deg", "omega", "omega_deg", "pomega", "pomega_deg"]
-                  + ["L", "L_deg", "ma", "ma_deg", "ea", "ea_deg", "nu", "nu_deg", "T", "t"])
-
-
-# Die folgenden Code-Fragmente koennten hilfreich sein, um aus body und parameter auf den fitting_parameter zu schliessen
-# Damit ich den letzten Wert des Bodyparams auch als Attribut lastvalue im passenden FittingParameter speichern kann.
-
-        # fitting_params = [(fp.body_index, fp.parameter_name) for fp in p.fitting_parameters]
-
-        # self.param_references = [(fp.body_index, fp.parameter_name) for fp in self.fitting_parameters]  # list of names of fitting parameters. Needed so these parameters can be updated inside log_likelihood().
-        # self.body_parameter_names = [f"{bodies[fp.body_index].name}.{fp.parameter_name}" for fp in self.fitting_parameters]
-        # p.index_from_bodyparamname = {bpn: fp.index for bpn, fp in zip(self.body_parameter_names, self.fitting_parameters)}
-        # self.long_body_parameter_names = [fpn + " [" + self.unit[fpn.split(".")[-1]] + "]" for fpn in self.body_parameter_names]
-
-        # self.params = lmfit.Parameters()
-        # for (body_index, parameter_name), (lower, upper) in zip(self.param_references, self.param_bounds):
-        #     self.params.add(bodies[body_index].name + "_" + parameter_name, value=bodies[body_index].__dict__[parameter_name], min=lower, max=upper)
-
-        # for body_index, parameter_name in param_references:
-        #     bodies[body_index].__dict__[parameter_name] = params[bodies[body_index].name + "_" + parameter_name].value  # update all parameters from params
-
+                  + ["e", "i", "P", "a", "Omega", "omega", "pomega"]
+                  # + ["e", "i", "P", "a", "Omega", "Omega_deg", "omega", "omega_deg", "pomega", "pomega_deg"]
+                  + ["L", "ma", "ea", "ea_deg", "nu", "T", "t"])
+                  # + ["L", "L_deg", "ma", "ma_deg", "ea", "ea_deg", "nu", "nu_deg", "T", "t"])
 
         for i, body in enumerate(bodies):
             results["Bodies"][body.name] = {}
             for key in params:
-                # if (i, key) not in fitting_params and (i, key.split("_deg")[0]) not in fitting_params:
-                if True:  # debug
-                    attr = getattr(body, key)
-                    if attr is not None:
-                        results["Bodies"][body.name][key] = attr
+                attr = getattr(body, key)
+                if attr is not None:
+                    if key in p.scale:
+                        scale = p.scale[key]
+                    else:
+                        scale = 1
+                    results["Bodies"][body.name][key] = attr * scale
 
-
-        for fp in p.fitting_parameters:
-            # i = fp.body_index
-            # print(i)
-            # pn = fp.parameter_name
-            # print(pn)
-            # fp.last_value = bodies[i].__dict__[pn]
+        fitting_parameters = copy.deepcopy(p.fitting_parameters)
+        for fp in fitting_parameters:
+            fp.startvalue *= fp.scale
+            fp.lower *= fp.scale
+            fp.upper *= fp.scale
             fp.last_value = bodies[fp.body_index].__dict__[fp.parameter_name]
+            fp.last_value *= fp.scale
             print(f"{fp.body_index=}  {fp.parameter_name=}  {fp.last_value}=")
 
-        results["Fitting Parameters"] = {fp.body_parameter_name: fp.__dict__ for fp in p.fitting_parameters}
+        results["Fitting Parameters"] = {fp.body_parameter_name: fp.__dict__ for fp in fitting_parameters}
 
         results["measured_tt_list"] = measured_tt.to_dict(orient="list")  # Convert measured_tt DataFrame to a serializable format
         results["measured_tt_records"] = measured_tt.to_dict(orient="records")  # Convert measured_tt DataFrame to a serializable format
@@ -763,22 +703,8 @@ class CurveSimLMfit:
         del p_copy.ends_s0
         del p_copy.ends_d
         del p_copy.dts
-        # p_copy.starts_s0 = [float(i) for i in p_copy.starts_s0]
-        # p_copy.starts_d = [float(i) for i in p_copy.starts_d]
-        # p_copy.ends_s0 = [float(i) for i in p_copy.ends_s0]
-        # p_copy.ends_d = [float(i) for i in p_copy.ends_d]
-        # p_copy.dts = [float(i) for i in p_copy.dts]
         results["ProgramParameters"] = p_copy.__dict__
 
-        # result_copy = copy.deepcopy(self.result)
-        # result_copy.last_internal_values = list(result_copy.last_internal_values)
-        # result_copy.residual = list(result_copy.residual)
-        # result_copy.x = list(result_copy.x)
-        # result_copy.params = json.loads(result_copy.params.dumps())
-
-        # results["LMfitParameters"] = result_copy.__dict__
-
-        find_ndarrays(results)
         filename = p.fitting_results_directory + f"/lmfit_results.tmp.json"
         with open(filename, "w", encoding='utf8') as file:
             json.dump(results, file, indent=4, ensure_ascii=False)
