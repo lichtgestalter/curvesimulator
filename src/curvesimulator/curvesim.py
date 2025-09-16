@@ -20,7 +20,7 @@ class CurveSimulator:
             bodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
             if p.lmfit:
                 self.lmfit = CurveSimLMfit(p, bodies, time_s0, time_d, measured_tt)
-                self.lmfit.save_lmfit_results(p, bodies)
+                self.lmfit.save_lmfit_results(p)
             else:
                 mcmc = CurveSimMCMC(p, bodies, time_s0, time_d, measured_flux, flux_uncertainty, measured_tt)
                 self.sampler = mcmc.sampler  # mcmc object

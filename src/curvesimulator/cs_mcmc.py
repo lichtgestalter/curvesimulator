@@ -546,32 +546,31 @@ class CurveSimLMfit:
             self.params.add(bodies[body_index].name + "_" + parameter_name, value=bodies[body_index].__dict__[parameter_name], min=lower, max=upper)
 
         # self.result = lmfit.minimize(CurveSimLMfit.lmfit_residual_tt, self.params, method="nelder", args=(self.param_references, bodies, time_s0, time_d, measured_tt, p))
-        self.result = lmfit.minimize(CurveSimLMfit.lmfit_residual_tt, self.params, method="shgo", args=(self.param_references, bodies, time_s0, time_d, measured_tt, p))
+        self.result = lmfit.minimize(CurveSimLMfit.lmfit_residual_tt, self.params, method="brute", args=(self.param_references, bodies, time_s0, time_d, measured_tt, p))
         # self.result = lmfit.minimize(CurveSimLMfit.lmfit_residual_tt, self.params, method="powell", args=(self.param_references, bodies, time_s0, time_d, measured_tt, p))
         # ***** METHODS ******
-        # 'leastsq': Levenberg-Marquardt (default, for least-squares problems)
-        # 'least_squares': SciPy’s least_squares (Trust Region Reflective, Dogbox, Levenberg-Marquardt)
-        # 'nelder': Nelder-Mead simplex
-        # 'lbfgsb': L-BFGS-B (bounded minimization)
-        # 'powell': Powell’s method
-        # 'cg': Conjugate Gradient
-        # 'newton': Newton-CG
-        # 'cobyla': COBYLA
-        # 'bfgs': BFGS
-        # 'tnc': Truncated Newton
-        # 'trust-constr': Trust Region Constrained
-        # 'differential_evolution': Differential Evolution (global optimization)
-        # 'brute': Brute force grid search
-        # 'ampgo': Adaptive Memory Programming for Global Optimization
-
-            # basinhopping	Basinhopping
-        # dogleg	Dogleg
-        # dual_annealing	DualAnnealing
-            # shgo	SimplicialHomologyGlobalOptimization
-        # slsqp	SequentialLinearSquaresProgramming
-        # trust-exact	Exacttrust-region
-        # trust-krylov	NewtonGLTRtrust-region
-        # trust-ncg	NewtonCGtrust-region
+        # has special needs                       leastsq: Levenberg-Marquardt (default, for least-squares problems)
+        # has special needs                       least_squares: SciPy’s least_squares (Trust Region Reflective, Dogbox, Levenberg-Marquardt)
+        # fine                                    nelder: Nelder-Mead simplex
+        # ???                                     lbfgsb: L-BFGS-B (bounded minimization)
+        # best                                    powell: Powell’s method
+        # does not find minimum                   cg: Conjugate Gradient
+        # has special needs                       newton: Newton-CG
+        # does not find minimum                   cobyla: COBYLA
+        # does not find minimum                   bfgs: BFGS
+        # does not find minimum                   tnc: Truncated Newton
+        # does not find minimum                   trust-constr: Trust Region Constrained
+        # fine                                    differential_evolution: Differential Evolution (global optimization)
+        # slow, only few params, getting there    brute: Brute force grid search
+        # ???                                     ampgo: Adaptive Memory Programming for Global Optimization
+        # does not find minimum                   basinhopping	Basinhopping
+        # has special needs                       dogleg	Dogleg
+        # does not find minimum                   dual_annealing	DualAnnealing
+        # does not find minimum                   shgo	SimplicialHomologyGlobalOptimization
+        # does not find minimum                   slsqp	SequentialLinearSquaresProgramming
+        # has special needs                       trust-exact	Exacttrust-region
+        # has special needs                       trust-krylov	NewtonGLTRtrust-region
+        # has special needs                       trust-ncg	NewtonCGtrust-region
 
 
 
@@ -599,7 +598,7 @@ class CurveSimLMfit:
             print(".", end="")
         return residuals_tt_sum_squared
 
-    def save_lmfit_results(self, p, bodies):
+    def save_lmfit_results(self, p):
         results = {}
         results["CurveSimulator Documentation"] = "https://github.com/lichtgestalter/curvesimulator/wiki"
         results["Simulation Parameters"] = {}
