@@ -17,16 +17,9 @@
     - c: m e P O ma
   - Methoden powell, nelder, lbfgsb, cg, cobyla, bfgs, tnc, trust-constr, 
   ampgo:
-    - starten und enden alle mit max_delta=0.0047, mean_delta=0.0017
-    - besser geht es nicht, weil ich die TT zu grob gerundet hatte
+    - starten und enden alle mit max_delta=0.0001, mean_delta=0.0000
   - Method differential_evolution divergiert trotz optimaler Startwerte
  
-#### Warum gehen die Residuen bei simulierten Daten nicht naeher an NUll?
-- max_delta=0.0047, mean_delta=0.0017 scheint ungefaehr die Untergrenze zu sein
-- URSACHE: Ich hatte die TT nur mit 2 Nachkommastellen Genauigkeit angegeben.
-- Mit genaueren TT bekomme ich max_delta=0.0001, mean_delta=0.0000.
-
-        
 #### Konvergiert LMFit wenn Startwerte = Richtige Werte + cirka 1%?
   - `TOI-4504_simX024_01.ini`
   - Methode nelder findet den ersten TT (direkt einen Tag nach StartDate) nicht
@@ -43,7 +36,45 @@
       richtigen Werte, als 
       haette ich wie oben 9 Parameter frei und alle freien Parameter starten 
       mit ihrem richtigen Wert.
+  - d.mass, d.e fitten: konvergiert zuverlaessig.
+  - d.mass, d.e fitten, d.P: konvergiert ziemlich zuverlaessig, wenn der 
+    Startwert fuer P weniger als 1 Tag vom richtigen Wert wegliegt.
+  - d.mass, d.e, d.O, d.o, d.ma: konvergiert nicht
+  - d.P, d.O, d.o, d.ma: konvergiert nicht
+  - d.P, c.P: konvergiert nicht einmal mit brute force!
 
+
+
+
+- X024 ist ein MCMC fit mit 11 Parametern auf die TT bis Sektor 94 (12c, 3d)
+  - d: m e P O o ma
+  - c: m e P   o ma
+  - MCMC ist ziemlich gut konvergiert, hat aber zu grosse Residuen
+  - Ich fitte alle 11 Params mit LMfit (powell) auf den TT inkl. Sektor 95 
+    (13+4)
+  - Dabei nutze ich die MCMC-Histogramme, um den Parametern sehr enge bounds 
+    zu setzen
+  - Konvergiert, aber zu grosse Residuen:
+      - max_delta=1.4086   mean_delta=0.3836    [days] 
+      - TOI4504d.mass:     1.27061
+      - TOI4504d.e:        0.10229
+      - TOI4504d.P:       41.16460
+      - TOI4504d.Omega:   -0.14345
+      - TOI4504d.omega:   88.10352
+      - TOI4504d.ma:     328.52317
+      - TOI4504c.mass:     3.63195
+      - TOI4504c.e:        0.05419
+      - TOI4504c.P:       83.28688
+      - TOI4504c.omega:  295.95378
+      - TOI4504c.ma:     151.22450
+  - Moeglich Gruende fuer die zu grossen Residuen
+      - LMfit konvergiert schlecht
+      - Die Sektor 95-Daten passen schlecht zu den anderen Daten
+      - Planet e
+  - Handlungsoptionen:
+      - MCMC mit 11 Params auf den 13+4 TT laufen lassen. Danach evtl. 
+        wieder LMfit nachlaufen lassen.
+      - ???
 
 #### Konvergiert LMFit fuer ein 1-Planeten-System?
 ...
@@ -58,12 +89,10 @@
 ### MCMC fit von KEPLER-9
 ...
 
+### LMfit fit von KEPLER-9
+...
+
 ### Simulierten Flux mit LMfit fitten
 - erfordert einige Programmier-Arbeit
  
-### ab vergessen, as ich hier wollte
-- X024 Daten fitten
-- X024 ist ein MCMC fit mit 11 Parametern auf die TT bis Sektor 94 (12c, 3d)
-  - d: m e P O o ma
-  - c: m e P   o ma
 
