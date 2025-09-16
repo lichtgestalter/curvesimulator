@@ -545,8 +545,9 @@ class CurveSimLMfit:
         for (body_index, parameter_name), (lower, upper) in zip(self.param_references, self.param_bounds):
             self.params.add(bodies[body_index].name + "_" + parameter_name, value=bodies[body_index].__dict__[parameter_name], min=lower, max=upper)
 
-        # self.result = lmfit.minimize(CurveSimLMfit.lmfit_residual_tt, self.params, method="nelder", args=(self.param_references, bodies, time_s0, time_d, measured_tt, p))
         self.result = lmfit.minimize(CurveSimLMfit.lmfit_residual_tt, self.params, method="brute", args=(self.param_references, bodies, time_s0, time_d, measured_tt, p))
+        # self.result = lmfit.minimize(CurveSimLMfit.lmfit_residual_tt, self.params, method="differential_evolution", args=(self.param_references, bodies, time_s0, time_d, measured_tt, p))
+        # self.result = lmfit.minimize(CurveSimLMfit.lmfit_residual_tt, self.params, method="nelder", args=(self.param_references, bodies, time_s0, time_d, measured_tt, p))
         # self.result = lmfit.minimize(CurveSimLMfit.lmfit_residual_tt, self.params, method="powell", args=(self.param_references, bodies, time_s0, time_d, measured_tt, p))
         # ***** METHODS ******
         # best?                                     powell: Powell’s method
