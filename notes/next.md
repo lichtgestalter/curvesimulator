@@ -2,6 +2,7 @@
 ## 0.5.6 Fitting TOI-4504
 
 - Parameter TT-precision und lmfit_method in config file aufnehmen
+- Auch Abbruchkriterium fuer residuen groesse in config file (1e-4 derzeit)
 - measured_tt_list etc.  nicht nur in tmp, sondern auch in endresultat von 
   lmfit? Oder lieber Endresultat ausduennen, um Dopplungen zu vermeiden.
 
