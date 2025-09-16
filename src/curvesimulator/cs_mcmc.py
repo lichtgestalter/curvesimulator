@@ -549,28 +549,29 @@ class CurveSimLMfit:
         self.result = lmfit.minimize(CurveSimLMfit.lmfit_residual_tt, self.params, method="brute", args=(self.param_references, bodies, time_s0, time_d, measured_tt, p))
         # self.result = lmfit.minimize(CurveSimLMfit.lmfit_residual_tt, self.params, method="powell", args=(self.param_references, bodies, time_s0, time_d, measured_tt, p))
         # ***** METHODS ******
-        # has special needs                       leastsq: Levenberg-Marquardt (default, for least-squares problems)
-        # has special needs                       least_squares: SciPy’s least_squares (Trust Region Reflective, Dogbox, Levenberg-Marquardt)
-        # fine                                    nelder: Nelder-Mead simplex
-        # ???                                     lbfgsb: L-BFGS-B (bounded minimization)
-        # best                                    powell: Powell’s method
-        # does not find minimum                   cg: Conjugate Gradient
-        # has special needs                       newton: Newton-CG
-        # does not find minimum                   cobyla: COBYLA
-        # does not find minimum                   bfgs: BFGS
-        # does not find minimum                   tnc: Truncated Newton
-        # does not find minimum                   trust-constr: Trust Region Constrained
-        # fine                                    differential_evolution: Differential Evolution (global optimization)
-        # slow, only few params, getting there    brute: Brute force grid search
-        # ???                                     ampgo: Adaptive Memory Programming for Global Optimization
-        # does not find minimum                   basinhopping	Basinhopping
-        # has special needs                       dogleg	Dogleg
-        # does not find minimum                   dual_annealing	DualAnnealing
-        # does not find minimum                   shgo	SimplicialHomologyGlobalOptimization
-        # does not find minimum                   slsqp	SequentialLinearSquaresProgramming
-        # has special needs                       trust-exact	Exacttrust-region
-        # has special needs                       trust-krylov	NewtonGLTRtrust-region
-        # has special needs                       trust-ncg	NewtonCGtrust-region
+        # best?                                     powell: Powell’s method
+        # fine                                      nelder: Nelder-Mead simplex
+        # fine                                      differential_evolution: Differential Evolution (global optimization)
+        # n params, n<8 because 7.5*n*20**n bytes memory, slow  brute: Brute force grid search
+
+        # needs Jacobian                            newton: Newton-CG
+        # needs Jacobian                            dogleg	Dogleg
+        # needs Jacobian                            trust-exact	Exacttrust-region
+        # needs Jacobian                            trust-krylov	NewtonGLTRtrust-region
+        # needs Jacobian                            trust-ncg	NewtonCGtrust-region
+        # does not even find minimum for 3 params   least_squares: SciPy’s least_squares (Trust Region Reflective, Dogbox, Levenberg-Marquardt)
+        # does not even find minimum for 3 params   lbfgsb: L-BFGS-B (bounded minimization)
+        # does not even find minimum for 3 params   ampgo: Adaptive Memory Programming for Global Optimization
+        # does not even find minimum for 3 params   cg: Conjugate Gradient
+        # does not even find minimum for 3 params   cobyla: COBYLA
+        # does not even find minimum for 3 params   bfgs: BFGS
+        # does not even find minimum for 3 params   tnc: Truncated Newton
+        # does not even find minimum for 3 params   trust-constr: Trust Region Constrained
+        # does not even find minimum for 3 params   basinhopping	Basinhopping
+        # does not even find minimum for 3 params   dual_annealing	DualAnnealing
+        # does not even find minimum for 3 params   shgo	SimplicialHomologyGlobalOptimization
+        # does not even find minimum for 3 params   slsqp	SequentialLinearSquaresProgramming
+        # does not find minimum + needs more residual than params  leastsq: Levenberg-Marquardt (default, for least-squares problems)
 
 
 
@@ -596,6 +597,7 @@ class CurveSimLMfit:
                 sys.exit(0)
         else:
             print(".", end="")
+        # return measured_tt["delta"]
         return residuals_tt_sum_squared
 
     def save_lmfit_results(self, p):
