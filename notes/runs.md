@@ -20,7 +20,7 @@
     - starten und enden alle mit max_delta=0.0001, mean_delta=0.0000
   - Method differential_evolution divergiert trotz optimaler Startwerte
  
-#### Konvergiert LMFit wenn Startwerte = Richtige Werte + cirka 1%?
+#### Konvergiert LMFit mit Startwerten in der Naehe (<1%) der richtigen Werte?
   - `TOI-4504_simX024_01.ini`
   - Methode nelder findet den ersten TT (direkt einen Tag nach StartDate) nicht
   - Methode powell findet den ersten TT nach ca. 60 Iterationen, aber kommt 
@@ -32,25 +32,21 @@
   - `TOI-4504_simX024_03.ini`
   - d.mass fitten, alle anderen Parameter auf 
     richtigen Wert festgesetzt
-    - konvergiert _fuer jeden Startwert_ sehr schnell genauso nah an die 
-      richtigen Werte, als 
-      haette ich wie oben 9 Parameter frei und alle freien Parameter starten 
-      mit ihrem richtigen Wert.
+    - konvergiert _fuer jeden Startwert_ sehr schnell zu Residuen von cirka 
+      null.
   - d.mass, d.e fitten: konvergiert zuverlaessig.
-  - d.mass, d.e fitten, d.P: konvergiert ziemlich zuverlaessig, wenn der 
+  - d.mass, d.e, d.P fitten: konvergiert ziemlich zuverlaessig, wenn der 
     Startwert fuer P weniger als 1 Tag vom richtigen Wert wegliegt.
   - d.mass, d.e, d.O, d.o, d.ma: konvergiert nicht
   - d.P, d.O, d.o, d.ma: konvergiert nicht
   - d.P, c.P: konvergiert nicht einmal mit brute force!
 
-
-
-
-- X024 ist ein MCMC fit mit 11 Parametern auf die TT bis Sektor 94 (12c, 3d)
+#### Konvergiert LMFit wenn ich 11 Parameter fitte mit sehr engen bounds?
+- X024 ist ein MCMC fit mit 11 Parametern auf die 15 TT bis Sektor 94 (12c, 3d)
   - d: m e P O o ma
-  - c: m e P   o ma
+  - c: m e P _ o ma
   - MCMC ist ziemlich gut konvergiert, hat aber zu grosse Residuen
-  - Ich fitte alle 11 Params mit LMfit (powell) auf den TT inkl. Sektor 95 
+  - Ich fitte alle 11 Params mit LMfit (powell) auf die 17 TT inkl. Sektor 95 
     (13+4)
   - Dabei nutze ich die MCMC-Histogramme, um den Parametern sehr enge bounds 
     zu setzen
@@ -71,9 +67,10 @@
       - LMfit konvergiert schlecht
       - Die Sektor 95-Daten passen schlecht zu den anderen Daten
       - Planet e
+      - Fehler in CurveSimulator
   - Handlungsoptionen:
       - MCMC mit 11 Params auf den 13+4 TT laufen lassen. Danach evtl. 
-        wieder LMfit nachlaufen lassen.
+        wieder LMfit mit MCMCs MaxL-Params als Startwerte nachlaufen lassen.
       - ???
 
 #### Konvergiert LMFit fuer ein 1-Planeten-System?

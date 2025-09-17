@@ -5,6 +5,7 @@
 - Auch Abbruchkriterium fuer residuen groesse in config file (1e-4 derzeit)
 - measured_tt_list etc.  nicht nur in tmp, sondern auch in endresultat von 
   lmfit? Oder lieber Endresultat ausduennen, um Dopplungen zu vermeiden.
+- df measured tt in mcmc result, so wie er schon in lmfit result ist
 
   
 ### LMfit
@@ -259,3 +260,21 @@ nicht in jedem Intervall gleich sein)
     - Print in Konsole
     - Im JSON File
     - Copyright notice ins Video?
+
+## Ferne Zukunft / Neues Projekt
+### Einen manuellen/visuelle Fitter bauen
+- Man waehlt 2 der Fittingparameter aus.
+- Bekommt ein Diagramm der bisher ermittelten Residuen angezeigt
+  - farbcodiert Z.B. je gruener, desto kleineres Residuum.
+  - besser noch: Graustufen und Top n% (user definierbar) in rot
+  - man kann waehlen ob die Farbcodierung global ist oder sich beim 
+    Reinzoomen anpasst
+  - vielleicht global Grautoene und lokal Blautoene nehmen
+- Man kann in das Diagramm entweder eine Linie oder ein Gitter zeichnen.
+- Daraufhin werden die Residuen fuer alle Kombinationen der beiden 
+  Parameter entlang der eingezeichneten Linien berechnet und geplottet.
+- Man kann den Wertebereich des Diagramms verschieben und hineinzoomen. 
+- Wenn der Fitter nix zu tun hat, geht er zu lokalen Minima uns sucht drumherum.
+- Man kann auch waehrend des Fits Startwerte definieren von denen aus mit 
+  einer zu waehlenden LMfit-Methode gesucht wird. Auch die LMfit runs gehen 
+  in die Datenbank aller Residuen ein.

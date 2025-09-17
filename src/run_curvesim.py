@@ -25,8 +25,8 @@ def main():
     # curvesimulation = CurveSimulator(config_file="../data/simulations/TOI-4504_simX024_01.ini")
     # curvesimulation = CurveSimulator(config_file="../data/simulations/TOI-4504_simX024_03.ini")
     # curvesimulation = CurveSimulator(config_file="../results/mcmc/archive/X024_cd11P_TT/TOI-4504_X024_maxl.ini")
-    # curvesimulation = CurveSimulator(config_file="../configurations/TOI-4504_mcmc.ini")
-    curvesimulation = CurveSimulator(config_file="../configurations/TOI-4504_lmfit.ini")
+    curvesimulation = CurveSimulator(config_file="../configurations/TOI-4504_mcmc.ini")
+    # curvesimulation = CurveSimulator(config_file="../configurations/TOI-4504_lmfit.ini")
     print(curvesimulation)
 
 

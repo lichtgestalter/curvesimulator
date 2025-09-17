@@ -58,7 +58,7 @@ class CurveSimMCMC:
             self.theta = self.sampler.run_mcmc(self.theta0, self.burn_in, progress=True)
             for steps_done in range(self.chunk_size, self.steps, self.chunk_size):
                 self.theta = self.sampler.run_mcmc(self.theta, self.chunk_size, progress=True)
-                self.mcmc_results(p, bodies, steps_done, time_s0, measured_flux, flux_err)
+                self.mcmc_results(p, bodies, steps_done, time_s0, time_d, measured_tt, measured_flux, flux_err)
 
     def __repr__(self):
         return f"CurveSimMCMC with {self.walkers} walkers."
@@ -257,6 +257,16 @@ class CurveSimMCMC:
             self.mean_params.append(mean)
             self.median_params.append(median)
 
+    def max_likelihood_tt(self, bodies, p, time_s0, time_d, measured_tt):
+        # nach jedem Chunk von mcmc_results() aufrufen lassen
+        i = 0
+        for body_index, parameter_name in self.param_references:
+            bodies[body_index].__dict__[parameter_name] = self.max_likelihood_params[i]  # update all parameters from theta
+            i += 1
+        sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # run simulation
+        residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(bodies, measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
+        return measured_tt
+
     def mcmc_histograms(self, bins, plot_filename):
         plot_filename = self.fitting_results_directory + plot_filename
         fig, axes = plt.subplots(self.ndim, figsize=(10, self.ndim * 2))
@@ -398,7 +408,7 @@ class CurveSimMCMC:
         secs = seconds % 60
         return f"{days:02d}:{hours:02d}:{minutes:02d}:{secs:02.0f} [dd:hh:mm:ss]"
 
-    def save_mcmc_results(self, p, bodies, steps_done):
+    def save_mcmc_results(self, p, bodies, steps_done, measured_tt):
         results = {}
         results["CurveSimulator Documentation"] = "https://github.com/lichtgestalter/curvesimulator/wiki"
         results["Simulation Parameters"] = {}
@@ -441,16 +451,25 @@ class CurveSimMCMC:
                   + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
                   + ["e", "i", "P", "a", "Omega", "Omega_deg", "omega", "omega_deg", "pomega", "pomega_deg"]
                   + ["L", "L_deg", "ma", "ma_deg", "ea", "ea_deg", "nu", "nu_deg", "T", "t"])
-
-        fitting_params = [(fp.body_index, fp.parameter_name) for fp in self.fitting_parameters]
+        fitting_param_tuples = [(fp.body_index, fp.parameter_name) for fp in self.fitting_parameters]
         for i, body in enumerate(bodies):
             results["Bodies"][body.name] = {}
             for key in params:
-                if (i, key) not in fitting_params and (i, key.split("_deg")[0]) not in fitting_params:
+                if (i, key) not in fitting_param_tuples and (i, key.split("_deg")[0]) not in fitting_param_tuples:
                     attr = getattr(body, key)
                     if attr is not None:
                         results["Bodies"][body.name][key] = attr
-        results["Fitting Parameters"] = {fp.body_parameter_name: fp.__dict__ for fp in p.fitting_parameters}
+
+        fitting_parameters = copy.deepcopy(p.fitting_parameters)
+        for fp in fitting_parameters:
+            fp.startvalue *= fp.scale
+            fp.lower *= fp.scale
+            fp.upper *= fp.scale
+            fp.sigma *= fp.scale
+        results["Fitting Parameters"] = {fp.body_parameter_name: fp.__dict__ for fp in fitting_parameters}
+
+        results["measured_tt_list"] = measured_tt.to_dict(orient="list")  # Convert measured_tt DataFrame to a serializable format
+        # results["measured_tt_records"] = measured_tt.to_dict(orient="records")  # Convert measured_tt DataFrame to a serializable format
 
         p_copy = copy.deepcopy(p)
         del p_copy.fitting_parameters
@@ -484,7 +503,7 @@ class CurveSimMCMC:
         if p.verbose:
             print(f" Saved MCMC results to {filename}")
 
-    def mcmc_results(self, p, bodies, steps_done, time_s0, measured_flux, flux_err):
+    def mcmc_results(self, p, bodies, steps_done, time_s0, time_d, measured_tt, measured_flux, flux_err):
         flat_samples = self.sampler.get_chain(discard=self.burn_in, thin=self.thin_samples, flat=True)
         # discard the initial self.burn_in steps from each chain to ensure only samples that represent the equilibrium distribution are analyzed.
         # thin=10: keep only every 10th sample from the chain to reduce autocorrelation in the chains and the size of the resulting arrays.
@@ -496,6 +515,7 @@ class CurveSimMCMC:
         self.scale_samples(flat_samples)
         self.trace_plots("traces.png")
         self.max_likelihood_parameters()
+        measured_tt = self.max_likelihood_tt(bodies, p, time_s0, time_d, measured_tt)
         self.calc_maxlikelihood_avg_residual_in_std(p)
         self.high_density_intervals()
 
@@ -514,7 +534,7 @@ class CurveSimMCMC:
         for bins in self.bins:
             self.mcmc_histograms(bins, f"histograms_{bins}.png")
 
-        self.save_mcmc_results(p, bodies, steps_done)
+        self.save_mcmc_results(p, bodies, steps_done, measured_tt)
         self.mcmc_corner_plot("corner.png")
 
 class CurveSimLMfit:
@@ -698,7 +718,7 @@ class CurveSimLMfit:
         results["Fitting Parameters"] = {fp.body_parameter_name: fp.__dict__ for fp in fitting_parameters}
 
         results["measured_tt_list"] = measured_tt.to_dict(orient="list")  # Convert measured_tt DataFrame to a serializable format
-        results["measured_tt_records"] = measured_tt.to_dict(orient="records")  # Convert measured_tt DataFrame to a serializable format
+        # results["measured_tt_records"] = measured_tt.to_dict(orient="records")  # Convert measured_tt DataFrame to a serializable format
 
         p_copy = copy.deepcopy(p)
         del p_copy.fitting_parameters
