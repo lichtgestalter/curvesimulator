@@ -72,6 +72,19 @@
       - MCMC mit 11 Params auf den 13+4 TT laufen lassen. Danach evtl. 
         wieder LMfit mit MCMCs MaxL-Params als Startwerte nachlaufen lassen.
       - ???
+ 
+- X026 ist ein MCMC fit mit 11 Parametern auf die 17 TT bis Sektor 95 (13c, 4d)
+  - d: m e P O o ma
+  - c: m e P _ o ma
+
+- X027 hat exakt die gleichen Body- und Programmparameter
+  - dient der Ueberpruefung der Wiederholbarkeit
+    - die ist eher schlecht
+ 
+- X028 ist wie X026 und X027 aber mit c.P in 81.7-82.0 statt 82.0-83.7
+  - **Habe ich die ganze Zeit einen Fehler von Vitkova uebernommen und mit 
+    falschen Startwerten/Bounds fuer P von c gearbeitet?**
+ 
 
 #### Konvergiert LMFit fuer ein 1-Planeten-System?
 ...
