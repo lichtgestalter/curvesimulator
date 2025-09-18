@@ -83,7 +83,8 @@
  
 - X028 ist wie X026 und X027 aber mit c.P in 81.7-82.0 statt 82.0-83.7
   - **Habe ich die ganze Zeit einen Fehler von Vitkova uebernommen und mit 
-    falschen Startwerten/Bounds fuer P von c gearbeitet?**
+      falschen Startwerten/Bounds fuer P von c gearbeitet?**
+  - ausserdem bounds von omega und ma auf 0 bis 360 gesetzt
  
 
 #### Konvergiert LMFit fuer ein 1-Planeten-System?
