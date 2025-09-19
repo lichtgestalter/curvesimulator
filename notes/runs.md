@@ -103,7 +103,13 @@
     praktisch auf Null.
   - Dabei treffen erwartungsgemaess P genau, e groessenordnungsmaessig und die 
     anderen Parameter ueberhaupt nicht die Simulationsparameter.
-  - MCMC verhaelt sich aehnlich:
+  - MCMC verhaelt sich aehnlich: P wird super exakt bestimmt, e hat mean und 
+    median in der Naehe, die anderen sind breit verteilt.
+  - Deshalb jetzt X031!
+
+- X031
+  - Nur c.P und d.P werden in diesem MCMC Run auf TT17 bestimmt!
+  - Alle anderen Werte haben im wesentlichen die Vitkova-Werte.
 
 #### Konvergiert LMFit fuer ein 1-Planeten-System?
 ...
