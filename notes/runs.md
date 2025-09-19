@@ -73,21 +73,33 @@
         wieder LMfit mit MCMCs MaxL-Params als Startwerte nachlaufen lassen.
       - ???
  
-- X026 ist ein MCMC fit mit 11 Parametern auf die 17 TT bis Sektor 95 (13c, 4d)
+- X026, X027 und X028 sind MCMC fits mit identischen Startparametern
+- 11 Parametern auf die 17 TT bis Sektor 95 (13c, 4d) sind zu bestimmen
   - d: m e P O o ma
   - c: m e P _ o ma
+- Die 3 Laeufe dienten dem Check, wie gut die Ergebnisse wiederholbar sind. 
+  Nicht gut :(
+- Max Likelihood Parameter von X027 und X028 sind allerdings fast identisch.
 
-- X027 hat exakt die gleichen Body- und Programmparameter
+-  hat exakt die gleichen Body- und Programmparameter
   - dient der Ueberpruefung der Wiederholbarkeit
     - die ist eher schlecht
  
-- X028 ist wie X026 und X027 aber mit c.P in 81.7-82.0 statt 82.0-83.7
+- X029 ist wie X026 bis X028 aber mit c.P in 81.7-82.0 statt 82.0-83.7
   - **Habe ich die ganze Zeit einen Fehler von Vitkova uebernommen und mit 
       falschen Startwerten/Bounds fuer P von c gearbeitet?**
-  - ausserdem bounds von omega und ma auf 0 bis 360 gesetzt 
+  - ausserdem bounds von omega und ma auf 0 bis 360 gesetzt
+  - enttaeuschend: Residuen von 50 std statt 15 std bei X026-X028.
  
-- X029 muesste auch mit X026 und X027 identisch sein 
- 
+- X030
+  - Erzeuge mit `TOI-4504_simX030_01.ini` `X030_sim_single_planet.json` 
+    und daraus `tt_simX030.csv` mit 13 TT ungefaehr zeitlich so verteilt wie 
+    die TESS Messungen von TOI4504.
+  - Veraendere Startwerte in ini-File leicht und starte LMfit
+    - konvergiert schnell bei Residuen = 0
+  - Bei stark veraenderten Startwerten stoppt LMfit mit powell oder nelder 
+    schnell in einem lokalen Minimum.
+  - Lasse MCMC laufen
 
 #### Konvergiert LMFit fuer ein 1-Planeten-System?
 ...
