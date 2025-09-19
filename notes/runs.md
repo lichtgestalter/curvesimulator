@@ -99,7 +99,11 @@
     - konvergiert schnell bei Residuen = 0
   - Bei stark veraenderten Startwerten stoppt LMfit mit powell oder nelder 
     schnell in einem lokalen Minimum.
-  - Lasse MCMC laufen
+  - Mit differential_evolution kommen die Residuen nach 11000 Iterationen 
+    praktisch auf Null.
+  - Dabei treffen erwartungsgemaess P genau, e groessenordnungsmaessig und die 
+    anderen Parameter ueberhaupt nicht die Simulationsparameter.
+  - MCMC verhaelt sich aehnlich:
 
 #### Konvergiert LMFit fuer ein 1-Planeten-System?
 ...
