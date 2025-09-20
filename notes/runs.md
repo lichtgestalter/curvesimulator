@@ -109,7 +109,13 @@
 
 - X031
   - Nur c.P und d.P werden in diesem MCMC Run auf TT17 bestimmt!
-  - Alle anderen Werte haben im wesentlichen die Vitkova-Werte.0
+  - Alle anderen Werte haben im wesentlichen die Vitkova-Werte.
+  - 
+ 
+- X032
+  - c.P, c.ma, d.P, d.ma werden in diesem MCMC Run auf TT17 bestimmt
+  - Alle anderen Werte haben im wesentlichen die Vitkova-Werte.
+  - 
 
 #### Konvergiert LMFit fuer ein 1-Planeten-System?
 ...
