@@ -73,34 +73,31 @@
         wieder LMfit mit MCMCs MaxL-Params als Startwerte nachlaufen lassen.
       - ???
  
-- X026, X027 und X028 sind MCMC fits mit identischen Startparametern
-- 11 Parametern auf die 17 TT bis Sektor 95 (13c, 4d) sind zu bestimmen
-  - d: m e P O o ma
-  - c: m e P _ o ma
-- Die 3 Laeufe dienten dem Check, wie gut die Ergebnisse wiederholbar sind. 
-  Nicht gut :(
-- Max Likelihood Parameter von X027 und X028 sind allerdings fast identisch.
+- X026, X027 und X028 sind MCMC fits mit identischen Body- und Programmparametern
+  - 11 Parametern auf die 17 TT bis Sektor 95 (13c, 4d) sind zu bestimmen
+    - d: m e P O o ma
+    - c: m e P _ o ma
+  - **Residuen 15 std** nach ca. 4k steps incl. burn-in.
+  - Die 3 Laeufe dienten dem Check, wie gut die Ergebnisse wiederholbar sind. 
+    Nicht gut :(
+  - Max Likelihood Parameter von X027 und X028 sind allerdings fast identisch.
 
--  hat exakt die gleichen Body- und Programmparameter
-  - dient der Ueberpruefung der Wiederholbarkeit
-    - die ist eher schlecht
- 
 - X029 ist wie X026 bis X028 aber mit c.P in 81.7-82.0 statt 82.0-83.7
-  - **Habe ich die ganze Zeit einen Fehler von Vitkova uebernommen und mit 
-      falschen Startwerten/Bounds fuer P von c gearbeitet?**
+  - Habe ich die ganze Zeit einen Fehler von Vitkova uebernommen und mit 
+      falschen Startwerten/Bounds fuer P von c gearbeitet?
   - ausserdem bounds von omega und ma auf 0 bis 360 gesetzt
-  - enttaeuschend: Residuen von 50 std statt 15 std bei X026-X028.
+  - **Residuen 54 std** nach ca. 3k steps incl. burn-in. Enttaeuschend.
  
 - X030
   - Erzeuge mit `TOI-4504_simX030_01.ini` `X030_sim_single_planet.json` 
     und daraus `tt_simX030.csv` mit 13 TT ungefaehr zeitlich so verteilt wie 
-    die TESS Messungen von TOI4504.
+    die TESS Messungen von TOI4504c.
   - Veraendere Startwerte in ini-File leicht und starte LMfit
     - konvergiert schnell bei Residuen = 0
   - Bei stark veraenderten Startwerten stoppt LMfit mit powell oder nelder 
     schnell in einem lokalen Minimum.
-  - Mit differential_evolution kommen die Residuen nach 11000 Iterationen 
-    praktisch auf Null.
+  - Mit differential_evolution kommen die **Residuen** nach 11000 Iterationen 
+    praktisch auf **Null**.
   - Dabei treffen erwartungsgemaess P genau, e groessenordnungsmaessig und die 
     anderen Parameter ueberhaupt nicht die Simulationsparameter.
   - MCMC verhaelt sich aehnlich: P wird super exakt bestimmt, e hat mean und 
@@ -110,12 +107,15 @@
 - X031
   - Nur c.P und d.P werden in diesem MCMC Run auf TT17 bestimmt!
   - Alle anderen Werte haben im wesentlichen die Vitkova-Werte.
-  - 
+  - **Residuen 311 std** nach 1250k steps incl. burn-in.
  
 - X032
   - c.P, c.ma, d.P, d.ma werden in diesem MCMC Run auf TT17 bestimmt
   - Alle anderen Werte haben im wesentlichen die Vitkova-Werte.
-  - 
+  - **Residuen 169 std** nach 1750k steps incl. burn-in.
+
+- X033
+  - Wie X032 aber mit Planet e meiPoom zu fitten!
 
 #### Konvergiert LMFit fuer ein 1-Planeten-System?
 ...

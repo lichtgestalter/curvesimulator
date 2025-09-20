@@ -2,6 +2,15 @@
 
 ## Fragen an Simon:
 
+- Welche Parameter kann ich bestimmen, wenn ich nur die TT fitte?
+  - Bei einem einzelnen Planeten
+    - T0, P, a? 
+    - Also m aus P, a? 
+    - Was mit e? 
+    - Was mit Omega, omega, pomega?
+    - r, i: Nein!?!
+  - In TOI4504?
+   
 - Kommt aus MCMC auch die Standardabweichung der gefitteten Parameter raus?
     - Ich hab einfach mal mean und std von den samples genommen.
     - War das korrekt oder wie kriegt man die raus?
