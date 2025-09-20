@@ -289,9 +289,8 @@ class CurveSimBodies(list):
             toc = time.perf_counter()
             print(f' {toc - tic:7.3f} seconds  ({p.total_iterations / (toc - tic):.0f} iterations/second)')
             print(f"Log10 of the relative change of energy during simulation: {energy_change:.0f}")
-        if energy_change > -6:
-            print(f"{Fore.YELLOW}The energy must not change significantly! Consider using a smaller time step (dt).")
-            print(f"Log10 of the relative change of energy during simulation: {energy_change:.0f}{Style.RESET_ALL}")
+            if energy_change > -6:
+                print(f"{Fore.YELLOW}The energy must not change significantly! Consider using a smaller time step (dt).{Style.RESET_ALL}")
         return sim_flux, rebound_sim
 
     def calc_patch_radii(self, p):
