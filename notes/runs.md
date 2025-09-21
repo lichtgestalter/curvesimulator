@@ -115,7 +115,13 @@
   - **Residuen 169 std** nach 1750k steps incl. burn-in.
 
 - X033
-  - Wie X032 aber mit Planet e meiPoom zu fitten!
+  - Wie X032 c.P, c.ma, d.P, d.ma aber zusaetzlich mit Planet e.meiPoom zu 
+    fitten!
+    - 118, 97, 80, 80, runs on AspIT, started Saturday evening
+ 
+- X034
+  - Wie X033 zusaetzlich c.m, c.e, d.m, d.e
+  - runs on PC, startet 0:45 early sunday
 
 #### Konvergiert LMFit fuer ein 1-Planeten-System?
 ...

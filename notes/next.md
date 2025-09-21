@@ -1,10 +1,11 @@
 # Next / in progress:
 ## 0.5.6 Fitting TOI-4504
 
+
+- mass-eccentricity degeneracy ( Y. Lithwick, J. Xie, Y. Wu, Astrophysical Journal 761 (2012) 122)
+  - bedeutet das, ich kann m und e nicht bestimmen, weil korreliert?
 - Parameter TT-precision und lmfit_method in config file aufnehmen
 - Auch Abbruchkriterium fuer residuen groesse in config file (1e-4 derzeit)
-- measured_tt_list etc.  nicht nur in tmp, sondern auch in endresultat von 
-  lmfit? Oder lieber Endresultat ausduennen, um Dopplungen zu vermeiden.
 - df measured tt in mcmc result, so wie er schon in lmfit result ist
 
   
