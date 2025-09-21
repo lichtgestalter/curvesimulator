@@ -104,24 +104,32 @@
     median in der Naehe, die anderen sind breit verteilt.
   - Deshalb jetzt X031!
 
-- X031
+- X031_c1d1_TT17
   - Nur c.P und d.P werden in diesem MCMC Run auf TT17 bestimmt!
   - Alle anderen Werte haben im wesentlichen die Vitkova-Werte.
-  - **Residuen 311 std** nach 1250k steps incl. burn-in.
+  - **Residuen 311 std** nach 1250 steps incl. burn-in.
+  - Acceptance 12%
  
-- X032
+- X032_c2d2_TT17
   - c.P, c.ma, d.P, d.ma werden in diesem MCMC Run auf TT17 bestimmt
   - Alle anderen Werte haben im wesentlichen die Vitkova-Werte.
-  - **Residuen 169 std** nach 1750k steps incl. burn-in.
+  - **Residuen 169 std** nach 1750 steps incl. burn-in.
+  - Acceptance 4%
 
-- X033
+- X033_c2d2e7_TT17
   - Wie X032 c.P, c.ma, d.P, d.ma aber zusaetzlich mit Planet e.meiPoom zu 
     fitten!
-    - 118, 97, 80, 80, runs on AspIT, started Saturday evening
+  - **Residuen 60 std** nach 5k steps incl. burn-in.
+  - Acceptance 1.5%
  
-- X034
+- X034_c4d4e7_TT17
   - Wie X033 zusaetzlich c.m, c.e, d.m, d.e
-  - runs on PC, startet 0:45 early sunday
+  - **Residuen 45 std** nach 5k steps incl. burn-in.
+  - Acceptance 2%
+
+- X035_c7d7e7_TT17
+  - Max Freiheit! Je 7 Params meiPOom fuer c, d und e.
+  - runs on Aspit, startet Sunday 19 Uhr
 
 #### Konvergiert LMFit fuer ein 1-Planeten-System?
 ...
