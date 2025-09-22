@@ -129,6 +129,7 @@
 
 - X035_c7d7e7_TT17
   - Max Freiheit! Je 7 Params meiPOom fuer c, d und e.
+  - **Residuen 30 std** nach 3250 steps incl. burn-in.
   - runs on Aspit, startet Sunday 19 Uhr
 
 #### Konvergiert LMFit fuer ein 1-Planeten-System?
