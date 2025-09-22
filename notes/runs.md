@@ -132,6 +132,12 @@
   - **Residuen 30 std** nach 3250 steps incl. burn-in.
   - runs on Aspit, startet Sunday 19 Uhr
 
+
+#### Fits, bei denen c oder d oder e i>90 Grad hat
+
+#### Vitkova-Fit (Nur 11 c transits bis Sektor 67)
+...
+
 #### Konvergiert LMFit fuer ein 1-Planeten-System?
 ...
 
