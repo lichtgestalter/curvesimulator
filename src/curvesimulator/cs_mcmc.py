@@ -274,7 +274,7 @@ class CurveSimMCMC:
 
 
 
-    # Hier weiter
+    Hier weiter
     # steht hier nur doppelt zur Inspiration
     # Teile davon in max_likelihood_tt einbauen!
     # def lmfit_residual_tt(params, param_references, bodies, time_s0, time_d, measured_tt, p):
