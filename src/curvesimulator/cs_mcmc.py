@@ -23,6 +23,8 @@ class CurveSimMCMC:
         if not (p.flux_file or p.tt_file or p.rv_file):
             print(f"{Fore.RED}ERROR: No measurements for fitting hve been provided.{Style.RESET_ALL}")
             sys.exit(1)
+        if os.path.exists("residual.tmp"):
+            os.remove("residual.tmp")
         self.fitting_results_directory = p.fitting_results_directory
         self.fitting_parameters = p.fitting_parameters
         self.moves = p.moves
@@ -232,13 +234,15 @@ class CurveSimMCMC:
         plt.savefig(plot_filename)
         plt.close(fig)
 
-    def max_likelihood_parameters(self):
+    def max_likelihood_parameters(self, flat_samples):
         log_prob_samples = self.sampler.get_log_prob(flat=True, discard=self.burn_in, thin=self.thin_samples)
         if len(log_prob_samples):
             max_likelihood_idx = np.argmax(log_prob_samples)
-            self.max_likelihood_params = self.scaled_samples[max_likelihood_idx]
+            self.max_likelihood_params_scaled = self.scaled_samples[max_likelihood_idx]
+            self.max_likelihood_params = flat_samples[max_likelihood_idx]
             self.max_log_prob = log_prob_samples[max_likelihood_idx]
         else:
+            self.max_likelihood_params_scaled = None
             self.max_likelihood_params = None
             self.max_log_prob = None
 
@@ -253,7 +257,7 @@ class CurveSimMCMC:
             fp.std = std
             fp.mean = mean
             fp.median = median
-            fp.max_likelihood = self.max_likelihood_params[i]
+            fp.max_likelihood = self.max_likelihood_params_scaled[i]
             self.mean_params.append(mean)
             self.median_params.append(median)
 
@@ -266,6 +270,41 @@ class CurveSimMCMC:
         sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # run simulation
         residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(bodies, measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
         return measured_tt
+
+
+
+
+    # Hier weiter
+    # steht hier nur doppelt zur Inspiration
+    # Teile davon in max_likelihood_tt einbauen!
+    # def lmfit_residual_tt(params, param_references, bodies, time_s0, time_d, measured_tt, p):
+    #     # measured_tt: pandas DataFrame with columns eclipser, tt, tt_err
+    #     for body_index, parameter_name in param_references:
+    #         bodies[body_index].__dict__[parameter_name] = params[bodies[body_index].name + "_" + parameter_name].value  # update all parameters from params
+    #     sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # run simulation
+    #     residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(bodies, measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
+    #     improved = CurveSimLMfit.check_for_fit_improvement(residuals_tt_sum_squared)
+    #     if improved:
+    #         max_delta = max(np.abs(measured_tt["delta"]))
+    #         mean_delta = np.mean(np.abs(measured_tt["delta"]))
+    #         print(f"\n{max_delta=:2.4f}   {mean_delta=:2.4f}    [days] ")
+    #         CurveSimLMfit.save_intermediate_lmfit_results(p, bodies, measured_tt)
+    #         if max_delta < 1e-4:
+    #             print("Terminated succesfully, because residuals are very small.")
+    #             sys.exit(0)
+    #     else:
+    #         print(".", end="")
+    #     # return measured_tt["delta"]
+    #     return residuals_tt_sum_squared
+
+
+
+
+
+
+
+
+
 
     def mcmc_histograms(self, bins, plot_filename):
         plot_filename = self.fitting_results_directory + plot_filename
@@ -299,7 +338,7 @@ class CurveSimMCMC:
             fig = corner.corner(
                 self.scaled_samples,
                 labels=self.long_body_parameter_names,
-                truths=self.max_likelihood_params,
+                truths=self.max_likelihood_params_scaled,
                 title_fmt=".4f",
                 quiet=True
             )
@@ -514,7 +553,7 @@ class CurveSimMCMC:
         self.acceptance_fraction_plot(steps_done, "acceptance.png")
         self.scale_samples(flat_samples)
         self.trace_plots("traces.png")
-        self.max_likelihood_parameters()
+        self.max_likelihood_parameters(flat_samples)
         measured_tt = self.max_likelihood_tt(bodies, p, time_s0, time_d, measured_tt)
         self.calc_maxlikelihood_avg_residual_in_std(p)
         self.high_density_intervals()
@@ -594,11 +633,6 @@ class CurveSimLMfit:
         # does not even find minimum for 3 params   slsqp	SequentialLinearSquaresProgramming
         # does not find minimum + needs more residual than params  leastsq: Levenberg-Marquardt (default, for least-squares problems)
 
-
-
-
-        if os.path.exists("residual.tmp"):
-            os.remove("residual.tmp")
 
     @staticmethod
     def lmfit_residual_tt(params, param_references, bodies, time_s0, time_d, measured_tt, p):

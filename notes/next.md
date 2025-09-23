@@ -1,6 +1,7 @@
 # Next / in progress:
 ## 0.5.6 Fitting TOI-4504
 
+**########   Hier weiter mcmc  ############**
 
 - mass-eccentricity degeneracy ( Y. Lithwick, J. Xie, Y. Wu, Astrophysical Journal 761 (2012) 122)
   - bedeutet das, ich kann m und e nicht bestimmen, weil korreliert?
