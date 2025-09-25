@@ -11,6 +11,12 @@
     - r, i: Nein!?!
   - In TOI4504?
    
+- KEPLER9 Paper
+  - Secction 3: "Finally, for each individual planet we correct the output 
+    time by the light-travel time effect."
+  - Sollte ich das auch machen? Das heisst, wenn der Planet eine Lichtminute 
+    Abstand vom Stern hat, _addiere_ ich eine Minute zu dem Transitzeitpunkt?
+
 - Kommt aus MCMC auch die Standardabweichung der gefitteten Parameter raus?
     - Ich hab einfach mal mean und std von den samples genommen.
     - War das korrekt oder wie kriegt man die raus?

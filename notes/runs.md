@@ -132,6 +132,14 @@
   - **Residuen 30 std** nach 3250 steps incl. burn-in.
   - runs on Aspit, startet Sunday 19 Uhr
 
+- X036_cd11P_TT17
+  - wie X027, X028, aber
+    - groesserer gueltiger Bereich fuer c.P
+ 
+- X037_cd11P_TT17
+  - wie X036, aber
+    - noch groesserer gueltiger Bereich fuer c.P
+    - -180 < ma < 180
 
 #### Fits, bei denen c oder d oder e i>90 Grad hat
 
