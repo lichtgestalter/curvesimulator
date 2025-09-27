@@ -12,7 +12,7 @@ class CurveSimParameters:
         config = configparser.ConfigParser(inline_comment_prefixes='#')  # Inline comments in the config file start with "#".
         config.optionxform = str  # Preserve case of the keys.
         CurveSimParameters.find_and_check_config_file(config_file, standard_sections=self.standard_sections)
-        config.read(config_file)
+        config.read(config_file, encoding='utf-8')
         self.config_file = config_file
 
         # [Astronomical Constants]
@@ -197,7 +197,7 @@ class CurveSimParameters:
         #     print(f'Using {config_file} as config file. Further program parameters are ignored.')
         config = configparser.ConfigParser(inline_comment_prefixes='#')
         config.optionxform = str  # Preserve case of the keys.
-        if len(config.read(config_file)) < 1:  # does opening the config file fail?
+        if len(config.read(config_file, encoding='utf-8')) < 1:  # does opening the config file fail?
             print(f"{Fore.RED}ERROR: Config file {config_file} not found.{Style.RESET_ALL}")
             print(f"{Fore.RED}Provide the config file name as the argument of the function curvesim.{Style.RESET_ALL}")
             print(f"{Fore.RED}More information on https://github.com/lichtgestalter/curvesimulator/wiki '{Style.RESET_ALL}")
