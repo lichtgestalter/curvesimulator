@@ -173,7 +173,13 @@
 - X040
   - wie X039, aber nur 13 c und 4 d Transits, zu etwa den Zeitpunkten, wo 
     auch die echten Transits liegen
-  - 
+  - Konvergiert super :-) WTF?
+
+- X041
+  - wie X040, aber groessere Intervalle lower, upper fuer jeden Fitting 
+    Parameter und staerker gestreute Verteilung der Startwerte.
+
+ 
 #### Fits, bei denen c oder d oder e i>90 Grad hat
 
 #### Vitkova-Fit (Nur 11 c transits bis Sektor 67)
