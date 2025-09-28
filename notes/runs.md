@@ -173,7 +173,7 @@
 - X040
   - wie X039, aber nur 13 c und 4 d Transits, zu etwa den Zeitpunkten, wo 
     auch die echten Transits liegen
-  - Konvergiert super :-) WTF?
+  - 
 
 - X041
   - wie X040, aber groessere Intervalle lower, upper fuer jeden Fitting 
