@@ -167,8 +167,13 @@
   - aehnliche Simulationsparameter wie TOI4504
   - Inklination naeher bei 90 Grad
   - 31 c und 62 d Transits, kontinuierlich ueber TESS Beobachtungszeitraum
-  - 
+  - Startwerte = Simulationsparameter
+  - Konvergiert super :-)
 
+- X040
+  - wie X039, aber nur 13 c und 4 d Transits, zu etwa den Zeitpunkten, wo 
+    auch die echten Transits liegen
+  - 
 #### Fits, bei denen c oder d oder e i>90 Grad hat
 
 #### Vitkova-Fit (Nur 11 c transits bis Sektor 67)
