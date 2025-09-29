@@ -179,6 +179,19 @@
 - X041
   - wie X040, aber groessere Intervalle lower, upper fuer jeden Fitting 
     Parameter und staerker gestreute Verteilung der Startwerte.
+  - konvergiert nicht???
+
+- X042
+  - wie X040, X41, aber
+    - mit den grossen lower,upper Intervallen von X041
+    - mit der geringen Streuung der Startwerte um die Simulationsparameter 
+      von X040
+ 
+- X043
+  - wie X040, X41, aber
+    - mit den kleinen lower,upper Intervallen von X040
+    - mit Gleichverteilung der Startwerte um die Simulationsparameter im 
+      ganzen Intervall
 
  
 #### Fits, bei denen c oder d oder e i>90 Grad hat
