@@ -72,7 +72,8 @@
       - MCMC mit 11 Params auf den 13+4 TT laufen lassen. Danach evtl. 
         wieder LMfit mit MCMCs MaxL-Params als Startwerte nachlaufen lassen.
       - ???
- 
+
+### TOI4504 MCMC mit verschiedenen fitting parameters 
 - X026, X027 und X028 sind MCMC fits mit identischen Body- und Programmparametern
   - 11 Parametern auf die 17 TT bis Sektor 95 (13c, 4d) sind zu bestimmen
     - d: m e P O o ma
@@ -141,6 +142,44 @@
     - noch groesserer gueltiger Bereich fuer c.P
     - -180 < ma < 180
 
+### MCMC fit von KEPLER-9
+1) Kepler-9: A System of Multiple Planets Transiting a Sun-Like Star, Confirmed by Timing Variations, Matthew J. Holman et al.
+2) MODELING Kepler TRANSIT LIGHT CURVES AS FALSE POSITIVES: REJECTION OF BLEND SCENARIOS FOR KEPLER-9, AND VALIDATION OF KEPLER-9 D, A SUPER-EARTH-SIZE PLANET IN A MULTIPLE SYSTEM, Guillermo Torres et al.
+3) The multiple planets transiting Kepler-9, I. Inferring stellar properties and planetary compositions, Mathieu Havel et al.
+4) Kepler-9 revisited, 60% the mass with six times more data, Stefan Dreizler and Aviv Ofir
+5) Kepler Object of Interest Network II. Photodynamical modelling of Kepler-9 over 8 years of transit observations, J. Freudenthal et al.
+6) HARPS-N radial velocities confirm the low densities of the Kepler-9 planets, Borsato, L et al.
+
+- Extracted TT manually from 5) but did not use them (KEPLER9.xlsx)
+- Used TT from 4) Table 1
+- Used planet parameters from 6) Table 3
+- Removed the first few TT from data, because 6) Tabele 3 refers to epoch 
+  2455088.212 instead of 2454900
+ 
+- X038_K9_bc11P_TT95
+  - :-)
+
+### LMfit fit von KEPLER-9
+...
+
+### Simualtion von TOI4504, aber mit vielen Transits (so wie KEPLER9)
+- X039
+  - aehnliche Simulationsparameter wie TOI4504
+  - Inklination naeher bei 90 Grad
+  - 31 c und 62 d Transits, kontinuierlich ueber TESS Beobachtungszeitraum
+  - Startwerte = Simulationsparameter
+  - Konvergiert super :-)
+
+- X040
+  - wie X039, aber nur 13 c und 4 d Transits, zu etwa den Zeitpunkten, wo 
+    auch die echten Transits liegen
+  - 
+
+- X041
+  - wie X040, aber groessere Intervalle lower, upper fuer jeden Fitting 
+    Parameter und staerker gestreute Verteilung der Startwerte.
+
+ 
 #### Fits, bei denen c oder d oder e i>90 Grad hat
 
 #### Vitkova-Fit (Nur 11 c transits bis Sektor 67)
@@ -152,14 +191,7 @@
 #### Konvergiert LMFit fuer b (fest) und c (fitten), aber ohne d?
 ...
 
-
 ### MCMC fit von Flux inklusive Sektor 95
-...
-
-### MCMC fit von KEPLER-9
-...
-
-### LMfit fit von KEPLER-9
 ...
 
 ### Simulierten Flux mit LMfit fitten
