@@ -605,7 +605,7 @@ class CurveSimLMfit:
             self.params.add(bodies[body_index].name + "_" + parameter_name, value=bodies[body_index].__dict__[parameter_name], min=lower, max=upper)
 
         # self.result = lmfit.minimize(CurveSimLMfit.lmfit_residual_tt, self.params, method="brute", args=(self.param_references, bodies, time_s0, time_d, measured_tt, p))
-        self.result = lmfit.minimize(CurveSimLMfit.lmfit_residual_tt, self.params, method="differential_evolution", args=(self.param_references, bodies, time_s0, time_d, measured_tt, p))
+        self.result = lmfit.minimize(CurveSimLMfit.lmfit_residual_tt, self.params, method=p.lmfit_method, args=(self.param_references, bodies, time_s0, time_d, measured_tt, p))
         # self.result = lmfit.minimize(CurveSimLMfit.lmfit_residual_tt, self.params, method="nelder", args=(self.param_references, bodies, time_s0, time_d, measured_tt, p))
         # self.result = lmfit.minimize(CurveSimLMfit.lmfit_residual_tt, self.params, method="powell", args=(self.param_references, bodies, time_s0, time_d, measured_tt, p))
         # ***** METHODS ******
@@ -647,7 +647,7 @@ class CurveSimLMfit:
             mean_delta = np.mean(np.abs(measured_tt["delta"]))
             print(f"\n{max_delta=:2.4f}   {mean_delta=:2.4f}    [days] ")
             CurveSimLMfit.save_intermediate_lmfit_results(p, bodies, measured_tt)
-            if max_delta < 1e-4:
+            if max_delta < p.lmfit_max_tt_delta:
                 print("Terminated succesfully, because residuals are very small.")
                 sys.exit(0)
         else:

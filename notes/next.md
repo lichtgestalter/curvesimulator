@@ -3,11 +3,7 @@
 
 **########   Hier weiter mcmc  ############**
 
-- mass-eccentricity degeneracy ( Y. Lithwick, J. Xie, Y. Wu, Astrophysical Journal 761 (2012) 122)
-  - bedeutet das, ich kann m und e nicht bestimmen, weil korreliert?
-- Parameter TT-precision und lmfit_method in config file aufnehmen
-- Auch Abbruchkriterium fuer residuen groesse in config file (1e-4 derzeit)
-- df measured tt in mcmc result, so wie er schon in lmfit result ist
+Wenn nicht konvergiert, helfen dann viel!!! mehr chains?
 
   
 ### LMfit
@@ -15,8 +11,7 @@
   - Generiere mit den X024ML Parametern Simulierten Flux und TT Sim002
   - Ablage unter data/simulations
   - Konvergiert LMFit wenn Startwerte = Richtige Werte?
-    - Nein. Debuggen, warum fast alle Methoden auf dem gleichen Optimum 
-      festhaengen. Ist da ein Bug???
+    - Nein. 
   - Konvergiert LMFit wenn Startwerte = Richtige Werte + x% Rauschen? 
   - Verschiedene Methoden ausprobieren (Nelder, ...)
   - LMfit mit Fluxdaten laufen lassen? (erfordert neuen Code)

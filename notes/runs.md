@@ -186,13 +186,18 @@
     - mit den grossen lower,upper Intervallen von X041
     - mit der geringen Streuung der Startwerte um die Simulationsparameter 
       von X040
+  - Konvergiert super :-)
  
 - X043
   - wie X040, X41, aber
     - mit den kleinen lower,upper Intervallen von X040
     - mit Gleichverteilung der Startwerte um die Simulationsparameter im 
-      ganzen Intervall
+      ganzen Intervall (sigma for all parameters = 2 * (upper - lower))
+  - Konvergiert super :-)
 
+- X044
+  - wie X043, aber
+    - doppelt so grosse upper/lower-Intervalle
  
 #### Fits, bei denen c oder d oder e i>90 Grad hat
 

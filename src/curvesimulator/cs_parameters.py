@@ -127,6 +127,8 @@ class CurveSimParameters:
 
 
             self.lmfit = eval(config.get("Fitting", "lmfit", fallback="False"))
+            self.lmfit_method = config.get("Fitting", "lmfit_method", fallback="powell")
+            self.lmfit_max_tt_delta = eval(config.get("Fitting", "lmfit_max_tt_delta", fallback="1e-4"))
             self.flux_weight = int(eval(config.get("Fitting", "flux_weight", fallback="1")))
             self.tt_weight = int(eval(config.get("Fitting", "tt_weight", fallback="1")))
             self.walkers = int(eval(config.get("Fitting", "walkers", fallback="32")))
