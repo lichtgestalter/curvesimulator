@@ -157,7 +157,7 @@
   2455088.212 instead of 2454900
  
 - X038_K9_bc11P_TT95
-  - :-)
+  - Konvergiert super :-)
 
 ### LMfit fit von KEPLER-9
 ...
@@ -173,7 +173,8 @@
 - X040
   - wie X039, aber nur 13 c und 4 d Transits, zu etwa den Zeitpunkten, wo 
     auch die echten Transits liegen
-  - 
+  - Konvergiert erstaunlicherweise auch super. 
+  - Standardabweichungen natuerlich deutlich groesser als bei X039
 
 - X041
   - wie X040, aber groessere Intervalle lower, upper fuer jeden Fitting 

@@ -383,7 +383,7 @@ class CurveSimBody:
                     print(f"{iteration=}  {time_d[iteration]=}")
                 return -1, -1, -1, False
         if dx_left * dx_right < 0 and eclipser.z >= eclipsee.z:  # sign of dx changed and eclipser in front of eclipsee
-            while t_right - t_left > 1e-1:  # bisect until desired precision reached
+            while t_right - t_left > p.transit_precision:  # bisect until desired precision reached
                 t_middle = (t_right + t_left) / 2
                 rebound_sim.integrate(t_middle)
                 if dx_left * (eclipser.x - eclipsee.x) < 0:  # TT lies between t_left and t_middle
@@ -482,7 +482,7 @@ class CurveSimBody:
         d_new = CurveSimPhysics.distance_2d_particle(eclipser, eclipsee)
         if transittimetype not in ["T1", "T2"]:
             t_new, t_old = t_old, t_new  # T1 or T2  or T3 or T4 lies between t_old and t_new
-        while t_new - t_old > 1e-1:  # bisect until desired precision reached
+        while t_new - t_old > p.transit_precision:  # bisect until desired precision reached
             rebound_sim.integrate((t_new + t_old) / 2)
             d = CurveSimPhysics.distance_2d_particle(eclipser, eclipsee)
             in_eclipse = d < d_event
@@ -496,7 +496,7 @@ class CurveSimBody:
                     t_old = rebound_sim.t
                 else:
                     t_new = rebound_sim.t
-        if abs(rebound_sim.t - tt_s0) < 1e-1:
+        if abs(rebound_sim.t - tt_s0) < p.transit_precision:
             return None
         else:
             return rebound_sim.t / p.day + p.start_date

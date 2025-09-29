@@ -38,6 +38,7 @@ class CurveSimParameters:
         # [Results]
         self.comment = config.get("Results", "comment", fallback="No comment")
         self.verbose = eval(config.get("Results", "verbose", fallback="False"))
+        self.transit_precision = eval(config.get("Results", "transit_precision", fallback="1e-1"))
 
         # [Simulation]
         self.dt = eval(config.get("Simulation", "dt"))
