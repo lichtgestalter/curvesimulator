@@ -22,8 +22,8 @@
 from curvesimulator import CurveSimulator
 
 def main():
-    curvesimulation = CurveSimulator(config_file="../configurations/Sim/TOI-4504_SIM_X045.ini")
-    # curvesimulation = CurveSimulator(config_file="../configurations/TOI-4504/TOI-4504_SIM_X042.ini")
+    # curvesimulation = CurveSimulator(config_file="../configurations/Sim/TOI-4504_SIM_X045.ini")
+    curvesimulation = CurveSimulator(config_file="../configurations/TOI4504/TOI-4504_X046.ini")
     print(curvesimulation)
 
 
