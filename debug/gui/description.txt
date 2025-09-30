@@ -1,0 +1,30 @@
+## Tab Constants
+### Treeview
+- Columns Name, Unit, Value
+
+
+## Tab Bodies
+### body name
+- pick one [TOI4504c]
+body_type = planet
+primary =   TOI4504
+Colorpicker?
+color =     0.99, 0.99, 0.01
+
+
+- Columns Name, Input-Unit, Result-Unit, Value, Lower, Upper, Spread
+mass, a, P: choose 2
+radius
+i
+Omega, omega, pomega: choose 2
+ma, ea, nu, L, T: choose 1
+
+
+mass =      3.6 * m_jup,      0.1 * m_jup,      10.0 * m_jup,         3.0 * m_jup
+radius =    1 * r_jup,        #
+e =         0.05,             0.0,              0.3,                  0.1
+i =         89.8,             #
+P =         83.3 * day,       81.3 * day,       85.3 * day,           1 * day
+Omega =     1,                #                                       fix
+omega =     296,              256,              336,                  20
+ma =        150,              110,              190,                  20
