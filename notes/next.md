@@ -1,6 +1,9 @@
 # Next / in progress:
 ## 0.5.6 Fitting TOI-4504
 
+- Als Teil der MCMC-Results die Deltas zwischen observed und computed TT 
+  mit den MaxL Parametern plotten
+- welche der Auswertungen sind langsam? Diese seltener machen?
 - Delta TT auch fuer X027 und X028 plotten
   - Dafuer muesste ich aber manuell die MaxL Params raussuchen und damit 
     eine Simulation laufen lassen
@@ -8,6 +11,9 @@
 fitten
 - Vitkova plot (mit den roten Punkten) der Verspaetungen der TT gegenueber 
   einer konstanten Periode reproduzieren
+  - osculating period of 82.54±0.02d
+  - semiamplitude of ∼2d
+  - super-period of 946.5d
 - TT mit Vitkova-Parametern reproduzieren
   - Nur die ersten 11 TT von c nehmen
   - Vitkova Parameter nehmen
@@ -18,13 +24,10 @@ fitten
   - Vitkova Parameter als Startwerte nehmen
   - MCMC mit sehr kleiner Streuung um diese Startwerte starten
  
-- Als Teil der MCMC-Results die Deltas zwischen observed und computed TT 
-  mit den MaxL Parametern plotten
-- welche der Auswertungen sind langsam? Diese seltener machen?
 
 
 - Wenn nicht konvergiert, helfen dann viel!!! mehr chains?
-- b, c, d mit MaxL-Params von zB X036 festhalten, dann e fitten
+- (b,) c, d mit MaxL-Params von zB X036 festhalten, dann e fitten
 - nach einem Chunk auch die aktuelle Uhrzeit in die Konsole printen
 - Extra Spalte bei Body-Params in Configfile mit dem Wert n oder u
   - n normal distribution (Spalte sigma ist std einer Gaussglocke)
