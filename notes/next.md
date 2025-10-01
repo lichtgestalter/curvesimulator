@@ -1,9 +1,35 @@
 # Next / in progress:
 ## 0.5.6 Fitting TOI-4504
 
-**########   Hier weiter mcmc  ############**
+- Delta TT auch fuer X027 und X028 plotten
+  - Dafuer muesste ich aber manuell die MaxL Params raussuchen und damit 
+    eine Simulation laufen lassen
+- b weglassen, dafuer zusaetzlich zu c und d auch die Sonnenmasse mit prior 
+fitten
+- Vitkova plot (mit den roten Punkten) der Verspaetungen der TT gegenueber 
+  einer konstanten Periode reproduzieren
+- TT mit Vitkova-Parametern reproduzieren
+  - Nur die ersten 11 TT von c nehmen
+  - Vitkova Parameter nehmen
+  - Eine einzige Simulation machen
+  - Deltas angucken
+- Mit MCMC Vitkova Parameter reproduzieren
+  - Nur die ersten 11 TT von c nehmen
+  - Vitkova Parameter als Startwerte nehmen
+  - MCMC mit sehr kleiner Streuung um diese Startwerte starten
+ 
+- Als Teil der MCMC-Results die Deltas zwischen observed und computed TT 
+  mit den MaxL Parametern plotten
+- welche der Auswertungen sind langsam? Diese seltener machen?
 
-Wenn nicht konvergiert, helfen dann viel!!! mehr chains?
+
+- Wenn nicht konvergiert, helfen dann viel!!! mehr chains?
+- b, c, d mit MaxL-Params von zB X036 festhalten, dann e fitten
+- nach einem Chunk auch die aktuelle Uhrzeit in die Konsole printen
+- Extra Spalte bei Body-Params in Configfile mit dem Wert n oder u
+  - n normal distribution (Spalte sigma ist std einer Gaussglocke)
+  - u uniform distribution (Gleichverteilung von Startwert - sigma bis 
+    Startwert + sigma)
 
   
 ### LMfit
@@ -35,10 +61,6 @@ speichern und mcmc darauf laufen lassen.
 - spaeter gerne auch in Kombination
 
 ### Sonstige
-- welche der Auswertungen sind langsam? Diese seltener machen?
-
-- lower und upper in mcmc result skalieren (wie die anderen Werte auch)
-- 
 - In mcmc Results: Max likelihood simflux vs measure flux plotten.  Oder 
 direkt nur die Residuen plotten.
 - Testen ob Performance besser, wenn bodies.find_tts einen Dataframe returniert

@@ -2,6 +2,23 @@
 
 ## Fragen an Simon:
 
+- Was war hiermit gmeint?:
+    - Um MCMC zu testen, von Hand gucken, welche Transits passen, die anderen 
+      aus den daten werfen
+    - dann nur einen Param leicht veraendern
+    - und nur den fitten
+   
+- KEPLER9 Paper
+  - Secction 3: "Finally, for each individual planet we correct the output 
+    time by the light-travel time effect."
+  - Sollte ich das auch machen? Das heisst, wenn der Planet eine Lichtminute 
+    Abstand vom Stern hat, _addiere_ ich eine Minute zu dem Transitzeitpunkt?
+
+
+
+- Kann/solte man die Walker mit schlechter acceptance aussortieren?
+
+
 - Welche Parameter kann ich bestimmen, wenn ich nur die TT fitte?
   - Bei einem einzelnen Planeten
     - T0, P, a? 
@@ -10,12 +27,11 @@
     - Was mit Omega, omega, pomega?
     - r, i: Nein!?!
   - In TOI4504?
-   
-- KEPLER9 Paper
-  - Secction 3: "Finally, for each individual planet we correct the output 
-    time by the light-travel time effect."
-  - Sollte ich das auch machen? Das heisst, wenn der Planet eine Lichtminute 
-    Abstand vom Stern hat, _addiere_ ich eine Minute zu dem Transitzeitpunkt?
+
+
+
+
+
 
 - Kommt aus MCMC auch die Standardabweichung der gefitteten Parameter raus?
     - Ich hab einfach mal mean und std von den samples genommen.
@@ -133,6 +149,38 @@ ich nur diese Parameter bestimmen:
 - MCMC testen:
     - von hand gucken, welche Transits passen, die anderen aus den daten 
   werfen, dann nur einen Param leicht veraendern und nur den fitten
+
+
+### Call mit Simon, 01.10.25:
+
+#### Was ich gemacht habe
+- gezeigt, dass man b nicht weglassen darf (oder zumindest nicht die Masse 
+  von b)
+- b erfolgreich gefittet
+- Sektor 95: 1c, 1d Transit, habe jetzt 13+4.
+- CurveSimulator kann jetzt mit MCMC auch TT statt Flux fitten.
+- CurveSimulator kann jetzt auch  mit LMfit die TT fitten.
+- Ich habe KEPLER9 problemlos gefittet
+- RV hab ich noch ignoriert
+
+#### Simons Empfehlungen fuer die naechsten Schritte
+- b weglassen, dafuer zusaetzlich zu c und d auch die Sonnenmasse mit prior 
+fitten
+- Vitkova plot (mit den roten Punkten) der Verspaetungen der TT gegenueber 
+  einer konstanten Periode reproduzieren
+- TT mit Vitkova-Parametern reproduzieren
+  - Nur die ersten 11 TT von c nehmen
+  - Vitkova Parameter nehmen
+  - Eine einzige Simulation machen
+  - Deltas angucken
+- Mit MCMC Vitkova Parameter reproduzieren
+  - Nur die ersten 11 TT von c nehmen
+  - Vitkova Parameter als Startwerte nehmen
+  - MCMC mit sehr kleiner Streuung um diese Startwerte starten
+- Als Teil der MCMC-Results die Deltas zwischen observed und computed TT 
+  mit den MaxL Parametern plotten
+
+
 
 
 ## Allgemeine Fragen an Akademiker:
