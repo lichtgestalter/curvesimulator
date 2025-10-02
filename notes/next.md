@@ -1,6 +1,10 @@
 # Next / in progress:
 ## 0.5.6 Fitting TOI-4504
 
+- Rausfinden wie grosses dt welche TT-Fehler macht, jetzt wo Planet b raus ist! 
+- Im TT-delta plot horizontale Linie bei Null einzeichen
+- Grafik mit Entwicklung der delta-TT waehrend der MCMC-Suche 
+ 
 - Delta TT auch fuer X027 und X028 plotten
   - Dafuer muesste ich aber manuell die MaxL Params raussuchen und damit 
     eine Simulation laufen lassen

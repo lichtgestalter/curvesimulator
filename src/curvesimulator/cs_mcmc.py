@@ -521,30 +521,28 @@ class CurveSimMCMC:
         maxlikelihood_avg_residual_in_std = math.sqrt(-2 * self.max_log_prob / (flux + rv + tt))
         self.max_likelihood_avg_residual_in_std.append(maxlikelihood_avg_residual_in_std)
 
-    @stopwatch()
-    def tt_delta_plot_old(self, steps_done, plot_filename, measured_tt):
-        plot_filename = self.fitting_results_directory + plot_filename
-        unique_eclipsers = measured_tt["eclipser"].unique()
-        n_eclipsers = len(unique_eclipsers)
-        fig, axes = plt.subplots(n_eclipsers, figsize=(10, 2.5 * n_eclipsers), sharex=True)
-        if n_eclipsers == 1:
-            axes = [axes]
-        for ax, eclipser in zip(axes, unique_eclipsers):
-            df = measured_tt[measured_tt["eclipser"] == eclipser]
-            ax.plot(df["tt"], df["delta"], marker='o', linestyle='-', color='blue', alpha=0.7)
-            ax.set_ylabel(f"Delta ({eclipser})")
-            ax.set_title(f"Eclipser: {eclipser}")
-            ax.tick_params(labelbottom=True)
-        axes[-1].set_xlabel("Transit Time [BJD]")
-        fig.suptitle(f"TT Delta Plot after {steps_done} steps", fontsize=14)
-        plt.tight_layout(rect=[0, 0, 1, 0.97])
-        try:
-            plt.savefig(plot_filename)
-        except:
-            print(f"{Fore.RED}ERROR: Saving TT delta plot failed.{Style.RESET_ALL}")
-        plt.close(fig)
-
-
+    # @stopwatch()
+    # def tt_delta_plot_old(self, steps_done, plot_filename, measured_tt):
+    #     plot_filename = self.fitting_results_directory + plot_filename
+    #     unique_eclipsers = measured_tt["eclipser"].unique()
+    #     n_eclipsers = len(unique_eclipsers)
+    #     fig, axes = plt.subplots(n_eclipsers, figsize=(10, 2.5 * n_eclipsers), sharex=True)
+    #     if n_eclipsers == 1:
+    #         axes = [axes]
+    #     for ax, eclipser in zip(axes, unique_eclipsers):
+    #         df = measured_tt[measured_tt["eclipser"] == eclipser]
+    #         ax.plot(df["tt"], df["delta"], marker='o', linestyle='-', color='blue', alpha=0.7)
+    #         ax.set_ylabel(f"Delta ({eclipser})")
+    #         ax.set_title(f"Eclipser: {eclipser}")
+    #         ax.tick_params(labelbottom=True)
+    #     axes[-1].set_xlabel("Transit Time [BJD]")
+    #     fig.suptitle(f"TT Delta Plot after {steps_done} steps", fontsize=14)
+    #     plt.tight_layout(rect=[0, 0, 1, 0.97])
+    #     try:
+    #         plt.savefig(plot_filename)
+    #     except:
+    #         print(f"{Fore.RED}ERROR: Saving TT delta plot failed.{Style.RESET_ALL}")
+    #     plt.close(fig)
 
     @stopwatch()
     def tt_delta_plot(self, steps_done, plot_filename, measured_tt):
@@ -554,7 +552,6 @@ class CurveSimMCMC:
         fig, axes = plt.subplots(n_eclipsers, figsize=(10, 2.5 * n_eclipsers), sharex=True)
         if n_eclipsers == 1:
             axes = [axes]
-        # Calculate global y-range including 0
         delta_min = measured_tt["delta"].min()
         delta_max = measured_tt["delta"].max()
         y_min = min(delta_min, 0)
@@ -562,6 +559,7 @@ class CurveSimMCMC:
         for ax, eclipser in zip(axes, unique_eclipsers):
             df = measured_tt[measured_tt["eclipser"] == eclipser]
             ax.plot(df["tt"], df["delta"], marker='o', linestyle='-', color='blue', alpha=0.7)
+            ax.axhline(0, color='gray', linestyle='dashed', linewidth=1)
             ax.set_ylabel(f"Delta ({eclipser})")
             ax.set_title(f"Eclipser: {eclipser}")
             ax.tick_params(labelbottom=True)
