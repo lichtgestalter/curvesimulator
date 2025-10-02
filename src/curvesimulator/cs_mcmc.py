@@ -698,7 +698,7 @@ class CurveSimMCMC:
         if chunk % 10 == 0:
             self.acceptance_fraction_plot(steps_done, "acceptance.png")
         self.scale_samples(flat_samples)
-        if chunk % 3 == 0:
+        if chunk % 5 == 0:
             self.trace_plots(steps_done, "traces.png")
         self.max_likelihood_parameters(flat_samples)
         measured_tt = self.max_likelihood_tt(bodies, p, time_s0, time_d, measured_tt)
@@ -717,14 +717,14 @@ class CurveSimMCMC:
 
         self.integrated_autocorrelation_time.append(list(emcee.autocorr.integrated_time(self.sampler.get_chain(discard=self.burn_in), quiet=True)))
         self.integrated_autocorrelation_time_plot(steps_done, "int_autocorr_time.png", "steps_per_i_ac_time.png")
-        if chunk % 20 == 0:
+        if chunk % 10 == 0:
             self.autocorrelation_function_plot(steps_done, "autocorrelation.png")
 
         for bins in self.bins:
             self.mcmc_histograms(steps_done, bins, f"histograms_{bins}.png")
 
         self.save_mcmc_results(p, bodies, steps_done, measured_tt)
-        if chunk % 4 == 0:
+        if chunk % 5 == 0:
             self.mcmc_corner_plot(steps_done, "corner.png")
 
 class CurveSimLMfit:
