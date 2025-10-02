@@ -142,6 +142,16 @@
     - noch groesserer gueltiger Bereich fuer c.P
     - -180 < ma < 180
 
+- X046
+  - Wie X036, aber 32768 statt 256 walker
+  - Konvergiert schlechter als X036
+  - 86 vs. 16 std
+
+- X047
+  - Wie X036, aber Planet b entfernt, dafuer ist Sternmasse jetzt eine 
+    zusaetzlicher Fitting Parameter
+  - 
+
 ### MCMC fit von KEPLER-9
 1) Kepler-9: A System of Multiple Planets Transiting a Sun-Like Star, Confirmed by Timing Variations, Matthew J. Holman et al.
 2) MODELING Kepler TRANSIT LIGHT CURVES AS FALSE POSITIVES: REJECTION OF BLEND SCENARIOS FOR KEPLER-9, AND VALIDATION OF KEPLER-9 D, A SUPER-EARTH-SIZE PLANET IN A MULTIPLE SYSTEM, Guillermo Torres et al.
@@ -170,6 +180,7 @@
   - Startwerte = Simulationsparameter
   - Konvergiert super :-)
 
+### Simualtion von TOI4504, aber mit 13+4 Transits
 - X040
   - wie X039, aber nur 13 c und 4 d Transits, zu etwa den Zeitpunkten, wo 
     auch die echten Transits liegen
@@ -199,6 +210,12 @@
   - wie X043, aber
     - doppelt so grosse upper/lower-Intervalle
  
+- X045
+  - Wie X041, aber 8192 statt 256 walker
+  - Konvergiert besser als X041. 
+  - 32.5 statt 95 std mit immer noch fallender 
+    Tendenz
+
 #### Fits, bei denen c oder d oder e i>90 Grad hat
 
 #### Vitkova-Fit (Nur 11 c transits bis Sektor 67)

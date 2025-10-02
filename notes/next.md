@@ -1,6 +1,7 @@
 # Next / in progress:
 ## 0.5.6 Fitting TOI-4504
 
+- try eccept fuer file speichern sonst in Konsole
 - Als Teil der MCMC-Results die Deltas zwischen observed und computed TT 
   mit den MaxL Parametern plotten
 - welche der Auswertungen sind langsam? Diese seltener machen?
