@@ -568,7 +568,7 @@ class CurveSimMCMC:
         fig.suptitle(f"TT Delta Plot after {steps_done} steps", fontsize=14)
         plt.tight_layout(rect=[0, 0, 1, 0.97])
         try:
-            plt.savefig(plot_filename)
+            plt.savefig(f"tt_{steps_done}_{plot_filename}")
         except:
             print(f"{Fore.RED}ERROR: Saving TT delta plot failed.{Style.RESET_ALL}")
         plt.close(fig)
