@@ -3,6 +3,7 @@ import copy
 import corner
 import emcee
 import emcee.autocorr
+from functools import wraps
 import json
 import lmfit
 import math
@@ -15,6 +16,20 @@ import time
 
 from curvesimulator.cs_flux_data import csv2df
 from curvesimulator.cs_bodies import CurveSimBodies
+
+
+def stopwatch():
+    def decorator(func):
+        @wraps(func)
+        def wrapper(self, *args, **kwargs):
+            tic = time.perf_counter()
+            result = func(self, *args, **kwargs)
+            toc = time.perf_counter()
+            print(f' {func.__name__}: {toc - tic:6.1f} seconds')
+            return result
+        return wrapper
+    return decorator
+
 
 class CurveSimMCMC:
 
@@ -55,12 +70,14 @@ class CurveSimMCMC:
         self.max_likelihood_avg_residual_in_std = []
         self.mean_avg_residual_in_std = []
         self.median_avg_residual_in_std = []
+        chunk = 1
         with Pool() as pool:  # enable multi processing
             self.sampler = emcee.EnsembleSampler(p.walkers, self.ndim, CurveSimMCMC.log_probability, pool=pool, moves=self.moves, args=self.args)
             self.theta = self.sampler.run_mcmc(self.theta0, self.burn_in, progress=True)
             for steps_done in range(self.chunk_size, self.steps, self.chunk_size):
                 self.theta = self.sampler.run_mcmc(self.theta, self.chunk_size, progress=True)
-                self.mcmc_results(p, bodies, steps_done, time_s0, time_d, measured_tt, measured_flux, flux_err)
+                self.mcmc_results(p, bodies, steps_done, time_s0, time_d, measured_tt, measured_flux, flux_err, chunk)
+                chunk += 1
 
     def __repr__(self):
         return f"CurveSimMCMC with {self.walkers} walkers."
@@ -219,19 +236,26 @@ class CurveSimMCMC:
             ss *= self.scale[param]
             self.scales.append(self.scale[param])
 
-    def trace_plots(self, plot_filename):
+    @stopwatch()
+    def trace_plots(self, steps_done, plot_filename):
         plot_filename = self.fitting_results_directory + plot_filename
         fig, axes = plt.subplots(self.ndim, figsize=(10, self.ndim * 2), sharex=True)
+        fig.text(0.1, 0.99, f"Traces after {steps_done} steps", ha='left', va='top', fontsize=14, transform=fig.transFigure)
+        plt.subplots_adjust(top=0.975)
         if self.ndim == 1:
             axes = [axes]
         chains = np.moveaxis(self.sampler.get_chain(flat=False), -1, 0)
-        for chain, ax, name, scale in zip(chains, axes, self.long_body_parameter_names, self.scales):
+        for i, (chain, ax, name, scale) in enumerate(zip(chains, axes, self.long_body_parameter_names, self.scales)):
             ax.plot(chain * scale, color='black', alpha=0.05)
             ax.set_ylabel(name)
-            ax.set_xlabel("Steps including Burn in (red line)")
             ax.axvline(self.burn_in, color="red", linestyle="solid", label="Burn in")
-        plt.tight_layout()
-        plt.savefig(plot_filename)
+            ax.tick_params(labelbottom=True)  # Show x-tick labels for all
+            if i == len(axes) - 1:
+                ax.set_xlabel("Steps including Burn in (red line)")  # Only last subplot
+        try:
+            plt.savefig(plot_filename)
+        except:
+            print(f"{Fore.RED}ERROR: Saving Trace Plot failed.{Style.RESET_ALL}")
         plt.close(fig)
 
     def max_likelihood_parameters(self, flat_samples):
@@ -271,9 +295,6 @@ class CurveSimMCMC:
         residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(bodies, measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
         return measured_tt
 
-
-
-
     # Hier weiter
     # steht hier nur doppelt zur Inspiration
     # Teile davon in max_likelihood_tt einbauen!
@@ -297,18 +318,11 @@ class CurveSimMCMC:
     #     # return measured_tt["delta"]
     #     return residuals_tt_sum_squared
 
-
-
-
-
-
-
-
-
-
-    def mcmc_histograms(self, bins, plot_filename):
+    @stopwatch()
+    def mcmc_histograms(self, steps_done, bins, plot_filename):
         plot_filename = self.fitting_results_directory + plot_filename
         fig, axes = plt.subplots(self.ndim, figsize=(10, self.ndim * 2))
+        fig.text(0.02, 0.99, f"Histograms after {steps_done} steps", ha='left', va='top', fontsize=14, transform=fig.transFigure)
         startvalues = [fp.startvalue * fp.scale for fp in self.fitting_parameters]
         if self.ndim == 1:
             axes = [axes]
@@ -326,14 +340,18 @@ class CurveSimMCMC:
             ax.set_ylabel("Density")
             ax.ticklabel_format(useOffset=False, style='plain', axis='x')  # show x-labels as they are
             if i == 0:
-                ax.legend(loc='lower center', bbox_to_anchor=(0.5, 1.02), ncol=3, borderaxespad=0.)
+                ax.legend(loc='lower left', bbox_to_anchor=(0.5, 1.02), ncol=3, borderaxespad=0.)
+                # ax.legend(loc='lower center', bbox_to_anchor=(0.5, 1.02), ncol=3, borderaxespad=0.)
         plt.tight_layout()
-        plt.savefig(plot_filename)
+        try:
+            plt.savefig(plot_filename)
+        except:
+            print(f"{Fore.RED}ERROR: Saving histogram plot failed.{Style.RESET_ALL}")
         plt.close(fig)
 
-    def mcmc_corner_plot(self, plot_filename):
+    @stopwatch()
+    def mcmc_corner_plot(self, steps_done, plot_filename):
         plot_filename = self.fitting_results_directory + plot_filename
-        # Corner plot with best-fit parameters
         if self.ndim > 1:
             fig = corner.corner(
                 self.scaled_samples,
@@ -342,15 +360,61 @@ class CurveSimMCMC:
                 title_fmt=".4f",
                 quiet=True
             )
-            plt.savefig(plot_filename)
+            fig.suptitle(f"Corner plot after {steps_done} steps", fontsize=16)
+            try:
+                plt.savefig(plot_filename)
+            except:
+                print(f"{Fore.RED}ERROR: Saving corner plot failed.{Style.RESET_ALL}")
             plt.close(fig)
 
-    def autocorrelation_function_plot(self, plot_filename):
+
+        # for i, (chain, ax, name, scale) in enumerate(zip(chains, axes, self.long_body_parameter_names, self.scales)):
+        #     ax.plot(chain * scale, color='black', alpha=0.05)
+        #     ax.set_ylabel(name)
+        #     ax.axvline(self.burn_in, color="red", linestyle="solid", label="Burn in")
+        #     ax.tick_params(labelbottom=True)  # Show x-tick labels for all
+        #     if i == len(axes) - 1:
+        #         ax.set_xlabel("Steps including Burn in (red line)")  # Only last subplot
+        #
+        #
+
+    @stopwatch()
+    def autocorrelation_function_plot(self, steps_done, plot_filename):
         plot_filename = self.fitting_results_directory + plot_filename
         samples = self.sampler.get_chain(discard=0, flat=False)  # shape: (steps, walkers, ndim)
         nwalkers = samples.shape[1]
         fig, axes = plt.subplots(self.ndim, figsize=(10, self.ndim * 2), sharex=True)
-        fig.suptitle("Autocorrelation")
+        fig.text(0.1, 0.99, f"Autocorrelation after {steps_done} steps", ha='left', va='top', fontsize=14, transform=fig.transFigure)
+        plt.subplots_adjust(top=0.975)
+        if self.ndim == 1:
+            axes = [axes]
+        for dim, param_name in enumerate(self.long_body_parameter_names):
+            ax = axes[dim]
+            for walker in range(nwalkers):
+                chain_1d = samples[:, walker, dim]
+                ac = emcee.autocorr.function_1d(chain_1d)
+                ax.plot(ac, alpha=0.5)
+            ax.set_ylabel(param_name)
+            ax.axvline(self.burn_in, color="red", linestyle="solid", label="Burn in")
+            ax.tick_params(labelbottom=True)  # Show x-tick labels for all
+            if dim == self.ndim - 1:
+                ax.set_xlabel("Steps including Burn in (red line)")  # Only last subplot
+        try:
+            plt.savefig(plot_filename)
+        except:
+            print(f"{Fore.RED}ERROR: Saving autocorrelation plot failed.{Style.RESET_ALL}")
+        plt.close(fig)
+
+
+
+    @stopwatch()
+    def autocorrelation_function_plot_old(self, steps_done, plot_filename):
+        plot_filename = self.fitting_results_directory + plot_filename
+        samples = self.sampler.get_chain(discard=0, flat=False)  # shape: (steps, walkers, ndim)
+        nwalkers = samples.shape[1]
+        fig, axes = plt.subplots(self.ndim, figsize=(10, self.ndim * 2), sharex=True)
+        fig.text(0.1, 0.99, f"Autocorrelation after {steps_done} steps", ha='left', va='top', fontsize=14, transform=fig.transFigure)
+        plt.subplots_adjust(top=0.975)
         if self.ndim == 1:
             axes = [axes]
         for dim, param_name in zip(range(self.ndim), self.long_body_parameter_names):
@@ -362,10 +426,14 @@ class CurveSimMCMC:
                 ac = emcee.autocorr.function_1d(chain_1d)
                 ax.plot(ac, alpha=0.5)
             ax.set_ylabel(param_name)
-        plt.tight_layout()
-        plt.savefig(plot_filename)
+        # plt.tight_layout()
+        try:
+            plt.savefig(plot_filename)
+        except:
+            print(f"{Fore.RED}ERROR: Saving autocorrelation plot failed.{Style.RESET_ALL}")
         plt.close(fig)
 
+    @stopwatch()
     def integrated_autocorrelation_time_plot(self, steps_done, plot_filename1, plot_filename2):
         plot_filename1 = self.fitting_results_directory + plot_filename1
         plot_filename2 = self.fitting_results_directory + plot_filename2
@@ -379,10 +447,13 @@ class CurveSimMCMC:
             linestyle = linestyles[idx % len(linestyles)]
             ax.plot(steps, autocorr_times, label=fpn, color=color, linestyle=linestyle)
         ax.set_xlabel("Steps after Burn in")
-        ax.set_title("Integrated Autocorrelation Time per Dimension")
+        ax.set_title(f"Integrated Autocorrelation Time per Dimension after {steps_done} steps")
         ax.legend(loc="upper left")
         plt.tight_layout()
-        plt.savefig(plot_filename1)
+        try:
+            plt.savefig(plot_filename1)
+        except:
+            print(f"{Fore.RED}ERROR: Saving Integrated Autocorrelation Time plot failed.{Style.RESET_ALL}")
         plt.close(fig)
 
         steps_done_div_integrated_autocorrelation_time = steps / integrated_autocorrelation_time
@@ -392,12 +463,16 @@ class CurveSimMCMC:
             linestyle = linestyles[idx % len(linestyles)]
             ax.plot(steps, autocorr_times, label=fpn, color=color, linestyle=linestyle)
         ax.set_xlabel("Steps after Burn in")
-        ax.set_title("Steps divided by Integrated Autocorrelation Time per Dimension")
+        ax.set_title(f"Steps divided by Integrated Autocorrelation Time per Dimension after {steps_done} steps")
         ax.legend(loc="upper left")
         plt.tight_layout()
-        plt.savefig(plot_filename2)
+        try:
+            plt.savefig(plot_filename2)
+        except:
+            print(f"{Fore.RED}ERROR: Saving Steps divided by Integrated Autocorrelation Time plot failed.{Style.RESET_ALL}")
         plt.close(fig)
 
+    @stopwatch()
     def acceptance_fraction_plot(self, steps_done, plot_filename):
         plot_filename = self.fitting_results_directory + plot_filename
         acceptance_fractions_array = np.stack(self.acceptance_fractions, axis=0).T  # shape: (num_lines, 32)
@@ -407,11 +482,15 @@ class CurveSimMCMC:
             ax.plot(steps, acceptance_fractions_array[i], label=f'Line {i + 1}', color='green', alpha=0.15)
         ax.set_xlabel('Steps after Burn in')
         ax.set_ylabel('Acceptance Fraction')
-        ax.set_title('Acceptance Fraction per Walker')
+        ax.set_title(f'Acceptance Fraction per Walker after {steps_done} steps')
         plt.tight_layout()
-        plt.savefig(plot_filename)
+        try:
+            plt.savefig(plot_filename)
+        except:
+            print(f"{Fore.RED}ERROR: Saving acceptance plot failed.{Style.RESET_ALL}")
         plt.close(fig)
 
+    @stopwatch()
     def average_residual_in_std_plot(self, p, steps_done, plot_filename):
         plot_filename = self.fitting_results_directory + plot_filename
         steps = [step for step in range(self.chunk_size, steps_done + 1, self.chunk_size)]
@@ -422,10 +501,13 @@ class CurveSimMCMC:
             ax.plot(steps, self.mean_avg_residual_in_std, label="Mean Parameters", marker='o', color='black', alpha=0.7)
         ax.set_xlabel('Steps after Burn in')
         ax.ticklabel_format(useOffset=False, style='plain', axis='y')  # show y-labels as they are
-        ax.set_title('Average Residual [Standard Deviations]')
+        ax.set_title(f'Average Residual [Standard Deviations] after {steps_done} steps')
         ax.legend(loc="upper left")
         plt.tight_layout()
-        plt.savefig(plot_filename)
+        try:
+            plt.savefig(plot_filename)
+        except:
+            print(f"{Fore.RED}ERROR: Saving Average Residual plot failed.{Style.RESET_ALL}")
         plt.close(fig)
 
     def calc_maxlikelihood_avg_residual_in_std(self, p):
@@ -438,6 +520,63 @@ class CurveSimMCMC:
             tt = getattr(p, "tt_datasize", 0)
         maxlikelihood_avg_residual_in_std = math.sqrt(-2 * self.max_log_prob / (flux + rv + tt))
         self.max_likelihood_avg_residual_in_std.append(maxlikelihood_avg_residual_in_std)
+
+    @stopwatch()
+    def tt_delta_plot_old(self, steps_done, plot_filename, measured_tt):
+        plot_filename = self.fitting_results_directory + plot_filename
+        unique_eclipsers = measured_tt["eclipser"].unique()
+        n_eclipsers = len(unique_eclipsers)
+        fig, axes = plt.subplots(n_eclipsers, figsize=(10, 2.5 * n_eclipsers), sharex=True)
+        if n_eclipsers == 1:
+            axes = [axes]
+        for ax, eclipser in zip(axes, unique_eclipsers):
+            df = measured_tt[measured_tt["eclipser"] == eclipser]
+            ax.plot(df["tt"], df["delta"], marker='o', linestyle='-', color='blue', alpha=0.7)
+            ax.set_ylabel(f"Delta ({eclipser})")
+            ax.set_title(f"Eclipser: {eclipser}")
+            ax.tick_params(labelbottom=True)
+        axes[-1].set_xlabel("Transit Time [BJD]")
+        fig.suptitle(f"TT Delta Plot after {steps_done} steps", fontsize=14)
+        plt.tight_layout(rect=[0, 0, 1, 0.97])
+        try:
+            plt.savefig(plot_filename)
+        except:
+            print(f"{Fore.RED}ERROR: Saving TT delta plot failed.{Style.RESET_ALL}")
+        plt.close(fig)
+
+
+
+    @stopwatch()
+    def tt_delta_plot(self, steps_done, plot_filename, measured_tt):
+        plot_filename = self.fitting_results_directory + plot_filename
+        unique_eclipsers = measured_tt["eclipser"].unique()
+        n_eclipsers = len(unique_eclipsers)
+        fig, axes = plt.subplots(n_eclipsers, figsize=(10, 2.5 * n_eclipsers), sharex=True)
+        if n_eclipsers == 1:
+            axes = [axes]
+        # Calculate global y-range including 0
+        delta_min = measured_tt["delta"].min()
+        delta_max = measured_tt["delta"].max()
+        y_min = min(delta_min, 0)
+        y_max = max(delta_max, 0)
+        for ax, eclipser in zip(axes, unique_eclipsers):
+            df = measured_tt[measured_tt["eclipser"] == eclipser]
+            ax.plot(df["tt"], df["delta"], marker='o', linestyle='-', color='blue', alpha=0.7)
+            ax.set_ylabel(f"Delta ({eclipser})")
+            ax.set_title(f"Eclipser: {eclipser}")
+            ax.tick_params(labelbottom=True)
+            ax.set_ylim(y_min, y_max)
+        axes[-1].set_xlabel("Transit Time [BJD]")
+        fig.suptitle(f"TT Delta Plot after {steps_done} steps", fontsize=14)
+        plt.tight_layout(rect=[0, 0, 1, 0.97])
+        try:
+            plt.savefig(plot_filename)
+        except:
+            print(f"{Fore.RED}ERROR: Saving TT delta plot failed.{Style.RESET_ALL}")
+        plt.close(fig)
+
+
+
 
     @staticmethod
     def seconds2readable(seconds):
@@ -537,12 +676,18 @@ class CurveSimMCMC:
     def mcmc_results2json(self, results, p):
         """Converts results to JSON and saves it."""
         filename = self.fitting_results_directory + f"/mcmc_results.json"
-        with open(filename, "w", encoding='utf8') as file:
-            json.dump(results, file, indent=4, ensure_ascii=False)
-        if p.verbose:
-            print(f" Saved MCMC results to {filename}")
+        try:
+            with open(filename, "w", encoding='utf8') as file:
+                json.dump(results, file, indent=4, ensure_ascii=False)
+            if p.verbose:
+                print(f" Saved MCMC results to {filename}")
+        except:
+            print(f"{Fore.RED}ERROR: Saving Average Residual plot failed.{Style.RESET_ALL}")
+            print(results)
+            print(f"{Fore.YELLOW}Printed Results to console because saving failed.{Style.RESET_ALL}")
 
-    def mcmc_results(self, p, bodies, steps_done, time_s0, time_d, measured_tt, measured_flux, flux_err):
+    @stopwatch()
+    def mcmc_results(self, p, bodies, steps_done, time_s0, time_d, measured_tt, measured_flux, flux_err, chunk):
         flat_samples = self.sampler.get_chain(discard=self.burn_in, thin=self.thin_samples, flat=True)
         # discard the initial self.burn_in steps from each chain to ensure only samples that represent the equilibrium distribution are analyzed.
         # thin=10: keep only every 10th sample from the chain to reduce autocorrelation in the chains and the size of the resulting arrays.
@@ -550,13 +695,17 @@ class CurveSimMCMC:
         print(f"{steps_done} steps done.  ")
 
         self.acceptance_fractions.append(self.sampler.acceptance_fraction)
-        self.acceptance_fraction_plot(steps_done, "acceptance.png")
+        if chunk % 10 == 0:
+            self.acceptance_fraction_plot(steps_done, "acceptance.png")
         self.scale_samples(flat_samples)
-        self.trace_plots("traces.png")
+        if chunk % 3 == 0:
+            self.trace_plots(steps_done, "traces.png")
         self.max_likelihood_parameters(flat_samples)
         measured_tt = self.max_likelihood_tt(bodies, p, time_s0, time_d, measured_tt)
         self.calc_maxlikelihood_avg_residual_in_std(p)
         self.high_density_intervals()
+
+        self.tt_delta_plot(steps_done, "tt_delta.png", measured_tt)
 
         if p.flux_file:
             median_residuals_flux_sum_squared = CurveSimMCMC.residuals_flux_sum_squared(self.median_params, self.param_references, bodies, time_s0, measured_flux, flux_err, p)
@@ -568,13 +717,15 @@ class CurveSimMCMC:
 
         self.integrated_autocorrelation_time.append(list(emcee.autocorr.integrated_time(self.sampler.get_chain(discard=self.burn_in), quiet=True)))
         self.integrated_autocorrelation_time_plot(steps_done, "int_autocorr_time.png", "steps_per_i_ac_time.png")
-        self.autocorrelation_function_plot("autocorrelation.png")
+        if chunk % 20 == 0:
+            self.autocorrelation_function_plot(steps_done, "autocorrelation.png")
 
         for bins in self.bins:
-            self.mcmc_histograms(bins, f"histograms_{bins}.png")
+            self.mcmc_histograms(steps_done, bins, f"histograms_{bins}.png")
 
         self.save_mcmc_results(p, bodies, steps_done, measured_tt)
-        self.mcmc_corner_plot("corner.png")
+        if chunk % 4 == 0:
+            self.mcmc_corner_plot(steps_done, "corner.png")
 
 class CurveSimLMfit:
 

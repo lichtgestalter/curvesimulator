@@ -1,15 +1,9 @@
 # Next / in progress:
 ## 0.5.6 Fitting TOI-4504
 
-- try eccept fuer file speichern sonst in Konsole
-- Als Teil der MCMC-Results die Deltas zwischen observed und computed TT 
-  mit den MaxL Parametern plotten
-- welche der Auswertungen sind langsam? Diese seltener machen?
 - Delta TT auch fuer X027 und X028 plotten
   - Dafuer muesste ich aber manuell die MaxL Params raussuchen und damit 
     eine Simulation laufen lassen
-- b weglassen, dafuer zusaetzlich zu c und d auch die Sonnenmasse mit prior 
-fitten
 - Vitkova plot (mit den roten Punkten) der Verspaetungen der TT gegenueber 
   einer konstanten Periode reproduzieren
   - osculating period of 82.54±0.02d
@@ -25,9 +19,9 @@ fitten
   - Vitkova Parameter als Startwerte nehmen
   - MCMC mit sehr kleiner Streuung um diese Startwerte starten
  
+- Jeder Parameter soll seine eigene Skalierung haben koennen.
+  - Also z.B. Sonnen-Masse anderen Faktor als Planetenmasse
 
-
-- Wenn nicht konvergiert, helfen dann viel!!! mehr chains?
 - (b,) c, d mit MaxL-Params von zB X036 festhalten, dann e fitten
 - nach einem Chunk auch die aktuelle Uhrzeit in die Konsole printen
 - Extra Spalte bei Body-Params in Configfile mit dem Wert n oder u
