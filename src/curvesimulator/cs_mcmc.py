@@ -546,7 +546,7 @@ class CurveSimMCMC:
 
     @stopwatch()
     def tt_delta_plot(self, steps_done, plot_filename, measured_tt):
-        plot_filename = self.fitting_results_directory + plot_filename
+        plot_filename = self.fitting_results_directory + str(steps_done) + plot_filename
         unique_eclipsers = measured_tt["eclipser"].unique()
         n_eclipsers = len(unique_eclipsers)
         fig, axes = plt.subplots(n_eclipsers, figsize=(10, 2.5 * n_eclipsers), sharex=True)
@@ -568,7 +568,7 @@ class CurveSimMCMC:
         fig.suptitle(f"TT Delta Plot after {steps_done} steps", fontsize=14)
         plt.tight_layout(rect=[0, 0, 1, 0.97])
         try:
-            plt.savefig(f"tt_{steps_done}_{plot_filename}")
+            plt.savefig(plot_filename)
         except:
             print(f"{Fore.RED}ERROR: Saving TT delta plot failed.{Style.RESET_ALL}")
         plt.close(fig)
