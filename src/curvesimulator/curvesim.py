@@ -2,7 +2,7 @@
 from .cs_animation import CurveSimAnimation
 from .cs_bodies import CurveSimBodies
 from .cs_parameters import CurveSimParameters
-from .cs_mcmc import CurveSimMCMC, CurveSimLMfit
+from .cs_mcmc import CurveSimMCMC, CurveSimLMfit, CurveSimGUIfit
 
 class CurveSimulator:
 
@@ -21,6 +21,9 @@ class CurveSimulator:
             if p.lmfit:
                 self.lmfit = CurveSimLMfit(p, bodies, time_s0, time_d, measured_tt)
                 self.lmfit.save_lmfit_results(p)
+            elif p.guifit:
+                self.guifit = CurveSimGUIfit(p, bodies, time_s0, time_d, measured_tt)
+                self.guifit.save_lmfit_results(p)
             else:
                 mcmc = CurveSimMCMC(p, bodies, time_s0, time_d, measured_flux, flux_uncertainty, measured_tt)
                 self.sampler = mcmc.sampler  # mcmc object

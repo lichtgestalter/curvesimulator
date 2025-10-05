@@ -124,12 +124,14 @@ class CurveSimParameters:
                 self.start_indices, self.max_iterations, self.total_iterations = self.check_intervals()
                 self.best_residuals_tt_sum_squared = 1e99
 
+            self.guifit = eval(config.get("Fitting", "guifit", fallback="False"))
 
             self.lmfit = eval(config.get("Fitting", "lmfit", fallback="False"))
             self.lmfit_method = config.get("Fitting", "lmfit_method", fallback="powell")
             self.lmfit_max_tt_delta = eval(config.get("Fitting", "lmfit_max_tt_delta", fallback="1e-4"))
             self.flux_weight = int(eval(config.get("Fitting", "flux_weight", fallback="1")))
             self.tt_weight = int(eval(config.get("Fitting", "tt_weight", fallback="1")))
+
             self.walkers = int(eval(config.get("Fitting", "walkers", fallback="32")))
             self.target_flux = eval(config.get("Fitting", "target_flux", fallback="None"))
             self.steps = int(eval(config.get("Fitting", "steps", fallback="10000")))
@@ -138,6 +140,7 @@ class CurveSimParameters:
             self.chunk_size = int(eval(config.get("Fitting", "chunk_size", fallback="500")))
             self.bins = tuple([eval(x) for x in config.get("Fitting", "bins", fallback="30").split("#")[0].split(",")])
             self.thin_samples = int(eval(config.get("Fitting", "thin_samples", fallback="10")))
+
             default_unit = '{"mass": "m_jup", "radius": "r_jup", "e": "1", "i": "deg", "P": "d", "a": "AU", "Omega": "deg", "omega": "deg", "pomega": "deg", "L": "deg", "ma": "deg", "ea": "deg", "nu": "deg", "T": "s", "t": "s"}'
             dict_str = config.get('Fitting', 'unit', fallback=default_unit)
             self.unit = eval(dict_str)

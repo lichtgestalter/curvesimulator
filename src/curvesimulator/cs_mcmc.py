@@ -940,6 +940,15 @@ class CurveSimLMfit:
             print(f" Saved LMfit results to {filename}")
 
 
+class CurveSimGUIfit:
+    def __init__(self, p, bodies, time_s0, time_d, measured_tt):
+        pass
+
+    def save_lmfit_results(self, p):
+        pass
+
+
+
 def find_ndarrays(obj, path="root"):
     if isinstance(obj, np.ndarray):
         print(f"{path}: numpy.ndarray, shape={obj.shape}, dtype={obj.dtype}")

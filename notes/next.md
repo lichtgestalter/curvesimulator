@@ -1,27 +1,30 @@
 # Next / in progress:
 ## 0.5.6 Fitting TOI-4504
 
-- Rausfinden wie grosses dt welche TT-Fehler macht, jetzt wo Planet b raus ist! 
+- Die riesige MaxL Periode von ca 84.9 in X047.4:
+  - Einzelsimulation laufen lassen, um zu validieren
+- Rausfinden wie grosses dt welche TT-Fehler macht, jetzt wo Planet b raus ist!
+- Mit GUI minimieren
 - Im TT-delta plot horizontale Linie bei Null einzeichen
-- Grafik mit Entwicklung der delta-TT waehrend der MCMC-Suche 
+- Grafik mit Entwicklung der delta-TT waehrend der MCMC-Suche
+- Bei jedem neuen Minimum (ø TTdelta < 20 std) den MaxL-Parametersatz in 
+  Datei schreiben
  
-- Delta TT auch fuer X027 und X028 plotten
-  - Dafuer muesste ich aber manuell die MaxL Params raussuchen und damit 
-    eine Simulation laufen lassen
-- Vitkova plot (mit den roten Punkten) der Verspaetungen der TT gegenueber 
-  einer konstanten Periode reproduzieren
-  - osculating period of 82.54±0.02d
-  - semiamplitude of ∼2d
-  - super-period of 946.5d
-- TT mit Vitkova-Parametern reproduzieren
-  - Nur die ersten 11 TT von c nehmen
-  - Vitkova Parameter nehmen
-  - Eine einzige Simulation machen
-  - Deltas angucken
-- Mit MCMC Vitkova Parameter reproduzieren
-  - Nur die ersten 11 TT von c nehmen
-  - Vitkova Parameter als Startwerte nehmen
-  - MCMC mit sehr kleiner Streuung um diese Startwerte starten
+- Simons Hausaufgaben 
+  - Vitkova plot (mit den roten Punkten) der Verspaetungen der TT gegenueber 
+    einer konstanten Periode reproduzieren
+    - osculating period of 82.54±0.02d
+    - semiamplitude of ∼2d
+    - super-period of 946.5d
+  - TT mit Vitkova-Parametern reproduzieren
+    - Nur die ersten 11 TT von c nehmen
+    - Vitkova Parameter nehmen
+    - Eine einzige Simulation machen
+    - Deltas angucken
+  - Mit MCMC Vitkova Parameter reproduzieren
+    - Nur die ersten 11 TT von c nehmen
+    - Vitkova Parameter als Startwerte nehmen
+    - MCMC mit sehr kleiner Streuung um diese Startwerte starten
  
 - Jeder Parameter soll seine eigene Skalierung haben koennen.
   - Also z.B. Sonnen-Masse anderen Faktor als Planetenmasse
