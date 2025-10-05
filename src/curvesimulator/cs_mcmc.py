@@ -693,7 +693,7 @@ class CurveSimMCMC:
         print(f"{steps_done} steps done.  ")
 
         self.acceptance_fractions.append(self.sampler.acceptance_fraction)
-        if chunk % 10 == 0:
+        if chunk % 5 == 0:
             self.acceptance_fraction_plot(steps_done, "acceptance.png")
         self.scale_samples(flat_samples)
         if chunk % 5 == 0:
@@ -722,7 +722,7 @@ class CurveSimMCMC:
             self.mcmc_histograms(steps_done, bins, f"histograms_{bins}.png")
 
         self.save_mcmc_results(p, bodies, steps_done, measured_tt)
-        if chunk % 5 == 0:
+        if chunk % 10 == 0:
             self.mcmc_corner_plot(steps_done, "corner.png")
 
 class CurveSimLMfit:
