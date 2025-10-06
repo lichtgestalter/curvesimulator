@@ -424,7 +424,7 @@
         ],
         "result_file": "../results/mcmc/archive/TT_fit/X039_sim_cd11P_TT96/TOI-4504_SIM_X039.json",
         "result_dt": 1000,
-        "max_intervall_extensions": 10,
+        "max_interval_extensions": 10,
         "starts_d": [
             2458400.0
         ],

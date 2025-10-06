@@ -66,7 +66,7 @@ class CurveSimParameters:
         if self.result_file == "None":
             self.result_file = None
         self.result_dt = eval(config.get("Results", "result_dt", fallback="100"))
-        self.max_intervall_extensions = eval(config.get("Results", "max_intervall_extensions", fallback="10"))
+        self.max_interval_extensions = eval(config.get("Results", "max_interval_extensions", fallback="10"))
 
         # [Simulation]
         self.starts_d = np.array(eval(config.get("Simulation", "starts", fallback="[]")))
@@ -166,7 +166,7 @@ class CurveSimParameters:
             self.ends_d = np.array([self.start_date + (self.frames * self.fps * self.dt) / self.day])  # default value. Assumes the video shall last 'frames' seconds.
         if not (len(self.starts_d) == len(self.ends_d) == len(self.dts)):
             print(f"{Fore.YELLOW}WARNING: Parameters starts, ends and dts do not have the same number of items.{Style.RESET_ALL}")
-            print(f"{Fore.YELLOW}Only the first {min(len(self.starts_d), len(self.ends_d), len(self.dts))} intervalls will be processed.{Style.RESET_ALL}")
+            print(f"{Fore.YELLOW}Only the first {min(len(self.starts_d), len(self.ends_d), len(self.dts))} intervals will be processed.{Style.RESET_ALL}")
         for start, end in zip(self.starts_d, self.ends_d):
             if start > end:
                 print(f"{Fore.RED}ERROR in parameters starts/ends: One interval ends before it begins.{Style.RESET_ALL}")

@@ -1,7 +1,6 @@
 # Next / in progress:
 ## 0.5.6 Fitting TOI-4504
 
-- X047 runs vergleichen
 - Die riesige MaxL Periode von ca 84.9 in X047.4:
   - Einzelsimulation laufen lassen, um zu validieren
 - Rausfinden wie grosses dt welche TT-Fehler macht, jetzt wo Planet b raus ist!

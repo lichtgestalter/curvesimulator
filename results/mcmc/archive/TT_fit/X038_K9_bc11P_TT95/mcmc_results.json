@@ -814,7 +814,7 @@
         ],
         "result_file": "../results/K9.json",
         "result_dt": 1000,
-        "max_intervall_extensions": 5,
+        "max_interval_extensions": 5,
         "starts_d": [
             2455088.212
         ],
