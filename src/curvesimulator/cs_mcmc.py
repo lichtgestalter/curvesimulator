@@ -184,9 +184,9 @@ class CurveSimMCMC:
         df = df[df["time"] >= p.start_date]
         df["time"] -= p.start_date
         df["time"] *= p.day
-        time_s0 = np.array(df["time"])
+        time_s0 = np.array(df["time"], dtype=float)
         measured_flux = np.array(df["flux"])
-        flux_err = np.array(df["flux_err"])
+        flux_err = np.array(df["flux_err"], dtype=float)
         p.total_iterations = len(time_s0)
         time_d = time_s0 / p.day + p.start_date
         return time_s0, time_d, measured_flux, flux_err

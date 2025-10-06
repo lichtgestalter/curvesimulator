@@ -33,7 +33,7 @@ class CurveSimRebound:
             momentum_x += p.m * p.vx
             momentum_y += p.m * p.vy
             momentum_z += p.m * p.vz
-        return np.array([momentum_x, momentum_y, momentum_z])
+        return np.array([momentum_x, momentum_y, momentum_z], dtype=float)
 
     def calc_total_angular_momentum(self):
         """
@@ -42,16 +42,16 @@ class CurveSimRebound:
         Lx, Ly, Lz = 0.0, 0.0, 0.0
         for p in self.sim.particles:
             # Position vector
-            r = np.array([p.x, p.y, p.z])
+            r = np.array([p.x, p.y, p.z], dtype=float)
             # Momentum vector
-            v = np.array([p.vx, p.vy, p.vz])
+            v = np.array([p.vx, p.vy, p.vz], dtype=float)
             p_vec = p.m * v
             # Angular momentum: L = r x p
             L = np.cross(r, p_vec)
             Lx += L[0]
             Ly += L[1]
             Lz += L[2]
-        return np.array([Lx, Ly, Lz])
+        return np.array([Lx, Ly, Lz], dtype=float)
 
     def calc_center_of_mass_position(self):
         """
@@ -66,4 +66,4 @@ class CurveSimRebound:
             z += p.m * p.z
         if mass == 0.0:
             return 0
-        return np.array([x/mass, y/mass, z/mass])
+        return np.array([x/mass, y/mass, z/mass], dtype=float)

@@ -146,10 +146,11 @@ def compare_tt_for_different_dt():
 
 
 def main():
-    path = "../results/mcmc/archive/TT_fit/X039_sim_cd11P_TT96/"
+    # path = "../results/mcmc/archive/TT_fit/"
+    path = "../results/"
     eclipser = "TOI4504c"
     transit_param = "TT"
-    tts = results2list(transit_param, eclipser, "TOI4504", path, "TOI-4504_SIM_X039", ".json")
+    tts = results2list(transit_param, eclipser, "TOI4504", path, "TOI-4504_X047debug", ".json")
     df = pd.DataFrame({'tt': tts})
     df2csv_deutsch(df, path + transit_param + "_" + eclipser + "_DE.csv")
     df2csv(df, path + transit_param + "_" + eclipser + ".csv")

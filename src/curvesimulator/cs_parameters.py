@@ -69,9 +69,9 @@ class CurveSimParameters:
         self.max_interval_extensions = eval(config.get("Results", "max_interval_extensions", fallback="10"))
 
         # [Simulation]
-        self.starts_d = np.array(eval(config.get("Simulation", "starts", fallback="[]")))
-        self.ends_d = np.array(eval(config.get("Simulation", "ends", fallback="[]")))
-        self.dts = np.array(eval(config.get("Simulation", "dts", fallback="[]")))
+        self.starts_d = np.array(eval(config.get("Simulation", "starts", fallback="[]")), dtype=float)
+        self.ends_d = np.array(eval(config.get("Simulation", "ends", fallback="[]")), dtype=float)
+        self.dts = np.array(eval(config.get("Simulation", "dts", fallback="[]")), dtype=float)
 
         if self.flux_file is None and self.tt_file is None and self.rv_file is None:  # run simulation, generate video and transit results
             self.sim_flux_file = config.get("Simulation", "sim_flux_file", fallback="None")
@@ -118,9 +118,9 @@ class CurveSimParameters:
             if self.fitting_results_directory is not None:
                 self.find_fitting_results_subdirectory()
             if self.tt_file:
-                self.starts_d = np.array(eval(config.get("Simulation", "starts", fallback="[]")))
-                self.ends_d = np.array(eval(config.get("Simulation", "ends", fallback="[]")))
-                self.dts = np.array(eval(config.get("Simulation", "dts", fallback="[]")))
+                self.starts_d = np.array(eval(config.get("Simulation", "starts", fallback="[]")), dtype=float)
+                self.ends_d = np.array(eval(config.get("Simulation", "ends", fallback="[]")), dtype=float)
+                self.dts = np.array(eval(config.get("Simulation", "dts", fallback="[]")), dtype=float)
                 self.start_indices, self.max_iterations, self.total_iterations = self.check_intervals()
                 self.best_residuals_tt_sum_squared = 1e99
 
@@ -161,9 +161,9 @@ class CurveSimParameters:
          """
         if len(self.starts_d) == 0 or len(self.ends_d) == 0 or len(self.dts) == 0:
             print("At least one of the parameters starts/ends/dts is missing. Default values take effect.")
-            self.starts_d = np.array([self.start_date])
-            self.dts = np.array([self.dt])
-            self.ends_d = np.array([self.start_date + (self.frames * self.fps * self.dt) / self.day])  # default value. Assumes the video shall last 'frames' seconds.
+            self.starts_d = np.array([self.start_date], dtype=float)
+            self.dts = np.array([self.dt], dtype=float)
+            self.ends_d = np.array([self.start_date + (self.frames * self.fps * self.dt) / self.day], dtype=float)  # default value. Assumes the video shall last 'frames' seconds.
         if not (len(self.starts_d) == len(self.ends_d) == len(self.dts)):
             print(f"{Fore.YELLOW}WARNING: Parameters starts, ends and dts do not have the same number of items.{Style.RESET_ALL}")
             print(f"{Fore.YELLOW}Only the first {min(len(self.starts_d), len(self.ends_d), len(self.dts))} intervals will be processed.{Style.RESET_ALL}")
@@ -218,7 +218,7 @@ class CurveSimParameters:
 
     @staticmethod
     def init_time_arrays(p):
-        time_s0 = np.zeros(p.total_iterations)
+        time_s0 = np.zeros(p.total_iterations, dtype=float)
         i = 0
         for start, dt, max_iteration in zip(p.starts_s0, p.dts, p.max_iterations):
             for j in range(max_iteration):
