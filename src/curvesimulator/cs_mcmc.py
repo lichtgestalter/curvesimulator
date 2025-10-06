@@ -84,7 +84,7 @@ class CurveSimMCMC:
         return f"CurveSimMCMC with {self.walkers} walkers."
 
     @staticmethod
-    def match_transit_times(bodies, measured_tt, p, rebound_sim, sim_flux, time_d, time_s0):
+    def match_transit_times(measured_tt, p, rebound_sim, sim_flux, time_d, time_s0):
         sim_tt = CurveSimBodies.find_tts(rebound_sim, p, sim_flux, time_s0, time_d)  # sim_tt is a list of tuples (eclipser, eclipsee, tt)
         nearest_sim_tt = []
         for idx, row in measured_tt.iterrows():
@@ -119,7 +119,7 @@ class CurveSimMCMC:
 
     @staticmethod
     def log_likelihood(theta, param_references, bodies, time_s0, time_d, measured_flux, flux_err, measured_tt, p):
-    # def log_likelihood(theta, param_references, bodies, time_s0, measured_flux, flux_err, measured_tt, tt_err, measured_rv, rv_err, p):
+        # def log_likelihood(theta, param_references, bodies, time_s0, measured_flux, flux_err, measured_tt, tt_err, measured_rv, rv_err, p):
         """
         theta:
             List containing the current numerical values of the `param_references` (see below).
@@ -160,7 +160,7 @@ class CurveSimMCMC:
             bodies[body_index].__dict__[parameter_name] = theta[i]  # update all parameters from theta
             i += 1
         sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # run simulation
-        residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(bodies, measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
+        residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
         return residuals_tt_sum_squared
 
     @staticmethod
@@ -293,7 +293,7 @@ class CurveSimMCMC:
             bodies[body_index].__dict__[parameter_name] = self.max_likelihood_params[i]  # update all parameters from theta
             i += 1
         sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # run simulation
-        residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(bodies, measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
+        residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
         return measured_tt
 
     # Hier weiter
@@ -368,17 +368,6 @@ class CurveSimMCMC:
                 print(f"{Fore.RED}ERROR: Saving corner plot failed.{Style.RESET_ALL}")
             plt.close(fig)
 
-
-        # for i, (chain, ax, name, scale) in enumerate(zip(chains, axes, self.long_body_parameter_names, self.scales)):
-        #     ax.plot(chain * scale, color='black', alpha=0.05)
-        #     ax.set_ylabel(name)
-        #     ax.axvline(self.burn_in, color="red", linestyle="solid", label="Burn in")
-        #     ax.tick_params(labelbottom=True)  # Show x-tick labels for all
-        #     if i == len(axes) - 1:
-        #         ax.set_xlabel("Steps including Burn in (red line)")  # Only last subplot
-        #
-        #
-
     # @stopwatch()
     def autocorrelation_function_plot(self, steps_done, plot_filename):
         plot_filename = self.fitting_results_directory + plot_filename
@@ -405,8 +394,6 @@ class CurveSimMCMC:
         except:
             print(f"{Fore.RED}ERROR: Saving autocorrelation plot failed.{Style.RESET_ALL}")
         plt.close(fig)
-
-
 
     # @stopwatch()
     def autocorrelation_function_plot_old(self, steps_done, plot_filename):
@@ -570,7 +557,7 @@ class CurveSimMCMC:
         runtime = time.perf_counter() - self.start_timestamp
         results["Simulation Parameters"]["run_time"] = CurveSimMCMC.seconds2readable(runtime)
         results["Simulation Parameters"]["run_time_per_iteration"] = f"{runtime / (self.burn_in + steps_done):.3f} [s]"
-        results["Simulation Parameters"]["simulations_per_second"] = f"{(self.burn_in + steps_done) * self.walkers / runtime :.3f} [iterations*walkers/runtime]"
+        results["Simulation Parameters"]["simulations_per_second"] = f"{(self.burn_in + steps_done) * self.walkers / runtime:.3f} [iterations*walkers/runtime]"
 
         results["Simulation Parameters"]["fitting_results_directory"] = self.fitting_results_directory
         results["Simulation Parameters"]["start_date"] = p.start_date
@@ -757,14 +744,13 @@ class CurveSimLMfit:
         # does not even find minimum for 3 params   slsqp	SequentialLinearSquaresProgramming
         # does not find minimum + needs more residual than params  leastsq: Levenberg-Marquardt (default, for least-squares problems)
 
-
     @staticmethod
     def lmfit_residual_tt(params, param_references, bodies, time_s0, time_d, measured_tt, p):
         # measured_tt: pandas DataFrame with columns eclipser, tt, tt_err
         for body_index, parameter_name in param_references:
             bodies[body_index].__dict__[parameter_name] = params[bodies[body_index].name + "_" + parameter_name].value  # update all parameters from params
         sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # run simulation
-        residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(bodies, measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
+        residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
         improved = CurveSimLMfit.check_for_fit_improvement(residuals_tt_sum_squared)
         if improved:
             max_delta = max(np.abs(measured_tt["delta"]))
@@ -824,8 +810,6 @@ class CurveSimLMfit:
                 file.write(str(residual))
         return improvement
 
-
-
     @staticmethod
     def save_intermediate_lmfit_results(p, bodies, measured_tt):
         results = {}
@@ -848,9 +832,7 @@ class CurveSimLMfit:
         params = (["body_type", "primary", "mass", "radius", "luminosity"]
                   + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
                   + ["e", "i", "P", "a", "Omega", "omega", "pomega"]
-                  # + ["e", "i", "P", "a", "Omega", "Omega_deg", "omega", "omega_deg", "pomega", "pomega_deg"]
                   + ["L", "ma", "ea", "ea_deg", "nu", "T", "t"])
-                  # + ["L", "L_deg", "ma", "ma_deg", "ea", "ea_deg", "nu", "nu_deg", "T", "t"])
 
         for i, body in enumerate(bodies):
             results["Bodies"][body.name] = {}
@@ -921,7 +903,6 @@ class CurveSimGUIfit:
 
     def save_lmfit_results(self, p):
         pass
-
 
 
 def find_ndarrays(obj, path="root"):
