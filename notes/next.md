@@ -1,12 +1,10 @@
 # Next / in progress:
 ## 0.5.6 Fitting TOI-4504
 
-- Rausfinden wie grosses dt welche TT-Fehler macht, jetzt wo Planet b raus ist!
-- Mit GUI minimieren
-- Im TT-delta plot horizontale Linie bei Null einzeichen
 - Grafik mit Entwicklung der delta-TT waehrend der MCMC-Suche
 - Bei jedem neuen Minimum (ø TTdelta < 20 std) den MaxL-Parametersatz in 
   Datei schreiben
+- Mit GUI minimieren
  
 - Simons Hausaufgaben 
   - Vitkova plot (mit den roten Punkten) der Verspaetungen der TT gegenueber 
