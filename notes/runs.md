@@ -147,10 +147,15 @@
   - Konvergiert schlechter als X036
   - 86 vs. 16 std
 
-- X047
+- X047 Runs 1 bis 4
   - Wie X036, aber Planet b entfernt, dafuer ist Sternmasse jetzt eine 
     zusaetzlicher Fitting Parameter
-  - 
+  - Bester Fit bis jetzt: ø TTdelta < 5 std.
+  - Aber inplausible P.c von fast 85.
+
+- X048
+  - Wie X047, aber dt=400000 und engere Parameter-Bounds, abgeleitet aus den 
+    4 Results X047
 
 ### MCMC fit von KEPLER-9
 1) Kepler-9: A System of Multiple Planets Transiting a Sun-Like Star, Confirmed by Timing Variations, Matthew J. Holman et al.
