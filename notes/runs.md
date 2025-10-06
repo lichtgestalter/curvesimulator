@@ -154,8 +154,8 @@
   - Aber inplausible P.c von fast 85.
 
 - X048
-  - Wie X047, aber dt=400000 und engere Parameter-Bounds, abgeleitet aus den 
-    4 Results X047
+  - Wie X047, aber dt=1.5e6 und engere Parameter-Bounds, abgeleitet aus 
+    den 4 Results X047
 
 ### MCMC fit von KEPLER-9
 1) Kepler-9: A System of Multiple Planets Transiting a Sun-Like Star, Confirmed by Timing Variations, Matthew J. Holman et al.
