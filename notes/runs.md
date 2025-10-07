@@ -52,17 +52,6 @@
     zu setzen
   - Konvergiert, aber zu grosse Residuen:
       - max_delta=1.4086   mean_delta=0.3836    [days] 
-      - TOI4504d.mass:     1.27061
-      - TOI4504d.e:        0.10229
-      - TOI4504d.P:       41.16460
-      - TOI4504d.Omega:   -0.14345
-      - TOI4504d.omega:   88.10352
-      - TOI4504d.ma:     328.52317
-      - TOI4504c.mass:     3.63195
-      - TOI4504c.e:        0.05419
-      - TOI4504c.P:       83.28688
-      - TOI4504c.omega:  295.95378
-      - TOI4504c.ma:     151.22450
   - Moeglich Gruende fuer die zu grossen Residuen
       - LMfit konvergiert schlecht
       - Die Sektor 95-Daten passen schlecht zu den anderen Daten
@@ -157,7 +146,7 @@
   - Wie X047, aber dt=1.5e6 und engere Parameter-Bounds, abgeleitet aus 
     den 4 Results X047, Grosse Streuung der Startwerte, dadurch Startwerte 
     innerhalb der Bounds fast gleichverteilt
-  - Neuer emcee move: KDE
+  - Verschiedene emcee moves ausprobiert (KDE, ...)
 
 ### MCMC fit von KEPLER-9
 1) Kepler-9: A System of Multiple Planets Transiting a Sun-Like Star, Confirmed by Timing Variations, Matthew J. Holman et al.
