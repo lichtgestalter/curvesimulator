@@ -78,6 +78,7 @@ class CurveSimMCMC:
             for steps_done in range(self.chunk_size, self.steps, self.chunk_size):
                 self.theta = self.sampler.run_mcmc(self.theta, self.chunk_size, progress=True)
                 self.mcmc_results(p, bodies, steps_done, time_s0, time_d, measured_tt, measured_flux, flux_err, chunk)
+
                 chunk += 1
 
     def __repr__(self):
