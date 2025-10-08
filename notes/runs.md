@@ -148,6 +148,10 @@
     innerhalb der Bounds fast gleichverteilt
   - Verschiedene emcee moves ausprobiert (KDE, ...)
 
+- X049
+  - Wie X047, aber dt=1.5e6.
+  - Teste neue emcee moves.
+
 ### MCMC fit von KEPLER-9
 1) Kepler-9: A System of Multiple Planets Transiting a Sun-Like Star, Confirmed by Timing Variations, Matthew J. Holman et al.
 2) MODELING Kepler TRANSIT LIGHT CURVES AS FALSE POSITIVES: REJECTION OF BLEND SCENARIOS FOR KEPLER-9, AND VALIDATION OF KEPLER-9 D, A SUPER-EARTH-SIZE PLANET IN A MULTIPLE SYSTEM, Guillermo Torres et al.

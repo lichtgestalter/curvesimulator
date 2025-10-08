@@ -525,7 +525,7 @@ class CurveSimMCMC:
             df = measured_tt[measured_tt["eclipser"] == eclipser]
             ax.plot(df["tt"], df["delta"], marker='o', linestyle='-', color='blue', alpha=0.7)
             ax.axhline(0, color='gray', linestyle='dashed', linewidth=1)
-            ax.set_ylabel(f"Delta ({eclipser})")
+            ax.set_ylabel(f"TT Delta")
             ax.set_title(f"Eclipser: {eclipser}")
             ax.tick_params(labelbottom=True)
             ax.set_ylim(y_min, y_max)
@@ -557,7 +557,7 @@ class CurveSimMCMC:
         runtime = time.perf_counter() - self.start_timestamp
         results["Simulation Parameters"]["run_time"] = CurveSimMCMC.seconds2readable(runtime)
         results["Simulation Parameters"]["run_time_per_iteration"] = f"{runtime / (self.burn_in + steps_done):.3f} [s]"
-        results["Simulation Parameters"]["simulations_per_second"] = f"{(self.burn_in + steps_done) * self.walkers / runtime:.3f} [iterations*walkers/runtime]"
+        results["Simulation Parameters"]["simulations_per_second"] = f"{(self.burn_in + steps_done) * self.walkers / runtime:.0f} [iterations*walkers/runtime]"
 
         results["Simulation Parameters"]["fitting_results_directory"] = self.fitting_results_directory
         results["Simulation Parameters"]["start_date"] = p.start_date
