@@ -132,6 +132,8 @@ class CurveSimParameters:
             self.flux_weight = int(eval(config.get("Fitting", "flux_weight", fallback="1")))
             self.tt_weight = int(eval(config.get("Fitting", "tt_weight", fallback="1")))
 
+            self.backend = config.get("Fitting", "backend", fallback="emcee_backend.h5")
+            self.load_backend = eval(config.get("Fitting", "load_backend", fallback="False"))
             self.walkers = int(eval(config.get("Fitting", "walkers", fallback="32")))
             self.target_flux = eval(config.get("Fitting", "target_flux", fallback="None"))
             self.steps = int(eval(config.get("Fitting", "steps", fallback="10000")))

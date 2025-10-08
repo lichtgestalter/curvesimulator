@@ -71,15 +71,34 @@ class CurveSimMCMC:
         self.max_likelihood_avg_residual_in_std = []
         self.mean_avg_residual_in_std = []
         self.median_avg_residual_in_std = []
-        chunk = 1
-        with Pool() as pool:  # enable multi processing
-            self.sampler = emcee.EnsembleSampler(p.walkers, self.ndim, CurveSimMCMC.log_probability, pool=pool, moves=self.moves, args=self.args)
-            self.theta = self.sampler.run_mcmc(self.theta0, self.burn_in, progress=True)
-            for steps_done in range(self.chunk_size, self.steps, self.chunk_size):
-                self.theta = self.sampler.run_mcmc(self.theta, self.chunk_size, progress=True)
-                self.mcmc_results(p, bodies, steps_done, time_s0, time_d, measured_tt, measured_flux, flux_err, chunk)
 
-                chunk += 1
+        self.backend = emcee.backends.HDFBackend(p.backend)
+        if p.load_backend:
+            print(f"Loading backend from {p.backend}. Contains {self.backend.iteration} iterations.")
+            steps_done = self.backend.iteration - self.burn_in
+            self.loaded_steps = steps_done
+            if steps_done < 0:
+                print(f"{Fore.RED}ERROR: Backend contains less iterations than burn-in. Uncomment load_backend in the config file to start from scratch.{Style.RESET_ALL}")
+                sys.exit(1)
+        else:
+            print("Ignoring and resetting backend.")
+            self.backend.reset(p.walkers, self.ndim)  # clear/reset the backend in case the file already exists
+            steps_done, self.loaded_steps = 0, 0
+        with Pool() as pool:  # enable multi processing
+            self.sampler = emcee.EnsembleSampler(p.walkers, self.ndim, CurveSimMCMC.log_probability, pool=pool, moves=self.moves, args=self.args, backend=self.backend)
+            # self.sampler = emcee.EnsembleSampler(p.walkers, self.ndim, CurveSimMCMC.log_probability, pool=pool, moves=self.moves, args=self.args)
+            if not p.load_backend:
+                self.theta = self.sampler.run_mcmc(self.theta0, self.burn_in, progress=True)
+            else:
+                self.theta = self.theta0.copy()
+            for chunk in range(1, self.steps // self.chunk_size):
+                self.theta = self.sampler.run_mcmc(self.theta, self.chunk_size, progress=True)
+                steps_done += self.chunk_size
+                self.mcmc_results(p, bodies, steps_done, time_s0, time_d, measured_tt, measured_flux, flux_err, chunk)
+            # for steps_done in range(self.chunk_size, self.steps, self.chunk_size):
+            #     self.theta = self.sampler.run_mcmc(self.theta, self.chunk_size, progress=True)
+            #     self.mcmc_results(p, bodies, steps_done, time_s0, time_d, measured_tt, measured_flux, flux_err, chunk)
+            #     chunk += 1
 
     def __repr__(self):
         return f"CurveSimMCMC with {self.walkers} walkers."
@@ -427,7 +446,7 @@ class CurveSimMCMC:
         plot_filename1 = self.fitting_results_directory + plot_filename1
         plot_filename2 = self.fitting_results_directory + plot_filename2
         integrated_autocorrelation_time = np.array(self.integrated_autocorrelation_time).T
-        steps = [step for step in range(self.chunk_size, steps_done + 1, self.chunk_size)]
+        steps = [step for step in range(self.chunk_size + self.loaded_steps, steps_done + 1, self.chunk_size)]
         fig, ax = plt.subplots(figsize=(10, 6))
         colors = plt.cm.tab20.colors  # 20 distinct colors
         linestyles = ['solid', 'dashed', 'dotted', 'dashdot']
@@ -465,7 +484,7 @@ class CurveSimMCMC:
     def acceptance_fraction_plot(self, steps_done, plot_filename):
         plot_filename = self.fitting_results_directory + plot_filename
         acceptance_fractions_array = np.stack(self.acceptance_fractions, axis=0).T  # shape: (num_lines, 32)
-        steps = [step for step in range(self.chunk_size, steps_done + 1, self.chunk_size)]
+        steps = [step for step in range(self.chunk_size + self.loaded_steps, steps_done + 1, self.chunk_size)]
         fig, ax = plt.subplots(figsize=(10, 6))
         for i in range(acceptance_fractions_array.shape[0]):
             ax.plot(steps, acceptance_fractions_array[i], label=f'Line {i + 1}', color='green', alpha=0.15)
@@ -482,7 +501,7 @@ class CurveSimMCMC:
     # @stopwatch()
     def average_residual_in_std_plot(self, p, steps_done, plot_filename):
         plot_filename = self.fitting_results_directory + plot_filename
-        steps = [step for step in range(self.chunk_size, steps_done + 1, self.chunk_size)]
+        steps = [step for step in range(self.chunk_size + self.loaded_steps, steps_done + 1, self.chunk_size)]
         fig, ax = plt.subplots(figsize=(10, 6))
         ax.plot(steps, self.max_likelihood_avg_residual_in_std, label="Max Likelihood Parameters", marker='o', color='red', alpha=0.7)
         if p.flux_file:
@@ -566,7 +585,7 @@ class CurveSimMCMC:
         results["Simulation Parameters"]["flux_data_points"] = getattr(p, "total_iterations", None)
         results["Simulation Parameters"]["walkers"] = self.walkers
         results["Simulation Parameters"]["burn_in_steps"] = self.burn_in
-        results["Simulation Parameters"]["steps_after_burn_in"] = steps_done
+        results["Simulation Parameters"]["steps_after_burn_in"] = int(steps_done)
         results["Simulation Parameters"]["moves"] = p.moves
         results["Simulation Parameters"]["thin_samples"] = self.thin_samples
 
@@ -643,7 +662,7 @@ class CurveSimMCMC:
             if p.verbose:
                 print(f" Saved MCMC results to {filename}")
         except:
-            print(f"{Fore.RED}ERROR: Saving Average Residual plot failed.{Style.RESET_ALL}")
+            print(f"{Fore.RED}ERROR: Saving MCMC Results JSON failed.{Style.RESET_ALL}")
             print(results)
             print(f"{Fore.YELLOW}Printed Results to console because saving failed.{Style.RESET_ALL}")
 
@@ -676,7 +695,8 @@ class CurveSimMCMC:
             self.median_avg_residual_in_std.append(math.sqrt(median_residuals_flux_sum_squared / flux_data_points))
         self.average_residual_in_std_plot(p, steps_done, "avg_residual.png")
 
-        self.integrated_autocorrelation_time.append(list(emcee.autocorr.integrated_time(self.sampler.get_chain(discard=self.burn_in), quiet=True)))
+        self.integrated_autocorrelation_time.append(list(self.sampler.get_autocorr_time(tol=0)))
+        # self.integrated_autocorrelation_time.append(list(emcee.autocorr.integrated_time(self.sampler.get_chain(discard=self.burn_in), quiet=True)))  # does the same but with more useless warnings
         self.integrated_autocorrelation_time_plot(steps_done, "int_autocorr_time.png", "steps_per_i_ac_time.png")
         if chunk % 10 == 0:
             self.autocorrelation_function_plot(steps_done, "autocorrelation.png")
