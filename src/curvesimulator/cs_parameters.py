@@ -44,20 +44,20 @@ class CurveSimParameters:
         self.start_date = eval(config.get("Simulation", "start_date", fallback="0.0"))
 
         # [Video]
-        self.video_file = config.get("Video", "video_file", fallback="None")
-        if self.video_file == "None":
-            self.video_file = None
+        self.video_file = config.get("Video", "video_file", fallback=None)
+        # if self.video_file == "None":
+        #     self.video_file = None
 
         # [Fitting]
-        self.flux_file = config.get("Fitting", "flux_file", fallback="None")
-        if self.flux_file == "None":
-            self.flux_file = None
-        self.tt_file = config.get("Fitting", "tt_file", fallback="None")
-        if self.tt_file == "None":
-            self.tt_file = None
-        self.rv_file = config.get("Fitting", "rv_file", fallback="None")
-        if self.rv_file == "None":
-            self.rv_file = None
+        self.flux_file = config.get("Fitting", "flux_file", fallback=None)
+        # if self.flux_file == "None":
+        #     self.flux_file = None
+        self.tt_file = config.get("Fitting", "tt_file", fallback=None)
+        # if self.tt_file == "None":
+        #     self.tt_file = None
+        self.rv_file = config.get("Fitting", "rv_file", fallback=None)
+        # if self.rv_file == "None":
+        #     self.rv_file = None
         self.eclipsers_names = list([x.strip() for x in config.get("Fitting", "eclipsers_names", fallback="None").split("#")[0].split(",")])
         self.eclipsees_names = list([x for x in config.get("Fitting", "eclipsees_names", fallback="None").split("#")[0].split(",")])
 
@@ -132,7 +132,7 @@ class CurveSimParameters:
             self.flux_weight = int(eval(config.get("Fitting", "flux_weight", fallback="1")))
             self.tt_weight = int(eval(config.get("Fitting", "tt_weight", fallback="1")))
 
-            self.backend = config.get("Fitting", "backend", fallback="emcee_backend.h5")
+            self.backend = config.get("Fitting", "backend", fallback=None)  # e.g. emcee_backend.h5
             self.load_backend = eval(config.get("Fitting", "load_backend", fallback="False"))
             self.walkers = int(eval(config.get("Fitting", "walkers", fallback="32")))
             self.target_flux = eval(config.get("Fitting", "target_flux", fallback="None"))

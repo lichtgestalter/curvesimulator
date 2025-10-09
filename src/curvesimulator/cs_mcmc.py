@@ -63,7 +63,6 @@ class CurveSimMCMC:
         self.theta0 = self.random_initial_values()
         self.args = (self.param_bounds, self.param_references, bodies, time_s0, time_d, measured_flux, flux_err, measured_tt, p)
         self.moves = eval(self.moves)
-        # self.moves = [(emcee.moves.DEMove(), 0.8), (emcee.moves.DESnookerMove(), 0.2)]
         self.acceptance_fractions = []
         self.integrated_autocorrelation_time = []
         self.start_real_time = time.strftime("%d.%m.%y %H:%M:%S")
@@ -72,18 +71,24 @@ class CurveSimMCMC:
         self.mean_avg_residual_in_std = []
         self.median_avg_residual_in_std = []
 
-        self.backend = emcee.backends.HDFBackend(p.backend)
-        if p.load_backend:
-            print(f"Loading backend from {p.backend}. Contains {self.backend.iteration} iterations.")
-            steps_done = self.backend.iteration - self.burn_in
-            self.loaded_steps = steps_done
-            if steps_done < 0:
-                print(f"{Fore.RED}ERROR: Backend contains less iterations than burn-in. Uncomment load_backend in the config file to start from scratch.{Style.RESET_ALL}")
-                sys.exit(1)
+        if p.backend:
+            self.backend = emcee.backends.HDFBackend(p.backend)
+            if p.load_backend:
+                print(f"Loading backend from {p.backend}. Contains {self.backend.iteration} iterations.")
+                steps_done = self.backend.iteration - self.burn_in
+                self.loaded_steps = steps_done
+                if steps_done < 0:
+                    print(f"{Fore.RED}ERROR: Backend contains less iterations than burn-in. Uncomment load_backend in the config file to start from scratch.{Style.RESET_ALL}")
+                    sys.exit(1)
+            else:
+                print("Ignoring and resetting backend.")
+                self.backend.reset(p.walkers, self.ndim)  # clear/reset the backend in case the file already exists
+                steps_done, self.loaded_steps = 0, 0
         else:
-            print("Ignoring and resetting backend.")
-            self.backend.reset(p.walkers, self.ndim)  # clear/reset the backend in case the file already exists
+            print("Running without backend.")
+            self.backend = None
             steps_done, self.loaded_steps = 0, 0
+
         with Pool() as pool:  # enable multi processing
             self.sampler = emcee.EnsembleSampler(p.walkers, self.ndim, CurveSimMCMC.log_probability, pool=pool, moves=self.moves, args=self.args, backend=self.backend)
             # self.sampler = emcee.EnsembleSampler(p.walkers, self.ndim, CurveSimMCMC.log_probability, pool=pool, moves=self.moves, args=self.args)
@@ -95,10 +100,6 @@ class CurveSimMCMC:
                 self.theta = self.sampler.run_mcmc(self.theta, self.chunk_size, progress=True)
                 steps_done += self.chunk_size
                 self.mcmc_results(p, bodies, steps_done, time_s0, time_d, measured_tt, measured_flux, flux_err, chunk)
-            # for steps_done in range(self.chunk_size, self.steps, self.chunk_size):
-            #     self.theta = self.sampler.run_mcmc(self.theta, self.chunk_size, progress=True)
-            #     self.mcmc_results(p, bodies, steps_done, time_s0, time_d, measured_tt, measured_flux, flux_err, chunk)
-            #     chunk += 1
 
     def __repr__(self):
         return f"CurveSimMCMC with {self.walkers} walkers."
@@ -307,7 +308,6 @@ class CurveSimMCMC:
             self.median_params.append(median)
 
     def max_likelihood_tt(self, bodies, p, time_s0, time_d, measured_tt):
-        # nach jedem Chunk von mcmc_results() aufrufen lassen
         i = 0
         for body_index, parameter_name in self.param_references:
             bodies[body_index].__dict__[parameter_name] = self.max_likelihood_params[i]  # update all parameters from theta
@@ -315,29 +315,6 @@ class CurveSimMCMC:
         sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # run simulation
         residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
         return measured_tt
-
-    # Hier weiter
-    # steht hier nur doppelt zur Inspiration
-    # Teile davon in max_likelihood_tt einbauen!
-    # def lmfit_residual_tt(params, param_references, bodies, time_s0, time_d, measured_tt, p):
-    #     # measured_tt: pandas DataFrame with columns eclipser, tt, tt_err
-    #     for body_index, parameter_name in param_references:
-    #         bodies[body_index].__dict__[parameter_name] = params[bodies[body_index].name + "_" + parameter_name].value  # update all parameters from params
-    #     sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # run simulation
-    #     residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(bodies, measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
-    #     improved = CurveSimLMfit.check_for_fit_improvement(residuals_tt_sum_squared)
-    #     if improved:
-    #         max_delta = max(np.abs(measured_tt["delta"]))
-    #         mean_delta = np.mean(np.abs(measured_tt["delta"]))
-    #         print(f"\n{max_delta=:2.4f}   {mean_delta=:2.4f}    [days] ")
-    #         CurveSimLMfit.save_intermediate_lmfit_results(p, bodies, measured_tt)
-    #         if max_delta < 1e-4:
-    #             print("Terminated succesfully, because residuals are very small.")
-    #             sys.exit(0)
-    #     else:
-    #         print(".", end="")
-    #     # return measured_tt["delta"]
-    #     return residuals_tt_sum_squared
 
     # @stopwatch()
     def mcmc_histograms(self, steps_done, bins, plot_filename):
