@@ -27,14 +27,16 @@ def stopwatch():
             toc = time.perf_counter()
             print(f' {func.__name__}: {toc - tic:6.1f} seconds')
             return result
+
         return wrapper
+
     return decorator
 
 
 class CurveSimMCMC:
 
     def __init__(self, p, bodies, time_s0, time_d, measured_flux, flux_err, measured_tt):
-        os.environ["OMP_NUM_THREADS"] = "1"     # Some builds of NumPy automatically parallelize some operations. This can cause problems when multi processing inside emcee is enabled. Turn that off by setting the environment variable OMP_NUM_THREADS=1.
+        os.environ["OMP_NUM_THREADS"] = "1"  # Some builds of NumPy automatically parallelize some operations. This can cause problems when multi processing inside emcee is enabled. Turn that off by setting the environment variable OMP_NUM_THREADS=1.
         if not (p.flux_file or p.tt_file or p.rv_file):
             print(f"{Fore.RED}ERROR: No measurements for fitting have been provided.{Style.RESET_ALL}")
             sys.exit(1)
@@ -316,6 +318,14 @@ class CurveSimMCMC:
         residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
         return measured_tt
 
+    @staticmethod
+    def add_new_best_delta(measured_tt, steps_done):
+        first_time = measured_tt.columns[-1] == "delta"
+        new_max_likelihood = not measured_tt["delta"].equals(measured_tt.iloc[:, -1])
+        if first_time or new_max_likelihood:
+            measured_tt[f"step_{steps_done}"] = measured_tt["delta"]
+        return measured_tt
+
     # @stopwatch()
     def mcmc_histograms(self, steps_done, bins, plot_filename):
         plot_filename = self.fitting_results_directory + plot_filename
@@ -511,13 +521,18 @@ class CurveSimMCMC:
         plot_filename = self.fitting_results_directory + str(steps_done) + plot_filename
         unique_eclipsers = measured_tt["eclipser"].unique()
         n_eclipsers = len(unique_eclipsers)
-        fig, axes = plt.subplots(n_eclipsers, figsize=(10, 2.5 * n_eclipsers), sharex=True)
+        fig, axes = plt.subplots(n_eclipsers, figsize=(10, 3.5 * n_eclipsers), sharex=True)
         if n_eclipsers == 1:
             axes = [axes]
-        delta_min = measured_tt["delta"].min()
-        delta_max = measured_tt["delta"].max()
-        y_min = min(delta_min, 0)
-        y_max = max(delta_max, 0)
+        # delta_min = measured_tt["delta"].min()
+        # delta_max = measured_tt["delta"].max()
+        # y_min = min(delta_min, 0)
+        # y_max = max(delta_max, 0)
+
+        abs_min = abs(min(measured_tt["delta"].min(), 0))
+        abs_max = abs(max(measured_tt["delta"].max(), 0))
+        ylim = (-1.3 * max(abs_min, abs_max), 1.3 * max(abs_min, abs_max))
+
         for ax, eclipser in zip(axes, unique_eclipsers):
             df = measured_tt[measured_tt["eclipser"] == eclipser]
             ax.plot(df["tt"], df["delta"], marker='o', linestyle='-', color='blue', alpha=0.7)
@@ -525,10 +540,68 @@ class CurveSimMCMC:
             ax.set_ylabel(f"TT Delta")
             ax.set_title(f"Eclipser: {eclipser}")
             ax.tick_params(labelbottom=True)
-            ax.set_ylim(y_min, y_max)
+            ax.set_ylim(ylim)
+            # ax.set_ylim(y_min, y_max)
         axes[-1].set_xlabel("Transit Time [BJD]")
         fig.suptitle(f"TT Delta Plot after {steps_done} steps", fontsize=14)
         plt.tight_layout(rect=[0, 0, 1, 0.97])
+        try:
+            plt.savefig(plot_filename)
+        except:
+            print(f"{Fore.RED}ERROR: Saving TT delta plot failed.{Style.RESET_ALL}")
+        plt.close(fig)
+
+    # @stopwatch()
+    def tt_multi_delta_plot(self, steps_done, plot_filename, measured_tt):
+        # Perplexity: The handles/labels of all subplots are identical. Simplify the code accordingly.
+        plot_filename = self.fitting_results_directory + str(steps_done) + plot_filename
+        unique_eclipsers = measured_tt["eclipser"].unique()
+        n_eclipsers = len(unique_eclipsers)
+        fig, axes = plt.subplots(n_eclipsers, figsize=(10, 4 * n_eclipsers), sharex=True)
+        if n_eclipsers == 1:
+            axes = [axes]
+
+        delta_columns = [col for col in measured_tt.columns if col.startswith("step_")]  # Find up to 10 last columns with names starting with "step_"
+        delta_columns = delta_columns[-10:]  # last up to 10
+
+        abs_min = abs(min(measured_tt["delta"].min(), 0))
+        abs_max = abs(max(measured_tt["delta"].max(), 0))
+        ylim = (-1.3 * max(abs_min, abs_max), 1.3 * max(abs_min, abs_max))
+
+        num_lines = len(delta_columns)
+        if num_lines > 2:  # Create the gray scale colors from light to dark for all but the last two lines
+            gray_shades = plt.cm.gray(np.linspace(0.85, 0.15, num_lines - 2))
+        else:
+            gray_shades = []
+
+        for ax, eclipser in zip(axes, unique_eclipsers):
+            df = measured_tt[measured_tt["eclipser"] == eclipser]
+            for i, col in enumerate(delta_columns):
+                if i == num_lines - 1:
+                    color = "blue"  # last line blue
+                elif i == num_lines - 2:
+                    color = "black"  # second to last black
+                else:
+                    color = gray_shades[i]  # shades of gray
+                ax.plot(df["tt"], df[col], marker='o', linestyle='-', alpha=0.7, label=col, color=color)
+            ax.axhline(0, color='gray', linestyle='dashed', linewidth=1)
+            ax.set_ylabel(f"TT Delta")
+            ax.set_title(f"Eclipser: {eclipser}")
+            ax.tick_params(labelbottom=True)
+            ax.set_ylim(ylim)
+
+        axes[-1].set_xlabel("Transit Time [BJD]")
+        fig.suptitle(f"TT Delta Plot after {steps_done} steps", fontsize=14)
+        plt.tight_layout(rect=[0, 0.12, 1, 0.97])  # leave 12% at bottom
+        fig.canvas.draw()  # Draw the figure first to avoid clipping bugs
+        handles, labels = axes[0].get_legend_handles_labels()  # Since all subplots have identical handles/labels, get from only first subplot
+        fig.legend(handles, labels,
+                   bbox_to_anchor=(0.175, 0.01, 0.65, 0.1),  # x, y, width, height
+                   ncol=5, mode="expand", fontsize="small", frameon=False)
+        # fig.legend(handles, labels, loc="upper center",
+        #            bbox_to_anchor=(0.175, 0.01, 0.65, 0.1),  # x, y, width, height
+        #            ncol=5, mode="expand", fontsize="small", frameon=False)
+
         try:
             plt.savefig(plot_filename)
         except:
@@ -659,11 +732,11 @@ class CurveSimMCMC:
             self.trace_plots(steps_done, "traces.png")
         self.max_likelihood_parameters(flat_samples)
         measured_tt = self.max_likelihood_tt(bodies, p, time_s0, time_d, measured_tt)
-        Copy column "delta" of measured_tt into a new column f"{delta_steps_done}"
+        measured_tt = CurveSimMCMC.add_new_best_delta(measured_tt, steps_done)
         self.calc_maxlikelihood_avg_residual_in_std(p)
         self.high_density_intervals()
-
         self.tt_delta_plot(steps_done, "tt_delta.png", measured_tt)
+        self.tt_multi_delta_plot(steps_done, "tt_multi_delta.png", measured_tt)
 
         if p.flux_file:
             median_residuals_flux_sum_squared = CurveSimMCMC.residuals_flux_sum_squared(self.median_params, self.param_references, bodies, time_s0, measured_flux, flux_err, p)
@@ -685,6 +758,7 @@ class CurveSimMCMC:
         self.save_mcmc_results(p, bodies, steps_done, measured_tt)
         if chunk % 10 == 0:
             self.mcmc_corner_plot(steps_done, "corner.png")
+
 
 class CurveSimLMfit:
 
