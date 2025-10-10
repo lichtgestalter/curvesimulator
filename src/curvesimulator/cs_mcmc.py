@@ -36,7 +36,7 @@ class CurveSimMCMC:
     def __init__(self, p, bodies, time_s0, time_d, measured_flux, flux_err, measured_tt):
         os.environ["OMP_NUM_THREADS"] = "1"     # Some builds of NumPy automatically parallelize some operations. This can cause problems when multi processing inside emcee is enabled. Turn that off by setting the environment variable OMP_NUM_THREADS=1.
         if not (p.flux_file or p.tt_file or p.rv_file):
-            print(f"{Fore.RED}ERROR: No measurements for fitting hve been provided.{Style.RESET_ALL}")
+            print(f"{Fore.RED}ERROR: No measurements for fitting have been provided.{Style.RESET_ALL}")
             sys.exit(1)
         if os.path.exists("residual.tmp"):
             os.remove("residual.tmp")
@@ -659,6 +659,7 @@ class CurveSimMCMC:
             self.trace_plots(steps_done, "traces.png")
         self.max_likelihood_parameters(flat_samples)
         measured_tt = self.max_likelihood_tt(bodies, p, time_s0, time_d, measured_tt)
+        Copy column "delta" of measured_tt into a new column f"{delta_steps_done}"
         self.calc_maxlikelihood_avg_residual_in_std(p)
         self.high_density_intervals()
 
