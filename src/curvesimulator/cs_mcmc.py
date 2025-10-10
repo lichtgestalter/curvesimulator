@@ -524,11 +524,6 @@ class CurveSimMCMC:
         fig, axes = plt.subplots(n_eclipsers, figsize=(10, 3.5 * n_eclipsers), sharex=True)
         if n_eclipsers == 1:
             axes = [axes]
-        # delta_min = measured_tt["delta"].min()
-        # delta_max = measured_tt["delta"].max()
-        # y_min = min(delta_min, 0)
-        # y_max = max(delta_max, 0)
-
         abs_min = abs(min(measured_tt["delta"].min(), 0))
         abs_max = abs(max(measured_tt["delta"].max(), 0))
         ylim = (-1.3 * max(abs_min, abs_max), 1.3 * max(abs_min, abs_max))
@@ -544,7 +539,7 @@ class CurveSimMCMC:
             # ax.set_ylim(y_min, y_max)
         axes[-1].set_xlabel("Transit Time [BJD]")
         fig.suptitle(f"TT Delta Plot after {steps_done} steps", fontsize=14)
-        plt.tight_layout(rect=[0, 0, 1, 0.97])
+        plt.tight_layout(rect=(0, 0, 1, 0.97))
         try:
             plt.savefig(plot_filename)
         except:
@@ -553,7 +548,6 @@ class CurveSimMCMC:
 
     # @stopwatch()
     def tt_multi_delta_plot(self, steps_done, plot_filename, measured_tt):
-        # Perplexity: The handles/labels of all subplots are identical. Simplify the code accordingly.
         plot_filename = self.fitting_results_directory + str(steps_done) + plot_filename
         unique_eclipsers = measured_tt["eclipser"].unique()
         n_eclipsers = len(unique_eclipsers)
@@ -592,16 +586,12 @@ class CurveSimMCMC:
 
         axes[-1].set_xlabel("Transit Time [BJD]")
         fig.suptitle(f"TT Delta Plot after {steps_done} steps", fontsize=14)
-        plt.tight_layout(rect=[0, 0.12, 1, 0.97])  # leave 12% at bottom
+        plt.tight_layout(rect=(0, 0.12, 1, 0.97))  # leave 12% at bottom
         fig.canvas.draw()  # Draw the figure first to avoid clipping bugs
         handles, labels = axes[0].get_legend_handles_labels()  # Since all subplots have identical handles/labels, get from only first subplot
         fig.legend(handles, labels,
                    bbox_to_anchor=(0.175, 0.01, 0.65, 0.1),  # x, y, width, height
                    ncol=5, mode="expand", fontsize="small", frameon=False)
-        # fig.legend(handles, labels, loc="upper center",
-        #            bbox_to_anchor=(0.175, 0.01, 0.65, 0.1),  # x, y, width, height
-        #            ncol=5, mode="expand", fontsize="small", frameon=False)
-
         try:
             plt.savefig(plot_filename)
         except:
