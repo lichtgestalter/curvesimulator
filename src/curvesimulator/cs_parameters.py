@@ -307,6 +307,10 @@ class CurveSimParameters:
                 eclipsees.append(body)
         self.eclipsers, self.eclipsees = eclipsers, eclipsees
 
+    def randomize_startvalues(self):
+        hier weiter
+        return self
+
 
 class FittingParameter:
     def __init__(self, p, body_index, parameter_name, startvalue, lower, upper, sigma):

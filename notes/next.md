@@ -1,10 +1,10 @@
 # Next / in progress:
 ## 0.5.6 Fitting TOI-4504
 
+- Funktion, die endlos lange immer neue LMfit-Runs startet, 
 - Bei jedem neuen Minimum (ø TTdelta < 20 std) den MaxL-Parametersatz in 
   Datei schreiben
 - Mit GUI (manuell) fitten/minimieren
-- Funktion, die endlos lange immer neue LMfit-Runs startet, 
 - Verschiedene Moves ausprobieren: 
   - https://emcee.readthedocs.io/en/stable/user/moves/
  

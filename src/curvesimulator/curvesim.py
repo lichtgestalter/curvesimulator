@@ -10,7 +10,7 @@ class CurveSimulator:
         p = CurveSimParameters(config_file)  # Read program parameters from config file.
         if p.verbose:
             print(p)
-        if p.flux_file or p.tt_file:  # run mcmc?
+        if p.flux_file or p.tt_file:  # run fit?
             measured_flux, flux_uncertainty, measured_tt, time_s0, time_d, tt_s0, tt_d = (None,) * 7
             if p.flux_file:
                 time_s0, time_d, measured_flux, flux_uncertainty = CurveSimMCMC.get_measured_flux(p)
@@ -19,8 +19,13 @@ class CurveSimulator:
                 measured_tt = CurveSimMCMC.get_measured_tt(p)
             bodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
             if p.lmfit:
-                self.lmfit = CurveSimLMfit(p, bodies, time_s0, time_d, measured_tt)
-                self.lmfit.save_lmfit_results(p)
+                lmfit_run = 1
+                while True:
+                    print(f"********  Starting lmfit run number {lmfit_run}  ********")
+                    self.lmfit = CurveSimLMfit(p, bodies, time_s0, time_d, measured_tt)
+                    self.lmfit.save_lmfit_results(p)
+                    p = p.randomize_startvalues()
+                    lmfit_run += 1
             elif p.guifit:
                 self.guifit = CurveSimGUIfit(p, bodies, time_s0, time_d, measured_tt)
                 self.guifit.save_lmfit_results(p)
