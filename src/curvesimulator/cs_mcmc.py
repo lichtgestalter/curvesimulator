@@ -860,7 +860,7 @@ class CurveSimLMfit:
         result_copy.x = list(result_copy.x)
         result_copy.params = json.loads(result_copy.params.dumps())
 
-        results["LMfitParameters"] = find_ndarrays(result_copy.__dict__)
+        # results["LMfitParameters"] = find_ndarrays(result_copy.__dict__)
 
         self.lmfit_results2json(results, p)
 
@@ -985,10 +985,12 @@ class CurveSimLMfit:
                             scale = 1
                         result[body.name][key] = attr * scale
 
+            print(f"\n\nmax_delta: {result["max_delta"]:2.4f}   mean_delta: {result["mean_delta"]:2.4f}    [days] \n\n")
             result = json.dumps(result)
             filename = p.fitting_results_directory + f"/lmfit_best_fits.txt"
             with open(filename, "a", encoding='utf8') as file:
                 file.writelines(result + "\n")
+
 
 
 class CurveSimGUIfit:
