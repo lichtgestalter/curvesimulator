@@ -817,17 +817,18 @@ class CurveSimLMfit:
             bodies[body_index].__dict__[parameter_name] = params[bodies[body_index].name + "_" + parameter_name].value  # update all parameters from params
         sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # run simulation
         residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
-        improved = CurveSimLMfit.check_for_fit_improvement(residuals_tt_sum_squared)
-        if improved:
-            max_delta = max(np.abs(measured_tt["delta"]))
-            mean_delta = np.mean(np.abs(measured_tt["delta"]))
-            print(f"\n{max_delta=:2.4f}   {mean_delta=:2.4f}    [days] ")
-            CurveSimLMfit.save_intermediate_lmfit_results(p, bodies, measured_tt)
-            if max_delta < p.lmfit_max_tt_delta:
-                print("Terminated succesfully, because residuals are very small.")
-                sys.exit(0)
-        else:
-            print(".", end="")
+        # improved = CurveSimLMfit.check_for_fit_improvement(residuals_tt_sum_squared)
+        # if improved:
+        #     max_delta = max(np.abs(measured_tt["delta"]))
+        #     mean_delta = np.mean(np.abs(measured_tt["delta"]))
+        #     # print("X", end="")
+        #     # print(f"\n{max_delta=:2.4f}   {mean_delta=:2.4f}    [days] ")
+        #     CurveSimLMfit.save_intermediate_lmfit_results(p, bodies, measured_tt)
+        #     # if max_delta < p.lmfit_max_tt_delta:
+        #     #     print("Terminated succesfully, because residuals are very small.")
+        #     #     sys.exit(0)
+        # else:
+        #     print(".", end="")
         # return measured_tt["delta"]
         return residuals_tt_sum_squared
 
@@ -918,8 +919,8 @@ class CurveSimLMfit:
             fp.upper *= fp.scale
             fp.last_value = bodies[fp.body_index].__dict__[fp.parameter_name]
             fp.last_value *= fp.scale
-            width = 25 - len(fp.body_parameter_name)
-            print(f"{fp.body_parameter_name}:{fp.last_value:{width}.5f}")
+            # width = 25 - len(fp.body_parameter_name)
+            # print(f"{fp.body_parameter_name}:{fp.last_value:{width}.5f}")
 
         results["Fitting Parameters"] = {fp.body_parameter_name: fp.__dict__ for fp in fitting_parameters}
 
@@ -968,25 +969,26 @@ class CurveSimLMfit:
         result["max_delta"] = max(np.abs(measured_tt["delta"]))
         result["mean_delta"] = np.mean(np.abs(measured_tt["delta"]))
 
-        params = (["body_type", "primary", "mass", "radius", "luminosity"]
-                  + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
-                  + ["e", "i", "P", "a", "Omega", "omega", "pomega"]
-                  + ["L", "ma", "ea", "ea_deg", "nu", "T", "t"])
-        for i, body in enumerate(bodies):
-            result[body.name] = {}
-            for key in params:
-                attr = getattr(body, key)
-                if attr is not None:
-                    if key in p.scale:
-                        scale = p.scale[key]
-                    else:
-                        scale = 1
-                    result[body.name][key] = attr * scale
+        if result["max_delta"] < 4.0:
+            params = (["body_type", "primary", "mass", "radius", "luminosity"]
+                      + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
+                      + ["e", "i", "P", "a", "Omega", "omega", "pomega"]
+                      + ["L", "ma", "ea", "ea_deg", "nu", "T", "t"])
+            for i, body in enumerate(bodies):
+                result[body.name] = {}
+                for key in params:
+                    attr = getattr(body, key)
+                    if attr is not None:
+                        if key in p.scale:
+                            scale = p.scale[key]
+                        else:
+                            scale = 1
+                        result[body.name][key] = attr * scale
 
-        result = json.dumps(result)
-        filename = p.fitting_results_directory + f"/lmfit_best_fits.txt"
-        with open(filename, "a", encoding='utf8') as file:
-            file.writelines(result + "\n")
+            result = json.dumps(result)
+            filename = p.fitting_results_directory + f"/lmfit_best_fits.txt"
+            with open(filename, "a", encoding='utf8') as file:
+                file.writelines(result + "\n")
 
 
 class CurveSimGUIfit:
