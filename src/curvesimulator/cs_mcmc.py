@@ -963,14 +963,16 @@ class CurveSimLMfit:
         if p.verbose:
             print(f" Saved LMfit results to {filename}")
 
-    @staticmethod
-    def save_best_fit(p, bodies, measured_tt):
+    def save_best_fit(self, p, bodies, measured_tt):
         result = {}
         result["max_delta"] = max(np.abs(measured_tt["delta"]))
         result["mean_delta"] = np.mean(np.abs(measured_tt["delta"]))
 
+        runtime = CurveSimMCMC.seconds2readable(time.perf_counter() - self.start_timestamp)
+
+
         if result["max_delta"] < 1.0:
-            print(f"\n\nmax_delta: {result["max_delta"]:2.4f}   mean_delta: {result["mean_delta"]:2.4f}    [days] \n\n")
+            print(f"\n\n{runtime=}   max_delta: {result["max_delta"]:2.4f}   mean_delta: {result["mean_delta"]:2.4f}    [days] \n\n")
             params = (["body_type", "primary", "mass", "radius", "luminosity"]
                       + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
                       + ["e", "i", "P", "a", "Omega", "omega", "pomega"]
@@ -990,8 +992,9 @@ class CurveSimLMfit:
             filename = p.fitting_results_directory + f"/lmfit_best_fits.txt"
             with open(filename, "a", encoding='utf8') as file:
                 file.writelines(result + "\n")
-        elif result["max_delta"] < 100.0:
-            print(f"max_delta: {result["max_delta"]:.0f} days")
+        else:
+            print(f"{Fore.BLACK}{runtime=}   max_delta: {result["max_delta"]:.0f} days{Style.RESET_ALL}")
+
 
 
 

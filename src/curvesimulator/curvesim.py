@@ -21,11 +21,11 @@ class CurveSimulator:
             if p.lmfit:
                 lmfit_run = 1
                 while True:
-                    print(f"********  Starting lmfit run number {lmfit_run}  ********")
+                    print(f"********  Starting lmfit run number {lmfit_run}:  ", end="")
                     p.randomize_startvalues_uniform()
                     self.lmfit = CurveSimLMfit(p, bodies, time_s0, time_d, measured_tt)
                     self.lmfit.save_lmfit_results(p)
-                    CurveSimLMfit.save_best_fit(p, bodies, measured_tt)
+                    self.lmfit.save_best_fit(p, bodies, measured_tt)
                     lmfit_run += 1
             elif p.guifit:
                 self.guifit = CurveSimGUIfit(p, bodies, time_s0, time_d, measured_tt)
