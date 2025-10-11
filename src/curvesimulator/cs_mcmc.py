@@ -42,6 +42,8 @@ class CurveSimMCMC:
             sys.exit(1)
         if os.path.exists("residual.tmp"):
             os.remove("residual.tmp")
+        if os.path.exists("iteration.tmp"):
+            os.remove("iteration.tmp")
         self.fitting_results_directory = p.fitting_results_directory
         self.fitting_parameters = p.fitting_parameters
         self.moves = p.moves
@@ -760,6 +762,8 @@ class CurveSimLMfit:
             sys.exit(1)
         if os.path.exists("residual.tmp"):
             os.remove("residual.tmp")
+        if os.path.exists("iteration.tmp"):
+            os.remove("iteration.tmp")
         self.fitting_results_directory = p.fitting_results_directory
         self.fitting_parameters = p.fitting_parameters
         self.unit = p.unit
@@ -817,9 +821,16 @@ class CurveSimLMfit:
             bodies[body_index].__dict__[parameter_name] = params[bodies[body_index].name + "_" + parameter_name].value  # update all parameters from params
         sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # run simulation
         residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
+
         # improved = CurveSimLMfit.check_for_fit_improvement(residuals_tt_sum_squared)
+        # iteration = CurveSimLMfit.get_iteration_from_file()
         # if improved:
         #     max_delta = max(np.abs(measured_tt["delta"]))
+        #     if iteration > 3 and max_delta > 10:
+        #         print(f"Stopped at iteration {iteration}")
+        #         return -1e99
+
+
         #     mean_delta = np.mean(np.abs(measured_tt["delta"]))
         #     # print("X", end="")
         #     # print(f"\n{max_delta=:2.4f}   {mean_delta=:2.4f}    [days] ")
@@ -876,6 +887,17 @@ class CurveSimLMfit:
             with open("residual.tmp", "w", encoding='utf8') as file:
                 file.write(str(residual))
         return improvement
+
+    @staticmethod
+    def get_iteration_from_file():
+        try:
+            with open("iteration.tmp", "r", encoding='utf8') as file:
+                iteration = int(file.read().strip())
+        except (FileNotFoundError, ValueError):
+            iteration = 0
+        with open("iteration.tmp", "w", encoding='utf8') as file:
+            file.write(str(iteration + 1))
+        return iteration
 
     @staticmethod
     def save_intermediate_lmfit_results(p, bodies, measured_tt):
