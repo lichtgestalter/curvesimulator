@@ -969,7 +969,7 @@ class CurveSimLMfit:
         result["max_delta"] = max(np.abs(measured_tt["delta"]))
         result["mean_delta"] = np.mean(np.abs(measured_tt["delta"]))
 
-        if result["max_delta"] < 4.0:
+        if result["max_delta"] < 1.0:
             params = (["body_type", "primary", "mass", "radius", "luminosity"]
                       + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
                       + ["e", "i", "P", "a", "Omega", "omega", "pomega"]
