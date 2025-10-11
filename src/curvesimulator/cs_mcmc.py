@@ -970,9 +970,8 @@ class CurveSimLMfit:
 
         runtime = CurveSimMCMC.seconds2readable(time.perf_counter() - self.start_timestamp)
 
-
         if result["max_delta"] < 1.0:
-            print(f"\n\n{Fore.RED}{runtime=}   max_delta: {result["max_delta"]:2.4f}   mean_delta: {result["mean_delta"]:2.4f}    [days]{Style.RESET_ALL}\n\n")
+            print(f"\n\n{Fore.RED}Runtime: {runtime}   max_delta: {result["max_delta"]:2.4f}   mean_delta: {result["mean_delta"]:2.4f}    [days]{Style.RESET_ALL}\n\n")
             params = (["body_type", "primary", "mass", "radius", "luminosity"]
                       + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
                       + ["e", "i", "P", "a", "Omega", "omega", "pomega"]
@@ -993,7 +992,7 @@ class CurveSimLMfit:
             with open(filename, "a", encoding='utf8') as file:
                 file.writelines(result + "\n")
         else:
-            print(f"{runtime=}   max_delta: {result["max_delta"]:.0f} days")
+            print(f"Runtime: {runtime}   max_delta: {result["max_delta"]:7.0f} days")
 
 
 
