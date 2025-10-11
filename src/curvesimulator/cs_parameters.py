@@ -1,3 +1,5 @@
+import random
+
 from colorama import Fore, Style
 import configparser
 import numpy as np
@@ -128,7 +130,7 @@ class CurveSimParameters:
 
             self.lmfit = eval(config.get("Fitting", "lmfit", fallback="False"))
             self.lmfit_method = config.get("Fitting", "lmfit_method", fallback="powell")
-            self.lmfit_max_tt_delta = eval(config.get("Fitting", "lmfit_max_tt_delta", fallback="1e-4"))
+            self.lmfit_max_tt_delta = eval(config.get("Fitting", "lmfit_max_tt_delta", fallback="1/(24*60*60)"))
             self.flux_weight = int(eval(config.get("Fitting", "flux_weight", fallback="1")))
             self.tt_weight = int(eval(config.get("Fitting", "tt_weight", fallback="1")))
 
@@ -307,9 +309,9 @@ class CurveSimParameters:
                 eclipsees.append(body)
         self.eclipsers, self.eclipsees = eclipsers, eclipsees
 
-    def randomize_startvalues(self):
-        hier weiter
-        return self
+    def randomize_startvalues_uniform(self):
+        for fp in self.fitting_parameters:
+            fp.startvalue = fp.lower + random.random() * (fp.upper - fp.lower)
 
 
 class FittingParameter:

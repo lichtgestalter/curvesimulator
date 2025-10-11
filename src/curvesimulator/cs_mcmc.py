@@ -272,10 +272,10 @@ class CurveSimMCMC:
         for i, (chain, ax, name, scale) in enumerate(zip(chains, axes, self.long_body_parameter_names, self.scales)):
             ax.plot(chain * scale, color='black', alpha=0.05)
             ax.set_ylabel(name)
-            ax.axvline(self.burn_in, color="red", linestyle="solid", label="Burn in")
+            ax.axvline(self.burn_in, color="red", linestyle="solid", label="burn-in")
             ax.tick_params(labelbottom=True)  # Show x-tick labels for all
             if i == len(axes) - 1:
-                ax.set_xlabel("Steps including Burn in (red line)")  # Only last subplot
+                ax.set_xlabel("Steps including burn-in (red line)")  # Only last subplot
         try:
             plt.savefig(plot_filename)
         except:
@@ -330,7 +330,7 @@ class CurveSimMCMC:
     def mcmc_histograms(self, steps_done, bins, plot_filename):
         plot_filename = self.fitting_results_directory + plot_filename
         fig, axes = plt.subplots(self.ndim, figsize=(10, self.ndim * 2))
-        fig.text(0.02, 0.99, f"Histograms after {steps_done} steps", ha='left', va='top', fontsize=14, transform=fig.transFigure)
+        fig.text(0.02, 0.99, f"Histograms, {steps_done} steps after burn-in.", ha='left', va='top', fontsize=14, transform=fig.transFigure)
         startvalues = [fp.startvalue * fp.scale for fp in self.fitting_parameters]
         if self.ndim == 1:
             axes = [axes]
@@ -368,7 +368,7 @@ class CurveSimMCMC:
                 title_fmt=".4f",
                 quiet=True
             )
-            fig.suptitle(f"Corner plot after {steps_done} steps", fontsize=16)
+            fig.suptitle(f"Corner plot. {steps_done} steps after burn-in.", fontsize=16)
             try:
                 plt.savefig(plot_filename)
             except:
@@ -392,10 +392,10 @@ class CurveSimMCMC:
                 ac = emcee.autocorr.function_1d(chain_1d)
                 ax.plot(ac, alpha=0.5)
             ax.set_ylabel(param_name)
-            ax.axvline(self.burn_in, color="red", linestyle="solid", label="Burn in")
+            ax.axvline(self.burn_in, color="red", linestyle="solid", label="burn-in")
             ax.tick_params(labelbottom=True)  # Show x-tick labels for all
             if dim == self.ndim - 1:
-                ax.set_xlabel("Steps including Burn in (red line)")  # Only last subplot
+                ax.set_xlabel("Steps including burn-in (red line)")  # Only last subplot
         try:
             plt.savefig(plot_filename)
         except:
@@ -414,8 +414,8 @@ class CurveSimMCMC:
             axes = [axes]
         for dim, param_name in zip(range(self.ndim), self.long_body_parameter_names):
             ax = axes[dim]
-            ax.set_xlabel("Steps including Burn in (red line)")
-            ax.axvline(self.burn_in, color="red", linestyle="solid", label="Burn in")
+            ax.set_xlabel("Steps including burn-in (red line)")
+            ax.axvline(self.burn_in, color="red", linestyle="solid", label="burn-in")
             for walker in range(nwalkers):
                 chain_1d = samples[:, walker, dim]
                 ac = emcee.autocorr.function_1d(chain_1d)
@@ -441,7 +441,7 @@ class CurveSimMCMC:
             color = colors[idx % len(colors)]
             linestyle = linestyles[idx % len(linestyles)]
             ax.plot(steps, autocorr_times, label=fpn, color=color, linestyle=linestyle)
-        ax.set_xlabel("Steps after Burn in")
+        ax.set_xlabel("Steps after burn-in")
         ax.set_title(f"Integrated Autocorrelation Time per Dimension after {steps_done} steps")
         ax.legend(loc="upper left")
         plt.tight_layout()
@@ -457,7 +457,7 @@ class CurveSimMCMC:
             color = colors[idx % len(colors)]
             linestyle = linestyles[idx % len(linestyles)]
             ax.plot(steps, autocorr_times, label=fpn, color=color, linestyle=linestyle)
-        ax.set_xlabel("Steps after Burn in")
+        ax.set_xlabel("Steps after burn-in")
         ax.set_title(f"Steps divided by Integrated Autocorrelation Time per Dimension after {steps_done} steps")
         ax.legend(loc="upper left")
         plt.tight_layout()
@@ -475,7 +475,7 @@ class CurveSimMCMC:
         fig, ax = plt.subplots(figsize=(10, 6))
         for i in range(acceptance_fractions_array.shape[0]):
             ax.plot(steps, acceptance_fractions_array[i], label=f'Line {i + 1}', color='green', alpha=0.15)
-        ax.set_xlabel('Steps after Burn in')
+        ax.set_xlabel('Steps after burn-in')
         ax.set_ylabel('Acceptance Fraction')
         ax.set_title(f'Acceptance Fraction per Walker after {steps_done} steps')
         plt.tight_layout()
@@ -494,7 +494,7 @@ class CurveSimMCMC:
         if p.flux_file:
             ax.plot(steps, self.median_avg_residual_in_std, label="Median Parameters", marker='o', color='blue', alpha=0.7)
             ax.plot(steps, self.mean_avg_residual_in_std, label="Mean Parameters", marker='o', color='black', alpha=0.7)
-        ax.set_xlabel('Steps after Burn in')
+        ax.set_xlabel('Steps after burn-in')
         ax.ticklabel_format(useOffset=False, style='plain', axis='y')  # show y-labels as they are
         ax.set_title(f'Average Residual [Standard Deviations] after {steps_done} steps')
         ax.legend(loc="upper left")
@@ -518,7 +518,8 @@ class CurveSimMCMC:
 
     # @stopwatch()
     def tt_delta_plot(self, steps_done, plot_filename, measured_tt):
-        plot_filename = self.fitting_results_directory + str(steps_done) + plot_filename
+        plot_filename = self.fitting_results_directory + plot_filename
+        # plot_filename = self.fitting_results_directory + str(steps_done) + plot_filename
         unique_eclipsers = measured_tt["eclipser"].unique()
         n_eclipsers = len(unique_eclipsers)
         fig, axes = plt.subplots(n_eclipsers, figsize=(10, 3.5 * n_eclipsers), sharex=True)
@@ -532,13 +533,13 @@ class CurveSimMCMC:
             df = measured_tt[measured_tt["eclipser"] == eclipser]
             ax.plot(df["tt"], df["delta"], marker='o', linestyle='-', color='blue', alpha=0.7)
             ax.axhline(0, color='gray', linestyle='dashed', linewidth=1)
-            ax.set_ylabel(f"TT Delta")
+            ax.set_ylabel(f"TT Delta [days]")
             ax.set_title(f"Eclipser: {eclipser}")
             ax.tick_params(labelbottom=True)
             ax.set_ylim(ylim)
             # ax.set_ylim(y_min, y_max)
         axes[-1].set_xlabel("Transit Time [BJD]")
-        fig.suptitle(f"TT Delta Plot after {steps_done} steps", fontsize=14)
+        fig.suptitle(f"TT Delta. {steps_done} steps after burn-in.", fontsize=14)
         plt.tight_layout(rect=(0, 0, 1, 0.97))
         try:
             plt.savefig(plot_filename)
@@ -548,7 +549,8 @@ class CurveSimMCMC:
 
     # @stopwatch()
     def tt_multi_delta_plot(self, steps_done, plot_filename, measured_tt):
-        plot_filename = self.fitting_results_directory + str(steps_done) + plot_filename
+        plot_filename = self.fitting_results_directory + plot_filename
+        # plot_filename = self.fitting_results_directory + str(steps_done) + plot_filename
         unique_eclipsers = measured_tt["eclipser"].unique()
         n_eclipsers = len(unique_eclipsers)
         fig, axes = plt.subplots(n_eclipsers, figsize=(10, 4 * n_eclipsers), sharex=True)
@@ -579,13 +581,13 @@ class CurveSimMCMC:
                     color = gray_shades[i]  # shades of gray
                 ax.plot(df["tt"], df[col], marker='o', linestyle='-', alpha=0.7, label=col, color=color)
             ax.axhline(0, color='gray', linestyle='dashed', linewidth=1)
-            ax.set_ylabel(f"TT Delta")
+            ax.set_ylabel(f"TT Delta [days]")
             ax.set_title(f"Eclipser: {eclipser}")
             ax.tick_params(labelbottom=True)
             ax.set_ylim(ylim)
 
         axes[-1].set_xlabel("Transit Time [BJD]")
-        fig.suptitle(f"TT Delta Plot after {steps_done} steps", fontsize=14)
+        fig.suptitle(f"TT Delta. {steps_done} steps after burn-in.", fontsize=14)
         plt.tight_layout(rect=(0, 0.12, 1, 0.97))  # leave 12% at bottom
         fig.canvas.draw()  # Draw the figure first to avoid clipping bugs
         handles, labels = axes[0].get_legend_handles_labels()  # Since all subplots have identical handles/labels, get from only first subplot
@@ -773,7 +775,8 @@ class CurveSimLMfit:
         self.args = (self.param_references, bodies, time_s0, time_d, measured_tt, p)
         self.start_real_time = time.strftime("%d.%m.%y %H:%M:%S")
         self.start_timestamp = time.perf_counter()
-
+        for (body_index, parameter_name), fp in zip(self.param_references, p.fitting_parameters):  # update bodies from fitting parameters (in case of changed fitting parameter start values)
+            setattr(bodies[body_index], parameter_name, fp.startvalue)
         self.params = lmfit.Parameters()
         for (body_index, parameter_name), (lower, upper) in zip(self.param_references, self.param_bounds):
             self.params.add(bodies[body_index].name + "_" + parameter_name, value=bodies[body_index].__dict__[parameter_name], min=lower, max=upper)
@@ -958,6 +961,32 @@ class CurveSimLMfit:
             json.dump(results, file, indent=4, ensure_ascii=False)
         if p.verbose:
             print(f" Saved LMfit results to {filename}")
+
+    @staticmethod
+    def save_best_fit(p, bodies, measured_tt):
+        result = {}
+        result["max_delta"] = max(np.abs(measured_tt["delta"]))
+        result["mean_delta"] = np.mean(np.abs(measured_tt["delta"]))
+
+        params = (["body_type", "primary", "mass", "radius", "luminosity"]
+                  + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
+                  + ["e", "i", "P", "a", "Omega", "omega", "pomega"]
+                  + ["L", "ma", "ea", "ea_deg", "nu", "T", "t"])
+        for i, body in enumerate(bodies):
+            result[body.name] = {}
+            for key in params:
+                attr = getattr(body, key)
+                if attr is not None:
+                    if key in p.scale:
+                        scale = p.scale[key]
+                    else:
+                        scale = 1
+                    result[body.name][key] = attr * scale
+
+        result = json.dumps(result)
+        filename = p.fitting_results_directory + f"/lmfit_best_fits.txt"
+        with open(filename, "a", encoding='utf8') as file:
+            file.writelines(result + "\n")
 
 
 class CurveSimGUIfit:
