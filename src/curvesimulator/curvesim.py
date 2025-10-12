@@ -2,7 +2,8 @@
 from .cs_animation import CurveSimAnimation
 from .cs_bodies import CurveSimBodies
 from .cs_parameters import CurveSimParameters
-from .cs_mcmc import CurveSimMCMC, CurveSimLMfit, CurveSimGUIfit
+from .cs_mcmc import CurveSimMCMC, CurveSimLMfit
+from .cs_gui_minimizer import CurveSimGUIfit
 
 class CurveSimulator:
 
@@ -18,7 +19,10 @@ class CurveSimulator:
                 time_s0, time_d = CurveSimParameters.init_time_arrays(p)  # s0 in seconds, starting at 0. d in BJD.
                 measured_tt = CurveSimMCMC.get_measured_tt(p)
             bodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
-            if p.lmfit:
+            if p.guifit:
+                self.guifit = CurveSimGUIfit(p, bodies, time_s0, time_d, measured_tt)
+                self.guifit.save_lmfit_results(p)
+            elif p.lmfit:
                 lmfit_run = 1
                 while True:
                     print(f"********  Starting lmfit run number {lmfit_run}:  ", end="")
@@ -27,9 +31,6 @@ class CurveSimulator:
                     self.lmfit.save_lmfit_results(p)
                     self.lmfit.save_best_fit(p, bodies, measured_tt)
                     lmfit_run += 1
-            elif p.guifit:
-                self.guifit = CurveSimGUIfit(p, bodies, time_s0, time_d, measured_tt)
-                self.guifit.save_lmfit_results(p)
             else:
                 mcmc = CurveSimMCMC(p, bodies, time_s0, time_d, measured_flux, flux_uncertainty, measured_tt)
                 self.sampler = mcmc.sampler  # mcmc object

@@ -127,7 +127,6 @@ class CurveSimParameters:
                 self.best_residuals_tt_sum_squared = 1e99
 
             self.guifit = eval(config.get("Fitting", "guifit", fallback="False"))
-
             self.lmfit = eval(config.get("Fitting", "lmfit", fallback="False"))
             self.lmfit_method = config.get("Fitting", "lmfit_method", fallback="powell")
             self.lmfit_max_tt_delta = eval(config.get("Fitting", "lmfit_max_tt_delta", fallback="1/(24*60*60)"))
