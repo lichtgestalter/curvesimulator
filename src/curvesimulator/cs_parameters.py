@@ -312,6 +312,13 @@ class CurveSimParameters:
         for fp in self.fitting_parameters:
             fp.startvalue = fp.lower + random.random() * (fp.upper - fp.lower)
 
+    def enrich_fitting_params(self, bodies):
+        self. body_parameter_names = [f"{bodies[fp.body_index].name}.{fp.parameter_name}" for fp in self.fitting_parameters]
+        self.long_body_parameter_names = [fpn + " [" + self.unit[fpn.split(".")[-1]] + "]" for fpn in self.body_parameter_names]
+        for fp, fpn, fpnu in zip(self.fitting_parameters, self.body_parameter_names, self.long_body_parameter_names):
+            fp.body_parameter_name = fpn
+            fp.long_body_parameter_name = fpnu
+
 
 class FittingParameter:
     def __init__(self, p, body_index, parameter_name, startvalue, lower, upper, sigma):

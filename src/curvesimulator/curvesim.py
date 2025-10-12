@@ -3,7 +3,7 @@ from .cs_animation import CurveSimAnimation
 from .cs_bodies import CurveSimBodies
 from .cs_parameters import CurveSimParameters
 from .cs_mcmc import CurveSimMCMC, CurveSimLMfit
-from .cs_gui_minimizer import CurveSimGUIfit
+from .cs_manual_fit import CurveSimManualFit
 
 class CurveSimulator:
 
@@ -20,7 +20,8 @@ class CurveSimulator:
                 measured_tt = CurveSimMCMC.get_measured_tt(p)
             bodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
             if p.guifit:
-                self.guifit = CurveSimGUIfit(p, bodies, time_s0, time_d, measured_tt)
+                p.enrich_fitting_params(bodies)
+                self.guifit = CurveSimManualFit(p, bodies, time_s0, time_d, measured_tt)
                 self.guifit.save_lmfit_results(p)
             elif p.lmfit:
                 lmfit_run = 1
