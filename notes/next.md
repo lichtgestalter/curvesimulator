@@ -1,15 +1,16 @@
 # Next / in progress:
 ## 0.5.6 Fitting TOI-4504
 
-- WHFast convergence issue
 - Mit GUI (manuell) fitten/minimieren
     - UPDATE PLOT
     - Vielleicht lieber selber eine Liste mit den 4 lines anlegen
       - schon bei einrichten des Plots
       - dann immer manuell die aelteste entfernen und die neueste hinzufuegen
 - Multi LMFit: normalverteilte Startwerte
+- Multi LMFit: Multiprocessing?
 - Verschiedene Moves ausprobieren: 
   - https://emcee.readthedocs.io/en/stable/user/moves/
+- WHFast convergence issue debuggen
  
 - Simons Hausaufgaben 
   - Vitkova plot (mit den roten Punkten) der Verspaetungen der TT gegenueber 
