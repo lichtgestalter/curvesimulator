@@ -1,6 +1,7 @@
 # Next / in progress:
 ## 0.5.6 Fitting TOI-4504
 
+- WHFast convergence issue
 - Mit GUI (manuell) fitten/minimieren
     - UPDATE PLOT
     - Vielleicht lieber selber eine Liste mit den 4 lines anlegen
