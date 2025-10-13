@@ -6,6 +6,7 @@
     - Vielleicht lieber selber eine Liste mit den 4 lines anlegen
       - schon bei einrichten des Plots
       - dann immer manuell die aelteste entfernen und die neueste hinzufuegen
+- Multi LMFit: normalverteilte Startwerte
 - Verschiedene Moves ausprobieren: 
   - https://emcee.readthedocs.io/en/stable/user/moves/
  

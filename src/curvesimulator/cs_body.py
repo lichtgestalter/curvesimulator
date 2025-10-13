@@ -501,23 +501,45 @@ class CurveSimBody:
         else:
             return rebound_sim.t / p.day + p.start_date
 
+    # def eclipsed_by(self, other, iteration, p):
+    #     """Returns area, relative_radius
+    #     area: Area of self which is eclipsed by other.
+    #     relative_radius: The distance of the approximated center of the eclipsed area from the center of self as a percentage of self.radius (used for limb darkening)."""
+    #     # if other.positions[iteration][0] < self.positions[iteration][0]:  # Is other nearer to viewpoint than self? (i.e. its position has a smaller x-coordinate)
+    #     if other.positions[iteration][2] > self.positions[iteration][2]:  # Is other nearer to viewpoint than self? (i.e. its position has a larger z-coordinate)
+    #         d = CurveSimPhysics.distance_2d_body(other, self, iteration)
+    #         if d < self.radius + other.radius:  # Does other eclipse self?
+    #             if d <= abs(self.radius - other.radius):  # Annular (i.e. ring) eclipse or total eclipse
+    #                 area, relative_radius = self.full_eclipse(other, d)
+    #             else:  # Partial eclipse
+    #                 area, relative_radius = self.partial_eclipse(other, d)
+    #             return area, relative_radius
+    #         else:  # No eclipse because, seen from viewer, the bodies are not close enough to each other
+    #             return None, None
+    #     else:  # other cannot eclipse self, because self is nearer to viewer than other
+    #         return None, None
+
     def eclipsed_by(self, other, iteration, p):
         """Returns area, relative_radius
         area: Area of self which is eclipsed by other.
         relative_radius: The distance of the approximated center of the eclipsed area from the center of self as a percentage of self.radius (used for limb darkening)."""
         # if other.positions[iteration][0] < self.positions[iteration][0]:  # Is other nearer to viewpoint than self? (i.e. its position has a smaller x-coordinate)
-        if other.positions[iteration][2] > self.positions[iteration][2]:  # Is other nearer to viewpoint than self? (i.e. its position has a larger z-coordinate)
-            d = CurveSimPhysics.distance_2d_body(other, self, iteration)
-            if d < self.radius + other.radius:  # Does other eclipse self?
-                if d <= abs(self.radius - other.radius):  # Annular (i.e. ring) eclipse or total eclipse
-                    area, relative_radius = self.full_eclipse(other, d)
-                else:  # Partial eclipse
-                    area, relative_radius = self.partial_eclipse(other, d)
-                return area, relative_radius
-            else:  # No eclipse because, seen from viewer, the bodies are not close enough to each other
-                return None, None
-        else:  # other cannot eclipse self, because self is nearer to viewer than other
+        if other.positions[iteration][2] < self.positions[iteration][2]:  # Is other nearer to viewpoint than self? (i.e. its position has a larger z-coordinate)
+            return None, None  # other cannot eclipse self, because self is nearer to viewer than other
+        if abs(other.positions[iteration][0] - self.positions[iteration][0]) < self.radius + other.radius:
+            return None, None  # difference in x-coordinate too large
+        if abs(other.positions[iteration][1] - self.positions[iteration][1]) < self.radius + other.radius:
+            return None, None  # difference in y-coordinate too large
+        d = CurveSimPhysics.distance_2d_body(other, self, iteration)
+        if d < self.radius + other.radius:  # Does other eclipse self?
+            if d <= abs(self.radius - other.radius):  # Annular (i.e. ring) eclipse or total eclipse
+                area, relative_radius = self.full_eclipse(other, d)
+            else:  # Partial eclipse
+                area, relative_radius = self.partial_eclipse(other, d)
+            return area, relative_radius
+        else:  # No eclipse because, seen from viewer, the bodies are not close enough to each other
             return None, None
+
 
     def eclipsed_by_at_tt(self, other, eclipser, eclipsee):
         """ self, other: body
@@ -529,18 +551,18 @@ class CurveSimBody:
         relative_radius: The distance of the approximated center
         of the eclipsed area from the center of eclipsee as
         a percentage of eclipsee.radius (used for limb darkening)."""
-        if eclipser.z > eclipsee.z:  # Is eclipser nearer to viewpoint than eclipsee? (i.e. its position has a larger z-coordinate)
-            d = CurveSimPhysics.distance_2d_particle(eclipser, eclipsee)
-            if d < self.radius + other.radius:  # Does other eclipse self?
-                if d <= abs(self.radius - other.radius):  # Annular (i.e. ring) eclipse or total eclipse
-                    area, relative_radius = self.full_eclipse(other, d)
-                else:  # Partial eclipse
-                    area, relative_radius = self.partial_eclipse(other, d)
-                return area, relative_radius
-            else:  # No eclipse because, seen from viewer, the bodies are not close enough to each eclipser
-                return None, None
-        else:  # eclipser cannot eclipse eclipsee, because eclipsee is nearer to viewer than eclipser
+        if eclipser.z < eclipsee.z:  # Is eclipser nearer to viewpoint than eclipsee? (i.e. its position has a larger z-coordinate)
+            return None, None  # eclipser cannot eclipse eclipsee, because eclipsee is nearer to viewer than eclipser
+        d = CurveSimPhysics.distance_2d_particle(eclipser, eclipsee)
+        if d < self.radius + other.radius:  # Does other eclipse self?
+            if d <= abs(self.radius - other.radius):  # Annular (i.e. ring) eclipse or total eclipse
+                area, relative_radius = self.full_eclipse(other, d)
+            else:  # Partial eclipse
+                area, relative_radius = self.partial_eclipse(other, d)
+            return area, relative_radius
+        else:  # No eclipse because, seen from viewer, the bodies are not close enough to each eclipser
             return None, None
+
 
     def depth_at_tt(self, other, eclipser, eclipsee):
         eclipsed_area, relative_radius = self.eclipsed_by_at_tt(other, eclipser, eclipsee)
