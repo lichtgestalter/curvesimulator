@@ -992,7 +992,7 @@ class CurveSimLMfit:
 
         runtime = CurveSimMCMC.seconds2readable(time.perf_counter() - self.start_timestamp)
 
-        if result["max_delta"] < 93.0:
+        if result["max_delta"] < 3.0:
             print(f"{Fore.RED}Runtime: {runtime}   max_delta: {result["max_delta"]:11.3f} days  mean_delta: {result["mean_delta"]:2.3f} days{Style.RESET_ALL}")
             params = (["body_type", "primary", "mass", "radius", "luminosity"]
                       + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
