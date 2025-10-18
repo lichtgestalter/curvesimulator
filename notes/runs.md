@@ -149,8 +149,14 @@
   - Verschiedene emcee moves ausprobiert (KDE, ...)
 
 - X049
-  - Wie X047, aber dt=1.5e6.
+  - Wie X047, aber dt=1.5e6. dt war zu hoch! Auf 200000 gesenkt.
   - Teste neue emcee moves.
+  - Erster LMfit Multi Run
+
+- X050
+  - Zweiter LMfit Multi Run
+  - Aufgrund der Resultate vom ersten LMfit Multi Run die boundaries fuer 
+    Perioden von c und d enger gemacht
 
 ### MCMC fit von KEPLER-9
 1) Kepler-9: A System of Multiple Planets Transiting a Sun-Like Star, Confirmed by Timing Variations, Matthew J. Holman et al.
