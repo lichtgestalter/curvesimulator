@@ -5,8 +5,34 @@ from .cs_parameters import CurveSimParameters
 from .cs_mcmc import CurveSimMCMC, CurveSimLMfit
 from .cs_manual_fit import CurveSimManualFit
 
-class CurveSimulator:
+import os
+from multiprocessing import Pool
 
+# Worker function must be at module level so it is picklable for multiprocessing
+def _lmfit_worker(task):
+    """
+    task: (config_file, time_s0, time_d, measured_tt, run_id)
+    Creates its own CurveSimParameters and CurveSimBodies and runs one LMfit.
+    """
+    config_file, time_s0, time_d, measured_tt, run_id = task
+    # Re-create parameters and bodies inside worker to avoid pickling issues
+    p_local = CurveSimParameters(config_file)
+    p_local.randomize_startvalues_uniform()
+    bodies_local = CurveSimBodies(p_local)
+    lmfit_run = CurveSimLMfit(p_local, bodies_local, time_s0, time_d, measured_tt)
+    # Save results (may write files concurrently)
+    try:
+        lmfit_run.save_lmfit_results(p_local)
+    except Exception:
+        pass
+    try:
+        lmfit_run.save_best_fit(p_local, bodies_local, measured_tt)
+    except Exception:
+        pass
+    return run_id
+
+
+class CurveSimulator:
     def __init__(self, config_file=""):
         p = CurveSimParameters(config_file)  # Read program parameters from config file.
         if p.verbose:
@@ -32,6 +58,44 @@ class CurveSimulator:
                     self.lmfit.save_lmfit_results(p)
                     self.lmfit.save_best_fit(p, bodies, measured_tt)
                     lmfit_run += 1
+                # num_runs = getattr(p, "lmfit_runs", os.cpu_count() or 1)
+                # print(f"{num_runs=}")
+                # tasks = [(config_file, time_s0, time_d, measured_tt, i) for i in range(num_runs)]
+                # procs = min(num_runs, os.cpu_count() or 1)
+                #
+                # # dynamic submission: start up to `procs` tasks and submit a new task
+                # # as soon as any worker finishes (via the callback).
+                # task_iter = iter(tasks)
+                # submitted = 0
+                #
+                # def _on_done(run_id):
+                #     nonlocal submitted
+                #     print(f"LMfit run {run_id} finished ({submitted}/{num_runs})")
+                #     try:
+                #         next_task = next(task_iter)
+                #     except StopIteration:
+                #         return
+                #     submitted += 1
+                #     pool.apply_async(_lmfit_worker, (next_task,), callback=_on_done)
+                #
+                # with Pool(processes=procs) as pool:
+                #     # submit initial batch (up to number of processes)
+                #     for _ in range(procs):
+                #         try:
+                #             task = next(task_iter)
+                #         except StopIteration:
+                #             break
+                #         submitted += 1
+                #         pool.apply_async(_lmfit_worker, (task,), callback=_on_done)
+                #     pool.close()
+                #     pool.join()                # Parallel LMfit runs across CPU cores.
+
+                # num_runs = getattr(p, "lmfit_runs", os.cpu_count() or 1)  # Number of independent LMfit runs to start in parallel:
+                # print(f"{num_runs=}")
+                # tasks = [(config_file, time_s0, time_d, measured_tt, i) for i in range(num_runs)]  # Build tasks; each worker will re-create p and bodies and run one LMfit with randomized start values.
+                # procs = min(num_runs, os.cpu_count() or 1)  # Use a process pool - limit to available CPUs
+                # with Pool(processes=procs) as pool:
+                #     pool.map(_lmfit_worker, tasks)  # map will block until all runs finish; each returns its run_id
             else:
                 mcmc = CurveSimMCMC(p, bodies, time_s0, time_d, measured_flux, flux_uncertainty, measured_tt)
                 self.sampler = mcmc.sampler  # mcmc object
