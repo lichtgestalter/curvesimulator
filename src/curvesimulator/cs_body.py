@@ -4,6 +4,8 @@ import numpy as np
 import sys
 
 from curvesimulator.cs_physics import CurveSimPhysics
+
+
 # from curvesimulator.cs_results import Transit
 # from curvesimulator.cs_results import CurveSimResults
 
@@ -37,30 +39,30 @@ class CurveSimBody:
         self.intensity = luminosity / self.area_2d  # luminosity per (apparent) area [W/m**2]
         self.positions = np.ndarray((p.total_iterations, 3), dtype=float)
 
-        self.e = e                                           # [1] eccentricity
-        self.i = i                                           # [rad] inclination
+        self.e = e  # [1] eccentricity
+        self.i = i  # [rad] inclination
         self.i_deg = None if i is None else math.degrees(i)  # [deg] inclination
 
         self.P = P  # [s] period
         self.a = a  # [m] semi-major axis
 
-        self.Omega = Omega                                                  # [rad] longitude of ascending node
-        self.Omega_deg = None if Omega is None else math.degrees(Omega)     # [deg] longitude of ascending node
-        self.omega = omega                                                  # [rad] argument of periapsis
-        self.omega_deg = None if omega is None else math.degrees(omega)     # [deg] argument of periapsis
-        self.pomega = pomega                                                # [rad] longitude of periapsis
+        self.Omega = Omega  # [rad] longitude of ascending node
+        self.Omega_deg = None if Omega is None else math.degrees(Omega)  # [deg] longitude of ascending node
+        self.omega = omega  # [rad] argument of periapsis
+        self.omega_deg = None if omega is None else math.degrees(omega)  # [deg] argument of periapsis
+        self.pomega = pomega  # [rad] longitude of periapsis
         self.pomega_deg = None if pomega is None else math.degrees(pomega)  # [deg] longitude of periapsis
 
-        self.L = L                                               # [rad] mean longitude
-        self.L_deg = None if L is None else math.degrees(L)      # [deg] mean longitude
-        self.ma = ma                                             # [rad] mean anomaly
-        self.ma_deg = None if ma is None else math.degrees(ma)   # [deg] mean anomaly
-        self.ea = ea                                             # [rad] eccentric anomaly
-        self.ea_deg = None if ea is None else math.degrees(ea)   # [deg] eccentric anomaly
-        self.nu = nu                                             # [rad] true anomaly
-        self.nu_deg = None if nu is None else math.degrees(nu)   # [deg] true anomaly. Per definition = 270° at the time of an exoplanet's primary transit.
-        self.T = T                                               # [s] Time of periapsis
-        self.t = t                                               # [s] optional additional time delta. For example time since last time of transit
+        self.L = L  # [rad] mean longitude
+        self.L_deg = None if L is None else math.degrees(L)  # [deg] mean longitude
+        self.ma = ma  # [rad] mean anomaly
+        self.ma_deg = None if ma is None else math.degrees(ma)  # [deg] mean anomaly
+        self.ea = ea  # [rad] eccentric anomaly
+        self.ea_deg = None if ea is None else math.degrees(ea)  # [deg] eccentric anomaly
+        self.nu = nu  # [rad] true anomaly
+        self.nu_deg = None if nu is None else math.degrees(nu)  # [deg] true anomaly. Per definition = 270° at the time of an exoplanet's primary transit.
+        self.T = T  # [s] Time of periapsis
+        self.t = t  # [s] optional additional time delta. For example time since last time of transit
 
         self.mu = None  # Gravitational Parameter. Depends on the masses of at least 2 bodies.
 
@@ -487,12 +489,12 @@ class CurveSimBody:
             d = CurveSimPhysics.distance_2d_particle(eclipser, eclipsee)
             in_eclipse = d < d_event
             if transittimetype in ["T1", "T2"]:
-                if in_eclipse: # T1 or T2 lies between t_old and (t_new + t_old) / 2
+                if in_eclipse:  # T1 or T2 lies between t_old and (t_new + t_old) / 2
                     t_new = rebound_sim.t
                 else:
                     t_old = rebound_sim.t
             else:
-                if in_eclipse: # T3 or T4 lies between t_new and (t_new + t_old) / 2
+                if in_eclipse:  # T3 or T4 lies between t_new and (t_new + t_old) / 2
                     t_old = rebound_sim.t
                 else:
                     t_new = rebound_sim.t
@@ -540,7 +542,6 @@ class CurveSimBody:
         else:  # No eclipse because, seen from viewer, the bodies are not close enough to each other
             return None, None
 
-
     def eclipsed_by_at_tt(self, other, eclipser, eclipsee):
         """ self, other: body
         eclipser, eclipsee: Rebound Particle
@@ -562,7 +563,6 @@ class CurveSimBody:
             return area, relative_radius
         else:  # No eclipse because, seen from viewer, the bodies are not close enough to each eclipser
             return None, None
-
 
     def depth_at_tt(self, other, eclipser, eclipsee):
         eclipsed_area, relative_radius = self.eclipsed_by_at_tt(other, eclipser, eclipsee)
