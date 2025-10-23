@@ -157,6 +157,18 @@
   - Zweiter LMfit Multi Run
   - Aufgrund der Resultate vom ersten LMfit Multi Run die boundaries fuer 
     Perioden von c und d enger gemacht
+  - Das Verhaeltnis der Perioden P.c/P.d liegt bei den besten Fits in einem 
+    ziemlich schmalen Band zwischen 1,95 und 2,00.
+  - Plottet man allerdings die besten Fits mit x-Achse = P.d und y-Achse = P.
+    c, so scheint es einen nahezu linearen Zusammenhang mit _negativer_ 
+    Steigung zu geben.
+  - Kreuzt man die Linie der besten Fits in diesem Plot mit der Linie P.c =  
+    1.96 * P.d, hat man vielleicht die "richtigen" Perioden gefunden.
+  - In dem entstandenen Parallelogram waehle ich ein Rechteck, das die 
+    Bounds der Perioden weiter einschraenkt.
+      - P.c: 41,55-41,80
+      - P.d: 81,0-81,7
+
 
 ### MCMC fit von KEPLER-9
 1) Kepler-9: A System of Multiple Planets Transiting a Sun-Like Star, Confirmed by Timing Variations, Matthew J. Holman et al.
