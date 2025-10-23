@@ -996,7 +996,7 @@ class CurveSimLMfit:
             color = Fore.RED
             if result["mean_delta"] < 0.1:
                 color = Fore.YELLOW
-            elif result["mean_delta"] < 0.02:
+            if result["mean_delta"] < 0.02:
                 color = Fore.GREEN
             print(f"{color}Runtime: {runtime}   max_delta: {result["max_delta"]:11.3f} days  mean_delta: {result["mean_delta"]:2.3f} days{Style.RESET_ALL}")
             params = (["body_type", "primary", "mass", "radius", "luminosity"]
