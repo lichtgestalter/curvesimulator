@@ -170,6 +170,8 @@
       - P.d: 81,0-81,7
 
 - X051 MCMC basierend auf dem bisher besten lokalen Minimum von X050
+- X052 MCMC basierend auf anderem sehr guten Run von X050 mit deutlich anderen 
+  Parametern 
 
 
 ### MCMC fit von KEPLER-9
