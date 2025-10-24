@@ -49,6 +49,7 @@ class CurveSimMCMC:
         self.moves = p.moves
         self.walkers = p.walkers
         self.thin_samples = p.thin_samples
+        self.thin_samples_corner_plot = max(p.thin_samples, 10)  # corner plot uses
         self.burn_in = p.burn_in
         self.chunk_size = p.chunk_size
         self.bins = p.bins
@@ -254,8 +255,8 @@ class CurveSimMCMC:
         theta0 = np.array(initial_values)
         return theta0.T
 
-    def scale_samples(self, flat_samples):
-        self.scaled_samples = np.copy(flat_samples)
+    def scale_samples(self, flat_thin_samples):
+        self.scaled_samples = np.copy(flat_thin_samples)
         self.scales = []
         for fpn, ss in zip(self.body_parameter_names, self.scaled_samples.T):
             param = fpn.split(".")[-1]
@@ -284,12 +285,12 @@ class CurveSimMCMC:
             print(f"{Fore.RED}ERROR: Saving Trace Plot failed.{Style.RESET_ALL}")
         plt.close(fig)
 
-    def max_likelihood_parameters(self, flat_samples):
+    def max_likelihood_parameters(self, flat_thin_samples):
         log_prob_samples = self.sampler.get_log_prob(flat=True, discard=self.burn_in, thin=self.thin_samples)
         if len(log_prob_samples):
             max_likelihood_idx = np.argmax(log_prob_samples)
             self.max_likelihood_params_scaled = self.scaled_samples[max_likelihood_idx]
-            self.max_likelihood_params = flat_samples[max_likelihood_idx]
+            self.max_likelihood_params = flat_thin_samples[max_likelihood_idx]
             self.max_log_prob = log_prob_samples[max_likelihood_idx]
         else:
             self.max_likelihood_params_scaled = None
@@ -712,7 +713,7 @@ class CurveSimMCMC:
 
     @stopwatch()
     def mcmc_results(self, p, bodies, steps_done, time_s0, time_d, measured_tt, measured_flux, flux_err, chunk):
-        flat_samples = self.sampler.get_chain(discard=self.burn_in, thin=self.thin_samples, flat=True)
+        flat_thin_samples = self.sampler.get_chain(discard=self.burn_in, thin=self.thin_samples, flat=True)
         # discard the initial self.burn_in steps from each chain to ensure only samples that represent the equilibrium distribution are analyzed.
         # thin=10: keep only every 10th sample from the chain to reduce autocorrelation in the chains and the size of the resulting arrays.
         # flat=True: return all chains in a single, two-dimensional array (shape: (n_samples, n_parameters))
@@ -721,10 +722,10 @@ class CurveSimMCMC:
         self.acceptance_fractions.append(self.sampler.acceptance_fraction)
         if chunk % 5 == 0:
             self.acceptance_fraction_plot(steps_done, "acceptance.png")
-        self.scale_samples(flat_samples)
+        self.scale_samples(flat_thin_samples)
         if chunk % 5 == 0:
             self.trace_plots(steps_done, "traces.png")
-        self.max_likelihood_parameters(flat_samples)
+        self.max_likelihood_parameters(flat_thin_samples)
         measured_tt = self.max_likelihood_tt(bodies, p, time_s0, time_d, measured_tt)
         measured_tt = CurveSimMCMC.add_new_best_delta(measured_tt, steps_done)
         self.calc_maxlikelihood_avg_residual_in_std(p)
@@ -751,6 +752,8 @@ class CurveSimMCMC:
 
         self.save_mcmc_results(p, bodies, steps_done, measured_tt)
         if chunk % 10 == 0:
+            flat_thin_samples = self.sampler.get_chain(discard=self.burn_in, thin=self.thin_samples_corner_plot, flat=True)
+            self.scale_samples(flat_thin_samples)
             self.mcmc_corner_plot(steps_done, "corner.png")
 
 
