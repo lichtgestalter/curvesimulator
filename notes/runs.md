@@ -169,6 +169,8 @@
       - P.c: 41,55-41,80
       - P.d: 81,0-81,7
 
+- X051 MCMC basierend auf dem bisher besten lokalen Minimum von X050
+
 
 ### MCMC fit von KEPLER-9
 1) Kepler-9: A System of Multiple Planets Transiting a Sun-Like Star, Confirmed by Timing Variations, Matthew J. Holman et al.
