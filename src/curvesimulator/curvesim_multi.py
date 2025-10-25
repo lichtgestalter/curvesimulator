@@ -12,19 +12,20 @@ from multiprocessing import Process, JoinableQueue
 
 def _lmfit_worker_queue(task_queue, result_queue):
     for task in iter(task_queue.get, None):
-        config_file, time_s0, time_d, measured_tt, run_id = task
-        p_local = CurveSimParameters(config_file)
-        p_local.randomize_startvalues_uniform()
-        bodies_local = CurveSimBodies(p_local)
-        lmfit_run = CurveSimLMfit(p_local, bodies_local, time_s0, time_d, measured_tt)
+        config_file, time_s0, time_d, measured_tt, p, run_id = task
+        # p_local = CurveSimParameters(config_file)
+        # p_local.randomize_startvalues_uniform()
+        p.randomize_startvalues_uniform()
+        bodies_local = CurveSimBodies(p)
+        lmfit_run = CurveSimLMfit(p, bodies_local, time_s0, time_d, measured_tt)
         try:
-            lmfit_run.save_best_fit(p_local, bodies_local, measured_tt)
+            lmfit_run.save_best_fit(p, bodies_local, measured_tt)
         except Exception:
             pass
         result_queue.put(run_id)
         task_queue.task_done()  # Mark as processed
 
-def run_all_queue(tasks, max_workers):
+def run_all_queue_funktioniert_aber_wartet_bis_16_fertig(tasks, max_workers):
     task_queue = JoinableQueue()
     result_queue = JoinableQueue()
 
@@ -55,7 +56,46 @@ def run_all_queue(tasks, max_workers):
         w.join()
 
 
-class CurveSimulator:
+def run_all_queue(tasks, max_workers):
+    task_queue = JoinableQueue()
+    result_queue = JoinableQueue()
+
+    total = len(tasks)
+    next_index = 0
+
+    # start workers
+    workers = [Process(target=_lmfit_worker_queue, args=(task_queue, result_queue))
+               for _ in range(max_workers)]
+    for w in workers:
+        w.start()
+        time.sleep(0.2)
+
+    # submit up to max_workers initial tasks
+    for _ in range(min(max_workers, total)):
+        task_queue.put(tasks[next_index])
+        next_index += 1
+
+    completed = 0
+    while completed < total:
+        run_id = result_queue.get()
+        completed += 1
+        print(f"LMfit run {run_id} finished ({completed}/{total})")
+        # immediately submit the next pending task (if any) so a freed worker starts a new run
+        if next_index < total:
+            task_queue.put(tasks[next_index])
+            next_index += 1
+
+    # wait for workers to mark all tasks done
+    task_queue.join()
+
+    # stop workers
+    for _ in workers:
+        task_queue.put(None)
+    for w in workers:
+        w.join()
+
+
+class CurveSimulatorMulti:
     def __init__(self, config_file=""):
         p = CurveSimParameters(config_file)  # Read program parameters from config file.
         if p.verbose:
@@ -74,11 +114,23 @@ class CurveSimulator:
                 self.guifit.save_lmfit_results(p)
             elif p.lmfit:
                 # Parallel LMfit runs across CPU cores.
-                num_runs = os.cpu_count()  # Number of independent LMfit runs to start in parallel:
-                print(f"{num_runs=}")
-                tasks = [(config_file, time_s0, time_d, measured_tt, i) for i in range(num_runs)]  # Build tasks; each worker will re-create p and bodies and run one LMfit with randomized start values.
+                # num_runs = os.cpu_count()  # Number of independent LMfit runs to start in parallel:
+                # print(f"{num_runs=}")
+                # tasks = [(config_file, time_s0, time_d, measured_tt, p, i) for i in range(num_runs)]  # Build tasks; each worker will re-create p and bodies and run one LMfit with randomized start values.
+                # while True:
+                #     run_all_queue(tasks, num_runs)
+
+
+                # Parallel LMfit runs across CPU cores: use CPU count for workers but build the full list of tasks for all runs.
+                num_workers = os.cpu_count()
+                # choose the actual number of lmfit runs (replace 10000 with a config value if available)
+                total_runs = 1000
+                print(f"{num_workers=}, {total_runs=}")
                 while True:
-                    run_all_queue(tasks, num_runs)
+                    tasks = [(config_file, time_s0, time_d, measured_tt, p, i) for i in range(total_runs)]
+                    run_all_queue(tasks, num_workers)
+
+
             else:
                 mcmc = CurveSimMCMC(p, bodies, time_s0, time_d, measured_flux, flux_uncertainty, measured_tt)
                 self.sampler = mcmc.sampler  # mcmc object
