@@ -9,6 +9,7 @@ from .cs_manual_fit import CurveSimManualFit
 
 import os
 from multiprocessing import Process, JoinableQueue
+import warnings
 
 def _lmfit_worker_queue(task_queue, result_queue):
     for task in iter(task_queue.get, None):
@@ -97,6 +98,7 @@ def run_all_queue(tasks, max_workers):
 
 class CurveSimulatorMulti:
     def __init__(self, config_file=""):
+        warnings.filterwarnings('ignore', module='rebound')
         p = CurveSimParameters(config_file)  # Read program parameters from config file.
         if p.verbose:
             print(p)
