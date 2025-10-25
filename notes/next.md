@@ -1,17 +1,6 @@
 # Next / in progress:
 ## 0.5.6 Fitting TOI-4504
 
-- Mit GUI (manuell) fitten/minimieren
-    - UPDATE PLOT
-    - Vielleicht lieber selber eine Liste mit den 4 lines anlegen
-      - schon bei einrichten des Plots
-      - dann immer manuell die aelteste entfernen und die neueste hinzufuegen
-- Multi LMFit: normalverteilte Startwerte
-- Multi LMFit: Multiprocessing?
-- Verschiedene Moves ausprobieren: 
-  - https://emcee.readthedocs.io/en/stable/user/moves/
-- WHFast convergence issue debuggen
- 
 - Simons Hausaufgaben 
   - Vitkova plot (mit den roten Punkten) der Verspaetungen der TT gegenueber 
     einer konstanten Periode reproduzieren
@@ -28,6 +17,16 @@
     - Vitkova Parameter als Startwerte nehmen
     - MCMC mit sehr kleiner Streuung um diese Startwerte starten
  
+- Mit GUI (manuell) fitten/minimieren
+    - UPDATE PLOT
+    - Vielleicht lieber selber eine Liste mit den 4 lines anlegen
+      - schon bei einrichten des Plots
+      - dann immer manuell die aelteste entfernen und die neueste hinzufuegen
+- Verschiedene Moves ausprobieren: 
+  - https://emcee.readthedocs.io/en/stable/user/moves/
+ 
+- WHFast convergence issue debuggen (warnung ist deaktiviert)
+- 
 - Jeder Parameter soll seine eigene Skalierung haben koennen.
   - Also z.B. Sonnen-Masse anderen Faktor als Planetenmasse
 
@@ -40,6 +39,8 @@
 
   
 ### LMfit
+- Multi LMFit: normalverteilte Startwerte
+ 
 - Simulierte Daten fitten lassen
   - Generiere mit den X024ML Parametern Simulierten Flux und TT Sim002
   - Ablage unter data/simulations
