@@ -122,7 +122,7 @@ class CurveSimulatorMulti:
 
 
                 # Parallel LMfit runs across CPU cores: use CPU count for workers but build the full list of tasks for all runs.
-                num_workers = os.cpu_count()
+                num_workers = max(1, os.cpu_count() - 1)
                 # choose the actual number of lmfit runs (replace 10000 with a config value if available)
                 total_runs = 1000
                 print(f"{num_workers=}, {total_runs=}")
