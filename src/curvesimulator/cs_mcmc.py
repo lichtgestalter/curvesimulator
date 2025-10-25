@@ -105,7 +105,7 @@ class CurveSimMCMC:
         self.moves = p.moves
         self.walkers = p.walkers
         self.thin_samples = p.thin_samples
-        self.thin_samples_corner_plot = max(p.thin_samples, 10)  # corner plot uses
+        self.thin_samples_plot = max(p.thin_samples, 10)  # avoid unnecessary memory usage for some plots
         self.burn_in = p.burn_in
         self.chunk_size = p.chunk_size
         self.bins = p.bins
@@ -327,7 +327,7 @@ class CurveSimMCMC:
         plt.subplots_adjust(top=0.975)
         if self.ndim == 1:
             axes = [axes]
-        chains = np.moveaxis(self.sampler.get_chain(flat=False), -1, 0)
+        chains = np.moveaxis(self.sampler.get_chain(flat=False, thin=self.thin_samples_plot), -1, 0)
         for i, (chain, ax, name, scale) in enumerate(zip(chains, axes, self.long_body_parameter_names, self.scales)):
             ax.plot(chain * scale, color='black', alpha=0.05)
             ax.set_ylabel(name)
@@ -437,7 +437,7 @@ class CurveSimMCMC:
     # @stopwatch()
     def autocorrelation_function_plot(self, steps_done, plot_filename):
         plot_filename = self.fitting_results_directory + plot_filename
-        samples = self.sampler.get_chain(discard=0, flat=False)  # shape: (steps, walkers, ndim)
+        samples = self.sampler.get_chain(discard=0, flat=False, thin=self.thin_samples_plot)  # shape: (steps, walkers, ndim)
         nwalkers = samples.shape[1]
         fig, axes = plt.subplots(self.ndim, figsize=(10, self.ndim * 2), sharex=True)
         fig.text(0.1, 0.99, f"Autocorrelation after {steps_done} steps", ha='left', va='top', fontsize=14, transform=fig.transFigure)
@@ -455,32 +455,6 @@ class CurveSimMCMC:
             ax.tick_params(labelbottom=True)  # Show x-tick labels for all
             if dim == self.ndim - 1:
                 ax.set_xlabel("Steps including burn-in (red line)")  # Only last subplot
-        try:
-            plt.savefig(plot_filename)
-        except:
-            print(f"{Fore.RED}ERROR: Saving autocorrelation plot failed.{Style.RESET_ALL}")
-        plt.close(fig)
-
-    # @stopwatch()
-    def autocorrelation_function_plot_old(self, steps_done, plot_filename):
-        plot_filename = self.fitting_results_directory + plot_filename
-        samples = self.sampler.get_chain(discard=0, flat=False)  # shape: (steps, walkers, ndim)
-        nwalkers = samples.shape[1]
-        fig, axes = plt.subplots(self.ndim, figsize=(10, self.ndim * 2), sharex=True)
-        fig.text(0.1, 0.99, f"Autocorrelation after {steps_done} steps", ha='left', va='top', fontsize=14, transform=fig.transFigure)
-        plt.subplots_adjust(top=0.975)
-        if self.ndim == 1:
-            axes = [axes]
-        for dim, param_name in zip(range(self.ndim), self.long_body_parameter_names):
-            ax = axes[dim]
-            ax.set_xlabel("Steps including burn-in (red line)")
-            ax.axvline(self.burn_in, color="red", linestyle="solid", label="burn-in")
-            for walker in range(nwalkers):
-                chain_1d = samples[:, walker, dim]
-                ac = emcee.autocorr.function_1d(chain_1d)
-                ax.plot(ac, alpha=0.5)
-            ax.set_ylabel(param_name)
-        # plt.tight_layout()
         try:
             plt.savefig(plot_filename)
         except:
@@ -779,8 +753,6 @@ class CurveSimMCMC:
         if chunk % 5 == 0:
             self.acceptance_fraction_plot(steps_done, "acceptance.png")
         self.scale_samples(flat_thin_samples)
-        if chunk % 5 == 0:
-            self.trace_plots(steps_done, "traces.png")
         self.max_likelihood_parameters(flat_thin_samples)
         measured_tt = self.max_likelihood_tt(bodies, p, time_s0, time_d, measured_tt)
         measured_tt = CurveSimMCMC.add_new_best_delta(measured_tt, steps_done)
@@ -798,7 +770,6 @@ class CurveSimMCMC:
         self.average_residual_in_std_plot(p, steps_done, "avg_residual.png")
 
         self.integrated_autocorrelation_time.append(list(self.sampler.get_autocorr_time(tol=0)))
-        # self.integrated_autocorrelation_time.append(list(emcee.autocorr.integrated_time(self.sampler.get_chain(discard=self.burn_in), quiet=True)))  # does the same but with more useless warnings
         self.integrated_autocorrelation_time_plot(steps_done, "int_autocorr_time.png", "steps_per_i_ac_time.png")
         if chunk % 10 == 0:
             self.autocorrelation_function_plot(steps_done, "autocorrelation.png")
@@ -808,9 +779,11 @@ class CurveSimMCMC:
 
         self.save_mcmc_results(p, bodies, steps_done, measured_tt)
         if chunk % 10 == 0:
-            flat_thin_samples = self.sampler.get_chain(discard=self.burn_in, thin=self.thin_samples_corner_plot, flat=True)
+            flat_thin_samples = self.sampler.get_chain(discard=self.burn_in, thin=self.thin_samples_plot, flat=True)
             self.scale_samples(flat_thin_samples)
             self.mcmc_corner_plot(steps_done, "corner.png")
+        if chunk % 5 == 0:
+            self.trace_plots(steps_done, "traces.png")
 
 
 class CurveSimLMfit:
@@ -1139,3 +1112,12 @@ def find_ndarrays(obj, path="root"):
         return obj
     else:
         return obj
+
+
+# trace_plots
+# 330        chains = np.moveaxis(self.sampler.get_chain(flat=False,                        thin=self.thin_samples_plot), -1, 0)
+# autocorrelation_function_plot
+# 440        samples =            self.sampler.get_chain(flat=False, discard=0,             thin=self.thin_samples_plot)  # shape: (steps, walkers, ndim)
+# mcmc_results
+# 746        flat_thin_samples =  self.sampler.get_chain(flat=True,  discard=self.burn_in,  thin=self.thin_samples)
+# 782        flat_thin_samples =  self.sampler.get_chain(flat=True,  discard=self.burn_in,  thin=self.thin_samples_plot)
