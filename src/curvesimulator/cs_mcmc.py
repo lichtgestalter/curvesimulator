@@ -48,12 +48,10 @@ def append_line_locked(filename, line, wait=0.1):
         if os.name == "nt":
             import msvcrt
             try:
-                # open in text append mode (encoding utf8)
                 with open(filename, "a", encoding="utf8") as f:
                     fd = f.fileno()
                     try:
-                        # try non-blocking lock of 1 byte
-                        msvcrt.locking(fd, msvcrt.LK_NBLCK, 1)
+                        msvcrt.locking(fd, msvcrt.LK_NBLCK, 1)  # try non-blocking lock of 1 byte
                     except OSError:
                         time.sleep(wait)
                         continue
@@ -68,15 +66,13 @@ def append_line_locked(filename, line, wait=0.1):
                             pass
                     return
             except Exception:
-                # propagate unexpected errors (e.g., permission issues)
-                raise
+                raise  # propagate unexpected errors (e.g., permission issues)
         else:
             import fcntl
             try:
                 with open(filename, "a", encoding="utf8") as f:
                     try:
-                        # try non-blocking exclusive lock
-                        fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                        fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)  # try non-blocking exclusive lock
                     except (BlockingIOError, OSError):
                         time.sleep(wait)
                         continue
@@ -1048,7 +1044,7 @@ class CurveSimLMfit:
         if p.verbose:
             print(f" Saved LMfit results to {filename}")
 
-    def save_best_fit(self, p, bodies, measured_tt):
+    def save_best_fit_old(self, p, bodies, measured_tt):
         result = {}
         result["max_delta"] = max(np.abs(measured_tt["delta"]))
         result["mean_delta"] = np.mean(np.abs(measured_tt["delta"]))
@@ -1062,7 +1058,7 @@ class CurveSimLMfit:
                 color = Fore.YELLOW
             if result["mean_delta"] < 0.02:
                 color = Fore.GREEN
-            print(f"{color}Runtime: {runtime}   max_delta: {result["max_delta"]:11.3f} days  mean_delta: {result["mean_delta"]:2.3f} days{Style.RESET_ALL}", end=" ")
+            # print(f"{color}Runtime: {runtime}   max_delta: {result["max_delta"]:11.3f} days  mean_delta: {result["mean_delta"]:2.3f} days{Style.RESET_ALL}", end=" ")
             params = (["body_type", "primary", "mass", "radius", "luminosity"]
                       + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
                       + ["e", "i", "P", "a", "Omega", "omega", "pomega"]
@@ -1082,23 +1078,23 @@ class CurveSimLMfit:
             filename = p.fitting_results_directory + f"/lmfit_best_fits.txt"
             with open(filename, "a", encoding='utf8') as file:
                 file.writelines(result + "\n")
-        else:
-            print(f"{color}Runtime: {runtime}   max_delta: {result["max_delta"]:11.3f} days  mean_delta: {result["mean_delta"]:2.3f} days{Style.RESET_ALL}", end=" ")
+        # else:
+        print(f"{color}Runtime: {runtime}   max_delta: {result["max_delta"]:7.3f} days  mean_delta: {result["mean_delta"]:7.3f} days{Style.RESET_ALL}    ", end="")
 
-    def save_best_fit_new_untested(self, p, bodies, measured_tt):
+    def save_best_fit(self, p, bodies, measured_tt):
         result = {}
         result["max_delta"] = float(np.max(np.abs(measured_tt["delta"])))
         result["mean_delta"] = float(np.mean(np.abs(measured_tt["delta"])))
 
         runtime = CurveSimMCMC.seconds2readable(time.perf_counter() - self.start_timestamp)
 
+        color = Fore.WHITE
         if result["mean_delta"] < 1.0:
             color = Fore.RED
             if result["mean_delta"] < 0.1:
                 color = Fore.YELLOW
             if result["mean_delta"] < 0.02:
                 color = Fore.GREEN
-            print(f"{color}Runtime: {runtime}   max_delta: {result['max_delta']:11.3f} days  mean_delta: {result['mean_delta']:2.3f} days{Style.RESET_ALL}")
             params = (["body_type", "primary", "mass", "radius", "luminosity"]
                       + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
                       + ["e", "i", "P", "a", "Omega", "omega", "pomega"]
@@ -1121,8 +1117,7 @@ class CurveSimLMfit:
             except OSError as e:
                 # non-fatal: print error but continue
                 print(f"{Fore.RED}ERROR: Could not write best fit to `lmfit_best_fits.txt`: {e}{Style.RESET_ALL}")
-        else:
-            print(f"Runtime: {runtime}   max_delta: {result['max_delta']:7.0f} days")
+        print(f"{color}Runtime: {runtime}   max_delta: {result["max_delta"]:7.3f} days  mean_delta: {result["mean_delta"]:7.3f} days{Style.RESET_ALL}    ", end="")
 
 
 
