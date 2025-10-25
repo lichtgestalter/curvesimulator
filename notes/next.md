@@ -55,6 +55,8 @@
 ### TT-MCMC
 - BUG: Nach Wiederaufnahme von MCMC mit gespeicherten Chains (.h5 file) starten 
   die Chains derzeit wieder bei den urspruenglichen Startwerten
+- Nach jeder Verbesserung der MaxL, den Parametersatz abspeichern, damit ich 
+  die Entwicklung der einzelnen MaxL-Parameter verfolgen kann
 - Residuen fuer MaxLikelihood automatisch ausrechnen (Auch mean und median?)
 - Eine Simulation laufen lassen. Deren entsprechende 13 c und 4 d Transits in 
 tt_sim.csv
