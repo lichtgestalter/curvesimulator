@@ -35,7 +35,7 @@ def stopwatch():
 def append_line_locked(filename, line, wait=0.1):
     """
     Append a line to `filename` ensuring all processes succeed:
-    - try a non\-blocking lock
+    - try a non-blocking lock
     - on contention sleep `wait` seconds and retry
     - write, flush, fsync, release lock
     Works on Windows (msvcrt) and Unix (fcntl).
