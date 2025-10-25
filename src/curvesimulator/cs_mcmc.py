@@ -1055,13 +1055,14 @@ class CurveSimLMfit:
 
         runtime = CurveSimMCMC.seconds2readable(time.perf_counter() - self.start_timestamp)
 
+        color = Fore.WHITE
         if result["mean_delta"] < 1.0:
             color = Fore.RED
             if result["mean_delta"] < 0.1:
                 color = Fore.YELLOW
             if result["mean_delta"] < 0.02:
                 color = Fore.GREEN
-            print(f"{color}Runtime: {runtime}   max_delta: {result["max_delta"]:11.3f} days  mean_delta: {result["mean_delta"]:2.3f} days{Style.RESET_ALL}")
+            print(f"{color}Runtime: {runtime}   max_delta: {result["max_delta"]:11.3f} days  mean_delta: {result["mean_delta"]:2.3f} days{Style.RESET_ALL}", end=" ")
             params = (["body_type", "primary", "mass", "radius", "luminosity"]
                       + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
                       + ["e", "i", "P", "a", "Omega", "omega", "pomega"]
@@ -1082,7 +1083,7 @@ class CurveSimLMfit:
             with open(filename, "a", encoding='utf8') as file:
                 file.writelines(result + "\n")
         else:
-            print(f"Runtime: {runtime}   max_delta: {result["max_delta"]:7.0f} days")
+            print(f"{color}Runtime: {runtime}   max_delta: {result["max_delta"]:11.3f} days  mean_delta: {result["mean_delta"]:2.3f} days{Style.RESET_ALL}", end=" ")
 
     def save_best_fit_new_untested(self, p, bodies, measured_tt):
         result = {}
