@@ -1,13 +1,71 @@
 # When testing, do not run this file directly. Run run_curvesim.py (in the parent directory) instead.
+import time
+
 from .cs_animation import CurveSimAnimation
 from .cs_bodies import CurveSimBodies
 from .cs_parameters import CurveSimParameters
 from .cs_mcmc import CurveSimMCMC, CurveSimLMfit
 from .cs_manual_fit import CurveSimManualFit
 
+import os
+from multiprocessing import Process, JoinableQueue
+import warnings
+
+def _lmfit_worker_queue(task_queue, result_queue):
+    for task in iter(task_queue.get, None):
+        config_file, time_s0, time_d, measured_tt, p, run_id = task
+        p.randomize_startvalues_uniform()
+        bodies_local = CurveSimBodies(p)
+        lmfit_run = CurveSimLMfit(p, bodies_local, time_s0, time_d, measured_tt)
+        try:
+            lmfit_run.save_best_fit(p, bodies_local, measured_tt)
+        except Exception:
+            pass
+        result_queue.put(run_id)
+        task_queue.task_done()  # Mark as processed
+
+
+def run_all_queue(tasks, max_workers):
+    task_queue = JoinableQueue()
+    result_queue = JoinableQueue()
+    total = len(tasks)
+    next_index = 0
+
+    # start workers
+    workers = [Process(target=_lmfit_worker_queue, args=(task_queue, result_queue))
+               for _ in range(max_workers)]
+    for w in workers:
+        w.start()
+        time.sleep(0.2)
+
+    # submit up to max_workers initial tasks
+    for _ in range(min(max_workers, total)):
+        task_queue.put(tasks[next_index])
+        next_index += 1
+
+    completed = 0
+    while completed < total:
+        run_id = result_queue.get()
+        completed += 1
+        print(f"LMfit run {run_id} finished ({completed}/{total})")
+        # immediately submit the next pending task (if any) so a freed worker starts a new run
+        if next_index < total:
+            task_queue.put(tasks[next_index])
+            next_index += 1
+
+    # wait for workers to mark all tasks done
+    task_queue.join()
+
+    # stop workers
+    for _ in workers:
+        task_queue.put(None)
+    for w in workers:
+        w.join()
+
 
 class CurveSimulator:
     def __init__(self, config_file=""):
+        warnings.filterwarnings('ignore', module='rebound')
         p = CurveSimParameters(config_file)  # Read program parameters from config file.
         if p.verbose:
             print(p)
@@ -24,19 +82,16 @@ class CurveSimulator:
                 self.guifit = CurveSimManualFit(p, bodies, time_s0, time_d, measured_tt)
                 self.guifit.save_lmfit_results(p)
             elif p.lmfit:
-                lmfit_run = 1
+                num_workers = max(1, os.cpu_count() - 1)  # number of parallel lmfit runs (multiprocessing). Leave one CPU availabe for other programs
+                total_runs = 1000  # total number of lmfit runs
+                print(f"{num_workers=}, {total_runs=}")
                 while True:
-                    print(f"********  Starting lmfit run number {lmfit_run}:  ", end="")
-                    p.randomize_startvalues_uniform()
-                    self.lmfit = CurveSimLMfit(p, bodies, time_s0, time_d, measured_tt)
-                    self.lmfit.save_lmfit_results(p)
-                    self.lmfit.save_best_fit(p, bodies, measured_tt)
-                    lmfit_run += 1
+                    tasks = [(config_file, time_s0, time_d, measured_tt, p, i) for i in range(total_runs)]
+                    run_all_queue(tasks, num_workers)
             else:
                 mcmc = CurveSimMCMC(p, bodies, time_s0, time_d, measured_flux, flux_uncertainty, measured_tt)
                 self.sampler = mcmc.sampler  # mcmc object
-                self.theta = mcmc.theta  # current state of mcmc chains
-                # By saving sampler and theta it is possible to continue the mcmc later on
+                self.theta = mcmc.theta  # current state of mcmc chains. By saving sampler and theta it is possible to continue the mcmc later on.
         else:  # run a single simulation
             time_s0, time_d = CurveSimParameters.init_time_arrays(p)  # s0 in seconds, starting at 0. d in BJD.
             bodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation

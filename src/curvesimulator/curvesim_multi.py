@@ -14,8 +14,6 @@ import warnings
 def _lmfit_worker_queue(task_queue, result_queue):
     for task in iter(task_queue.get, None):
         config_file, time_s0, time_d, measured_tt, p, run_id = task
-        # p_local = CurveSimParameters(config_file)
-        # p_local.randomize_startvalues_uniform()
         p.randomize_startvalues_uniform()
         bodies_local = CurveSimBodies(p)
         lmfit_run = CurveSimLMfit(p, bodies_local, time_s0, time_d, measured_tt)
@@ -26,41 +24,10 @@ def _lmfit_worker_queue(task_queue, result_queue):
         result_queue.put(run_id)
         task_queue.task_done()  # Mark as processed
 
-def run_all_queue_funktioniert_aber_wartet_bis_16_fertig(tasks, max_workers):
-    task_queue = JoinableQueue()
-    result_queue = JoinableQueue()
-
-    for task in tasks:
-        task_queue.put(task)
-
-    workers = [Process(target=_lmfit_worker_queue, args=(task_queue, result_queue))
-               for _ in range(max_workers)]
-
-    for w in workers:
-        w.start()
-        time.sleep(0.2)
-
-    total = len(tasks)
-    completed = 0
-    while completed < total:
-        run_id = result_queue.get()
-        completed += 1
-        print(f"LMfit run {run_id} finished ({completed}/{total})")
-
-    # wait for all tasks done before sending stop signals
-    task_queue.join()
-
-    # stop workers
-    for _ in workers:
-        task_queue.put(None)
-    for w in workers:
-        w.join()
-
 
 def run_all_queue(tasks, max_workers):
     task_queue = JoinableQueue()
     result_queue = JoinableQueue()
-
     total = len(tasks)
     next_index = 0
 

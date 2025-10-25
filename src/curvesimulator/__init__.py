@@ -1,6 +1,5 @@
 # __init__.py
 from .curvesim import CurveSimulator
-from .curvesim_multi import CurveSimulatorMulti
 from .cs_animation import CurveSimAnimation
 from .cs_bodies import CurveSimBodies
 from .cs_body import CurveSimBody
