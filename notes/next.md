@@ -4,7 +4,7 @@
 - Simons Hausaufgaben 
   - Vitkova plot (mit den roten Punkten) der Verspaetungen der TT gegenueber 
     einer konstanten Periode reproduzieren
-    - osculating period of 82.54±0.02d
+    - osculating period of 82.5438d +0.0175d -0.0150d
     - semiamplitude of ∼2d
     - super-period of 946.5d
   - TT mit Vitkova-Parametern reproduzieren
