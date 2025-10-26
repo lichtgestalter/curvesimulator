@@ -1031,6 +1031,8 @@ class CurveSimLMfit:
                 color = Fore.YELLOW
             if result["mean_delta"] < 0.02:
                 color = Fore.GREEN
+            if result["mean_delta"] < 0.005:
+                color = Fore.CYAN
             # print(f"{color}Runtime: {runtime}   max_delta: {result["max_delta"]:11.3f} days  mean_delta: {result["mean_delta"]:2.3f} days{Style.RESET_ALL}", end=" ")
             params = (["body_type", "primary", "mass", "radius", "luminosity"]
                       + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
