@@ -172,6 +172,13 @@
 - X051 MCMC basierend auf dem bisher besten lokalen Minimum von X050
 - X052 MCMC basierend auf anderem sehr guten Run von X050 mit deutlich anderen 
   Parametern 
+- X053 MCMC basierend auf anderem sehr guten Run von X050 mit deutlich anderen 
+  Parametern 
+- X054 MCMC basierend auf den bis dato besten 18 Runs von X050 mit 
+  mean_delta_TT < 0.017 days
+  - Parameter Startwerte fast gleichverteilt
+  - Boundaries (ausser Sonnenmasse) ziemlich eng um den Parameterrange der 
+    best Runs gesetzt
 
 
 ### MCMC fit von KEPLER-9
