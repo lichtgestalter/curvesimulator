@@ -6,6 +6,8 @@ Die beiden Vitkova JSON neu in Excel uebernehmen.
 Vorher noch ein paar Varianten machen?
     Mit b
     Mit kleinerer Periode
+    a statt P?
+        selbst mit Kepler Law ausrechnen?
 
 
 
