@@ -25,7 +25,7 @@ def main():
     # curvesimulation = CurveSimulator(config_file="../configurations/Sim/TOI-4504_SIM_X045.ini")
     # curvesimulation = CurveSimulator(config_file="../configurations/TOI4504/debug.ini")
     curvesimulation = CurveSimulator(config_file="../configurations/TOI4504/TOI-4504_X050.ini")
-    # curvesimulation = CurveSimulator(config_file="../configurations/TOI4504/TOI-4504_X054.ini")
+    curvesimulation = CurveSimulator(config_file="../configurations/TOI4504/TOI-4504_X054.ini")
     # curvesimulation = CurveSimulator(config_file="../configurations/TOI4504/TOI-4504_Vitkova.ini")
     print(curvesimulation)
 
