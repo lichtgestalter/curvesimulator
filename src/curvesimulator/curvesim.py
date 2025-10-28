@@ -15,6 +15,7 @@ def _lmfit_worker_queue(task_queue, result_queue):
     for task in iter(task_queue.get, None):
         config_file, time_s0, time_d, measured_tt, p, run_id = task
         p.randomize_startvalues_uniform()
+        p.TOI4504_startvalue_hack()
         bodies_local = CurveSimBodies(p)
         lmfit_run = CurveSimLMfit(p, bodies_local, time_s0, time_d, measured_tt)
         try:

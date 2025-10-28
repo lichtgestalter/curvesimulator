@@ -312,33 +312,35 @@ class CurveSimParameters:
         for fp in self.fitting_parameters:
             fp.startvalue = fp.lower + random.random() * (fp.upper - fp.lower)
 
+    def TOI4504_startvalue_hack(self):
         d_P = self.get_fitting_parameter(1, "P")
         c_P = self.get_fitting_parameter(2, "P")
         c_P.startvalue = (-3.4815 * d_P.startvalue * d_P.scale + 226.2) / c_P.scale
-        print(f"Used {d_P.startvalue*d_P.scale=} to calculate {c_P.startvalue*c_P.scale=}")
-
-        # d_P -> d_o  (Grafik fehlt noch)
+        # print(f"Used {d_P.startvalue*d_P.scale=} to calculate {c_P.startvalue*c_P.scale=}")
 
         d_o = self.get_fitting_parameter(1, "omega")
+        d_o.startvalue = (-189.1 * d_P.startvalue * d_P.scale + 8176.3) / d_o.scale
+
         d_ma = self.get_fitting_parameter(1, "ma")
         d_ma.startvalue = (-1.9041 * d_o.startvalue * d_o.scale + 498.91) / d_ma.scale
-        print(f"Used {d_o.startvalue*d_o.scale=} to calculate {d_ma.startvalue*d_ma.scale=}")
+        # print(f"Used {d_o.startvalue*d_o.scale=} to calculate {d_ma.startvalue*d_ma.scale=}")
 
         c_o = self.get_fitting_parameter(2, "omega")
         c_ma = self.get_fitting_parameter(2, "ma")
         c_ma.startvalue = (-1.0135 * c_o.startvalue * c_o.scale + 81.021) / c_ma.scale
-        print(f"Used {c_o.startvalue*c_o.scale=} to calculate {c_ma.startvalue*c_ma.scale=}")
+        # print(f"Used {c_o.startvalue*c_o.scale=} to calculate {c_ma.startvalue*c_ma.scale=}")
 
-        # a_m -> d_m
-        # a_m -> c_m
-
+        a_m = self.get_fitting_parameter(0, "mass")
+        d_m = self.get_fitting_parameter(1, "mass")
+        c_m = self.get_fitting_parameter(2, "mass")
+        d_m.startvalue = (-0.002505 * a_m.startvalue * a_m.scale + 0.131838) / d_m.scale
+        c_m.startvalue = (-0.002919 * a_m.startvalue * a_m.scale + 0.007444) / c_m.scale
 
     def get_fitting_parameter(self, body_index, parameter_name):
         return self.fitting_parameters[self.fitting_parameter_dic[(body_index, parameter_name)]]
 
     def init_fitting_parameter_dic(self):
         self.fitting_parameter_dic = {(fp.body_index, fp.parameter_name): fp.index for fp in self.fitting_parameters}
-
 
     def enrich_fitting_params(self, bodies):
         self. body_parameter_names = [f"{bodies[fp.body_index].name}.{fp.parameter_name}" for fp in self.fitting_parameters]
