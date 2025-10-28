@@ -312,10 +312,26 @@ class CurveSimParameters:
         for fp in self.fitting_parameters:
             fp.startvalue = fp.lower + random.random() * (fp.upper - fp.lower)
 
-        c_P = self.get_fitting_parameter(2, "P")
         d_P = self.get_fitting_parameter(1, "P")
-        c_P.startvalue = (-3.4815 * d_P.startvalue / self.day + 226.2) * self.day
-        print(f"Used {d_P.startvalue/self.day=} to calculate Convertet {c_P.startvalue/self.day=}")
+        c_P = self.get_fitting_parameter(2, "P")
+        c_P.startvalue = (-3.4815 * d_P.startvalue * d_P.scale + 226.2) / c_P.scale
+        print(f"Used {d_P.startvalue*d_P.scale=} to calculate {c_P.startvalue*c_P.scale=}")
+
+        # d_P -> d_o  (Grafik fehlt noch)
+
+        d_o = self.get_fitting_parameter(1, "omega")
+        d_ma = self.get_fitting_parameter(1, "ma")
+        d_ma.startvalue = (-1.9041 * d_o.startvalue * d_o.scale + 498.91) / d_ma.scale
+        print(f"Used {d_o.startvalue*d_o.scale=} to calculate {d_ma.startvalue*d_ma.scale=}")
+
+        c_o = self.get_fitting_parameter(2, "omega")
+        c_ma = self.get_fitting_parameter(2, "ma")
+        c_ma.startvalue = (-1.0135 * c_o.startvalue * c_o.scale + 81.021) / c_ma.scale
+        print(f"Used {c_o.startvalue*c_o.scale=} to calculate {c_ma.startvalue*c_ma.scale=}")
+
+        # a_m -> d_m
+        # a_m -> c_m
+
 
     def get_fitting_parameter(self, body_index, parameter_name):
         return self.fitting_parameters[self.fitting_parameter_dic[(body_index, parameter_name)]]
