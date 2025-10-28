@@ -312,6 +312,18 @@ class CurveSimParameters:
         for fp in self.fitting_parameters:
             fp.startvalue = fp.lower + random.random() * (fp.upper - fp.lower)
 
+        c_P = self.get_fitting_parameter(2, "P")
+        d_P = self.get_fitting_parameter(1, "P")
+        c_P.startvalue = (-3.4815 * d_P.startvalue / self.day + 226.2) * self.day
+        print(f"Used {d_P.startvalue/self.day=} to calculate Convertet {c_P.startvalue/self.day=}")
+
+    def get_fitting_parameter(self, body_index, parameter_name):
+        return self.fitting_parameters[self.fitting_parameter_dic[(body_index, parameter_name)]]
+
+    def init_fitting_parameter_dic(self):
+        self.fitting_parameter_dic = {(fp.body_index, fp.parameter_name): fp.index for fp in self.fitting_parameters}
+
+
     def enrich_fitting_params(self, bodies):
         self. body_parameter_names = [f"{bodies[fp.body_index].name}.{fp.parameter_name}" for fp in self.fitting_parameters]
         self.long_body_parameter_names = [fpn + " [" + self.unit[fpn.split(".")[-1]] + "]" for fpn in self.body_parameter_names]

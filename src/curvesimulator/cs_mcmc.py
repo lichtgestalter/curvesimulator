@@ -1017,45 +1017,6 @@ class CurveSimLMfit:
         if p.verbose:
             print(f" Saved LMfit results to {filename}")
 
-    def save_best_fit_old(self, p, bodies, measured_tt):
-        result = {}
-        result["max_delta"] = max(np.abs(measured_tt["delta"]))
-        result["mean_delta"] = np.mean(np.abs(measured_tt["delta"]))
-
-        runtime = CurveSimMCMC.seconds2readable(time.perf_counter() - self.start_timestamp)
-
-        color = Fore.WHITE
-        if result["mean_delta"] < 1.0:
-            color = Fore.RED
-            if result["mean_delta"] < 0.1:
-                color = Fore.YELLOW
-            if result["mean_delta"] < 0.02:
-                color = Fore.GREEN
-            if result["mean_delta"] < 0.005:
-                color = Fore.CYAN
-            # print(f"{color}Runtime: {runtime}   max_delta: {result["max_delta"]:11.3f} days  mean_delta: {result["mean_delta"]:2.3f} days{Style.RESET_ALL}", end=" ")
-            params = (["body_type", "primary", "mass", "radius", "luminosity"]
-                      + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
-                      + ["e", "i", "P", "a", "Omega", "omega", "pomega"]
-                      + ["L", "ma", "ea", "ea_deg", "nu", "T", "t"])
-            for i, body in enumerate(bodies):
-                result[body.name] = {}
-                for key in params:
-                    attr = getattr(body, key)
-                    if attr is not None:
-                        if key in p.scale:
-                            scale = p.scale[key]
-                        else:
-                            scale = 1
-                        result[body.name][key] = attr * scale
-
-            result = json.dumps(result)
-            filename = p.fitting_results_directory + f"/lmfit_best_fits.txt"
-            with open(filename, "a", encoding='utf8') as file:
-                file.writelines(result + "\n")
-        # else:
-        print(f"{color}Runtime: {runtime}   max_delta: {result["max_delta"]:7.3f} days  mean_delta: {result["mean_delta"]:7.3f} days{Style.RESET_ALL}    ", end="")
-
     def save_best_fit(self, p, bodies, measured_tt):
         result = {}
         result["max_delta"] = float(np.max(np.abs(measured_tt["delta"])))
@@ -1070,6 +1031,8 @@ class CurveSimLMfit:
                 color = Fore.YELLOW
             if result["mean_delta"] < 0.02:
                 color = Fore.GREEN
+            if result["mean_delta"] < 0.004:
+                color = Fore.CYAN
             params = (["body_type", "primary", "mass", "radius", "luminosity"]
                       + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
                       + ["e", "i", "P", "a", "Omega", "omega", "pomega"]
@@ -1093,8 +1056,6 @@ class CurveSimLMfit:
                 # non-fatal: print error but continue
                 print(f"{Fore.RED}ERROR: Could not write best fit to `lmfit_best_fits.txt`: {e}{Style.RESET_ALL}")
         print(f"{color}Runtime: {runtime}   max_delta: {result["max_delta"]:7.3f} days  mean_delta: {result["mean_delta"]:7.3f} days{Style.RESET_ALL}    ", end="")
-
-
 
 
 def find_ndarrays(obj, path="root"):

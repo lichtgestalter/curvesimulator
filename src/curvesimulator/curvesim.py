@@ -77,6 +77,7 @@ class CurveSimulator:
                 time_s0, time_d = CurveSimParameters.init_time_arrays(p)  # s0 in seconds, starting at 0. d in BJD.
                 measured_tt = CurveSimMCMC.get_measured_tt(p)
             bodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
+            p.init_fitting_parameter_dic()
             if p.guifit:
                 p.enrich_fitting_params(bodies)
                 self.guifit = CurveSimManualFit(p, bodies, time_s0, time_d, measured_tt)
