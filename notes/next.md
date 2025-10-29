@@ -1,6 +1,14 @@
 # Next / in progress:
 ## 0.5.6 Fitting TOI-4504
 
+Mittwochabend:
+    best fits sammeln und angucken
+    daraus startparameter fuer mcmc beschliessen
+    mcmc und lmfit testlauefe (funktioniert geaenderter result output?)
+    mcmc auf TT starten
+    mcmc auf flux starten?
+
+
 
 Die beiden Vitkova JSON neu in Excel uebernehmen.
 Vorher noch ein paar Varianten machen?
