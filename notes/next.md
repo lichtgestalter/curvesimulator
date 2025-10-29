@@ -2,11 +2,8 @@
 ## 0.5.6 Fitting TOI-4504
 
 Mittwochabend:
-    best fits sammeln und angucken
-    daraus startparameter fuer mcmc beschliessen
-    mcmc und lmfit testlauefe (funktioniert geaenderter result output?)
-    mcmc auf TT starten
     mcmc auf flux starten?
+        erstmal lauffaehig machen
 
 
 
@@ -34,6 +31,8 @@ Vorher noch ein paar Varianten machen?
     - Nur die ersten 11 TT von c nehmen
     - Vitkova Parameter als Startwerte nehmen
     - MCMC mit sehr kleiner Streuung um diese Startwerte starten
+
+- Die einzelnen TT selber ordentlich fitten statt ExcelEyeballing
  
 - Mit GUI (manuell) fitten/minimieren
     - UPDATE PLOT
@@ -91,6 +90,7 @@ speichern und mcmc darauf laufen lassen.
 - spaeter gerne auch in Kombination
 
 ### Sonstige
+- Moeglichkeit entfernen, unterschiedliche dt konfigurieren zu koennen.
 - In mcmc Results: Max likelihood simflux vs measure flux plotten.  Oder 
 direkt nur die Residuen plotten.
 - Testen ob Performance besser, wenn bodies.find_tts einen Dataframe returniert

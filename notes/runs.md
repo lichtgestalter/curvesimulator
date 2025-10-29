@@ -62,7 +62,7 @@
         wieder LMfit mit MCMCs MaxL-Params als Startwerte nachlaufen lassen.
       - ???
 
-### TOI4504 MCMC mit verschiedenen fitting parameters 
+### TOI4504 MCMC-TT mit verschiedenen fitting parameters 
 - X026, X027 und X028 sind MCMC fits mit identischen Body- und Programmparametern
   - 11 Parametern auf die 17 TT bis Sektor 95 (13c, 4d) sind zu bestimmen
     - d: m e P O o ma
@@ -153,6 +153,7 @@
   - Teste neue emcee moves.
   - Erster LMfit Multi Run
 
+### LMfit Multi Runs lassen mich super Parameter finden!
 - X050
   - Zweiter LMfit Multi Run
   - Aufgrund der Resultate vom ersten LMfit Multi Run die boundaries fuer 
@@ -168,18 +169,42 @@
     Bounds der Perioden weiter einschraenkt.
       - P.c: 41,55-41,80
       - P.d: 81,0-81,7
+  - durch weitere Verfeinerungen den Parameterbereich der besten Runs immer 
+    weiter eingegrenzt
+  - dann in diesem stark eingegrenzten Bereich fuer die besten fits lineare 
+    Abhaengigkeiten diverser Parameter voneinander festgestellt
+  - Diese Abhaengigkeiten nutze ich aus um mit Funktion 
+    TOI4504_startvalue_hack() die Zahl der zu fittenden Parameter effektiv 
+    von 12 aus 6 zu senken.
+  - Dadurch erhalte ich in kurzer Zeit viele sehr gute fits. Darunter 
+    mehrere mit Residuen in der Groessenordnung der Messgenauigkeit der TT.
+  - Diese besten Fits haben im wesentlichen sehr aehnliche Parameterwerte.
 
-- X051 MCMC basierend auf dem bisher besten lokalen Minimum von X050
-- X052 MCMC basierend auf anderem sehr guten Run von X050 mit deutlich anderen 
+### MCMC-TT mit super Startwerten
+- X051 MCMC-TT basierend auf dem bisher besten lokalen Minimum von X050
+- X052 MCMC-TT basierend auf anderem sehr guten Run von X050 mit deutlich anderen 
   Parametern 
-- X053 MCMC basierend auf anderem sehr guten Run von X050 mit deutlich anderen 
+- X053 MCMC-TT basierend auf anderem sehr guten Run von X050 mit deutlich anderen 
   Parametern 
-- X054 MCMC basierend auf den bis dato besten 18 Runs von X050 mit 
+- X054 MCMC-TT basierend auf den bis dato besten 18 Runs von X050 mit 
   mean_delta_TT < 0.017 days
   - Parameter Startwerte fast gleichverteilt
   - Boundaries (ausser Sonnenmasse) ziemlich eng um den Parameterrange der 
     best Runs gesetzt
+  - Im Laufe der X054 runs den Parameterbereich weiter eingegrenzt, die 
+    Messgenauigkeit der TT in TT.csv korrigiert und die Simulations-dt nach 
+    einigen Experimenten auf 75000 Sekunden gesenkt.
+  - Es ist wichtig, dass alle dt-Parameter den gleichen Wert haben!
+- X055 MCMC-TT basierend auf den tausenden Lmfit-Runs von X050. 
+  - Die Startwerte sind Mittelwerte der beiden allerbesten LMfit-Runs.
+  - Die Streuung der Startwerte der Chains ist sehr klein.
+  - Die Upper/Lower-Bounds sind extrem grosszuegig.
+  - Starmasse auf Vitkova-Wert festgesetzt, weil in LMfits wild verschieden, 
+    also werden 11 Parameter gefittet.
 
+
+### MCMC-Flux mit super Startwerten
+- X056
 
 ### MCMC fit von KEPLER-9
 1) Kepler-9: A System of Multiple Planets Transiting a Sun-Like Star, Confirmed by Timing Variations, Matthew J. Holman et al.
@@ -201,7 +226,7 @@
 ### LMfit fit von KEPLER-9
 ...
 
-### Simualtion von TOI4504, aber mit vielen Transits (so wie KEPLER9)
+### Simulation von TOI4504, aber mit vielen Transits (so wie KEPLER9)
 - X039
   - aehnliche Simulationsparameter wie TOI4504
   - Inklination naeher bei 90 Grad
@@ -209,7 +234,7 @@
   - Startwerte = Simulationsparameter
   - Konvergiert super :-)
 
-### Simualtion von TOI4504, aber mit 13+4 Transits
+### Simulation von TOI4504, aber mit 13+4 Transits
 - X040
   - wie X039, aber nur 13 c und 4 d Transits, zu etwa den Zeitpunkten, wo 
     auch die echten Transits liegen
@@ -248,12 +273,6 @@
 #### Fits, bei denen c oder d oder e i>90 Grad hat
 
 #### Vitkova-Fit (Nur 11 c transits bis Sektor 67)
-...
-
-#### Konvergiert LMFit fuer ein 1-Planeten-System?
-...
-
-#### Konvergiert LMFit fuer b (fest) und c (fitten), aber ohne d?
 ...
 
 ### MCMC fit von Flux inklusive Sektor 95
