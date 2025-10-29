@@ -722,6 +722,7 @@ class CurveSimMCMC:
         del p_copy.comment
         del p_copy.start_date
         del p_copy.fitting_results_directory
+        del p_copy.fitting_parameter_dic
         p_copy.starts_s0 = [float(i) for i in p_copy.starts_s0]
         p_copy.starts_d = [float(i) for i in p_copy.starts_d]
         p_copy.ends_s0 = [float(i) for i in p_copy.ends_s0]
@@ -733,7 +734,7 @@ class CurveSimMCMC:
 
     def mcmc_results2json(self, results, p):
         """Converts results to JSON and saves it."""
-        filename = self.fitting_results_directory + f"/mcmc_results.json"
+        filename = self.fitting_results_directory + "mcmc_results.json"
         try:
             with open(filename, "w", encoding='utf8') as file:
                 json.dump(results, file, indent=4, ensure_ascii=False)
