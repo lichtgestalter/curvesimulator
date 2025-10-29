@@ -1,5 +1,6 @@
 from colorama import Fore, Style
 import configparser
+import json
 import math
 import matplotlib
 import matplotlib.animation
@@ -381,3 +382,21 @@ class CurveSimBodies(list):
                                 tts.append([eclipser.name, eclipsee.name, tt])
         # convert tts into a pandas Dataframe with columns eclipser, eclipsee, tt
         return tts
+
+    def bodies2param_json(self, measured_tt, p):
+        result = {}
+        result["max_delta"] = float(np.max(np.abs(measured_tt["delta"])))
+        result["mean_delta"] = float(np.mean(np.abs(measured_tt["delta"])))
+        for i, body in enumerate(self):
+            result[body.name] = {}
+            for key in p.PARAMS:
+                attr = getattr(body, key)
+                if attr is not None:
+                    if key in p.scale:
+                        scale = p.scale[key]
+                    else:
+                        scale = 1
+                    result[body.name][key] = attr * scale
+        line = json.dumps(result)
+        return line
+

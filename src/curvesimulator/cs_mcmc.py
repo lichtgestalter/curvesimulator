@@ -678,6 +678,9 @@ class CurveSimMCMC:
 
         results["Simulation Parameters"]["max_log_prob"] = self.max_log_prob
         results["Simulation Parameters"]["max_likelihood_avg_residual_in_std"] = self.max_likelihood_avg_residual_in_std[-1]
+        results["Simulation Parameters"]["mean_delta"] = float(np.mean(np.abs(measured_tt["delta"])))
+        results["Simulation Parameters"]["max_delta"] = float(np.max(np.abs(measured_tt["delta"])))
+        results["Simulation Parameters"]["param_json"] = bodies.bodies2param_json(measured_tt, p)
 
         results["Bodies"] = {}
         params = (["body_type", "primary", "mass", "radius", "luminosity"]
@@ -853,26 +856,6 @@ class CurveSimLMfit:
             bodies[body_index].__dict__[parameter_name] = params[bodies[body_index].name + "_" + parameter_name].value  # update all parameters from params
         sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # run simulation
         residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
-
-        # improved = CurveSimLMfit.check_for_fit_improvement(residuals_tt_sum_squared)
-        # iteration = CurveSimLMfit.get_iteration_from_file()
-        # if improved:
-        #     max_delta = max(np.abs(measured_tt["delta"]))
-        #     if iteration > 3 and max_delta > 10:
-        #         print(f"Stopped at iteration {iteration}")
-        #         return -1e99
-
-
-        #     mean_delta = np.mean(np.abs(measured_tt["delta"]))
-        #     # print("X", end="")
-        #     # print(f"\n{max_delta=:2.4f}   {mean_delta=:2.4f}    [days] ")
-        #     CurveSimLMfit.save_intermediate_lmfit_results(p, bodies, measured_tt)
-        #     # if max_delta < p.lmfit_max_tt_delta:
-        #     #     print("Terminated succesfully, because residuals are very small.")
-        #     #     sys.exit(0)
-        # else:
-        #     print(".", end="")
-        # return measured_tt["delta"]
         return residuals_tt_sum_squared
 
     def save_lmfit_results(self, p):
@@ -1018,44 +1001,26 @@ class CurveSimLMfit:
             print(f" Saved LMfit results to {filename}")
 
     def save_best_fit(self, p, bodies, measured_tt):
-        result = {}
-        result["max_delta"] = float(np.max(np.abs(measured_tt["delta"])))
-        result["mean_delta"] = float(np.mean(np.abs(measured_tt["delta"])))
-
-        runtime = CurveSimMCMC.seconds2readable(time.perf_counter() - self.start_timestamp)
-
+        max_delta = float(np.max(np.abs(measured_tt["delta"])))
+        mean_delta = float(np.mean(np.abs(measured_tt["delta"])))
         color = Fore.WHITE
-        if result["mean_delta"] < 1.0:
+        if mean_delta < 1.0:
             color = Fore.RED
-            if result["mean_delta"] < 0.1:
+            if mean_delta < 0.1:
                 color = Fore.YELLOW
-            if result["mean_delta"] < 0.02:
+            if mean_delta < 0.02:
                 color = Fore.GREEN
-            if result["mean_delta"] < 0.004:
+            if mean_delta < 0.004:
                 color = Fore.CYAN
-            params = (["body_type", "primary", "mass", "radius", "luminosity"]
-                      + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
-                      + ["e", "i", "P", "a", "Omega", "omega", "pomega"]
-                      + ["L", "ma", "ea", "ea_deg", "nu", "T", "t"])
-            for i, body in enumerate(bodies):
-                result[body.name] = {}
-                for key in params:
-                    attr = getattr(body, key)
-                    if attr is not None:
-                        if key in p.scale:
-                            scale = p.scale[key]
-                        else:
-                            scale = 1
-                        result[body.name][key] = attr * scale
-
-            line = json.dumps(result)
+            line = bodies.bodies2param_json(measured_tt, p)
             filename = p.fitting_results_directory + f"/lmfit_best_fits.txt"
             try:
                 append_line_locked(filename, line, wait=0.1)
             except OSError as e:
                 # non-fatal: print error but continue
                 print(f"{Fore.RED}ERROR: Could not write best fit to `lmfit_best_fits.txt`: {e}{Style.RESET_ALL}")
-        print(f"{color}Runtime: {runtime}   max_delta: {result["max_delta"]:7.4f} days  mean_delta: {result["mean_delta"]:7.4f} days{Style.RESET_ALL}    ", end="")
+        runtime = CurveSimMCMC.seconds2readable(time.perf_counter() - self.start_timestamp)
+        print(f"{color}Runtime: {runtime}   max_delta: {max_delta:7.4f} days  mean_delta: {mean_delta:7.4f} days{Style.RESET_ALL}    ", end="")
 
 
 def find_ndarrays(obj, path="root"):

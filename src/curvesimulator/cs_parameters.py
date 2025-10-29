@@ -5,10 +5,15 @@ import configparser
 import numpy as np
 import sys
 
+
 class CurveSimParameters:
 
     def __init__(self, config_file):
         """Read program parameters and properties of the physical bodies from config file."""
+        self.PARAMS = (["body_type", "primary", "mass", "radius", "luminosity"]
+                       + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
+                       + ["e", "i", "P", "a", "Omega", "omega", "pomega"]
+                       + ["L", "ma", "ea", "ea_deg", "nu", "T", "t"])
         self.standard_sections = ["Astronomical Constants", "Results", "Simulation", "Fitting", "Video", "Plot", "Scale", "Debug"]  # These sections must be present in the config file.
         config = configparser.ConfigParser(inline_comment_prefixes='#')  # Inline comments in the config file start with "#".
         config.optionxform = str  # Preserve case of the keys.
@@ -112,7 +117,7 @@ class CurveSimParameters:
             #             print(f"{Fore.RED}ERROR in configuration file.")
             #             print(f'{self=}   {key=}   {getattr(self, key)=}    {type(getattr(self, key))=}')
             #             print(f"No parameter in sections {self.standard_sections} may be negative.{Style.RESET_ALL}")
-        else: # run MCMC, fit parameters to flux measurements
+        else:  # run MCMC, fit parameters to flux measurements
             # [Fitting]
             self.fitting_results_directory = config.get("Fitting", "fitting_results_directory", fallback="None")
             if self.fitting_results_directory == "None":
@@ -155,7 +160,6 @@ class CurveSimParameters:
     def __repr__(self):
         return f'CurveSimParameters from {self.config_file}'
 
-
     def check_intervals(self):
         """Checks if the intervals in parameters starts_d, ends_d and dts are well defined.
            Calculates the indices for time_s0, time_d and sim_flux where the intervals start and end.
@@ -184,10 +188,9 @@ class CurveSimParameters:
         self.starts_s0 = (self.starts_d - self.start_date) * self.day  # convert BJD to seconds and start at zero
         self.ends_s0 = (self.ends_d - self.start_date) * self.day  # convert BJD to seconds and start at zero
         max_iterations = [int((end - start) / dt) + 1 for start, end, dt in zip(self.starts_s0, self.ends_s0, self.dts)]  # each interval's number of iterations
-        start_indices = [sum(max_iterations[:i]) for i in range(len(max_iterations)+1)]  # indices of each interval's first iteration
+        start_indices = [sum(max_iterations[:i]) for i in range(len(max_iterations) + 1)]  # indices of each interval's first iteration
         total_iterations = sum(max_iterations)
         return start_indices, max_iterations, total_iterations
-
 
     @staticmethod
     def find_and_check_config_file(config_file, standard_sections):
@@ -343,7 +346,7 @@ class CurveSimParameters:
         self.fitting_parameter_dic = {(fp.body_index, fp.parameter_name): fp.index for fp in self.fitting_parameters}
 
     def enrich_fitting_params(self, bodies):
-        self. body_parameter_names = [f"{bodies[fp.body_index].name}.{fp.parameter_name}" for fp in self.fitting_parameters]
+        self.body_parameter_names = [f"{bodies[fp.body_index].name}.{fp.parameter_name}" for fp in self.fitting_parameters]
         self.long_body_parameter_names = [fpn + " [" + self.unit[fpn.split(".")[-1]] + "]" for fpn in self.body_parameter_names]
         for fp, fpn, fpnu in zip(self.fitting_parameters, self.body_parameter_names, self.long_body_parameter_names):
             fp.body_parameter_name = fpn
@@ -361,7 +364,6 @@ class FittingParameter:
         self.lower = lower
         self.upper = upper
         self.sigma = sigma
-
 
     def initial_values(self, rng, size):
         result = []
