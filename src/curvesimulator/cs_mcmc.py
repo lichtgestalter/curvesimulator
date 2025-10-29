@@ -1055,7 +1055,7 @@ class CurveSimLMfit:
             except OSError as e:
                 # non-fatal: print error but continue
                 print(f"{Fore.RED}ERROR: Could not write best fit to `lmfit_best_fits.txt`: {e}{Style.RESET_ALL}")
-        print(f"{color}Runtime: {runtime}   max_delta: {result["max_delta"]:7.3f} days  mean_delta: {result["mean_delta"]:7.3f} days{Style.RESET_ALL}    ", end="")
+        print(f"{color}Runtime: {runtime}   max_delta: {result["max_delta"]:7.4f} days  mean_delta: {result["mean_delta"]:7.4f} days{Style.RESET_ALL}    ", end="")
 
 
 def find_ndarrays(obj, path="root"):
