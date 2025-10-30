@@ -68,10 +68,8 @@ Vorher noch ein paar Varianten machen?
 ### TT-MCMC
 - BUG: Nach Wiederaufnahme von MCMC mit gespeicherten Chains (.h5 file) starten 
   die Chains derzeit wieder bei den urspruenglichen Startwerten
-- Im TT-delta Diagramm die uncertainties der einzelnen TT einzeichnen
 - Nach jeder Verbesserung der MaxL, den Parametersatz abspeichern, damit ich 
   die Entwicklung der einzelnen MaxL-Parameter verfolgen kann
-- Residuen fuer MaxLikelihood automatisch ausrechnen (Auch mean und median?)
 
 - find_tts:
     - convert tts into a pandas Dataframe with columns eclipser, eclipsee, tt
@@ -90,10 +88,11 @@ und CurveSimMCMC.residuals_tt_sum_squared entsprechend angepasst wird.
 - Bei lokalen Minima:
     Separate MCMC-Laeufe mit stark eingeschraenktem lower-upper-Intervall?
 
-- Nach jedem Chunk 5 Sekunden Zeit, aus einem Menue auszuwaehlen, 
-  - sonst  laueft der naechste Chunk
+- In einem File command.txt kann ich Anweisungen speichern, die nach jedem 
+  Chunk oder sogar nach jeder Iteration ausgelesen werden. 
   - Eine Option: Erstelle Video/Resultfile/Simflux fuer die aktuelle max 
     likelihood
+  - Erstelle jetzt saemtliche Result-Plots (statt nach jedem Chunk?)
 
 - MCMC mit 20k Walker, Startwerte ueber sehr grossen Wertebereich fast 
 gleichverteilt

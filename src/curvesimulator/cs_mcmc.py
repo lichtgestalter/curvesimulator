@@ -551,6 +551,9 @@ class CurveSimMCMC:
 
     # @stopwatch()
     def tt_delta_plot(self, steps_done, plot_filename, measured_tt):
+        """
+        Connect the 2 red horizontal lines with a vertical red line at x.
+        """
         plot_filename = self.fitting_results_directory + plot_filename
         # plot_filename = self.fitting_results_directory + str(steps_done) + plot_filename
         unique_eclipsers = measured_tt["eclipser"].unique()
@@ -561,10 +564,14 @@ class CurveSimMCMC:
         abs_min = abs(min(measured_tt["delta"].min(), 0))
         abs_max = abs(max(measured_tt["delta"].max(), 0))
         ylim = (-1.3 * max(abs_min, abs_max), 1.3 * max(abs_min, abs_max))
-
+        dx = 0.005 * (measured_tt["tt"].max() - measured_tt["tt"].min())
         for ax, eclipser in zip(axes, unique_eclipsers):
             df = measured_tt[measured_tt["eclipser"] == eclipser]
             ax.plot(df["tt"], df["delta"], marker='o', linestyle='-', color='blue', alpha=0.7)
+            for x, tt_err in zip(df["tt"], df["tt_err"]):  # uncertainties
+                ax.hlines(tt_err, x - dx, x + dx, colors='red', linewidth=1)
+                ax.hlines(-tt_err, x - dx, x + dx, colors='red', linewidth=1)
+                ax.vlines(x, -tt_err, tt_err, colors='red', linewidth=1)
             ax.axhline(0, color='gray', linestyle='dashed', linewidth=1)
             ax.set_ylabel(f"TT Delta [days]")
             ax.set_title(f"Eclipser: {eclipser}")
