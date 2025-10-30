@@ -100,3 +100,6 @@ class CurveSimResults(dict):
         self.results2json(resultfilename, p)
         if p.verbose:
             print(self)
+
+    def calc_rv(rebound_sim, p):
+        pass

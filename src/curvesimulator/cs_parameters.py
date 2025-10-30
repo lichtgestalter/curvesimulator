@@ -52,19 +52,11 @@ class CurveSimParameters:
 
         # [Video]
         self.video_file = config.get("Video", "video_file", fallback=None)
-        # if self.video_file == "None":
-        #     self.video_file = None
 
         # [Fitting]
         self.flux_file = config.get("Fitting", "flux_file", fallback=None)
-        # if self.flux_file == "None":
-        #     self.flux_file = None
         self.tt_file = config.get("Fitting", "tt_file", fallback=None)
-        # if self.tt_file == "None":
-        #     self.tt_file = None
         self.rv_file = config.get("Fitting", "rv_file", fallback=None)
-        # if self.rv_file == "None":
-        #     self.rv_file = None
         self.eclipsers_names = list([x.strip() for x in config.get("Fitting", "eclipsers_names", fallback="None").split("#")[0].split(",")])
         self.eclipsees_names = list([x for x in config.get("Fitting", "eclipsees_names", fallback="None").split("#")[0].split(",")])
 
@@ -110,13 +102,6 @@ class CurveSimParameters:
             self.ylim = eval(config.get("Plot", "ylim", fallback="1.0"))
             self.red_dot_height = eval(config.get("Plot", "red_dot_height", fallback="0.077"))
             self.red_dot_width = eval(config.get("Plot", "red_dot_width", fallback="0.005"))
-            # Checking all parameters defined so far
-            # for key in vars(self):
-            #     if type(getattr(self, key)) not in [str, dict, bool, list, tuple, np.ndarray]:
-            #         if getattr(self, key) < 0:
-            #             print(f"{Fore.RED}ERROR in configuration file.")
-            #             print(f'{self=}   {key=}   {getattr(self, key)=}    {type(getattr(self, key))=}')
-            #             print(f"No parameter in sections {self.standard_sections} may be negative.{Style.RESET_ALL}")
         else:  # run MCMC, fit parameters to flux measurements
             # [Fitting]
             self.fitting_results_directory = config.get("Fitting", "fitting_results_directory", fallback="None")
