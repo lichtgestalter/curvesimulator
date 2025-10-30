@@ -1,20 +1,13 @@
 # Next / in progress:
 ## 0.5.6 Fitting TOI-4504
 
-Mittwochabend:
-    mcmc auf flux starten?
-        erstmal lauffaehig machen
-
-
-
-Die beiden Vitkova JSON neu in Excel uebernehmen.
+Die beiden Vitkova JSON (damit meinte ich die result files?) neu in Excel 
+uebernehmen.
 Vorher noch ein paar Varianten machen?
     Mit b
     Mit kleinerer Periode
     a statt P?
         selbst mit Kepler Law ausrechnen?
-
-
 
 - Simons Hausaufgaben 
   - Vitkova plot (mit den roten Punkten) der Verspaetungen der TT gegenueber 
@@ -32,6 +25,8 @@ Vorher noch ein paar Varianten machen?
     - Vitkova Parameter als Startwerte nehmen
     - MCMC mit sehr kleiner Streuung um diese Startwerte starten
 
+- mcmc flux lauffaehig machen
+- try except um die memory-kritischen mcmc plots
 - Die einzelnen TT selber ordentlich fitten statt ExcelEyeballing
  
 - Mit GUI (manuell) fitten/minimieren
@@ -73,15 +68,10 @@ Vorher noch ein paar Varianten machen?
 ### TT-MCMC
 - BUG: Nach Wiederaufnahme von MCMC mit gespeicherten Chains (.h5 file) starten 
   die Chains derzeit wieder bei den urspruenglichen Startwerten
+- Im TT-delta Diagramm die uncertainties der einzelnen TT einzeichnen
 - Nach jeder Verbesserung der MaxL, den Parametersatz abspeichern, damit ich 
   die Entwicklung der einzelnen MaxL-Parameter verfolgen kann
 - Residuen fuer MaxLikelihood automatisch ausrechnen (Auch mean und median?)
-- Eine Simulation laufen lassen. Deren entsprechende 13 c und 4 d Transits in 
-tt_sim.csv
-speichern und mcmc darauf laufen lassen.
-- Wenn das konvergiert, sehe ich das als endgueltigen Beweis fuer Planet e!!!
-- Mit 11 (ohne r, i), 13 (ohne r) und 15 Parametern (nur ein Omega) testen. 
-  Evtl. mit weiteren Parameterteilmengen.
 
 - find_tts:
     - convert tts into a pandas Dataframe with columns eclipser, eclipsee, tt
