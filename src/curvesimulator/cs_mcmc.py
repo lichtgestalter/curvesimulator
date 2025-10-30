@@ -329,7 +329,10 @@ class CurveSimMCMC:
             axes = [axes]
         chains = np.moveaxis(self.sampler.get_chain(flat=False, thin=self.thin_samples_plot), -1, 0)
         for i, (chain, ax, name, scale) in enumerate(zip(chains, axes, self.long_body_parameter_names, self.scales)):
-            ax.plot(chain * scale, color='black', alpha=0.05)
+            nsteps = chain.shape[0]
+            x = np.arange(1, nsteps + 1) * self.thin_samples_plot  # 1*thin, 2*thin, ...
+            ax.plot(x, chain * scale, color='black', alpha=0.05)
+            # ax.plot(chain * scale, color='black', alpha=0.05)
             ax.set_ylabel(name)
             ax.axvline(self.burn_in, color="red", linestyle="solid", label="burn-in")
             ax.tick_params(labelbottom=True)  # Show x-tick labels for all

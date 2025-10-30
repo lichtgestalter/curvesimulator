@@ -27,6 +27,7 @@ Vorher noch ein paar Varianten machen?
 
 - mcmc flux lauffaehig machen
 - try except um die memory-kritischen mcmc plots
+- zumindest in Einzelsimulation: RV plotten und mit Messwerten vergleichen
 - Die einzelnen TT selber ordentlich fitten statt ExcelEyeballing
  
 - Mit GUI (manuell) fitten/minimieren
@@ -99,11 +100,9 @@ gleichverteilt
 - Andere Moves probieren (Parameter a von Stretching erhoehen brachte erstmal 
   nix)
 
-- mcmc objekt abspeichern (pickle?) und spaeter (mit ggf. geandertem python 
-code) fortsetzen
-
--Kompliziertere Fitting-Parameter Bereiche zulassen. Z.B. i in [86;88] oder 
-[92;94]
+-Kompliziertere Fitting-Parameter Bereiche zulassen. 
+  - Z.B. i in [86;88] oder [92;94]
+  - Abhaengigkeit von anderen Fitting-Parametern
 
 ### RV-MCMC
 - zunaechst nur moeglich nach TT ODER flux ODER RV zu fitten

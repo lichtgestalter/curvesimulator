@@ -204,6 +204,8 @@
 
 
 ### MCMC-Flux mit super Startwerten
+The theoretical expectation for the average residual in std is E|X| = sqrt
+(2/\pi) ≈ 0.79788456. 
 - X056
 
 ### MCMC fit von KEPLER-9
