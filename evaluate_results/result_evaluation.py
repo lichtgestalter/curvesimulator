@@ -10,7 +10,7 @@ sys.path.append('../src/curvesimulator')
 from cs_flux_data import df2csv_deutsch, df2csv
 
 
-def plot_this1(results, save_plot, savefilename, show_plot, ylabel, ybottom=None, ytop=None):
+def plot_this(results, save_plot, savefilename, show_plot, ylabel, ybottom=None, ytop=None):
     plt.xlabel('Transit Times [BJD]')
     plt.ylabel(ylabel)
     plt.ylim(bottom=ybottom, top=ytop)
@@ -38,7 +38,7 @@ def transit_duration(results, savefilename, bodies, show_plot=True, save_plot=Tr
             t4 = [transit["Transit_params"]["T4"] for transit in transits]
             t14 = [t4 - t1 if t1 is not None and t4 is not None else None for t1, t4 in zip(t1, t4)]
             plt.plot(transit_times, t14, 'o-', label="TOI-4504c T14")
-    plot_this1(results, save_plot, savefilename, show_plot, 'Transit Duration [d]', ybottom, ytop)
+    plot_this(results, save_plot, savefilename, show_plot, 'Transit Duration [d]', ybottom, ytop)
 
 
 def depth(results, savefilename, bodies, show_plot=True, save_plot=True, ybottom=None, ytop=None):
@@ -48,7 +48,7 @@ def depth(results, savefilename, bodies, show_plot=True, save_plot=True, ybottom
         transit_times = [transit["Transit_params"]["TT"] for transit in transits]
         depths = [transit["Transit_params"]["depth"] for transit in transits]
         plt.plot(transit_times, depths, 'o-', label=body)
-    plot_this1(results, save_plot, savefilename, show_plot, 'Depth', ybottom, ytop)
+    plot_this(results, save_plot, savefilename, show_plot, 'Depth', ybottom, ytop)
 
 
 def impact_parameter(results, savefilename, bodies, show_plot=True, save_plot=True, ybottom=None, ytop=None):
@@ -61,7 +61,7 @@ def impact_parameter(results, savefilename, bodies, show_plot=True, save_plot=Tr
             print(f"{body}:  minimum impact parameter = {min(impact_parameters):.5f}, maximum impact parameter = {max(impact_parameters):.5f}")
             print(f"{body}:  first impact parameter = {impact_parameters[0]:.5f} @ {transit_times[0]:.2f}, last impact parameter = {impact_parameters[-1]:.5f} @ {transit_times[-1]:.2f}")
             plt.plot(transit_times, impact_parameters, 'o-', label=body)
-    plot_this1(results, save_plot, savefilename, show_plot, 'Impact Parameter', ybottom, ytop)
+    plot_this(results, save_plot, savefilename, show_plot, 'Impact Parameter', ybottom, ytop)
 
 
 def period(results, savefilename, bodies, show_plot=True, save_plot=True, ybottom=None, ytop=None):
@@ -79,7 +79,7 @@ def period(results, savefilename, bodies, show_plot=True, save_plot=True, ybotto
         if periods:
             print(f"{body}:  minimum period = {min(periods):.4f}, maximum period = {max(periods):.4f}, average period = {statistics.mean(periods):.6f}")
             plt.plot(transit_times[1:], periods, 'o-', label=body)
-    plot_this1(results, save_plot, savefilename, show_plot, 'Period [d]', ybottom, ytop)
+    plot_this(results, save_plot, savefilename, show_plot, 'Period [d]', ybottom, ytop)
 
 
 def transit_times_to_csv(results, savefile, bodies):

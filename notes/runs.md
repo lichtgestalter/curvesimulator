@@ -179,6 +179,7 @@
   - Dadurch erhalte ich in kurzer Zeit viele sehr gute fits. Darunter 
     mehrere mit Residuen in der Groessenordnung der Messgenauigkeit der TT.
   - Diese besten Fits haben im wesentlichen sehr aehnliche Parameterwerte.
+- T059 wie T058 aber Lmfit
 
 ### MCMC-TT mit super Startwerten
 - X051 MCMC-TT basierend auf dem bisher besten lokalen Minimum von X050
@@ -203,7 +204,11 @@
     also werden 11 Parameter gefittet.
 - T057 Noch bessere Startwerte basierend auf den X055 Runs
 - T058 wie T057 aber zusaetzlich d.i und c.i fitten
-- 
+
+### Inklination eingrenzen
+- Mit Parametern aus T059 Einzelsimulationen mit verschiedenen d.i gemacht 
+  bei c.i=89.69 (Vitkova-Wert)
+- 89.03 < d.i < 89.15 oder 91.03 < d.i < 91.22
 
 ### MCMC-Flux mit super Startwerten
 The theoretical expectation for the average residual in std is sqrt(2/pi) ≈ 0.79788456. 

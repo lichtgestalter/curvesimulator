@@ -318,11 +318,15 @@ class CurveSimParameters:
         c_ma.startvalue = (-1.0135 * c_o.startvalue * c_o.scale + 81.021) / c_ma.scale
         # print(f"Used {c_o.startvalue*c_o.scale=} to calculate {c_ma.startvalue*c_ma.scale=}")
 
-        a_m = self.get_fitting_parameter(0, "mass")
         d_m = self.get_fitting_parameter(1, "mass")
         c_m = self.get_fitting_parameter(2, "mass")
-        d_m.startvalue = (-0.002505 * a_m.startvalue * a_m.scale + 0.131838) / d_m.scale
-        c_m.startvalue = (-0.002919 * a_m.startvalue * a_m.scale + 0.007444) / c_m.scale
+        c_m.startvalue = (-0.3599 * d_m.startvalue * d_m.scale + 1.8621) / c_m.scale
+
+        # a_m = self.get_fitting_parameter(0, "mass")
+        # d_m = self.get_fitting_parameter(1, "mass")
+        # c_m = self.get_fitting_parameter(2, "mass")
+        # d_m.startvalue = (-0.002505 * a_m.startvalue * a_m.scale + 0.131838) / d_m.scale
+        # c_m.startvalue = (-0.002919 * a_m.startvalue * a_m.scale + 0.007444) / c_m.scale
 
     def get_fitting_parameter(self, body_index, parameter_name):
         return self.fitting_parameters[self.fitting_parameter_dic[(body_index, parameter_name)]]
