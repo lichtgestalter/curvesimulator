@@ -25,8 +25,11 @@ Vorher noch ein paar Varianten machen?
     - Vitkova Parameter als Startwerte nehmen
     - MCMC mit sehr kleiner Streuung um diese Startwerte starten
 
-- mcmc flux lauffaehig machen
-- try except um die memory-kritischen mcmc plots
+- mcmc flux
+  - F056
+  - laeuft jetzt, aber mean, maxL und median bleiben identisch und konstant
+  - bei Gelegenheit debuggen
+   
 - zumindest in Einzelsimulation: RV plotten und mit Messwerten vergleichen
 - Die einzelnen TT selber ordentlich fitten statt ExcelEyeballing
  

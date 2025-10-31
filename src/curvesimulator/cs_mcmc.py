@@ -131,6 +131,11 @@ class CurveSimMCMC:
         self.max_likelihood_avg_residual_in_std = []
         self.mean_avg_residual_in_std = []
         self.median_avg_residual_in_std = []
+        self.trace_plot_ok = True
+        self.corner_plot_ok = True
+        self.autocorrelation_function_plot_ok = True
+        self.acceptance_plot_ok = True
+
 
         if p.backend:
             self.backend = emcee.backends.HDFBackend(p.backend)
@@ -321,28 +326,33 @@ class CurveSimMCMC:
 
     # @stopwatch()
     def trace_plots(self, steps_done, plot_filename):
-        plot_filename = self.fitting_results_directory + plot_filename
-        fig, axes = plt.subplots(self.ndim, figsize=(10, self.ndim * 2), sharex=True)
-        fig.text(0.1, 0.99, f"Traces after {steps_done} steps", ha='left', va='top', fontsize=14, transform=fig.transFigure)
-        plt.subplots_adjust(top=0.975)
-        if self.ndim == 1:
-            axes = [axes]
-        chains = np.moveaxis(self.sampler.get_chain(flat=False, thin=self.thin_samples_plot), -1, 0)
-        for i, (chain, ax, name, scale) in enumerate(zip(chains, axes, self.long_body_parameter_names, self.scales)):
-            nsteps = chain.shape[0]
-            x = np.arange(1, nsteps + 1) * self.thin_samples_plot  # 1*thin, 2*thin, ...
-            ax.plot(x, chain * scale, color='black', alpha=0.05)
-            # ax.plot(chain * scale, color='black', alpha=0.05)
-            ax.set_ylabel(name)
-            ax.axvline(self.burn_in, color="red", linestyle="solid", label="burn-in")
-            ax.tick_params(labelbottom=True)  # Show x-tick labels for all
-            if i == len(axes) - 1:
-                ax.set_xlabel("Steps including burn-in (red line)")  # Only last subplot
-        try:
-            plt.savefig(plot_filename)
-        except:
-            print(f"{Fore.RED}ERROR: Saving Trace Plot failed.{Style.RESET_ALL}")
-        plt.close(fig)
+        if self.trace_plot_ok:
+            try:
+                plot_filename = self.fitting_results_directory + plot_filename
+                fig, axes = plt.subplots(self.ndim, figsize=(10, self.ndim * 2), sharex=True)
+                fig.text(0.1, 0.99, f"Traces after {steps_done} steps", ha='left', va='top', fontsize=14, transform=fig.transFigure)
+                plt.subplots_adjust(top=0.975)
+                if self.ndim == 1:
+                    axes = [axes]
+                chains = np.moveaxis(self.sampler.get_chain(flat=False, thin=self.thin_samples_plot), -1, 0)
+                for i, (chain, ax, name, scale) in enumerate(zip(chains, axes, self.long_body_parameter_names, self.scales)):
+                    nsteps = chain.shape[0]
+                    x = np.arange(1, nsteps + 1) * self.thin_samples_plot  # 1*thin, 2*thin, ...
+                    ax.plot(x, chain * scale, color='black', alpha=0.05)
+                    ax.set_ylabel(name)
+                    ax.axvline(self.burn_in, color="red", linestyle="solid", label="burn-in")
+                    ax.tick_params(labelbottom=True)  # Show x-tick labels for all
+                    if i == len(axes) - 1:
+                        ax.set_xlabel("Steps including burn-in (red line)")  # Only last subplot
+                try:
+                    plt.savefig(plot_filename)
+                except:
+                    print(f"{Fore.RED}ERROR: Saving Trace Plot failed.{Style.RESET_ALL}")
+                plt.close(fig)
+            except:
+                print(f"{Fore.RED}ERROR: Trace Plot failed.{Style.RESET_ALL}")
+                self.trace_plot_ok = False
+
 
     def max_likelihood_parameters(self, flat_thin_samples):
         log_prob_samples = self.sampler.get_log_prob(flat=True, discard=self.burn_in, thin=self.thin_samples)
@@ -421,48 +431,60 @@ class CurveSimMCMC:
 
     # @stopwatch()
     def mcmc_corner_plot(self, steps_done, plot_filename):
-        plot_filename = self.fitting_results_directory + plot_filename
-        if self.ndim > 1:
-            fig = corner.corner(
-                self.scaled_samples,
-                labels=self.long_body_parameter_names,
-                truths=self.max_likelihood_params_scaled,
-                title_fmt=".4f",
-                quiet=True
-            )
-            fig.suptitle(f"Corner plot. {steps_done} steps after burn-in.", fontsize=16)
+        if self.corner_plot_ok:
             try:
-                plt.savefig(plot_filename)
+                plot_filename = self.fitting_results_directory + plot_filename
+                if self.ndim > 1:
+                    fig = corner.corner(
+                        self.scaled_samples,
+                        labels=self.long_body_parameter_names,
+                        truths=self.max_likelihood_params_scaled,
+                        title_fmt=".4f",
+                        quiet=True
+                    )
+                    fig.suptitle(f"Corner plot. {steps_done} steps after burn-in.", fontsize=16)
+                    try:
+                        plt.savefig(plot_filename)
+                    except:
+                        print(f"{Fore.RED}ERROR: Saving corner plot failed.{Style.RESET_ALL}")
+                    plt.close(fig)
             except:
-                print(f"{Fore.RED}ERROR: Saving corner plot failed.{Style.RESET_ALL}")
-            plt.close(fig)
+                    print(f"{Fore.RED}ERROR: Corner plot failed.{Style.RESET_ALL}")
+                    self.corner_plot_ok = False
 
     # @stopwatch()
     def autocorrelation_function_plot(self, steps_done, plot_filename):
-        plot_filename = self.fitting_results_directory + plot_filename
-        samples = self.sampler.get_chain(discard=0, flat=False, thin=self.thin_samples_plot)  # shape: (steps, walkers, ndim)
-        nwalkers = samples.shape[1]
-        fig, axes = plt.subplots(self.ndim, figsize=(10, self.ndim * 2), sharex=True)
-        fig.text(0.1, 0.99, f"Autocorrelation after {steps_done} steps", ha='left', va='top', fontsize=14, transform=fig.transFigure)
-        plt.subplots_adjust(top=0.975)
-        if self.ndim == 1:
-            axes = [axes]
-        for dim, param_name in enumerate(self.long_body_parameter_names):
-            ax = axes[dim]
-            for walker in range(nwalkers):
-                chain_1d = samples[:, walker, dim]
-                ac = emcee.autocorr.function_1d(chain_1d)
-                ax.plot(ac, alpha=0.5)
-            ax.set_ylabel(param_name)
-            ax.axvline(self.burn_in, color="red", linestyle="solid", label="burn-in")
-            ax.tick_params(labelbottom=True)  # Show x-tick labels for all
-            if dim == self.ndim - 1:
-                ax.set_xlabel("Steps including burn-in (red line)")  # Only last subplot
-        try:
-            plt.savefig(plot_filename)
-        except:
-            print(f"{Fore.RED}ERROR: Saving autocorrelation plot failed.{Style.RESET_ALL}")
-        plt.close(fig)
+        if self.autocorrelation_function_plot_ok:
+            try:
+                plot_filename = self.fitting_results_directory + plot_filename
+                samples = self.sampler.get_chain(discard=0, flat=False, thin=self.thin_samples_plot)  # shape: (steps, walkers, ndim)
+                nsteps = samples.shape[0]
+                nwalkers = samples.shape[1]
+                fig, axes = plt.subplots(self.ndim, figsize=(10, self.ndim * 2), sharex=True)
+                fig.text(0.1, 0.99, f"Autocorrelation after {steps_done} steps", ha='left', va='top', fontsize=14, transform=fig.transFigure)
+                plt.subplots_adjust(top=0.975)
+                if self.ndim == 1:
+                    axes = [axes]
+                x = np.arange(1, nsteps + 1) * self.thin_samples_plot
+                for dim, param_name in enumerate(self.long_body_parameter_names):
+                    ax = axes[dim]
+                    for walker in range(nwalkers):
+                        chain_1d = samples[:, walker, dim]
+                        ac = np.asarray(emcee.autocorr.function_1d(chain_1d))  # ensure numpy array to avoid `array.pyi` type issue
+                        ax.plot(x, ac, alpha=0.5)
+                    ax.set_ylabel(param_name)
+                    ax.axvline(self.burn_in, color="red", linestyle="solid", label="burn-in")
+                    ax.tick_params(labelbottom=True)  # Show x-tick labels for all
+                    if dim == self.ndim - 1:
+                        ax.set_xlabel("Steps including burn-in (red line)")  # Only last subplot
+                try:
+                    plt.savefig(plot_filename)
+                except:
+                    print(f"{Fore.RED}ERROR: Saving autocorrelation plot failed.{Style.RESET_ALL}")
+                plt.close(fig)
+            except:
+                print(f"{Fore.RED}ERROR: Autocorrelation plot failed.{Style.RESET_ALL}")
+                self.autocorrelation_function_plot_ok = False
 
     # @stopwatch()
     def integrated_autocorrelation_time_plot(self, steps_done, plot_filename1, plot_filename2):
@@ -505,21 +527,26 @@ class CurveSimMCMC:
 
     # @stopwatch()
     def acceptance_fraction_plot(self, steps_done, plot_filename):
-        plot_filename = self.fitting_results_directory + plot_filename
-        acceptance_fractions_array = np.stack(self.acceptance_fractions, axis=0).T  # shape: (num_lines, 32)
-        steps = [step for step in range(self.chunk_size + self.loaded_steps, steps_done + 1, self.chunk_size)]
-        fig, ax = plt.subplots(figsize=(10, 6))
-        for i in range(acceptance_fractions_array.shape[0]):
-            ax.plot(steps, acceptance_fractions_array[i], label=f'Line {i + 1}', color='green', alpha=0.15)
-        ax.set_xlabel('Steps after burn-in')
-        ax.set_ylabel('Acceptance Fraction')
-        ax.set_title(f'Acceptance Fraction per Walker after {steps_done} steps')
-        plt.tight_layout()
-        try:
-            plt.savefig(plot_filename)
-        except:
-            print(f"{Fore.RED}ERROR: Saving acceptance plot failed.{Style.RESET_ALL}")
-        plt.close(fig)
+        if self.acceptance_plot_ok:
+            try:
+                plot_filename = self.fitting_results_directory + plot_filename
+                acceptance_fractions_array = np.stack(self.acceptance_fractions, axis=0).T  # shape: (num_lines, 32)
+                steps = [step for step in range(self.chunk_size + self.loaded_steps, steps_done + 1, self.chunk_size)]
+                fig, ax = plt.subplots(figsize=(10, 6))
+                for i in range(acceptance_fractions_array.shape[0]):
+                    ax.plot(steps, acceptance_fractions_array[i], label=f'Line {i + 1}', color='green', alpha=0.15)
+                ax.set_xlabel('Steps after burn-in')
+                ax.set_ylabel('Acceptance Fraction')
+                ax.set_title(f'Acceptance Fraction per Walker after {steps_done} steps')
+                plt.tight_layout()
+                try:
+                    plt.savefig(plot_filename)
+                except:
+                    print(f"{Fore.RED}ERROR: Saving acceptance plot failed.{Style.RESET_ALL}")
+                plt.close(fig)
+            except:
+                print(f"{Fore.RED}ERROR: Acceptance plot failed.{Style.RESET_ALL}")
+                self.acceptance_plot_ok = False
 
     # @stopwatch()
     def average_residual_in_std_plot(self, p, steps_done, plot_filename):
@@ -681,16 +708,17 @@ class CurveSimMCMC:
         if p.tt_file:
             results["Simulation Parameters"]["tt_file"] = p.tt_file
             results["Simulation Parameters"]["tt_data_points"] = p.tt_datasize
+        # if p.rv_file:
             # results["Simulation Parameters"]["rv_file"] = p.rv_file
-        # if p.tt_file:
-        #     results["Simulation Parameters"]["tt_measured"] = list(p.best_tt_df["tt"])
-        #     results["Simulation Parameters"]["tt_best_sim"] = list(p.best_tt_df["nearest_sim"])
 
         results["Simulation Parameters"]["max_log_prob"] = self.max_log_prob
         results["Simulation Parameters"]["max_likelihood_avg_residual_in_std"] = self.max_likelihood_avg_residual_in_std[-1]
-        results["Simulation Parameters"]["mean_delta"] = float(np.mean(np.abs(measured_tt["delta"])))
-        results["Simulation Parameters"]["max_delta"] = float(np.max(np.abs(measured_tt["delta"])))
-        results["Simulation Parameters"]["param_json"] = bodies.bodies2param_json(measured_tt, p)
+
+        if p.tt_file:
+            results["Simulation Parameters"]["mean_delta"] = float(np.mean(np.abs(measured_tt["delta"])))
+            results["Simulation Parameters"]["max_delta"] = float(np.max(np.abs(measured_tt["delta"])))
+            results["Simulation Parameters"]["param_json"] = bodies.bodies2param_json(measured_tt, p)
+            results["measured_tt_list"] = measured_tt.to_dict(orient="list")  # Convert measured_tt DataFrame to a serializable format
 
         results["Bodies"] = {}
         params = (["body_type", "primary", "mass", "radius", "luminosity"]
@@ -714,32 +742,23 @@ class CurveSimMCMC:
             fp.sigma *= fp.scale
         results["Fitting Parameters"] = {fp.body_parameter_name: fp.__dict__ for fp in fitting_parameters}
 
-        results["measured_tt_list"] = measured_tt.to_dict(orient="list")  # Convert measured_tt DataFrame to a serializable format
-        # results["measured_tt_records"] = measured_tt.to_dict(orient="records")  # Convert measured_tt DataFrame to a serializable format
-
         p_copy = copy.deepcopy(p)
-        del p_copy.fitting_parameters
-        del p_copy.standard_sections
-        del p_copy.eclipsers
-        del p_copy.eclipsees
-        del p_copy.tt_file
-        del p_copy.total_iterations
-        del p_copy.walkers
-        del p_copy.moves
-        del p_copy.burn_in
-        del p_copy.thin_samples
-        del p_copy.tt_datasize
-        del p_copy.comment
-        del p_copy.start_date
-        del p_copy.fitting_results_directory
-        del p_copy.fitting_parameter_dic
-        p_copy.starts_s0 = [float(i) for i in p_copy.starts_s0]
-        p_copy.starts_d = [float(i) for i in p_copy.starts_d]
-        p_copy.ends_s0 = [float(i) for i in p_copy.ends_s0]
-        p_copy.ends_d = [float(i) for i in p_copy.ends_d]
-        p_copy.dts = [float(i) for i in p_copy.dts]
-        results["ProgramParameters"] = p_copy.__dict__
+        to_remove = [
+            "fitting_parameters", "standard_sections", "eclipsers", "eclipsees",
+            "tt_file", "total_iterations", "walkers", "moves", "burn_in",
+            "thin_samples", "comment", "start_date", "fitting_results_directory",
+            "fitting_parameter_dic", "tt_datasize",
+        ]
+        for name in to_remove:
+            if hasattr(p_copy, name):
+                delattr(p_copy, name)
 
+        for name in ("starts_s0", "starts_d", "ends_s0", "ends_d", "dts"):
+            if hasattr(p_copy, name):
+                orig = getattr(p_copy, name)
+                p_copy.__dict__[name] = [float(i) for i in orig]
+
+        results["ProgramParameters"] = p_copy.__dict__
         self.mcmc_results2json(results, p)
 
     def mcmc_results2json(self, results, p):
@@ -768,12 +787,14 @@ class CurveSimMCMC:
             self.acceptance_fraction_plot(steps_done, "acceptance.png")
         self.scale_samples(flat_thin_samples)
         self.max_likelihood_parameters(flat_thin_samples)
-        measured_tt = self.max_likelihood_tt(bodies, p, time_s0, time_d, measured_tt)
-        measured_tt = CurveSimMCMC.add_new_best_delta(measured_tt, steps_done)
+
+        if p.tt_file:
+            measured_tt = self.max_likelihood_tt(bodies, p, time_s0, time_d, measured_tt)
+            measured_tt = CurveSimMCMC.add_new_best_delta(measured_tt, steps_done)
+            self.tt_delta_plot(steps_done, "tt_delta.png", measured_tt)
+            self.tt_multi_delta_plot(steps_done, "tt_multi_delta.png", measured_tt)
         self.calc_maxlikelihood_avg_residual_in_std(p)
         self.high_density_intervals()
-        self.tt_delta_plot(steps_done, "tt_delta.png", measured_tt)
-        self.tt_multi_delta_plot(steps_done, "tt_multi_delta.png", measured_tt)
 
         if p.flux_file:
             median_residuals_flux_sum_squared = CurveSimMCMC.residuals_flux_sum_squared(self.median_params, self.param_references, bodies, time_s0, measured_flux, flux_err, p)
@@ -792,12 +813,12 @@ class CurveSimMCMC:
             self.mcmc_histograms(steps_done, bins, f"histograms_{bins}.png")
 
         self.save_mcmc_results(p, bodies, steps_done, measured_tt)
+        if chunk % 5 == 0:
+            self.trace_plots(steps_done, "traces.png")
         if chunk % 10 == 0:
             flat_thin_samples = self.sampler.get_chain(discard=self.burn_in, thin=self.thin_samples_plot, flat=True)
             self.scale_samples(flat_thin_samples)
             self.mcmc_corner_plot(steps_done, "corner.png")
-        if chunk % 5 == 0:
-            self.trace_plots(steps_done, "traces.png")
 
 
 class CurveSimLMfit:
