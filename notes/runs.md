@@ -201,12 +201,14 @@
   - Die Upper/Lower-Bounds sind extrem grosszuegig.
   - Starmasse auf Vitkova-Wert festgesetzt, weil in LMfits wild verschieden, 
     also werden 11 Parameter gefittet.
-
+- T057 Noch bessere Startwerte basierend auf den X055 Runs
+- T058 wie T057 aber zusaetzlich d.i und c.i fitten
+- 
 
 ### MCMC-Flux mit super Startwerten
-The theoretical expectation for the average residual in std is E|X| = sqrt
-(2/\pi) ≈ 0.79788456. 
+The theoretical expectation for the average residual in std is sqrt(2/pi) ≈ 0.79788456. 
 - X056
+  - klappt moch nicht
 
 ### MCMC fit von KEPLER-9
 1) Kepler-9: A System of Multiple Planets Transiting a Sun-Like Star, Confirmed by Timing Variations, Matthew J. Holman et al.
