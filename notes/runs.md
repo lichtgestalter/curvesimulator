@@ -204,11 +204,14 @@
     also werden 11 Parameter gefittet.
 - T057 Noch bessere Startwerte basierend auf den X055 Runs
 - T058 wie T057 aber zusaetzlich d.i und c.i fitten
+- T060 wie T058. Noch bessere Startwerte, auch hier keine Inklination fitten.
 
 ### Inklination eingrenzen
 - Mit Parametern aus T059 Einzelsimulationen mit verschiedenen d.i gemacht 
   bei c.i=89.69 (Vitkova-Wert)
+- Veraenderung der Inklination plausibler fuer Szenarien mit c.i < 90 < d.i
 - 89.03 < d.i < 89.15 oder 91.03 < d.i < 91.22
+- am ehesten d.i = 91.15  (falls < 90 Grad, dann am ehesten 89.09)
 
 ### MCMC-Flux mit super Startwerten
 The theoretical expectation for the average residual in std is sqrt(2/pi) ≈ 0.79788456. 
