@@ -1,5 +1,6 @@
 import json
 import math
+import matplotlib.pyplot as plt
 import os
 import re
 
@@ -103,3 +104,24 @@ class CurveSimResults(dict):
 
     def calc_rv(rebound_sim, p):
         pass
+
+    def plot_this(self, savefilename="", show_plot=False, ylabel="", ybottom=None, ytop=None):
+        plt.xlabel('Transit Times [BJD]')
+        plt.ylabel(ylabel)
+        plt.ylim(bottom=ybottom, top=ytop)
+        plt.ticklabel_format(useOffset=False, style='plain', axis='x')  # show x-labels as they are
+        plt.title(f"{os.path.splitext(os.path.basename(savefilename))[0]}, {self["ProgramParameters"]["comment"]} (dt={self["ProgramParameters"]["dt"]})")
+        plt.legend()
+        plt.grid(True)
+        if savefilename:
+            plt.savefig(savefilename)
+        if show_plot:
+            plt.show()
+
+    def depth(self, body_name, savefilename="", show_plot=False, ybottom=None, ytop=None):
+        plt.figure(figsize=(10, 6))
+        transits = self["Bodies"][body_name]["Transits"]
+        transit_times = [transit["Transit_params"]["TT"] for transit in transits]
+        depths = [transit["Transit_params"]["depth"] for transit in transits]
+        plt.plot(transit_times, depths, 'o-', label=body_name)
+        self.plot_this(savefilename, show_plot,'Depth', ybottom, ytop)

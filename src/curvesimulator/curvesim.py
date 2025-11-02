@@ -110,6 +110,8 @@ class CurveSimulator:
                 sim_flux.save_sim_flux(p, time_d)
             self.sim_flux = sim_flux
             self.results = results
+            results.depth("TOI4504d", f"TOI4504d_i={bodies[1].i*p.rad2deg:.2f}_depth.png")
+            results.depth("TOI4504c", f"TOI4504c_i={bodies[2].i*p.rad2deg:.2f}_depth.png")
         self.parameters = p
         self.bodies = bodies
 

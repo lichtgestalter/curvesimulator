@@ -303,26 +303,30 @@ class CurveSimParameters:
     def TOI4504_startvalue_hack(self):
         d_P = self.get_fitting_parameter(1, "P")
         c_P = self.get_fitting_parameter(2, "P")
-        c_P.startvalue = (-3.4815 * d_P.startvalue * d_P.scale + 226.2) / c_P.scale
+        c_P.startvalue = (-2.8408 * d_P.startvalue * d_P.scale + 199.45) / c_P.scale
         # print(f"Used {d_P.startvalue*d_P.scale=} to calculate {c_P.startvalue*c_P.scale=}")
 
         d_o = self.get_fitting_parameter(1, "omega")
-        d_o.startvalue = (-189.1 * d_P.startvalue * d_P.scale + 8176.3) / d_o.scale
+        d_o.startvalue = (-215.16 * d_P.startvalue * d_P.scale + 9266) / d_o.scale
 
         d_ma = self.get_fitting_parameter(1, "ma")
-        d_ma.startvalue = (-1.9041 * d_o.startvalue * d_o.scale + 498.91) / d_ma.scale
+        d_ma.startvalue = (-2.1252 * d_o.startvalue * d_o.scale + 565.21) / d_ma.scale
         # print(f"Used {d_o.startvalue*d_o.scale=} to calculate {d_ma.startvalue*d_ma.scale=}")
 
         c_o = self.get_fitting_parameter(2, "omega")
         c_ma = self.get_fitting_parameter(2, "ma")
-        c_ma.startvalue = (-1.0135 * c_o.startvalue * c_o.scale + 81.021) / c_ma.scale
+        c_ma.startvalue = (-1.0322 * c_o.startvalue * c_o.scale + 79.55) / c_ma.scale
         # print(f"Used {c_o.startvalue*c_o.scale=} to calculate {c_ma.startvalue*c_ma.scale=}")
 
-        a_m = self.get_fitting_parameter(0, "mass")
         d_m = self.get_fitting_parameter(1, "mass")
         c_m = self.get_fitting_parameter(2, "mass")
-        d_m.startvalue = (-0.002505 * a_m.startvalue * a_m.scale + 0.131838) / d_m.scale
-        c_m.startvalue = (-0.002919 * a_m.startvalue * a_m.scale + 0.007444) / c_m.scale
+        c_m.startvalue = (-0.4077 * d_m.startvalue * d_m.scale + 1.7595) / c_m.scale
+
+        # a_m = self.get_fitting_parameter(0, "mass")
+        # d_m = self.get_fitting_parameter(1, "mass")
+        # c_m = self.get_fitting_parameter(2, "mass")
+        # d_m.startvalue = (-0.002505 * a_m.startvalue * a_m.scale + 0.131838) / d_m.scale
+        # c_m.startvalue = (-0.002919 * a_m.startvalue * a_m.scale + 0.007444) / c_m.scale
 
     def get_fitting_parameter(self, body_index, parameter_name):
         return self.fitting_parameters[self.fitting_parameter_dic[(body_index, parameter_name)]]
