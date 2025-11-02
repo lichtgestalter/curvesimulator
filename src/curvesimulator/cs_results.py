@@ -1,6 +1,7 @@
 import json
 import math
 import matplotlib.pyplot as plt
+import numpy as np
 import os
 import re
 
@@ -105,23 +106,69 @@ class CurveSimResults(dict):
     def calc_rv(rebound_sim, p):
         pass
 
-    def plot_this(self, savefilename="", show_plot=False, ylabel="", ybottom=None, ytop=None):
-        plt.xlabel('Transit Times [BJD]')
-        plt.ylabel(ylabel)
-        plt.ylim(bottom=ybottom, top=ytop)
-        plt.ticklabel_format(useOffset=False, style='plain', axis='x')  # show x-labels as they are
-        plt.title(f"{os.path.splitext(os.path.basename(savefilename))[0]}, {self["ProgramParameters"]["comment"]} (dt={self["ProgramParameters"]["dt"]})")
-        plt.legend()
-        plt.grid(True)
-        if savefilename:
-            plt.savefig(savefilename)
+    @staticmethod
+    def plot_this(
+            x: np.ndarray,             # positions of data points on x-axis
+            data_list: list,           # each list item is a list or numpy array which will be displayed as a curve
+            data_labels: list = None,  # each list item is a string representing the label of a curve
+            title: str = None,         # plot title
+            x_label: str = None,       # label of x-axis
+            y_label: str = None,       # label of y-axis
+            marker: str = 'o',         # marker style for each data point
+            markersize: int = 1,       # marker size for each data point
+            linestyle: str = 'None',   # line connecting data points
+            left: float = None,        # cut off x-axis
+            right: float = None,       # cut off x-axis
+            bottom: float = None,      # cut off y-axis
+            top: float = None,         # cut off y-axis
+            legend: bool = None,       # display legend?
+            grid: bool = None,         # display grid?
+            show_plot: bool = False,   # show plot?
+            plot_file: str = None,     # file name if the plot shall be saved as .png
+    ) -> None:
+        if data_labels is None:
+            data_labels = [f"data{i}" for i in range(len(data_list))]
+        plt.figure(figsize=(10, 6))
+        plt.xlabel(x_label)
+        plt.ylabel(y_label)
+        plt.title(title)
+        plt.ticklabel_format(useOffset=False, style='plain', axis='x')   # show x-labels as they are
+        if left or right:
+            plt.xlim(left=left, right=right)
+        if bottom or top:
+            plt.ylim(bottom=bottom, top=top)
+        for data, data_label in zip(data_list, data_labels):
+            plt.plot(x, data, marker=marker, markersize=markersize, linestyle=linestyle, label=data_label)
+            # plt.plot(x, data, marker='o', linestyle='-', label="testtest")
+            print("new:")
+            print(x)
+            print(data)
+
+        if legend:
+            plt.legend()
+        if grid:
+            plt.grid(True)
+        if plot_file:
+            plt.savefig(plot_file)
         if show_plot:
             plt.show()
 
-    def depth(self, body_name, savefilename="", show_plot=False, ybottom=None, ytop=None):
-        plt.figure(figsize=(10, 6))
+    def depth(self, body_name, time_d, savefilename=""):
         transits = self["Bodies"][body_name]["Transits"]
         transit_times = [transit["Transit_params"]["TT"] for transit in transits]
         depths = [transit["Transit_params"]["depth"] for transit in transits]
-        plt.plot(transit_times, depths, 'o-', label=body_name)
-        self.plot_this(savefilename, show_plot,'Depth', ybottom, ytop)
+        self.plot_this(
+            x=transit_times,
+            data_list=[depths],
+            data_labels=[body_name],
+            title=f"{os.path.splitext(os.path.basename(savefilename))[0]}, {self["ProgramParameters"]["comment"]} (dt={self["ProgramParameters"]["dt"]})",
+            x_label='Transit Times [BJD]',
+            y_label='Depth',
+            linestyle='-',
+            markersize=4,
+            grid=True,
+            # left=self["ProgramParameters"]["start_date"],
+            left=time_d[0],
+            right=time_d[-1],
+            plot_file=savefilename,
+        )

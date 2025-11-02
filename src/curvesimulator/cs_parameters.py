@@ -47,6 +47,7 @@ class CurveSimParameters:
         self.transit_precision = eval(config.get("Results", "transit_precision", fallback="1"))
 
         # [Simulation]
+        self.single_run = eval(config.get("Simulation", "single_run", fallback="False"))
         self.dt = eval(config.get("Simulation", "dt"))
         self.start_date = eval(config.get("Simulation", "start_date", fallback="0.0"))
 
@@ -72,8 +73,8 @@ class CurveSimParameters:
         self.ends_d = np.array(eval(config.get("Simulation", "ends", fallback="[]")), dtype=float)
         self.dts = np.array(eval(config.get("Simulation", "dts", fallback="[]")), dtype=float)
 
+        self.sim_flux_file = config.get("Simulation", "sim_flux_file", fallback=None)
         if self.flux_file is None and self.tt_file is None and self.rv_file is None:  # run simulation, generate video and transit results
-            self.sim_flux_file = config.get("Simulation", "sim_flux_file", fallback="None")
             if self.sim_flux_file == "None":
                 self.sim_flux_file = None
             self.sim_flux_err = eval(config.get("Simulation", "sim_flux_err", fallback="0.0"))

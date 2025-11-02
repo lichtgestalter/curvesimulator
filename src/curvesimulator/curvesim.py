@@ -70,7 +70,7 @@ class CurveSimulator:
         p = CurveSimParameters(config_file)  # Read program parameters from config file.
         if p.verbose:
             print(p)
-        if p.flux_file or p.tt_file:  # run fit?
+        if (p.flux_file or p.tt_file) and not p.single_run:  # run fit?
             measured_flux, flux_uncertainty, measured_tt, time_s0, time_d, tt_s0, tt_d = (None,) * 7
             if p.flux_file:
                 time_s0, time_d, measured_flux, flux_uncertainty = CurveSimMCMC.get_measured_flux(p)
@@ -110,8 +110,16 @@ class CurveSimulator:
                 sim_flux.save_sim_flux(p, time_d)
             self.sim_flux = sim_flux
             self.results = results
-            results.depth("TOI4504d", f"TOI4504d_i={bodies[1].i*p.rad2deg:.2f}_depth.png")
-            results.depth("TOI4504c", f"TOI4504c_i={bodies[2].i*p.rad2deg:.2f}_depth.png")
+            # results.depth("TOI4504d", time_d, f"TOI4504d_i={bodies[1].i*p.rad2deg:.2f}_depth.png")
+            # results.depth("TOI4504c", time_d, f"TOI4504c_i={bodies[2].i*p.rad2deg:.2f}_depth.png")
+            vitkova_debug = True
+            if vitkova_debug:
+                measured_tt = CurveSimMCMC.get_measured_tt(p)
+                p.eclipsers = ["TOI4504c"]
+                p.eclipsees = ["TOI4504"]
+                p.bodynames2bodies(bodies)
+                _, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
+                print(measured_tt)
         self.parameters = p
         self.bodies = bodies
 
