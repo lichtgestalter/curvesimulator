@@ -115,17 +115,22 @@ class CurveSimulator:
             # results.depth("TOI4504c", time_d, f"TOI4504c_i={bodies[2].i*p.rad2deg:.2f}_depth.png")
             vitkova_debug = True
             if vitkova_debug:
-                measured_tt = CurveSimMCMC.get_measured_tt(p)
                 p.eclipsers = ["TOI4504c"]
                 p.eclipsees = ["TOI4504"]
-                p.bodynames2bodies(bodies)
-                _, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
-                dummy_mcmc = CurveSimMCMC(None, None, None, None, None, None, None, dummy_object=True)
-                dummy_mcmc.tt_delta_plot(1, "Vitkova_MaxL_tt_delta.png", measured_tt)
-                results2 = CurveSimResults.load_results(p.result_file)
-                tts = results2.get_transit_data("TOI4504c", "TOI4504", "TT")
-                print(tts)
-                print(len(tts))
+
+                # p.bodynames2bodies(bodies)
+                measured_tt = CurveSimMCMC.get_measured_tt(p)
+                # _, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
+                # dummy_mcmc = CurveSimMCMC(None, None, None, None, None, None, None, dummy_object=True)
+                # dummy_mcmc.tt_delta_plot(1, "Vitkova_MaxL_tt_delta.png", measured_tt)
+
+                # results2 = CurveSimResults.load_results(p.result_file)
+                # tts = results2.get_transit_data("TOI4504c", "TOI4504", "TT")
+
+                results.plot_parameter("TOI4504c", "TOI4504", "T14", time_d[0], time_d[-1],
+                                        filename=f"TOI4504c_i={bodies[2].i*p.rad2deg:.2f}_T14.png")
+                results.plot_parameter("TOI4504d", "TOI4504", "T14", time_d[0], time_d[-1],
+                                        filename=f"TOI4504d_i={bodies[1].i*p.rad2deg:.2f}_T14.png")
         self.parameters = p
         self.bodies = bodies
 

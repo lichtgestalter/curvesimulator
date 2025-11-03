@@ -94,12 +94,55 @@ class CurveSimResults(dict):
         del p.standard_sections
         del p.eclipsers
         del p.eclipsees
+        if hasattr(p, "fitting_parameters"):
+            del p.fitting_parameters
         p.starts_s0 = [float(i) for i in p.starts_s0]
         p.starts_d = [float(i) for i in p.starts_d]
         p.ends_s0 = [float(i) for i in p.ends_s0]
         p.ends_d = [float(i) for i in p.ends_d]
         p.dts = [float(i) for i in p.dts]
         self["ProgramParameters"] = p.__dict__
+
+
+        # diagnostic helper
+        def _find_unserializable(obj, path="self", visited=None, max_depth=1000):
+            if visited is None:
+                visited = set()
+            obj_id = id(obj)
+            if obj_id in visited or max_depth <= 0:
+                return []
+            visited.add(obj_id)
+            try:
+                json.dumps(obj)
+                return []
+            except Exception:
+                # drill down for containers
+                failures = []
+                if isinstance(obj, dict):
+                    for k, v in obj.items():
+                        failures.extend(_find_unserializable(v, f"{path}[{repr(k)}]", visited, max_depth - 1))
+                    if not failures:
+                        failures.append((path, type(obj).__name__, "dict contains non-serializable contents"))
+                elif isinstance(obj, (list, tuple, set)):
+                    for i, v in enumerate(obj):
+                        failures.extend(_find_unserializable(v, f"{path}[{i}]", visited, max_depth - 1))
+                    if not failures:
+                        failures.append((path, type(obj).__name__, f"{type(obj).__name__} contains non-serializable contents"))
+                else:
+                    # leaf non-serializable object
+                    failures.append((path, type(obj).__name__, repr(obj)[:200]))
+                return failures
+
+        # check serialization of self
+        failures = _find_unserializable(self)
+        if failures:
+            # format a concise message with a few examples
+            msg_lines = ["Failed to JSON-serialize `self`. Problematic paths (path, type, sample):"]
+            for path, tname, sample in failures[:20]:
+                msg_lines.append(f" - {path}: {tname} -> {sample}")
+            raise RuntimeError("\n".join(msg_lines))
+
+
         resultfilename = CurveSimResults.check_resultfilename(p.result_file)
         self.results2json(resultfilename, p)
         if p.verbose:
@@ -158,11 +201,6 @@ class CurveSimResults(dict):
             plt.ylim(bottom=bottom, top=top)
         for data, data_label in zip(data_list, data_labels):
             plt.plot(x, data, marker=marker, markersize=markersize, linestyle=linestyle, label=data_label)
-            # plt.plot(x, data, marker='o', linestyle='-', label="testtest")
-            print("new:")
-            print(x)
-            print(data)
-
         if legend:
             plt.legend()
         if grid:
@@ -172,44 +210,44 @@ class CurveSimResults(dict):
         if show_plot:
             plt.show()
 
-    def depth(self, body_name, time_d, savefilename=""):
-        transits = self["Bodies"][body_name]["Transits"]
-        transit_times = [transit["Transit_params"]["TT"] for transit in transits]
-        depths = [transit["Transit_params"]["depth"] for transit in transits]
-        CurveSimResults.plot_this(
-            x=transit_times,
-            data_list=[depths],
-            data_labels=[body_name],
-            title=f"{os.path.splitext(os.path.basename(savefilename))[0]}, {self["ProgramParameters"]["comment"]} (dt={self["ProgramParameters"]["dt"]})",
-            x_label='Transit Times [BJD]',
-            y_label='Depth',
-            linestyle='-',
-            markersize=4,
-            grid=True,
-            # left=self["ProgramParameters"]["start_date"],
-            left=time_d[0],
-            right=time_d[-1],
-            plot_file=savefilename,
-        )
+    # def depth(self, body_name, time_d, savefilename=""):
+    #     transits = self["Bodies"][body_name]["Transits"]
+    #     transit_times = [transit["Transit_params"]["TT"] for transit in transits]
+    #     depths = [transit["Transit_params"]["depth"] for transit in transits]
+    #     CurveSimResults.plot_this(
+    #         x=transit_times,
+    #         data_list=[depths],
+    #         data_labels=[body_name],
+    #         title=f"{os.path.splitext(os.path.basename(savefilename))[0]}, {self["ProgramParameters"]["comment"]} (dt={self["ProgramParameters"]["dt"]})",
+    #         x_label='Transit Times [BJD]',
+    #         y_label='Depth',
+    #         linestyle='-',
+    #         markersize=4,
+    #         grid=True,
+    #         left=self["ProgramParameters"]["start_date"],
+    #         left=time_d[0],
+    #         right=time_d[-1],
+    #         plot_file=savefilename,
+    #     )
 
-    def plot_parameter(self, eclipser, eclipsee, parameter, start, end, savefilename=""):
+    def plot_parameter(self, eclipser, eclipsee, parameter, start, end, filename="", title=None):
+        if not title:
+            title = f"{os.path.splitext(os.path.basename(filename))[0]}, {self["ProgramParameters"]["comment"]} (dt={self["ProgramParameters"]["dt"]})"
         transit_times = self.get_transit_data(eclipser, eclipsee, "TT")
         parameter_list = self.get_transit_data(eclipser, eclipsee, parameter)
         CurveSimResults.plot_this(
             x=transit_times,
             data_list=[parameter_list],
             data_labels=[eclipser],
-            title=f"{os.path.splitext(os.path.basename(savefilename))[0]}, {self["ProgramParameters"]["comment"]} (dt={self["ProgramParameters"]["dt"]})",
+            title=title,
             x_label='Transit Times [BJD]',
-            y_label='Depth',
+            y_label=parameter,
             linestyle='-',
             markersize=4,
             grid=True,
-            # left=self["ProgramParameters"]["start_date"],
             left=start,
             right=end,
-            plot_file=savefilename,
-            BAUSTELLE
+            plot_file=filename,
         )
 
     def get_transit_data(self, eclipser, eclipsee, parameter):

@@ -289,6 +289,8 @@ class CurveSimParameters:
         os.makedirs(self.fitting_results_directory)
 
     def bodynames2bodies(self, bodies):
+        """ Generates 2 lists of bodies (self.eclipsers, self.eclipsees)
+         based on 2 lists of strings (self.eclipsers_names, self.eclipsees_names)"""
         eclipsers, eclipsees = [], []
         for body in bodies:
             if body.name in self.eclipsers_names:

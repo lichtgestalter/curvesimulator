@@ -209,8 +209,10 @@
 ### Inklination eingrenzen
 - Mit Parametern aus T059 Einzelsimulationen mit verschiedenen d.i gemacht 
   bei c.i=89.69 (Vitkova-Wert)
+- depth und T14 mit meinem Messungen verglichen
 - Veraenderung der Inklination plausibler fuer Szenarien mit c.i < 90 < d.i
-- 89.03 < d.i < 89.15 oder 91.03 < d.i < 91.22
+  - gilt sowohl fuer depth als auch fuer T14
+- 91.03 < d.i < 91.22  (oder eventuell 89.03 < d.i < 89.15)
 - am ehesten d.i = 91.15  (falls < 90 Grad, dann am ehesten 89.09)
 
 ### MCMC-Flux mit super Startwerten
