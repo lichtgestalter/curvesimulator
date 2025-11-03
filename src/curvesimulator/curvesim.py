@@ -6,6 +6,7 @@ from .cs_bodies import CurveSimBodies
 from .cs_parameters import CurveSimParameters
 from .cs_mcmc import CurveSimMCMC, CurveSimLMfit
 from .cs_manual_fit import CurveSimManualFit
+from .cs_results import CurveSimResults
 
 import os
 from multiprocessing import Process, JoinableQueue
@@ -119,7 +120,12 @@ class CurveSimulator:
                 p.eclipsees = ["TOI4504"]
                 p.bodynames2bodies(bodies)
                 _, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
-                print(measured_tt)
+                dummy_mcmc = CurveSimMCMC(None, None, None, None, None, None, None, dummy_object=True)
+                dummy_mcmc.tt_delta_plot(1, "Vitkova_MaxL_tt_delta.png", measured_tt)
+                results2 = CurveSimResults.load_results(p.result_file)
+                tts = results2.get_transit_data("TOI4504c", "TOI4504", "TT")
+                print(tts)
+                print(len(tts))
         self.parameters = p
         self.bodies = bodies
 

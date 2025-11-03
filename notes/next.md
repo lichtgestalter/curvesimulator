@@ -1,14 +1,6 @@
 # Next / in progress:
 ## 0.5.6 Fitting TOI-4504
 
-Die beiden Vitkova JSON (damit meinte ich die result files?) neu in Excel 
-uebernehmen.
-Vorher noch ein paar Varianten machen?
-    Mit b
-    Mit kleinerer Periode
-    a statt P?
-        selbst mit Kepler Law ausrechnen?
-
 - Simons Hausaufgaben 
   - Vitkova plot (mit den roten Punkten) der Verspaetungen der TT gegenueber 
     einer konstanten Periode reproduzieren

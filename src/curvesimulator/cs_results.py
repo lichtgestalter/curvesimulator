@@ -17,8 +17,10 @@ class Transit(dict):
 
 
 class CurveSimResults(dict):
-    def __init__(self, bodies):
+    def __init__(self, bodies, empty=False):
         super().__init__()
+        if empty:
+            return
         self["CurveSimulator Documentation"] = "https://github.com/lichtgestalter/curvesimulator/wiki"
         self["ProgramParameters"] = {}
         self["Bodies"] = {}
@@ -103,6 +105,23 @@ class CurveSimResults(dict):
         if p.verbose:
             print(self)
 
+    @staticmethod
+    def load_results(resultfilename):
+        """Load JSON results from `resultfilename` into and return a CurveSimResults object."""
+        if not os.path.exists(resultfilename):
+            raise FileNotFoundError(resultfilename)
+        try:
+            with open(resultfilename, "r", encoding="utf8") as f:
+                data = json.load(f)
+        except Exception as e:
+            raise RuntimeError(f"Failed to read or parse {resultfilename}: {e}")
+        if not isinstance(data, dict):
+            raise ValueError(f"Invalid results file {resultfilename}: top-level JSON must be an object")
+        results = CurveSimResults(None, empty=True)
+        results.clear()
+        results.update(data)
+        return results
+
     def calc_rv(rebound_sim, p):
         pass
 
@@ -157,7 +176,7 @@ class CurveSimResults(dict):
         transits = self["Bodies"][body_name]["Transits"]
         transit_times = [transit["Transit_params"]["TT"] for transit in transits]
         depths = [transit["Transit_params"]["depth"] for transit in transits]
-        self.plot_this(
+        CurveSimResults.plot_this(
             x=transit_times,
             data_list=[depths],
             data_labels=[body_name],
@@ -172,3 +191,28 @@ class CurveSimResults(dict):
             right=time_d[-1],
             plot_file=savefilename,
         )
+
+    def plot_parameter(self, eclipser, eclipsee, parameter, start, end, savefilename=""):
+        transit_times = self.get_transit_data(eclipser, eclipsee, "TT")
+        parameter_list = self.get_transit_data(eclipser, eclipsee, parameter)
+        CurveSimResults.plot_this(
+            x=transit_times,
+            data_list=[parameter_list],
+            data_labels=[eclipser],
+            title=f"{os.path.splitext(os.path.basename(savefilename))[0]}, {self["ProgramParameters"]["comment"]} (dt={self["ProgramParameters"]["dt"]})",
+            x_label='Transit Times [BJD]',
+            y_label='Depth',
+            linestyle='-',
+            markersize=4,
+            grid=True,
+            # left=self["ProgramParameters"]["start_date"],
+            left=start,
+            right=end,
+            plot_file=savefilename,
+            BAUSTELLE
+        )
+
+    def get_transit_data(self, eclipser, eclipsee, parameter):
+        transits = self["Bodies"][eclipser]["Transits"]
+        parameter_list = [transit["Transit_params"][parameter] for transit in transits if transit["Transit_params"]["EclipsedBody"] == eclipsee]
+        return parameter_list

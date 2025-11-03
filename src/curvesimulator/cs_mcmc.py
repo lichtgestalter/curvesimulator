@@ -91,7 +91,10 @@ def append_line_locked(filename, line, wait=0.1):
 
 class CurveSimMCMC:
 
-    def __init__(self, p, bodies, time_s0, time_d, measured_flux, flux_err, measured_tt):
+    def __init__(self, p, bodies, time_s0, time_d, measured_flux, flux_err, measured_tt, dummy_object=False):
+        self.fitting_results_directory = ""
+        if dummy_object:
+            return
         os.environ["OMP_NUM_THREADS"] = "1"  # Some builds of NumPy automatically parallelize some operations. This can cause problems when multi processing inside emcee is enabled. Turn that off by setting the environment variable OMP_NUM_THREADS=1.
         if not (p.flux_file or p.tt_file or p.rv_file):
             print(f"{Fore.RED}ERROR: No measurements for fitting have been provided.{Style.RESET_ALL}")
@@ -100,7 +103,6 @@ class CurveSimMCMC:
             os.remove("residual.tmp")
         if os.path.exists("iteration.tmp"):
             os.remove("iteration.tmp")
-        self.fitting_results_directory = p.fitting_results_directory
         self.fitting_parameters = p.fitting_parameters
         self.moves = p.moves
         self.walkers = p.walkers
@@ -581,11 +583,7 @@ class CurveSimMCMC:
 
     # @stopwatch()
     def tt_delta_plot(self, steps_done, plot_filename, measured_tt):
-        """
-        Connect the 2 red horizontal lines with a vertical red line at x.
-        """
         plot_filename = self.fitting_results_directory + plot_filename
-        # plot_filename = self.fitting_results_directory + str(steps_done) + plot_filename
         unique_eclipsers = measured_tt["eclipser"].unique()
         n_eclipsers = len(unique_eclipsers)
         fig, axes = plt.subplots(n_eclipsers, figsize=(10, 3.5 * n_eclipsers), sharex=True)
@@ -607,7 +605,7 @@ class CurveSimMCMC:
             ax.set_title(f"Eclipser: {eclipser}")
             ax.tick_params(labelbottom=True)
             ax.set_ylim(ylim)
-            # ax.set_ylim(y_min, y_max)
+            ax.ticklabel_format(useOffset=False, style='plain', axis='x')
         axes[-1].set_xlabel("Transit Time [BJD]")
         fig.suptitle(f"TT Delta. {steps_done} steps after burn-in.", fontsize=14)
         plt.tight_layout(rect=(0, 0, 1, 0.97))
