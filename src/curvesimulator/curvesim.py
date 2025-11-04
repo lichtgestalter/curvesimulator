@@ -10,7 +10,9 @@ from .cs_results import CurveSimResults
 
 import os
 from multiprocessing import Process, JoinableQueue
+import numpy as np
 import warnings
+
 
 def _lmfit_worker_queue(task_queue, result_queue):
     for task in iter(task_queue.get, None):
@@ -71,7 +73,7 @@ class CurveSimulator:
         p = CurveSimParameters(config_file)  # Read program parameters from config file.
         if p.verbose:
             print(p)
-        if (p.flux_file or p.tt_file) and not p.single_run:  # run fit?
+        if (p.flux_file or p.tt_file) and not p.single_run and not p.results_only:  # run fit?
             measured_flux, flux_uncertainty, measured_tt, time_s0, time_d, tt_s0, tt_d = (None,) * 7
             if p.flux_file:
                 time_s0, time_d, measured_flux, flux_uncertainty = CurveSimMCMC.get_measured_flux(p)
@@ -95,7 +97,7 @@ class CurveSimulator:
                 mcmc = CurveSimMCMC(p, bodies, time_s0, time_d, measured_flux, flux_uncertainty, measured_tt)
                 self.sampler = mcmc.sampler  # mcmc object
                 self.theta = mcmc.theta  # current state of mcmc chains. By saving sampler and theta it is possible to continue the mcmc later on.
-        else:  # run a single simulation
+        elif p.single_run:  # run a single simulation
             time_s0, time_d = CurveSimParameters.init_time_arrays(p)  # s0 in seconds, starting at 0. d in BJD.
             bodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
             sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # Calculate all body positions and the resulting lightcurve
@@ -111,26 +113,66 @@ class CurveSimulator:
                 sim_flux.save_sim_flux(p, time_d)
             self.sim_flux = sim_flux
             self.results = results
-            # results.depth("TOI4504d", time_d, f"TOI4504d_i={bodies[1].i*p.rad2deg:.2f}_depth.png")
-            # results.depth("TOI4504c", time_d, f"TOI4504c_i={bodies[2].i*p.rad2deg:.2f}_depth.png")
             vitkova_debug = True
             if vitkova_debug:
                 p.eclipsers = ["TOI4504c"]
                 p.eclipsees = ["TOI4504"]
-
-                # p.bodynames2bodies(bodies)
-                measured_tt = CurveSimMCMC.get_measured_tt(p)
-                # _, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
-                # dummy_mcmc = CurveSimMCMC(None, None, None, None, None, None, None, dummy_object=True)
-                # dummy_mcmc.tt_delta_plot(1, "Vitkova_MaxL_tt_delta.png", measured_tt)
-
-                # results2 = CurveSimResults.load_results(p.result_file)
-                # tts = results2.get_transit_data("TOI4504c", "TOI4504", "TT")
-
                 results.plot_parameter("TOI4504c", "TOI4504", "T14", time_d[0], time_d[-1],
                                         filename=f"TOI4504c_i={bodies[2].i*p.rad2deg:.2f}_T14.png")
                 results.plot_parameter("TOI4504d", "TOI4504", "T14", time_d[0], time_d[-1],
                                         filename=f"TOI4504d_i={bodies[1].i*p.rad2deg:.2f}_T14.png")
+
+                # measured_tt = CurveSimMCMC.get_measured_tt(p)
+                # p.bodynames2bodies(bodies)
+                # _, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
+                # dummy_mcmc = CurveSimMCMC(None, None, None, None, None, None, None, dummy_object=True)
+                # dummy_mcmc.tt_delta_plot(1, "Vitkova_MaxL_tt_delta.png", measured_tt)
+
+        else:  # p.results_only
+            time_s0, time_d = CurveSimParameters.init_time_arrays(p)  # s0 in seconds, starting at 0. d in BJD.
+            bodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
+            p.eclipsers = ["TOI4504c"]
+            p.eclipsees = ["TOI4504"]
+
+            # results = CurveSimResults.load_results(p.result_file)
+            # tt_sim = results.get_transit_data("TOI4504c", "TOI4504", "TT")
+            # print(tt_sim)
+
+            measured_tt = CurveSimMCMC.get_measured_tt(p)  # reads from p.tt_file
+            tt_tess = list(measured_tt["tt"])[:13]
+            transit_numbers = [0, 1, 2, 3, 8, 9, 10, 11, 19, 20, 21, 28, 30]
+            osc_per = 82.79
+            # osc_per = 82.5438
+            cumulative_delta = [tt - tt_tess[0] - n * osc_per for n, tt in zip(transit_numbers, tt_tess)]
+
+            amplitude = 2.0
+            period = 946.5
+            x_offset = -period / 2
+            y_offset = 0
+            sine_curve = [amplitude * np.sin(2 * np.pi * (x - tt_tess[0] - x_offset) / period) + y_offset for x in tt_tess]
+            deviation = [c - s for c, s in zip(cumulative_delta, sine_curve)]
+
+            print(f"{osc_per=}")
+            print(f"{transit_numbers=}")
+            print(f"{tt_tess=}")
+            print(f"{cumulative_delta=}")
+            print(f"{deviation=}")
+
+
+            CurveSimResults.plot_this(
+                x=tt_tess,
+                data_list=[cumulative_delta, sine_curve, deviation],
+                data_labels=["Cumulative Delta", "Sine Curve", "Deviation"],
+                title=f"TESS TT vs. mean osculating Period of TOI-4504 c ({osc_per:.4f})",
+                x_label="Transit Times [BJD]",
+                y_label="Cumulative Delta [days]",
+                linestyle='-',
+                markersize=4,
+                grid=True,
+                legend=True,
+                plot_file=f"cumulative_delta_{osc_per:.4f}.png",
+            )
+
         self.parameters = p
         self.bodies = bodies
 

@@ -48,6 +48,7 @@ class CurveSimParameters:
 
         # [Simulation]
         self.single_run = eval(config.get("Simulation", "single_run", fallback="False"))
+        self.results_only = eval(config.get("Simulation", "results_only", fallback="False"))
         self.dt = eval(config.get("Simulation", "dt"))
         self.start_date = eval(config.get("Simulation", "start_date", fallback="0.0"))
 

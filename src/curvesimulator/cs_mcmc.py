@@ -1042,7 +1042,7 @@ class CurveSimLMfit:
                 color = Fore.GREEN
             if mean_delta < 0.004:
                 color = Fore.CYAN
-            if mean_delta < 0.0022:
+            if mean_delta < 0.0024 or max_delta < 0.0048:
                 color = Fore.MAGENTA
             line = bodies.bodies2param_json(measured_tt, p)
             filename = p.fitting_results_directory + f"/lmfit_best_fits.txt"

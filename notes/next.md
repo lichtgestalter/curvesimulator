@@ -2,10 +2,10 @@
 ## 0.5.6 Fitting TOI-4504
 
 - Figure 6
-  - Start @ 2458400
-  - Zeichne ...
-
-
+  - Start @ T0 = 2458401.4086
+  - Waehle eine (vorlaeufige) osculating period, z.B. osc_per = 82.5438d
+  - Rechne delta[n] = T[n] - T[0] - n * osc_per
+  - Zeichne TT auf x-Achse und delta auf y-Achse
 
 - Simons Hausaufgaben 
   - Vitkova Figure 6 (mit den roten Punkten) der Verspaetungen der TT 
