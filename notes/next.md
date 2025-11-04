@@ -1,8 +1,15 @@
 # Next / in progress:
 ## 0.5.6 Fitting TOI-4504
 
+- Figure 6
+  - Start @ 2458400
+  - Zeichne ...
+
+
+
 - Simons Hausaufgaben 
-  - Vitkova plot (mit den roten Punkten) der Verspaetungen der TT gegenueber 
+  - Vitkova Figure 6 (mit den roten Punkten) der Verspaetungen der TT 
+    gegenueber 
     einer konstanten Periode reproduzieren
     - osculating period of 82.5438d +0.0175d -0.0150d
     - semiamplitude of ∼2d
