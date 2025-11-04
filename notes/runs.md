@@ -204,7 +204,7 @@
     also werden 11 Parameter gefittet.
 - T057 Noch bessere Startwerte basierend auf den X055 Runs
 - T058 wie T057 aber zusaetzlich d.i und c.i fitten
-- T060 wie T058. Noch bessere Startwerte, auch hier keine Inklination fitten.
+- T060 wie T058. Noch bessere Startwerte, keine Inklination fitten.
 
 ### Inklination eingrenzen
 - Mit Parametern aus T059 Einzelsimulationen mit verschiedenen d.i gemacht 
