@@ -180,6 +180,7 @@
     mehrere mit Residuen in der Groessenordnung der Messgenauigkeit der TT.
   - Diese besten Fits haben im wesentlichen sehr aehnliche Parameterwerte.
 - T059 wie T058 aber Lmfit
+- T061 wie T060 aber Lmfit
 
 ### MCMC-TT mit super Startwerten
 - X051 MCMC-TT basierend auf dem bisher besten lokalen Minimum von X050
