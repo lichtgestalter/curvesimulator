@@ -1,6 +1,9 @@
 # Next / in progress:
 ## 0.5.6 Fitting TOI-4504
 
+- Einzel Simulation mit TT.csv vergleichen, Deltas plotten: in eigene 
+  Funktion packen
+- Osculating Period Plot in eigene Funktion packen
 - Figure 6
   - Start @ T0 = 2458401.4086
   - Waehle eine (vorlaeufige) osculating period, z.B. osc_per = 82.5438d

@@ -308,19 +308,16 @@ class CurveSimParameters:
         d_P = self.get_fitting_parameter(1, "P")
         c_P = self.get_fitting_parameter(2, "P")
         c_P.startvalue = (-2.6007 * d_P.startvalue * d_P.scale + 189.43) / c_P.scale
-        # print(f"Used {d_P.startvalue*d_P.scale=} to calculate {c_P.startvalue*c_P.scale=}")
 
         d_o = self.get_fitting_parameter(1, "omega")
         d_o.startvalue = (-213.95 * d_P.startvalue * d_P.scale + 9216) / d_o.scale
 
         d_ma = self.get_fitting_parameter(1, "ma")
         d_ma.startvalue = (-2.1241 * d_o.startvalue * d_o.scale + 565.04) / d_ma.scale
-        # print(f"Used {d_o.startvalue*d_o.scale=} to calculate {d_ma.startvalue*d_ma.scale=}")
 
         c_o = self.get_fitting_parameter(2, "omega")
         c_ma = self.get_fitting_parameter(2, "ma")
         c_ma.startvalue = (-1.0311 * c_o.startvalue * c_o.scale + 79.625) / c_ma.scale
-        # print(f"Used {c_o.startvalue*c_o.scale=} to calculate {c_ma.startvalue*c_ma.scale=}")
 
         d_m = self.get_fitting_parameter(1, "mass")
         c_m = self.get_fitting_parameter(2, "mass")
