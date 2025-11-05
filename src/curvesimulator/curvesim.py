@@ -143,34 +143,34 @@ class CurveSimulator:
             transit_numbers = [0, 1, 2, 3, 8, 9, 10, 11, 19, 20, 21, 28, 30]
             osc_per = 82.79
             # osc_per = 82.5438
-            cumulative_delta = [tt - tt_tess[0] - n * osc_per for n, tt in zip(transit_numbers, tt_tess)]
+            ttv_to_date = [tt - tt_tess[0] - n * osc_per for n, tt in zip(transit_numbers, tt_tess)]
 
             amplitude = 2.0
             period = 946.5
             x_offset = -period / 2
             y_offset = 0
             sine_curve = [amplitude * np.sin(2 * np.pi * (x - tt_tess[0] - x_offset) / period) + y_offset for x in tt_tess]
-            deviation = [c - s for c, s in zip(cumulative_delta, sine_curve)]
+            deviation = [c - s for c, s in zip(ttv_to_date, sine_curve)]
 
             print(f"{osc_per=}")
             print(f"{transit_numbers=}")
             print(f"{tt_tess=}")
-            print(f"{cumulative_delta=}")
+            print(f"{ttv_to_date=}")
             print(f"{deviation=}")
 
 
             CurveSimResults.plot_this(
                 x=tt_tess,
-                data_list=[cumulative_delta, sine_curve, deviation],
-                data_labels=["Cumulative Delta", "Sine Curve", "Deviation"],
+                data_list=[ttv_to_date, sine_curve, deviation],
+                data_labels=["TTV to date", "Sine Curve", "Deviation"],
                 title=f"TESS TT vs. mean osculating Period of TOI-4504 c ({osc_per:.4f})",
                 x_label="Transit Times [BJD]",
-                y_label="Cumulative Delta [days]",
+                y_label="TTV to date [days]",
                 linestyle='-',
                 markersize=4,
                 grid=True,
                 legend=True,
-                plot_file=f"cumulative_delta_{osc_per:.4f}.png",
+                plot_file=f"TTV_to_date_{osc_per:.4f}.png",
             )
 
         self.parameters = p
