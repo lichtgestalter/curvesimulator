@@ -10,7 +10,7 @@ from .cs_results import CurveSimResults
 
 import os
 from multiprocessing import Process, JoinableQueue
-import numpy as np
+# import numpy as np
 import warnings
 
 
@@ -138,40 +138,7 @@ class CurveSimulator:
             # tt_sim = results.get_transit_data("TOI4504c", "TOI4504", "TT")
             # print(tt_sim)
 
-            measured_tt = CurveSimMCMC.get_measured_tt(p)  # reads from p.tt_file
-            tt_tess = list(measured_tt["tt"])[:13]
-            transit_numbers = [0, 1, 2, 3, 8, 9, 10, 11, 19, 20, 21, 28, 30]
-            osc_per = 82.79
-            # osc_per = 82.5438
-            ttv_to_date = [tt - tt_tess[0] - n * osc_per for n, tt in zip(transit_numbers, tt_tess)]
-
-            amplitude = 2.0
-            period = 946.5
-            x_offset = -period / 2
-            y_offset = 0
-            sine_curve = [amplitude * np.sin(2 * np.pi * (x - tt_tess[0] - x_offset) / period) + y_offset for x in tt_tess]
-            deviation = [c - s for c, s in zip(ttv_to_date, sine_curve)]
-
-            print(f"{osc_per=}")
-            print(f"{transit_numbers=}")
-            print(f"{tt_tess=}")
-            print(f"{ttv_to_date=}")
-            print(f"{deviation=}")
-
-
-            CurveSimResults.plot_this(
-                x=tt_tess,
-                data_list=[ttv_to_date, sine_curve, deviation],
-                data_labels=["TTV to date", "Sine Curve", "Deviation"],
-                title=f"TESS TT vs. mean osculating Period of TOI-4504 c ({osc_per:.4f})",
-                x_label="Transit Times [BJD]",
-                y_label="TTV to date [days]",
-                linestyle='-',
-                markersize=4,
-                grid=True,
-                legend=True,
-                plot_file=f"TTV_to_date_{osc_per:.4f}.png",
-            )
+            CurveSimResults.ttv_to_date_plot(p)
 
         self.parameters = p
         self.bodies = bodies
