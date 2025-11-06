@@ -5,7 +5,8 @@ import numpy as np
 import os
 import re
 
-from .cs_mcmc import CurveSimMCMC
+from curvesimulator.cs_flux_data import csv2df
+# from cs_flux_data import csv2df
 
 
 class Transit(dict):
@@ -171,16 +172,38 @@ class CurveSimResults(dict):
         pass
 
     @staticmethod
+    def get_measured_flux(p):
+        df = csv2df(p.flux_file)
+        df = df[df["time"] >= p.start_date]
+        df["time"] -= p.start_date
+        df["time"] *= p.day
+        time_s0 = np.array(df["time"], dtype=float)
+        measured_flux = np.array(df["flux"])
+        flux_err = np.array(df["flux_err"], dtype=float)
+        p.total_iterations = len(time_s0)
+        time_d = time_s0 / p.day + p.start_date
+        return time_s0, time_d, measured_flux, flux_err
+
+    @staticmethod
+    def get_measured_tt(p):
+        df = csv2df(p.tt_file)
+        df = df[df["tt"] >= p.start_date]
+        p.tt_datasize = len(df["tt"])
+        return df
+
+    @staticmethod
     def plot_this(
-            x: np.ndarray,             # positions of data points on x-axis
-            data_list: list,           # each list item is a list or numpy array which will be displayed as a curve
+            x_lists,                   # positions of data points on x-axis
+            y_lists: list,             # each list item is a list or numpy array which will be displayed as a curve
             data_labels: list = None,  # each list item is a string representing the label of a curve
             title: str = None,         # plot title
             x_label: str = None,       # label of x-axis
             y_label: str = None,       # label of y-axis
-            marker: str = 'o',         # marker style for each data point
-            markersize: int = 1,       # marker size for each data point
-            linestyle: str = 'None',   # line connecting data points
+            markers=None,              # single marker or list/tuple of markers
+            markersizes=None,          # single markersize or list/tuple of markersizes
+            linestyles=None,           # single linestyle or list/tuple of linestyles
+            colors=None,               # single color or list/tuple of colors
+            linewidths=None,           # single linewidt or list/tuple of linewidts
             left: float = None,        # cut off x-axis
             right: float = None,       # cut off x-axis
             bottom: float = None,      # cut off y-axis
@@ -191,18 +214,65 @@ class CurveSimResults(dict):
             plot_file: str = None,     # file name if the plot shall be saved as .png
     ) -> None:
         if data_labels is None:
-            data_labels = [f"data{i}" for i in range(len(data_list))]
+            data_labels = [f"data{i}" for i in range(len(y_lists))]
         plt.figure(figsize=(10, 6))
         plt.xlabel(x_label)
         plt.ylabel(y_label)
         plt.title(title)
         plt.ticklabel_format(useOffset=False, style='plain', axis='x')   # show x-labels as they are
+
+        n = len(y_lists)
+
+        def _to_list(val, default):
+            if val is None:
+                return [default]
+            if isinstance(val, (list, tuple)):
+                return list(val)
+            return [val]
+
+        def _expand_param(lst, name):
+            if len(lst) == 1:
+                return lst * n
+            if len(lst) == n:
+                return lst
+            raise ValueError(f"{name} must have length 1 or {n}")
+
+        markers_list = _to_list(markers, 'o')
+        markersizes_list = _to_list(markersizes, 1)
+        linestyles_list = _to_list(linestyles, 'None')
+        colors_list = _to_list(colors, 'Red')
+        linewidths_list = _to_list(linewidths, 1.5)
+
+
+        markers_per_curve = _expand_param(markers_list, "markers")
+        markersizes_per_curve = _expand_param(markersizes_list, "markersizes")
+        linestyles_per_curve = _expand_param(linestyles_list, "linestyles")
+        colors_per_curve = _expand_param(colors_list, "colors")
+        linewidths_per_curve = _expand_param(linewidths_list, "linewidths")
+
+        # Determine x arrays for each y-list:
+        # If x_lists is a list/tuple with same length as y_lists and length > 1, treat as per-curve x arrays.
+        # Otherwise treat x_lists as a single x array and broadcast to all curves.
+        if isinstance(x_lists, (list, tuple)) and len(x_lists) == len(y_lists) and len(x_lists) > 1:
+            x_iter = x_lists
+        else:
+            # single x array (can be ndarray or list); convert to numpy array for plotting
+            single_x = np.array(x_lists)
+            x_iter = [single_x] * len(y_lists)
+
         if left or right:
             plt.xlim(left=left, right=right)
         if bottom or top:
             plt.ylim(bottom=bottom, top=top)
-        for data, data_label in zip(data_list, data_labels):
-            plt.plot(x, data, marker=marker, markersize=markersize, linestyle=linestyle, label=data_label)
+
+        for x, data, data_label, marker, msize, ls, col, lw in zip(
+                x_iter, y_lists, data_labels, markers_per_curve, markersizes_per_curve, linestyles_per_curve, colors_per_curve, linewidths_per_curve):
+            plt.plot(x, data, marker=marker, markersize=msize, linestyle=ls, label=data_label, color=col, linewidth=lw)
+        # for x, data, data_label in zip(x_iter, y_lists, data_labels):
+        #     plt.plot(x, data, marker=marker, markersize=markersize, linestyle=linestyle, label=data_label)
+        # for data, data_label in zip(y_lists, data_labels):
+        #     plt.plot(x, data, marker=marker, markersize=markersize, linestyle=linestyle, label=data_label)
+
         if legend:
             plt.legend()
         if grid:
@@ -212,40 +282,20 @@ class CurveSimResults(dict):
         if show_plot:
             plt.show()
 
-    # def depth(self, body_name, time_d, savefilename=""):
-    #     transits = self["Bodies"][body_name]["Transits"]
-    #     transit_times = [transit["Transit_params"]["TT"] for transit in transits]
-    #     depths = [transit["Transit_params"]["depth"] for transit in transits]
-    #     CurveSimResults.plot_this(
-    #         x=transit_times,
-    #         data_list=[depths],
-    #         data_labels=[body_name],
-    #         title=f"{os.path.splitext(os.path.basename(savefilename))[0]}, {self["ProgramParameters"]["comment"]} (dt={self["ProgramParameters"]["dt"]})",
-    #         x_label='Transit Times [BJD]',
-    #         y_label='Depth',
-    #         linestyle='-',
-    #         markersize=4,
-    #         grid=True,
-    #         left=self["ProgramParameters"]["start_date"],
-    #         left=time_d[0],
-    #         right=time_d[-1],
-    #         plot_file=savefilename,
-    #     )
-
     def plot_parameter(self, eclipser, eclipsee, parameter, start, end, filename="", title=None):
         if not title:
             title = f"{os.path.splitext(os.path.basename(filename))[0]}, {self["ProgramParameters"]["comment"]} (dt={self["ProgramParameters"]["dt"]})"
         transit_times = self.get_transit_data(eclipser, eclipsee, "TT")
         parameter_list = self.get_transit_data(eclipser, eclipsee, parameter)
         CurveSimResults.plot_this(
-            x=transit_times,
-            data_list=[parameter_list],
+            x_lists=transit_times,
+            y_lists=[parameter_list],
             data_labels=[eclipser],
             title=title,
             x_label='Transit Times [BJD]',
             y_label=parameter,
-            linestyle='-',
-            markersize=4,
+            linestyles='-',
+            markersizes=4,
             grid=True,
             left=start,
             right=end,
@@ -257,36 +307,27 @@ class CurveSimResults(dict):
         parameter_list = [transit["Transit_params"][parameter] for transit in transits if transit["Transit_params"]["EclipsedBody"] == eclipsee]
         return parameter_list
 
-    def ttv_to_date_plot(self, p):
-        measured_tt = CurveSimMCMC.get_measured_tt(p)  # reads from p.tt_file
-        tt_tess = list(measured_tt["tt"])[:13]
+    @staticmethod
+    def ttv_to_date_plot(p, amplitude, period, x_offset, y_offset, osc_per):
+        measured_tt = CurveSimResults.get_measured_tt(p)  # reads from p.tt_file
+        tt_tess = np.array(measured_tt["tt"][:13], dtype=float)
         transit_numbers = [0, 1, 2, 3, 8, 9, 10, 11, 19, 20, 21, 28, 30]
-        osc_per = 82.79
-        # osc_per = 82.5438
         ttv_to_date = [tt - tt_tess[0] - n * osc_per for n, tt in zip(transit_numbers, tt_tess)]
 
-        amplitude = 2.0
-        period = 946.5
-        x_offset = -period / 2
-        y_offset = 0
-        sine_curve = [amplitude * np.sin(2 * np.pi * (x - tt_tess[0] - x_offset) / period) + y_offset for x in tt_tess]
-        deviation = [c - s for c, s in zip(ttv_to_date, sine_curve)]
-
-        print(f"{osc_per=}")
-        print(f"{transit_numbers=}")
-        print(f"{tt_tess=}")
-        print(f"{ttv_to_date=}")
-        print(f"{deviation=}")
+        x4sine = np.linspace(tt_tess[0], tt_tess[-1], 300)
+        sine_curve = amplitude * np.sin(2 * np.pi * (x4sine - tt_tess[0] - x_offset) / period) + y_offset
 
         CurveSimResults.plot_this(
-            x=tt_tess,
-            data_list=[ttv_to_date, sine_curve, deviation],
-            data_labels=["TTV to date", "Sine Curve", "Deviation"],
             title=f"TESS TT vs. mean osculating Period of TOI-4504 c ({osc_per:.4f})",
             x_label="Transit Times [BJD]",
             y_label="TTV to date [days]",
-            linestyle='-',
-            markersize=4,
+            x_lists=    [tt_tess,       x4sine],
+            y_lists=    [ttv_to_date,   sine_curve],
+            data_labels=["TTV to date", "Sine Curve"],
+            linestyles= ['',            '-'],
+            markersizes=[2,             0],
+            colors=     ["Red",         "Black"],
+            linewidths= [0,             1],
             grid=True,
             legend=True,
             plot_file=f"TTV_to_date_{osc_per:.4f}.png",

@@ -14,7 +14,7 @@ import os
 import sys
 import time
 
-from curvesimulator.cs_flux_data import csv2df
+# from curvesimulator.cs_flux_data import csv2df
 from curvesimulator.cs_bodies import CurveSimBodies
 
 
@@ -267,29 +267,6 @@ class CurveSimMCMC:
         residuals_tt = sim_flux - p.target_flux
         residuals_tt_sum_squared = np.sum(residuals_tt ** 2)
         return residuals_tt_sum_squared
-
-    @staticmethod
-    def get_measured_flux(p):
-        df = csv2df(p.flux_file)
-        df = df[df["time"] >= p.start_date]
-        df["time"] -= p.start_date
-        df["time"] *= p.day
-        time_s0 = np.array(df["time"], dtype=float)
-        measured_flux = np.array(df["flux"])
-        flux_err = np.array(df["flux_err"], dtype=float)
-        p.total_iterations = len(time_s0)
-        time_d = time_s0 / p.day + p.start_date
-        return time_s0, time_d, measured_flux, flux_err
-
-    @staticmethod
-    def get_measured_tt(p):
-        df = csv2df(p.tt_file)
-        df = df[df["tt"] >= p.start_date]
-        # tt_d = np.array(df["tt"])
-        # tt_s0 = (tt_d - p.start_date) * p.day
-        p.tt_datasize = len(df["tt"])
-        return df
-        # return tt_s0, tt_d, df
 
     @staticmethod
     def hdi_std_mean(data, credible_mass=0.68):

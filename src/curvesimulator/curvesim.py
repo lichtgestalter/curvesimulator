@@ -76,10 +76,10 @@ class CurveSimulator:
         if (p.flux_file or p.tt_file) and not p.single_run and not p.results_only:  # run fit?
             measured_flux, flux_uncertainty, measured_tt, time_s0, time_d, tt_s0, tt_d = (None,) * 7
             if p.flux_file:
-                time_s0, time_d, measured_flux, flux_uncertainty = CurveSimMCMC.get_measured_flux(p)
+                time_s0, time_d, measured_flux, flux_uncertainty = CurveSimResults.get_measured_flux(p)
             elif p.tt_file:
                 time_s0, time_d = CurveSimParameters.init_time_arrays(p)  # s0 in seconds, starting at 0. d in BJD.
-                measured_tt = CurveSimMCMC.get_measured_tt(p)
+                measured_tt = CurveSimResults.get_measured_tt(p)
             bodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
             p.init_fitting_parameter_dic()
             if p.guifit:
@@ -138,7 +138,8 @@ class CurveSimulator:
             # tt_sim = results.get_transit_data("TOI4504c", "TOI4504", "TT")
             # print(tt_sim)
 
-            CurveSimResults.ttv_to_date_plot(p)
+            CurveSimResults.ttv_to_date_plot(p, amplitude=2.0, period=946.5, x_offset=-473.25, y_offset=0, osc_per=82.79)
+            CurveSimResults.ttv_to_date_plot(p, amplitude=2.0, period=946.5, x_offset=-473.25, y_offset=0, osc_per=82.5438)
 
         self.parameters = p
         self.bodies = bodies
