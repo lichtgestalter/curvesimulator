@@ -319,7 +319,7 @@ class CurveSimResults(dict):
         sine_curve -= sine_curve[0]
 
         CurveSimResults.plot_this(
-            title=f"TESS TT vs. mean osculating Period of TOI-4504 c ({osc_per:.4f})",
+            title=f"TESS TT vs. mean osculating Period of TOI-4504 c \nOsc.per.={osc_per:.2f} d, Amplitude={amplitude:.2f} d, x-Offset={x_offset:.2f} d, Super Period={period:.2f})",
             x_label="Transit Times [BJD]",
             y_label="TTV to date [days]",
             x_lists=    [tt_tess,       x4sine],
