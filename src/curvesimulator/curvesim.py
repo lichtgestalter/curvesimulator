@@ -138,8 +138,8 @@ class CurveSimulator:
             # tt_sim = results.get_transit_data("TOI4504c", "TOI4504", "TT")
             # print(tt_sim)
 
-            CurveSimResults.ttv_to_date_plot(p, amplitude=2.0, period=946.5, x_offset=-473.25, y_offset=0, osc_per=82.79)
-            CurveSimResults.ttv_to_date_plot(p, amplitude=2.0, period=946.5, x_offset=-473.25, y_offset=0, osc_per=82.5438)
+            CurveSimResults.ttv_to_date_plot(p, amplitude=2.1, period=965, x_offset=-450, osc_per=82.83)
+            CurveSimResults.ttv_to_date_plot(p, amplitude=2.0, period=946.5, x_offset=-946.5/2, osc_per=82.5438)
 
         self.parameters = p
         self.bodies = bodies

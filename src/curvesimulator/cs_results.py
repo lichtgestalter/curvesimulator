@@ -308,14 +308,15 @@ class CurveSimResults(dict):
         return parameter_list
 
     @staticmethod
-    def ttv_to_date_plot(p, amplitude, period, x_offset, y_offset, osc_per):
+    def ttv_to_date_plot(p, amplitude, period, x_offset, osc_per):
         measured_tt = CurveSimResults.get_measured_tt(p)  # reads from p.tt_file
         tt_tess = np.array(measured_tt["tt"][:13], dtype=float)
         transit_numbers = [0, 1, 2, 3, 8, 9, 10, 11, 19, 20, 21, 28, 30]
         ttv_to_date = [tt - tt_tess[0] - n * osc_per for n, tt in zip(transit_numbers, tt_tess)]
 
         x4sine = np.linspace(tt_tess[0], tt_tess[-1], 300)
-        sine_curve = amplitude * np.sin(2 * np.pi * (x4sine - tt_tess[0] - x_offset) / period) + y_offset
+        sine_curve = amplitude * np.sin(2 * np.pi * (x4sine - tt_tess[0] - x_offset) / period)
+        sine_curve -= sine_curve[0]
 
         CurveSimResults.plot_this(
             title=f"TESS TT vs. mean osculating Period of TOI-4504 c ({osc_per:.4f})",
@@ -325,7 +326,7 @@ class CurveSimResults(dict):
             y_lists=    [ttv_to_date,   sine_curve],
             data_labels=["TTV to date", "Sine Curve"],
             linestyles= ['',            '-'],
-            markersizes=[2,             0],
+            markersizes=[4,             0],
             colors=     ["Red",         "Black"],
             linewidths= [0,             1],
             grid=True,
