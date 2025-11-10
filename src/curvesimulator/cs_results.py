@@ -311,7 +311,7 @@ class CurveSimResults(dict):
     def ttv_to_date_plot(p, amplitude, period, x_offset, osc_per):
         measured_tt = CurveSimResults.get_measured_tt(p)  # reads from p.tt_file
         tt_tess = np.array(measured_tt["tt"][:13], dtype=float)
-        transit_numbers = [0, 1, 2, 3, 8, 9, 10, 11, 19, 20, 21, 28, 30]
+        transit_numbers = np.array(measured_tt["nr"][:13], dtype=float)
         ttv_to_date = [tt - tt_tess[0] - n * osc_per for n, tt in zip(transit_numbers, tt_tess)]
 
         x4sine = np.linspace(tt_tess[0], tt_tess[-1], 300)
