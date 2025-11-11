@@ -115,12 +115,14 @@ class CurveSimulator:
             self.results = results
             vitkova_debug = True
             if vitkova_debug:
-                p.eclipsers = ["TOI4504c"]
+                p.eclipsers = ["TOI4504d"]
                 p.eclipsees = ["TOI4504"]
-                results.plot_parameter("TOI4504c", "TOI4504", "T14", time_d[0], time_d[-1],
-                                        filename=f"TOI4504c_i={bodies[2].i*p.rad2deg:.2f}_T14.png")
+                # results.plot_parameter("TOI4504c", "TOI4504", "T14", time_d[0], time_d[-1],
+                #                         filename=f"TOI4504c_i={bodies[2].i*p.rad2deg:.2f}_T14.png")
                 results.plot_parameter("TOI4504d", "TOI4504", "T14", time_d[0], time_d[-1],
                                         filename=f"TOI4504d_i={bodies[1].i*p.rad2deg:.2f}_T14.png")
+                results.plot_parameter("TOI4504d", "TOI4504", "depth", time_d[0], time_d[-1],
+                                        filename=f"TOI4504d_i={bodies[1].i*p.rad2deg:.2f}_depth.png")
 
                 # measured_tt = CurveSimMCMC.get_measured_tt(p)
                 # p.bodynames2bodies(bodies)
