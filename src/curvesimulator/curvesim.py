@@ -1,4 +1,5 @@
 # When testing, do not run this file directly. Run run_curvesim.py (in the parent directory) instead.
+import sys
 import time
 
 from .cs_animation import CurveSimAnimation
@@ -131,18 +132,19 @@ class CurveSimulator:
                 # dummy_mcmc.tt_delta_plot(1, "Vitkova_MaxL_tt_delta.png", measured_tt)
 
         else:  # p.results_only
-            time_s0, time_d = CurveSimParameters.init_time_arrays(p)  # s0 in seconds, starting at 0. d in BJD.
-            bodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
-            p.eclipsers = ["TOI4504c"]
-            p.eclipsees = ["TOI4504"]
+            # time_s0, time_d = CurveSimParameters.init_time_arrays(p)  # s0 in seconds, starting at 0. d in BJD.
+            # bodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
+
+            # p.eclipsers = ["TOI4504c"]
+            # p.eclipsees = ["TOI4504"]
 
             # results = CurveSimResults.load_results(p.result_file)
             # tt_sim = results.get_transit_data("TOI4504c", "TOI4504", "TT")
             # print(tt_sim)
 
             CurveSimResults.ttv_to_date_plot(p, amplitude=2.1, period=965, x_offset=-450, osc_per=82.83)
-            CurveSimResults.ttv_to_date_plot(p, amplitude=2.0, period=946.5, x_offset=-946.5/2, osc_per=82.5438)
-
+            CurveSimResults.ttv_to_date_plot(p, amplitude=2.0, period=946.5, x_offset=-393, osc_per=82.5438)
+            sys.exit(0)
         self.parameters = p
         self.bodies = bodies
 
