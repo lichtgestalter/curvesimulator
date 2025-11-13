@@ -222,5 +222,5 @@ def check_for_new_data(sector):
 #     get_new_lightcurve(sector)
 
 
-get_new_lightcurve(96)
-# check_for_new_data([91, 92, 93, 94, 95, 96, 97, 98])
+# get_new_lightcurve(97)
+check_for_new_data([96, 97, 98, 99])
