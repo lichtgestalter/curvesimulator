@@ -1,3 +1,20 @@
+- Meine Software testen mit 
+  - Kepler18
+    - https://ui.adsabs.harvard.edu/abs/2011ApJS..197....7C/abstract
+    - 
+  - TOI1130
+    - https://ui.adsabs.harvard.edu/abs/2023A%26A...675A.115K/abstract
+  - TOI-216
+    - https://iopscience.iop.org/article/10.3847/1538-3881/ab24ba/pdf
+  - Diverse Kepler
+    - https://arxiv.org/abs/1201.5415
+
+- Next Steps:
+  - MCMC mit Streuung starten, die der erwarteten Streuung entspricht
+  - Weitere andere System fitten, um meine Software zu validieren
+  - RV in TOI 4504 (zusaetzlich) mit fitten
+  - Simon: verstehen, was mean osculating period ist
+
 # Fragen an Simon, Calls mit Simon, Allgemeine Fragen an Akademiker, PR-Kontakte
 
 ## Fragen an Simon:
@@ -186,6 +203,28 @@ fitten
 - Passende Parameter fuer TOI4504, TOI4504c, TOI4504d gefunden
 - Konnte Vitkova Prognose nicht reproduzieren
 - Konnte Vitkova TTV (Figure 6) nicht reproduzieren
+
+#### Next Steps:
+- MCMC mit Streuung starten, die der erwarteten Streuung entspricht
+- Weitere andere System fitten, um meine Software zu validieren
+- Meine Software testen mit einem dieser Systeme/Paper 
+  - Kepler18
+    - https://ui.adsabs.harvard.edu/abs/2011ApJS..197....7C/abstract
+  - TOI1130
+    - https://ui.adsabs.harvard.edu/abs/2023A%26A...675A.115K/abstract
+  - TOI-216
+    - https://iopscience.iop.org/article/10.3847/1538-3881/ab24ba/pdf
+  - Diverse Kepler
+    - https://arxiv.org/abs/1201.5415
+- Chi Square ausrechnen und bei Fits in die Results schreiben
+  - Dann Plots machen, wo ich alle bis auf einen Parameter auf den optimalen 
+    Werten festhalte, den freien Parameter auf der x-Achse und Chi Squared 
+    auf der y-Achse plotten
+  - Siehe Blatt Chi Squared in TOI4504.xlsx
+- RV in TOI 4504 (zusaetzlich) mit fitten
+- Simon: verstehen, was mean osculating period ist
+
+
 
 
 ## Allgemeine Fragen an Akademiker:
