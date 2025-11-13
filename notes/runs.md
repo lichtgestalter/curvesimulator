@@ -181,6 +181,10 @@
   - Diese besten Fits haben im wesentlichen sehr aehnliche Parameterwerte.
 - T059 wie T058 aber Lmfit
 - T061 wie T060 aber Lmfit
+  - neue beste Startwerte
+  - upper/lower bounds sehr eng auf den Bereich, in dem das Optimum liegen muss.
+- T062 wie T061 aber Streuungen der Startwerte auf erwartete Streuung 
+  hochgesetzt und lower/upper bounds maximal gross
 
 ### MCMC-TT mit super Startwerten
 - X051 MCMC-TT basierend auf dem bisher besten lokalen Minimum von X050
