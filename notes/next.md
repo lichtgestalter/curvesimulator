@@ -48,7 +48,6 @@
 - Jeder Parameter soll seine eigene Skalierung haben koennen.
   - Also z.B. Sonnen-Masse anderen Faktor als Planetenmasse
 
-- (b,) c, d mit MaxL-Params von zB X036 festhalten, dann e fitten
 - nach einem Chunk auch die aktuelle Uhrzeit in die Konsole printen
 - Extra Spalte bei Body-Params in Configfile mit dem Wert n oder u
   - n normal distribution (Spalte sigma ist std einer Gaussglocke)
@@ -58,18 +57,7 @@
   
 ### LMfit
 - Multi LMFit: normalverteilte Startwerte
- 
-- Simulierte Daten fitten lassen
-  - Generiere mit den X024ML Parametern Simulierten Flux und TT Sim002
-  - Ablage unter data/simulations
-  - Konvergiert LMFit wenn Startwerte = Richtige Werte?
-    - Nein. 
-  - Konvergiert LMFit wenn Startwerte = Richtige Werte + x% Rauschen? 
-  - Verschiedene Methoden ausprobieren (Nelder, ...)
-  - LMfit mit Fluxdaten laufen lassen? (erfordert neuen Code)
-  
-- In den Resultfiles sinnvoll skalieren (deg statt rad etc.)
-
+- LMfit mit Fluxdaten laufen lassen? (erfordert neuen Code)
 
 ### TT-MCMC
 - BUG: Nach Wiederaufnahme von MCMC mit gespeicherten Chains (.h5 file) starten 
@@ -80,8 +68,8 @@
 - find_tts:
     - convert tts into a pandas Dataframe with columns eclipser, eclipsee, tt
 
-- zunaechst nur moeglich nach TT ODER flux zu fitten
-- spaeter gerne auch in Kombination
+- Derzeit nur moeglich nach TT ODER flux zu fitten.
+  - Kombination sinnvoll?
 
 ### Sonstige
 - Moeglichkeit entfernen, unterschiedliche dt konfigurieren zu koennen.
