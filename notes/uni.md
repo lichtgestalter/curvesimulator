@@ -223,6 +223,7 @@ fitten
   - Siehe Blatt Chi Squared in TOI4504.xlsx
 - RV in TOI 4504 (zusaetzlich) mit fitten
 - Simon: verstehen, was mean osculating period ist
+- Simon erste Dezemberhaelfte im Ausland und 14.1.-23.1. Pruefungen
 
 
 
