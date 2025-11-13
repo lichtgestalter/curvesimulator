@@ -222,6 +222,9 @@ fitten
     auf der y-Achse plotten
   - Siehe Blatt Chi Squared in TOI4504.xlsx
 - RV in TOI 4504 (zusaetzlich) mit fitten
+- Sternmasse als Prior einbauen
+  - Also als zusaetzliche Beobachtung inklusive Standardabweichung
+  - Implementierung siehe Code-Schnipsel in Mail von Simon vom 13.11.25
 - Simon: verstehen, was mean osculating period ist
 - Simon erste Dezemberhaelfte im Ausland und 14.1.-23.1. Pruefungen
 
