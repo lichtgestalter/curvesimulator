@@ -2,22 +2,30 @@
 
 ## Fragen an Simon:
 
-- Was war hiermit gmeint?:
-    - Um MCMC zu testen, von Hand gucken, welche Transits passen, die anderen 
-      aus den daten werfen
-    - dann nur einen Param leicht veraendern
-    - und nur den fitten
-   
+- Wie kriege ich MCMC zum konvergieren?
+- Wie kriege ich eine realistische Standardabweichung aus MCMC?
+- Was sind die naechsten Schritte?
+- Kannst du Vitkova-Parameter oder Uli-Parameter mit irgendeiner anderen 
+  Software verifizieren?
+
+
+  
 - KEPLER9 Paper
   - Secction 3: "Finally, for each individual planet we correct the output 
     time by the light-travel time effect."
   - Sollte ich das auch machen? Das heisst, wenn der Planet eine Lichtminute 
     Abstand vom Stern hat, _addiere_ ich eine Minute zu dem Transitzeitpunkt?
 
+- Kommt aus MCMC auch die Standardabweichung der gefitteten Parameter raus?
+    - Ich hab einfach mal mean und std von den samples genommen.
+    - War das korrekt oder wie kriegt man die raus?
+    - Varianz mit der Autokorrelation multiplizieren?
+    - Varianz durch die Anzahl walker dividieren?
+
+
 
 
 - Kann/solte man die Walker mit schlechter acceptance aussortieren?
-
 
 - Welche Parameter kann ich bestimmen, wenn ich nur die TT fitte?
   - Bei einem einzelnen Planeten
@@ -28,21 +36,12 @@
     - r, i: Nein!?!
   - In TOI4504?
 
-
-
-
-
-
-- Kommt aus MCMC auch die Standardabweichung der gefitteten Parameter raus?
-    - Ich hab einfach mal mean und std von den samples genommen.
-    - War das korrekt oder wie kriegt man die raus?
-    - Varianz mit der Autokorrelation multiplizieren?
-    - Varianz durch die Anzahl walker dividieren?
-
-- Wie gebe ich sinnvolle upper/lower bounds fuer z.B. ma=359 Grad an?
-- Ich glaube, deine Methoden zur Anpassung von abhaengigen Parametern sind fuer mich nicht relevant? (class TransformationManager)
-
-
+- Was war hiermit gmeint?:
+    - Um MCMC zu testen, von Hand gucken, welche Transits passen, die anderen 
+      aus den daten werfen
+    - dann nur einen Param leicht veraendern
+    - und nur den fitten
+   
 - Hast du Literatur zu multiple Transits / Fallunterscheidung bei gegenseitiger Ueberdeckung von 3 oder mehr Kreisen?
 
 ### Call mit Simon, 12.05.25:
