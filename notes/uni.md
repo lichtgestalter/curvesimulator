@@ -4,9 +4,9 @@
 
 - Wie kriege ich MCMC zum konvergieren?
 - Wie kriege ich eine realistische Standardabweichung aus MCMC?
-- Was sind die naechsten Schritte?
 - Kannst du Vitkova-Parameter oder Uli-Parameter mit irgendeiner anderen 
   Software verifizieren?
+- Was sind die naechsten Schritte?
 
 
   
@@ -22,8 +22,14 @@
     - Varianz mit der Autokorrelation multiplizieren?
     - Varianz durch die Anzahl walker dividieren?
 
+- Was war hiermit gmeint?:
+    - Um MCMC zu testen, von Hand gucken, welche Transits passen, die anderen 
+      aus den daten werfen
+    - dann nur einen Param leicht veraendern
+    - und nur den fitten
 
 
+-----------
 
 - Kann/solte man die Walker mit schlechter acceptance aussortieren?
 
@@ -36,11 +42,6 @@
     - r, i: Nein!?!
   - In TOI4504?
 
-- Was war hiermit gmeint?:
-    - Um MCMC zu testen, von Hand gucken, welche Transits passen, die anderen 
-      aus den daten werfen
-    - dann nur einen Param leicht veraendern
-    - und nur den fitten
    
 - Hast du Literatur zu multiple Transits / Fallunterscheidung bei gegenseitiger Ueberdeckung von 3 oder mehr Kreisen?
 
@@ -180,6 +181,11 @@ fitten
   mit den MaxL Parametern plotten
 
 
+### Call mit Simon, 13.11.25:
+#### Was ich gemacht habe
+- Passende Parameter fuer TOI4504, TOI4504c, TOI4504d gefunden
+- Konnte Vitkova Prognose nicht reproduzieren
+- Konnte Vitkova TTV (Figure 6) nicht reproduzieren
 
 
 ## Allgemeine Fragen an Akademiker:

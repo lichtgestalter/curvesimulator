@@ -1,14 +1,12 @@
 # Next / in progress:
 ## 0.5.6 Fitting TOI-4504
 
-- Einzel Simulation mit TT.csv vergleichen, Deltas plotten: in eigene 
-  Funktion packen
-- Osculating Period Plot in eigene Funktion packen
-- Figure 6
-  - Start @ T0 = 2458401.4086
-  - Waehle eine (vorlaeufige) osculating period, z.B. osc_per = 82.5438d
-  - Rechne delta[n] = T[n] - T[0] - n * osc_per
-  - Zeichne TT auf x-Achse und delta auf y-Achse
+
+- Funktion plot_tt_delta schreiben.
+  - Parameter: tt_file, result_file, plot_file
+  - Speichert Plot in plot_file (sehr aehnlich dem in CurveSimMCMC.
+    tt_delta_plot() oder benutzt sogar diese Funktion)
+
 
 - Simons Hausaufgaben 
   - Vitkova Figure 6 (mit den roten Punkten) der Verspaetungen der TT 
@@ -27,7 +25,7 @@
     - Vitkova Parameter als Startwerte nehmen
     - MCMC mit sehr kleiner Streuung um diese Startwerte starten
 
-- mcmc flux
+- mcmc flux wieder zum Laufen bringen
   - F056
   - laeuft jetzt, aber mean, maxL und median bleiben identisch und konstant
   - bei Gelegenheit debuggen
@@ -79,18 +77,14 @@ direkt nur die Residuen plotten.
 und CurveSimMCMC.residuals_tt_sum_squared entsprechend angepasst wird.
 (Vermutlich nicht schneller, aber etwas eleganter?)
 
-- Bei lokalen Minima:
-    Separate MCMC-Laeufe mit stark eingeschraenktem lower-upper-Intervall?
-
 - In einem File command.txt kann ich Anweisungen speichern, die nach jedem 
   Chunk oder sogar nach jeder Iteration ausgelesen werden. 
   - Eine Option: Erstelle Video/Resultfile/Simflux fuer die aktuelle max 
     likelihood
   - Erstelle jetzt saemtliche Result-Plots (statt nach jedem Chunk?)
 
-- MCMC mit 20k Walker, Startwerte ueber sehr grossen Wertebereich fast 
-gleichverteilt
-- Andere Moves probieren (Parameter a von Stretching erhoehen brachte erstmal 
+- Andere emcee-Moves probieren (Parameter a von Stretching erhoehen brachte 
+  erstmal 
   nix)
 
 -Kompliziertere Fitting-Parameter Bereiche zulassen. 
@@ -109,9 +103,6 @@ gleichverteilt
 - Simulationscheck klappt fuer Drehimpuls, Energie und Center of Mass, aber 
 nicht fuer Impuls.
     - Vielleicht Berechnungsfehler des Impulses?
-
-- Lassen sich die Flux-Daten durch eine manuell von mir gemachte alternative 
-Pixelmaske verbessern? Z.B. 4x4 statt 3x2?
 
 
 ## Programming Hinter MCMC-Integration zurueckgestellt:
