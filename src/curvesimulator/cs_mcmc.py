@@ -92,7 +92,7 @@ def append_line_locked(filename, line, wait=0.1):
 class CurveSimMCMC:
 
     def __init__(self, p, bodies, time_s0, time_d, measured_flux, flux_err, measured_tt, dummy_object=False):
-        self.fitting_results_directory = ""
+        self.fitting_results_directory = p.fitting_results_directory
         if dummy_object:
             return
         os.environ["OMP_NUM_THREADS"] = "1"  # Some builds of NumPy automatically parallelize some operations. This can cause problems when multi processing inside emcee is enabled. Turn that off by setting the environment variable OMP_NUM_THREADS=1.
