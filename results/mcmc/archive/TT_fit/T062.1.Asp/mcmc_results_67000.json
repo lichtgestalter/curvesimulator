@@ -1,7 +1,7 @@
 {
     "CurveSimulator Documentation": "https://github.com/lichtgestalter/curvesimulator/wiki",
     "Simulation Parameters": {
-        "comment": "T062",
+        "comment": "T062.",
         "start_realtime": "14.11.25 11:15:47 [DD.MM.YY hh:mm:ss]",
         "end_realtime": "17.11.25 12:47:01 [DD.MM.YY hh:mm:ss]",
         "run_time": "03:01:31:02 [dd:hh:mm:ss]",
