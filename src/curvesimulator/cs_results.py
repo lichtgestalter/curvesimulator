@@ -168,8 +168,10 @@ class CurveSimResults(dict):
         results.update(data)
         return results
 
-    def calc_rv(rebound_sim, p):
-        pass
+    def calc_rv(self, rebound_sim, p):
+        rebound_sim.integrate(hier_weiter)
+        # Vielleicht df mit Spalten aus rv.csv und t in sekunden (rebound time) und BJD und vx von rebound returnieren
+        return
 
     @staticmethod
     def get_measured_flux(p):

@@ -402,6 +402,7 @@ class CurveSimBody:
                 depth = self.depth_at_tt(other, eclipser, eclipsee)
             else:
                 depth = 0
+            # print(f"{tt:12.6f};{eclipsee.vz:8.2f}")
             return tt, impact, depth, close_enough
         else:
             if p.verbose:
