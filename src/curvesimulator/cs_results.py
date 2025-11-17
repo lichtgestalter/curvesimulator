@@ -169,7 +169,7 @@ class CurveSimResults(dict):
         return results
 
     def calc_rv(self, rebound_sim, p):
-        rebound_sim.integrate(hier_weiter)
+        rebound_sim.integrate(hier__weiter)
         # Vielleicht df mit Spalten aus rv.csv und t in sekunden (rebound time) und BJD und vx von rebound returnieren
         return
 
