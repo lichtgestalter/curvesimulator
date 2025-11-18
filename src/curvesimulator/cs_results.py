@@ -168,10 +168,22 @@ class CurveSimResults(dict):
         results.update(data)
         return results
 
-    def calc_rv(self, rebound_sim, p):
-        rebound_sim.integrate(hier__weiter)
-        # Vielleicht df mit Spalten aus rv.csv und t in sekunden (rebound time) und BJD und vx von rebound returnieren
-        return
+    def calc_rv(self, measured_rv, body_name, rebound_sim, p):
+
+        def t2vz(t, rebound_sim, body):
+            rebound_sim.integrate(t)
+            return -body.vz
+
+        body = rebound_sim.particles[body_name]
+        measured_rv["rv_sim"] = [t2vz(t, rebound_sim, body) for t in measured_rv["time_s0"]]
+        measured_rv["chi_square"] = (measured_rv["rv_rel"] - measured_rv["rv_sim"]) / measured_rv["rv_jit"]
+        measured_rv["chi_square"] = measured_rv["chi_square"] * measured_rv["chi_square"]
+        chi_square = measured_rv["chi_square"].sum()
+
+        print(f"{chi_square=:10.2f}")
+
+        print(measured_rv)
+        exit(1234)
 
     @staticmethod
     def get_measured_flux(p):
@@ -191,6 +203,14 @@ class CurveSimResults(dict):
         df = csv2df(p.tt_file)
         df = df[df["tt"] >= p.start_date]
         p.tt_datasize = len(df["tt"])
+        return df
+
+    @staticmethod
+    def get_measured_rv(p):
+        df = csv2df(p.rv_file)
+        df = df[df["time"] >= p.start_date]
+        p.rv_datasize = len(df["time"])
+        df["time_s0"] = (df["time"] - p.start_date) * p.day
         return df
 
     @staticmethod
@@ -335,4 +355,3 @@ class CurveSimResults(dict):
             legend=True,
             plot_file=f"TTV_to_date_{osc_per:.4f}.png",
         )
-

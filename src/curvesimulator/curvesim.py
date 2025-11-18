@@ -106,7 +106,8 @@ class CurveSimulator:
             if p.result_file:
                 results = bodies.find_transits(rebound_sim, p, sim_flux, time_s0, time_d)
                 if p.rv_file:
-                    results.calc_rv(rebound_sim, p)
+                    measured_rv = CurveSimResults.get_measured_rv(p)
+                    measured_rv = results.calc_rv(measured_rv, bodies[0].name, rebound_sim, p)  # debug: later replace bodies[0].name with some parameter e.g. p.rv_body
                 results.save_results(p)
             if p.video_file:
                 CurveSimAnimation(p, bodies, sim_flux, time_s0)  # Create the video
