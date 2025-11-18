@@ -21,8 +21,6 @@
 
 - Wie kriege ich MCMC zum konvergieren?
 - Wie kriege ich eine realistische Standardabweichung aus MCMC?
-- Kannst du Vitkova-Parameter oder Uli-Parameter mit irgendeiner anderen 
-  Software verifizieren?
 - Was sind die naechsten Schritte?
 
 
@@ -61,6 +59,9 @@
 
    
 - Hast du Literatur zu multiple Transits / Fallunterscheidung bei gegenseitiger Ueberdeckung von 3 oder mehr Kreisen?
+
+
+### Erster Call mit Simon, 24.04.25:
 
 ### Call mit Simon, 12.05.25:
 
@@ -203,6 +204,11 @@ fitten
 - Passende Parameter fuer TOI4504, TOI4504c, TOI4504d gefunden
 - Konnte Vitkova Prognose nicht reproduzieren
 - Konnte Vitkova TTV (Figure 6) nicht reproduzieren
+
+#### Fragen/Antworten
+- Kannst du Vitkova-Parameter oder Uli-Parameter mit irgendeiner anderen
+  (n-body-)Software verifizieren?
+  - Nein
 
 #### Next Steps:
 - MCMC mit Streuung starten, die der erwarteten Streuung entspricht

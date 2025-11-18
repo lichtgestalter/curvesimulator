@@ -2,13 +2,13 @@
 ## 0.5.6 Fitting TOI-4504
 
 
-- Funktion plot_tt_delta schreiben.
+- Funktion plot_tt_delta fuer single run schreiben.
   - Parameter: tt_file, result_file, plot_file
   - Speichert Plot in plot_file (sehr aehnlich dem in CurveSimMCMC.
     tt_delta_plot() oder benutzt sogar diese Funktion)
 
 
-- Simons Hausaufgaben 
+- Simons Hausaufgaben vom 
   - Vitkova Figure 6 (mit den roten Punkten) der Verspaetungen der TT 
     gegenueber 
     einer konstanten Periode reproduzieren
