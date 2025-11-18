@@ -1,7 +1,6 @@
 # Next / in progress:
 ## 0.5.6 Fitting TOI-4504
 
-
 - Funktion plot_tt_delta fuer single run schreiben.
   - Parameter: tt_file, result_file, plot_file
   - Speichert Plot in plot_file (sehr aehnlich dem in CurveSimMCMC.
