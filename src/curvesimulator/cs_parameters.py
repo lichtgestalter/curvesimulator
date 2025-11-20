@@ -47,8 +47,9 @@ class CurveSimParameters:
         self.transit_precision = eval(config.get("Results", "transit_precision", fallback="1"))
 
         # [Simulation]
-        self.single_run = eval(config.get("Simulation", "single_run", fallback="False"))
-        self.results_only = eval(config.get("Simulation", "results_only", fallback="False"))
+        self.action = config.get("Simulation", "action", fallback="results_only")
+        # self.single_run = eval(config.get("Simulation", "single_run", fallback="False"))
+        # self.results_only = eval(config.get("Simulation", "results_only", fallback="False"))
         self.dt = eval(config.get("Simulation", "dt"))
         self.start_date = eval(config.get("Simulation", "start_date", fallback="0.0"))
 
@@ -59,6 +60,7 @@ class CurveSimParameters:
         self.flux_file = config.get("Fitting", "flux_file", fallback=None)
         self.tt_file = config.get("Fitting", "tt_file", fallback=None)
         self.rv_file = config.get("Fitting", "rv_file", fallback=None)
+        self.rv_body = config.get("Fitting", "rv_body", fallback=None)
         self.eclipsers_names = list([x.strip() for x in config.get("Fitting", "eclipsers_names", fallback="None").split("#")[0].split(",")])
         self.eclipsees_names = list([x for x in config.get("Fitting", "eclipsees_names", fallback="None").split("#")[0].split(",")])
 

@@ -1,4 +1,5 @@
 # When testing, do not run this file directly. Run run_curvesim.py (in the parent directory) instead.
+from colorama import Fore, Style
 import sys
 import time
 
@@ -74,7 +75,8 @@ class CurveSimulator:
         p = CurveSimParameters(config_file)  # Read program parameters from config file.
         if p.verbose:
             print(p)
-        if (p.flux_file or p.tt_file) and not p.single_run and not p.results_only:  # run fit?
+        if p.action in ["lmfit", "guifit", "mcmc"]:
+        # if (p.flux_file or p.tt_file) and not p.single_run and not p.results_only:  # run fit?
             measured_flux, flux_uncertainty, measured_tt, time_s0, time_d, tt_s0, tt_d = (None,) * 7
             if p.flux_file:
                 time_s0, time_d, measured_flux, flux_uncertainty = CurveSimResults.get_measured_flux(p)
@@ -83,22 +85,26 @@ class CurveSimulator:
                 measured_tt = CurveSimResults.get_measured_tt(p)
             bodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
             p.init_fitting_parameter_dic()
-            if p.guifit:
+            if p.action == "guifit":
                 p.enrich_fitting_params(bodies)
                 self.guifit = CurveSimManualFit(p, bodies, time_s0, time_d, measured_tt)
                 self.guifit.save_lmfit_results(p)
-            elif p.lmfit:
+                sys.exit(0)
+            elif p.action == "lmfit":
                 num_workers = max(1, os.cpu_count() - 1)  # number of parallel lmfit runs (multiprocessing). Leave one CPU availabe for other programs
                 total_runs = 1000  # total number of lmfit runs
                 print(f"{num_workers=}, {total_runs=}")
                 while True:
                     tasks = [(config_file, time_s0, time_d, measured_tt, p, i) for i in range(total_runs)]
                     run_all_queue(tasks, num_workers)
-            else:
+            if p.action == "mcmc":
                 mcmc = CurveSimMCMC(p, bodies, time_s0, time_d, measured_flux, flux_uncertainty, measured_tt)
                 self.sampler = mcmc.sampler  # mcmc object
                 self.theta = mcmc.theta  # current state of mcmc chains. By saving sampler and theta it is possible to continue the mcmc later on.
-        elif p.single_run:  # run a single simulation
+            else:
+                print(f"{Fore.RED}ERROR: Invalid parameter 'action' in configuration file {Style.RESET_ALL}")
+                sys.exit(1)
+        elif p.action == "single_run":
             time_s0, time_d = CurveSimParameters.init_time_arrays(p)  # s0 in seconds, starting at 0. d in BJD.
             bodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
             sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # Calculate all body positions and the resulting lightcurve
@@ -107,7 +113,7 @@ class CurveSimulator:
                 results = bodies.find_transits(rebound_sim, p, sim_flux, time_s0, time_d)
                 if p.rv_file:
                     measured_rv = CurveSimResults.get_measured_rv(p)
-                    measured_rv = results.calc_rv(measured_rv, bodies[0].name, rebound_sim, p)  # debug: later replace bodies[0].name with some parameter e.g. p.rv_body
+                    measured_rv = results.calc_rv(measured_rv, p.rv_body, rebound_sim, p)
                 results.save_results(p)
             if p.video_file:
                 CurveSimAnimation(p, bodies, sim_flux, time_s0)  # Create the video
@@ -132,7 +138,7 @@ class CurveSimulator:
                 # dummy_mcmc = CurveSimMCMC(None, None, None, None, None, None, None, dummy_object=True)
                 # dummy_mcmc.tt_delta_plot(1, "Vitkova_MaxL_tt_delta.png", measured_tt)
 
-        else:  # p.results_only
+        elif p.action == "results_only":
             # time_s0, time_d = CurveSimParameters.init_time_arrays(p)  # s0 in seconds, starting at 0. d in BJD.
             # bodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
 
@@ -148,6 +154,9 @@ class CurveSimulator:
             CurveSimResults.ttv_to_date_plot(p, amplitude=2.08, period=965, x_offset=-449, osc_per=82.834)
             CurveSimResults.ttv_to_date_plot(p, amplitude=2.0, period=946.5, x_offset=-393, osc_per=82.5438)
             sys.exit(0)
+        else:
+            print(f"{Fore.RED}ERROR: Invalid parameter 'action' in configuration file {Style.RESET_ALL}")
+            sys.exit(1)
         self.parameters = p
         self.bodies = bodies
 
