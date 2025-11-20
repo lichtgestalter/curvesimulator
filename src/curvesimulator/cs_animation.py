@@ -46,7 +46,7 @@ class CurveSimAnimation:
     @staticmethod
     def init_left_plot(p):
         # left plot (overhead view)
-        ax_left = plt.subplot2grid(shape=(5, 2), loc=(0, 0), rowspan=4, colspan=1)
+        ax_left = plt.subplot2grid(shape=(6, 2), loc=(0, 0), rowspan=4, colspan=1)
         ax_left.set_xlim(-p.xlim, p.xlim)
         ax_left.set_ylim(-p.ylim, p.ylim)
         ax_left.set_aspect('equal')
@@ -56,7 +56,7 @@ class CurveSimAnimation:
     @staticmethod
     def init_right_plot(p):
         # right plot (edge-on view)
-        ax_right = plt.subplot2grid(shape=(5, 2), loc=(0, 1), rowspan=4, colspan=1)
+        ax_right = plt.subplot2grid(shape=(6, 2), loc=(0, 1), rowspan=4, colspan=1)
         ax_right.set_xlim(-p.xlim, p.xlim)
         ax_right.set_ylim(-p.ylim, p.ylim)
         ax_right.set_aspect('equal')
@@ -67,7 +67,7 @@ class CurveSimAnimation:
     @staticmethod
     def init_lightcurve_plot(sim_flux, time_s0, p):
         # lightcurve
-        ax_lightcurve = plt.subplot2grid(shape=(5, 1), loc=(4, 0), rowspan=1, colspan=1)
+        ax_lightcurve = plt.subplot2grid(shape=(6, 1), loc=(4, 0), rowspan=1, colspan=1)
         ax_lightcurve.set_facecolor("black")  # background color
         ax_lightcurve.text(1.00, -0.05, "BJD (TDB)", color='grey', fontsize=10, ha='right', va='bottom', transform=ax_lightcurve.transAxes)
 
@@ -109,7 +109,7 @@ class CurveSimAnimation:
     @staticmethod
     def init_rv_curve_plot(sim_rv, time_s0, p):
         # rv_curve
-        ax_rv_curve = plt.subplot2grid(shape=(5, 1), loc=(4, 0), rowspan=1, colspan=1)
+        ax_rv_curve = plt.subplot2grid(shape=(6, 1), loc=(5, 0), rowspan=1, colspan=1)
         ax_rv_curve.set_facecolor("black")  # background color
         ax_rv_curve.text(1.00, -0.05, "BJD (TDB)", color='grey', fontsize=10, ha='right', va='bottom', transform=ax_rv_curve.transAxes)
 
@@ -144,7 +144,7 @@ class CurveSimAnimation:
         # rv_curve red dot
         rv_dot = matplotlib.patches.Ellipse((0, 0), (time_s0[-1] - time_s0[0]) * p.rv_dot_width / p.day, scope * p.rv_dot_height)  # matplotlib patch
         rv_dot.set(zorder=2)  # Dot in front of rv_curve.
-        rv_dot.set_color((1, 0, 0))  # red
+        rv_dot.set_color((0, 1, 0))  # green
         ax_rv_curve.add_patch(rv_dot)
         return ax_rv_curve, rv_dot
 
