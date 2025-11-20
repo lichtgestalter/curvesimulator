@@ -236,7 +236,7 @@ class CurveSimMCMC:
         for body_index, parameter_name in param_references:
             bodies[body_index].__dict__[parameter_name] = theta[i]  # update all parameters from theta
             i += 1
-        sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # run simulation
+        sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # run simulation
         residuals_flux = (measured_flux - sim_flux) / flux_err  # residuals are weighted with uncertainty!
         residuals_flux_sum_squared = np.sum(residuals_flux ** 2)
         return residuals_flux_sum_squared
@@ -248,7 +248,7 @@ class CurveSimMCMC:
         for body_index, parameter_name in param_references:
             bodies[body_index].__dict__[parameter_name] = theta[i]  # update all parameters from theta
             i += 1
-        sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # run simulation
+        sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # run simulation
         residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
         return residuals_tt_sum_squared
 
@@ -262,7 +262,7 @@ class CurveSimMCMC:
         for body_index, parameter_name in param_references:
             bodies[body_index].__dict__[parameter_name] = theta[i]  # update all parameters from theta
             i += 1
-        sim_flux, _ = bodies.calc_physics(p, time_s0)  # run simulation
+        sim_rv, sim_flux, _ = bodies.calc_physics(p, time_s0)  # run simulation
 
         residuals_tt = sim_flux - p.target_flux
         residuals_tt_sum_squared = np.sum(residuals_tt ** 2)
@@ -365,7 +365,7 @@ class CurveSimMCMC:
         for body_index, parameter_name in self.param_references:
             bodies[body_index].__dict__[parameter_name] = self.max_likelihood_params[i]  # update all parameters from theta
             i += 1
-        sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # run simulation
+        sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # run simulation
         residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
         return measured_tt
 
@@ -861,7 +861,7 @@ class CurveSimLMfit:
         # measured_tt: pandas DataFrame with columns eclipser, tt, tt_err
         for body_index, parameter_name in param_references:
             bodies[body_index].__dict__[parameter_name] = params[bodies[body_index].name + "_" + parameter_name].value  # update all parameters from params
-        sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # run simulation
+        sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # run simulation
         residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
         return residuals_tt_sum_squared
 

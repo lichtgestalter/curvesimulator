@@ -104,8 +104,10 @@ class CurveSimParameters:
             self.figure_height = eval(config.get("Plot", "figure_height", fallback="8"))
             self.xlim = eval(config.get("Plot", "xlim", fallback="1.25"))
             self.ylim = eval(config.get("Plot", "ylim", fallback="1.0"))
-            self.red_dot_height = eval(config.get("Plot", "red_dot_height", fallback="0.077"))
-            self.red_dot_width = eval(config.get("Plot", "red_dot_width", fallback="0.005"))
+            self.flux_dot_height = eval(config.get("Plot", "flux_dot_height", fallback="0.077"))
+            self.flux_dot_width = eval(config.get("Plot", "flux_dot_width", fallback="0.005"))
+            self.rv_dot_height = eval(config.get("Plot", "rv_dot_height", fallback="0.077"))
+            self.rv_dot_width = eval(config.get("Plot", "rv_dot_width", fallback="0.005"))
         else:  # run MCMC, fit parameters to flux measurements
             # [Fitting]
             self.fitting_results_directory = config.get("Fitting", "fitting_results_directory", fallback="None")

@@ -9,15 +9,15 @@ import time
 
 class CurveSimAnimation:
 
-    def __init__(self, p, bodies, sim_flux, time_s0):
+    def __init__(self, p, bodies, sim_rv, sim_flux, time_s0):
         CurveSimAnimation.check_ffmpeg()
-        self.fig, ax_right, ax_left, ax_lightcurve, self.red_dot = CurveSimAnimation.init_plot(p, sim_flux, time_s0)  # Adjust constants in section [Plot] of config file to fit your screen.
+        self.fig, ax_right, ax_left, ax_lightcurve, self.flux_dot = CurveSimAnimation.init_plot(p, sim_rv, sim_flux, time_s0)  # Adjust constants in section [Plot] of config file to fit your screen.
         for body in bodies:  # Circles represent the bodies in the animation. Set their colors and add them to the matplotlib axis.
             body.circle_right.set_color(body.color)
             body.circle_left.set_color(body.color)
             ax_right.add_patch(body.circle_right)
             ax_left.add_patch(body.circle_left)
-        self.render(p, bodies, sim_flux, time_s0)
+        self.render(p, bodies, sim_rv, sim_flux, time_s0)
 
     @staticmethod
     def check_ffmpeg():
@@ -100,19 +100,60 @@ class CurveSimAnimation:
         ax_lightcurve.plot(time_s0 / p.day, sim_flux, color="white")
 
         # lightcurve red dot
-        red_dot = matplotlib.patches.Ellipse((0, 0), (time_s0[-1] - time_s0[0]) * p.red_dot_width / p.day, scope * p.red_dot_height)  # matplotlib patch
-        # red_dot = matplotlib.patches.Ellipse((0, 0), p.iterations * p.dt * p.red_dot_width / spd, scope * p.red_dot_height)  # matplotlib patch
-        red_dot.set(zorder=2)  # Dot in front of lightcurve.
-        red_dot.set_color((1, 0, 0))  # red
-        ax_lightcurve.add_patch(red_dot)
-        return ax_lightcurve, red_dot
+        flux_dot = matplotlib.patches.Ellipse((0, 0), (time_s0[-1] - time_s0[0]) * p.flux_dot_width / p.day, scope * p.flux_dot_height)  # matplotlib patch
+        flux_dot.set(zorder=2)  # Dot in front of lightcurve.
+        flux_dot.set_color((1, 0, 0))  # red
+        ax_lightcurve.add_patch(flux_dot)
+        return ax_lightcurve, flux_dot
 
     @staticmethod
-    def init_plot(p, sim_flux, time_s0):
+    def init_rv_curve_plot(sim_rv, time_s0, p):
+        # rv_curve
+        ax_rv_curve = plt.subplot2grid(shape=(5, 1), loc=(4, 0), rowspan=1, colspan=1)
+        ax_rv_curve.set_facecolor("black")  # background color
+        ax_rv_curve.text(1.00, -0.05, "BJD (TDB)", color='grey', fontsize=10, ha='right', va='bottom', transform=ax_rv_curve.transAxes)
+
+        # rv_curve x-ticks, x-labels
+        ax_rv_curve.tick_params(axis='x', colors='grey')
+        xmax = time_s0[-1] / p.day
+        ax_rv_curve.set_xlim(0, xmax)
+        x_listticdelta = CurveSimAnimation.tic_delta(xmax)
+        digits = max(0, round(-math.log10(x_listticdelta) + 0.4))  # The labels get as many decimal places as the intervals between the tics.
+        xvalues = [x * x_listticdelta for x in range(round(xmax / x_listticdelta))]
+        xlabels = [f'{round(x + p.start_date, 4):.{digits}f}' for x in xvalues]
+        ax_rv_curve.set_xticks(xvalues, labels=xlabels)
+
+        # rv_curve y-ticks, y-labels
+        ax_rv_curve.tick_params(axis='y', colors='grey')
+        minl = sim_rv.min(initial=None)
+        maxl = sim_rv.max(initial=None)
+        if minl == maxl:
+            minl *= 0.99
+        scope = maxl - minl
+        buffer = 0.05 * scope
+        ax_rv_curve.set_ylim(minl - buffer, maxl + buffer)
+        y_listticdelta = CurveSimAnimation.tic_delta(scope)
+        digits = max(0, round(-math.log10(y_listticdelta) + 0.4) - 2)  # The labels get as many decimal places as the intervals between the tics.
+        yvalues = [1 - y * y_listticdelta for y in range(round(float((maxl - minl) / y_listticdelta)))]
+        ylabels = [f'{round(100 * y, 10):.{digits}f} %' for y in yvalues]
+        ax_rv_curve.set_yticks(yvalues, labels=ylabels)
+
+        # rv_curve data (white line)
+        ax_rv_curve.plot(time_s0 / p.day, sim_rv, color="white")
+
+        # rv_curve red dot
+        rv_dot = matplotlib.patches.Ellipse((0, 0), (time_s0[-1] - time_s0[0]) * p.rv_dot_width / p.day, scope * p.rv_dot_height)  # matplotlib patch
+        rv_dot.set(zorder=2)  # Dot in front of rv_curve.
+        rv_dot.set_color((1, 0, 0))  # red
+        ax_rv_curve.add_patch(rv_dot)
+        return ax_rv_curve, rv_dot
+
+    @staticmethod
+    def init_plot(p, sim_rv, sim_flux, time_s0):
         """Initialize the matplotlib figure containing 3 axis:
         Top left: overhead view
         Top right: edge-on view
-        Bottom: lightcurve"""
+        Bottom: lightcurve and rv_curve"""
         fig = plt.figure()
         fig.set_figwidth(p.figure_width)
         fig.set_figheight(p.figure_height)
@@ -122,13 +163,14 @@ class CurveSimAnimation:
 
         ax_left = CurveSimAnimation.init_left_plot(p)
         ax_right = CurveSimAnimation.init_right_plot(p)
-        ax_lightcurve, red_dot = CurveSimAnimation.init_lightcurve_plot(sim_flux, time_s0, p)
+        ax_lightcurve, flux_dot = CurveSimAnimation.init_lightcurve_plot(sim_flux, time_s0, p)
+        ax_rv_curve, rv_dot = CurveSimAnimation.init_rv_curve_plot(sim_rv, time_s0, p)
         plt.tight_layout()  # Automatically adjust padding horizontally as well as vertically.
 
-        return fig, ax_right, ax_left, ax_lightcurve, red_dot
+        return fig, ax_right, ax_left, ax_lightcurve, flux_dot
 
     @staticmethod
-    def next_frame(frame, p, bodies, red_dot, sim_flux, time_s0):
+    def next_frame(frame, p, bodies, flux_dot, sim_rv, sim_flux, time_s0):
         """Update patches. Send new circle positions to animation function.
         First parameter comes from iterator frames (a parameter of FuncAnimation).
         The other parameters are given to this function via the parameter fargs of FuncAnimation."""
@@ -144,17 +186,17 @@ class CurveSimAnimation:
         for body in bodies:  # right view: projection (x,y,z) -> (x,y), order = z (z-axis points to viewer)
             body.circle_right.set(zorder=body.positions[frame * p.sampling_rate][2])
             body.circle_right.center = body.positions[frame * p.sampling_rate][0] / p.scope_right, body.positions[frame * p.sampling_rate][1] / p.scope_right
-        red_dot.center = time_s0[frame * p.sampling_rate] / p.day, sim_flux[frame * p.sampling_rate]
+        flux_dot.center = time_s0[frame * p.sampling_rate] / p.day, sim_flux[frame * p.sampling_rate]
         if frame >= 10 and frame % int(round(p.frames / 10)) == 0:  # Inform user about program's progress.
             print(f'{round(frame / p.frames * 10) * 10:3d}% ', end="")
 
-    def render(self, p, bodies, sim_flux, time_s0):
+    def render(self, p, bodies, sim_rv, sim_flux, time_s0):
         """Calls next_frame() for each frame and saves the video."""
         if p.verbose:
             print(f'Animating {p.frames:8d} frames:     ', end="")
             tic = time.perf_counter()
         frames = len(sim_flux) // p.sampling_rate
-        anim = matplotlib.animation.FuncAnimation(self.fig, CurveSimAnimation.next_frame, fargs=(p, bodies, self.red_dot, sim_flux, time_s0), interval=1000 / p.fps, frames=frames, blit=False)
+        anim = matplotlib.animation.FuncAnimation(self.fig, CurveSimAnimation.next_frame, fargs=(p, bodies, self.flux_dot, sim_rv, sim_flux, time_s0), interval=1000 / p.fps, frames=frames, blit=False)
         anim.save(
             p.video_file,
             fps=p.fps,

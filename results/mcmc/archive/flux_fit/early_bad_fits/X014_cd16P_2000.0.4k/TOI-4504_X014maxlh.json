@@ -65,8 +65,8 @@
         "figure_height": 8,
         "xlim": 1.25,
         "ylim": 1.0,
-        "red_dot_height": 0.05,
-        "red_dot_width": 0.00425531914893617
+        "flux_dot_height": 0.05,
+        "flux_dot_width": 0.00425531914893617
     },
     "Bodies": {
         "TOI-4504": {
