@@ -77,7 +77,8 @@ class CurveSimParameters:
         self.dts = np.array(eval(config.get("Simulation", "dts", fallback="[]")), dtype=float)
 
         self.sim_flux_file = config.get("Simulation", "sim_flux_file", fallback=None)
-        if self.flux_file is None and self.tt_file is None and self.rv_file is None:  # run simulation, generate video and transit results
+        if self.action == "single_run":  # run simulation, generate video and transit results
+        # if self.flux_file is None and self.tt_file is None and self.rv_file is None:  # run simulation, generate video and transit results
             if self.sim_flux_file == "None":
                 self.sim_flux_file = None
             self.sim_flux_err = eval(config.get("Simulation", "sim_flux_err", fallback="0.0"))

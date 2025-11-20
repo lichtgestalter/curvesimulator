@@ -179,11 +179,9 @@ class CurveSimResults(dict):
         measured_rv["chi_square"] = (measured_rv["rv_rel"] - measured_rv["rv_sim"]) / measured_rv["rv_jit"]
         measured_rv["chi_square"] = measured_rv["chi_square"] * measured_rv["chi_square"]
         chi_square = measured_rv["chi_square"].sum()
-
         print(f"{chi_square=:10.2f}")
-
-        print(measured_rv)
-        exit(1234)
+        # print(measured_rv)
+        # exit(1234)
 
     @staticmethod
     def get_measured_flux(p):

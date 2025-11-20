@@ -109,14 +109,14 @@ class CurveSimulator:
             bodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
             sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # Calculate all body positions and the resulting lightcurve
             results = None
+            if p.video_file:
+                CurveSimAnimation(p, bodies, sim_rv, sim_flux, time_s0)  # Create the video
             if p.result_file:
                 results = bodies.find_transits(rebound_sim, p, sim_flux, time_s0, time_d)
                 if p.rv_file:
                     measured_rv = CurveSimResults.get_measured_rv(p)
                     measured_rv = results.calc_rv(measured_rv, p.rv_body, rebound_sim, p)
                 results.save_results(p)
-            if p.video_file:
-                CurveSimAnimation(p, bodies, sim_rv, sim_flux, time_s0)  # Create the video
             if p.sim_flux_file:
                 sim_flux.save_sim_flux(p, time_d)
             self.sim_flux = sim_flux
