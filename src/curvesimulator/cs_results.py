@@ -275,6 +275,8 @@ class CurveSimResults(dict):
         # Otherwise treat x_lists as a single x array and broadcast to all curves.
         if isinstance(x_lists, (list, tuple)) and len(x_lists) == len(y_lists) and len(x_lists) > 1:
             x_iter = x_lists
+        elif isinstance(x_lists, (list, tuple)) and len(x_lists) == 1:
+            x_iter = x_lists[0]  debugger bis hier laufen lassen
         else:
             # single x array (can be ndarray or list); convert to numpy array for plotting
             single_x = np.array(x_lists)
@@ -352,4 +354,22 @@ class CurveSimResults(dict):
             grid=True,
             legend=True,
             plot_file=f"TTV_to_date_{osc_per:.4f}.png",
+        )
+
+    @staticmethod
+    def sim_rv_plot(p, sim_rv, time_s0):
+        CurveSimResults.plot_this(
+            title=f"Simulated Radial velocity",
+            x_label="Time [BJD]",
+            y_label="RV [m/s]",
+            x_lists=    [time_s0],
+            y_lists=    [sim_rv],
+            data_labels=["sim_rv"],
+            linestyles= ['-'],
+            markersizes=[0],
+            colors=     ["Black"],
+            linewidths= [1],
+            grid=False,
+            legend=False,
+            plot_file=f"Sim_RV.png",
         )
