@@ -111,6 +111,9 @@ class CurveSimulator:
             results = None
             if p.video_file:
                 CurveSimAnimation(p, bodies, sim_rv, sim_flux, time_s0)  # Create the video
+            if p.tt_file:
+                measured_tt = CurveSimResults.get_measured_tt(p)
+                hier match transit times aufrufen?
             if p.result_file:
                 results = bodies.find_transits(rebound_sim, p, sim_flux, time_s0, time_d)
                 if p.rv_file:

@@ -375,7 +375,7 @@ class CurveSimResults(dict):
         )
 
     @staticmethod
-    def tt_delta_plot(steps_done, plot_filename, measured_tt):
+    def tt_delta_plot(plot_filename, measured_tt):
         plot_filename = p.results_directory + plot_filename
         unique_eclipsers = measured_tt["eclipser"].unique()
         n_eclipsers = len(unique_eclipsers)
