@@ -528,11 +528,15 @@ class CurveSimBody:
         relative_radius: The distance of the approximated center of the eclipsed area from the center of self as a percentage of self.radius (used for limb darkening)."""
         # if other.positions[iteration][0] < self.positions[iteration][0]:  # Is other nearer to viewpoint than self? (i.e. its position has a smaller x-coordinate)
         if other.positions[iteration][2] < self.positions[iteration][2]:  # Is other nearer to viewpoint than self? (i.e. its position has a larger z-coordinate)
+            # print(f"{iteration=:5d}: {other.name} cannot eclipse {self.name}, because it is further away.")
             return None, None  # other cannot eclipse self, because self is nearer to viewer than other
-        if abs(other.positions[iteration][0] - self.positions[iteration][0]) < self.radius + other.radius:
+        if abs(other.positions[iteration][0] - self.positions[iteration][0]) > self.radius + other.radius:
+            # print(f"{iteration=:5d}: {other.name} cannot eclipse {self.name}, because their distance in x-direction is too large.")
             return None, None  # difference in x-coordinate too large
-        if abs(other.positions[iteration][1] - self.positions[iteration][1]) < self.radius + other.radius:
+        if abs(other.positions[iteration][1] - self.positions[iteration][1]) > self.radius + other.radius:
+            # print(f"{iteration=:5d}: {other.name} cannot eclipse {self.name}, because their distance in y-direction is too large.")
             return None, None  # difference in y-coordinate too large
+        # print(f"{iteration=:5d}: YAY!!!")
         d = CurveSimPhysics.distance_2d_body(other, self, iteration)
         if d < self.radius + other.radius:  # Does other eclipse self?
             if d <= abs(self.radius - other.radius):  # Annular (i.e. ring) eclipse or total eclipse
