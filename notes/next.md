@@ -237,11 +237,10 @@ schief
     - Option orbit_color
 
 - Radial velocity:
-    - Extraplot im Video oder als PNG-file speichern: Lightcurve und die 
-  Geschwindigkeit in Beobachterrichtung (y-Achse) für jeden Stern.
-    - Plot radial velocity (movement of star to/from viewer). Provides a 
-      check if the simulation is realistic.
-    - Farbe des Sterns abhängig von RV varieren?
+    - Farbe des Sterns abhängig von RV varieren
+      - Suche in cs_animation.py nach "Example code for changing circle color 
+        during animation"
+    - nur 3 bis 4 statt 5 bis 10 y-labels (ist oft so gequetscht)
 
 - Option einbauen, die ein png Bild der Lichtkurve (und RV-Kurve?) erzeugt, 
 statt ein Video (oder zusaetzlich)
