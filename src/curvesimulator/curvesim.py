@@ -116,7 +116,7 @@ class CurveSimulator:
                 if p.rv_file:
                     measured_rv = CurveSimResults.get_measured_rv(p)
                     measured_rv = results.calc_rv(measured_rv, p.rv_body, rebound_sim, p)
-                    CurveSimResults.sim_rv_plot(p, sim_rv, time_s0)
+                    CurveSimResults.sim_rv_plot(p, sim_rv, time_d)
                 results.save_results(p)
             if p.sim_flux_file:
                 sim_flux.save_sim_flux(p, time_d)

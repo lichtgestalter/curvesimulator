@@ -92,7 +92,7 @@ def append_line_locked(filename, line, wait=0.1):
 class CurveSimMCMC:
 
     def __init__(self, p, bodies, time_s0, time_d, measured_flux, flux_err, measured_tt, dummy_object=False):
-        self.fitting_results_directory = p.fitting_results_directory
+        self.results_directory = p.results_directory
         if dummy_object:
             return
         os.environ["OMP_NUM_THREADS"] = "1"  # Some builds of NumPy automatically parallelize some operations. This can cause problems when multi processing inside emcee is enabled. Turn that off by setting the environment variable OMP_NUM_THREADS=1.
@@ -307,7 +307,7 @@ class CurveSimMCMC:
     def trace_plots(self, steps_done, plot_filename):
         if self.trace_plot_ok:
             try:
-                plot_filename = self.fitting_results_directory + plot_filename
+                plot_filename = self.results_directory + plot_filename
                 fig, axes = plt.subplots(self.ndim, figsize=(10, self.ndim * 2), sharex=True)
                 fig.text(0.1, 0.99, f"Traces after {steps_done} steps", ha='left', va='top', fontsize=14, transform=fig.transFigure)
                 plt.subplots_adjust(top=0.975)
@@ -379,7 +379,7 @@ class CurveSimMCMC:
 
     # @stopwatch()
     def mcmc_histograms(self, steps_done, bins, plot_filename):
-        plot_filename = self.fitting_results_directory + plot_filename
+        plot_filename = self.results_directory + plot_filename
         fig, axes = plt.subplots(self.ndim, figsize=(10, self.ndim * 2))
         fig.text(0.02, 0.99, f"Histograms, {steps_done} steps after burn-in.", ha='left', va='top', fontsize=14, transform=fig.transFigure)
         startvalues = [fp.startvalue * fp.scale for fp in self.fitting_parameters]
@@ -412,7 +412,7 @@ class CurveSimMCMC:
     def mcmc_corner_plot(self, steps_done, plot_filename):
         if self.corner_plot_ok:
             try:
-                plot_filename = self.fitting_results_directory + plot_filename
+                plot_filename = self.results_directory + plot_filename
                 if self.ndim > 1:
                     fig = corner.corner(
                         self.scaled_samples,
@@ -435,7 +435,7 @@ class CurveSimMCMC:
     def autocorrelation_function_plot(self, steps_done, plot_filename):
         if self.autocorrelation_function_plot_ok:
             try:
-                plot_filename = self.fitting_results_directory + plot_filename
+                plot_filename = self.results_directory + plot_filename
                 samples = self.sampler.get_chain(discard=0, flat=False, thin=self.thin_samples_plot)  # shape: (steps, walkers, ndim)
                 nsteps = samples.shape[0]
                 nwalkers = samples.shape[1]
@@ -467,8 +467,8 @@ class CurveSimMCMC:
 
     # @stopwatch()
     def integrated_autocorrelation_time_plot(self, steps_done, plot_filename1, plot_filename2):
-        plot_filename1 = self.fitting_results_directory + plot_filename1
-        plot_filename2 = self.fitting_results_directory + plot_filename2
+        plot_filename1 = self.results_directory + plot_filename1
+        plot_filename2 = self.results_directory + plot_filename2
         integrated_autocorrelation_time = np.array(self.integrated_autocorrelation_time).T
         steps = [step for step in range(self.chunk_size + self.loaded_steps, steps_done + 1, self.chunk_size)]
         fig, ax = plt.subplots(figsize=(10, 6))
@@ -508,7 +508,7 @@ class CurveSimMCMC:
     def acceptance_fraction_plot(self, steps_done, plot_filename):
         if self.acceptance_plot_ok:
             try:
-                plot_filename = self.fitting_results_directory + plot_filename
+                plot_filename = self.results_directory + plot_filename
                 acceptance_fractions_array = np.stack(self.acceptance_fractions, axis=0).T  # shape: (num_lines, 32)
                 steps = [step for step in range(self.chunk_size + self.loaded_steps, steps_done + 1, self.chunk_size)]
                 fig, ax = plt.subplots(figsize=(10, 6))
@@ -529,7 +529,7 @@ class CurveSimMCMC:
 
     # @stopwatch()
     def average_residual_in_std_plot(self, p, steps_done, plot_filename):
-        plot_filename = self.fitting_results_directory + plot_filename
+        plot_filename = self.results_directory + plot_filename
         steps = [step for step in range(self.chunk_size + self.loaded_steps, steps_done + 1, self.chunk_size)]
         fig, ax = plt.subplots(figsize=(10, 6))
         ax.plot(steps, self.max_likelihood_avg_residual_in_std, label="Max Likelihood Parameters", marker='o', color='red', alpha=0.7)
@@ -560,7 +560,7 @@ class CurveSimMCMC:
 
     # @stopwatch()
     def tt_delta_plot(self, steps_done, plot_filename, measured_tt):
-        plot_filename = self.fitting_results_directory + plot_filename
+        plot_filename = self.results_directory + plot_filename
         unique_eclipsers = measured_tt["eclipser"].unique()
         n_eclipsers = len(unique_eclipsers)
         fig, axes = plt.subplots(n_eclipsers, figsize=(10, 3.5 * n_eclipsers), sharex=True)
@@ -594,8 +594,8 @@ class CurveSimMCMC:
 
     # @stopwatch()
     def tt_multi_delta_plot(self, steps_done, plot_filename, measured_tt):
-        plot_filename = self.fitting_results_directory + plot_filename
-        # plot_filename = self.fitting_results_directory + str(steps_done) + plot_filename
+        plot_filename = self.results_directory + plot_filename
+        # plot_filename = self.results_directory + str(steps_done) + plot_filename
         unique_eclipsers = measured_tt["eclipser"].unique()
         n_eclipsers = len(unique_eclipsers)
         fig, axes = plt.subplots(n_eclipsers, figsize=(10, 4 * n_eclipsers), sharex=True)
@@ -666,7 +666,7 @@ class CurveSimMCMC:
         results["Simulation Parameters"]["run_time_per_iteration"] = f"{runtime / (self.burn_in + steps_done):.3f} [s]"
         results["Simulation Parameters"]["simulations_per_second"] = f"{(self.burn_in + steps_done) * self.walkers / runtime:.0f} [iterations*walkers/runtime]"
 
-        results["Simulation Parameters"]["fitting_results_directory"] = self.fitting_results_directory
+        results["Simulation Parameters"]["results_directory"] = self.results_directory
         results["Simulation Parameters"]["start_date"] = p.start_date
         results["Simulation Parameters"]["default_dt"] = p.dt
         results["Simulation Parameters"]["flux_data_points"] = getattr(p, "total_iterations", None)
@@ -721,7 +721,7 @@ class CurveSimMCMC:
         to_remove = [
             "fitting_parameters", "standard_sections", "eclipsers", "eclipsees",
             "tt_file", "total_iterations", "walkers", "moves", "burn_in",
-            "thin_samples", "comment", "start_date", "fitting_results_directory",
+            "thin_samples", "comment", "start_date", "results_directory",
             "fitting_parameter_dic", "tt_datasize",
         ]
         for name in to_remove:
@@ -738,7 +738,7 @@ class CurveSimMCMC:
 
     def mcmc_results2json(self, results, p):
         """Converts results to JSON and saves it."""
-        filename = self.fitting_results_directory + "mcmc_results.json"
+        filename = self.results_directory + "mcmc_results.json"
         try:
             with open(filename, "w", encoding='utf8') as file:
                 json.dump(results, file, indent=4, ensure_ascii=False)
@@ -806,7 +806,7 @@ class CurveSimLMfit:
             os.remove("residual.tmp")
         if os.path.exists("iteration.tmp"):
             os.remove("iteration.tmp")
-        self.fitting_results_directory = p.fitting_results_directory
+        self.results_directory = p.results_directory
         self.fitting_parameters = p.fitting_parameters
         self.unit = p.unit
         self.scale = p.scale
@@ -876,7 +876,7 @@ class CurveSimLMfit:
         runtime = time.perf_counter() - self.start_timestamp
         results["Simulation Parameters"]["run_time"] = CurveSimMCMC.seconds2readable(runtime)
 
-        results["Simulation Parameters"]["fitting_results_directory"] = self.fitting_results_directory
+        results["Simulation Parameters"]["results_directory"] = self.results_directory
 
         if p.flux_file:
             results["Simulation Parameters"]["flux_file"] = p.flux_file
@@ -985,7 +985,7 @@ class CurveSimLMfit:
         del p_copy.tt_datasize
         del p_copy.comment
         del p_copy.start_date
-        del p_copy.fitting_results_directory
+        del p_copy.results_directory
         del p_copy.starts_s0
         del p_copy.starts_d
         del p_copy.ends_s0
@@ -993,7 +993,7 @@ class CurveSimLMfit:
         del p_copy.dts
         results["ProgramParameters"] = p_copy.__dict__
 
-        filename = p.fitting_results_directory + f"/lmfit_results.tmp.json"
+        filename = p.results_directory + f"/lmfit_results.tmp.json"
         with open(filename, "w", encoding='utf8') as file:
             json.dump(results, file, indent=4, ensure_ascii=False)
         if p.verbose:
@@ -1001,7 +1001,7 @@ class CurveSimLMfit:
 
     def lmfit_results2json(self, results, p):
         """Converts results to JSON and saves it."""
-        filename = self.fitting_results_directory + f"/lmfit_results.json"
+        filename = self.results_directory + f"/lmfit_results.json"
         with open(filename, "w", encoding='utf8') as file:
             json.dump(results, file, indent=4, ensure_ascii=False)
         if p.verbose:
@@ -1022,7 +1022,7 @@ class CurveSimLMfit:
             if mean_delta < 0.0024 or max_delta < 0.0048:
                 color = Fore.MAGENTA
             line = bodies.bodies2param_json(measured_tt, p)
-            filename = p.fitting_results_directory + f"/lmfit_best_fits.txt"
+            filename = p.results_directory + f"/lmfit_best_fits.txt"
             try:
                 append_line_locked(filename, line, wait=0.1)
             except OSError as e:

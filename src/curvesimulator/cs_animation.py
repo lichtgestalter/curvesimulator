@@ -69,8 +69,9 @@ class CurveSimAnimation:
         # lightcurve
         ax_lightcurve = plt.subplot2grid(shape=(6, 1), loc=(4, 0), rowspan=1, colspan=1)
         ax_lightcurve.set_facecolor("black")  # background color
-        ax_lightcurve.text(1.00, -0.05, "BJD (TDB)", color='grey', fontsize=10, ha='right', va='bottom', transform=ax_lightcurve.transAxes)
 
+        # commented out, because the rv-plot below has the same x-tics/-labels
+        # ax_lightcurve.text(1.00, -0.05, "BJD (TDB)", color='grey', fontsize=10, ha='right', va='bottom', transform=ax_lightcurve.transAxes)
         # lightcurve x-ticks, x-labels
         # ax_lightcurve.tick_params(axis='x', colors='grey')
         # xmax = time_s0[-1] / p.day
@@ -134,7 +135,7 @@ class CurveSimAnimation:
         ax_rv_curve.set_ylim(minl - buffer, maxl + buffer)
         y_listticdelta = CurveSimAnimation.tic_delta(scope)
         digits = max(0, round(-math.log10(y_listticdelta) + 0.4) - 2)  # The labels get as many decimal places as the intervals between the tics.
-        yvalues = [1 - y * y_listticdelta for y in range(round(float((maxl - minl) / y_listticdelta)))]
+        yvalues = [maxl - y * y_listticdelta for y in range(round(float((maxl - minl) / y_listticdelta)))]
         ylabels = [f'{round(1 * y, 10):.{digits}f}' for y in yvalues]
         ax_rv_curve.set_yticks(yvalues, labels=ylabels)
 

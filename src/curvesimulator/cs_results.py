@@ -1,3 +1,4 @@
+from colorama import Fore, Style
 import json
 import math
 import matplotlib.pyplot as plt
@@ -68,8 +69,9 @@ class CurveSimResults(dict):
         """Calculate the date of an iteration in BJD"""
         return p.start_date + iteration * p.dt / p.day
 
-    def results2json(self, filename, p):
+    def results2json(self, p):
         """Converts self to JSON and saves it."""
+        filename = p.results_directory + p.result_file
         with open(filename, "w", encoding='utf8') as file:
             json.dump(self, file, indent=4, ensure_ascii=False)
         if p.verbose:
@@ -146,8 +148,8 @@ class CurveSimResults(dict):
             raise RuntimeError("\n".join(msg_lines))
 
 
-        resultfilename = CurveSimResults.check_resultfilename(p.result_file)
-        self.results2json(resultfilename, p)
+        # resultfilename = CurveSimResults.check_resultfilename(p.result_file)
+        self.results2json(p)
         if p.verbose:
             print(self)
 
@@ -273,10 +275,8 @@ class CurveSimResults(dict):
         # Determine x arrays for each y-list:
         # If x_lists is a list/tuple with same length as y_lists and length > 1, treat as per-curve x arrays.
         # Otherwise treat x_lists as a single x array and broadcast to all curves.
-        if isinstance(x_lists, (list, tuple)) and len(x_lists) == len(y_lists) and len(x_lists) > 1:
+        if isinstance(x_lists, (list, tuple)) and ((len(x_lists) == len(y_lists) and len(x_lists) > 1) or len(x_lists) == 1):
             x_iter = x_lists
-        elif isinstance(x_lists, (list, tuple)) and len(x_lists) == 1:
-            x_iter = x_lists[0]  debugger bis hier laufen lassen
         else:
             # single x array (can be ndarray or list); convert to numpy array for plotting
             single_x = np.array(x_lists)
@@ -357,12 +357,12 @@ class CurveSimResults(dict):
         )
 
     @staticmethod
-    def sim_rv_plot(p, sim_rv, time_s0):
+    def sim_rv_plot(p, sim_rv, time_d):
         CurveSimResults.plot_this(
             title=f"Simulated Radial velocity",
             x_label="Time [BJD]",
             y_label="RV [m/s]",
-            x_lists=    [time_s0],
+            x_lists=    [time_d],
             y_lists=    [sim_rv],
             data_labels=["sim_rv"],
             linestyles= ['-'],
@@ -371,5 +371,39 @@ class CurveSimResults(dict):
             linewidths= [1],
             grid=False,
             legend=False,
-            plot_file=f"Sim_RV.png",
+            plot_file=p.results_directory + "Sim_RV.png",
         )
+
+    @staticmethod
+    def tt_delta_plot(steps_done, plot_filename, measured_tt):
+        plot_filename = p.results_directory + plot_filename
+        unique_eclipsers = measured_tt["eclipser"].unique()
+        n_eclipsers = len(unique_eclipsers)
+        fig, axes = plt.subplots(n_eclipsers, figsize=(10, 3.5 * n_eclipsers), sharex=True)
+        if n_eclipsers == 1:
+            axes = [axes]
+        abs_min = abs(min(measured_tt["delta"].min(), 0))
+        abs_max = abs(max(measured_tt["delta"].max(), 0))
+        ylim = (-1.3 * max(abs_min, abs_max), 1.3 * max(abs_min, abs_max))
+        dx = 0.005 * (measured_tt["tt"].max() - measured_tt["tt"].min())
+        for ax, eclipser in zip(axes, unique_eclipsers):
+            df = measured_tt[measured_tt["eclipser"] == eclipser]
+            ax.plot(df["tt"], df["delta"], marker='o', linestyle='-', color='blue', alpha=0.7)
+            for x, tt_err in zip(df["tt"], df["tt_err"]):  # uncertainties
+                ax.hlines(tt_err, x - dx, x + dx, colors='red', linewidth=1)
+                ax.hlines(-tt_err, x - dx, x + dx, colors='red', linewidth=1)
+                ax.vlines(x, -tt_err, tt_err, colors='red', linewidth=1)
+            ax.axhline(0, color='gray', linestyle='dashed', linewidth=1)
+            ax.set_ylabel(f"TT Delta [days]")
+            ax.set_title(f"Eclipser: {eclipser}")
+            ax.tick_params(labelbottom=True)
+            ax.set_ylim(ylim)
+            ax.ticklabel_format(useOffset=False, style='plain', axis='x')
+        axes[-1].set_xlabel("Transit Time [BJD]")
+        fig.suptitle(f"TT Delta. {steps_done} steps after burn-in.", fontsize=14)
+        plt.tight_layout(rect=(0, 0, 1, 0.97))
+        try:
+            plt.savefig(plot_filename)
+        except:
+            print(f"{Fore.RED}ERROR: Saving TT delta plot failed.{Style.RESET_ALL}")
+        plt.close(fig)

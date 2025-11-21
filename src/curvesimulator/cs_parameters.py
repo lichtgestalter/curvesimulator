@@ -72,6 +72,11 @@ class CurveSimParameters:
         self.max_interval_extensions = eval(config.get("Results", "max_interval_extensions", fallback="10"))
 
         # [Simulation]
+        self.results_directory = config.get("Simulation", "results_directory", fallback="None")
+        if self.results_directory == "None":
+            self.results_directory = None
+        if self.results_directory is not None:
+            self.find_results_subdirectory()
         self.starts_d = np.array(eval(config.get("Simulation", "starts", fallback="[]")), dtype=float)
         self.ends_d = np.array(eval(config.get("Simulation", "ends", fallback="[]")), dtype=float)
         self.dts = np.array(eval(config.get("Simulation", "dts", fallback="[]")), dtype=float)
@@ -111,11 +116,6 @@ class CurveSimParameters:
             self.rv_dot_width = eval(config.get("Plot", "rv_dot_width", fallback="0.005"))
         else:  # run MCMC, fit parameters to flux measurements
             # [Fitting]
-            self.fitting_results_directory = config.get("Fitting", "fitting_results_directory", fallback="None")
-            if self.fitting_results_directory == "None":
-                self.fitting_results_directory = None
-            if self.fitting_results_directory is not None:
-                self.find_fitting_results_subdirectory()
             if self.tt_file:
                 self.starts_d = np.array(eval(config.get("Simulation", "starts", fallback="[]")), dtype=float)
                 self.ends_d = np.array(eval(config.get("Simulation", "ends", fallback="[]")), dtype=float)
@@ -277,22 +277,22 @@ class CurveSimParameters:
         print(f"Fitting {len(fitting_parameters)} parameters.")
         return fitting_parameters
 
-    def find_fitting_results_subdirectory(self):
+    def find_results_subdirectory(self):
         """Find the name of the non-existing subdirectory with
         the lowest number and create this subdirectory."""
         import os
 
-        if not os.path.isdir(self.fitting_results_directory):
-            print(f"{Fore.RED}ERROR: Fitting results directory {self.fitting_results_directory} does not exist.{Style.RESET_ALL}")
+        if not os.path.isdir(self.results_directory):
+            print(f"{Fore.RED}ERROR: Fitting results directory {self.results_directory} does not exist.{Style.RESET_ALL}")
             sys.exit(1)
         # Filter numeric subdirectory names and checks if they are directories.
-        existing_subdirectories = [int(subdir) for subdir in os.listdir(self.fitting_results_directory)
-                                   if subdir.isdigit() and os.path.isdir(os.path.join(self.fitting_results_directory, subdir))]
+        existing_subdirectories = [int(subdir) for subdir in os.listdir(self.results_directory)
+                                   if subdir.isdigit() and os.path.isdir(os.path.join(self.results_directory, subdir))]
         next_subdirectory = 0
         while next_subdirectory in existing_subdirectories:
             next_subdirectory += 1
-        self.fitting_results_directory = self.fitting_results_directory + f"/{next_subdirectory:04d}/"
-        os.makedirs(self.fitting_results_directory)
+        self.results_directory = self.results_directory + f"/{next_subdirectory:04d}/"
+        os.makedirs(self.results_directory)
 
     def bodynames2bodies(self, bodies):
         """ Generates 2 lists of bodies (self.eclipsers, self.eclipsees)
