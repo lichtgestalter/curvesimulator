@@ -120,8 +120,9 @@ class CurveSimulator:
                 if p.rv_file:
                     measured_rv = CurveSimResults.get_measured_rv(p)
                     measured_rv = results.calc_rv(measured_rv, p.rv_body, rebound_sim, p)  # compare observed vs. computed RV
-                    CurveSimResults.sim_rv_plot(p, sim_rv, time_d, "sim_rv.png")  # plot computed RV
-                    CurveSimResults.rv_delta_plot(p, sim_rv,time_d, "rv_delta", measured_rv)
+                    CurveSimResults.sim_rv_plot(p, sim_rv, time_d, "sim_rv")  # plot computed RV
+                    CurveSimResults.rv_delta_plot(p, sim_rv,time_d, "rv_delta", measured_rv)  # plot computed and observed RV
+                    CurveSimResults.rv_residuals_plot(p, "rv_residuals", measured_rv)  # plot RV residuals
                 results.save_results(p)
             if p.sim_flux_file:
                 sim_flux.save_sim_flux(p, time_d)

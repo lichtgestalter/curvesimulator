@@ -409,8 +409,26 @@ class CurveSimResults(dict):
             linestyles= ['-',      ''],
             markersizes=[0,        3],
             colors=     ["Black",  "Blue"],
-            linewidths= [1],
+            linewidths= [1,        0],
             grid=False,
             legend=True,
+            plot_file=p.results_directory + plot_filename,
+        )
+
+    @staticmethod
+    def rv_residuals_plot(p, plot_filename, measured_rv): huebscher machen. Standardfunktion plot_this reicht nicht
+        CurveSimResults.plot_this(
+            title=f"Radial Velocity: Residuals (observed minus computed)",
+            x_label="Time [BJD]",
+            y_label="RV [m/s]",
+            x_lists=    [measured_rv["time"]],
+            y_lists=    [measured_rv["residuals"]],
+            data_labels=["residuals"],
+            linestyles= [''],
+            markersizes=[3],
+            colors=     ["Blue"],
+            linewidths= [0],
+            grid=False,
+            legend=False,
             plot_file=p.results_directory + plot_filename,
         )
