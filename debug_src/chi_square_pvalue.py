@@ -1,17 +1,17 @@
 import scipy.stats as stats
 
 
-def chi_square_pvalue(chi_square, n_measurements, n_parameters):
+def chi_squared_pvalue(chi_squared, n_measurements, n_parameters):
     """
-    Calculate the p-value for a chi-square test.
-    This is the probability of observing a chi-square value >= your observed value.
-    chi_square :     The chi-square test statistic
+    Calculate the p-value for a chi-squared test.
+    This is the probability of observing a chi-squared value >= your observed value.
+    chi_square :     The chi-squared test statistic
     n_measurements : Number of measurements/observations
     n_parameters :   Number of free parameters in the model
     """
     df = n_measurements - n_parameters  # degrees of freedom
-    p_value = 1 - stats.chi2.cdf(chi_square, df)  # cumulative distribution function
-    print(f"Chi-square value:       {chi_square}")
+    p_value = 1 - stats.chi2.cdf(chi_squared, df)  # cumulative distribution function
+    print(f"Chi-squared value:      {chi_squared}")
     print(f"Number of measurements: {n_measurements}")
     print(f"Number of parameters:   {n_parameters}")
     print(f"Degrees of freedom:     {df}")
@@ -23,5 +23,5 @@ def chi_square_pvalue(chi_square, n_measurements, n_parameters):
     return p_value
 
 
-p_value_uli     = chi_square_pvalue(chi_square=31.57, n_measurements=39, n_parameters=13)  # Uli T062
-p_value_vitkova = chi_square_pvalue(chi_square=38.74, n_measurements=39, n_parameters=13)  # Vitkova
+p_value_uli     = chi_squared_pvalue(chi_squared=31.57, n_measurements=39, n_parameters=13)  # Uli T062
+p_value_vitkova = chi_squared_pvalue(chi_squared=38.74, n_measurements=39, n_parameters=13)  # Vitkova

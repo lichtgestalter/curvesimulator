@@ -113,13 +113,15 @@ class CurveSimulator:
                 CurveSimAnimation(p, bodies, sim_rv, sim_flux, time_s0)  # Create the video
             if p.tt_file:
                 measured_tt = CurveSimResults.get_measured_tt(p)
-                hier match transit times aufrufen?
+                residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
+                CurveSimMCMC.tt_delta_plot(p, 0, "tt_delta.png", measured_tt)  # compare observed vs. computed TT
             if p.result_file:
                 results = bodies.find_transits(rebound_sim, p, sim_flux, time_s0, time_d)
                 if p.rv_file:
                     measured_rv = CurveSimResults.get_measured_rv(p)
-                    measured_rv = results.calc_rv(measured_rv, p.rv_body, rebound_sim, p)
-                    CurveSimResults.sim_rv_plot(p, sim_rv, time_d)
+                    measured_rv = results.calc_rv(measured_rv, p.rv_body, rebound_sim, p)  # compare observed vs. computed RV
+                    CurveSimResults.sim_rv_plot(p, sim_rv, time_d, "sim_rv.png")  # plot computed RV
+                    CurveSimResults.rv_delta_plot(p, sim_rv,time_d, "rv_delta", measured_rv)
                 results.save_results(p)
             if p.sim_flux_file:
                 sim_flux.save_sim_flux(p, time_d)

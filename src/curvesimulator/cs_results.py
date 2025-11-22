@@ -1,10 +1,11 @@
-from colorama import Fore, Style
+# from colorama import Fore, Style
 import json
 import math
 import matplotlib.pyplot as plt
 import numpy as np
 import os
 import re
+import scipy.stats as stats
 
 from curvesimulator.cs_flux_data import csv2df
 # from cs_flux_data import csv2df
@@ -172,18 +173,40 @@ class CurveSimResults(dict):
 
     def calc_rv(self, measured_rv, body_name, rebound_sim, p):
 
-        def t2vz(t, rebound_sim, body):
+        def rv_at_t(t, rebound_sim, body):
             rebound_sim.integrate(t)
             return -body.vz
 
         body = rebound_sim.particles[body_name]
-        measured_rv["rv_sim"] = [t2vz(t, rebound_sim, body) for t in measured_rv["time_s0"]]
-        measured_rv["chi_square"] = (measured_rv["rv_rel"] - measured_rv["rv_sim"]) / measured_rv["rv_jit"]
-        measured_rv["chi_square"] = measured_rv["chi_square"] * measured_rv["chi_square"]
-        chi_square = measured_rv["chi_square"].sum()
-        print(f"{chi_square=:10.2f}")
-        # print(measured_rv)
-        # exit(1234)
+        measured_rv["rv_sim"] = [rv_at_t(t, rebound_sim, body) for t in measured_rv["time_s0"]]
+        measured_rv["residuals"] = measured_rv["rv_rel"] - measured_rv["rv_sim"]
+        measured_rv["chi_squared"] = measured_rv["residuals"] / measured_rv["rv_jit"]
+        measured_rv["chi_squared"] = measured_rv["chi_squared"] * measured_rv["chi_squared"]
+        self["chi_squared_rv"] = measured_rv["chi_squared"].sum()
+        self["pvalue_rv"] = CurveSimResults.chi_squared_pvalue(self["chi_squared_rv"], measured_rv.shape[0], p.free_parameters)
+        return measured_rv
+
+    @staticmethod
+    def chi_squared_pvalue(chi_squared, n_measurements, n_parameters):
+        """
+        Calculate the p-value for a chi-squared test.
+        This is the probability of observing a chi-squared value >= your observed value.
+        chi_square :     The chi-squared test statistic
+        n_measurements : Number of measurements/observations
+        n_parameters :   Number of free parameters in the model
+        """
+        df = n_measurements - n_parameters  # degrees of freedom
+        p_value = 1 - stats.chi2.cdf(chi_squared, df)  # cumulative distribution function
+        # print(f"Chi-squared value:      {chi_squared}")
+        # print(f"Number of measurements: {n_measurements}")
+        # print(f"Number of parameters:   {n_parameters}")
+        # print(f"Degrees of freedom:     {df}")
+        # print(f"P-value:                {p_value:.4f}\n")
+        # if p_value > 0.05:
+        #     print(f"The fit is acceptable (p > 0.05). There's no significant evidence that your model is inconsistent with the data.")
+        # else:
+        #     print(f"The fit is poor (p < 0.05). Your model may not adequately describe the data.")
+        return p_value
 
     @staticmethod
     def get_measured_flux(p):
@@ -357,9 +380,9 @@ class CurveSimResults(dict):
         )
 
     @staticmethod
-    def sim_rv_plot(p, sim_rv, time_d):
+    def sim_rv_plot(p, sim_rv, time_d, plot_filename):
         CurveSimResults.plot_this(
-            title=f"Simulated Radial velocity",
+            title=f"Simulated Radial Velocity",
             x_label="Time [BJD]",
             y_label="RV [m/s]",
             x_lists=    [time_d],
@@ -371,39 +394,23 @@ class CurveSimResults(dict):
             linewidths= [1],
             grid=False,
             legend=False,
-            plot_file=p.results_directory + "Sim_RV.png",
+            plot_file=p.results_directory + plot_filename,
         )
 
     @staticmethod
-    def tt_delta_plot(plot_filename, measured_tt):
-        plot_filename = p.results_directory + plot_filename
-        unique_eclipsers = measured_tt["eclipser"].unique()
-        n_eclipsers = len(unique_eclipsers)
-        fig, axes = plt.subplots(n_eclipsers, figsize=(10, 3.5 * n_eclipsers), sharex=True)
-        if n_eclipsers == 1:
-            axes = [axes]
-        abs_min = abs(min(measured_tt["delta"].min(), 0))
-        abs_max = abs(max(measured_tt["delta"].max(), 0))
-        ylim = (-1.3 * max(abs_min, abs_max), 1.3 * max(abs_min, abs_max))
-        dx = 0.005 * (measured_tt["tt"].max() - measured_tt["tt"].min())
-        for ax, eclipser in zip(axes, unique_eclipsers):
-            df = measured_tt[measured_tt["eclipser"] == eclipser]
-            ax.plot(df["tt"], df["delta"], marker='o', linestyle='-', color='blue', alpha=0.7)
-            for x, tt_err in zip(df["tt"], df["tt_err"]):  # uncertainties
-                ax.hlines(tt_err, x - dx, x + dx, colors='red', linewidth=1)
-                ax.hlines(-tt_err, x - dx, x + dx, colors='red', linewidth=1)
-                ax.vlines(x, -tt_err, tt_err, colors='red', linewidth=1)
-            ax.axhline(0, color='gray', linestyle='dashed', linewidth=1)
-            ax.set_ylabel(f"TT Delta [days]")
-            ax.set_title(f"Eclipser: {eclipser}")
-            ax.tick_params(labelbottom=True)
-            ax.set_ylim(ylim)
-            ax.ticklabel_format(useOffset=False, style='plain', axis='x')
-        axes[-1].set_xlabel("Transit Time [BJD]")
-        fig.suptitle(f"TT Delta. {steps_done} steps after burn-in.", fontsize=14)
-        plt.tight_layout(rect=(0, 0, 1, 0.97))
-        try:
-            plt.savefig(plot_filename)
-        except:
-            print(f"{Fore.RED}ERROR: Saving TT delta plot failed.{Style.RESET_ALL}")
-        plt.close(fig)
+    def rv_delta_plot(p, sim_rv, time_d, plot_filename, measured_rv):
+        CurveSimResults.plot_this(
+            title=f"Radial Velocity: observed vs. computed",
+            x_label="Time [BJD]",
+            y_label="RV [m/s]",
+            x_lists=    [time_d,   measured_rv["time"]],
+            y_lists=    [sim_rv,   measured_rv["rv_rel"]],
+            data_labels=["computed", "observed"],
+            linestyles= ['-',      ''],
+            markersizes=[0,        3],
+            colors=     ["Black",  "Blue"],
+            linewidths= [1],
+            grid=False,
+            legend=True,
+            plot_file=p.results_directory + plot_filename,
+        )

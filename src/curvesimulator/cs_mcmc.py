@@ -559,8 +559,9 @@ class CurveSimMCMC:
         self.max_likelihood_avg_residual_in_std.append(maxlikelihood_avg_residual_in_std)
 
     # @stopwatch()
-    def tt_delta_plot(self, steps_done, plot_filename, measured_tt):
-        plot_filename = self.results_directory + plot_filename
+    @staticmethod
+    def tt_delta_plot(p, steps_done, plot_filename, measured_tt):
+        plot_filename = p.results_directory + plot_filename
         unique_eclipsers = measured_tt["eclipser"].unique()
         n_eclipsers = len(unique_eclipsers)
         fig, axes = plt.subplots(n_eclipsers, figsize=(10, 3.5 * n_eclipsers), sharex=True)
@@ -584,7 +585,10 @@ class CurveSimMCMC:
             ax.set_ylim(ylim)
             ax.ticklabel_format(useOffset=False, style='plain', axis='x')
         axes[-1].set_xlabel("Transit Time [BJD]")
-        fig.suptitle(f"TT Delta. {steps_done} steps after burn-in.", fontsize=14)
+        if steps_done > 0:
+            fig.suptitle(f"TT Delta. {steps_done} steps after burn-in.", fontsize=14)
+        else:
+            fig.suptitle(f"TT Delta", fontsize=14)
         plt.tight_layout(rect=(0, 0, 1, 0.97))
         try:
             plt.savefig(plot_filename)
@@ -766,7 +770,7 @@ class CurveSimMCMC:
         if p.tt_file:
             measured_tt = self.max_likelihood_tt(bodies, p, time_s0, time_d, measured_tt)
             measured_tt = CurveSimMCMC.add_new_best_delta(measured_tt, steps_done)
-            self.tt_delta_plot(steps_done, "tt_delta.png", measured_tt)
+            CurveSimMCMC.tt_delta_plot(p, steps_done, "tt_delta.png", measured_tt)
             self.tt_multi_delta_plot(steps_done, "tt_multi_delta.png", measured_tt)
         self.calc_maxlikelihood_avg_residual_in_std(p)
         self.high_density_intervals()
