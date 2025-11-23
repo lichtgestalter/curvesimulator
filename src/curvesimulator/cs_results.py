@@ -171,7 +171,8 @@ class CurveSimResults(dict):
         results.update(data)
         return results
 
-    def calc_rv(self, measured_rv, body_name, rebound_sim, p):
+    @staticmethod
+    def calc_rv_residuals(measured_rv, body_name, rebound_sim):
 
         def rv_at_t(t, rebound_sim, body):
             rebound_sim.integrate(t)
@@ -179,12 +180,24 @@ class CurveSimResults(dict):
 
         body = rebound_sim.particles[body_name]
         measured_rv["rv_sim"] = [rv_at_t(t, rebound_sim, body) for t in measured_rv["time_s0"]]
-        measured_rv["residuals"] = measured_rv["rv_rel"] - measured_rv["rv_sim"]
-        measured_rv["chi_squared"] = measured_rv["residuals"] / measured_rv["rv_jit"]
+        measured_rv["residual"] = measured_rv["rv_rel"] - measured_rv["rv_sim"]
+        return measured_rv
+
+    def calc_rv_chi_squared(self, measured_rv, free_parameters):
+        measured_rv["chi_squared"] = measured_rv["residual"] / measured_rv["rv_jit"]
         measured_rv["chi_squared"] = measured_rv["chi_squared"] * measured_rv["chi_squared"]
         self["chi_squared_rv"] = measured_rv["chi_squared"].sum()
-        self["pvalue_rv"] = CurveSimResults.chi_squared_pvalue(self["chi_squared_rv"], measured_rv.shape[0], p.free_parameters)
+        self["measurements_rv"] = measured_rv.shape[0]
+        self["pvalue_rv"] = CurveSimResults.chi_squared_pvalue(self["chi_squared_rv"], self["measurements_rv"], free_parameters)
         return measured_rv
+
+    def calc_tt_chi_squared(self, measured_tt, free_parameters):
+        measured_tt["chi_squared"] = measured_tt["delta"] / measured_tt["tt_err"]
+        measured_tt["chi_squared"] = measured_tt["chi_squared"] * measured_tt["chi_squared"]
+        self["chi_squared_tt"] = measured_tt["chi_squared"].sum()
+        self["measurements_tt"] = measured_tt.shape[0]
+        self["pvalue_tt"] = CurveSimResults.chi_squared_pvalue(self["chi_squared_tt"], self["measurements_tt"], free_parameters)
+        return measured_tt
 
     @staticmethod
     def chi_squared_pvalue(chi_squared, n_measurements, n_parameters):
@@ -210,16 +223,15 @@ class CurveSimResults(dict):
 
     @staticmethod
     def get_measured_flux(p):
-        df = csv2df(p.flux_file)
-        df = df[df["time"] >= p.start_date]
-        df["time"] -= p.start_date
-        df["time"] *= p.day
-        time_s0 = np.array(df["time"], dtype=float)
-        measured_flux = np.array(df["flux"])
-        flux_err = np.array(df["flux_err"], dtype=float)
+        measured_flux = csv2df(p.flux_file)
+        measured_flux = measured_flux[measured_flux["time"] >= p.start_date]
+        measured_flux["time_s0"] = (measured_flux["time"] - p.start_date) * p.day
+        time_s0 = np.array(measured_flux["time_s0"], dtype=float)
+        measured_flux_array = np.array(measured_flux["flux"])
+        flux_err = np.array(measured_flux["flux_err"], dtype=float)
         p.total_iterations = len(time_s0)
         time_d = time_s0 / p.day + p.start_date
-        return time_s0, time_d, measured_flux, flux_err
+        return time_s0, time_d, measured_flux_array, flux_err, measured_flux
 
     @staticmethod
     def get_measured_tt(p):
@@ -235,6 +247,22 @@ class CurveSimResults(dict):
         p.rv_datasize = len(df["time"])
         df["time_s0"] = (df["time"] - p.start_date) * p.day
         return df
+
+    @staticmethod
+    def _to_list(val, default):
+        if val is None:
+            return [default]
+        if isinstance(val, (list, tuple)):
+            return list(val)
+        return [val]
+
+    @staticmethod
+    def _expand_param(lst, name, n):
+        if len(lst) == 1:
+            return lst * n
+        if len(lst) == n:
+            return lst
+        raise ValueError(f"{name} must have length 1 or {n}")
 
     @staticmethod
     def plot_this(
@@ -267,33 +295,17 @@ class CurveSimResults(dict):
         plt.ticklabel_format(useOffset=False, style='plain', axis='x')   # show x-labels as they are
 
         n = len(y_lists)
+        markers_list = CurveSimResults._to_list(markers, 'o')
+        markersizes_list = CurveSimResults._to_list(markersizes, 1)
+        linestyles_list = CurveSimResults._to_list(linestyles, 'None')
+        colors_list = CurveSimResults._to_list(colors, 'Red')
+        linewidths_list = CurveSimResults._to_list(linewidths, 1.5)
 
-        def _to_list(val, default):
-            if val is None:
-                return [default]
-            if isinstance(val, (list, tuple)):
-                return list(val)
-            return [val]
-
-        def _expand_param(lst, name):
-            if len(lst) == 1:
-                return lst * n
-            if len(lst) == n:
-                return lst
-            raise ValueError(f"{name} must have length 1 or {n}")
-
-        markers_list = _to_list(markers, 'o')
-        markersizes_list = _to_list(markersizes, 1)
-        linestyles_list = _to_list(linestyles, 'None')
-        colors_list = _to_list(colors, 'Red')
-        linewidths_list = _to_list(linewidths, 1.5)
-
-
-        markers_per_curve = _expand_param(markers_list, "markers")
-        markersizes_per_curve = _expand_param(markersizes_list, "markersizes")
-        linestyles_per_curve = _expand_param(linestyles_list, "linestyles")
-        colors_per_curve = _expand_param(colors_list, "colors")
-        linewidths_per_curve = _expand_param(linewidths_list, "linewidths")
+        markers_per_curve = CurveSimResults._expand_param(markers_list, "markers", n)
+        markersizes_per_curve = CurveSimResults._expand_param(markersizes_list, "markersizes", n)
+        linestyles_per_curve = CurveSimResults._expand_param(linestyles_list, "linestyles", n)
+        colors_per_curve = CurveSimResults._expand_param(colors_list, "colors", n)
+        linewidths_per_curve = CurveSimResults._expand_param(linewidths_list, "linewidths", n)
 
         # Determine x arrays for each y-list:
         # If x_lists is a list/tuple with same length as y_lists and length > 1, treat as per-curve x arrays.
@@ -398,7 +410,7 @@ class CurveSimResults(dict):
         )
 
     @staticmethod
-    def rv_delta_plot(p, sim_rv, time_d, plot_filename, measured_rv):
+    def rv_observed_computed_plot(p, sim_rv, time_d, plot_filename, measured_rv):
         CurveSimResults.plot_this(
             title=f"Radial Velocity: observed vs. computed",
             x_label="Time [BJD]",
@@ -412,23 +424,48 @@ class CurveSimResults(dict):
             linewidths= [1,        0],
             grid=False,
             legend=True,
+            left=np.min(measured_rv["time"]) - 5,
+            right=np.max(measured_rv["time"]) + 5,
             plot_file=p.results_directory + plot_filename,
         )
 
     @staticmethod
-    def rv_residuals_plot(p, plot_filename, measured_rv): huebscher machen. Standardfunktion plot_this reicht nicht
-        CurveSimResults.plot_this(
-            title=f"Radial Velocity: Residuals (observed minus computed)",
-            x_label="Time [BJD]",
-            y_label="RV [m/s]",
-            x_lists=    [measured_rv["time"]],
-            y_lists=    [measured_rv["residuals"]],
-            data_labels=["residuals"],
-            linestyles= [''],
-            markersizes=[3],
-            colors=     ["Blue"],
-            linewidths= [0],
-            grid=False,
-            legend=False,
-            plot_file=p.results_directory + plot_filename,
-        )
+    def rv_residuals_plot(p, plot_filename, measured_rv): # huebscher machen. Standardfunktion plot_this reicht nicht
+        title = f"Radial Velocity: Residuals (observed minus computed)"
+        x_label = "Time [BJD]"
+        y_label = "RV [m/s]"
+        x = [measured_rv["time"]]
+        y = [measured_rv["residual"]]
+        data_labels = ["residual"]
+        linestyles = ['']
+        markers = ['o']
+        markersizes = [3]
+        colors = ["Blue"]
+        linewidths = [0]
+        xpaddings = [0.01]
+        # xpaddings = [0.01 * (np.max(x) - np.min(x))]
+        left = np.min(x) - xpaddings[0] * (np.max(x[0]) - np.min(x[0]))
+        right = np.max(x) + xpaddings[0] * (np.max(x[0]) - np.min(x[0]))
+        # bottom = None
+        # top = None
+        plot_file = p.results_directory + plot_filename
+
+
+        plt.figure(figsize=(10, 6))
+        plt.xlabel(x_label)
+        plt.ylabel(y_label)
+        plt.title(title)
+        # plt.legend()
+        # plt.grid(True)
+        plt.ticklabel_format(useOffset=False, style='plain', axis='x')   # show x-labels as they are
+        plt.xlim(left=left, right=right)
+        # plt.ylim(bottom=bottom, top=top)
+
+        for time, residual, jitter in zip(x, y, measured_rv["rv_jit"]):
+            plt.vlines(time, residual - jitter, residual + jitter, colors='blue', linewidth=1)
+
+        plt.plot(x[0], y[0], marker=markers[0], markersize=markersizes[0], linestyle=linestyles[0], label=data_labels[0], color=colors[0], linewidth=linewidths[0])
+        plt.hlines(0, left, right, colors='black', linewidth=1)
+        plt.hlines(measured_rv["rv_jit"].mean(), left, right, colors='grey', linewidth=1, linestyles="--")
+        plt.hlines(-measured_rv["rv_jit"].mean(), left, right, colors='grey', linewidth=1, linestyles="--")
+        plt.savefig(plot_file)

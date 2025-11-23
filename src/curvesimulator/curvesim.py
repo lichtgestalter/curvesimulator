@@ -76,10 +76,9 @@ class CurveSimulator:
         if p.verbose:
             print(p)
         if p.action in ["lmfit", "guifit", "mcmc"]:
-        # if (p.flux_file or p.tt_file) and not p.single_run and not p.results_only:  # run fit?
-            measured_flux, flux_uncertainty, measured_tt, time_s0, time_d, tt_s0, tt_d = (None,) * 7
+            measured_flux_array, flux_uncertainty, measured_tt, time_s0, time_d, tt_s0, tt_d = (None,) * 7
             if p.flux_file:
-                time_s0, time_d, measured_flux, flux_uncertainty = CurveSimResults.get_measured_flux(p)
+                time_s0, time_d, measured_flux_array, flux_uncertainty, measured_flux = CurveSimResults.get_measured_flux(p)
             elif p.tt_file:
                 time_s0, time_d = CurveSimParameters.init_time_arrays(p)  # s0 in seconds, starting at 0. d in BJD.
                 measured_tt = CurveSimResults.get_measured_tt(p)
@@ -98,7 +97,7 @@ class CurveSimulator:
                     tasks = [(config_file, time_s0, time_d, measured_tt, p, i) for i in range(total_runs)]
                     run_all_queue(tasks, num_workers)
             if p.action == "mcmc":
-                mcmc = CurveSimMCMC(p, bodies, time_s0, time_d, measured_flux, flux_uncertainty, measured_tt)
+                mcmc = CurveSimMCMC(p, bodies, time_s0, time_d, measured_flux_array, flux_uncertainty, measured_tt)
                 self.sampler = mcmc.sampler  # mcmc object
                 self.theta = mcmc.theta  # current state of mcmc chains. By saving sampler and theta it is possible to continue the mcmc later on.
             else:
@@ -108,21 +107,29 @@ class CurveSimulator:
             time_s0, time_d = CurveSimParameters.init_time_arrays(p)  # s0 in seconds, starting at 0. d in BJD.
             bodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
             sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # Calculate all body positions and the resulting lightcurve
-            results = None
+            results = bodies.find_transits(rebound_sim, p, sim_flux, time_s0, time_d)
+            results["chi_squared_tt"], results["chi_squared_rv"], results["chi_squared_flux"] = 0, 0, 0
+            results["measurements_tt"], results["measurements_rv"], results["measurements_flux"] = 0, 0, 0
             if p.video_file:
-                CurveSimAnimation(p, bodies, sim_rv, sim_flux, time_s0)  # Create the video
+                CurveSimAnimation(p, bodies, sim_rv, sim_flux, time_s0)  # Create a video
             if p.tt_file:
                 measured_tt = CurveSimResults.get_measured_tt(p)
                 residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
+                measured_tt = results.calc_tt_chi_squared(measured_tt, p.free_parameters)  # store chi squared and p-value in results
                 CurveSimMCMC.tt_delta_plot(p, 0, "tt_delta.png", measured_tt)  # compare observed vs. computed TT
+            if p.rv_file:
+                measured_rv = CurveSimResults.get_measured_rv(p)
+                measured_rv = CurveSimResults.calc_rv_residuals(measured_rv, p.rv_body, rebound_sim)  # compare observed vs. computed RV
+                measured_rv = results.calc_rv_chi_squared(measured_rv, p.free_parameters)  # store chi squared and p-value in results
+                CurveSimResults.sim_rv_plot(p, sim_rv, time_d, "sim_rv")  # plot computed RV
+                CurveSimResults.rv_observed_computed_plot(p, sim_rv, time_d, "rv_delta", measured_rv)  # plot computed and observed RV
+                CurveSimResults.rv_residuals_plot(p, "rv_residuals", measured_rv)  # plot RV residuals
+            if p.flux_file:
+                _, _, _, _, measured_flux = CurveSimResults.get_measured_flux(p)
+                hier weiter # compare observed vs. computed RV
+                # store chi squared and p-value in results
+                # plot something
             if p.result_file:
-                results = bodies.find_transits(rebound_sim, p, sim_flux, time_s0, time_d)
-                if p.rv_file:
-                    measured_rv = CurveSimResults.get_measured_rv(p)
-                    measured_rv = results.calc_rv(measured_rv, p.rv_body, rebound_sim, p)  # compare observed vs. computed RV
-                    CurveSimResults.sim_rv_plot(p, sim_rv, time_d, "sim_rv")  # plot computed RV
-                    CurveSimResults.rv_delta_plot(p, sim_rv,time_d, "rv_delta", measured_rv)  # plot computed and observed RV
-                    CurveSimResults.rv_residuals_plot(p, "rv_residuals", measured_rv)  # plot RV residuals
                 results.save_results(p)
             if p.sim_flux_file:
                 sim_flux.save_sim_flux(p, time_d)
