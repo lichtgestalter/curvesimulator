@@ -23,7 +23,8 @@ def chi_squared_pvalue(chi_squared, n_measurements, n_parameters):
     return p_value
 
 
+p_value_vitkova = chi_squared_pvalue(chi_squared=38.74, n_measurements=39, n_parameters=13)  # Vitkova RV
 p_value_uli     = chi_squared_pvalue(chi_squared=31.57, n_measurements=39, n_parameters=13)  # Uli T062 RV
 p_value_uli2    = chi_squared_pvalue(chi_squared=49, n_measurements=56, n_parameters=13)  # Uli T062 RV + TT
 p_value_uli3    = chi_squared_pvalue(chi_squared=17.25, n_measurements=17, n_parameters=13)  # Uli T062 TT
-p_value_vitkova = chi_squared_pvalue(chi_squared=38.74, n_measurements=39, n_parameters=13)  # Vitkova RV
+p_value_uli4    = chi_squared_pvalue(chi_squared=2200, n_measurements=2111, n_parameters=13)  # Uli T062 flux

@@ -183,6 +183,12 @@ class CurveSimResults(dict):
         measured_rv["residual"] = measured_rv["rv_rel"] - measured_rv["rv_sim"]
         return measured_rv
 
+    @staticmethod
+    def calc_flux_residuals(measured_flux, sim_flux):
+        measured_flux["flux_sim"] = sim_flux
+        measured_flux["residual"] = measured_flux["flux"] - measured_flux["flux_sim"]
+        return measured_flux
+
     def calc_rv_chi_squared(self, measured_rv, free_parameters):
         measured_rv["chi_squared"] = measured_rv["residual"] / measured_rv["rv_jit"]
         measured_rv["chi_squared"] = measured_rv["chi_squared"] * measured_rv["chi_squared"]
@@ -191,6 +197,14 @@ class CurveSimResults(dict):
         self["pvalue_rv"] = CurveSimResults.chi_squared_pvalue(self["chi_squared_rv"], self["measurements_rv"], free_parameters)
         return measured_rv
 
+    def calc_flux_chi_squared(self, measured_flux, free_parameters):
+        measured_flux["chi_squared"] = measured_flux["residual"] / measured_flux["flux_err"]
+        measured_flux["chi_squared"] = measured_flux["chi_squared"] * measured_flux["chi_squared"]
+        self["chi_squared_flux"] = measured_flux["chi_squared"].sum()
+        self["measurements_flux"] = measured_flux.shape[0]
+        self["pvalue_flux"] = CurveSimResults.chi_squared_pvalue(self["chi_squared_flux"], self["measurements_flux"], free_parameters)
+        return measured_flux
+
     def calc_tt_chi_squared(self, measured_tt, free_parameters):
         measured_tt["chi_squared"] = measured_tt["delta"] / measured_tt["tt_err"]
         measured_tt["chi_squared"] = measured_tt["chi_squared"] * measured_tt["chi_squared"]
@@ -198,6 +212,12 @@ class CurveSimResults(dict):
         self["measurements_tt"] = measured_tt.shape[0]
         self["pvalue_tt"] = CurveSimResults.chi_squared_pvalue(self["chi_squared_tt"], self["measurements_tt"], free_parameters)
         return measured_tt
+
+    def calc_total_chi_squared(self, free_parameters):
+        self["chi_squared_total"] = self["chi_squared_rv"] + self["chi_squared_flux"] + self["chi_squared_tt"]
+        self["measurements_total"] = self["measurements_rv"] + self["measurements_flux"] + self["measurements_tt"]
+        self["pvalue_total"] = CurveSimResults.chi_squared_pvalue(self["chi_squared_total"], self["measurements_total"], free_parameters)
+
 
     @staticmethod
     def chi_squared_pvalue(chi_squared, n_measurements, n_parameters):
@@ -424,13 +444,35 @@ class CurveSimResults(dict):
             linewidths= [1,        0],
             grid=False,
             legend=True,
-            left=np.min(measured_rv["time"]) - 5,
+            left=np.min(measured_rv["time"]) - 5,  # debug: offset in Parameterfile aufnehmen?
             right=np.max(measured_rv["time"]) + 5,
             plot_file=p.results_directory + plot_filename,
         )
 
     @staticmethod
-    def rv_residuals_plot(p, plot_filename, measured_rv): # huebscher machen. Standardfunktion plot_this reicht nicht
+    def flux_observed_computed_plot(p, plot_filename, measured_flux):
+        CurveSimResults.plot_this(
+            title=f"Flux: observed vs. computed",
+            x_label="Time [BJD]",
+            y_label="Normalized Flux",
+            x_lists=    [measured_flux["time"], measured_flux["time"]],
+            y_lists=    [measured_flux["flux"], measured_flux["flux_sim"]],
+            data_labels=["computed",            "observed"],
+            linestyles= ['',                    ''],
+            markersizes=[1,                     1],
+            colors=     ["Black",               "Red"],
+            linewidths= [1,                     0],
+            grid=False,
+            legend=True,
+            left= 2460718,
+            right=2460719,
+            # left=np.min(measured_flux["time"]) - 0.1,  # debug: offset in Parameterfile aufnehmen?
+            # right=np.max(measured_flux["time"]) + 0.1,
+            plot_file=p.results_directory + plot_filename,
+        )
+
+    @staticmethod
+    def rv_residuals_plot(p, plot_filename, measured_rv):
         title = f"Radial Velocity: Residuals (observed minus computed)"
         x_label = "Time [BJD]"
         y_label = "RV [m/s]"
@@ -450,7 +492,6 @@ class CurveSimResults(dict):
         # top = None
         plot_file = p.results_directory + plot_filename
 
-
         plt.figure(figsize=(10, 6))
         plt.xlabel(x_label)
         plt.ylabel(y_label)
@@ -468,4 +509,44 @@ class CurveSimResults(dict):
         plt.hlines(0, left, right, colors='black', linewidth=1)
         plt.hlines(measured_rv["rv_jit"].mean(), left, right, colors='grey', linewidth=1, linestyles="--")
         plt.hlines(-measured_rv["rv_jit"].mean(), left, right, colors='grey', linewidth=1, linestyles="--")
+        plt.savefig(plot_file)
+
+    @staticmethod
+    def flux_residuals_plot(p, plot_filename, measured_flux):
+        title = f"Flux Residuals (observed minus computed)"
+        x_label = "Time [BJD]"
+        y_label = "Normalized Flux"
+        x = [measured_flux["time"]]
+        y = [measured_flux["residual"]]
+        data_labels = ["residual"]
+        linestyles = ['']
+        markers = ['o']
+        markersizes = [3]
+        colors = ["Blue"]
+        linewidths = [0]
+        xpaddings = [0.01]
+        # xpaddings = [0.01 * (np.max(x) - np.min(x))]
+        # left = np.min(x) - xpaddings[0] * (np.max(x[0]) - np.min(x[0]))
+        # right = np.max(x) + xpaddings[0] * (np.max(x[0]) - np.min(x[0]))
+        left =  2460718
+        right = 2460719
+        # bottom = None
+        # top = None
+        plot_file = p.results_directory + plot_filename
+
+        plt.figure(figsize=(10, 6))
+        plt.xlabel(x_label)
+        plt.ylabel(y_label)
+        plt.title(title)
+        # plt.legend()
+        # plt.grid(True)
+        plt.ticklabel_format(useOffset=False, style='plain', axis='x')   # show x-labels as they are
+        plt.xlim(left=left, right=right)
+        # plt.ylim(bottom=bottom, top=top)
+
+        for time, residual, jitter in zip(x, y, measured_flux["flux_err"]):
+            plt.vlines(time, residual - jitter, residual + jitter, colors='blue', linewidth=1)
+
+        plt.plot(x[0], y[0], marker=markers[0], markersize=markersizes[0], linestyle=linestyles[0], label=data_labels[0], color=colors[0], linewidth=linewidths[0])
+        plt.hlines(0, left, right, colors='black', linewidth=1)
         plt.savefig(plot_file)

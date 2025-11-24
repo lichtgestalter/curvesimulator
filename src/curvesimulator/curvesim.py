@@ -108,34 +108,38 @@ class CurveSimulator:
             bodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
             sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # Calculate all body positions and the resulting lightcurve
             results = bodies.find_transits(rebound_sim, p, sim_flux, time_s0, time_d)
-            results["chi_squared_tt"], results["chi_squared_rv"], results["chi_squared_flux"] = 0, 0, 0
-            results["measurements_tt"], results["measurements_rv"], results["measurements_flux"] = 0, 0, 0
+            results["chi_squared_tt"], results["chi_squared_rv"], results["chi_squared_flux"], results["chi_squared_total"] = 0, 0, 0, 0
+            results["measurements_tt"], results["measurements_rv"], results["measurements_flux"], results["measurements_total"] = 0, 0, 0, 0
             if p.video_file:
                 CurveSimAnimation(p, bodies, sim_rv, sim_flux, time_s0)  # Create a video
             if p.tt_file:
                 measured_tt = CurveSimResults.get_measured_tt(p)
                 residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
                 measured_tt = results.calc_tt_chi_squared(measured_tt, p.free_parameters)  # store chi squared and p-value in results
-                CurveSimMCMC.tt_delta_plot(p, 0, "tt_delta.png", measured_tt)  # compare observed vs. computed TT
+                CurveSimMCMC.tt_delta_plot(p, 0, "tt_o_vs_c.png", measured_tt)  # compare observed vs. computed TT
             if p.rv_file:
                 measured_rv = CurveSimResults.get_measured_rv(p)
                 measured_rv = CurveSimResults.calc_rv_residuals(measured_rv, p.rv_body, rebound_sim)  # compare observed vs. computed RV
                 measured_rv = results.calc_rv_chi_squared(measured_rv, p.free_parameters)  # store chi squared and p-value in results
-                CurveSimResults.sim_rv_plot(p, sim_rv, time_d, "sim_rv")  # plot computed RV
-                CurveSimResults.rv_observed_computed_plot(p, sim_rv, time_d, "rv_delta", measured_rv)  # plot computed and observed RV
+                CurveSimResults.sim_rv_plot(p, sim_rv, time_d, "rv_computed")  # plot computed RV
+                CurveSimResults.rv_observed_computed_plot(p, sim_rv, time_d, "rv_o_vs_c", measured_rv)  # plot computed and observed RV
                 CurveSimResults.rv_residuals_plot(p, "rv_residuals", measured_rv)  # plot RV residuals
             if p.flux_file:
-                _, _, _, _, measured_flux = CurveSimResults.get_measured_flux(p)
-                hier weiter # compare observed vs. computed RV
-                # store chi squared and p-value in results
+                time_s0, _, _, _, measured_flux = CurveSimResults.get_measured_flux(p)
+                _, sim_flux, _ = bodies.calc_physics(p, time_s0)  # run simulation
+                measured_flux = CurveSimResults.calc_flux_residuals(measured_flux, sim_flux)  # compare observed vs. computed flux
+                results.calc_flux_chi_squared(measured_flux, p.free_parameters)  # store chi squared and p-value in results
+                CurveSimResults.flux_observed_computed_plot(p, "flux_o_vs_c", measured_flux)  # plot computed and observed RV
+                CurveSimResults.flux_residuals_plot(p, "flux_residuals", measured_flux)  # plot Flux residuals
                 # plot something
+            results.calc_total_chi_squared(p.free_parameters)
             if p.result_file:
                 results.save_results(p)
             if p.sim_flux_file:
                 sim_flux.save_sim_flux(p, time_d)
             self.sim_flux = sim_flux
             self.results = results
-            vitkova_debug = True
+            vitkova_debug = False
             if vitkova_debug:
                 p.eclipsers = ["TOI4504d"]
                 p.eclipsees = ["TOI4504"]
