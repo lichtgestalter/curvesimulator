@@ -532,10 +532,10 @@ class CurveSimMCMC:
         plot_filename = self.results_directory + plot_filename
         steps = [step for step in range(self.chunk_size + self.loaded_steps, steps_done + 1, self.chunk_size)]
         fig, ax = plt.subplots(figsize=(10, 6))
-        ax.plot(steps, self.max_likelihood_avg_residual_in_std, label="Max Likelihood Parameters", marker='o', color='red', alpha=0.7)
+        ax.plot(steps, self.max_likelihood_avg_residual_in_std, label="Max Likelihood Parameters", marker='o', markersize=2, color='red', alpha=0.7)
         if p.flux_file:
-            ax.plot(steps, self.median_avg_residual_in_std, label="Median Parameters", marker='o', color='blue', alpha=0.7)
-            ax.plot(steps, self.mean_avg_residual_in_std, label="Mean Parameters", marker='o', color='black', alpha=0.7)
+            ax.plot(steps, self.median_avg_residual_in_std, label="Median Parameters", marker='o', markersize=2, color='blue', alpha=0.7)
+            ax.plot(steps, self.mean_avg_residual_in_std, label="Mean Parameters", marker='o', markersize=2, color='black', alpha=0.7)
         ax.set_xlabel('Steps after burn-in')
         ax.ticklabel_format(useOffset=False, style='plain', axis='y')  # show y-labels as they are
         ax.set_title(f'Average Residual [Standard Deviations] after {steps_done} steps')
