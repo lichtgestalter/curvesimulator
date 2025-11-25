@@ -336,6 +336,7 @@ def get_all_c_d_transits(spoc_only=False, no_transits=False):
     transits88 =     SectorData(88, path + f"downloads/88_SPOC_120.csv",  transits_filename=path + f"88_SPOC_120_t.csv",  no_transits_filename=path + f"88_SPOC_120_not.csv",   lefts=[D_T1[0] - sm],  rights=[D_T4[0] + sm])
     transits94 =     SectorData(94, path + f"downloads/94_SPOC_120.csv",  transits_filename=path + f"94_SPOC_120_t.csv",  no_transits_filename=path + f"94_SPOC_120_not.csv",   lefts=[D_T1[2] - sm],  rights=[D_T4[2] + sm])
     transits89 =     SectorData(89, path + f"downloads/89_SPOC_120.csv",  transits_filename=path + f"89_SPOC_120_t.csv",  no_transits_filename=path + f"89_SPOC_120_not.csv",   lefts=[C_T1[11] - sm, D_T1[1] - sm], rights=[C_T4[11] + sm, D_T4[1] + sm])
+    transits95 =     SectorData(95, path + f"downloads/95_SPOC_120.csv",  transits_filename=path + f"95_SPOC_120_t.csv",  no_transits_filename=path + f"95_SPOC_120_not.csv",   lefts=[C_T1[12] - sm, D_T1[3] - sm], rights=[C_T4[12] + sm, D_T4[3] + sm])
 
     if not spoc_only:
         transits03.df_transits['flux_err'] = transits03.df_transits['flux_err'].apply(lambda x: 0.002 if pd.isna(x) or x == 0 else x)
@@ -359,7 +360,7 @@ def get_all_c_d_transits(spoc_only=False, no_transits=False):
         all_processed_dfs = [t.df_transits for t in transits]
         all_df = pd.concat(all_processed_dfs, ignore_index=True)
         all_df = all_df.dropna(subset=["flux"]).sort_values(by="time", ascending=True)
-        df2csv(all_df, path + "TOI4504_transits_sm0_3til94.csv")
+        df2csv(all_df, path + "TOI4504_transits_sm0_3til95new.csv")
 
     return all_processed_dfs
 
@@ -411,9 +412,9 @@ if __name__ == "__main__":
     # plot_flux_df(df_folded, title="Folded")
     # plot_flux_df(df_avg, title=f"avg {scope=}", left=0.33, right=0.45)
 
-    df_extracted = extract_regular_transits(df, 2458400, 2.42614, 0.33, 0.45)
-    df2csv(df_extracted, path + f"TOI4504_b_transits_27til94.csv")
+    # df_extracted = extract_regular_transits(df, 2458400, 2.42614, 0.33, 0.45)
+    # df2csv(df_extracted, path + f"TOI4504_b_transits_27til94.csv")
 
-
+    get_all_c_d_transits()
 
 
