@@ -1,0 +1,2 @@
+cd /d C:\Users\U\curvesim\src
+"C:\Program Files\Python312\python.exe" C:\Users\U\curvesim\src\run_curvesim.py
