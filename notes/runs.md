@@ -223,7 +223,8 @@
 ### MCMC-Flux mit super Startwerten
 The theoretical expectation for the average residual in std is sqrt(2/pi) ≈ 0.79788456. 
 - X056
-  - klappt moch nicht
+  - 063F fittet d.r, d.i, c.r, c.i. Konvergiert super. Run auf zweitem PC 
+    liefert nahezu identische Resultate.
 
 ### MCMC fit von KEPLER-9
 1) Kepler-9: A System of Multiple Planets Transiting a Sun-Like Star, Confirmed by Timing Variations, Matthew J. Holman et al.

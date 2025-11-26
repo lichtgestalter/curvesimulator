@@ -395,7 +395,7 @@ if __name__ == "__main__":
     #
     # combine_all_flux()
 
-    df = csv2df(path + "TOI4504_no_transits_sm0_27til94.csv")
+    # df = csv2df(path + "TOI4504_no_transits_sm0_27til94.csv")
 
     # for scope in range(200, 1801, 200):
     #     d2, df_avg = fold_flux(df, 2458400, 2.42614, scope / day)
