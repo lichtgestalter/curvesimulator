@@ -346,7 +346,7 @@ def get_all_c_d_transits(spoc_only=False, no_transits=False):
     transits = []
     if not spoc_only:
         transits = [transits03, transits06, transits09, transits12]
-    transits += [transits28, transits31, transits34, transits37, transits61, transits64, transits67, transits88, transits89, transits94]
+    transits += [transits28, transits31, transits34, transits37, transits61, transits64, transits67, transits88, transits89, transits94, transits95]
 
     if no_transits:
         transits61.df_no_transits = remove_from_df(transits61.df_no_transits, 2000000.0, 2459965.0)

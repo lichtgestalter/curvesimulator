@@ -225,6 +225,8 @@ The theoretical expectation for the average residual in std is sqrt(2/pi) ≈ 0.
 - X056
   - 063F fittet d.r, d.i, c.r, c.i. Konvergiert super. Run auf zweitem PC 
     liefert nahezu identische Resultate.
+  - 064 MaxL Werte von 063F
+  - 065 wie 064, aber d.i <90 statt >90
 
 ### MCMC fit von KEPLER-9
 1) Kepler-9: A System of Multiple Planets Transiting a Sun-Like Star, Confirmed by Timing Variations, Matthew J. Holman et al.

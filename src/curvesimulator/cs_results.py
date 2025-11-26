@@ -464,10 +464,10 @@ class CurveSimResults(dict):
             linewidths= [1,                     0],
             grid=False,
             legend=True,
-            left= 2460718,
-            right=2460719,
-            # left=np.min(measured_flux["time"]) - 0.1,  # debug: offset in Parameterfile aufnehmen?
-            # right=np.max(measured_flux["time"]) + 0.1,
+            left=np.min(measured_flux["time"]) - 0.1,  # debug: offset in Parameterfile aufnehmen?
+            right=np.max(measured_flux["time"]) + 0.1,
+            # left= 2460718,
+            # right=2460719,
             plot_file=p.results_directory + plot_filename,
         )
 
@@ -526,10 +526,10 @@ class CurveSimResults(dict):
         linewidths = [0]
         xpaddings = [0.01]
         # xpaddings = [0.01 * (np.max(x) - np.min(x))]
-        # left = np.min(x) - xpaddings[0] * (np.max(x[0]) - np.min(x[0]))
-        # right = np.max(x) + xpaddings[0] * (np.max(x[0]) - np.min(x[0]))
-        left =  2460718
-        right = 2460719
+        left = np.min(x) - xpaddings[0] * (np.max(x[0]) - np.min(x[0]))
+        right = np.max(x) + xpaddings[0] * (np.max(x[0]) - np.min(x[0]))
+        # left =  2460718
+        # right = 2460719
         # bottom = None
         # top = None
         plot_file = p.results_directory + plot_filename
