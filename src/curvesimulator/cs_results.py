@@ -450,7 +450,7 @@ class CurveSimResults(dict):
         )
 
     @staticmethod
-    def flux_observed_computed_plot(p, plot_filename, measured_flux):
+    def flux_observed_computed_plot_time(p, plot_filename, measured_flux):
         CurveSimResults.plot_this(
             title=f"Flux: observed vs. computed",
             x_label="Time [BJD]",
@@ -468,6 +468,42 @@ class CurveSimResults(dict):
             right=np.max(measured_flux["time"]) + 0.1,
             # left= 2460718,
             # right=2460719,
+            plot_file=p.results_directory + plot_filename,
+        )
+
+    @staticmethod
+    def flux_observed_computed_plot_data(p, plot_filename, measured_flux):
+        CurveSimResults.plot_this(
+            title=f"Flux: observed vs. computed",
+            x_label="Datapoints",
+            y_label="Normalized Flux",
+            x_lists=    [[x for x in range(measured_flux.shape[0])], [x for x in range(measured_flux.shape[0])]],
+            y_lists=    [measured_flux["flux"],                      measured_flux["flux_sim"]],
+            data_labels=["computed",                                 "observed"],
+            linestyles= ['',                                         ''],
+            markersizes=[1,                                          1],
+            colors=     ["Black",                                    "Red"],
+            linewidths= [1,                                          0],
+            grid=False,
+            legend=True,
+            plot_file=p.results_directory + plot_filename,
+        )
+
+    @staticmethod
+    def flux_chi_squared_plot_data(p, plot_filename, measured_flux):
+        CurveSimResults.plot_this(
+            title=f"Flux: Chi Squared per data point",
+            x_label="Datapoints",
+            y_label="Chi Squared",
+            x_lists=    [[x for x in range(measured_flux.shape[0])]],
+            y_lists=    [measured_flux["chi_squared"]],
+            data_labels=["chi_squared"],
+            linestyles= [''],
+            markersizes=[1],
+            colors=     ["Green"],
+            linewidths= [1],
+            grid=False,
+            legend=True,
             plot_file=p.results_directory + plot_filename,
         )
 
@@ -512,7 +548,7 @@ class CurveSimResults(dict):
         plt.savefig(plot_file)
 
     @staticmethod
-    def flux_residuals_plot(p, plot_filename, measured_flux):
+    def flux_residuals_plot_time(p, plot_filename, measured_flux):
         title = f"Flux Residuals (observed minus computed)"
         x_label = "Time [BJD]"
         y_label = "Normalized Flux"
@@ -549,4 +585,34 @@ class CurveSimResults(dict):
 
         plt.plot(x[0], y[0], marker=markers[0], markersize=markersizes[0], linestyle=linestyles[0], label=data_labels[0], color=colors[0], linewidth=linewidths[0])
         plt.hlines(0, left, right, colors='black', linewidth=1)
+        plt.savefig(plot_file)
+
+    @staticmethod
+    def flux_residuals_plot_data(p, plot_filename, measured_flux):
+        title = f"Flux Residuals (observed minus computed)"
+        x_label = "Datapoints"
+        y_label = "Normalized Flux"
+        x = [[x for x in range(measured_flux.shape[0])]]
+        y = [measured_flux["residual"]]
+        data_labels = ["residual"]
+        linestyles = ['']
+        markers = ['o']
+        markersizes = [3]
+        colors = ["Blue"]
+        linewidths = [0]
+        plot_file = p.results_directory + plot_filename
+
+        plt.figure(figsize=(10, 6))
+        plt.xlabel(x_label)
+        plt.ylabel(y_label)
+        plt.title(title)
+        # plt.legend()
+        # plt.grid(True)
+        plt.ticklabel_format(useOffset=False, style='plain', axis='x')   # show x-labels as they are
+
+        for time, residual, jitter in zip(x, y, measured_flux["flux_err"]):
+            plt.vlines(time, residual - jitter, residual + jitter, colors='blue', linewidth=1)
+
+        plt.plot(x[0], y[0], marker=markers[0], markersize=markersizes[0], linestyle=linestyles[0], label=data_labels[0], color=colors[0], linewidth=linewidths[0])
+        plt.hlines(0, x[0][0], x[0][-1], colors='black', linewidth=1)
         plt.savefig(plot_file)
