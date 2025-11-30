@@ -122,7 +122,7 @@ class CurveSimResults(dict):
         # p.ends_s0 = [float(i) for i in p.ends_s0]
         # p.ends_d = [float(i) for i in p.ends_d]
         # p.dts = [float(i) for i in p.dts]
-        self["ProgramParameters"] = p.__dict__
+        self["ProgramParameters"] = p_copy.__dict__
 
 
         # diagnostic helper
@@ -165,7 +165,7 @@ class CurveSimResults(dict):
 
 
         # resultfilename = CurveSimResults.check_resultfilename(p.result_file)
-        self.results2json(p)
+        self.results2json(p_copy)
         if p.verbose:
             print(self)
 
