@@ -5,14 +5,14 @@ import math
 import matplotlib
 import matplotlib.animation
 import numpy as np
-import pandas
+# import pandas
 import rebound
 import sys
 import time
 
 from curvesimulator.cs_body import CurveSimBody
 from curvesimulator.cs_lightcurve import CurveSimLightcurve
-# from curvesimulator.cs_parameters import CurveSimParameters
+from curvesimulator.cs_parameters import CurveSimParameters
 from curvesimulator.cs_physics import CurveSimPhysics
 from curvesimulator.cs_rebound import CurveSimRebound
 from curvesimulator.cs_results import CurveSimResults
@@ -41,7 +41,6 @@ class CurveSimBodies(list):
         config.read(p.config_file)  # Read config file. (This time the physical objects.)
 
         # Physical bodies
-        # super().__init__()  # unnecessary because self automatically becomes an empty list at the beginning of this method
         for section in config.sections():
             if section not in p.standard_sections:  # section describes a physical object
                 self.append(CurveSimBody(p=p,
@@ -74,7 +73,6 @@ class CurveSimBodies(list):
         self.check_body_parameters()
         p.bodynames2bodies(self)
         if p.action == "single_run":
-        # if p.flux_file is None and p.tt_file is None and p.rv_file is None:
             self.generate_patches(p)
 
     def __repr__(self):
@@ -402,4 +400,3 @@ class CurveSimBodies(list):
                     result[body.name][key] = attr * scale
         line = json.dumps(result)
         return line
-

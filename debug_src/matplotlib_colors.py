@@ -54,9 +54,12 @@ def plot_colortable(colors, *, ncols=4, sort_colors=True):
     return fig
 
 # plot_colortable(mcolors.BASE_COLORS, ncols=3, sort_colors=False)
-plot_colortable(mcolors.TABLEAU_COLORS, ncols=2, sort_colors=False)
+# plot_colortable(mcolors.TABLEAU_COLORS, ncols=2, sort_colors=False)
 # plot_colortable(mcolors.CSS4_COLORS)
-# plot_colortable(mcolors.XKCD_COLORS)
 # plot_colortable(plt.cm.tab20.colors)
+
+fig = plot_colortable(mcolors.XKCD_COLORS)
+fig.savefig('xkcd_color_table.png', dpi=300, bbox_inches='tight')
+plt.close(fig)
 
 plt.show()

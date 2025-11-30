@@ -15,7 +15,10 @@ import sys
 import time
 
 # from curvesimulator.cs_flux_data import csv2df
+from .cs_animation import CurveSimAnimation
 from curvesimulator.cs_bodies import CurveSimBodies
+from .cs_parameters import CurveSimParameters
+from .cs_results import CurveSimResults
 
 
 def stopwatch():
@@ -25,7 +28,7 @@ def stopwatch():
             tic = time.perf_counter()
             result = func(self, *args, **kwargs)
             toc = time.perf_counter()
-            print(f' {func.__name__}: {toc - tic:6.1f} seconds')
+            print(f" {func.__name__}: {toc - tic:6.1f} seconds")
             return result
 
         return wrapper
@@ -218,7 +221,7 @@ class CurveSimMCMC:
 
         param_references:
             List containing the names of the parameters to be fitted.
-            For example: ['Tmin_pri', 'P_days', 'incl_deg', 'R1a', 'R2R1']
+            For example: ["Tmin_pri", "P_days", "incl_deg", "R1a", "R2R1"]
         """
         residuals_sum_squared = 0
         if p.flux_file:
@@ -240,6 +243,25 @@ class CurveSimMCMC:
         residuals_flux = (measured_flux_array - sim_flux) / flux_err  # residuals are weighted with uncertainty!
         residuals_flux_sum_squared = np.sum(residuals_flux ** 2)
         return residuals_flux_sum_squared
+
+    @staticmethod
+    def bodies_from_fitting_params(bodies, fitting_parameters, param_type=None):
+        if param_type == "startvalue":
+            for fp in fitting_parameters:
+                bodies[fp.body_index].__dict__[fp.parameter_name] = fp.startvalue
+        elif param_type == "max_likelihood":
+            for fp in fitting_parameters:
+                bodies[fp.body_index].__dict__[fp.parameter_name] = fp.max_likelihood / fp.scale
+        elif param_type == "mean":
+            for fp in fitting_parameters:
+                bodies[fp.body_index].__dict__[fp.parameter_name] = fp.mean / fp.scale
+        elif param_type == "median":
+            for fp in fitting_parameters:
+                bodies[fp.body_index].__dict__[fp.parameter_name] = fp.median / fp.scale
+        return bodies
+
+
+
 
     @staticmethod
     def residuals_tt_sum_squared(theta, param_references, bodies, time_s0, time_d, measured_tt, p):
@@ -309,7 +331,7 @@ class CurveSimMCMC:
             try:
                 plot_filename = self.results_directory + plot_filename
                 fig, axes = plt.subplots(self.ndim, figsize=(10, self.ndim * 2), sharex=True)
-                fig.text(0.1, 0.99, f"Traces after {steps_done} steps", ha='left', va='top', fontsize=14, transform=fig.transFigure)
+                fig.text(0.1, 0.99, f"Traces after {steps_done} steps", ha="left", va="top", fontsize=14, transform=fig.transFigure)
                 plt.subplots_adjust(top=0.975)
                 if self.ndim == 1:
                     axes = [axes]
@@ -317,9 +339,9 @@ class CurveSimMCMC:
                 for i, (chain, ax, name, scale) in enumerate(zip(chains, axes, self.long_body_parameter_names, self.scales)):
                     nsteps = chain.shape[0]
                     x = np.arange(1, nsteps + 1) * self.thin_samples_plot  # 1*thin, 2*thin, ...
-                    ax.plot(x, chain * scale, color='black', alpha=0.05)
+                    ax.plot(x, chain * scale, color="xkcd:black", alpha=0.05)
                     ax.set_ylabel(name)
-                    ax.axvline(self.burn_in, color="red", linestyle="solid", label="burn-in")
+                    ax.axvline(self.burn_in, color="xkcd:tomato", linestyle="solid", label="burn-in")
                     ax.tick_params(labelbottom=True)  # Show x-tick labels for all
                     if i == len(axes) - 1:
                         ax.set_xlabel("Steps including burn-in (red line)")  # Only last subplot
@@ -381,26 +403,26 @@ class CurveSimMCMC:
     def mcmc_histograms(self, steps_done, bins, plot_filename):
         plot_filename = self.results_directory + plot_filename
         fig, axes = plt.subplots(self.ndim, figsize=(10, self.ndim * 2))
-        fig.text(0.02, 0.99, f"Histograms, {steps_done} steps after burn-in.", ha='left', va='top', fontsize=14, transform=fig.transFigure)
+        fig.text(0.02, 0.99, f"Histograms, {steps_done} steps after burn-in.", ha="left", va="top", fontsize=14, transform=fig.transFigure)
         startvalues = [fp.startvalue * fp.scale for fp in self.fitting_parameters]
         if self.ndim == 1:
             axes = [axes]
         for i, (sample, ax, fp, startvalue) in enumerate(zip(self.scaled_samples.T, axes, self.fitting_parameters, startvalues)):
-            densities, bin_edges, _ = ax.hist(sample, bins=bins, density=True, alpha=0.7, color="xkcd:light blue", edgecolor="black")
-            ax.axvline(fp.hdi_min, color="green", linestyle="dashed", label="HDI Lower Bound")
-            ax.axvline(fp.mean - fp.std, color="gray", linestyle="dotted", label="Mean - Std")
-            ax.axvline(fp.max_likelihood, color="red", linestyle="solid", label="Max Likelihood")
-            ax.axvline(fp.mean, color="black", linestyle="solid", label="Mean")
-            ax.axvline(fp.hdi_max, color="green", linestyle="dashed", label="HDI Upper Bound")
-            ax.axvline(fp.mean + fp.std, color="gray", linestyle="dotted", label="Mean + Std")
-            ax.axvline(fp.median, color="blue", linestyle="solid", label="Median")
-            ax.axvline(startvalue, color="orange", linestyle="solid", label="Startvalue")
+            densities, bin_edges, _ = ax.hist(sample, bins=bins, density=True, alpha=0.7, color="xkcd:light blue", edgecolor="xkcd:black")
+            ax.axvline(fp.hdi_min, color="xkcd:tree green", linestyle="dashed", label="HDI Lower Bound")
+            ax.axvline(fp.mean - fp.std, color="xkcd:warm grey", linestyle="dotted", label="Mean - Std")
+            ax.axvline(fp.max_likelihood, color="xkcd:tomato", linestyle="solid", label="Max Likelihood")
+            ax.axvline(fp.mean, color="xkcd:black", linestyle="solid", label="Mean")
+            ax.axvline(fp.hdi_max, color="xkcd:tree green", linestyle="dashed", label="HDI Upper Bound")
+            ax.axvline(fp.mean + fp.std, color="xkcd:warm grey", linestyle="dotted", label="Mean + Std")
+            ax.axvline(fp.median, color="xkcd:nice blue", linestyle="solid", label="Median")
+            ax.axvline(startvalue, color="xkcd:mango", linestyle="solid", label="Startvalue")
             ax.set_xlabel(fp.long_body_parameter_name)
             ax.set_ylabel("Density")
-            ax.ticklabel_format(useOffset=False, style='plain', axis='x')  # show x-labels as they are
+            ax.ticklabel_format(useOffset=False, style="plain", axis="x")  # show x-labels as they are
             if i == 0:
-                ax.legend(loc='lower left', bbox_to_anchor=(0.5, 1.02), ncol=3, borderaxespad=0.)
-                # ax.legend(loc='lower center', bbox_to_anchor=(0.5, 1.02), ncol=3, borderaxespad=0.)
+                ax.legend(loc="lower left", bbox_to_anchor=(0.5, 1.02), ncol=3, borderaxespad=0.)
+                # ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1.02), ncol=3, borderaxespad=0.)
         plt.tight_layout()
         try:
             plt.savefig(plot_filename)
@@ -440,7 +462,7 @@ class CurveSimMCMC:
                 nsteps = samples.shape[0]
                 nwalkers = samples.shape[1]
                 fig, axes = plt.subplots(self.ndim, figsize=(10, self.ndim * 2), sharex=True)
-                fig.text(0.1, 0.99, f"Autocorrelation after {steps_done} steps", ha='left', va='top', fontsize=14, transform=fig.transFigure)
+                fig.text(0.1, 0.99, f"Autocorrelation after {steps_done} steps", ha="left", va="top", fontsize=14, transform=fig.transFigure)
                 plt.subplots_adjust(top=0.975)
                 if self.ndim == 1:
                     axes = [axes]
@@ -450,9 +472,9 @@ class CurveSimMCMC:
                     for walker in range(nwalkers):
                         chain_1d = samples[:, walker, dim]
                         ac = np.asarray(emcee.autocorr.function_1d(chain_1d))  # ensure numpy array to avoid `array.pyi` type issue
-                        ax.plot(x, ac, alpha=0.5)
+                        ax.plot(x, ac, alpha=0.2, color="xkcd:royal blue")
                     ax.set_ylabel(param_name)
-                    ax.axvline(self.burn_in, color="red", linestyle="solid", label="burn-in")
+                    ax.axvline(self.burn_in, color="xkcd:tomato", linestyle="solid", label="burn-in")
                     ax.tick_params(labelbottom=True)  # Show x-tick labels for all
                     if dim == self.ndim - 1:
                         ax.set_xlabel("Steps including burn-in (red line)")  # Only last subplot
@@ -472,11 +494,11 @@ class CurveSimMCMC:
         integrated_autocorrelation_time = np.array(self.integrated_autocorrelation_time).T
         steps = [step for step in range(self.chunk_size + self.loaded_steps, steps_done + 1, self.chunk_size)]
         fig, ax = plt.subplots(figsize=(10, 6))
-        colors = plt.cm.tab20.colors  # 20 distinct colors
-        linestyles = ['solid', 'dashed', 'dotted', 'dashdot']
-        for idx, (autocorr_times, fpn) in enumerate(zip(integrated_autocorrelation_time, self.long_body_parameter_names)):
-            color = colors[idx % len(colors)]
-            linestyle = linestyles[idx % len(linestyles)]
+        colors = ["xkcd:royal blue", "xkcd:red", "xkcd:black", "xkcd:frog green", "xkcd:piss yellow", "xkcd:purply blue", "xkcd:sepia", "xkcd:wine", "xkcd:ocean", "xkcd:rust", "xkcd:forest", "xkcd:pale violet", "xkcd:robin's egg", "xkcd:pinkish purple", "xkcd:azure", "xkcd:hot pink", "xkcd:mango", "xkcd:baby pink", "xkcd:fluorescent green", "xkcd:medium grey"]
+        linestyles = ["solid", "dashed", "dashdot", "dotted"]
+        for i, (autocorr_times, fpn) in enumerate(zip(integrated_autocorrelation_time, self.long_body_parameter_names)):
+            color = colors[i % len(colors)]
+            linestyle = linestyles[(i // len(colors)) % len(linestyles)]
             ax.plot(steps, autocorr_times, label=fpn, color=color, linestyle=linestyle)
         ax.set_xlabel("Steps after burn-in")
         ax.set_title(f"Integrated Autocorrelation Time per Dimension after {steps_done} steps")
@@ -490,9 +512,9 @@ class CurveSimMCMC:
 
         steps_done_div_integrated_autocorrelation_time = steps / integrated_autocorrelation_time
         fig, ax = plt.subplots(figsize=(10, 6))
-        for idx, (autocorr_times, fpn) in enumerate(zip(steps_done_div_integrated_autocorrelation_time, self.long_body_parameter_names)):
-            color = colors[idx % len(colors)]
-            linestyle = linestyles[idx % len(linestyles)]
+        for i, (autocorr_times, fpn) in enumerate(zip(steps_done_div_integrated_autocorrelation_time, self.long_body_parameter_names)):
+            color = colors[i % len(colors)]
+            linestyle = linestyles[(i // len(colors)) % len(linestyles)]
             ax.plot(steps, autocorr_times, label=fpn, color=color, linestyle=linestyle)
         ax.set_xlabel("Steps after burn-in")
         ax.set_title(f"Steps divided by Integrated Autocorrelation Time per Dimension after {steps_done} steps")
@@ -513,10 +535,10 @@ class CurveSimMCMC:
                 steps = [step for step in range(self.chunk_size + self.loaded_steps, steps_done + 1, self.chunk_size)]
                 fig, ax = plt.subplots(figsize=(10, 6))
                 for i in range(acceptance_fractions_array.shape[0]):
-                    ax.plot(steps, acceptance_fractions_array[i], label=f'Line {i + 1}', color='green', alpha=0.15)
-                ax.set_xlabel('Steps after burn-in')
-                ax.set_ylabel('Acceptance Fraction')
-                ax.set_title(f'Acceptance Fraction per Walker after {steps_done} steps')
+                    ax.plot(steps, acceptance_fractions_array[i], label=f"Line {i + 1}", color="xkcd:tree green", alpha=0.15)
+                ax.set_xlabel("Steps after burn-in")
+                ax.set_ylabel("Acceptance Fraction")
+                ax.set_title(f"Acceptance Fraction per Walker after {steps_done} steps")
                 plt.tight_layout()
                 try:
                     plt.savefig(plot_filename)
@@ -532,13 +554,13 @@ class CurveSimMCMC:
         plot_filename = self.results_directory + plot_filename
         steps = [step for step in range(self.chunk_size + self.loaded_steps, steps_done + 1, self.chunk_size)]
         fig, ax = plt.subplots(figsize=(10, 6))
-        ax.plot(steps, self.max_likelihood_avg_residual_in_std, label="Max Likelihood Parameters", marker='o', markersize=2, color='red', alpha=0.7)
+        ax.plot(steps, self.max_likelihood_avg_residual_in_std, label="Max Likelihood Parameters", marker="o", markersize=2, color="xkcd:tomato")
         if p.flux_file:
-            ax.plot(steps, self.median_avg_residual_in_std, label="Median Parameters", marker='o', markersize=2, color='blue', alpha=0.7)
-            ax.plot(steps, self.mean_avg_residual_in_std, label="Mean Parameters", marker='o', markersize=2, color='black', alpha=0.7)
-        ax.set_xlabel('Steps after burn-in')
-        ax.ticklabel_format(useOffset=False, style='plain', axis='y')  # show y-labels as they are
-        ax.set_title(f'Average Residual [Standard Deviations] after {steps_done} steps')
+            ax.plot(steps, self.median_avg_residual_in_std, label="Median Parameters", marker="o", markersize=2, color="xkcd:nice blue")
+            ax.plot(steps, self.mean_avg_residual_in_std, label="Mean Parameters", marker="o", markersize=2, color="xkcd:black")
+        ax.set_xlabel("Steps after burn-in")
+        ax.ticklabel_format(useOffset=False, style="plain", axis="y")  # show y-labels as they are
+        ax.set_title(f"Average Residual [Standard Deviations] after {steps_done} steps")
         ax.legend(loc="upper left")
         plt.tight_layout()
         try:
@@ -573,17 +595,17 @@ class CurveSimMCMC:
         dx = 0.005 * (measured_tt["tt"].max() - measured_tt["tt"].min())
         for ax, eclipser in zip(axes, unique_eclipsers):
             df = measured_tt[measured_tt["eclipser"] == eclipser]
-            ax.plot(df["tt"], df["delta"], marker='o', linestyle='-', color='blue', alpha=0.7)
+            ax.plot(df["tt"], df["delta"], marker="o", markersize=5, linestyle="-", color="xkcd:nice blue")
             for x, tt_err in zip(df["tt"], df["tt_err"]):  # uncertainties
-                ax.hlines(tt_err, x - dx, x + dx, colors='red', linewidth=1)
-                ax.hlines(-tt_err, x - dx, x + dx, colors='red', linewidth=1)
-                ax.vlines(x, -tt_err, tt_err, colors='red', linewidth=1)
-            ax.axhline(0, color='gray', linestyle='dashed', linewidth=1)
-            ax.set_ylabel(f"TT Delta [days]")
+                ax.hlines(tt_err, x - dx, x + dx, colors="xkcd:tomato", linewidth=1)
+                ax.hlines(-tt_err, x - dx, x + dx, colors="xkcd:tomato", linewidth=1)
+                ax.vlines(x, -tt_err, tt_err, colors="xkcd:tomato", linewidth=1)
+            ax.axhline(0, color="xkcd:warm grey", linestyle="dashed", linewidth=1)
+            ax.set_ylabel(f"Transit Time Residuals [days]")
             ax.set_title(f"Eclipser: {eclipser}")
             ax.tick_params(labelbottom=True)
             ax.set_ylim(ylim)
-            ax.ticklabel_format(useOffset=False, style='plain', axis='x')
+            ax.ticklabel_format(useOffset=False, style="plain", axis="x")
         axes[-1].set_xlabel("Transit Time [BJD]")
         if steps_done > 0:
             fig.suptitle(f"TT Delta. {steps_done} steps after burn-in.", fontsize=14)
@@ -623,13 +645,13 @@ class CurveSimMCMC:
             df = measured_tt[measured_tt["eclipser"] == eclipser]
             for i, col in enumerate(delta_columns):
                 if i == num_lines - 1:
-                    color = "blue"  # last line blue
+                    color = "xkcd:nice blue"  # last line blue
                 elif i == num_lines - 2:
-                    color = "black"  # second to last black
+                    color = "xkcd:black"  # second to last black
                 else:
                     color = gray_shades[i]  # shades of gray
-                ax.plot(df["tt"], df[col], marker='o', linestyle='-', alpha=0.7, label=col, color=color)
-            ax.axhline(0, color='gray', linestyle='dashed', linewidth=1)
+                ax.plot(df["tt"], df[col], marker="o", linestyle="-", alpha=0.7, label=col, color=color)
+            ax.axhline(0, color="xkcd:warm grey", linestyle="dashed", linewidth=1)
             ax.set_ylabel(f"TT Delta [days]")
             ax.set_title(f"Eclipser: {eclipser}")
             ax.tick_params(labelbottom=True)
@@ -744,7 +766,7 @@ class CurveSimMCMC:
         """Converts results to JSON and saves it."""
         filename = self.results_directory + "mcmc_results.json"
         try:
-            with open(filename, "w", encoding='utf8') as file:
+            with open(filename, "w", encoding="utf8") as file:
                 json.dump(results, file, indent=4, ensure_ascii=False)
             if p.verbose:
                 print(f" Saved MCMC results to {filename}")
@@ -782,6 +804,8 @@ class CurveSimMCMC:
             self.mean_avg_residual_in_std.append(math.sqrt(mean_residuals_flux_sum_squared / flux_data_points))
             self.median_avg_residual_in_std.append(math.sqrt(median_residuals_flux_sum_squared / flux_data_points))
         self.average_residual_in_std_plot(p, steps_done, "avg_residual.png")
+        bodies = CurveSimMCMC.bodies_from_fitting_params(bodies, self.fitting_parameters, param_type="max_likelihood")
+        CurveSimMCMC.single_run(p, bodies)
 
         self.integrated_autocorrelation_time.append(list(self.sampler.get_autocorr_time(tol=0)))
         self.integrated_autocorrelation_time_plot(steps_done, "int_autocorr_time.png", "steps_per_i_ac_time.png")
@@ -798,6 +822,63 @@ class CurveSimMCMC:
             flat_thin_samples = self.sampler.get_chain(discard=self.burn_in, thin=self.thin_samples_plot, flat=True)
             self.scale_samples(flat_thin_samples)
             self.mcmc_corner_plot(steps_done, "corner.png")
+
+    @staticmethod
+    def single_run(p, bodies):
+        time_s0, time_d = CurveSimParameters.init_time_arrays(p)  # s0 in seconds, starting at 0. d in BJD.
+        sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # Calculate all body positions and the resulting lightcurve
+        results = bodies.find_transits(rebound_sim, p, sim_flux, time_s0, time_d)
+        results["chi_squared_tt"], results["chi_squared_rv"], results["chi_squared_flux"], results["chi_squared_total"] = 0, 0, 0, 0
+        results["measurements_tt"], results["measurements_rv"], results["measurements_flux"], results["measurements_total"] = 0, 0, 0, 0
+        if p.video_file:
+            CurveSimAnimation(p, bodies, sim_rv, sim_flux, time_s0)  # Create a video
+        if p.tt_file:
+            measured_tt = CurveSimResults.get_measured_tt(p)
+            residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
+            measured_tt = results.calc_tt_chi_squared(measured_tt, p.free_parameters)  # store chi squared and p-value in results
+            CurveSimMCMC.tt_delta_plot(p, 0, "tt_o_vs_c.png", measured_tt)  # compare observed vs. computed TT
+        if p.rv_file:
+            measured_rv = CurveSimResults.get_measured_rv(p)
+            measured_rv = CurveSimResults.calc_rv_residuals(measured_rv, p.rv_body, rebound_sim)  # compare observed vs. computed RV
+            measured_rv = results.calc_rv_chi_squared(measured_rv, p.free_parameters)  # store chi squared and p-value in results
+            CurveSimResults.sim_rv_plot(p, sim_rv, time_d, "rv_computed")  # plot computed RV
+            CurveSimResults.rv_observed_computed_plot(p, sim_rv, time_d, "rv_o_vs_c", measured_rv)  # plot computed and observed RV
+            CurveSimResults.rv_residuals_plot(p, "rv_residuals", measured_rv)  # plot RV residuals
+        if p.flux_file:
+            time_s0, _, _, _, measured_flux = CurveSimResults.get_measured_flux(p)
+            _, sim_flux, _ = bodies.calc_physics(p, time_s0)  # run simulation
+            measured_flux = CurveSimResults.calc_flux_residuals(measured_flux, sim_flux)  # compare observed vs. computed flux
+            results.calc_flux_chi_squared(measured_flux, p.free_parameters)  # store chi squared and p-value in results
+            CurveSimResults.flux_observed_computed_plot_time(p, "flux_o_vs_c_x=time", measured_flux)  # plot computed and observed flux
+            CurveSimResults.flux_observed_computed_plot_data(p, "flux_o_vs_c_x=data", measured_flux)  # plot computed and observed flux
+            CurveSimResults.flux_chi_squared_plot_data(p, "flux_chi2_x=data", measured_flux)  # plot flux chi squared per datapoint
+            CurveSimResults.flux_residuals_plot_time(p, "flux_residuals_x=time", measured_flux)  # plot Flux residuals
+            CurveSimResults.flux_residuals_plot_data(p, "flux_residuals_x=data", measured_flux)  # plot Flux residuals
+            # plot something
+        results.calc_total_chi_squared(p.free_parameters)
+        if p.result_file:
+            results.save_results(p)
+        if p.sim_flux_file:
+            sim_flux.save_sim_flux(p, time_d)
+        # self.sim_flux = sim_flux
+        # self.results = results
+        vitkova_debug = False
+        if vitkova_debug:
+            p.eclipsers = ["TOI4504d"]
+            p.eclipsees = ["TOI4504"]
+            # results.plot_parameter("TOI4504c", "TOI4504", "T14", time_d[0], time_d[-1],
+            #                         filename=f"TOI4504c_i={bodies[2].i*p.rad2deg:.2f}_T14.png")
+            results.plot_parameter("TOI4504d", "TOI4504", "T14", time_d[0], time_d[-1],
+                                   filename=f"TOI4504d_i={bodies[1].i * p.rad2deg:.2f}_T14.png")
+            results.plot_parameter("TOI4504d", "TOI4504", "depth", time_d[0], time_d[-1],
+                                   filename=f"TOI4504d_i={bodies[1].i * p.rad2deg:.2f}_depth.png")
+
+            # measured_tt = CurveSimMCMC.get_measured_tt(p)
+            # p.bodynames2bodies(bodies)
+            # _, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
+            # dummy_mcmc = CurveSimMCMC(None, None, None, None, None, None, None, dummy_object=True)
+            # dummy_mcmc.tt_delta_plot(1, "Vitkova_MaxL_tt_delta.png", measured_tt)
+        return bodies, sim_flux, results
 
 
 class CurveSimLMfit:
@@ -904,24 +985,24 @@ class CurveSimLMfit:
     @staticmethod
     def check_for_fit_improvement(residual):
         try:
-            with open("residual.tmp", "r", encoding='utf8') as file:
+            with open("residual.tmp", "r", encoding="utf8") as file:
                 best_residual = float(file.read().strip())
         except (FileNotFoundError, ValueError):
             best_residual = float("inf")
         improvement = residual < best_residual
         if improvement:
-            with open("residual.tmp", "w", encoding='utf8') as file:
+            with open("residual.tmp", "w", encoding="utf8") as file:
                 file.write(str(residual))
         return improvement
 
     @staticmethod
     def get_iteration_from_file():
         try:
-            with open("iteration.tmp", "r", encoding='utf8') as file:
+            with open("iteration.tmp", "r", encoding="utf8") as file:
                 iteration = int(file.read().strip())
         except (FileNotFoundError, ValueError):
             iteration = 0
-        with open("iteration.tmp", "w", encoding='utf8') as file:
+        with open("iteration.tmp", "w", encoding="utf8") as file:
             file.write(str(iteration + 1))
         return iteration
 
@@ -998,7 +1079,7 @@ class CurveSimLMfit:
         results["ProgramParameters"] = p_copy.__dict__
 
         filename = p.results_directory + f"/lmfit_results.tmp.json"
-        with open(filename, "w", encoding='utf8') as file:
+        with open(filename, "w", encoding="utf8") as file:
             json.dump(results, file, indent=4, ensure_ascii=False)
         if p.verbose:
             print(f" Saved intermediate LMfit results to {filename}")
@@ -1006,7 +1087,7 @@ class CurveSimLMfit:
     def lmfit_results2json(self, results, p):
         """Converts results to JSON and saves it."""
         filename = self.results_directory + f"/lmfit_results.json"
-        with open(filename, "w", encoding='utf8') as file:
+        with open(filename, "w", encoding="utf8") as file:
             json.dump(results, file, indent=4, ensure_ascii=False)
         if p.verbose:
             print(f" Saved LMfit results to {filename}")
@@ -1053,12 +1134,3 @@ def find_ndarrays(obj, path="root"):
         return obj
     else:
         return obj
-
-
-# trace_plots
-# 330        chains = np.moveaxis(self.sampler.get_chain(flat=False,                        thin=self.thin_samples_plot), -1, 0)
-# autocorrelation_function_plot
-# 440        samples =            self.sampler.get_chain(flat=False, discard=0,             thin=self.thin_samples_plot)  # shape: (steps, walkers, ndim)
-# mcmc_results
-# 746        flat_thin_samples =  self.sampler.get_chain(flat=True,  discard=self.burn_in,  thin=self.thin_samples)
-# 782        flat_thin_samples =  self.sampler.get_chain(flat=True,  discard=self.burn_in,  thin=self.thin_samples_plot)

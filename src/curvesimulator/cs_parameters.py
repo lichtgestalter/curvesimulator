@@ -83,8 +83,8 @@ class CurveSimParameters:
         self.dts = np.array(eval(config.get("Simulation", "dts", fallback="[]")), dtype=float)
 
         self.sim_flux_file = config.get("Simulation", "sim_flux_file", fallback=None)
+        self.start_indices, self.max_iterations, self.total_iterations = self.check_intervals()
         if self.action == "single_run":  # run simulation, generate video and transit results
-        # if self.flux_file is None and self.tt_file is None and self.rv_file is None:  # run simulation, generate video and transit results
             if self.sim_flux_file == "None":
                 self.sim_flux_file = None
             self.sim_flux_err = eval(config.get("Simulation", "sim_flux_err", fallback="0.0"))
@@ -92,7 +92,7 @@ class CurveSimParameters:
             # [Video]
             self.frames = eval(config.get("Video", "frames"))
             self.fps = eval(config.get("Video", "fps"))
-            self.start_indices, self.max_iterations, self.total_iterations = self.check_intervals()
+            # self.start_indices, self.max_iterations, self.total_iterations = self.check_intervals()
             self.sampling_rate = (self.total_iterations - 1) // self.frames + 1
 
             # [Scale]
@@ -121,7 +121,7 @@ class CurveSimParameters:
                 self.starts_d = np.array(eval(config.get("Simulation", "starts", fallback="[]")), dtype=float)
                 self.ends_d = np.array(eval(config.get("Simulation", "ends", fallback="[]")), dtype=float)
                 self.dts = np.array(eval(config.get("Simulation", "dts", fallback="[]")), dtype=float)
-                self.start_indices, self.max_iterations, self.total_iterations = self.check_intervals()
+                # self.start_indices, self.max_iterations, self.total_iterations = self.check_intervals()
                 self.best_residuals_tt_sum_squared = 1e99
 
             self.guifit = eval(config.get("Fitting", "guifit", fallback="False"))
@@ -138,6 +138,8 @@ class CurveSimParameters:
             self.steps = int(eval(config.get("Fitting", "steps", fallback="10000")))
             self.moves = config.get("Fitting", "moves", fallback="None")
             self.burn_in = int(eval(config.get("Fitting", "burn_in", fallback="500")))
+            if self.burn_in < 1:
+                self.burn_in = 1
             self.chunk_size = int(eval(config.get("Fitting", "chunk_size", fallback="500")))
             self.bins = tuple([eval(x) for x in config.get("Fitting", "bins", fallback="30").split("#")[0].split(",")])
             self.thin_samples = int(eval(config.get("Fitting", "thin_samples", fallback="10")))
@@ -217,7 +219,8 @@ class CurveSimParameters:
 
     @staticmethod
     def init_time_arrays(p):
-        time_s0 = np.zeros(p.total_iterations, dtype=float)
+        time_s0 = np.zeros(p.max_iterations, dtype=float)
+        # time_s0 = np.zeros(p.total_iterations, dtype=float)
         i = 0
         for start, dt, max_iteration in zip(p.starts_s0, p.dts, p.max_iterations):
             for j in range(max_iteration):

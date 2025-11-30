@@ -1,4 +1,5 @@
 # from colorama import Fore, Style
+import copy
 import json
 import math
 import matplotlib.pyplot as plt
@@ -29,7 +30,7 @@ class CurveSimResults(dict):
         self["CurveSimulator Documentation"] = "https://github.com/lichtgestalter/curvesimulator/wiki"
         self["ProgramParameters"] = {}
         self["Bodies"] = {}
-        exclude = ['positions', 'velocity', 'circle_left', 'circle_right', 'acceleration', 'd', 'h', 'angle', 'eclipsed_area', 'patch_radius']
+        exclude = ["positions", "velocity", "circle_left", "circle_right", "acceleration", "d", "h", "angle", "eclipsed_area", "patch_radius"]
         for body in bodies:
             self["Bodies"][body.name] = {}
             self["Bodies"][body.name]["BodyParameters"] = {}
@@ -73,7 +74,7 @@ class CurveSimResults(dict):
     def results2json(self, p):
         """Converts self to JSON and saves it."""
         filename = p.results_directory + p.result_file
-        with open(filename, "w", encoding='utf8') as file:
+        with open(filename, "w", encoding="utf8") as file:
             json.dump(self, file, indent=4, ensure_ascii=False)
         if p.verbose:
             print(filename, "saved")
@@ -97,16 +98,30 @@ class CurveSimResults(dict):
         return new_resultfilename
 
     def save_results(self, p):
-        del p.standard_sections
-        del p.eclipsers
-        del p.eclipsees
-        if hasattr(p, "fitting_parameters"):
-            del p.fitting_parameters
-        p.starts_s0 = [float(i) for i in p.starts_s0]
-        p.starts_d = [float(i) for i in p.starts_d]
-        p.ends_s0 = [float(i) for i in p.ends_s0]
-        p.ends_d = [float(i) for i in p.ends_d]
-        p.dts = [float(i) for i in p.dts]
+        p_copy = copy.deepcopy(p)
+        to_remove = [
+            "fitting_parameters", "standard_sections", "eclipsers", "eclipsees",
+            "fitting_parameter_dic",
+        ]
+        for name in to_remove:
+            if hasattr(p_copy, name):
+                delattr(p_copy, name)
+        for name in ("starts_s0", "starts_d", "ends_s0", "ends_d", "dts"):
+            if hasattr(p_copy, name):
+                orig = getattr(p_copy, name)
+                p_copy.__dict__[name] = [float(i) for i in orig]
+        # del p.standard_sections
+        # del p.eclipsers
+        # del p.eclipsees
+        # if hasattr(p, "fitting_parameters"):
+        #     del p.fitting_parameters
+        # if hasattr(p, "fitting_parameter_dic"):
+        #     del p.fitting_parameter_dic
+        # p.starts_s0 = [float(i) for i in p.starts_s0]
+        # p.starts_d = [float(i) for i in p.starts_d]
+        # p.ends_s0 = [float(i) for i in p.ends_s0]
+        # p.ends_d = [float(i) for i in p.ends_d]
+        # p.dts = [float(i) for i in p.dts]
         self["ProgramParameters"] = p.__dict__
 
 
@@ -236,7 +251,7 @@ class CurveSimResults(dict):
         # print(f"Degrees of freedom:     {df}")
         # print(f"P-value:                {p_value:.4f}\n")
         # if p_value > 0.05:
-        #     print(f"The fit is acceptable (p > 0.05). There's no significant evidence that your model is inconsistent with the data.")
+        #     print(f"The fit is acceptable (p > 0.05). There is no significant evidence that your model is inconsistent with the data.")
         # else:
         #     print(f"The fit is poor (p < 0.05). Your model may not adequately describe the data.")
         return p_value
@@ -312,13 +327,13 @@ class CurveSimResults(dict):
         plt.xlabel(x_label)
         plt.ylabel(y_label)
         plt.title(title)
-        plt.ticklabel_format(useOffset=False, style='plain', axis='x')   # show x-labels as they are
+        plt.ticklabel_format(useOffset=False, style="plain", axis="x")   # show x-labels as they are
 
         n = len(y_lists)
-        markers_list = CurveSimResults._to_list(markers, 'o')
+        markers_list = CurveSimResults._to_list(markers, "o")
         markersizes_list = CurveSimResults._to_list(markersizes, 1)
-        linestyles_list = CurveSimResults._to_list(linestyles, 'None')
-        colors_list = CurveSimResults._to_list(colors, 'Red')
+        linestyles_list = CurveSimResults._to_list(linestyles, "None")
+        colors_list = CurveSimResults._to_list(colors, "xkcd:tomato")
         linewidths_list = CurveSimResults._to_list(linewidths, 1.5)
 
         markers_per_curve = CurveSimResults._expand_param(markers_list, "markers", n)
@@ -369,9 +384,9 @@ class CurveSimResults(dict):
             y_lists=[parameter_list],
             data_labels=[eclipser],
             title=title,
-            x_label='Transit Times [BJD]',
+            x_label="Transit Times [BJD]",
             y_label=parameter,
-            linestyles='-',
+            linestyles="-",
             markersizes=4,
             grid=True,
             left=start,
@@ -402,9 +417,9 @@ class CurveSimResults(dict):
             x_lists=    [tt_tess,       x4sine],
             y_lists=    [ttv_to_date,   sine_curve],
             data_labels=["TTV to date", "Sine Curve"],
-            linestyles= ['',            '-'],
+            linestyles= ['',            "-"],
             markersizes=[4,             0],
-            colors=     ["Red",         "Black"],
+            colors=     ["xkcd:tomato",         "xkcd:black"],
             linewidths= [0,             1],
             grid=True,
             legend=True,
@@ -420,9 +435,9 @@ class CurveSimResults(dict):
             x_lists=    [time_d],
             y_lists=    [sim_rv],
             data_labels=["sim_rv"],
-            linestyles= ['-'],
+            linestyles= ["-"],
             markersizes=[0],
-            colors=     ["Black"],
+            colors=     ["xkcd:black"],
             linewidths= [1],
             grid=False,
             legend=False,
@@ -438,9 +453,9 @@ class CurveSimResults(dict):
             x_lists=    [time_d,   measured_rv["time"]],
             y_lists=    [sim_rv,   measured_rv["rv_rel"]],
             data_labels=["computed", "observed"],
-            linestyles= ['-',      ''],
+            linestyles= ["-",      ''],
             markersizes=[0,        3],
-            colors=     ["Black",  "Blue"],
+            colors=     ["xkcd:black",  "xkcd:nice blue"],
             linewidths= [1,        0],
             grid=False,
             legend=True,
@@ -457,11 +472,11 @@ class CurveSimResults(dict):
             y_label="Normalized Flux",
             x_lists=    [measured_flux["time"], measured_flux["time"]],
             y_lists=    [measured_flux["flux"], measured_flux["flux_sim"]],
-            data_labels=["computed",            "observed"],
+            data_labels=["observed",            "computed"],
             linestyles= ['',                    ''],
             markersizes=[1,                     1],
-            colors=     ["Black",               "Red"],
-            linewidths= [1,                     0],
+            colors=     ["xkcd:nice blue",                 "xkcd:black"],
+            # linewidths= [1,                     0],
             grid=False,
             legend=True,
             left=np.min(measured_flux["time"]) - 0.1,  # debug: offset in Parameterfile aufnehmen?
@@ -477,13 +492,13 @@ class CurveSimResults(dict):
             title=f"Flux: observed vs. computed",
             x_label="Datapoints",
             y_label="Normalized Flux",
-            x_lists=    [[x for x in range(measured_flux.shape[0])], [x for x in range(measured_flux.shape[0])]],
-            y_lists=    [measured_flux["flux"],                      measured_flux["flux_sim"]],
-            data_labels=["computed",                                 "observed"],
-            linestyles= ['',                                         ''],
-            markersizes=[1,                                          1],
-            colors=     ["Black",                                    "Red"],
-            linewidths= [1,                                          0],
+            x_lists=    [[x for x in range(measured_flux.shape[0])],     [x for x in range(measured_flux.shape[0])]],
+            y_lists=    [measured_flux["flux"],                          measured_flux["flux_sim"]],
+            data_labels=["observed",                                     "computed"],
+            linestyles= ['',                                             ''],
+            markersizes=[1,                                              1],
+            colors=     ["xkcd:nice blue",                                          "xkcd:black"],
+            # linewidths= [1,                                              0],
             grid=False,
             legend=True,
             plot_file=p.results_directory + plot_filename,
@@ -500,7 +515,7 @@ class CurveSimResults(dict):
             data_labels=["chi_squared"],
             linestyles= [''],
             markersizes=[1],
-            colors=     ["Green"],
+            colors=     ["xkcd:tree green"],
             linewidths= [1],
             grid=False,
             legend=True,
@@ -516,9 +531,9 @@ class CurveSimResults(dict):
         y = [measured_rv["residual"]]
         data_labels = ["residual"]
         linestyles = ['']
-        markers = ['o']
-        markersizes = [3]
-        colors = ["Blue"]
+        markers = ["o"]
+        markersizes = [4]
+        colors = ["xkcd:nice blue"]
         linewidths = [0]
         xpaddings = [0.01]
         # xpaddings = [0.01 * (np.max(x) - np.min(x))]
@@ -534,17 +549,17 @@ class CurveSimResults(dict):
         plt.title(title)
         # plt.legend()
         # plt.grid(True)
-        plt.ticklabel_format(useOffset=False, style='plain', axis='x')   # show x-labels as they are
+        plt.ticklabel_format(useOffset=False, style="plain", axis="x")   # show x-labels as they are
         plt.xlim(left=left, right=right)
         # plt.ylim(bottom=bottom, top=top)
 
         for time, residual, jitter in zip(x, y, measured_rv["rv_jit"]):
-            plt.vlines(time, residual - jitter, residual + jitter, colors='blue', linewidth=1)
+            plt.vlines(time, residual - jitter, residual + jitter, colors="xkcd:black", linewidth=1)
 
         plt.plot(x[0], y[0], marker=markers[0], markersize=markersizes[0], linestyle=linestyles[0], label=data_labels[0], color=colors[0], linewidth=linewidths[0])
-        plt.hlines(0, left, right, colors='black', linewidth=1)
-        plt.hlines(measured_rv["rv_jit"].mean(), left, right, colors='grey', linewidth=1, linestyles="--")
-        plt.hlines(-measured_rv["rv_jit"].mean(), left, right, colors='grey', linewidth=1, linestyles="--")
+        plt.hlines(0, left, right, colors="xkcd:black", linewidth=1)
+        plt.hlines(measured_rv["rv_jit"].mean(), left, right, colors="xkcd:warm grey", linewidth=1, linestyles="--")
+        plt.hlines(-measured_rv["rv_jit"].mean(), left, right, colors="xkcd:warm grey", linewidth=1, linestyles="--")
         plt.savefig(plot_file)
 
     @staticmethod
@@ -556,9 +571,9 @@ class CurveSimResults(dict):
         y = [measured_flux["residual"]]
         data_labels = ["residual"]
         linestyles = ['']
-        markers = ['o']
+        markers = ["o"]
         markersizes = [3]
-        colors = ["Blue"]
+        colors = ["xkcd:nice blue"]
         linewidths = [0]
         xpaddings = [0.01]
         # xpaddings = [0.01 * (np.max(x) - np.min(x))]
@@ -576,15 +591,15 @@ class CurveSimResults(dict):
         plt.title(title)
         # plt.legend()
         # plt.grid(True)
-        plt.ticklabel_format(useOffset=False, style='plain', axis='x')   # show x-labels as they are
+        plt.ticklabel_format(useOffset=False, style="plain", axis="x")   # show x-labels as they are
         plt.xlim(left=left, right=right)
         # plt.ylim(bottom=bottom, top=top)
 
         for time, residual, jitter in zip(x, y, measured_flux["flux_err"]):
-            plt.vlines(time, residual - jitter, residual + jitter, colors='blue', linewidth=1)
+            plt.vlines(time, residual - jitter, residual + jitter, colors="xkcd:black", linewidth=1)
 
         plt.plot(x[0], y[0], marker=markers[0], markersize=markersizes[0], linestyle=linestyles[0], label=data_labels[0], color=colors[0], linewidth=linewidths[0])
-        plt.hlines(0, left, right, colors='black', linewidth=1)
+        plt.hlines(0, left, right, colors="xkcd:black", linewidth=1)
         plt.savefig(plot_file)
 
     @staticmethod
@@ -596,9 +611,9 @@ class CurveSimResults(dict):
         y = [measured_flux["residual"]]
         data_labels = ["residual"]
         linestyles = ['']
-        markers = ['o']
+        markers = ["o"]
         markersizes = [3]
-        colors = ["Blue"]
+        colors = ["xkcd:nice blue"]
         linewidths = [0]
         plot_file = p.results_directory + plot_filename
 
@@ -608,11 +623,34 @@ class CurveSimResults(dict):
         plt.title(title)
         # plt.legend()
         # plt.grid(True)
-        plt.ticklabel_format(useOffset=False, style='plain', axis='x')   # show x-labels as they are
+        plt.ticklabel_format(useOffset=False, style="plain", axis="x")   # show x-labels as they are
 
         for time, residual, jitter in zip(x, y, measured_flux["flux_err"]):
-            plt.vlines(time, residual - jitter, residual + jitter, colors='blue', linewidth=1)
+            plt.vlines(time, residual - jitter, residual + jitter, colors="xkcd:black", linewidth=1)
 
         plt.plot(x[0], y[0], marker=markers[0], markersize=markersizes[0], linestyle=linestyles[0], label=data_labels[0], color=colors[0], linewidth=linewidths[0])
-        plt.hlines(0, x[0][0], x[0][-1], colors='black', linewidth=1)
+        plt.hlines(0, x[0][0], x[0][-1], colors="xkcd:black", linewidth=1)
         plt.savefig(plot_file)
+
+
+def try_colors_in_plot():
+    plot_filename1 = "color_test.png"
+    distance = 10
+    n_lines = 100
+    fig, ax = plt.subplots(figsize=(10, 6))
+    colors = ["xkcd:royal blue", "xkcd:red", "xkcd:black", "xkcd:frog green", "xkcd:piss yellow", "xkcd:purply blue", "xkcd:sepia", "xkcd:wine", "xkcd:ocean", "xkcd:shit green", "xkcd:forest", "xkcd:pale violet", "xkcd:robin's egg", "xkcd:pinkish purple", "xkcd:azure", "xkcd:hot pink", "xkcd:mango", "xkcd:baby pink", "xkcd:fluorescent green", "xkcd:medium grey"]
+    linestyles = ["solid", "dashed", "dashdot", "dotted"]
+    for i in range(n_lines):
+        color = colors[i % len(colors)]
+        linestyle = linestyles[(i // len(colors)) % len(linestyles)]
+        x = i * distance
+        ax.plot([x, x], [-1, 1], color=color, linestyle=linestyle, linewidth=1)
+    ax.set_xlabel("test")
+    ax.set_title(f"test")
+    ax.legend(loc="upper left")
+    plt.tight_layout()
+    plt.savefig(plot_filename1)
+
+
+if __name__ == '__main__':
+    try_colors_in_plot()
