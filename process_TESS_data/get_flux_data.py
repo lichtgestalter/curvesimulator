@@ -198,6 +198,8 @@ def get_old_lightcurves():
 
 def get_new_lightcurve(sector):
     download_flux_lc('TIC349972412', sector, 'SPOC', 120, save_plot=True, save_error_plot=True, save_csv=True, save_fits=False, start=False, end=False)
+    # download_flux_lc('TIC349972412', sector, 'SPOC', 20, save_plot=True, save_error_plot=True, save_csv=True, save_fits=False, start=False, end=False)
+    # download_flux_lc('TIC349972412', sector, 'QLP', 200, save_plot=True, save_error_plot=True, save_csv=True, save_fits=False, start=False, end=False)
 
 
 def check_for_new_data(sector):
@@ -223,4 +225,5 @@ def check_for_new_data(sector):
 
 
 get_new_lightcurve(97)
-# check_for_new_data([96, 97, 98, 99])
+# check_for_new_data([97, 98, 99])
+# check_for_new_data([97])
