@@ -1,50 +1,15 @@
-- Meine Software testen mit 
-  - Kepler18
-    - https://ui.adsabs.harvard.edu/abs/2011ApJS..197....7C/abstract
-    - 
-  - TOI1130
-    - https://ui.adsabs.harvard.edu/abs/2023A%26A...675A.115K/abstract
-  - TOI-216
-    - https://iopscience.iop.org/article/10.3847/1538-3881/ab24ba/pdf
-  - Diverse Kepler
-    - https://arxiv.org/abs/1201.5415
-
-- Next Steps:
-  - MCMC mit Streuung starten, die der erwarteten Streuung entspricht
-  - Weitere andere System fitten, um meine Software zu validieren
-  - RV in TOI 4504 (zusaetzlich) mit fitten
-  - Simon: verstehen, was mean osculating period ist
-
+✅ 🤔 🚩 ❗ ❓ ⁉️ ⛔
 # Fragen an Simon, Calls mit Simon, Allgemeine Fragen an Akademiker, PR-Kontakte
 
+-----------
 ## Fragen an Simon:
 
-- Wie kriege ich MCMC zum konvergieren?
-- Wie kriege ich eine realistische Standardabweichung aus MCMC?
-- Was sind die naechsten Schritte?
-
-
-  
-- KEPLER9 Paper
-  - Secction 3: "Finally, for each individual planet we correct the output 
-    time by the light-travel time effect."
-  - Sollte ich das auch machen? Das heisst, wenn der Planet eine Lichtminute 
-    Abstand vom Stern hat, _addiere_ ich eine Minute zu dem Transitzeitpunkt?
-
-- Kommt aus MCMC auch die Standardabweichung der gefitteten Parameter raus?
-    - Ich hab einfach mal mean und std von den samples genommen.
-    - War das korrekt oder wie kriegt man die raus?
-    - Varianz mit der Autokorrelation multiplizieren?
-    - Varianz durch die Anzahl walker dividieren?
 
 - Was war hiermit gmeint?:
     - Um MCMC zu testen, von Hand gucken, welche Transits passen, die anderen 
       aus den daten werfen
     - dann nur einen Param leicht veraendern
     - und nur den fitten
-
-
------------
 
 - Kann/solte man die Walker mit schlechter acceptance aussortieren?
 
@@ -234,6 +199,42 @@ fitten
 - Simon: verstehen, was mean osculating period ist
 - Simon erste Dezemberhaelfte im Ausland und 14.1.-23.1. Pruefungen
 
+### Call mit Simon, 22.12.25:
+#### Was ich gemacht habe
+- Transits Sektor 97 ✅ 
+- MCMC mit Streuung starten, die der erwarteten Streuung entspricht ✅ 
+- Chi Square ausrechnen und bei Fits in die Results schreiben ✅
+  - Dann Plots machen, wo ich alle bis auf einen Parameter auf den optimalen 
+    Werten festhalte, den freien Parameter auf der x-Achse und Chi Squared 
+    auf der y-Achse plotten 🤔
+- RV in TOI 4504 fitten ✅❗
+- RV in TOI 4504 zusaetzlich mit fitten 🤔
+- Weitere andere System fitten, um meine Software zu validieren 🤔
+- Sternmasse als Prior einbauen 🤔
+- Was ist mean osculating period? ✅
+
+
+#### Fragen/Antworten
+- KEPLER9 Paper
+  - Section 3: "Finally, for each individual planet we correct the output 
+    time by the light-travel time effect."
+  - Sollte ich das auch machen? Das heisst, wenn der Planet p 1 Lichtminute 
+    Abstand vom Stern hat und Planet q 5 Lichtminuten Abstand vom Stern hat: 
+    - _subtrahiere_ ich 1 Minute vom p-Transitszeitpunkt 
+    - und subtrahiere 5 Minuten vom q-Transitzeitpunkt?❓
+
+- Kommt aus MCMC auch die Standardabweichung der gefitteten Parameter raus?
+    - Ich hab einfach mal mean und std von den samples genommen.
+    - War das korrekt oder wie kriegt man die raus? ❓
+    - Varianz mit der Autokorrelation multiplizieren?
+    - Varianz durch die Anzahl walker dividieren?
+- 
+- Wie funktionieren Jacobi Koordinaten? ❓
+
+- Was sind die naechsten Schritte? ❓
+
+
+#### Next Steps:
 
 
 

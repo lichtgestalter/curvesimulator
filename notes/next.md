@@ -1,10 +1,7 @@
 # Next / in progress:
 ## 0.5.6 Fitting TOI-4504
 
-- Funktion plot_tt_delta fuer single run schreiben.
-  - Parameter: tt_file, result_file, plot_file
-  - Speichert Plot in plot_file (sehr aehnlich dem in CurveSimMCMC.
-    tt_delta_plot() oder benutzt sogar diese Funktion)
+- single_run von mcmc zurueck nach curvesim oder in eigenes file
 
 
 - Simons Hausaufgaben vom 
@@ -26,10 +23,10 @@
 
 - mcmc flux wieder zum Laufen bringen
   - F056
-  - laeuft jetzt, aber mean, maxL und median bleiben identisch und konstant
+  - laeuft jetzt, aber mean, maxL und median bleiben manchmal identisch und 
+    konstant???
   - bei Gelegenheit debuggen
-   
-- zumindest in Einzelsimulation: RV plotten und mit Messwerten vergleichen
+
 - Die einzelnen TT selber ordentlich fitten statt ExcelEyeballing
  
 - Mit GUI (manuell) fitten/minimieren
