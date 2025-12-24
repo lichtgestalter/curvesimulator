@@ -584,3 +584,25 @@ class CurveSimBody:
            Therefore add a handful of extra frames."""
         if self.P is not None:
             return self.P / (p.dt * p.sampling_rate)
+
+    def print_particle(self, simulation):
+            particle = simulation.particles[self.name]
+            print(f"\n{self.name}:")
+            print(f"x:     {particle.x:14.6e}")
+            print(f"y:     {particle.y:14.6e}")
+            print(f"z:     {particle.z:14.6e}")
+            print(f"vx:    {particle.vx:14.6e}")
+            print(f"vy:    {particle.vy:14.6e}")
+            print(f"vz:    {particle.vz:14.6e}")
+            try:
+                orbit = particle.orbit()
+            except ValueError:
+                orbit = False
+            if orbit:
+                print(f"a:     {particle.a:14.6e}")
+                print(f"P:     {particle.P:14.6e}")
+                print(f"e:     {particle.e:14.6e}")
+                print(f"i:     {particle.inc:14.6e}")
+                print(f"Omega: {particle.Omega:14.6e}")
+                print(f"omega: {particle.omega:14.6e}")
+                print(f"ma:    {particle.M:14.6e}")

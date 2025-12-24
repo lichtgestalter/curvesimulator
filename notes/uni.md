@@ -27,6 +27,7 @@
 
 
 ### Erster Call mit Simon, 24.04.25:
+...
 
 ### Call mit Simon, 12.05.25:
 
@@ -84,7 +85,6 @@
       Sektor ueber den gleichen Zeitraum integrert sind, wie die jeweiligen TESS-Daten
     - Simon schickt Update von seinem Code
 
-
 ### Call mit Simon, 03.07.25:
 
 - Am besten alle Flux-Daten ausserhalb von Transits vom MCMC fernhalten.
@@ -93,7 +93,6 @@
 - Residuen durch Uncertainty teilen, damit die Residuen von ungenauen Daten 
   weniger gewichtet werden.
 - Next Date: spontan/kurzfristig, falls ich feststecke.
-
 
 ### Call mit Simon, 21.08.25:
 
@@ -133,7 +132,6 @@ ich nur diese Parameter bestimmen:
     - von hand gucken, welche Transits passen, die anderen aus den daten 
   werfen, dann nur einen Param leicht veraendern und nur den fitten
 
-
 ### Call mit Simon, 01.10.25:
 
 #### Was ich gemacht habe
@@ -162,7 +160,6 @@ fitten
   - MCMC mit sehr kleiner Streuung um diese Startwerte starten
 - Als Teil der MCMC-Results die Deltas zwischen observed und computed TT 
   mit den MaxL Parametern plotten
-
 
 ### Call mit Simon, 13.11.25:
 #### Was ich gemacht habe
@@ -220,18 +217,34 @@ fitten
     time by the light-travel time effect."
   - Sollte ich das auch machen? Das heisst, wenn der Planet p 1 Lichtminute 
     Abstand vom Stern hat und Planet q 5 Lichtminuten Abstand vom Stern hat: 
-    - _subtrahiere_ ich 1 Minute vom p-Transitszeitpunkt 
-    - und subtrahiere 5 Minuten vom q-Transitzeitpunkt?❓
+    - _subtrahiere_ oder _addiere_ ich 1 Minute vom p-Transitszeitpunkt 
+    - und subtrahiere oder addiere 5 Minuten vom q-Transitzeitpunkt?❓
+  - Simon: 
+    - Der Effekt ist nicht so wichtig. Vielleicht irgendwann machen.
+    - Es gibt noch weitere Effekte: 
+      - Wenn der Stern sich durch 
+        Wechselwirkung mit den anderen Planeten mal naeher und mal weiter weg 
+        vom Beobachter befindet (duerfte sehr klein sein)
+      - Wenn sich das ganze System auf den Beobachter zu (oder von ihm weg) 
+        bewegt, kommen die Transits immer frueher (spaeter). Dadurch ist 
+        die gemessene Periode zu kurz (lang).
 
 - Kommt aus MCMC auch die Standardabweichung der gefitteten Parameter raus?
     - Ich hab einfach mal mean und std von den samples genommen.
-    - War das korrekt oder wie kriegt man die raus? ❓
-    - Varianz mit der Autokorrelation multiplizieren?
-    - Varianz durch die Anzahl walker dividieren?
-- 
-- Wie funktionieren Jacobi Koordinaten? ❓
+    - War das korrekt oder wie kriegt man die raus?
+    - Simon: 
+      - Ja, korrekt. Wenn das ganze konvergiert ist.
+      - Man kann dann auch simpel die Standardabweichung von abgeleiteten 
+        Groessen berechnen:
+        - Einfach pro Sample die abgeleitet Groesse berechnen, dann wie 
+          gewohnt aus allen Datenpunktyen die Standardabweichung. Beispiel: 
+          a aus m und P berechnen.
+        - Auf diese Weise werden Korelationen automatisch korrekt 
+          beruecksichtigt, weil man ja weiss, welches m zu welchem P gehoert.
 
-- Was sind die naechsten Schritte? ❓
+- Naechste Schritte:
+  - Simon kontaktiert Trifon wg. Zusammenarbeit
+  - Uli versucht CurveSimulator (optional) auf Jacobi-Koordinaten umzustellen
 
 
 #### Next Steps:

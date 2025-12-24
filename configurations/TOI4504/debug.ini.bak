@@ -28,7 +28,7 @@ result_dt = 75000            # Real time differences between simulation iteratio
 max_interval_extensions = 5  # In unstable systems or when using a very large dt, sometimes the search for an TT has to be extended
                              # If no TT has been found max_interval_extensions * dt around the expected interval between 2 iterations
                              # the search for this particular TT will be aborted. (dt comes from the list dts.)
-comment = debug              # You can use this comment for example as diagram title in your result plots
+comment = debug               # You can use this comment for example as diagram title in your result plots
 ;verbose = True              # If False, only error messages will be printed to the console. Useful when running MCMC. Default: False
 
 [Simulation]                 # Time intervalls and time steps of the simulation
@@ -212,9 +212,9 @@ color =     0.99, 0.99, 0.01
 #           value               lower bound       upper bound        sigma
 mass =      2.6315 * m_jup,     1.0 * m_jup,      5.0 * m_jup,       0.025 * m_jup
 radius =    0.9897 * r_jup,     0.5 * r_jup,      2.0 * r_jup,       0.2 * r_jup
-e =         0.0377,            0.0,              0.5,               0.0035
+e =         0.04217,            0.0,              0.5,               0.0035
 i =         89.69,              89.25,            90.0,              0.3
-P =         81.4631 * day,      80.0 * day,       84 * day,          0.07 * day
+P =         80.7610 * day,      80.0 * day,       84 * day,          0.07 * day
 Omega =     0.8,
-omega =     298.89,             200,              400,               6.0
-ma =        142.72,             -30,              330,               6.0
+omega =     -66.18,             -250,             110,               6.0
+ma =        147.88,             -30,              330,               6.0

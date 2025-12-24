@@ -1,25 +1,14 @@
 # Next / in progress:
 ## 0.5.6 Fitting TOI-4504
+- Mit Hilfe von rebound cartesian -> jacobian 
 
-- single_run von mcmc zurueck nach curvesim oder in eigenes file
+- Wieso kommen bei mcmc auf einmal Meldungen, es seien zu viele plots 
+  geoeffnet?
+- 
+- single_run von mcmc zurueck nach curvesim oder in eigenes file?
+- Hat single run jetzt alle plots/Auswertungen?
 
-
-- Simons Hausaufgaben vom 
-  - Vitkova Figure 6 (mit den roten Punkten) der Verspaetungen der TT 
-    gegenueber 
-    einer konstanten Periode reproduzieren
-    - osculating period of 82.5438d +0.0175d -0.0150d
-    - semiamplitude of ∼2d
-    - super-period of 946.5d
-  - TT mit Vitkova-Parametern reproduzieren
-    - Nur die ersten 11 TT von c nehmen
-    - Vitkova Parameter nehmen
-    - Eine einzige Simulation machen
-    - Deltas angucken
-  - Mit MCMC Vitkova Parameter reproduzieren
-    - Nur die ersten 11 TT von c nehmen
-    - Vitkova Parameter als Startwerte nehmen
-    - MCMC mit sehr kleiner Streuung um diese Startwerte starten
+- Sektor 97 in tt.csv aufnehmen
 
 - mcmc flux wieder zum Laufen bringen
   - F056
