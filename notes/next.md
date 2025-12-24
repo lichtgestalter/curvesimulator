@@ -1,11 +1,16 @@
 # Next / in progress:
 ## 0.5.6 Fitting TOI-4504
-- Mit Hilfe von rebound cartesian -> jacobian 
+- tt mcmc erzeugt jetzt tt_delta.png UND tt_o_vs_c.png und die untersceiden 
+  sich auch noch geringfuegig!?!
+- Ebenso Dopplung TOI-4504_T100.json und mcmc_results.json!!!
 
+- Welche Single-Run-Auswertungen fehlen noch bei z.B. mcmc?
+  - Chi squared!?!
+   
 - Wieso kommen bei mcmc auf einmal Meldungen, es seien zu viele plots 
-  geoeffnet?
+  geoeffnet? Nur bei flux-fit? Kann jedenfalls bei TT-fit nicht reproduzieren.
 - 
-- single_run von mcmc zurueck nach curvesim oder in eigenes file?
+- Funktion single_run von mcmc zurueck nach curvesim oder in eigenes file?
 - Hat single run jetzt alle plots/Auswertungen?
 
 - Sektor 97 in tt.csv aufnehmen

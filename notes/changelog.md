@@ -96,5 +96,8 @@ files in folder "debug".
 - MCMC results and plots are now saved.
 ### 0.5.6 Fitting TOI-4504
 - MCMC uses multiprocessing now.
-- c- and d-transits change significantly when b is missing!
-- At dt=20000 the maximum error of TT is < 2.5 seconds in comparison to dt=1
+- c- and d-transits change significantly when b is missing. But there is no 
+  interaction between b and c/d. Therefore b can be ignored and in 
+  consequence the mass of the star is a tiny bit too high.
+- Input and output of rebound (body orbit parameters) are now Jacobian iso 
+  Cartesian!
