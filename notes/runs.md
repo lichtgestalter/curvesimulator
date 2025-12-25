@@ -1,3 +1,5 @@
+## TOI-4504 Simulationen
+
 ### Simulierte TT mit LMfit fitten
 - Generiere mit den X024ML Parametern Simulierten Flux und TT 
 - TOI4504c Inklination von 89.69 auf 89.79, damit Planet c nicht zu 
@@ -19,8 +21,55 @@
   ampgo:
     - starten und enden alle mit max_delta=0.0001, mean_delta=0.0000
   - Method differential_evolution divergiert trotz optimaler Startwerte
+
+
+### Simulation von TOI4504, aber mit vielen Transits (so wie KEPLER9)
+- X039
+  - aehnliche Simulationsparameter wie TOI4504
+  - Inklination naeher bei 90 Grad
+  - 31 c und 62 d Transits, kontinuierlich ueber TESS Beobachtungszeitraum
+  - Startwerte = Simulationsparameter
+  - Konvergiert super :-)
+
+### Simulation von TOI4504, aber mit 13+4 Transits
+- X040
+  - wie X039, aber nur 13 c und 4 d Transits, zu etwa den Zeitpunkten, wo 
+    auch die echten Transits liegen
+  - Konvergiert erstaunlicherweise auch super. 
+  - Standardabweichungen natuerlich deutlich groesser als bei X039
+
+- X041
+  - wie X040, aber groessere Intervalle lower, upper fuer jeden Fitting 
+    Parameter und staerker gestreute Verteilung der Startwerte.
+  - konvergiert nicht???
+
+- X042
+  - wie X040, X41, aber
+    - mit den grossen lower,upper Intervallen von X041
+    - mit der geringen Streuung der Startwerte um die Simulationsparameter 
+      von X040
+  - Konvergiert super :-)
  
-#### Konvergiert LMFit mit Startwerten in der Naehe (<1%) der richtigen Werte?
+- X043
+  - wie X040, X41, aber
+    - mit den kleinen lower,upper Intervallen von X040
+    - mit Gleichverteilung der Startwerte um die Simulationsparameter im 
+      ganzen Intervall (sigma for all parameters = 2 * (upper - lower))
+  - Konvergiert super :-)
+
+- X044
+  - wie X043, aber
+    - doppelt so grosse upper/lower-Intervalle
+ 
+- X045
+  - Wie X041, aber 8192 statt 256 walker
+  - Konvergiert besser als X041. 
+  - 32.5 statt 95 std mit immer noch fallender 
+    Tendenz
+
+## TOI4504 MCMC-TT und LMfit mit schlechten Startwerten
+ 
+### Konvergiert LMFit mit Startwerten in der Naehe (<1%) der richtigen Werte?
   - `TOI-4504_simX024_01.ini`
   - Methode nelder findet den ersten TT (direkt einen Tag nach StartDate) nicht
   - Methode powell findet den ersten TT nach ca. 60 Iterationen, aber kommt 
@@ -28,7 +77,7 @@
     wurden.
       - max_delta=1.4991, mean_delta=0.4837 [days] 
 
-#### Konvergiert LMFit wenn ich mehr Parameter festhalte?
+### Konvergiert LMFit wenn ich mehr Parameter festhalte?
   - `TOI-4504_simX024_03.ini`
   - d.mass fitten, alle anderen Parameter auf 
     richtigen Wert festgesetzt
@@ -41,7 +90,7 @@
   - d.P, d.O, d.o, d.ma: konvergiert nicht
   - d.P, c.P: konvergiert nicht einmal mit brute force!
 
-#### Konvergiert LMFit wenn ich 11 Parameter fitte mit sehr engen bounds?
+### Konvergiert LMFit wenn ich 11 Parameter fitte mit sehr engen bounds?
 - X024 ist ein MCMC fit mit 11 Parametern auf die 15 TT bis Sektor 94 (12c, 3d)
   - d: m e P O o ma
   - c: m e P _ o ma
@@ -153,6 +202,8 @@
   - Teste neue emcee moves.
   - Erster LMfit Multi Run
 
+## TOI4504 LMfit, MCMC-TT und MCMC-flux mit guten Startwerten
+
 ### LMfit Multi Runs lassen mich super Parameter finden!
 - X050
   - Zweiter LMfit Multi Run
@@ -210,6 +261,7 @@
 - T057 Noch bessere Startwerte basierend auf den X055 Runs
 - T058 wie T057 aber zusaetzlich d.i und c.i fitten
 - T060 wie T058. Noch bessere Startwerte, keine Inklination fitten.
+- T100 sehr guter Fit. AB JETZT MIT JACOBI-KOORDINATEN!!!!!
 
 ### Inklination eingrenzen
 - Mit Parametern aus T059 Einzelsimulationen mit verschiedenen d.i gemacht 
@@ -228,6 +280,8 @@ The theoretical expectation for the average residual in std is sqrt(2/pi) ≈ 0.
   - 064 MaxL Werte von 063F
   - 065 wie 064, aber d.i <90 statt >90
 
+## KEPLER-9
+
 ### MCMC fit von KEPLER-9
 1) Kepler-9: A System of Multiple Planets Transiting a Sun-Like Star, Confirmed by Timing Variations, Matthew J. Holman et al.
 2) MODELING Kepler TRANSIT LIGHT CURVES AS FALSE POSITIVES: REJECTION OF BLEND SCENARIOS FOR KEPLER-9, AND VALIDATION OF KEPLER-9 D, A SUPER-EARTH-SIZE PLANET IN A MULTIPLE SYSTEM, Guillermo Torres et al.
@@ -244,63 +298,3 @@ The theoretical expectation for the average residual in std is sqrt(2/pi) ≈ 0.
  
 - X038_K9_bc11P_TT95
   - Konvergiert super :-)
-
-### LMfit fit von KEPLER-9
-...
-
-### Simulation von TOI4504, aber mit vielen Transits (so wie KEPLER9)
-- X039
-  - aehnliche Simulationsparameter wie TOI4504
-  - Inklination naeher bei 90 Grad
-  - 31 c und 62 d Transits, kontinuierlich ueber TESS Beobachtungszeitraum
-  - Startwerte = Simulationsparameter
-  - Konvergiert super :-)
-
-### Simulation von TOI4504, aber mit 13+4 Transits
-- X040
-  - wie X039, aber nur 13 c und 4 d Transits, zu etwa den Zeitpunkten, wo 
-    auch die echten Transits liegen
-  - Konvergiert erstaunlicherweise auch super. 
-  - Standardabweichungen natuerlich deutlich groesser als bei X039
-
-- X041
-  - wie X040, aber groessere Intervalle lower, upper fuer jeden Fitting 
-    Parameter und staerker gestreute Verteilung der Startwerte.
-  - konvergiert nicht???
-
-- X042
-  - wie X040, X41, aber
-    - mit den grossen lower,upper Intervallen von X041
-    - mit der geringen Streuung der Startwerte um die Simulationsparameter 
-      von X040
-  - Konvergiert super :-)
- 
-- X043
-  - wie X040, X41, aber
-    - mit den kleinen lower,upper Intervallen von X040
-    - mit Gleichverteilung der Startwerte um die Simulationsparameter im 
-      ganzen Intervall (sigma for all parameters = 2 * (upper - lower))
-  - Konvergiert super :-)
-
-- X044
-  - wie X043, aber
-    - doppelt so grosse upper/lower-Intervalle
- 
-- X045
-  - Wie X041, aber 8192 statt 256 walker
-  - Konvergiert besser als X041. 
-  - 32.5 statt 95 std mit immer noch fallender 
-    Tendenz
-
-#### Fits, bei denen c oder d oder e i>90 Grad hat
-
-#### Vitkova-Fit (Nur 11 c transits bis Sektor 67)
-...
-
-### MCMC fit von Flux inklusive Sektor 95
-...
-
-### Simulierten Flux mit LMfit fitten
-- erfordert einige Programmier-Arbeit
- 
-

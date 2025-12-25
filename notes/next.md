@@ -1,5 +1,6 @@
 # Next / in progress:
 ## 0.5.6 Fitting TOI-4504
+### Auswertungen 
 - tt mcmc erzeugt jetzt tt_delta.png UND tt_o_vs_c.png und die untersceiden 
   sich auch noch geringfuegig!?!
 - Ebenso Dopplung TOI-4504_T100.json und mcmc_results.json!!!
@@ -8,8 +9,10 @@
   - Chi squared!?!
    
 - Wieso kommen bei mcmc auf einmal Meldungen, es seien zu viele plots 
-  geoeffnet? Nur bei flux-fit? Kann jedenfalls bei TT-fit nicht reproduzieren.
-- 
+  geoeffnet? Nur bei flux-fit? Kann ich jedenfalls bei TT-fit nicht 
+  reproduzieren.
+
+### div
 - Funktion single_run von mcmc zurueck nach curvesim oder in eigenes file?
 - Hat single run jetzt alle plots/Auswertungen?
 
