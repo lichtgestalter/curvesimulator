@@ -262,6 +262,7 @@
 - T058 wie T057 aber zusaetzlich d.i und c.i fitten
 - T060 wie T058. Noch bessere Startwerte, keine Inklination fitten.
 - T100 sehr guter Fit. AB JETZT MIT JACOBI-KOORDINATEN!!!!!
+- T101 erster Fit inklusive Sektor 97
 
 ### Inklination eingrenzen
 - Mit Parametern aus T059 Einzelsimulationen mit verschiedenen d.i gemacht 
