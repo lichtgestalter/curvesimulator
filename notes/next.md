@@ -1,7 +1,7 @@
 # Next / in progress:
 ## 0.5.6 Fitting TOI-4504
 ### Auswertungen 
-- tt mcmc erzeugt jetzt tt_delta.png UND tt_o_vs_c.png und die untersceiden 
+- tt mcmc erzeugt jetzt tt_delta.png UND tt_o_vs_c.png und die unterscheiden 
   sich auch noch geringfuegig!?!
 - Ebenso Dopplung TOI-4504_T100.json und mcmc_results.json!!!
 
