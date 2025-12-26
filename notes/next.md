@@ -1,52 +1,51 @@
 # Next / in progress:
 ## 0.5.6 Fitting TOI-4504
+
+### aktuell
+- Wieso kommen bei mcmc auf einmal Meldungen, es seien zu viele plots 
+  geoeffnet? Nur bei flux-fit? Kann ich jedenfalls bei TT-fit nicht 
+  reproduzieren.
+
+- Die einzelnen TT selber ordentlich fitten statt ExcelEyeballing
+ 
+- WHFast convergence issue debuggen (warnung ist deaktiviert)
+
 ### Auswertungen 
+NEXT! (vermutlich in cs_results.py reinschreiben)
+- Fuer jeden Transit:
+  - Zeitraum T1 bis T4 und +-x plotten (x = z.B. 2 Stunden).  
+    - Einzelne Messungen (nur 120sek oder sogar alle Belichtungszeiten, jede 
+      eine eigene Farbe)
+    - binned flux (mehrere Linien mit unterschiedlicher Bin-Groesse)
+    - computed flux
 - tt mcmc erzeugt jetzt tt_delta.png UND tt_o_vs_c.png und die unterscheiden 
   sich auch noch geringfuegig!?!
 - Ebenso Dopplung TOI-4504_T100.json und mcmc_results.json!!!
 
 - Welche Single-Run-Auswertungen fehlen noch bei z.B. mcmc?
-  - Chi squared!?!
    
-- Wieso kommen bei mcmc auf einmal Meldungen, es seien zu viele plots 
-  geoeffnet? Nur bei flux-fit? Kann ich jedenfalls bei TT-fit nicht 
-  reproduzieren.
+- ChiSquared Verlauf Plot fuer mcmc?
 
-### div
+- Sensitivitaetsanalyse: Plotten, wie veraendert sich Chi2, wenn man alle 
+  gefundenen Parameter bis auf einen auf ihren MaxL-Werten festhaelt und 
+  den letzten veraendert?
+
+### Single Run 
 - Funktion single_run von mcmc zurueck nach curvesim oder in eigenes file?
 - Hat single run jetzt alle plots/Auswertungen?
 
-- Sektor 97 in tt.csv aufnehmen
+### MCMC
+- nach einem Chunk auch die aktuelle Uhrzeit in die Konsole printen
+- RV, TT, Flux und 
+- Verschiedene Moves ausprobieren: 
+  - https://emcee.readthedocs.io/en/stable/user/moves/
 
+### Flux-MCMC
 - mcmc flux wieder zum Laufen bringen
   - F056
   - laeuft jetzt, aber mean, maxL und median bleiben manchmal identisch und 
     konstant???
   - bei Gelegenheit debuggen
-
-- Die einzelnen TT selber ordentlich fitten statt ExcelEyeballing
- 
-- Mit GUI (manuell) fitten/minimieren
-    - UPDATE PLOT ist noch buggy
-    - Vielleicht lieber selber eine Liste mit den 4 lines anlegen
-      - schon bei einrichten des Plots
-      - dann immer manuell die aelteste entfernen und die neueste hinzufuegen
-    - guifit.save_lmfit_results tut noch nix
- 
-- Verschiedene Moves ausprobieren: 
-  - https://emcee.readthedocs.io/en/stable/user/moves/
- 
-- WHFast convergence issue debuggen (warnung ist deaktiviert)
-- 
-- Jeder Parameter soll seine eigene Skalierung haben koennen.
-  - Also z.B. Sonnen-Masse anderen Faktor als Planetenmasse
-
-- nach einem Chunk auch die aktuelle Uhrzeit in die Konsole printen
-- Extra Spalte bei Body-Params in Configfile mit dem Wert n oder u
-  - n normal distribution (Spalte sigma ist std einer Gaussglocke)
-  - u uniform distribution (Gleichverteilung von Startwert - sigma bis 
-    Startwert + sigma)
-
   
 ### LMfit
 - Multi LMFit: normalverteilte Startwerte
@@ -63,6 +62,13 @@
 
 - Derzeit nur moeglich nach TT ODER flux zu fitten.
   - Kombination sinnvoll?
+
+## Mit GUI (manuell) fitten/minimieren
+- UPDATE PLOT ist noch buggy
+- Vielleicht lieber selber eine Liste mit den 4 lines anlegen
+  - schon bei einrichten des Plots
+  - dann immer manuell die aelteste entfernen und die neueste hinzufuegen
+- guifit.save_lmfit_results tut noch nix
 
 ### Sonstige
 - Moeglichkeit entfernen, unterschiedliche dt konfigurieren zu koennen.
@@ -115,6 +121,10 @@ sinnvoll vereinigen oder mit einer Hierarchie versehen.
 - Falls ich LMfit in CurveSimulator behalte: Den User warnen, wenn ein 
   illegaler Bodyname gewaehlt wurde (Kein Leerzeichen, kein Bindestrich, 
   keine fuehrende Ziffer)
+- Extra Spalte bei Body-Params in Configfile mit dem Wert n oder u
+  - n normal distribution (Spalte sigma ist std einer Gaussglocke)
+  - u uniform distribution (Gleichverteilung von Startwert - sigma bis 
+    Startwert + sigma)
  
 ### GUI:
 - GUI fuer alles!!!
@@ -145,6 +155,8 @@ um wen?)
     - Mindestgenauigkeit bei binary search von Transittimes
     - Akzeptable Energieveraenderung
     - credible_mass
+- Jeder Parameter soll seine eigene Skalierung haben koennen.
+  - Also z.B. Sonnen-Masse anderen Faktor als Planetenmasse
 
 
 ### Result evaluation:

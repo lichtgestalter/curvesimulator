@@ -110,18 +110,6 @@ class CurveSimResults(dict):
             if hasattr(p_copy, name):
                 orig = getattr(p_copy, name)
                 p_copy.__dict__[name] = [float(i) for i in orig]
-        # del p.standard_sections
-        # del p.eclipsers
-        # del p.eclipsees
-        # if hasattr(p, "fitting_parameters"):
-        #     del p.fitting_parameters
-        # if hasattr(p, "fitting_parameter_dic"):
-        #     del p.fitting_parameter_dic
-        # p.starts_s0 = [float(i) for i in p.starts_s0]
-        # p.starts_d = [float(i) for i in p.starts_d]
-        # p.ends_s0 = [float(i) for i in p.ends_s0]
-        # p.ends_d = [float(i) for i in p.ends_d]
-        # p.dts = [float(i) for i in p.dts]
         self["ProgramParameters"] = p_copy.__dict__
 
 
@@ -163,8 +151,6 @@ class CurveSimResults(dict):
                 msg_lines.append(f" - {path}: {tname} -> {sample}")
             raise RuntimeError("\n".join(msg_lines))
 
-
-        # resultfilename = CurveSimResults.check_resultfilename(p.result_file)
         self.results2json(p_copy)
         if p.verbose:
             print(self)
