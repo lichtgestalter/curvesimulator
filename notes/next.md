@@ -12,12 +12,14 @@
 
 ### Auswertungen 
 NEXT! (vermutlich in cs_results.py reinschreiben)
+#### Single run flux Auswertungen ausbauen und verbessern
 - Fuer jeden Transit:
   - Zeitraum T1 bis T4 und +-x plotten (x = z.B. 2 Stunden).  
     - Einzelne Messungen (nur 120sek oder sogar alle Belichtungszeiten, jede 
       eine eigene Farbe)
     - binned flux (mehrere Linien mit unterschiedlicher Bin-Groesse)
     - computed flux
+     
 - tt mcmc erzeugt jetzt tt_delta.png UND tt_o_vs_c.png und die unterscheiden 
   sich auch noch geringfuegig!?!
 - Ebenso Dopplung TOI-4504_T100.json und mcmc_results.json!!!
