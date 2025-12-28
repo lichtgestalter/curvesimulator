@@ -23,6 +23,8 @@ NEXT! (vermutlich in cs_results.py reinschreiben)
 - Ebenso Dopplung TOI-4504_T100.json und mcmc_results.json!!!
 
 - Welche Single-Run-Auswertungen fehlen noch bei z.B. mcmc?
+
+- measured_tt in Single-Run JSON-Result aufnehmen
    
 - ChiSquared Verlauf Plot fuer mcmc?
 
@@ -31,7 +33,6 @@ NEXT! (vermutlich in cs_results.py reinschreiben)
   den letzten veraendert?
 
 ### Single Run 
-- Funktion single_run von mcmc zurueck nach curvesim oder in eigenes file?
 - Hat single run jetzt alle plots/Auswertungen?
 
 ### MCMC

@@ -3,6 +3,7 @@ from colorama import Fore, Style
 import sys
 import time
 
+from .cs_animation import CurveSimAnimation
 from .cs_bodies import CurveSimBodies
 from .cs_parameters import CurveSimParameters
 from .cs_mcmc import CurveSimMCMC, CurveSimLMfit
@@ -104,7 +105,9 @@ class CurveSimulator:
                 sys.exit(1)
         elif p.action == "single_run":
             bodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
-            bodies = CurveSimMCMC.single_run(p, bodies)
+            bodies, sim_flux, results = CurveSimulator.single_run(p, bodies)
+            self.sim_flux = sim_flux
+            self.results = results
         elif p.action == "results_only":
             # time_s0, time_d = CurveSimParameters.init_time_arrays(p)  # s0 in seconds, starting at 0. d in BJD.
             # bodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
@@ -133,3 +136,61 @@ class CurveSimulator:
             print(key, end=", ")
         # print(self.__dict__.keys())
         return ""
+
+    @staticmethod
+    def single_run(p, bodies):
+        time_s0, time_d = CurveSimParameters.init_time_arrays(p)  # s0 in seconds, starting at 0. d in BJD.
+        sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # Calculate all body positions and the resulting lightcurve
+        results = bodies.find_transits(rebound_sim, p, sim_flux, time_s0, time_d)
+        results["chi_squared_tt"], results["chi_squared_rv"], results["chi_squared_flux"], results["chi_squared_total"] = 0, 0, 0, 0
+        results["measurements_tt"], results["measurements_rv"], results["measurements_flux"], results["measurements_total"] = 0, 0, 0, 0
+        if p.video_file:
+            CurveSimAnimation(p, bodies, sim_rv, sim_flux, time_s0)  # Create a video
+        if p.tt_file:
+            measured_tt = CurveSimResults.get_measured_tt(p)
+            residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
+            measured_tt = results.calc_tt_chi_squared(measured_tt, p.free_parameters)  # store chi squared and p-value in results
+            CurveSimMCMC.tt_delta_plot(p, 0, "tt_o_vs_c.png", measured_tt)  # compare observed vs. computed TT
+        if p.rv_file:
+            measured_rv = CurveSimResults.get_measured_rv(p)
+            measured_rv = CurveSimResults.calc_rv_residuals(measured_rv, p.rv_body, rebound_sim)  # compare observed vs. computed RV
+            measured_rv = results.calc_rv_chi_squared(measured_rv, p.free_parameters)  # store chi squared and p-value in results
+            CurveSimResults.sim_rv_plot(p, sim_rv, time_d, "rv_computed")  # plot computed RV
+            CurveSimResults.rv_observed_computed_plot(p, sim_rv, time_d, "rv_o_vs_c", measured_rv)  # plot computed and observed RV
+            CurveSimResults.rv_residuals_plot(p, "rv_residuals", measured_rv)  # plot RV residuals
+        if p.flux_file:
+            time_s0, _, _, _, measured_flux = CurveSimResults.get_measured_flux(p)
+            _, sim_flux, _ = bodies.calc_physics(p, time_s0)  # run simulation
+            measured_flux = CurveSimResults.calc_flux_residuals(measured_flux, sim_flux)  # compare observed vs. computed flux
+            results.calc_flux_chi_squared(measured_flux, p.free_parameters)  # store chi squared and p-value in results
+            CurveSimResults.flux_observed_computed_plot_time(p, "flux_o_vs_c_x=time", measured_flux)  # plot computed and observed flux
+            CurveSimResults.flux_observed_computed_plot_data(p, "flux_o_vs_c_x=data", measured_flux)  # plot computed and observed flux
+            CurveSimResults.flux_chi_squared_plot_data(p, "flux_chi2_x=data", measured_flux)  # plot flux chi squared per datapoint
+            CurveSimResults.flux_residuals_plot_time(p, "flux_residuals_x=time", measured_flux)  # plot Flux residuals
+            CurveSimResults.flux_residuals_plot_data(p, "flux_residuals_x=data", measured_flux)  # plot Flux residuals
+            # plot something
+        results.calc_total_chi_squared(p.free_parameters)
+        if p.result_file:
+            results.save_results(p)
+        if p.sim_flux_file:
+            sim_flux.save_sim_flux(p, time_d)
+        # self.sim_flux = sim_flux
+        # self.results = results
+        vitkova_debug = False
+        if vitkova_debug:
+            p.eclipsers = ["TOI4504d"]
+            p.eclipsees = ["TOI4504"]
+            # results.plot_parameter("TOI4504c", "TOI4504", "T14", time_d[0], time_d[-1],
+            #                         filename=f"TOI4504c_i={bodies[2].i*p.rad2deg:.2f}_T14.png")
+            results.plot_parameter("TOI4504d", "TOI4504", "T14", time_d[0], time_d[-1],
+                                   filename=f"TOI4504d_i={bodies[1].i * p.rad2deg:.2f}_T14.png")
+            results.plot_parameter("TOI4504d", "TOI4504", "depth", time_d[0], time_d[-1],
+                                   filename=f"TOI4504d_i={bodies[1].i * p.rad2deg:.2f}_depth.png")
+
+            # measured_tt = CurveSimMCMC.get_measured_tt(p)
+            # p.bodynames2bodies(bodies)
+            # _, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
+            # dummy_mcmc = CurveSimMCMC(None, None, None, None, None, None, None, dummy_object=True)
+            # dummy_mcmc.tt_delta_plot(1, "Vitkova_MaxL_tt_delta.png", measured_tt)
+        return bodies, sim_flux, results
+
