@@ -1,10 +1,24 @@
 # Next / in progress:
 ## 0.5.6 Fitting TOI-4504
 
+### jetzt
+- Binning/gleitender Durchschnitt in Fluxplots ergaenzen
+- Sektor97 in Fluxdatenfile aufnehmen
+- Residualplot for every single Transit
+- Fluxdatenfile neu automatisiert und in CurveSimulator integriert aus 
+  den einzelnen Downloads erstellen
+  - Input (aus Configfile): 
+    - TT Liste + Marge
+    - ODER T1 und T4 Liste + Marge???
+    - Normalisieren integrieren oder schon normalisierte Daten erwarten?
+    - flux_err automatisch ermitteln?
+      - z.B. aus den Intervallen [TT - 2*Marge : TT - Marge] und [TT + 
+        Marge : TT + 2*Marge]?
+
+
+
+
 ### aktuell
-- Wieso kommen bei mcmc auf einmal Meldungen, es seien zu viele plots 
-  geoeffnet? Nur bei flux-fit? Kann ich jedenfalls bei TT-fit nicht 
-  reproduzieren.
 
 - Die einzelnen TT selber ordentlich fitten statt ExcelEyeballing
  

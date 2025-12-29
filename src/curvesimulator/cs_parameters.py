@@ -84,6 +84,10 @@ class CurveSimParameters:
 
         self.sim_flux_file = config.get("Simulation", "sim_flux_file", fallback=None)
         self.start_indices, self.max_iterations, self.total_iterations = self.check_intervals()
+        self.tt_padding = eval(config.get("Fitting", "tt_padding", fallback="0.3"))
+        self.flux_plots_top = eval(config.get("Fitting", "flux_plots_top", fallback="1.015"))
+        self.flux_plots_bottom = eval(config.get("Fitting", "flux_plots_bottom", fallback="0.97"))
+
         if self.action == "single_run":  # run simulation, generate video and transit results
             if self.sim_flux_file == "None":
                 self.sim_flux_file = None

@@ -151,6 +151,8 @@ class CurveSimulator:
             residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
             measured_tt = results.calc_tt_chi_squared(measured_tt, p.free_parameters)  # store chi squared and p-value in results
             CurveSimMCMC.tt_delta_plot(p, 0, "tt_o_vs_c.png", measured_tt)  # compare observed vs. computed TT
+        else:
+            measured_tt = None
         if p.rv_file:
             measured_rv = CurveSimResults.get_measured_rv(p)
             measured_rv = CurveSimResults.calc_rv_residuals(measured_rv, p.rv_body, rebound_sim)  # compare observed vs. computed RV
@@ -163,7 +165,7 @@ class CurveSimulator:
             _, sim_flux, _ = bodies.calc_physics(p, time_s0)  # run simulation
             measured_flux = CurveSimResults.calc_flux_residuals(measured_flux, sim_flux)  # compare observed vs. computed flux
             results.calc_flux_chi_squared(measured_flux, p.free_parameters)  # store chi squared and p-value in results
-            CurveSimResults.flux_observed_computed_plot_time(p, "flux_o_vs_c_x=time", measured_flux)  # plot computed and observed flux
+            CurveSimResults.flux_observed_computed_plot_time(p, "flux_o_vs_c_x=time", measured_flux, measured_tt)  # plot computed and observed flux
             CurveSimResults.flux_observed_computed_plot_data(p, "flux_o_vs_c_x=data", measured_flux)  # plot computed and observed flux
             CurveSimResults.flux_chi_squared_plot_data(p, "flux_chi2_x=data", measured_flux)  # plot flux chi squared per datapoint
             CurveSimResults.flux_residuals_plot_time(p, "flux_residuals_x=time", measured_flux)  # plot Flux residuals

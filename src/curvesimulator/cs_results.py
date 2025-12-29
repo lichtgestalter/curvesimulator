@@ -359,6 +359,8 @@ class CurveSimResults(dict):
             plt.savefig(plot_file)
         if show_plot:
             plt.show()
+        plt.close()
+
 
     def plot_parameter(self, eclipser, eclipsee, parameter, start, end, filename="", title=None):
         if not title:
@@ -451,7 +453,11 @@ class CurveSimResults(dict):
         )
 
     @staticmethod
-    def flux_observed_computed_plot_time(p, plot_filename, measured_flux):
+    def flux_observed_computed_plot_time(p, plot_filename, measured_flux, measured_tt):
+        left = np.min(measured_flux["time"])
+        right = np.max(measured_flux["time"])
+        left -= (right - left) * 0.02
+        right += (right - left) * 0.02
         CurveSimResults.plot_this(
             title=f"Flux: observed vs. computed",
             x_label="Time [BJD]",
@@ -465,12 +471,33 @@ class CurveSimResults(dict):
             # linewidths= [1,                     0],
             grid=False,
             legend=True,
-            left=np.min(measured_flux["time"]) - 0.1,  # debug: offset in Parameterfile aufnehmen?
-            right=np.max(measured_flux["time"]) + 0.1,
-            # left= 2460718,
-            # right=2460719,
+            left=left,
+            right=right,
+            top=p.flux_plots_top,
+            bottom=p.flux_plots_bottom,
             plot_file=p.results_directory + plot_filename,
         )
+        if measured_tt is not None:
+            for transit in measured_tt.itertuples(index=False):
+                CurveSimResults.plot_this(
+                    title=f"{transit.eclipser} Transit nr. {transit.nr}: observed vs. computed flux",
+                    x_label="Time [BJD]",
+                    y_label="Normalized Flux",
+                    x_lists=    [measured_flux["time"], measured_flux["time"]],
+                    y_lists=    [measured_flux["flux"], measured_flux["flux_sim"]],
+                    data_labels=["observed",            "computed"],
+                    linestyles= ['',                    ''],
+                    markersizes=[1,                     1],
+                    colors=     ["xkcd:nice blue",                 "xkcd:black"],
+                    # linewidths= [1,                     0],
+                    grid=False,
+                    legend=True,
+                    left=transit.tt - p.tt_padding,  # debug: offset in Parameterfile aufnehmen?
+                    right=transit.tt + p.tt_padding,
+                    top=p.flux_plots_top,
+                    bottom=p.flux_plots_bottom,
+                    plot_file=f"{p.results_directory}{transit.eclipser}_{transit.nr}_{plot_filename}",
+                )
 
     @staticmethod
     def flux_observed_computed_plot_data(p, plot_filename, measured_flux):
