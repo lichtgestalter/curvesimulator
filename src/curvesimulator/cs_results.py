@@ -1,3 +1,4 @@
+import bisect
 # from colorama import Fore, Style
 import copy
 import json
@@ -453,11 +454,24 @@ class CurveSimResults(dict):
         )
 
     @staticmethod
+    def bin_time_window(time, value, half_window_size):
+        t = time.to_numpy()
+        v = value.to_numpy()
+        mean = np.empty(len(time), dtype=float)
+        for i, x in enumerate(t):
+            left = bisect.bisect_right(t, x - half_window_size)
+            right = bisect.bisect_left(t, x + half_window_size)
+            vals = v[left:right]
+            mean[i] = vals.mean() if vals.size > 0 else np.nan
+        return mean
+
+    @staticmethod
     def flux_observed_computed_plot_time(p, plot_filename, measured_flux, measured_tt):
         left = np.min(measured_flux["time"])
         right = np.max(measured_flux["time"])
         left -= (right - left) * 0.02
         right += (right - left) * 0.02
+        measured_flux["bin_30min"] = CurveSimResults.bin_time_window(measured_flux["time"], measured_flux["flux"], 30 / (2 * 60 * 24))
         CurveSimResults.plot_this(
             title=f"Flux: observed vs. computed",
             x_label="Time [BJD]",
@@ -483,12 +497,12 @@ class CurveSimResults(dict):
                     title=f"{transit.eclipser} Transit nr. {transit.nr}: observed vs. computed flux",
                     x_label="Time [BJD]",
                     y_label="Normalized Flux",
-                    x_lists=    [measured_flux["time"], measured_flux["time"]],
-                    y_lists=    [measured_flux["flux"], measured_flux["flux_sim"]],
-                    data_labels=["observed",            "computed"],
-                    linestyles= ['',                    ''],
-                    markersizes=[1,                     1],
-                    colors=     ["xkcd:nice blue",                 "xkcd:black"],
+                    x_lists=    [measured_flux["time"], measured_flux["time"], measured_flux["time"]],
+                    y_lists=    [measured_flux["flux"], measured_flux["flux_sim"], measured_flux["bin_30min"]],
+                    data_labels=["observed",            "computed",                "30 min"],
+                    linestyles= ['',                    '',                        "-"],
+                    markersizes=[1,                     1,                         1],
+                    colors=     ["xkcd:nice blue",                 "xkcd:black",   "xkcd:forest"],
                     # linewidths= [1,                     0],
                     grid=False,
                     legend=True,
