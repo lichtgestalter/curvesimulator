@@ -2,9 +2,7 @@
 ## 0.5.6 Fitting TOI-4504
 
 ### jetzt
-- Binning/gleitender Durchschnitt in Fluxplots ergaenzen
 - Sektor97 in Fluxdatenfile aufnehmen
-- Residualplot for every single Transit
 - Fluxdatenfile neu automatisiert und in CurveSimulator integriert aus 
   den einzelnen Downloads erstellen
   - Input (aus Configfile): 
@@ -14,6 +12,7 @@
     - flux_err automatisch ermitteln?
       - z.B. aus den Intervallen [TT - 2*Marge : TT - Marge] und [TT + 
         Marge : TT + 2*Marge]?
+      - Besser: T0 und T5 manuell festlegen, dann flux_err aus T0:T1 und T4:T5
 
 
 
@@ -156,6 +155,16 @@ sinnvoll vereinigen oder mit einer Hierarchie versehen.
     - Jeder Body kriegt die Parameter relevant_eclipser  (yes/no) und 
   relevant_eclipsee (yes/no) zum Ankreuzen.
 
+### Data Processing mit GUI
+- Im GUI kann man auf Flux-Plots der einzelnen Sektoren mit der Maus T1, T2, TT,
+  T3, T4 einzeichnen.
+- Jeweils als Bereich (waagerechte Linie)
+- Halbe Linienlaenge ist Standardabweichung
+- Man zeichnet auch T0 und T5 ein
+  - Die Intervalle T0:T1 und T4:T5 dienen zur Bestimmung des Median fuer 
+    Normalisierung und Berechnung des flux_err (Standardabweichung der 
+    Flux-Messungen)
+- Man kann auch upper und lower limit einzeichnen, um outlier zu entfernen.
 
 ### Rebound:
 - init_rebound() verallgemeinern. Auch Hierarchie ermoeglichen (=wer kreist 

@@ -471,7 +471,7 @@ class CurveSimResults(dict):
         return mean
 
     @staticmethod
-    def flux_observed_computed_plot_time(p, plot_filename, measured_flux, measured_tt):
+    def flux_observed_computed_plots_time(p, plot_filename, measured_flux, measured_tt):
         left = np.min(measured_flux["time"])
         right = np.max(measured_flux["time"])
         left -= (right - left) * 0.02
@@ -595,8 +595,20 @@ class CurveSimResults(dict):
         plt.savefig(plot_file)
 
     @staticmethod
-    def flux_residuals_plot_time(p, plot_filename, measured_flux):
-        title = f"Flux Residuals (observed minus computed)"
+    def flux_residuals_plots_time(p, plot_filename, measured_flux, measured_tt):
+        CurveSimResults.flux_residuals_plot_time(p, plot_filename, measured_flux)
+        if measured_tt is not None:
+            for transit in measured_tt.itertuples(index=False):
+                title=f"{transit.eclipser} Transit nr. {transit.nr}: flux residuals"
+                left = transit.tt - p.tt_padding
+                right = transit.tt + p.tt_padding
+                plot_file=f"{transit.eclipser}_{transit.nr}_{plot_filename}"
+                CurveSimResults.flux_residuals_plot_time(p, plot_file, measured_flux, left=left, right=right, title=title)
+
+    @staticmethod
+    def flux_residuals_plot_time(p, plot_filename, measured_flux, left=None, right=None, title=None):
+        if title is None:
+            title = f"Flux Residuals (observed minus computed)"
         x_label = "Time [BJD]"
         y_label = "Normalized Flux"
         x = [measured_flux["time"]]
@@ -609,10 +621,10 @@ class CurveSimResults(dict):
         linewidths = [0]
         xpaddings = [0.01]
         # xpaddings = [0.01 * (np.max(x) - np.min(x))]
-        left = np.min(x) - xpaddings[0] * (np.max(x[0]) - np.min(x[0]))
-        right = np.max(x) + xpaddings[0] * (np.max(x[0]) - np.min(x[0]))
-        # left =  2460718
-        # right = 2460719
+        if left is None:
+            left = np.min(x) - xpaddings[0] * (np.max(x[0]) - np.min(x[0]))
+        if right is None:
+            right = np.max(x) + xpaddings[0] * (np.max(x[0]) - np.min(x[0]))
         # bottom = None
         # top = None
         plot_file = p.results_directory + plot_filename
@@ -633,6 +645,7 @@ class CurveSimResults(dict):
         plt.plot(x[0], y[0], marker=markers[0], markersize=markersizes[0], linestyle=linestyles[0], label=data_labels[0], color=colors[0], linewidth=linewidths[0])
         plt.hlines(0, left, right, colors="xkcd:black", linewidth=1)
         plt.savefig(plot_file)
+        plt.close()
 
     @staticmethod
     def flux_residuals_plot_data(p, plot_filename, measured_flux):
@@ -663,6 +676,8 @@ class CurveSimResults(dict):
         plt.plot(x[0], y[0], marker=markers[0], markersize=markersizes[0], linestyle=linestyles[0], label=data_labels[0], color=colors[0], linewidth=linewidths[0])
         plt.hlines(0, x[0][0], x[0][-1], colors="xkcd:black", linewidth=1)
         plt.savefig(plot_file)
+        plt.close()
+
 
 
 def try_colors_in_plot():
