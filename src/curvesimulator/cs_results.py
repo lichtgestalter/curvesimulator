@@ -455,14 +455,19 @@ class CurveSimResults(dict):
 
     @staticmethod
     def bin_time_window(time, value, half_window_size):
-        t = time.to_numpy()
-        v = value.to_numpy()
+        """ time, value: pandas DataSeries or numpy array
+            half_window_size: float
+            returns array with binned values
+            Bins for each data point with time=t all values with time between
+            t - half_window_size and t + half_window_size"""
+        time = time.to_numpy()
+        value = value.to_numpy()
         mean = np.empty(len(time), dtype=float)
-        for i, x in enumerate(t):
-            left = bisect.bisect_right(t, x - half_window_size)
-            right = bisect.bisect_left(t, x + half_window_size)
-            vals = v[left:right]
-            mean[i] = vals.mean() if vals.size > 0 else np.nan
+        for i, t in enumerate(time):
+            left = bisect.bisect_right(time, t - half_window_size)
+            right = bisect.bisect_left(time, t + half_window_size)
+            values_to_bin = value[left:right]
+            mean[i] = values_to_bin.mean() if values_to_bin.size > 0 else np.nan
         return mean
 
     @staticmethod
@@ -501,8 +506,8 @@ class CurveSimResults(dict):
                     y_lists=    [measured_flux["flux"], measured_flux["flux_sim"], measured_flux["bin_30min"]],
                     data_labels=["observed",            "computed",                "30 min"],
                     linestyles= ['',                    '',                        "-"],
-                    markersizes=[1,                     1,                         1],
-                    colors=     ["xkcd:nice blue",                 "xkcd:black",   "xkcd:forest"],
+                    markersizes=[1,                     1,                         0],
+                    colors=     ["xkcd:nice blue",                 "xkcd:black",   "xkcd:warm grey"],
                     # linewidths= [1,                     0],
                     grid=False,
                     legend=True,
