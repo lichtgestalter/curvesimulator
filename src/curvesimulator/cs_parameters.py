@@ -3,6 +3,7 @@ import random
 from colorama import Fore, Style
 import configparser
 import numpy as np
+import os
 import sys
 
 
@@ -288,8 +289,6 @@ class CurveSimParameters:
     def find_results_subdirectory(self):
         """Find the name of the non-existing subdirectory with
         the lowest number and create this subdirectory."""
-        import os
-
         if not os.path.isdir(self.results_directory):
             print(f"{Fore.RED}ERROR: Fitting results directory {self.results_directory} does not exist.{Style.RESET_ALL}")
             sys.exit(1)

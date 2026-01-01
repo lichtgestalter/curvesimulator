@@ -497,6 +497,8 @@ class CurveSimResults(dict):
             plot_file=p.results_directory + plot_filename,
         )
         if measured_tt is not None:
+            directory = p.results_directory + "flux_per_transit/"
+            os.makedirs(directory)
             for transit in measured_tt.itertuples(index=False):
                 CurveSimResults.plot_this(
                     title=f"{transit.eclipser} Transit nr. {transit.nr}: observed vs. computed flux",
@@ -515,7 +517,7 @@ class CurveSimResults(dict):
                     right=transit.tt + p.tt_padding,
                     top=p.flux_plots_top,
                     bottom=p.flux_plots_bottom,
-                    plot_file=f"{p.results_directory}{transit.eclipser}_{transit.nr}_{plot_filename}",
+                    plot_file=f"{directory}{transit.eclipser}_{transit.nr}_{plot_filename}",
                 )
 
     @staticmethod
@@ -598,15 +600,17 @@ class CurveSimResults(dict):
     def flux_residuals_plots_time(p, plot_filename, measured_flux, measured_tt):
         CurveSimResults.flux_residuals_plot_time(p, plot_filename, measured_flux)
         if measured_tt is not None:
+            subdirectory = "fluxresiduals_per_transit/"
+            os.makedirs(p.results_directory + subdirectory)
             for transit in measured_tt.itertuples(index=False):
-                title=f"{transit.eclipser} Transit nr. {transit.nr}: flux residuals"
+                title = f"{transit.eclipser} Transit nr. {transit.nr}: flux residuals"
                 left = transit.tt - p.tt_padding
                 right = transit.tt + p.tt_padding
-                plot_file=f"{transit.eclipser}_{transit.nr}_{plot_filename}"
-                CurveSimResults.flux_residuals_plot_time(p, plot_file, measured_flux, left=left, right=right, title=title)
+                plot_file = f"{transit.eclipser}_{transit.nr}_{plot_filename}"
+                CurveSimResults.flux_residuals_plot_time(p, plot_file, measured_flux, left=left, right=right, title=title, subdirectory=subdirectory)
 
     @staticmethod
-    def flux_residuals_plot_time(p, plot_filename, measured_flux, left=None, right=None, title=None):
+    def flux_residuals_plot_time(p, plot_filename, measured_flux, left=None, right=None, title=None, subdirectory=""):
         if title is None:
             title = f"Flux Residuals (observed minus computed)"
         x_label = "Time [BJD]"
@@ -627,7 +631,7 @@ class CurveSimResults(dict):
             right = np.max(x) + xpaddings[0] * (np.max(x[0]) - np.min(x[0]))
         # bottom = None
         # top = None
-        plot_file = p.results_directory + plot_filename
+        plot_file = p.results_directory + subdirectory + plot_filename
 
         plt.figure(figsize=(10, 6))
         plt.xlabel(x_label)
