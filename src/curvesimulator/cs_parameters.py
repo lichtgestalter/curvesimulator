@@ -47,6 +47,8 @@ class CurveSimParameters:
         self.verbose = eval(config.get("Results", "verbose", fallback="False"))
         self.transit_precision = eval(config.get("Results", "transit_precision", fallback="1"))
 
+        self.flux_data_directory = config.get("Results", "flux_data_directory", fallback="")
+
         # [Simulation]
         self.action = config.get("Simulation", "action", fallback="results_only")
         # self.single_run = eval(config.get("Simulation", "single_run", fallback="False"))
@@ -283,7 +285,7 @@ class CurveSimParameters:
                         fitting_parameters.append(FittingParameter(self, body_index, parameter_name, value, lower, upper, sigma))
                         fitting_parameters[-1].index = len(fitting_parameters) - 1
                 body_index += 1
-        print(f"Fitting {len(fitting_parameters)} parameters.")
+        # print(f"Fitting {len(fitting_parameters)} parameters.")
         return fitting_parameters
 
     def find_results_subdirectory(self):

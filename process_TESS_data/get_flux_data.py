@@ -1,7 +1,5 @@
-# https://lightkurve.github.io/lightkurve/tutorials/3-science-examples/exoplanets-identifying-transiting-planet-signals.html
-from colorama import Fore, Style  # print(f"{Fore.RED}{Style.RESET_ALL}")
+from colorama import Fore, Style
 import lightkurve as lk
-# from lightkurve import TessLightCurve
 from matplotlib import pyplot as plt
 # import numpy as np
 import pandas as pd

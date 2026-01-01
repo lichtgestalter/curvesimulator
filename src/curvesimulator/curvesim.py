@@ -9,6 +9,7 @@ from .cs_parameters import CurveSimParameters
 from .cs_mcmc import CurveSimMCMC, CurveSimLMfit
 from .cs_manual_fit import CurveSimManualFit
 from .cs_results import CurveSimResults
+from .cs_flux_data import CurveSimFluxData
 
 import os
 from multiprocessing import Process, JoinableQueue
@@ -73,6 +74,7 @@ class CurveSimulator:
     def __init__(self, config_file=""):
         warnings.filterwarnings('ignore', module='rebound')
         p = CurveSimParameters(config_file)  # Read program parameters from config file.
+        bodies = None
         if p.verbose:
             print(p)
         if p.action in ["lmfit", "guifit", "mcmc"]:
@@ -84,6 +86,7 @@ class CurveSimulator:
                 measured_tt = CurveSimResults.get_measured_tt(p)
             bodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
             p.init_fitting_parameter_dic()
+            print(f"Fitting {len(p.fitting_parameters)} parameters.")
             if p.action == "guifit":
                 p.enrich_fitting_params(bodies)
                 self.guifit = CurveSimManualFit(p, bodies, time_s0, time_d, measured_tt)
@@ -124,6 +127,8 @@ class CurveSimulator:
             CurveSimResults.ttv_to_date_plot(p, amplitude=2.08, period=965, x_offset=-449, osc_per=82.834)
             CurveSimResults.ttv_to_date_plot(p, amplitude=2.0, period=946.5, x_offset=-393, osc_per=82.5438)
             sys.exit(0)
+        elif p.action == "get_tess_data":
+            CurveSimFluxData.get_flux(p)
         else:
             print(f"{Fore.RED}ERROR: Invalid parameter 'action' in configuration file {Style.RESET_ALL}")
             sys.exit(1)

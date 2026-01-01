@@ -5,12 +5,10 @@ import json
 import math
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import os
 import re
 import scipy.stats as stats
-
-from curvesimulator.cs_flux_data import csv2df
-# from cs_flux_data import csv2df
 
 
 class Transit(dict):
@@ -245,7 +243,7 @@ class CurveSimResults(dict):
 
     @staticmethod
     def get_measured_flux(p):
-        measured_flux = csv2df(p.flux_file)
+        measured_flux = pd.read_csv(p.flux_file)
         measured_flux = measured_flux[measured_flux["time"] >= p.start_date]
         measured_flux["time_s0"] = (measured_flux["time"] - p.start_date) * p.day
         time_s0 = np.array(measured_flux["time_s0"], dtype=float)
@@ -257,14 +255,14 @@ class CurveSimResults(dict):
 
     @staticmethod
     def get_measured_tt(p):
-        df = csv2df(p.tt_file)
+        df = pd.read_csv(p.tt_file)
         df = df[df["tt"] >= p.start_date]
         p.tt_datasize = len(df["tt"])
         return df
 
     @staticmethod
     def get_measured_rv(p):
-        df = csv2df(p.rv_file)
+        df = pd.read_csv(p.rv_file)
         df = df[df["time"] >= p.start_date]
         p.rv_datasize = len(df["time"])
         df["time_s0"] = (df["time"] - p.start_date) * p.day
