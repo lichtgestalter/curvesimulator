@@ -2,6 +2,7 @@
 ## 0.5.6 Fitting TOI-4504
 
 ### jetzt
+- Neue Kategorie Data in Configfile
 - Sektor97 in Fluxdatenfile aufnehmen
 - Fluxdatenfile neu automatisiert und in CurveSimulator integriert aus 
   den einzelnen Downloads erstellen
