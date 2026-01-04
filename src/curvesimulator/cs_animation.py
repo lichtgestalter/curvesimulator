@@ -23,7 +23,7 @@ class CurveSimAnimation:
     def check_ffmpeg():
         """Checks if ffmpeg is available"""
         if shutil.which('ffmpeg') is None:
-            print(f"{Fore.RED}ERROR: ffmpeg is not available. Please install ffmpeg to save the video.")
+            print(f"{Fore.RED}\nERROR: ffmpeg is not available. Please install ffmpeg to save the video.")
             print("Visit ffmpeg.org to download an executable version.")
             print(f"Extract the zip file and add the bin directory to your system's PATH environment variable.{Style.RESET_ALL}")
             sys.exit(1)

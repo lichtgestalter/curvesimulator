@@ -100,7 +100,7 @@ class CurveSimMCMC:
             return
         os.environ["OMP_NUM_THREADS"] = "1"  # Some builds of NumPy automatically parallelize some operations. This can cause problems when multi processing inside emcee is enabled. Turn that off by setting the environment variable OMP_NUM_THREADS=1.
         if not (p.flux_file or p.tt_file or p.rv_file):
-            print(f"{Fore.RED}ERROR: No measurements for fitting have been provided.{Style.RESET_ALL}")
+            print(f"{Fore.RED}\nERROR: No measurements for fitting have been provided.{Style.RESET_ALL}")
             sys.exit(1)
         if os.path.exists("residual.tmp"):
             os.remove("residual.tmp")
@@ -149,7 +149,7 @@ class CurveSimMCMC:
                 steps_done = self.backend.iteration - self.burn_in
                 self.loaded_steps = steps_done
                 if steps_done < 0:
-                    print(f"{Fore.RED}ERROR: Backend contains less iterations than burn-in. Uncomment load_backend in the config file to start from scratch.{Style.RESET_ALL}")
+                    print(f"{Fore.RED}\nERROR: Backend contains less iterations than burn-in. Uncomment load_backend in the config file to start from scratch.{Style.RESET_ALL}")
                     sys.exit(1)
             else:
                 print("Ignoring and resetting backend.")
@@ -348,10 +348,10 @@ class CurveSimMCMC:
                 try:
                     plt.savefig(plot_filename)
                 except:
-                    print(f"{Fore.RED}ERROR: Saving Trace Plot failed.{Style.RESET_ALL}")
+                    print(f"{Fore.RED}\nERROR: Saving Trace Plot failed.{Style.RESET_ALL}")
                 plt.close(fig)
             except:
-                print(f"{Fore.RED}ERROR: Trace Plot failed.{Style.RESET_ALL}")
+                print(f"{Fore.RED}\nERROR: Trace Plot failed.{Style.RESET_ALL}")
                 self.trace_plot_ok = False
 
 
@@ -427,7 +427,7 @@ class CurveSimMCMC:
         try:
             plt.savefig(plot_filename)
         except:
-            print(f"{Fore.RED}ERROR: Saving histogram plot failed.{Style.RESET_ALL}")
+            print(f"{Fore.RED}\nERROR: Saving histogram plot failed.{Style.RESET_ALL}")
         plt.close(fig)
 
     # @stopwatch()
@@ -447,10 +447,10 @@ class CurveSimMCMC:
                     try:
                         plt.savefig(plot_filename)
                     except:
-                        print(f"{Fore.RED}ERROR: Saving corner plot failed.{Style.RESET_ALL}")
+                        print(f"{Fore.RED}\nERROR: Saving corner plot failed.{Style.RESET_ALL}")
                     plt.close(fig)
             except:
-                    print(f"{Fore.RED}ERROR: Corner plot failed.{Style.RESET_ALL}")
+                    print(f"{Fore.RED}\nERROR: Corner plot failed.{Style.RESET_ALL}")
                     self.corner_plot_ok = False
 
     # @stopwatch()
@@ -481,10 +481,10 @@ class CurveSimMCMC:
                 try:
                     plt.savefig(plot_filename)
                 except:
-                    print(f"{Fore.RED}ERROR: Saving autocorrelation plot failed.{Style.RESET_ALL}")
+                    print(f"{Fore.RED}\nERROR: Saving autocorrelation plot failed.{Style.RESET_ALL}")
                 plt.close(fig)
             except:
-                print(f"{Fore.RED}ERROR: Autocorrelation plot failed.{Style.RESET_ALL}")
+                print(f"{Fore.RED}\nERROR: Autocorrelation plot failed.{Style.RESET_ALL}")
                 self.autocorrelation_function_plot_ok = False
 
     # @stopwatch()
@@ -507,7 +507,7 @@ class CurveSimMCMC:
         try:
             plt.savefig(plot_filename1)
         except:
-            print(f"{Fore.RED}ERROR: Saving Integrated Autocorrelation Time plot failed.{Style.RESET_ALL}")
+            print(f"{Fore.RED}\nERROR: Saving Integrated Autocorrelation Time plot failed.{Style.RESET_ALL}")
         plt.close(fig)
 
         steps_done_div_integrated_autocorrelation_time = steps / integrated_autocorrelation_time
@@ -523,7 +523,7 @@ class CurveSimMCMC:
         try:
             plt.savefig(plot_filename2)
         except:
-            print(f"{Fore.RED}ERROR: Saving Steps divided by Integrated Autocorrelation Time plot failed.{Style.RESET_ALL}")
+            print(f"{Fore.RED}\nERROR: Saving Steps divided by Integrated Autocorrelation Time plot failed.{Style.RESET_ALL}")
         plt.close(fig)
 
     # @stopwatch()
@@ -543,10 +543,10 @@ class CurveSimMCMC:
                 try:
                     plt.savefig(plot_filename)
                 except:
-                    print(f"{Fore.RED}ERROR: Saving acceptance plot failed.{Style.RESET_ALL}")
+                    print(f"{Fore.RED}\nERROR: Saving acceptance plot failed.{Style.RESET_ALL}")
                 plt.close(fig)
             except:
-                print(f"{Fore.RED}ERROR: Acceptance plot failed.{Style.RESET_ALL}")
+                print(f"{Fore.RED}\nERROR: Acceptance plot failed.{Style.RESET_ALL}")
                 self.acceptance_plot_ok = False
 
     # @stopwatch()
@@ -566,7 +566,7 @@ class CurveSimMCMC:
         try:
             plt.savefig(plot_filename)
         except:
-            print(f"{Fore.RED}ERROR: Saving Average Residual plot failed.{Style.RESET_ALL}")
+            print(f"{Fore.RED}\nERROR: Saving Average Residual plot failed.{Style.RESET_ALL}")
         plt.close(fig)
 
     def calc_maxlikelihood_avg_residual_in_std(self, p):
@@ -615,7 +615,7 @@ class CurveSimMCMC:
         try:
             plt.savefig(plot_filename)
         except:
-            print(f"{Fore.RED}ERROR: Saving TT delta plot failed.{Style.RESET_ALL}")
+            print(f"{Fore.RED}\nERROR: Saving TT delta plot failed.{Style.RESET_ALL}")
         plt.close(fig)
 
     # @stopwatch()
@@ -668,7 +668,7 @@ class CurveSimMCMC:
         try:
             plt.savefig(plot_filename)
         except:
-            print(f"{Fore.RED}ERROR: Saving TT delta plot failed.{Style.RESET_ALL}")
+            print(f"{Fore.RED}\nERROR: Saving TT delta plot failed.{Style.RESET_ALL}")
         plt.close(fig)
 
     @staticmethod
@@ -771,7 +771,7 @@ class CurveSimMCMC:
             if p.verbose:
                 print(f" Saved MCMC results to {filename}")
         except:
-            print(f"{Fore.RED}ERROR: Saving MCMC Results JSON failed.{Style.RESET_ALL}")
+            print(f"{Fore.RED}\nERROR: Saving MCMC Results JSON failed.{Style.RESET_ALL}")
             print(results)
             print(f"{Fore.YELLOW}Printed Results to console because saving failed.{Style.RESET_ALL}")
 
@@ -885,7 +885,7 @@ class CurveSimLMfit:
 
     def __init__(self, p, bodies, time_s0, time_d, measured_tt):
         if not (p.flux_file or p.tt_file or p.rv_file):
-            print(f"{Fore.RED}ERROR: No measurements for fitting hve been provided.{Style.RESET_ALL}")
+            print(f"{Fore.RED}\nERROR: No measurements for fitting hve been provided.{Style.RESET_ALL}")
             sys.exit(1)
         if os.path.exists("residual.tmp"):
             os.remove("residual.tmp")
@@ -1112,7 +1112,7 @@ class CurveSimLMfit:
                 append_line_locked(filename, line, wait=0.1)
             except OSError as e:
                 # non-fatal: print error but continue
-                print(f"{Fore.RED}ERROR: Could not write best fit to `lmfit_best_fits.txt`: {e}{Style.RESET_ALL}")
+                print(f"{Fore.RED}\nERROR: Could not write best fit to `lmfit_best_fits.txt`: {e}{Style.RESET_ALL}")
         runtime = CurveSimMCMC.seconds2readable(time.perf_counter() - self.start_timestamp)
         print(f"{color}Runtime: {runtime}   max_delta: {max_delta:7.4f} days  mean_delta: {mean_delta:7.4f} days{Style.RESET_ALL}    ", end="")
 

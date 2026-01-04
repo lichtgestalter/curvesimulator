@@ -174,18 +174,18 @@ class CurveSimParameters:
             self.dts = np.array([self.dt], dtype=float)
             self.ends_d = np.array([self.start_date + (self.frames * self.fps * self.dt) / self.day], dtype=float)  # default value. Assumes the video shall last 'frames' seconds.
         if not (len(self.starts_d) == len(self.ends_d) == len(self.dts)):
-            print(f"{Fore.YELLOW}WARNING: Parameters starts, ends and dts do not have the same number of items.{Style.RESET_ALL}")
+            print(f"{Fore.YELLOW}\nWARNING: Parameters starts, ends and dts do not have the same number of items.{Style.RESET_ALL}")
             print(f"{Fore.YELLOW}Only the first {min(len(self.starts_d), len(self.ends_d), len(self.dts))} intervals will be processed.{Style.RESET_ALL}")
         for start, end in zip(self.starts_d, self.ends_d):
             if start > end:
-                print(f"{Fore.RED}ERROR in parameters starts/ends: One interval ends before it begins.{Style.RESET_ALL}")
+                print(f"{Fore.RED}\nERROR in parameters starts/ends: One interval ends before it begins.{Style.RESET_ALL}")
                 sys.exit(1)
         for nextstart, end in zip(self.starts_d[1:], self.ends_d[:-1]):
             if end > nextstart:
-                print(f"{Fore.RED}ERROR in parameters starts/ends: One interval starts before its predecessor ends.{Style.RESET_ALL}")
+                print(f"{Fore.RED}\nERROR in parameters starts/ends: One interval starts before its predecessor ends.{Style.RESET_ALL}")
                 sys.exit(1)
         if self.start_date > self.starts_d[0]:
-            print(f"{Fore.RED}ERROR in parameter starts: First interval starts before the simulation's start_date.{Style.RESET_ALL}")
+            print(f"{Fore.RED}\nERROR in parameter starts: First interval starts before the simulation's start_date.{Style.RESET_ALL}")
             sys.exit(1)
         self.starts_s0 = (self.starts_d - self.start_date) * self.day  # convert BJD to seconds and start at zero
         self.ends_s0 = (self.ends_d - self.start_date) * self.day  # convert BJD to seconds and start at zero
@@ -211,7 +211,7 @@ class CurveSimParameters:
         config = configparser.ConfigParser(inline_comment_prefixes='#')
         config.optionxform = str  # Preserve case of the keys.
         if len(config.read(config_file, encoding='utf-8')) < 1:  # does opening the config file fail?
-            print(f"{Fore.RED}ERROR: Config file {config_file} not found.{Style.RESET_ALL}")
+            print(f"{Fore.RED}\nERROR: Config file {config_file} not found.{Style.RESET_ALL}")
             print(f"{Fore.RED}Provide the config file name as the argument of the function curvesim.{Style.RESET_ALL}")
             print(f"{Fore.RED}More information on https://github.com/lichtgestalter/curvesimulator/wiki '{Style.RESET_ALL}")
             sys.exit(1)
@@ -292,7 +292,7 @@ class CurveSimParameters:
         """Find the name of the non-existing subdirectory with
         the lowest number and create this subdirectory."""
         if not os.path.isdir(self.results_directory):
-            print(f"{Fore.RED}ERROR: Fitting results directory {self.results_directory} does not exist.{Style.RESET_ALL}")
+            print(f"{Fore.RED}\nERROR: Fitting results directory {self.results_directory} does not exist.{Style.RESET_ALL}")
             sys.exit(1)
         # Filter numeric subdirectory names and checks if they are directories.
         existing_subdirectories = [int(subdir) for subdir in os.listdir(self.results_directory)

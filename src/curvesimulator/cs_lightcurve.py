@@ -30,7 +30,7 @@ class CurveSimLightcurve(np.ndarray):
         # if not (1 <= iteration < len(self) - 2):  # Ensure indices are within bounds
         if not (start_index < iteration < end_index - 2):  # Ensure indices are within bounds
             if p.verbose:
-                print(f"{Fore.YELLOW}WARNING: Function interpolate_max_depth: Interpolation indices out of bounds at {iteration=}")
+                print(f"{Fore.YELLOW}\nWARNING: Function interpolate_max_depth: Interpolation indices out of bounds at {iteration=}")
                 print(f"Depth of this transit has been stored in result file as 0.")
                 print(f"Try to move the intervals (parameters 'starts' and 'ends') a bit.{Style.RESET_ALL}")
             return 1

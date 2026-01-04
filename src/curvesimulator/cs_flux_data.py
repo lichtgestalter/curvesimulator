@@ -108,20 +108,22 @@ class CurveSimFluxData:
         print(f"Looking for lightcurve with {target=}  {sector=}  {author=}  {exptime=}  {index=}. ", end="")
         search_result = lk.search_lightcurve(target=target, sector=sector, author=author, exptime=exptime)
         if len(search_result) == 0:
-            print(f"{Fore.RED}No data found.{Style.RESET_ALL}")
-            return
+            print(f"{Fore.RED}\nERROR: No data found for sector {sector}. Check the search criteria in {p.tt_file}{Style.RESET_ALL}")
+            sys.exit(1)
+
         print(f"{Fore.GREEN}Data found.\n{Style.RESET_ALL}")
         print(search_result)
+        if index is not None and index >= len(search_result):
+            print(f"{Fore.RED}\nERROR: Index {index} was provided in {p.tt_file} for sector {sector},")
+            print(f"but only {len(search_result)} data products match the search criteria. ")
+            print(f"Change the index in {p.tt_file} to an integer less than {len(search_result)}")
+            print(f"or broaden your search criteria.{Style.RESET_ALL}")
+            sys.exit(1)
+
         if len(search_result) > 1:
             if index is None:
-                print(f"{Fore.RED}ERROR: For the given search criteria, there is more than one data product available in sector {sector},")
+                print(f"{Fore.RED}\nERROR: For the given search criteria, there is more than one data product available in sector {sector},")
                 print(f"but no index was provided. Add the index of the desired data product to {p.tt_file}.{Style.RESET_ALL}")
-                sys.exit(1)
-            if index >= len(search_result):
-                print(f"{Fore.RED}ERROR: Index {index} was provided in {p.tt_file} for sector {sector},")
-                print(f"but only {len(search_result)} data products match the search criteria. ")
-                print(f"Change the index in {p.tt_file} to an integer less than {len(search_result)}")
-                print(f"or broaden your search criteria.{Style.RESET_ALL}")
                 sys.exit(1)
 
             lc = search_result[int(index)].download()

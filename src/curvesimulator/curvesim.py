@@ -104,7 +104,7 @@ class CurveSimulator:
                 self.sampler = mcmc.sampler  # mcmc object
                 self.theta = mcmc.theta  # current state of mcmc chains. By saving sampler and theta it is possible to continue the mcmc later on.
             else:
-                print(f"{Fore.RED}ERROR: Invalid parameter 'action' in configuration file {Style.RESET_ALL}")
+                print(f"{Fore.RED}\nERROR: Invalid parameter 'action' in configuration file {Style.RESET_ALL}")
                 sys.exit(1)
         elif p.action == "single_run":
             bodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
@@ -130,7 +130,7 @@ class CurveSimulator:
         elif p.action == "get_tess_data":
             CurveSimFluxData.get_flux(p)
         else:
-            print(f"{Fore.RED}ERROR: Invalid parameter 'action' in configuration file {Style.RESET_ALL}")
+            print(f"{Fore.RED}\nERROR: Invalid parameter 'action' in configuration file {Style.RESET_ALL}")
             sys.exit(1)
         self.parameters = p
         self.bodies = bodies

@@ -11,7 +11,7 @@ from curvesimulator.cs_physics import CurveSimPhysics
 
 
 def multiple_transit_error():
-    print(f"{Fore.RED}ERROR: Ambiguous transit constellation.")
+    print(f"{Fore.RED}\nERROR: Ambiguous transit constellation.")
     print("CurveSimulator can not handle multiple synchronous transits correctly yet.")
     print(f"Please send your config file to CurveSimulator's developers.{Style.RESET_ALL}")
     sys.exit(1)
@@ -75,10 +75,10 @@ class CurveSimBody:
         #     for x in velocity.split(","):
         #         vel.append(eval(x))
         #     if len(pos) != 3:
-        #         print(f'{Fore.RED}ERROR in config file: invalid or missing start position. {pos=}')
+        #         print(f'{Fore.RED}\nERROR in config file: invalid or missing start position. {pos=}')
         #         sys.exit(1)
         #     if len(vel) != 3:
-        #         print(f'{Fore.RED}ERROR in config file: invalid or missing initial velocity. {vel=}')
+        #         print(f'{Fore.RED}\nERROR in config file: invalid or missing initial velocity. {vel=}')
         #         sys.exit(1)
         #     self.positions[0] = np.array(pos, dtype=float)  # [m] initial position
         #     self.velocity = np.array(vel, dtype=float)  # [m/s]
@@ -105,7 +105,7 @@ class CurveSimBody:
     #     else:
     #         error = abs(self.omega - self.pomega + self.Omega)
     #         if error > 0.00001:
-    #             print(f"{Fore.RED}ERROR in config file, body {self.name}:")
+    #             print(f"{Fore.RED}\nERROR in config file, body {self.name}:")
     #             print(f"omega, pomega, Omega have been defined in the config file for this body.")
     #             print("This is redundant and in this case contradictory.")
     #             print("Remove one of these parameters from the config file or")
@@ -114,7 +114,7 @@ class CurveSimBody:
     #
     # def calc_period_or_semi_major_axis(self):
     #     if self.a is None and self.P is None:
-    #         print(f"{Fore.RED}ERROR in config file, body {self.name}:")
+    #         print(f"{Fore.RED}\nERROR in config file, body {self.name}:")
     #         print("semi-major axis a or Period P have to be specified in config file.")
     #         sys.exit(1)
     #     elif self.P is None:
@@ -124,7 +124,7 @@ class CurveSimBody:
     #     else:
     #         relative_error = self.P / (2 * math.pi * math.sqrt(self.a ** 3 / self.mu)) - 1
     #         if relative_error > 0.001:
-    #             print(f"{Fore.RED}ERROR in config file, body {self.name}:")
+    #             print(f"{Fore.RED}\nERROR in config file, body {self.name}:")
     #             print(f"a and P have been defined in the config file for this body.")
     #             print("This is redundant and in this case contradictory.")
     #             print("Remove one of these parameters from the config file or")
@@ -323,7 +323,7 @@ class CurveSimBody:
     #         dx_right = eclipser.x - eclipsee.x
     #         interval_extensions += 1
     #     if interval_extensions > 0 and p.verbose:
-    #         print(f"{Fore.YELLOW}WARNING in function find_tt: Rebound integration results are possibly not accurate enough.")
+    #         print(f"{Fore.YELLOW}\nWARNING in function find_tt: Rebound integration results are possibly not accurate enough.")
     #         print(f"Try again with half the overall iteration time step parameter 'dt'.{Style.RESET_ALL}   ", end="")
     #         print(f"{iteration=}   {interval_extensions=}")
     #     if dx_left * dx_right < 0 and eclipser.z >= eclipsee.z:  # sign of dx changed and eclipser in front of eclipsee
@@ -343,7 +343,7 @@ class CurveSimBody:
     #         depth = 1 - sim_flux.interpolate_max_depth(tt, p, iteration, start_index, end_index, dt, time_d)
     #         return tt, impact, depth, close_enough
     #     else:
-    #         print(f"{Fore.RED}ERROR in function find_tt: Try with a smaller iteration time step dt.")
+    #         print(f"{Fore.RED}\nERROR in function find_tt: Try with a smaller iteration time step dt.")
     #         print(f"If that does not help, please open an issue on https://github.com/lichtgestalter/curvesimulator/issues and provide your config file.{Style.RESET_ALL}")
     #         return -1, -1, -1, False
 
@@ -371,7 +371,7 @@ class CurveSimBody:
             interval_extensions += 1
             if interval_extensions > p.max_interval_extensions:
                 if p.verbose:
-                    print(f"{Fore.YELLOW}WARNING in function find_tt: Maximum acceptable interval extension exceeded.")
+                    print(f"{Fore.YELLOW}\nWARNING in function find_tt: Maximum acceptable interval extension exceeded.")
                     print(f"This is due to a too large iteration time step parameter 'dt'{Style.RESET_ALL}   ", end="")
                     print(f"or due to an unstable star system.{Style.RESET_ALL}   ", end="")
                     print(f"Try again with half the iteration time step parameter 'dt'{Style.RESET_ALL}   ", end="")
@@ -381,7 +381,7 @@ class CurveSimBody:
                 return -1, -1, -1, False
             if iteration - interval_extensions <= start_index or iteration + interval_extensions >= end_index:
                 if p.verbose:
-                    print(f"{Fore.YELLOW}WARNING in function find_tt: Possible TT at the edge of a time interval.")
+                    print(f"{Fore.YELLOW}\nWARNING in function find_tt: Possible TT at the edge of a time interval.")
                     print(f"Consider moving the time intervals a bit.{Style.RESET_ALL}   ", end="")
                     print(f"{iteration=}  {time_d[iteration]=}")
                 return -1, -1, -1, False
@@ -407,7 +407,7 @@ class CurveSimBody:
             return tt, impact, depth, close_enough
         else:
             if p.verbose:
-                print(f"{Fore.YELLOW}WARNING in function find_tt: Eclipser not in front of eclipsee at expected TT.")
+                print(f"{Fore.YELLOW}\nWARNING in function find_tt: Eclipser not in front of eclipsee at expected TT.")
                 print(f"This is due to a too large iteration time step parameter 'dt'{Style.RESET_ALL}   ", end="")
                 print(f"or due to an unstable star system.{Style.RESET_ALL}   ", end="")
                 print(f"Try again with half the iteration time step parameter 'dt'{Style.RESET_ALL}   ", end="")
