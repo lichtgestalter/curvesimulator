@@ -159,6 +159,7 @@ class CurveSimFluxData:
         if save_csv:
             pandas_file = f'{p.flux_data_directory}/download/{sector:.0f}_{author}_{exptime:.0f}.csv'
             CurveSimFluxData.lc2csv(lc, pandas_file)
+            return pandas_file
 
 
     @staticmethod
@@ -167,13 +168,58 @@ class CurveSimFluxData:
         print("Getting TESS Data...")
         for transit in measured_tt.itertuples(index=False):
             print()
-            CurveSimFluxData.download_flux_lc(p,
+            flux_file = CurveSimFluxData.download_flux_lc(p,
                                               target=transit.target,
                                               sector=transit.sector,
                                               author=transit.author,
                                               exptime=transit.exptime,
                                               index=transit.index)
+            # store flux_file in the current row of the DataFrame measured_tt in column "flux_file"
+            siehe get_flux_copilot()
         return
+
+
+    @staticmethod
+    def get_flux_copilot(p):
+        measured_tt = CurveSimResults.get_measured_tt(p)
+        print("Getting TESS Data...")
+        # ensure the column exists
+        if "flux_file" not in measured_tt.columns:
+            measured_tt["flux_file"] = None
+
+        for idx, row in measured_tt.iterrows():
+            print(f"Processing row {idx}: target={row.get('target')}, sector={row.get('sector')}")
+            try:
+                flux_file = CurveSimFluxData.download_flux_lc(
+                    p,
+                    target=row.get("target"),
+                    sector=row.get("sector"),
+                    author=row.get("author"),
+                    exptime=row.get("exptime"),
+                    index=row.get("index"),
+                )
+            except Exception as e:
+                print(f"{Fore.RED}ERROR downloading flux for row {idx}: {e}{Style.RESET_ALL}")
+                flux_file = None
+
+            measured_tt.at[idx, "flux_file"] = flux_file
+
+        # save back to the transits table file if attribute available
+        if hasattr(p, "tt_file") and p.tt_file:
+            measured_tt.to_csv(p.tt_file, index=False)
+
+        return measured_tt
+
+
+
+
+
+
+
+
+
+
+
 
 def plot_this(
         x: np.ndarray,            # positions of data points on x-axis
