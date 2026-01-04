@@ -1,4 +1,6 @@
 # from colorama import Fore, Style
+import sys
+
 from colorama import Fore, Style
 import lightkurve as lk
 import math
@@ -90,7 +92,7 @@ class CurveSimFluxData:
         df.to_csv(file, sep=',', decimal='.', index=False)
 
     @staticmethod
-    def download_flux_lc(p, target, sector, author, exptime, index=0, save_plot=True, save_error_plot=True, save_csv=True):
+    def download_flux_lc(p, target, sector, author, exptime, index=None, save_plot=True, save_error_plot=True, save_csv=True):
         # You can either download finished light curves with search_lightcurve().
         # Or download raw data from selected pixels with search_targetpixelfile().
         # lc_collection = search_result.download_all()
@@ -99,25 +101,33 @@ class CurveSimFluxData:
         # https://lightkurve.github.io/lightkurve/reference/api/lightkurve.LightCurve.flatten.html
         # Download of fits-files. Sometimes there are several for the same sector.
         # search = search_targetpixelfile("TIC 349972412", author="SPOC", sector=sectors)
-        print(f"Vorher: {sector=}  {author=}  {exptime=}")
-        sector = None if np.isnan(sector) else sector
+        sector = None if np.isnan(sector) else int(sector)
         author = author if isinstance(author, str) else None
-        # author = None if np.isnan(author) else author
         exptime = None if np.isnan(exptime) else exptime
-        print(f"Nachher: {sector=}  {author=}  {exptime=}")
+        index = None if np.isnan(index) else int(index)
         print(f"Looking for lightcurve with {target=}  {sector=}  {author=}  {exptime=}  {index=}. ", end="")
-        search_result = lk.search_lightcurve(target=target, sector=sector, author=author, exptime=exptime)#[0]
+        search_result = lk.search_lightcurve(target=target, sector=sector, author=author, exptime=exptime)
         if len(search_result) == 0:
             print(f"{Fore.RED}No data found.{Style.RESET_ALL}")
             return
-        print(f"{Fore.GREEN}Data found.{Style.RESET_ALL}")
+        print(f"{Fore.GREEN}Data found.\n{Style.RESET_ALL}")
         print(search_result)
         if len(search_result) > 1:
+            if index is None:
+                print(f"{Fore.RED}ERROR: For the given search criteria, there is more than one data product available in sector {sector},")
+                print(f"but no index was provided. Add the index of the desired data product to {p.tt_file}.{Style.RESET_ALL}")
+                sys.exit(1)
+            if index >= len(search_result):
+                print(f"{Fore.RED}ERROR: Index {index} was provided in {p.tt_file} for sector {sector},")
+                print(f"but only {len(search_result)} data products match the search criteria. ")
+                print(f"Change the index in {p.tt_file} to an integer less than {len(search_result)}")
+                print(f"or broaden your search criteria.{Style.RESET_ALL}")
+                sys.exit(1)
+
             lc = search_result[int(index)].download()
             sector = lc.meta["SECTOR"] if sector is None else sector
             author = lc.meta["AUTHOR"] if author is None else author
             exptime = search_result.table["exptime"][int(index)] if exptime is None else exptime
-            print("Virker det nu?" )
         else:
             lc = search_result.download()
 
@@ -126,10 +136,10 @@ class CurveSimFluxData:
             plt.plot(lc.time.jd, lc.flux, marker='o', markersize=1, linestyle='None', label=f'Sector {sector}')  # sometimes list(lc.flux) was needed
             plt.xlabel('BJD')
             plt.ylabel('Flux')
-            plt.title(f'Original Flux {target=} {sector=} {author=} {exptime=}')
+            plt.title(f'Original Flux {target=} {sector=:.0f} {author=} {exptime=:.0f}')
             # plt.legend()
             plt.grid(True)
-            plt.savefig(f'{p.flux_data_directory}/download_plots/{sector}_{author}_{exptime}.png')
+            plt.savefig(f'{p.flux_data_directory}/download_plots/{sector:.0f}_{author}_{exptime:.0f}.png')
             # plt.savefig(f'../research/star_systems/TOI-4504/lightkurve/{sector}/{sector}_{author}_{exptime}{cut}.png')
             plt.show()
             plt.close()
@@ -138,14 +148,14 @@ class CurveSimFluxData:
             plt.plot(lc.time.jd, lc.flux_err, marker='o', markersize=1, color = 'red', linestyle='None', label=f'Sector {sector}')  # sometimes list(lc.flux) was needed
             plt.xlabel('BJD')
             plt.ylabel('Flux Error')
-            plt.title(f'Original Flux Error {target=} {sector=} {author=} {exptime=}')
+            plt.title(f'Original Flux Error {target=} {sector=:.0f} {author=} {exptime=:.0f}')
             # plt.legend()
             plt.grid(True)
-            plt.savefig(f'{p.flux_data_directory}/download_plots/{sector}_{author}_{exptime}_err.png')
+            plt.savefig(f'{p.flux_data_directory}/download_plots/{sector:.0f}_{author}_{exptime:.0f}_err.png')
             plt.show()
             plt.close()
         if save_csv:
-            pandas_file = f'{p.flux_data_directory}/download/{sector}_{author}_{exptime}.csv'
+            pandas_file = f'{p.flux_data_directory}/download/{sector:.0f}_{author}_{exptime:.0f}.csv'
             CurveSimFluxData.lc2csv(lc, pandas_file)
 
 
@@ -154,6 +164,7 @@ class CurveSimFluxData:
         measured_tt = CurveSimResults.get_measured_tt(p)
         print("Getting TESS Data...")
         for transit in measured_tt.itertuples(index=False):
+            print()
             CurveSimFluxData.download_flux_lc(p,
                                               target=transit.target,
                                               sector=transit.sector,
