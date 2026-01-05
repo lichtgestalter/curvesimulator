@@ -128,7 +128,9 @@ class CurveSimulator:
             CurveSimResults.ttv_to_date_plot(p, amplitude=2.0, period=946.5, x_offset=-393, osc_per=82.5438)
             sys.exit(0)
         elif p.action == "get_tess_data":
-            CurveSimFluxData.get_flux(p)
+            CurveSimFluxData.get_tess_flux(p)
+        elif p.action == "process_tess_data":
+            CurveSimFluxData.process_tess_flux(p)
         else:
             print(f"{Fore.RED}\nERROR: Invalid parameter 'action' in configuration file {Style.RESET_ALL}")
             sys.exit(1)

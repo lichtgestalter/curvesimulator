@@ -101,11 +101,15 @@ class CurveSimFluxData:
         # https://lightkurve.github.io/lightkurve/reference/api/lightkurve.LightCurve.flatten.html
         # Download of fits-files. Sometimes there are several for the same sector.
         # search = search_targetpixelfile("TIC 349972412", author="SPOC", sector=sectors)
+        target = target if isinstance(target, str) else None
         sector = None if np.isnan(sector) else int(sector)
         author = author if isinstance(author, str) else None
-        exptime = None if np.isnan(exptime) else exptime
+        exptime = None if np.isnan(exptime) else int(exptime)
         index = None if np.isnan(index) else int(index)
         print(f"Looking for lightcurve with {target=}  {sector=}  {author=}  {exptime=}  {index=}. ", end="")
+        if target is None:
+            print(f"{Fore.YELLOW}\nWARNING: Ignoring row in in {p.tt_file}, because it contains no target.{Style.RESET_ALL}")
+            return None
         search_result = lk.search_lightcurve(target=target, sector=sector, author=author, exptime=exptime)
         if len(search_result) == 0:
             print(f"{Fore.RED}\nERROR: No data found for sector {sector}. Check the search criteria in {p.tt_file}{Style.RESET_ALL}")
@@ -138,11 +142,11 @@ class CurveSimFluxData:
             plt.plot(lc.time.jd, lc.flux, marker='o', markersize=1, linestyle='None', label=f'Sector {sector}')  # sometimes list(lc.flux) was needed
             plt.xlabel('BJD')
             plt.ylabel('Flux')
-            plt.title(f'Original Flux {target=} {sector=:.0f} {author=} {exptime=:.0f}')
+            plt.title(f'Original Flux: {target=} {sector=:.0f} {author=} {exptime=:.0f}')
             # plt.legend()
             plt.grid(True)
+            plt.ticklabel_format(useOffset=False, style="plain", axis="x")
             plt.savefig(f'{p.flux_data_directory}/download_plots/{sector:.0f}_{author}_{exptime:.0f}.png')
-            # plt.savefig(f'../research/star_systems/TOI-4504/lightkurve/{sector}/{sector}_{author}_{exptime}{cut}.png')
             plt.show()
             plt.close()
         if save_error_plot:
@@ -150,9 +154,10 @@ class CurveSimFluxData:
             plt.plot(lc.time.jd, lc.flux_err, marker='o', markersize=1, color = 'red', linestyle='None', label=f'Sector {sector}')  # sometimes list(lc.flux) was needed
             plt.xlabel('BJD')
             plt.ylabel('Flux Error')
-            plt.title(f'Original Flux Error {target=} {sector=:.0f} {author=} {exptime=:.0f}')
+            plt.title(f'Original Flux Error: {target=} {sector=:.0f} {author=} {exptime=:.0f}')
             # plt.legend()
             plt.grid(True)
+            plt.ticklabel_format(useOffset=False, style="plain", axis="x")
             plt.savefig(f'{p.flux_data_directory}/download_plots/{sector:.0f}_{author}_{exptime:.0f}_err.png')
             plt.show()
             plt.close()
@@ -161,55 +166,43 @@ class CurveSimFluxData:
             CurveSimFluxData.lc2csv(lc, pandas_file)
             return pandas_file
 
-
     @staticmethod
-    def get_flux(p):
+    def get_tess_flux(p):
         measured_tt = CurveSimResults.get_measured_tt(p)
         print("Getting TESS Data...")
-        for transit in measured_tt.itertuples(index=False):
-            print()
-            flux_file = CurveSimFluxData.download_flux_lc(p,
-                                              target=transit.target,
-                                              sector=transit.sector,
-                                              author=transit.author,
-                                              exptime=transit.exptime,
-                                              index=transit.index)
-            # store flux_file in the current row of the DataFrame measured_tt in column "flux_file"
-            siehe get_flux_copilot()
-        return
+        if "file" not in measured_tt.columns:  # ensure the column exists
+            measured_tt["file"] = None
 
-
-    @staticmethod
-    def get_flux_copilot(p):
-        measured_tt = CurveSimResults.get_measured_tt(p)
-        print("Getting TESS Data...")
-        # ensure the column exists
-        if "flux_file" not in measured_tt.columns:
-            measured_tt["flux_file"] = None
-
-        for idx, row in measured_tt.iterrows():
+        for idx, tt_row in measured_tt.iterrows():
             flux_file = CurveSimFluxData.download_flux_lc(
                 p,
-                target=row.get("target"),
-                sector=row.get("sector"),
-                author=row.get("author"),
-                exptime=row.get("exptime"),
-                index=row.get("index"))
-            measured_tt.at[idx, "flux_file"] = flux_file
-
-        # save back to the transits table file if attribute available
-        if hasattr(p, "tt_file") and p.tt_file:
+                target=tt_row.get("target"),
+                sector=tt_row.get("sector"),
+                author=tt_row.get("author"),
+                exptime=tt_row.get("exptime"),
+                index=tt_row.get("index"))
+            measured_tt.at[idx, "file"] = flux_file
             measured_tt.to_csv(p.tt_file, index=False)
 
-        return measured_tt
+    @staticmethod
+    def process_tess_flux(p):
+        measured_tt = CurveSimResults.get_measured_tt(p)
+        print("Processing TESS Data...")
+        for idx, tt_row in measured_tt.iterrows():
+            CurveSimFluxData.process_flux_lc(p, tt_row)
 
-
-
-
-
-
-
-
+    @staticmethod
+    def process_flux_lc(p, tt_row):
+        flux_original = pd.read_csv(tt_row.get("file"))
+        flux_bjd_time = tesstime2bjd(flux_original)
+        df1 = extract_from_df(flux_bjd_time, tt_row.get("n0"), tt_row.get("n1"))
+        df2 = extract_from_df(flux_bjd_time, tt_row.get("n2"), tt_row.get("n3"))
+        flux_normalizing_reference = pd.concat([df1, df2], ignore_index=True)
+        flux_normalized = scale_flux(flux_bjd_time, 1 / median_flux(flux_normalizing_reference))
+        # save flux_normalized to subdirectory processed with suffix _p
+        # save plot of flux_normalized to subdirectory processed_plots with suffix _p
+        # save flux_transit to subdirectory transits with suffix _t
+        # save plot of flux_transit to subdirectory transit_plots with suffix _p
 
 
 
