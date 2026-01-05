@@ -188,20 +188,13 @@ class CurveSimFluxData:
             measured_tt["flux_file"] = None
 
         for idx, row in measured_tt.iterrows():
-            print(f"Processing row {idx}: target={row.get('target')}, sector={row.get('sector')}")
-            try:
-                flux_file = CurveSimFluxData.download_flux_lc(
-                    p,
-                    target=row.get("target"),
-                    sector=row.get("sector"),
-                    author=row.get("author"),
-                    exptime=row.get("exptime"),
-                    index=row.get("index"),
-                )
-            except Exception as e:
-                print(f"{Fore.RED}ERROR downloading flux for row {idx}: {e}{Style.RESET_ALL}")
-                flux_file = None
-
+            flux_file = CurveSimFluxData.download_flux_lc(
+                p,
+                target=row.get("target"),
+                sector=row.get("sector"),
+                author=row.get("author"),
+                exptime=row.get("exptime"),
+                index=row.get("index"))
             measured_tt.at[idx, "flux_file"] = flux_file
 
         # save back to the transits table file if attribute available
