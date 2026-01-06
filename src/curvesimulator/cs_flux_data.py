@@ -200,6 +200,8 @@ class CurveSimFluxData:
         exptime = tt_row.get("exptime")
         eclipser = tt_row.get("eclipser")
         nr = tt_row.get("nr")
+        t0 = tt_row.get("t0")
+        t5 = tt_row.get("t5")
 
         # Normalize flux. Save csv in processed
         flux_original = pd.read_csv(f"{p.flux_data_directory}/download/{tt_row.get("file")}.csv")
@@ -208,14 +210,19 @@ class CurveSimFluxData:
         df2 = extract_from_df(flux_bjd_time, tt_row.get("n2"), tt_row.get("n3"))
         flux_normalizing_reference = pd.concat([df1, df2], ignore_index=True)
         flux_normalized = scale_flux(flux_bjd_time, 1 / median_flux(flux_normalizing_reference))
-        flux_normalized.to_csv(f"{p.flux_data_directory}/processed/{tt_row.get("file")}_p.csv", index=False)
 
-        # Calculate flux_err_auto from flux standard deviation in [T0:T1] and [T4:T5]
-        hier weiter
+        # Calculate flux_err_local, the local flux standard deviation between n0 and n3 /transit excluded) as an alternative to flux_err from download
+        flux_err_reference = scale_flux(flux_normalizing_reference, 1 / median_flux(flux_normalizing_reference))
+        flux_err_reference = remove_from_df(flux_err_reference, t0, t5)  # exclude transit
+        std_val = float(flux_err_reference["flux"].std())
+        flux_normalized["flux_err_local"] = np.nan
+        mask = (flux_normalized["time"] > tt_row.get("n0")) & (flux_normalized["time"] < tt_row.get("n3"))
+        flux_normalized.loc[mask, "flux_err_local"] = std_val
+        flux_normalized.to_csv(f"{p.flux_data_directory}/processed/{tt_row.get("file")}_p.csv", index=False)
 
         # Plot normalized flux. Save png in subdirectory processed_plots.
         plt.figure(figsize=(10, 6))
-        plt.plot(flux_normalized["time"], flux_normalized["flux"], marker="o", markersize=1, color="xkcd:rich blue", linestyle="None")
+        plt.plot(flux_normalized["time"], flux_normalized["flux"], marker="o", markersize=1, color="xkcd:clear blue", linestyle="None")
         plt.xlabel("BJD")
         plt.ylabel("Flux")
         plt.title(f"Normalized Flux: {target=} {sector=:.0f} {author=} {exptime=:.0f}")
@@ -224,15 +231,18 @@ class CurveSimFluxData:
         plt.savefig(f"{p.flux_data_directory}/processed_plots/{sector:.0f}_{author}_{exptime:.0f}_p.png")
         plt.close()
 
-        # Plot normalized flux error. Save png in subdirectory processed_plots.
+        # Plot normalized flux_er and flux_err_local. Save png in subdirectory processed_plots.
         plt.figure(figsize=(10, 6))
-        plt.plot(flux_normalized["time"], flux_normalized["flux_err"], marker="o", markersize=1, color="xkcd:rust red", linestyle="None")
+        plt.plot(flux_normalized["time"], flux_normalized["flux_err"], label="flux_err", color="xkcd:rust red", marker="o", markersize=1, linestyle="None")
+        plt.plot(flux_normalized["time"], flux_normalized["flux_err_local"], label="flux_err_local", color="xkcd:bright orange", marker="o", markersize=1, linestyle="None")
+        plt.legend()
+
         plt.xlabel("BJD")
         plt.ylabel("Flux Error")
         plt.title(f"Normalized Flux Error: {target=} {sector=:.0f} {author=} {exptime=:.0f}")
         plt.grid(True)
         plt.ticklabel_format(useOffset=False, style="plain", axis="x")
-        plt.savefig(f"{p.flux_data_directory}/processed_plots/{sector:.0f}_{author}_{exptime:.0f}_err.png")
+        plt.savefig(f"{p.flux_data_directory}/processed_plots/{sector:.0f}_{author}_{exptime:.0f}_p_err.png")
         plt.close()
 
         # Extract transit from normalized flux. Save csv in subdirectory transits.
@@ -241,10 +251,15 @@ class CurveSimFluxData:
 
         # Plot normalized flux during transit. Save png in subdirectory transit_plots.
         plt.figure(figsize=(10, 6))
-        plt.plot(flux_transit["time"], flux_transit["flux"], marker="o", markersize=1, color="xkcd:rich blue", linestyle="None")
+        plt.plot(flux_transit["time"], flux_transit["flux"], marker="o", markersize=1, color="xkcd:clear blue", linestyle="None")
         plt.xlabel("BJD")
         plt.ylabel("Flux")
         plt.title(f"Normalized Flux: {eclipser=} transit_{nr=} {sector=:.0f}")
+        try:
+            plt.xlim(left=t0, right=t5)
+            direkt am funktionsanfang t0 etc auf validitaet testen, oder vor einzelne Abschnitte in der Funktion ein entsprechendes if stellen
+        except:
+            pass
         plt.grid(True)
         plt.ticklabel_format(useOffset=False, style="plain", axis="x")
         plt.savefig(f"{p.flux_data_directory}/transit_plots/{tt_row.get("file")}_{tt_row.get("eclipser")}_{tt_row.get("nr")}.png")
@@ -252,7 +267,8 @@ class CurveSimFluxData:
 
         # Plot normalized flux error during transit. Save png in subdirectory transit_plots.
         plt.figure(figsize=(10, 6))
-        plt.plot(flux_transit["time"], flux_transit["flux_err"], marker="o", markersize=1, color="xkcd:rust red", linestyle="None")
+        plt.plot(flux_transit["time"], flux_transit["flux_err"], label="flux_err", color="xkcd:rust red", marker="o", markersize=1, linestyle="None")
+        plt.plot(flux_transit["time"], flux_transit["flux_err_local"], label="flux_err_local", color="xkcd:bright orange", marker="o", markersize=1, linestyle="None")
         plt.xlabel("BJD")
         plt.ylabel("Flux Error")
         plt.title(f"Normalized Flux Error: {eclipser=} transit_{nr=} {sector=:.0f}")
@@ -260,8 +276,6 @@ class CurveSimFluxData:
         plt.ticklabel_format(useOffset=False, style="plain", axis="x")
         plt.savefig(f"{p.flux_data_directory}/transit_plots/{tt_row.get("file")}_{tt_row.get("eclipser")}_{tt_row.get("nr")}_err.png")
         plt.close()
-
-
 
 
 def plot_this(
