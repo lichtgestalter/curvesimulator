@@ -11,7 +11,7 @@ import pandas as pd
 
 from .cs_results import CurveSimResults
 
-path = '../../data/TOI-4504/'
+path = "../../data/TOI-4504/"
 day = 60 * 60 *24
 
 # Sector    3           6           9          12          28          31          34          37          61          64          67          89c         95c
@@ -84,12 +84,12 @@ class CurveSimFluxData:
 
     def lc2csv(lc, file):
         data = {
-            'time': lc.time.value,
-            'flux': lc.flux.value,
-            'flux_err': lc.flux_err.value
+            "time": lc.time.value,
+            "flux": lc.flux.value,
+            "flux_err": lc.flux_err.value
         }
         df = pd.DataFrame(data)
-        df.to_csv(file, sep=',', decimal='.', index=False)
+        df.to_csv(file, sep=",", decimal=".", index=False)
 
     @staticmethod
     def download_flux_lc(p, target, sector, author, exptime, index=None, save_plot=True, save_error_plot=True, save_csv=True):
@@ -139,32 +139,33 @@ class CurveSimFluxData:
 
         if save_plot:
             plt.figure(figsize=(10, 6))
-            plt.plot(lc.time.jd, lc.flux, marker='o', markersize=1, linestyle='None', label=f'Sector {sector}')  # sometimes list(lc.flux) was needed
-            plt.xlabel('BJD')
-            plt.ylabel('Flux')
-            plt.title(f'Original Flux: {target=} {sector=:.0f} {author=} {exptime=:.0f}')
+            plt.plot(lc.time.jd, lc.flux, marker="o", markersize=1, color="xkcd:nice blue", linestyle="None", label=f"Sector {sector}")  # sometimes list(lc.flux) was needed
+            plt.xlabel("BJD")
+            plt.ylabel("Flux")
+            plt.title(f"Original Flux: {target=} {sector=:.0f} {author=} {exptime=:.0f}")
             # plt.legend()
             plt.grid(True)
             plt.ticklabel_format(useOffset=False, style="plain", axis="x")
-            plt.savefig(f'{p.flux_data_directory}/download_plots/{sector:.0f}_{author}_{exptime:.0f}.png')
-            plt.show()
+            plt.savefig(f"{p.flux_data_directory}/download_plots/{sector:.0f}_{author}_{exptime:.0f}.png")
+            # plt.show()
             plt.close()
         if save_error_plot:
             plt.figure(figsize=(10, 6))
-            plt.plot(lc.time.jd, lc.flux_err, marker='o', markersize=1, color = 'red', linestyle='None', label=f'Sector {sector}')  # sometimes list(lc.flux) was needed
-            plt.xlabel('BJD')
-            plt.ylabel('Flux Error')
-            plt.title(f'Original Flux Error: {target=} {sector=:.0f} {author=} {exptime=:.0f}')
+            plt.plot(lc.time.jd, lc.flux_err, marker="o", markersize=1, color = "xkcd:tomato", linestyle="None", label=f"Sector {sector}")  # sometimes list(lc.flux) was needed
+            plt.xlabel("BJD")
+            plt.ylabel("Flux Error")
+            plt.title(f"Original Flux Error: {target=} {sector=:.0f} {author=} {exptime=:.0f}")
             # plt.legend()
             plt.grid(True)
             plt.ticklabel_format(useOffset=False, style="plain", axis="x")
-            plt.savefig(f'{p.flux_data_directory}/download_plots/{sector:.0f}_{author}_{exptime:.0f}_err.png')
-            plt.show()
+            plt.savefig(f"{p.flux_data_directory}/download_plots/{sector:.0f}_{author}_{exptime:.0f}_err.png")
+            # plt.show()
             plt.close()
         if save_csv:
-            pandas_file = f'{p.flux_data_directory}/download/{sector:.0f}_{author}_{exptime:.0f}.csv'
-            CurveSimFluxData.lc2csv(lc, pandas_file)
-            return pandas_file
+            filename = f"{sector:.0f}_{author}_{exptime:.0f}"
+            full_path = f"{p.flux_data_directory}/download/{filename}.csv"
+            CurveSimFluxData.lc2csv(lc, full_path)
+            return filename
 
     @staticmethod
     def get_tess_flux(p):
@@ -193,16 +194,72 @@ class CurveSimFluxData:
 
     @staticmethod
     def process_flux_lc(p, tt_row):
-        flux_original = pd.read_csv(tt_row.get("file"))
+        target = tt_row.get("target")
+        sector = tt_row.get("sector")
+        author = tt_row.get("author")
+        exptime = tt_row.get("exptime")
+        eclipser = tt_row.get("eclipser")
+        nr = tt_row.get("nr")
+
+        # Normalize flux. Save csv in processed
+        flux_original = pd.read_csv(f"{p.flux_data_directory}/download/{tt_row.get("file")}.csv")
         flux_bjd_time = tesstime2bjd(flux_original)
         df1 = extract_from_df(flux_bjd_time, tt_row.get("n0"), tt_row.get("n1"))
         df2 = extract_from_df(flux_bjd_time, tt_row.get("n2"), tt_row.get("n3"))
         flux_normalizing_reference = pd.concat([df1, df2], ignore_index=True)
         flux_normalized = scale_flux(flux_bjd_time, 1 / median_flux(flux_normalizing_reference))
-        # save flux_normalized to subdirectory processed with suffix _p
-        # save plot of flux_normalized to subdirectory processed_plots with suffix _p
-        # save flux_transit to subdirectory transits with suffix _t
-        # save plot of flux_transit to subdirectory transit_plots with suffix _p
+        flux_normalized.to_csv(f"{p.flux_data_directory}/processed/{tt_row.get("file")}_p.csv", index=False)
+
+        # Calculate flux_err_auto from flux standard deviation in [T0:T1] and [T4:T5]
+        hier weiter
+
+        # Plot normalized flux. Save png in subdirectory processed_plots.
+        plt.figure(figsize=(10, 6))
+        plt.plot(flux_normalized["time"], flux_normalized["flux"], marker="o", markersize=1, color="xkcd:rich blue", linestyle="None")
+        plt.xlabel("BJD")
+        plt.ylabel("Flux")
+        plt.title(f"Normalized Flux: {target=} {sector=:.0f} {author=} {exptime=:.0f}")
+        plt.grid(True)
+        plt.ticklabel_format(useOffset=False, style="plain", axis="x")
+        plt.savefig(f"{p.flux_data_directory}/processed_plots/{sector:.0f}_{author}_{exptime:.0f}_p.png")
+        plt.close()
+
+        # Plot normalized flux error. Save png in subdirectory processed_plots.
+        plt.figure(figsize=(10, 6))
+        plt.plot(flux_normalized["time"], flux_normalized["flux_err"], marker="o", markersize=1, color="xkcd:rust red", linestyle="None")
+        plt.xlabel("BJD")
+        plt.ylabel("Flux Error")
+        plt.title(f"Normalized Flux Error: {target=} {sector=:.0f} {author=} {exptime=:.0f}")
+        plt.grid(True)
+        plt.ticklabel_format(useOffset=False, style="plain", axis="x")
+        plt.savefig(f"{p.flux_data_directory}/processed_plots/{sector:.0f}_{author}_{exptime:.0f}_err.png")
+        plt.close()
+
+        # Extract transit from normalized flux. Save csv in subdirectory transits.
+        flux_transit = extract_from_df(flux_normalized, tt_row.get("t0"), tt_row.get("t5"))
+        flux_transit.to_csv(f"{p.flux_data_directory}/transits/{tt_row.get("file")}_{tt_row.get("eclipser")}_{tt_row.get("nr")}.csv", index=False)
+
+        # Plot normalized flux during transit. Save png in subdirectory transit_plots.
+        plt.figure(figsize=(10, 6))
+        plt.plot(flux_transit["time"], flux_transit["flux"], marker="o", markersize=1, color="xkcd:rich blue", linestyle="None")
+        plt.xlabel("BJD")
+        plt.ylabel("Flux")
+        plt.title(f"Normalized Flux: {eclipser=} transit_{nr=} {sector=:.0f}")
+        plt.grid(True)
+        plt.ticklabel_format(useOffset=False, style="plain", axis="x")
+        plt.savefig(f"{p.flux_data_directory}/transit_plots/{tt_row.get("file")}_{tt_row.get("eclipser")}_{tt_row.get("nr")}.png")
+        plt.close()
+
+        # Plot normalized flux error during transit. Save png in subdirectory transit_plots.
+        plt.figure(figsize=(10, 6))
+        plt.plot(flux_transit["time"], flux_transit["flux_err"], marker="o", markersize=1, color="xkcd:rust red", linestyle="None")
+        plt.xlabel("BJD")
+        plt.ylabel("Flux Error")
+        plt.title(f"Normalized Flux Error: {eclipser=} transit_{nr=} {sector=:.0f}")
+        plt.grid(True)
+        plt.ticklabel_format(useOffset=False, style="plain", axis="x")
+        plt.savefig(f"{p.flux_data_directory}/transit_plots/{tt_row.get("file")}_{tt_row.get("eclipser")}_{tt_row.get("nr")}_err.png")
+        plt.close()
 
 
 
@@ -217,9 +274,9 @@ def plot_this(
         plot_file: str = None,    # file name if the plot shall be saved as .png
         legend: bool = None,      # display legend?
         grid: bool = None,        # display grid?
-        marker: str = 'o',        # marker style for each data point
+        marker: str = "o",        # marker style for each data point
         markersize: int = 1,      # marker size for each data point
-        linestyle: str = 'None',  # line connecting data points
+        linestyle: str = "None",  # line connecting data points
         left: float = None,       # cut off x-axis
         right: float = None,      # cut off x-axis
         bottom: float = None,     # cut off y-axis
@@ -231,7 +288,7 @@ def plot_this(
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.title(title)
-    plt.ticklabel_format(useOffset=False, style='plain', axis='x')   # show x-labels as they are
+    plt.ticklabel_format(useOffset=False, style="plain", axis="x")   # show x-labels as they are
     if left or right:
         plt.xlim(left=left, right=right)
     if bottom or top:
@@ -255,9 +312,9 @@ def plot_flux_df(
         plot_file: str = None,    # file name if the plot shall be saved as .png
         legend: bool = None,      # display legend?
         grid: bool = None,        # display grid?
-        marker: str = 'o',        # marker style for each data point
+        marker: str = "o",        # marker style for each data point
         markersize: int = 1,      # marker size for each data point
-        linestyle: str = 'None',  # line connecting data points
+        linestyle: str = "None",  # line connecting data points
         left: float = None,       # cut off x-axis
         right: float = None,      # cut off x-axis
         bottom: float = None,     # cut off y-axis
@@ -277,10 +334,10 @@ def df2csv(df, filename):
 
 def df2csv_deutsch(df, filename):
     df_copy = df.copy()
-    float_cols = df_copy.select_dtypes(include=['float', 'float64']).columns
+    float_cols = df_copy.select_dtypes(include=["float", "float64"]).columns
     for col in float_cols:
-        df_copy[col] = df_copy[col].apply(lambda x: f"{x:.8f}".replace('.', ',') if pd.notnull(x) else "")
-    return df_copy.to_csv(filename, sep=';', index=False)
+        df_copy[col] = df_copy[col].apply(lambda x: f"{x:.8f}".replace(".", ",") if pd.notnull(x) else "")
+    return df_copy.to_csv(filename, sep=";", index=False)
 
 
 def df2lc(df):
@@ -288,37 +345,37 @@ def df2lc(df):
 
 
 def lc2df(lc):
-    df = pd.DataFrame({'time': lc.time.startvalue, 'flux': lc.flux, 'flux_err': lc.flux_err})
+    df = pd.DataFrame({"time": lc.time.startvalue, "flux": lc.flux, "flux_err": lc.flux_err})
     return df
 
 
 def tesstime2bjd(df):
     df2 = df.copy()
-    df2.loc[:, 'time'] += 2457000  # offset in TESS data
+    df2.loc[:, "time"] += 2457000  # offset in TESS data
     return df2
 
 
 def bjd2tess_time(df):
     df2 = df.copy()
-    df2.loc[:, 'time'] -= 2457000  # offset in TESS data
+    df2.loc[:, "time"] -= 2457000  # offset in TESS data
     return df2
 
 
 def extract_from_df(df, start, end):
     # Keep only rows where start <= time <= end
-    return df[(df['time'] >= start) & (df['time'] <= end)]
+    return df[(df["time"] >= start) & (df["time"] <= end)]
 
 
 def remove_from_df(df, start, end):
     # Remove rows from df where start <= time <= end
     # Equivalent to: Keep only rows from df where time < start or time > end
-    return df[(df['time'] < start) | (df['time'] > end)]
+    return df[(df["time"] < start) | (df["time"] > end)]
 
 
 def scale_flux(df, factor):
     df2 = df.copy()
-    df2.loc[:, 'flux'] *= factor
-    df2.loc[:, 'flux_err'] *= factor
+    df2.loc[:, "flux"] *= factor
+    df2.loc[:, "flux_err"] *= factor
     return df2
 
 
@@ -328,15 +385,15 @@ def calculate_flux_err(df, window_length=101):
     for i in range(len(df)):
         start_idx = max(0, i - d)
         end_idx = min(len(df), i + d + 1)
-        std_dev = df.iloc[start_idx:end_idx]['flux'].std()
+        std_dev = df.iloc[start_idx:end_idx]["flux"].std()
         flux_err.append(std_dev)
-    df['flux_err'] = flux_err
+    df["flux_err"] = flux_err
     return df
 
 
 def median_flux(df, start=None, end=None, ignore_time_intervals=None):
     """
-    df: <pandas DataFrame> Usually contains columns 'time', 'flux', 'flux_err'.
+    df: <pandas DataFrame> Usually contains columns "time", "flux", "flux_err".
         time : BJD
         flux : Flux
         flux_err : Flux Error
@@ -351,7 +408,7 @@ def median_flux(df, start=None, end=None, ignore_time_intervals=None):
         df2 = extract_from_df(df2, start, end)  # Keep only rows where start <= time <= end
     for ignore_start, ignore_end in ignore_time_intervals:
         df2 = remove_from_df(df2, ignore_start, ignore_end)  # Remove rows from df2 where start <= time <= end
-    return df2['flux'].median()
+    return df2["flux"].median()
 
 
 def periodogram(results):
@@ -416,7 +473,7 @@ def extract_regular_transits(df, start, period, left, right):
 
 
 def combine_flux_data(start_sec, end_sec, filename):
-    path = '../research/star_systems/TOI-4504/lightkurve/'
+    path = "../research/star_systems/TOI-4504/lightkurve/"
     all_dfs = []
 
     qlp_sectors = [1]
@@ -471,7 +528,7 @@ def get_all_c_d_transits(spoc_only=False, no_transits=False):
     transits95 =     SectorData(95, path + f"downloads/95_SPOC_120.csv",  transits_filename=path + f"95_SPOC_120_t.csv",  no_transits_filename=path + f"95_SPOC_120_not.csv",   lefts=[C_T1[12] - sm, D_T1[3] - sm], rights=[C_T4[12] + sm, D_T4[3] + sm])
 
     if not spoc_only:
-        transits03.df_transits['flux_err'] = transits03.df_transits['flux_err'].apply(lambda x: 0.002 if pd.isna(x) or x == 0 else x)
+        transits03.df_transits["flux_err"] = transits03.df_transits["flux_err"].apply(lambda x: 0.002 if pd.isna(x) or x == 0 else x)
     transits61.df_transits.flux_err *= 3.0
     df2csv(transits61.df_transits, path + f"61_QLP_200.csv")
 

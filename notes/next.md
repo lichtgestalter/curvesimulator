@@ -1,20 +1,12 @@
 # Next / in progress:
-## 0.5.6 Fitting TOI-4504
+## 0.5.7 Automated Flux Data Download
 
 ### jetzt
-- Neue Kategorie Data in Configfile
-- Sektor97 in Fluxdatenfile aufnehmen
 - Fluxdatenfile neu automatisiert und in CurveSimulator integriert aus 
   den einzelnen Downloads erstellen
-  - Input (aus Configfile): 
-    - TT Liste + Marge
-    - ODER T1 und T4 Liste + Marge???
-    - Normalisieren integrieren oder schon normalisierte Daten erwarten?
-    - flux_err automatisch ermitteln?
-      - z.B. aus den Intervallen [TT - 2*Marge : TT - Marge] und [TT + 
-        Marge : TT + 2*Marge]?
-      - Besser: T0 und T5 manuell festlegen, dann flux_err aus T0:T1 und T4:T5
+    - flux_err automatisch ermitteln aus T0:T1 und T4:T5
 
+- Neue Kategorie Data in Configfile
 
 
 
