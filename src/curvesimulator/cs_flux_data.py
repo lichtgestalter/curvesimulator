@@ -254,57 +254,78 @@ class CurveSimFluxData:
             flux_normalized.to_csv(f"{p.flux_data_directory}/processed/{file}_p.csv", index=False)
 
             # Plot normalized flux. Save png in subdirectory processed_plots.
-            CurveSimFluxData.plot_flux(p, flux_normalized, "processed_plots", f"{sector:.0f}_{author}_{exptime:.0f}_p.png",
-                                       target, sector, author, exptime, "Normalized Flux:")
+            CurveSimFluxData.plot_flux(flux_normalized,
+                                       f"{p.flux_data_directory}/processed_plots/{sector:.0f}_{author}_{exptime:.0f}_p.png",
+                                       f"Normalized Flux: {target=} {sector=:.0f} {author=} {exptime=:.0f}")
 
             # Plot normalized flux_er and flux_err_local. Save png in subdirectory processed_plots.
-            CurveSimFluxData.plot_flux_err(p, flux_normalized, target, sector, author, exptime)
+            # CurveSimFluxData.plot_flux_err_alt(p, flux_normalized, target, sector, author, exptime)
+            CurveSimFluxData.plot_flux_err(flux_normalized,
+                                           f"{p.flux_data_directory}/processed_plots/{sector:.0f}_{author}_{exptime:.0f}_p_err.png",
+                                           f"Normalized Flux Error: {target=} {sector=:.0f} {author=} {exptime=:.0f}")
 
             # Extract transit from normalized flux. Save csv in subdirectory transits.
             flux_transit = extract_from_df(flux_normalized, t0, t5)
             flux_transit.to_csv(f"{p.flux_data_directory}/transits/{file}_{eclipser}_{nr}.csv", index=False)
 
             # Plot normalized flux during transit. Save png in subdirectory transit_plots.
-            plt.figure(figsize=(10, 6))
-            plt.plot(flux_transit["time"], flux_transit["flux"], marker="o", markersize=1, color="xkcd:clear blue", linestyle="None")
-            plt.xlabel("BJD")
-            plt.ylabel("Flux")
-            plt.title(f"Normalized Flux: {eclipser=} transit_{nr=} {sector=:.0f}")
-            plt.xlim(left=t0, right=t5)
-            plt.grid(True)
-            plt.ticklabel_format(useOffset=False, style="plain", axis="x")
-            plt.savefig(f"{p.flux_data_directory}/transit_plots/{file}_{eclipser}_{nr}.png")
-            plt.close()
+            CurveSimFluxData.plot_flux(flux_transit,
+                                       f"{p.flux_data_directory}/transit_plots/{file}_{eclipser}_{nr}.png",
+                                       f"Normalized Flux: {eclipser=} transit_{nr=} {sector=:.0f}",
+                                       t0, t5)
 
             # Plot normalized flux error during transit. Save png in subdirectory transit_plots.
-            plt.figure(figsize=(10, 6))
-            plt.plot(flux_transit["time"], flux_transit["flux_err"], label="flux_err", color="xkcd:rust red", marker="o", markersize=1, linestyle="None")
-            plt.plot(flux_transit["time"], flux_transit["flux_err_local"], label="flux_err_local", color="xkcd:bright orange", marker="o", markersize=1, linestyle="None")
-            plt.xlabel("BJD")
-            plt.ylabel("Flux Error")
-            plt.title(f"Normalized Flux Error: {eclipser=} transit_{nr=} {sector=:.0f}")
-            plt.xlim(left=t0, right=t5)
-            plt.grid(True)
-            plt.ticklabel_format(useOffset=False, style="plain", axis="x")
-            plt.savefig(f"{p.flux_data_directory}/transit_plots/{file}_{eclipser}_{nr}_err.png")
-            plt.close()
+            CurveSimFluxData.plot_flux_err(flux_transit,
+                                           f"{p.flux_data_directory}/transit_plots/{file}_{eclipser}_{nr}_err.png",
+                                           f"Normalized Flux Error: {eclipser=} transit_{nr=} {sector=:.0f}",
+                                           t0, t5)
+
+            # plt.figure(figsize=(10, 6))
+            # plt.plot(flux_transit["time"], flux_transit["flux_err"], label="flux_err", color="xkcd:rust red", marker="o", markersize=1, linestyle="None")
+            # plt.plot(flux_transit["time"], flux_transit["flux_err_local"], label="flux_err_local", color="xkcd:bright orange", marker="o", markersize=1, linestyle="None")
+            # plt.xlabel("BJD")
+            # plt.ylabel("Flux Error")
+            # plt.title(f"Normalized Flux Error: {eclipser=} transit_{nr=} {sector=:.0f}")
+            # plt.xlim(left=t0, right=t5)
+            # plt.grid(True)
+            # plt.ticklabel_format(useOffset=False, style="plain", axis="x")
+            # plt.savefig(f"{p.flux_data_directory}/transit_plots/{file}_{eclipser}_{nr}_err.png")
+            # plt.close()
 
             return flux_transit
 
     @staticmethod
-    def plot_flux(p, flux_df, subdirectory, filename, target, sector, author, exptime, plot_title_prefix):
+    def plot_flux_err(flux_df, full_path, title, left=None, right=None):
+        plt.figure(figsize=(10, 6))
+        plt.plot(flux_df["time"], flux_df["flux_err"], label="flux_err", color="xkcd:rust red", marker="o", markersize=1, linestyle="None")
+        plt.plot(flux_df["time"], flux_df["flux_err_local"], label="flux_err_local", color="xkcd:bright orange", marker="o", markersize=1, linestyle="None")
+        plt.legend()
+        plt.xlabel("BJD")
+        plt.ylabel("Flux Error")
+        plt.title(title)
+        if left is not None and right is not None:
+            plt.xlim(left=left, right=right)
+        plt.grid(True)
+        plt.ticklabel_format(useOffset=False, style="plain", axis="x")
+        plt.savefig(full_path)
+        plt.close()
+
+    @staticmethod
+    def plot_flux(flux_df, full_path, title, left=None, right=None):
         plt.figure(figsize=(10, 6))
         plt.plot(flux_df["time"], flux_df["flux"], marker="o", markersize=1, color="xkcd:clear blue", linestyle="None")
         plt.xlabel("BJD")
         plt.ylabel("Flux")
-        plt.title(f"{plot_title_prefix} {target=} {sector=:.0f} {author=} {exptime=:.0f}")
+        plt.title(title)
+        if left is not None and right is not None:
+            plt.xlim(left=left, right=right)
         plt.grid(True)
         plt.ticklabel_format(useOffset=False, style="plain", axis="x")
-        plt.savefig(f"{p.flux_data_directory}/{subdirectory}/{filename}")
+        plt.savefig(full_path)
         plt.close()
 
     @staticmethod
-    def plot_flux_err(p, flux_df, target, sector, author, exptime):
+    def plot_flux_err_alt(p, flux_df, target, sector, author, exptime):
         plt.figure(figsize=(10, 6))
         plt.plot(flux_df["time"], flux_df["flux_err"], label="flux_err", color="xkcd:rust red", marker="o", markersize=1, linestyle="None")
         plt.plot(flux_df["time"], flux_df["flux_err_local"], label="flux_err_local", color="xkcd:bright orange", marker="o", markersize=1, linestyle="None")
