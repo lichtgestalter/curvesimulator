@@ -2,6 +2,12 @@
 ## 0.5.7 Automated Flux Data Download
 
 ### jetzt
+- single_run stuerzt ab:
+  - File "G:\Meine Ablage\Python\curvesim\src\curvesimulator\cs_bodies.py", line 262, in update_position
+  - body.positions[iteration] = np.array([particle.x, particle.y, particle.z])
+    ~~~~~~~~~~~~~~^^^^^^^^^^^
+  - IndexError: index 2996 is out of bounds for axis 0 with size 2996
+- 
 - Neue Kategorie Data in Configfile
 
 
