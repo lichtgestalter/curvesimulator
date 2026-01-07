@@ -189,92 +189,132 @@ class CurveSimFluxData:
     def process_tess_flux(p):
         measured_tt = CurveSimResults.get_measured_tt(p)
         print("Processing TESS Data...")
+        flux_transit_dfs = []
         for idx, tt_row in measured_tt.iterrows():
-            CurveSimFluxData.process_flux_lc(p, tt_row)
+            flux_transit = CurveSimFluxData.process_flux_lc(p, tt_row)
+            if flux_transit is not None:
+                flux_transit_dfs.append(flux_transit)
+        if flux_transit_dfs:
+            all_flux_transits = pd.concat(flux_transit_dfs, ignore_index=True)
+        else:
+            all_flux_transits = pd.DataFrame()
+        all_flux_transits.to_csv(p.flux_file, sep=",", decimal=".", index=False)
+        return all_flux_transits
+
+    @staticmethod
+    def get_from_row(p, row, column_name):
+        value = row.get(column_name)
+        if isinstance(value, str):
+            return value
+        if np.isnan(value):
+            print(f"{Fore.YELLOW}WARNING: Value for {column_name} is missing in {p.tt_file}{Style.RESET_ALL}")
+            return None
+        return value
 
     @staticmethod
     def process_flux_lc(p, tt_row):
-        target = tt_row.get("target")
-        sector = tt_row.get("sector")
-        author = tt_row.get("author")
-        exptime = tt_row.get("exptime")
-        eclipser = tt_row.get("eclipser")
-        nr = tt_row.get("nr")
-        t0 = tt_row.get("t0")
-        t5 = tt_row.get("t5")
+        eclipser = CurveSimFluxData.get_from_row(p, tt_row, "eclipser")
+        nr = CurveSimFluxData.get_from_row(p, tt_row, "nr")
+        target = CurveSimFluxData.get_from_row(p, tt_row, "target")
+        sector = CurveSimFluxData.get_from_row(p, tt_row, "sector")
+        author = CurveSimFluxData.get_from_row(p, tt_row, "author")
+        exptime = CurveSimFluxData.get_from_row(p, tt_row, "exptime")
+        t0 = CurveSimFluxData.get_from_row(p, tt_row, "t0")
+        t5 = CurveSimFluxData.get_from_row(p, tt_row, "t5")
+        n0 = CurveSimFluxData.get_from_row(p, tt_row, "n0")
+        n1 = CurveSimFluxData.get_from_row(p, tt_row, "n1")
+        n2 = CurveSimFluxData.get_from_row(p, tt_row, "n2")
+        n3 = CurveSimFluxData.get_from_row(p, tt_row, "n3")
+        lower = CurveSimFluxData.get_from_row(p, tt_row, "lower")
+        upper = CurveSimFluxData.get_from_row(p, tt_row, "upper")
+        file = CurveSimFluxData.get_from_row(p, tt_row, "file")
 
-        # Normalize flux. Save csv in processed
-        flux_original = pd.read_csv(f"{p.flux_data_directory}/download/{tt_row.get("file")}.csv")
-        flux_bjd_time = tesstime2bjd(flux_original)
-        df1 = extract_from_df(flux_bjd_time, tt_row.get("n0"), tt_row.get("n1"))
-        df2 = extract_from_df(flux_bjd_time, tt_row.get("n2"), tt_row.get("n3"))
-        flux_normalizing_reference = pd.concat([df1, df2], ignore_index=True)
-        flux_normalized = scale_flux(flux_bjd_time, 1 / median_flux(flux_normalizing_reference))
+        if None in [eclipser, nr, target, sector, author, exptime, t0, t5, n0, n1, n2, n3, lower, upper, file]:
+            print(f"{Fore.YELLOW}\nWARNING: Value(s) missing in a row of {p.tt_file}. No normalized flux will be calculated for this row.")
+            print(f"Values in this row:")
+            print(tt_row)
+            print(f"{Style.RESET_ALL}")
+            return None
+        else:
+            # Normalize flux. Save csv in processed
+            flux_original = pd.read_csv(f"{p.flux_data_directory}/download/{file}.csv")
+            flux_bjd_time = tesstime2bjd(flux_original)
+            df1 = extract_from_df(flux_bjd_time, n0, n1)
+            df2 = extract_from_df(flux_bjd_time, n2, n3)
+            flux_normalizing_reference = pd.concat([df1, df2], ignore_index=True)
+            flux_normalized = scale_flux(flux_bjd_time, 1 / median_flux(flux_normalizing_reference))
 
-        # Calculate flux_err_local, the local flux standard deviation between n0 and n3 /transit excluded) as an alternative to flux_err from download
-        flux_err_reference = scale_flux(flux_normalizing_reference, 1 / median_flux(flux_normalizing_reference))
-        flux_err_reference = remove_from_df(flux_err_reference, t0, t5)  # exclude transit
-        std_val = float(flux_err_reference["flux"].std())
-        flux_normalized["flux_err_local"] = np.nan
-        mask = (flux_normalized["time"] > tt_row.get("n0")) & (flux_normalized["time"] < tt_row.get("n3"))
-        flux_normalized.loc[mask, "flux_err_local"] = std_val
-        flux_normalized.to_csv(f"{p.flux_data_directory}/processed/{tt_row.get("file")}_p.csv", index=False)
+            # Calculate flux_err_local, the local flux standard deviation between n0 and n3 /transit excluded) as an alternative to flux_err from download
+            flux_err_reference = scale_flux(flux_normalizing_reference, 1 / median_flux(flux_normalizing_reference))
+            flux_err_reference = remove_from_df(flux_err_reference, t0, t5)  # exclude transit
+            std_val = float(flux_err_reference["flux"].std())
+            flux_normalized["flux_err_local"] = np.nan
+            mask = (flux_normalized["time"] > n0) & (flux_normalized["time"] < n3)
+            flux_normalized.loc[mask, "flux_err_local"] = std_val
+            flux_normalized.to_csv(f"{p.flux_data_directory}/processed/{file}_p.csv", index=False)
 
-        # Plot normalized flux. Save png in subdirectory processed_plots.
+            # Plot normalized flux. Save png in subdirectory processed_plots.
+            CurveSimFluxData.plot_flux(p, flux_normalized, "processed_plots", f"{sector:.0f}_{author}_{exptime:.0f}_p.png",
+                                       target, sector, author, exptime, "Normalized Flux:")
+
+            # Plot normalized flux_er and flux_err_local. Save png in subdirectory processed_plots.
+            CurveSimFluxData.plot_flux_err(p, flux_normalized, target, sector, author, exptime)
+
+            # Extract transit from normalized flux. Save csv in subdirectory transits.
+            flux_transit = extract_from_df(flux_normalized, t0, t5)
+            flux_transit.to_csv(f"{p.flux_data_directory}/transits/{file}_{eclipser}_{nr}.csv", index=False)
+
+            # Plot normalized flux during transit. Save png in subdirectory transit_plots.
+            plt.figure(figsize=(10, 6))
+            plt.plot(flux_transit["time"], flux_transit["flux"], marker="o", markersize=1, color="xkcd:clear blue", linestyle="None")
+            plt.xlabel("BJD")
+            plt.ylabel("Flux")
+            plt.title(f"Normalized Flux: {eclipser=} transit_{nr=} {sector=:.0f}")
+            plt.xlim(left=t0, right=t5)
+            plt.grid(True)
+            plt.ticklabel_format(useOffset=False, style="plain", axis="x")
+            plt.savefig(f"{p.flux_data_directory}/transit_plots/{file}_{eclipser}_{nr}.png")
+            plt.close()
+
+            # Plot normalized flux error during transit. Save png in subdirectory transit_plots.
+            plt.figure(figsize=(10, 6))
+            plt.plot(flux_transit["time"], flux_transit["flux_err"], label="flux_err", color="xkcd:rust red", marker="o", markersize=1, linestyle="None")
+            plt.plot(flux_transit["time"], flux_transit["flux_err_local"], label="flux_err_local", color="xkcd:bright orange", marker="o", markersize=1, linestyle="None")
+            plt.xlabel("BJD")
+            plt.ylabel("Flux Error")
+            plt.title(f"Normalized Flux Error: {eclipser=} transit_{nr=} {sector=:.0f}")
+            plt.xlim(left=t0, right=t5)
+            plt.grid(True)
+            plt.ticklabel_format(useOffset=False, style="plain", axis="x")
+            plt.savefig(f"{p.flux_data_directory}/transit_plots/{file}_{eclipser}_{nr}_err.png")
+            plt.close()
+
+            return flux_transit
+
+    @staticmethod
+    def plot_flux(p, flux_df, subdirectory, filename, target, sector, author, exptime, plot_title_prefix):
         plt.figure(figsize=(10, 6))
-        plt.plot(flux_normalized["time"], flux_normalized["flux"], marker="o", markersize=1, color="xkcd:clear blue", linestyle="None")
+        plt.plot(flux_df["time"], flux_df["flux"], marker="o", markersize=1, color="xkcd:clear blue", linestyle="None")
         plt.xlabel("BJD")
         plt.ylabel("Flux")
-        plt.title(f"Normalized Flux: {target=} {sector=:.0f} {author=} {exptime=:.0f}")
+        plt.title(f"{plot_title_prefix} {target=} {sector=:.0f} {author=} {exptime=:.0f}")
         plt.grid(True)
         plt.ticklabel_format(useOffset=False, style="plain", axis="x")
-        plt.savefig(f"{p.flux_data_directory}/processed_plots/{sector:.0f}_{author}_{exptime:.0f}_p.png")
+        plt.savefig(f"{p.flux_data_directory}/{subdirectory}/{filename}")
         plt.close()
 
-        # Plot normalized flux_er and flux_err_local. Save png in subdirectory processed_plots.
+    @staticmethod
+    def plot_flux_err(p, flux_df, target, sector, author, exptime):
         plt.figure(figsize=(10, 6))
-        plt.plot(flux_normalized["time"], flux_normalized["flux_err"], label="flux_err", color="xkcd:rust red", marker="o", markersize=1, linestyle="None")
-        plt.plot(flux_normalized["time"], flux_normalized["flux_err_local"], label="flux_err_local", color="xkcd:bright orange", marker="o", markersize=1, linestyle="None")
+        plt.plot(flux_df["time"], flux_df["flux_err"], label="flux_err", color="xkcd:rust red", marker="o", markersize=1, linestyle="None")
+        plt.plot(flux_df["time"], flux_df["flux_err_local"], label="flux_err_local", color="xkcd:bright orange", marker="o", markersize=1, linestyle="None")
         plt.legend()
-
         plt.xlabel("BJD")
         plt.ylabel("Flux Error")
         plt.title(f"Normalized Flux Error: {target=} {sector=:.0f} {author=} {exptime=:.0f}")
         plt.grid(True)
         plt.ticklabel_format(useOffset=False, style="plain", axis="x")
         plt.savefig(f"{p.flux_data_directory}/processed_plots/{sector:.0f}_{author}_{exptime:.0f}_p_err.png")
-        plt.close()
-
-        # Extract transit from normalized flux. Save csv in subdirectory transits.
-        flux_transit = extract_from_df(flux_normalized, tt_row.get("t0"), tt_row.get("t5"))
-        flux_transit.to_csv(f"{p.flux_data_directory}/transits/{tt_row.get("file")}_{tt_row.get("eclipser")}_{tt_row.get("nr")}.csv", index=False)
-
-        # Plot normalized flux during transit. Save png in subdirectory transit_plots.
-        plt.figure(figsize=(10, 6))
-        plt.plot(flux_transit["time"], flux_transit["flux"], marker="o", markersize=1, color="xkcd:clear blue", linestyle="None")
-        plt.xlabel("BJD")
-        plt.ylabel("Flux")
-        plt.title(f"Normalized Flux: {eclipser=} transit_{nr=} {sector=:.0f}")
-        try:
-            plt.xlim(left=t0, right=t5)
-            direkt am funktionsanfang t0 etc auf validitaet testen, oder vor einzelne Abschnitte in der Funktion ein entsprechendes if stellen
-        except:
-            pass
-        plt.grid(True)
-        plt.ticklabel_format(useOffset=False, style="plain", axis="x")
-        plt.savefig(f"{p.flux_data_directory}/transit_plots/{tt_row.get("file")}_{tt_row.get("eclipser")}_{tt_row.get("nr")}.png")
-        plt.close()
-
-        # Plot normalized flux error during transit. Save png in subdirectory transit_plots.
-        plt.figure(figsize=(10, 6))
-        plt.plot(flux_transit["time"], flux_transit["flux_err"], label="flux_err", color="xkcd:rust red", marker="o", markersize=1, linestyle="None")
-        plt.plot(flux_transit["time"], flux_transit["flux_err_local"], label="flux_err_local", color="xkcd:bright orange", marker="o", markersize=1, linestyle="None")
-        plt.xlabel("BJD")
-        plt.ylabel("Flux Error")
-        plt.title(f"Normalized Flux Error: {eclipser=} transit_{nr=} {sector=:.0f}")
-        plt.grid(True)
-        plt.ticklabel_format(useOffset=False, style="plain", axis="x")
-        plt.savefig(f"{p.flux_data_directory}/transit_plots/{tt_row.get("file")}_{tt_row.get("eclipser")}_{tt_row.get("nr")}_err.png")
         plt.close()
 
 
