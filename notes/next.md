@@ -2,10 +2,6 @@
 ## 0.5.7 Automated Flux Data Download
 
 ### jetzt
-- Fluxdatenfile neu automatisiert und in CurveSimulator integriert aus 
-  den einzelnen Downloads erstellen
-    - flux_err automatisch ermitteln aus T0:T1 und T4:T5
-
 - Neue Kategorie Data in Configfile
 
 

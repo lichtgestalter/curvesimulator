@@ -12,7 +12,7 @@ import pandas as pd
 from .cs_results import CurveSimResults
 
 path = "../../data/TOI-4504/"
-day = 60 * 60 *24
+day = 60 * 60 * 24
 
 # Sector    3           6           9          12          28          31          34          37          61          64          67          89c         95c
 C_T1 = [2458401.24, 2458483.05, 2458564.92, 2458647.17, 2459065.09, 2459148.34, 2459230.96, 2459313.11, 2459975.93, 2460059.48, 2460142.46, 2460718.48, 2460886.14]
@@ -30,18 +30,18 @@ CD_T4 = [2458401.57, 2458483.38, 2458565.29, 2458647.49, 2459065.39, 2459148.63,
 
 spoc_sectors_all = [27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 61, 62, 63, 64, 65, 67, 68, 69, 87, 88, 89, 90, 94, 95]
 spoc_sectors_c_d = [28, 31, 34, 37, 61, 64, 67, 88, 89, 94, 95]
-spoc_sectors_no_c_d =                                          [27, 29, 30, 32, 33, 35, 36, 38, 62, 63, 65, 68, 69, 87, 90]
+spoc_sectors_no_c_d = [27, 29, 30, 32, 33, 35, 36, 38, 62, 63, 65, 68, 69, 87, 90]
 
 
 class SectorData:
 
     def __init__(self, sector, download_filename, transits_filename=None, no_transits_filename=None, all_filename=None, lefts=None, rights=None):
-        self.sector = sector   # TESS sector
+        self.sector = sector  # TESS sector
         self.lefts = lefts  # list of left borders of transits in this sector [BJD]
         self.rights = rights  # list of right borders of transits in this sector [BJD]
         self.download_filename = download_filename  # name of csv file with original TESS data
-        self.transits_filename = transits_filename # normalized, corrected BJD, transits only
-        self.no_transits_filename = no_transits_filename # normalized, corrected BJD, transits only
+        self.transits_filename = transits_filename  # normalized, corrected BJD, transits only
+        self.no_transits_filename = no_transits_filename  # normalized, corrected BJD, transits only
         self.df_download = csv2df(self.download_filename)  # original TESS data
         self.df_normalized = self.normalize()  # normalized, corrected BJD
         self.df_transits = self.transits()  # normalized, corrected BJD, transits only
@@ -50,7 +50,6 @@ class SectorData:
             df2csv(self.df_transits, self.transits_filename)
         if no_transits_filename:
             df2csv(self.df_no_transits, self.no_transits_filename)
-
 
     def normalize(self):
         df = tesstime2bjd(self.df_download.copy())
@@ -151,7 +150,7 @@ class CurveSimFluxData:
             plt.close()
         if save_error_plot:
             plt.figure(figsize=(10, 6))
-            plt.plot(lc.time.jd, lc.flux_err, marker="o", markersize=1, color = "xkcd:tomato", linestyle="None", label=f"Sector {sector}")  # sometimes list(lc.flux) was needed
+            plt.plot(lc.time.jd, lc.flux_err, marker="o", markersize=1, color="xkcd:tomato", linestyle="None", label=f"Sector {sector}")  # sometimes list(lc.flux) was needed
             plt.xlabel("BJD")
             plt.ylabel("Flux Error")
             plt.title(f"Original Flux Error: {target=} {sector=:.0f} {author=} {exptime=:.0f}")
@@ -199,6 +198,10 @@ class CurveSimFluxData:
         else:
             all_flux_transits = pd.DataFrame()
         all_flux_transits.to_csv(p.flux_file, sep=",", decimal=".", index=False)
+
+        CurveSimFluxData.plot_flux(all_flux_transits, p.flux_file[:-4] + ".png", f"Normalized Flux")
+        CurveSimFluxData.plot_flux_err(all_flux_transits, p.flux_file[:-4] + "_err.png", f"Normalized Flux Error")
+
         return all_flux_transits
 
     @staticmethod
@@ -210,6 +213,36 @@ class CurveSimFluxData:
             print(f"{Fore.YELLOW}WARNING: Value for {column_name} is missing in {p.tt_file}{Style.RESET_ALL}")
             return None
         return value
+
+    @staticmethod
+    def plot_flux(flux_df, full_path, title, left=None, right=None):
+        plt.figure(figsize=(10, 6))
+        plt.plot(flux_df["time"], flux_df["flux"], marker="o", markersize=1, color="xkcd:clear blue", linestyle="None")
+        plt.xlabel("BJD")
+        plt.ylabel("Flux")
+        plt.title(title)
+        if left is not None and right is not None:
+            plt.xlim(left=left, right=right)
+        plt.grid(True)
+        plt.ticklabel_format(useOffset=False, style="plain", axis="x")
+        plt.savefig(full_path)
+        plt.close()
+
+    @staticmethod
+    def plot_flux_err(flux_df, full_path, title, left=None, right=None):
+        plt.figure(figsize=(10, 6))
+        plt.plot(flux_df["time"], flux_df["flux_err"], label="flux_err", color="xkcd:rust red", marker="o", markersize=1, linestyle="None")
+        plt.plot(flux_df["time"], flux_df["flux_err_local"], label="flux_err_local", color="xkcd:bright orange", marker="o", markersize=1, linestyle="None")
+        plt.legend()
+        plt.xlabel("BJD")
+        plt.ylabel("Flux Error")
+        plt.title(title)
+        if left is not None and right is not None:
+            plt.xlim(left=left, right=right)
+        plt.grid(True)
+        plt.ticklabel_format(useOffset=False, style="plain", axis="x")
+        plt.savefig(full_path)
+        plt.close()
 
     @staticmethod
     def process_flux_lc(p, tt_row):
@@ -280,82 +313,26 @@ class CurveSimFluxData:
                                            f"Normalized Flux Error: {eclipser=} transit_{nr=} {sector=:.0f}",
                                            t0, t5)
 
-            # plt.figure(figsize=(10, 6))
-            # plt.plot(flux_transit["time"], flux_transit["flux_err"], label="flux_err", color="xkcd:rust red", marker="o", markersize=1, linestyle="None")
-            # plt.plot(flux_transit["time"], flux_transit["flux_err_local"], label="flux_err_local", color="xkcd:bright orange", marker="o", markersize=1, linestyle="None")
-            # plt.xlabel("BJD")
-            # plt.ylabel("Flux Error")
-            # plt.title(f"Normalized Flux Error: {eclipser=} transit_{nr=} {sector=:.0f}")
-            # plt.xlim(left=t0, right=t5)
-            # plt.grid(True)
-            # plt.ticklabel_format(useOffset=False, style="plain", axis="x")
-            # plt.savefig(f"{p.flux_data_directory}/transit_plots/{file}_{eclipser}_{nr}_err.png")
-            # plt.close()
-
             return flux_transit
-
-    @staticmethod
-    def plot_flux_err(flux_df, full_path, title, left=None, right=None):
-        plt.figure(figsize=(10, 6))
-        plt.plot(flux_df["time"], flux_df["flux_err"], label="flux_err", color="xkcd:rust red", marker="o", markersize=1, linestyle="None")
-        plt.plot(flux_df["time"], flux_df["flux_err_local"], label="flux_err_local", color="xkcd:bright orange", marker="o", markersize=1, linestyle="None")
-        plt.legend()
-        plt.xlabel("BJD")
-        plt.ylabel("Flux Error")
-        plt.title(title)
-        if left is not None and right is not None:
-            plt.xlim(left=left, right=right)
-        plt.grid(True)
-        plt.ticklabel_format(useOffset=False, style="plain", axis="x")
-        plt.savefig(full_path)
-        plt.close()
-
-    @staticmethod
-    def plot_flux(flux_df, full_path, title, left=None, right=None):
-        plt.figure(figsize=(10, 6))
-        plt.plot(flux_df["time"], flux_df["flux"], marker="o", markersize=1, color="xkcd:clear blue", linestyle="None")
-        plt.xlabel("BJD")
-        plt.ylabel("Flux")
-        plt.title(title)
-        if left is not None and right is not None:
-            plt.xlim(left=left, right=right)
-        plt.grid(True)
-        plt.ticklabel_format(useOffset=False, style="plain", axis="x")
-        plt.savefig(full_path)
-        plt.close()
-
-    @staticmethod
-    def plot_flux_err_alt(p, flux_df, target, sector, author, exptime):
-        plt.figure(figsize=(10, 6))
-        plt.plot(flux_df["time"], flux_df["flux_err"], label="flux_err", color="xkcd:rust red", marker="o", markersize=1, linestyle="None")
-        plt.plot(flux_df["time"], flux_df["flux_err_local"], label="flux_err_local", color="xkcd:bright orange", marker="o", markersize=1, linestyle="None")
-        plt.legend()
-        plt.xlabel("BJD")
-        plt.ylabel("Flux Error")
-        plt.title(f"Normalized Flux Error: {target=} {sector=:.0f} {author=} {exptime=:.0f}")
-        plt.grid(True)
-        plt.ticklabel_format(useOffset=False, style="plain", axis="x")
-        plt.savefig(f"{p.flux_data_directory}/processed_plots/{sector:.0f}_{author}_{exptime:.0f}_p_err.png")
-        plt.close()
 
 
 def plot_this(
-        x: np.ndarray,            # positions of data points on x-axis
-        data_list: list,          # each list item is a list or numpy array which will be displayed as a curve
-        data_labels: list = None, # each list item is a string representing the label of a curve
-        title: str = None,        # plot title
-        x_label: str = None,      # label of x-axis
-        y_label: str = None,      # label of y-axis
-        plot_file: str = None,    # file name if the plot shall be saved as .png
-        legend: bool = None,      # display legend?
-        grid: bool = None,        # display grid?
-        marker: str = "o",        # marker style for each data point
-        markersize: int = 1,      # marker size for each data point
+        x: np.ndarray,  # positions of data points on x-axis
+        data_list: list,  # each list item is a list or numpy array which will be displayed as a curve
+        data_labels: list = None,  # each list item is a string representing the label of a curve
+        title: str = None,  # plot title
+        x_label: str = None,  # label of x-axis
+        y_label: str = None,  # label of y-axis
+        plot_file: str = None,  # file name if the plot shall be saved as .png
+        legend: bool = None,  # display legend?
+        grid: bool = None,  # display grid?
+        marker: str = "o",  # marker style for each data point
+        markersize: int = 1,  # marker size for each data point
         linestyle: str = "None",  # line connecting data points
-        left: float = None,       # cut off x-axis
-        right: float = None,      # cut off x-axis
-        bottom: float = None,     # cut off y-axis
-        top: float = None         # cut off y-axis
+        left: float = None,  # cut off x-axis
+        right: float = None,  # cut off x-axis
+        bottom: float = None,  # cut off y-axis
+        top: float = None  # cut off y-axis
 ) -> None:
     if data_labels is None:
         data_labels = [f"data{i}" for i in range(len(data_list))]
@@ -363,7 +340,7 @@ def plot_this(
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.title(title)
-    plt.ticklabel_format(useOffset=False, style="plain", axis="x")   # show x-labels as they are
+    plt.ticklabel_format(useOffset=False, style="plain", axis="x")  # show x-labels as they are
     if left or right:
         plt.xlim(left=left, right=right)
     if bottom or top:
@@ -380,22 +357,21 @@ def plot_this(
 
 
 def plot_flux_df(
-        df: pd.DataFrame,         # dataframe with columns "time" and "flux"
-        title: str = None,        # plot title
-        x_label: str = None,      # label of x-axis
-        y_label: str = None,      # label of y-axis
-        plot_file: str = None,    # file name if the plot shall be saved as .png
-        legend: bool = None,      # display legend?
-        grid: bool = None,        # display grid?
-        marker: str = "o",        # marker style for each data point
-        markersize: int = 1,      # marker size for each data point
+        df: pd.DataFrame,  # dataframe with columns "time" and "flux"
+        title: str = None,  # plot title
+        x_label: str = None,  # label of x-axis
+        y_label: str = None,  # label of y-axis
+        plot_file: str = None,  # file name if the plot shall be saved as .png
+        legend: bool = None,  # display legend?
+        grid: bool = None,  # display grid?
+        marker: str = "o",  # marker style for each data point
+        markersize: int = 1,  # marker size for each data point
         linestyle: str = "None",  # line connecting data points
-        left: float = None,       # cut off x-axis
-        right: float = None,      # cut off x-axis
-        bottom: float = None,     # cut off y-axis
-        top: float = None         # cut off y-axis
+        left: float = None,  # cut off x-axis
+        right: float = None,  # cut off x-axis
+        bottom: float = None,  # cut off y-axis
+        top: float = None  # cut off y-axis
 ) -> None:
-
     plot_this(df.time, [df.flux], ["flux"], title, x_label, y_label, plot_file, legend, grid, marker, markersize, linestyle, left, right, bottom, top)
 
 
@@ -507,7 +483,7 @@ def fold_flux(df, start, period, average_scope):
     df2 = df.copy()
     df2["time"] = (df2["time"] - start) % period
     df2 = df2.sort_values(by="time", ascending=True)
-    avg_time = np.linspace(0, period, num=int(period/average_scope))
+    avg_time = np.linspace(0, period, num=int(period / average_scope))
     avg_flux = [df2.loc[(df2["time"] > t - average_scope / 2) & (df2["time"] < t + average_scope / 2), "flux"].mean() for t in avg_time]
     df_avg = pd.DataFrame({"time": avg_time, "flux": avg_flux})
     return df2, df_avg
@@ -518,7 +494,7 @@ def bin_flux(df, exposure_time, bin_scope):
     binned = []
     i = 0
     while i < len(df):
-        group = df.iloc[i:i+min_data_points]
+        group = df.iloc[i:i + min_data_points]
         if len(group) < min_data_points:
             break
         time_diff = group.iloc[-1]["time"] - group.iloc[0]["time"]
@@ -538,8 +514,6 @@ def extract_regular_transits(df, start, period, left, right):
     phase = (df2["time"] - start) % period
     mask = (phase > left) & (phase < right)
     return df2[mask]
-
-
 
 
 ###################################################################################################################
@@ -586,21 +560,21 @@ def combine_flux_data(start_sec, end_sec, filename):
 def get_all_c_d_transits(spoc_only=False, no_transits=False):
     sm = 0.0  # safety margin
     if not spoc_only:
-        transits03 = SectorData(3,  path + f"downloads/3_TGLC_1800.csv",  transits_filename=path + f"3_TGLC_1800_t.csv",  no_transits_filename=path + f"3_TGLC_1800_not.csv",   lefts=[C_T1[0] - sm],  rights=[C_T4[0] + sm])
-        transits06 = SectorData(6,  path + f"downloads/6_QLP_1800.csv",   transits_filename=path +  f"6_QLP_1800_t.csv",  no_transits_filename=path +  f"6_QLP_1800_not.csv",   lefts=[C_T1[1] - sm],  rights=[C_T4[1] + sm])
-        transits09 = SectorData(9,  path + f"downloads/9_QLP_1800.csv",   transits_filename=path +  f"9_QLP_1800_t.csv",  no_transits_filename=path +  f"9_QLP_1800_not.csv",   lefts=[C_T1[2] - sm],  rights=[C_T4[2] + sm])
-        transits12 = SectorData(12, path + f"downloads/12_QLP_1800.csv",  transits_filename=path + f"12_QLP_1800_t.csv",  no_transits_filename=path + f"12_QLP_1800_not.csv",   lefts=[C_T1[3] - sm],  rights=[C_T4[3] + sm])
-    transits28 =     SectorData(28, path + f"downloads/28_SPOC_120.csv",  transits_filename=path + f"28_SPOC_120_t.csv",  no_transits_filename=path + f"28_SPOC_120_not.csv",   lefts=[C_T1[4] - sm],  rights=[C_T4[4] + sm])
-    transits31 =     SectorData(31, path + f"downloads/31_SPOC_120.csv",  transits_filename=path + f"31_SPOC_120_t.csv",  no_transits_filename=path + f"31_SPOC_120_not.csv",   lefts=[C_T1[5] - sm],  rights=[C_T4[5] + sm])
-    transits34 =     SectorData(34, path + f"downloads/34_SPOC_120.csv",  transits_filename=path + f"34_SPOC_120_t.csv",  no_transits_filename=path + f"34_SPOC_120_not.csv",   lefts=[C_T1[6] - sm],  rights=[C_T4[6] + sm])
-    transits37 =     SectorData(37, path + f"downloads/37_SPOC_120.csv",  transits_filename=path + f"37_SPOC_120_t.csv",  no_transits_filename=path + f"37_SPOC_120_not.csv",   lefts=[C_T1[7] - sm],  rights=[C_T4[7] + sm])
-    transits61 =     SectorData(61, path + f"downloads/61_QLP_200.csv",   transits_filename=path +  f"61_QLP_200_t.csv",  no_transits_filename=path +  f"61_QLP_200_not.csv",   lefts=[C_T1[8] - sm],  rights=[C_T4[8] + sm])
-    transits64 =     SectorData(64, path + f"downloads/64_SPOC_120.csv",  transits_filename=path + f"64_SPOC_120_t.csv",  no_transits_filename=path + f"64_SPOC_120_not.csv",   lefts=[C_T1[9] - sm],  rights=[C_T4[9] + sm])
-    transits67 =     SectorData(67, path + f"downloads/67_SPOC_120.csv",  transits_filename=path + f"67_SPOC_120_t.csv",  no_transits_filename=path + f"67_SPOC_120_not.csv",   lefts=[C_T1[10] - sm], rights=[C_T4[10] + sm])
-    transits88 =     SectorData(88, path + f"downloads/88_SPOC_120.csv",  transits_filename=path + f"88_SPOC_120_t.csv",  no_transits_filename=path + f"88_SPOC_120_not.csv",   lefts=[D_T1[0] - sm],  rights=[D_T4[0] + sm])
-    transits94 =     SectorData(94, path + f"downloads/94_SPOC_120.csv",  transits_filename=path + f"94_SPOC_120_t.csv",  no_transits_filename=path + f"94_SPOC_120_not.csv",   lefts=[D_T1[2] - sm],  rights=[D_T4[2] + sm])
-    transits89 =     SectorData(89, path + f"downloads/89_SPOC_120.csv",  transits_filename=path + f"89_SPOC_120_t.csv",  no_transits_filename=path + f"89_SPOC_120_not.csv",   lefts=[C_T1[11] - sm, D_T1[1] - sm], rights=[C_T4[11] + sm, D_T4[1] + sm])
-    transits95 =     SectorData(95, path + f"downloads/95_SPOC_120.csv",  transits_filename=path + f"95_SPOC_120_t.csv",  no_transits_filename=path + f"95_SPOC_120_not.csv",   lefts=[C_T1[12] - sm, D_T1[3] - sm], rights=[C_T4[12] + sm, D_T4[3] + sm])
+        transits03 = SectorData(3, path + f"downloads/3_TGLC_1800.csv", transits_filename=path + f"3_TGLC_1800_t.csv", no_transits_filename=path + f"3_TGLC_1800_not.csv", lefts=[C_T1[0] - sm], rights=[C_T4[0] + sm])
+        transits06 = SectorData(6, path + f"downloads/6_QLP_1800.csv", transits_filename=path + f"6_QLP_1800_t.csv", no_transits_filename=path + f"6_QLP_1800_not.csv", lefts=[C_T1[1] - sm], rights=[C_T4[1] + sm])
+        transits09 = SectorData(9, path + f"downloads/9_QLP_1800.csv", transits_filename=path + f"9_QLP_1800_t.csv", no_transits_filename=path + f"9_QLP_1800_not.csv", lefts=[C_T1[2] - sm], rights=[C_T4[2] + sm])
+        transits12 = SectorData(12, path + f"downloads/12_QLP_1800.csv", transits_filename=path + f"12_QLP_1800_t.csv", no_transits_filename=path + f"12_QLP_1800_not.csv", lefts=[C_T1[3] - sm], rights=[C_T4[3] + sm])
+    transits28 = SectorData(28, path + f"downloads/28_SPOC_120.csv", transits_filename=path + f"28_SPOC_120_t.csv", no_transits_filename=path + f"28_SPOC_120_not.csv", lefts=[C_T1[4] - sm], rights=[C_T4[4] + sm])
+    transits31 = SectorData(31, path + f"downloads/31_SPOC_120.csv", transits_filename=path + f"31_SPOC_120_t.csv", no_transits_filename=path + f"31_SPOC_120_not.csv", lefts=[C_T1[5] - sm], rights=[C_T4[5] + sm])
+    transits34 = SectorData(34, path + f"downloads/34_SPOC_120.csv", transits_filename=path + f"34_SPOC_120_t.csv", no_transits_filename=path + f"34_SPOC_120_not.csv", lefts=[C_T1[6] - sm], rights=[C_T4[6] + sm])
+    transits37 = SectorData(37, path + f"downloads/37_SPOC_120.csv", transits_filename=path + f"37_SPOC_120_t.csv", no_transits_filename=path + f"37_SPOC_120_not.csv", lefts=[C_T1[7] - sm], rights=[C_T4[7] + sm])
+    transits61 = SectorData(61, path + f"downloads/61_QLP_200.csv", transits_filename=path + f"61_QLP_200_t.csv", no_transits_filename=path + f"61_QLP_200_not.csv", lefts=[C_T1[8] - sm], rights=[C_T4[8] + sm])
+    transits64 = SectorData(64, path + f"downloads/64_SPOC_120.csv", transits_filename=path + f"64_SPOC_120_t.csv", no_transits_filename=path + f"64_SPOC_120_not.csv", lefts=[C_T1[9] - sm], rights=[C_T4[9] + sm])
+    transits67 = SectorData(67, path + f"downloads/67_SPOC_120.csv", transits_filename=path + f"67_SPOC_120_t.csv", no_transits_filename=path + f"67_SPOC_120_not.csv", lefts=[C_T1[10] - sm], rights=[C_T4[10] + sm])
+    transits88 = SectorData(88, path + f"downloads/88_SPOC_120.csv", transits_filename=path + f"88_SPOC_120_t.csv", no_transits_filename=path + f"88_SPOC_120_not.csv", lefts=[D_T1[0] - sm], rights=[D_T4[0] + sm])
+    transits94 = SectorData(94, path + f"downloads/94_SPOC_120.csv", transits_filename=path + f"94_SPOC_120_t.csv", no_transits_filename=path + f"94_SPOC_120_not.csv", lefts=[D_T1[2] - sm], rights=[D_T4[2] + sm])
+    transits89 = SectorData(89, path + f"downloads/89_SPOC_120.csv", transits_filename=path + f"89_SPOC_120_t.csv", no_transits_filename=path + f"89_SPOC_120_not.csv", lefts=[C_T1[11] - sm, D_T1[1] - sm], rights=[C_T4[11] + sm, D_T4[1] + sm])
+    transits95 = SectorData(95, path + f"downloads/95_SPOC_120.csv", transits_filename=path + f"95_SPOC_120_t.csv", no_transits_filename=path + f"95_SPOC_120_not.csv", lefts=[C_T1[12] - sm, D_T1[3] - sm], rights=[C_T4[12] + sm, D_T4[3] + sm])
 
     if not spoc_only:
         transits03.df_transits["flux_err"] = transits03.df_transits["flux_err"].apply(lambda x: 0.002 if pd.isna(x) or x == 0 else x)
@@ -632,7 +606,7 @@ def get_all_c_d_transits(spoc_only=False, no_transits=False):
 def get_other_flux_for_b_transits():
     transits = []
     for sector in spoc_sectors_no_c_d:
-        transits.append(SectorData(sector, path + f"downloads/{sector}_SPOC_120.csv",   no_transits_filename=path + f"{sector}_SPOC_120_not.csv"))
+        transits.append(SectorData(sector, path + f"downloads/{sector}_SPOC_120.csv", no_transits_filename=path + f"{sector}_SPOC_120_not.csv"))
         if sector == 61:
             plot_flux_df(transits[-1].df_no_transits, title="Sector " + str(sector) + " Processed")
     all_processed_dfs = [t.df_no_transits for t in transits]
@@ -680,5 +654,3 @@ if __name__ == "__main__":
     # df2csv(df_extracted, path + f"TOI4504_b_transits_27til94.csv")
 
     get_all_c_d_transits()
-
-
