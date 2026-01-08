@@ -687,12 +687,7 @@ class CurveSimResults(dict):
         plt.ticklabel_format(useOffset=False, style="plain", axis="x")   # show x-labels as they are
         plt.xlim(left=left, right=right)
         # plt.ylim(bottom=bottom, top=top)
-
-        # for time, residual, jitter in zip(x, y, measured_flux["flux_err"]):
-        #     plt.vlines(time, residual - jitter, residual + jitter, colors="xkcd:black", linewidth=1)
         plt.vlines(measured_flux["time"], measured_flux["residual"] - measured_flux["flux_err"], measured_flux["residual"] + measured_flux["flux_err"], colors="xkcd:black", linewidth=1)
-
-
         plt.plot(x[0], y[0], marker=markers[0], markersize=markersizes[0], linestyle=linestyles[0], label=data_labels[0], color=colors[0], linewidth=linewidths[0])
         plt.hlines(0, left, right, colors="xkcd:black", linewidth=1)
         plt.savefig(plot_file)
@@ -721,8 +716,12 @@ class CurveSimResults(dict):
         # plt.grid(True)
         plt.ticklabel_format(useOffset=False, style="plain", axis="x")   # show x-labels as they are
 
-        for time, residual, jitter in zip(x, y, measured_flux["flux_err"]):
-            plt.vlines(time, residual - jitter, residual + jitter, colors="xkcd:black", linewidth=1)
+        # for time, residual, jitter in zip(x, y, measured_flux["flux_err"]):
+        #     plt.vlines(time, residual - jitter, residual + jitter, colors="xkcd:black", linewidth=1)
+        # for time, residual, jitter in zip(x, y, measured_flux["flux_err"]):
+        #     plt.vlines(time, residual - jitter, residual + jitter, colors="xkcd:black", linewidth=1)
+        # plt.vlines(measured_flux["time"], measured_flux["residual"] - measured_flux["flux_err"], measured_flux["residual"] + measured_flux["flux_err"], colors="xkcd:black", linewidth=1)
+        plt.vlines(range(len(measured_flux["time"])), measured_flux["residual"] - measured_flux["flux_err"], measured_flux["residual"] + measured_flux["flux_err"], colors="xkcd:black", linewidth=1)
 
         plt.plot(x[0], y[0], marker=markers[0], markersize=markersizes[0], linestyle=linestyles[0], label=data_labels[0], color=colors[0], linewidth=linewidths[0])
         plt.hlines(0, x[0][0], x[0][-1], colors="xkcd:black", linewidth=1)

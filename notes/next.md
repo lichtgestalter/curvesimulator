@@ -8,9 +8,6 @@
   - ist es zur zeit aber nicht, weil erst alle c und dann alle d transits kommen
   - direkt beim erstellen des gesamt flux files korrigieren
   - und doppelte rausschmeissen???
-- 
-- Warum fehlen auf einmal die senkrechten std-Striche in den flux residual 
-  plots wie TOI4504d_0_flux_residuals_x=time.png?
 
 - single_run: Fallunterscheidungen sauberer machen
   - Je nach Szenario ist es unnoetig, dass die Simulation fuer 
