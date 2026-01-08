@@ -13,7 +13,10 @@
 - 
 - Neue Kategorie Data in Configfile
 
-
+- Waehrend MCMC waere es schoen, ab und zu single_run auszufuehren, wegen 
+  der Auswertungen. Kann ich aber nicht in mcmc importieren, wegen 
+  Zirkelbezug. Elegantere Loesung finden oder eben drauf verzichten?
+  - Nach results verschieben duerfte gehen
 
 ### aktuell
 

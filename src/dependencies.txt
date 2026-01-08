@@ -1,37 +1,52 @@
+leafs:
+    animation
+    lightcurve
+    parameters
+	physics
+    rebound
+	results
+
 body
 	physics
-	results
 
 bodies
     body
     lightcurve
-    parameters
     physics
+    rebound
     results
 
 curvesim
     animation
     bodies
+    flux_data
+    manual_fit
     mcmc
     parameters
+    results
+
+flux_data
+    results
+
+manual_fit
+    mcmc
 
 mcmc
-    flux_data
-
-
+    bodies
 
 --------------------------
 All:
 
 curvesim
     animation
-    bodies
-        body
-            physics
-            results
-        lightcurve
-        parameters
-        physics
-        results
     flux_data
+        results
+    manual_fit
+        mcmc
+            bodies
+                body
+                lightcurve
+                physics
+                rebound
+                results
     parameters
