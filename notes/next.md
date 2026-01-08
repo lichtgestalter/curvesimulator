@@ -2,12 +2,8 @@
 ## 0.5.7 Automated Flux Data Download
 
 ### jetzt
-- Warum hoert das 30-min-binning ab TOI4504c_28_flux_o_vs_c_x=time.png auf?
-  - bin_time_window funktioniert nicht richtig!
-  - Loesung: time muss sortiert sein
-  - ist es zur zeit aber nicht, weil erst alle c und dann alle d transits kommen
-  - direkt beim erstellen des gesamt flux files korrigieren
-  - und doppelte rausschmeissen???
+
+- fehlenden flux_err beim ersten Transit (automatisch!) ergaenzen
 
 - single_run: Fallunterscheidungen sauberer machen
   - Je nach Szenario ist es unnoetig, dass die Simulation fuer 

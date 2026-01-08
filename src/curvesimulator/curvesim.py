@@ -86,6 +86,8 @@ class CurveSimulator:
                 time_s0, time_d = CurveSimParameters.init_time_arrays(p)  # s0 in seconds, starting at 0. d in BJD.
                 measured_tt = CurveSimResults.get_measured_tt(p)
             bodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
+            for body in bodies:  # HACK because length of body.positions is initialized with the correct value for simulation, NOT measurements
+                body.positions = np.ndarray((len(time_s0), 3), dtype=float)
             p.init_fitting_parameter_dic()
             print(f"Fitting {len(p.fitting_parameters)} parameters.")
             if p.action == "guifit":
@@ -170,7 +172,7 @@ class CurveSimulator:
             CurveSimResults.rv_residuals_plot(p, "rv_residuals", measured_rv)  # plot RV residuals
         if p.flux_file:
             time_s0, _, _, _, measured_flux = CurveSimResults.get_measured_flux(p)
-            for body in bodies:  # HACK
+            for body in bodies:  # HACK because length of body.positions is initialized with the correct value for simulation, NOT measurements
                 body.positions = np.ndarray((len(time_s0), 3), dtype=float)
             _, sim_flux, _ = bodies.calc_physics(p, time_s0)  # run simulation
             measured_flux = CurveSimResults.calc_flux_residuals(measured_flux, sim_flux)  # compare observed vs. computed flux
