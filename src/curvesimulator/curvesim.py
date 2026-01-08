@@ -1,5 +1,6 @@
 # When testing, do not run this file directly. Run run_curvesim.py (in the parent directory) instead.
 from colorama import Fore, Style
+import numpy as np
 import sys
 import time
 
@@ -107,8 +108,7 @@ class CurveSimulator:
                 print(f"{Fore.RED}\nERROR: Invalid parameter 'action' in configuration file {Style.RESET_ALL}")
                 sys.exit(1)
         elif p.action == "single_run":
-            bodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
-            bodies, sim_flux, results = CurveSimulator.single_run(p, bodies)
+            bodies, sim_flux, results = CurveSimulator.single_run(p)
             self.sim_flux = sim_flux
             self.results = results
         elif p.action == "results_only":
@@ -145,7 +145,8 @@ class CurveSimulator:
         return ""
 
     @staticmethod
-    def single_run(p, bodies):
+    def single_run(p):
+        bodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
         time_s0, time_d = CurveSimParameters.init_time_arrays(p)  # s0 in seconds, starting at 0. d in BJD.
         sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # Calculate all body positions and the resulting lightcurve
         results = bodies.find_transits(rebound_sim, p, sim_flux, time_s0, time_d)
@@ -169,6 +170,8 @@ class CurveSimulator:
             CurveSimResults.rv_residuals_plot(p, "rv_residuals", measured_rv)  # plot RV residuals
         if p.flux_file:
             time_s0, _, _, _, measured_flux = CurveSimResults.get_measured_flux(p)
+            for body in bodies:  # HACK
+                body.positions = np.ndarray((len(time_s0), 3), dtype=float)
             _, sim_flux, _ = bodies.calc_physics(p, time_s0)  # run simulation
             measured_flux = CurveSimResults.calc_flux_residuals(measured_flux, sim_flux)  # compare observed vs. computed flux
             results.calc_flux_chi_squared(measured_flux, p.free_parameters)  # store chi squared and p-value in results

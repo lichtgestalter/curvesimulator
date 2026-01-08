@@ -468,13 +468,60 @@ class CurveSimResults(dict):
             mean[i] = values_to_bin.mean() if values_to_bin.size > 0 else np.nan
         return mean
 
+
+    @staticmethod
+    def bin_time_window2(time, value, half_window_size):
+        """
+        Vectorized binning: for each time[i], compute mean of values within
+        [time[i] - half_window_size, time[i] + half_window_size].
+
+        Returns a numpy array of length len(time) with NaN where no points fall in window.
+
+        Ensure `half_window_size` is in the same units as `time` (e.g. days).
+        """
+        time_arr = np.asarray(time)
+        val_arr = np.asarray(value, dtype=float)
+
+        if time_arr.size == 0:
+            return np.array([], dtype=float)
+
+        # sort by time for fast search
+        order = np.argsort(time_arr)
+        sorted_time = time_arr[order]
+        sorted_val = val_arr[order]
+
+        # mask NaNs in values: contribute 0 to sum and 0 to count
+        valid_mask = ~np.isnan(sorted_val)
+        vals_for_sum = np.where(valid_mask, sorted_val, 0.0)
+
+        # cumulative sums for sums and counts (prepend zero for easy range subtraction)
+        cumsum_vals = np.concatenate(([0.0], np.cumsum(vals_for_sum)))
+        cumsum_counts = np.concatenate(([0], np.cumsum(valid_mask.astype(int))))
+
+        # compute left/right indices for each original time (use original times so result keeps input order)
+        left = np.searchsorted(sorted_time, time_arr - half_window_size, side='left')
+        right = np.searchsorted(sorted_time, time_arr + half_window_size, side='right')
+
+        # window sums and counts
+        window_sums = cumsum_vals[right] - cumsum_vals[left]
+        window_counts = cumsum_counts[right] - cumsum_counts[left]
+
+        # compute means, set NaN where count == 0
+        means = np.full(len(time_arr), np.nan, dtype=float)
+        nonzero = window_counts > 0
+        means[nonzero] = window_sums[nonzero] / window_counts[nonzero]
+
+        return means
+
+
     @staticmethod
     def flux_observed_computed_plots_time(p, plot_filename, measured_flux, measured_tt):
+        measured_flux["gt"] = measured_flux["time"].diff().gt(0).astype(int)
         left = np.min(measured_flux["time"])
         right = np.max(measured_flux["time"])
         left -= (right - left) * 0.02
         right += (right - left) * 0.02
-        measured_flux["bin_30min"] = CurveSimResults.bin_time_window(measured_flux["time"], measured_flux["flux"], 30 / (2 * 60 * 24))
+        measured_flux["bin_30min"] = CurveSimResults.bin_time_window2(measured_flux["time"], measured_flux["flux"], 30 / (2 * 60 * 24))
         CurveSimResults.plot_this(
             title=f"Flux: observed vs. computed",
             x_label="Time [BJD]",

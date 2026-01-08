@@ -2,11 +2,21 @@
 ## 0.5.7 Automated Flux Data Download
 
 ### jetzt
-- single_run stuerzt ab:
-  - File "G:\Meine Ablage\Python\curvesim\src\curvesimulator\cs_bodies.py", line 262, in update_position
-  - body.positions[iteration] = np.array([particle.x, particle.y, particle.z])
-    ~~~~~~~~~~~~~~^^^^^^^^^^^
-  - IndexError: index 2996 is out of bounds for axis 0 with size 2996
+- Warum hoert das 30-min-binning ab TOI4504c_28_flux_o_vs_c_x=time.png auf?
+  - bin_time_window funktioniert nicht richtig!
+  - Loesung: time muss sortiert sein
+  - ist es zur zeit aber nicht, weil erst alle c und dann alle d transits kommen
+  - direkt beim erstellen des gesamt flux files korrigieren
+  - und doppelte rausschmeissen???
+- 
+- Warum fehlen auf einmal die senkrechten std-Striche in den flux residual 
+  plots wie TOI4504d_0_flux_residuals_x=time.png?
+
+- single_run: Fallunterscheidungen sauberer machen
+  - Je nach Szenario ist es unnoetig, dass die Simulation fuer 
+    Standardabstaende dt berechnet wird (nur fuer Video sinnvoll?) 
+  - Siehe # HACK: Hier wird body.positions nachtraeglich vergroessert, fuer 
+    den Fall dass flux_file mehr Datenpunkte hat, als die Simulation
 - 
 - Neue Kategorie Data in Configfile
 
