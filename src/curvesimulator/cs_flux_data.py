@@ -171,7 +171,13 @@ class CurveSimFluxData:
         measured_tt = CurveSimResults.get_measured_tt(p)
         print("Getting TESS Data...")
         if "file" not in measured_tt.columns:  # ensure the column exists
-            measured_tt["file"] = None
+            measured_tt["file"] = ""
+            measured_tt["file"] = measured_tt["file"].astype(object)
+        # for column in [eclipser, nr, target, sector, author, exptime, t0, t5, n0, n1, n2, n3, lower, upper, file]:
+        for column in ["target", "sector", "author", "exptime", "tt", "file"]:
+            if column not in measured_tt.columns:
+                print(f"{Fore.RED}\nERROR: Column {column} missing in {p.tt_file}{Style.RESET_ALL}")
+                sys.exit(1)
 
         for idx, tt_row in measured_tt.iterrows():
             flux_file = CurveSimFluxData.download_flux_lc(
@@ -188,6 +194,11 @@ class CurveSimFluxData:
     def process_tess_flux(p):
         measured_tt = CurveSimResults.get_measured_tt(p)
         print("Processing TESS Data...")
+        for column in ["eclipser", "nr","target", "sector", "author", "exptime", "tt", "t0", "t5", "n0", "n1", "n2", "n3", "lower", "upper", "file"]:
+            if column not in measured_tt.columns:
+                print(f"{Fore.RED}\nERROR: Column {column} missing in {p.tt_file}{Style.RESET_ALL}")
+                sys.exit(1)
+
         flux_transit_dfs = []
         for idx, tt_row in measured_tt.iterrows():
             flux_transit = CurveSimFluxData.process_flux_lc(p, tt_row)
@@ -208,8 +219,12 @@ class CurveSimFluxData:
             all_flux_transits = pd.DataFrame()
         all_flux_transits.to_csv(p.flux_file, sep=",", decimal=".", index=False)
 
-        CurveSimFluxData.plot_flux(all_flux_transits, p.flux_file[:-4] + ".png", f"Normalized Flux")
-        CurveSimFluxData.plot_flux_err(all_flux_transits, p.flux_file[:-4] + "_err.png", f"Normalized Flux Error")
+        if len(all_flux_transits) > 0:
+            CurveSimFluxData.plot_flux(all_flux_transits, p.flux_file[:-4] + ".png", f"Normalized Flux")
+            CurveSimFluxData.plot_flux_err(all_flux_transits, p.flux_file[:-4] + "_err.png", f"Normalized Flux Error")
+        else:
+            print(f"{Fore.RED}\nERROR: Found no flux data to process. Check the search criteria in {p.tt_file}{Style.RESET_ALL}")
+            sys.exit(1)
 
         return all_flux_transits
 

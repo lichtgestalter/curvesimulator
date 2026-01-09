@@ -3,6 +3,15 @@
 
 ### jetzt
 
+- tt file mit allen (auch den theoretischen d transits) machen
+- um daraus dann ein file mit flux rund um saemtliche transits erstellen zu 
+  lassen
+- damit dann single run laufen lassen und die transit plots angucken, ob es 
+  vielleicht tatsaechlich fruehe transits gab
+- dann mcmc mit diesem flux laufen lassen. Jetzt wird es bestraft, wenn mcmc 
+  d.i zu nah an 90 setzt
+- 
+
 - fehlenden flux_err beim ersten Transit (automatisch!) ergaenzen
 
 - single_run: Fallunterscheidungen sauberer machen
