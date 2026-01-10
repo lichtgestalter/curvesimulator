@@ -161,17 +161,23 @@ class CurveSimMCMC:
             self.backend = None
             steps_done, self.loaded_steps = 0, 0
 
-        with Pool() as pool:  # enable multi processing
-            self.sampler = emcee.EnsembleSampler(p.walkers, self.ndim, CurveSimMCMC.log_probability, pool=pool, moves=self.moves, args=self.args, backend=self.backend)
-            # self.sampler = emcee.EnsembleSampler(p.walkers, self.ndim, CurveSimMCMC.log_probability, pool=pool, moves=self.moves, args=self.args)
-            if not p.load_backend:
-                self.theta = self.sampler.run_mcmc(self.theta0, self.burn_in, progress=True)
-            else:
-                self.theta = self.theta0.copy()
-            for chunk in range(1, self.steps // self.chunk_size):
-                self.theta = self.sampler.run_mcmc(self.theta, self.chunk_size, progress=True)
-                steps_done += self.chunk_size
-                self.mcmc_results(p, bodies, steps_done, time_s0, time_d, measured_tt, measured_flux_array, flux_err, chunk)
+        if p.mcmc_multi_processing:
+            with Pool() as pool:  # enable multi processing
+                self.mcmc_fit(p, bodies, time_s0, time_d, measured_flux_array, flux_err, measured_tt, steps_done, pool)
+        else:
+            self.mcmc_fit(p, bodies, time_s0, time_d, measured_flux_array, flux_err, measured_tt, steps_done)
+
+    def mcmc_fit(self, p, bodies, time_s0, time_d, measured_flux_array, flux_err, measured_tt, steps_done, pool=None):
+        self.sampler = emcee.EnsembleSampler(p.walkers, self.ndim, CurveSimMCMC.log_probability, pool=pool, moves=self.moves, args=self.args, backend=self.backend)
+        # self.sampler = emcee.EnsembleSampler(p.walkers, self.ndim, CurveSimMCMC.log_probability, pool=pool, moves=self.moves, args=self.args)
+        if not p.load_backend:
+            self.theta = self.sampler.run_mcmc(self.theta0, self.burn_in, progress=True)
+        else:
+            self.theta = self.theta0.copy()
+        for chunk in range(1, self.steps // self.chunk_size):
+            self.theta = self.sampler.run_mcmc(self.theta, self.chunk_size, progress=True)
+            steps_done += self.chunk_size
+            self.mcmc_results(p, bodies, steps_done, time_s0, time_d, measured_tt, measured_flux_array, flux_err, chunk)
 
     def __repr__(self):
         return f"CurveSimMCMC with {self.walkers} walkers."
@@ -867,7 +873,7 @@ class CurveSimMCMC:
         bodies = CurveSimMCMC.bodies_from_fitting_params(bodies, self.fitting_parameters, param_type="max_likelihood")
         # for body in bodies:  # HACK because length of body.positions is initialized with the correct value for simulation, NOT measurements
         #     body.positions = np.ndarray((len(time_s0), 3), dtype=float)  # HACK DEBUG
-        CurveSimMCMC.single_run(p, bodies)
+        # CurveSimMCMC.single_run(p, bodies)
 
         self.integrated_autocorrelation_time.append(list(self.sampler.get_autocorr_time(tol=0)))
         self.integrated_autocorrelation_time_plot(steps_done, "int_autocorr_time.png", "steps_per_i_ac_time.png")

@@ -60,6 +60,7 @@ class CurveSimParameters:
         self.video_file = config.get("Video", "video_file", fallback=None)
 
         # [Fitting]
+        self.mcmc_multi_processing = eval(config.get("Fitting", "mcmc_multi_processing", fallback="True"))
         self.free_parameters = eval(config.get("Fitting", "free_parameters", fallback="None"))
         self.flux_file = config.get("Fitting", "flux_file", fallback=None)
         self.tt_file = config.get("Fitting", "tt_file", fallback=None)

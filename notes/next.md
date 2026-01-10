@@ -10,7 +10,8 @@
   vielleicht tatsaechlich fruehe transits gab
 - dann mcmc mit diesem flux laufen lassen. Jetzt wird es bestraft, wenn mcmc 
   d.i zu nah an 90 setzt
-- 
+
+- single run aus mcmc heraus stuerzt ab! s0 array nicht lang genug 
 
 - fehlenden flux_err beim ersten Transit (automatisch!) ergaenzen
 
