@@ -194,19 +194,19 @@ class CurveSimFluxData:
     def process_tess_flux(p):
         measured_tt = CurveSimResults.get_measured_tt(p)
         print("Processing TESS Data...")
-        for column in ["eclipser", "nr","target", "sector", "author", "exptime", "tt", "t0", "t5", "n0", "n1", "n2", "n3", "lower", "upper", "file"]:
+        for column in ["eclipser", "nr", "target", "sector", "author", "exptime", "tt", "t0", "t5", "n0", "n1", "n2", "n3", "lower", "upper", "file"]:
             if column not in measured_tt.columns:
                 print(f"{Fore.RED}\nERROR: Column {column} missing in {p.tt_file}{Style.RESET_ALL}")
                 sys.exit(1)
 
         flux_transit_dfs = []
-        for idx, tt_row in measured_tt.iterrows():
+        for idx, tt_row in measured_tt.iterrows():  # process flux for each row in tt_file
             flux_transit = CurveSimFluxData.process_flux_lc(p, tt_row)
             if flux_transit is not None:
                 flux_transit_dfs.append(flux_transit)
-        if flux_transit_dfs:
-            all_flux_transits = pd.concat(flux_transit_dfs, ignore_index=True)
-            all_flux_transits = all_flux_transits.sort_values(by="time", ascending=True).reset_index(drop=True)
+        if flux_transit_dfs:  # found any data?
+            all_flux_transits = pd.concat(flux_transit_dfs, ignore_index=True)  # concat all dataframes
+            all_flux_transits = all_flux_transits.sort_values(by="time", ascending=True).reset_index(drop=True)  # sort by time
 
             # detect and remove duplicates by the 'time' column (any time value that appears more than once)
             duplicate_mask = all_flux_transits["time"].duplicated(keep=False)
@@ -308,6 +308,13 @@ class CurveSimFluxData:
             flux_normalized["flux_err_local"] = np.nan
             mask = (flux_normalized["time"] > n0) & (flux_normalized["time"] < n3)
             flux_normalized.loc[mask, "flux_err_local"] = std_val
+
+            # copilot if a value in flux_normalized["flux_err"] is missing AND a value in flux_normalized["flux"] exists, replace it with flux_normalized["flux_err_local"]
+            # flux_normalized["flux_err"] = flux_normalized["flux_err"].fillna(flux_normalized["flux_err_local"])
+            mask_fill = flux_normalized["flux"].notna() & flux_normalized["flux_err"].isna()
+            flux_normalized.loc[mask_fill, "flux_err"] = flux_normalized.loc[mask_fill, "flux_err_local"]
+
+
             flux_normalized.to_csv(f"{p.flux_data_directory}/processed/{file}_p.csv", index=False)
 
             # Plot normalized flux. Save png in subdirectory processed_plots.
