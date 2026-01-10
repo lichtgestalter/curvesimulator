@@ -2,16 +2,13 @@
 ## 0.5.7 Automated Flux Data Download
 
 ### jetzt
-
-- single run aus mcmc heraus stuerzt ab! s0 array nicht lang genug 
+- Neue Kategorie Data in Configfile
 
 - single_run: Fallunterscheidungen sauberer machen
   - Je nach Szenario ist es unnoetig, dass die Simulation fuer 
     Standardabstaende dt berechnet wird (nur fuer Video sinnvoll?) 
   - Siehe # HACK: Hier wird body.positions nachtraeglich vergroessert, fuer 
     den Fall dass flux_file mehr Datenpunkte hat, als die Simulation
-- 
-- Neue Kategorie Data in Configfile
 
 
 ### aktuell
