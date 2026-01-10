@@ -183,8 +183,9 @@ class CurveSimMCMC:
         return f"CurveSimMCMC with {self.walkers} walkers."
 
     @staticmethod
-    def single_run(p, bodies):
-        time_s0, time_d = CurveSimParameters.init_time_arrays(p)  # s0 in seconds, starting at 0. d in BJD.
+    def single_run(p, bodies=None, time_s0=None, time_d=None):
+        if time_s0 is None and time_d is None:
+            time_s0, time_d = CurveSimParameters.init_time_arrays(p)  # s0 in seconds, starting at 0. d in BJD.
         sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # Calculate all body positions and the resulting lightcurve
         results = bodies.find_transits(rebound_sim, p, sim_flux, time_s0, time_d)
         results["chi_squared_tt"], results["chi_squared_rv"], results["chi_squared_flux"], results["chi_squared_total"] = 0, 0, 0, 0
@@ -873,7 +874,7 @@ class CurveSimMCMC:
         bodies = CurveSimMCMC.bodies_from_fitting_params(bodies, self.fitting_parameters, param_type="max_likelihood")
         # for body in bodies:  # HACK because length of body.positions is initialized with the correct value for simulation, NOT measurements
         #     body.positions = np.ndarray((len(time_s0), 3), dtype=float)  # HACK DEBUG
-        # CurveSimMCMC.single_run(p, bodies)
+        CurveSimMCMC.single_run(p, bodies, time_s0, time_d)
 
         self.integrated_autocorrelation_time.append(list(self.sampler.get_autocorr_time(tol=0)))
         self.integrated_autocorrelation_time_plot(steps_done, "int_autocorr_time.png", "steps_per_i_ac_time.png")

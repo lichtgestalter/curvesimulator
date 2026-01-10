@@ -3,17 +3,7 @@
 
 ### jetzt
 
-- tt file mit allen (auch den theoretischen d transits) machen
-- um daraus dann ein file mit flux rund um saemtliche transits erstellen zu 
-  lassen
-- damit dann single run laufen lassen und die transit plots angucken, ob es 
-  vielleicht tatsaechlich fruehe transits gab
-- dann mcmc mit diesem flux laufen lassen. Jetzt wird es bestraft, wenn mcmc 
-  d.i zu nah an 90 setzt
-
 - single run aus mcmc heraus stuerzt ab! s0 array nicht lang genug 
-
-- fehlenden flux_err beim ersten Transit (automatisch!) ergaenzen
 
 - single_run: Fallunterscheidungen sauberer machen
   - Je nach Szenario ist es unnoetig, dass die Simulation fuer 
@@ -23,10 +13,6 @@
 - 
 - Neue Kategorie Data in Configfile
 
-- Waehrend MCMC waere es schoen, ab und zu single_run auszufuehren, wegen 
-  der Auswertungen. Kann ich aber nicht in mcmc importieren, wegen 
-  Zirkelbezug. Elegantere Loesung finden oder eben drauf verzichten?
-  - Nach results verschieben duerfte gehen
 
 ### aktuell
 
