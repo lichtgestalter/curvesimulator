@@ -21,6 +21,11 @@
   - Siehe # HACK: Hier wird body.positions nachtraeglich vergroessert, fuer 
     den Fall dass flux_file mehr Datenpunkte hat, als die Simulation
 
+- neuer Parameter run_id
+  - wird als unterverzeichnisname (statt laufender Nummer? oder neue 
+    laufende Nummer hierrunter?) fuer die Ergebnisse benutzt
+  - wird in (manchen) Dateinamen des Result-Outputs des Run benutzt
+    - z.B. fuer gespeicherte Bodies Beispiel runid.TOI4504d.bdy
 
 ### aktuell
 
