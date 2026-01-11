@@ -404,7 +404,7 @@ class CurveSimResults(dict):
             x_lists=    [tt_tess,       x4sine],
             y_lists=    [ttv_to_date,   sine_curve],
             data_labels=["TTV to date", "Sine Curve"],
-            linestyles= ['',            "-"],
+            linestyles= ["",            "-"],
             markersizes=[4,             0],
             colors=     ["xkcd:tomato",         "xkcd:black"],
             linewidths= [0,             1],
@@ -440,7 +440,7 @@ class CurveSimResults(dict):
             x_lists=    [time_d,   measured_rv["time"]],
             y_lists=    [sim_rv,   measured_rv["rv_rel"]],
             data_labels=["computed", "observed"],
-            linestyles= ["-",      ''],
+            linestyles= ["-",      ""],
             markersizes=[0,        3],
             colors=     ["xkcd:black",  "xkcd:nice blue"],
             linewidths= [1,        0],
@@ -499,8 +499,8 @@ class CurveSimResults(dict):
         cumsum_counts = np.concatenate(([0], np.cumsum(valid_mask.astype(int))))
 
         # compute left/right indices for each original time (use original times so result keeps input order)
-        left = np.searchsorted(sorted_time, time_arr - half_window_size, side='left')
-        right = np.searchsorted(sorted_time, time_arr + half_window_size, side='right')
+        left = np.searchsorted(sorted_time, time_arr - half_window_size, side="left")
+        right = np.searchsorted(sorted_time, time_arr + half_window_size, side="right")
 
         # window sums and counts
         window_sums = cumsum_vals[right] - cumsum_vals[left]
@@ -529,7 +529,7 @@ class CurveSimResults(dict):
             x_lists=    [measured_flux["time"], measured_flux["time"]],
             y_lists=    [measured_flux["flux"], measured_flux["flux_sim"]],
             data_labels=["observed",            "computed"],
-            linestyles= ['',                    ''],
+            linestyles= ["",                    ""],
             markersizes=[1,                     1],
             colors=     ["xkcd:nice blue",                 "xkcd:black"],
             # linewidths= [1,                     0],
@@ -552,7 +552,7 @@ class CurveSimResults(dict):
                     x_lists=    [measured_flux["time"], measured_flux["time"],      measured_flux["time"]],
                     y_lists=    [measured_flux["flux"], measured_flux["bin_30min"], measured_flux["flux_sim"]],
                     data_labels=["observed",            "obs. 30 min",              "computed"],
-                    linestyles= ['',                    '-',                        ""],
+                    linestyles= ["",                    "-",                        ""],
                     markersizes=[1,                     0,                          1],
                     colors=     ["xkcd:nice blue",      "xkcd:nice blue",           "xkcd:black"],
                     # linewidths= [1,                     0],
@@ -574,7 +574,7 @@ class CurveSimResults(dict):
             x_lists=    [[x for x in range(measured_flux.shape[0])],     [x for x in range(measured_flux.shape[0])]],
             y_lists=    [measured_flux["flux"],                          measured_flux["flux_sim"]],
             data_labels=["observed",                                     "computed"],
-            linestyles= ['',                                             ''],
+            linestyles= ["",                                             ""],
             markersizes=[1,                                              1],
             colors=     ["xkcd:nice blue",                                          "xkcd:black"],
             # linewidths= [1,                                              0],
@@ -592,7 +592,7 @@ class CurveSimResults(dict):
             x_lists=    [[x for x in range(measured_flux.shape[0])]],
             y_lists=    [measured_flux["chi_squared"]],
             data_labels=["chi_squared"],
-            linestyles= [''],
+            linestyles= [""],
             markersizes=[1],
             colors=     ["xkcd:tree green"],
             linewidths= [1],
@@ -609,7 +609,7 @@ class CurveSimResults(dict):
         x = [measured_rv["time"]]
         y = [measured_rv["residual"]]
         data_labels = ["residual"]
-        linestyles = ['']
+        linestyles = [""]
         markers = ["o"]
         markersizes = [4]
         colors = ["xkcd:nice blue"]
@@ -663,7 +663,7 @@ class CurveSimResults(dict):
         x = [measured_flux["time"]]
         y = [measured_flux["residual"]]
         data_labels = ["residual"]
-        linestyles = ['']
+        linestyles = [""]
         markers = ["o"]
         markersizes = [3]
         colors = ["xkcd:nice blue"]
@@ -701,7 +701,7 @@ class CurveSimResults(dict):
         x = [[x for x in range(measured_flux.shape[0])]]
         y = [measured_flux["residual"]]
         data_labels = ["residual"]
-        linestyles = ['']
+        linestyles = [""]
         markers = ["o"]
         markersizes = [3]
         colors = ["xkcd:nice blue"]
@@ -749,5 +749,5 @@ def try_colors_in_plot():
     plt.savefig(plot_filename1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     try_colors_in_plot()

@@ -14,7 +14,7 @@
 #     print(sim_flux)
 #
 #
-# if __name__ == '__main__':
+# if __name__ == "__main__":
 #     main()
 
 
@@ -23,11 +23,11 @@ from curvesimulator import CurveSimulator
 
 def main():
     # curvesimulation = CurveSimulator(config_file="../configurations/Sim/TOI-4504_SIM_X045.ini")
-    # curvesimulation = CurveSimulator(config_file="../configurations/TOI4504/debug.ini")
-    curvesimulation = CurveSimulator(config_file="../configurations/TOI4504/TOI-4504_F101.ini")
+    curvesimulation = CurveSimulator(config_file="../configurations/TOI4504/debug.ini")
+    # curvesimulation = CurveSimulator(config_file="../configurations/TOI4504/TOI-4504_F101.ini")
     # curvesimulation = CurveSimulator(config_file="../configurations/TOI4504/TOI-4504_Vitkova.ini")
     print(curvesimulation)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

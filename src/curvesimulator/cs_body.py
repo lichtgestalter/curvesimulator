@@ -73,10 +73,10 @@ class CurveSimBody:
         #     for x in velocity.split(","):
         #         vel.append(eval(x))
         #     if len(pos) != 3:
-        #         print(f'{Fore.RED}\nERROR in config file: invalid or missing start position. {pos=}')
+        #         print(f"{Fore.RED}\nERROR in config file: invalid or missing start position. {pos=}")
         #         sys.exit(1)
         #     if len(vel) != 3:
-        #         print(f'{Fore.RED}\nERROR in config file: invalid or missing initial velocity. {vel=}')
+        #         print(f"{Fore.RED}\nERROR in config file: invalid or missing initial velocity. {vel=}")
         #         sys.exit(1)
         #     self.positions[0] = np.array(pos, dtype=float)  # [m] initial position
         #     self.velocity = np.array(vel, dtype=float)  # [m/s]
@@ -90,7 +90,7 @@ class CurveSimBody:
         self.d, self.h, self.angle, self.eclipsed_area = 0.0, 0.0, 0.0, 0.0
 
     def __repr__(self):
-        return f'CurveSimBody: {self.name}'
+        return f"CurveSimBody: {self.name}"
 
     # noinspection NonAsciiCharacters,PyPep8Naming,PyUnusedLocal
     # def calc_orbit_angles(self):
@@ -322,7 +322,7 @@ class CurveSimBody:
     #         interval_extensions += 1
     #     if interval_extensions > 0 and p.verbose:
     #         print(f"{Fore.YELLOW}\nWARNING in function find_tt: Rebound integration results are possibly not accurate enough.")
-    #         print(f"Try again with half the overall iteration time step parameter 'dt'.{Style.RESET_ALL}   ", end="")
+    #         print(f"Try again with half the overall iteration time step parameter "dt".{Style.RESET_ALL}   ", end="")
     #         print(f"{iteration=}   {interval_extensions=}")
     #     if dx_left * dx_right < 0 and eclipser.z >= eclipsee.z:  # sign of dx changed and eclipser in front of eclipsee
     #         while t_right - t_left > 1e-1:  # bisect until desired precision reached
@@ -370,9 +370,9 @@ class CurveSimBody:
             if interval_extensions > p.max_interval_extensions:
                 if p.verbose:
                     print(f"{Fore.YELLOW}\nWARNING in function find_tt: Maximum acceptable interval extension exceeded.")
-                    print(f"This is due to a too large iteration time step parameter 'dt'{Style.RESET_ALL}   ", end="")
+                    print(f"This is due to a too large iteration time step parameter <dt>{Style.RESET_ALL}   ", end="")
                     print(f"or due to an unstable star system.{Style.RESET_ALL}   ", end="")
-                    print(f"Try again with half the iteration time step parameter 'dt'{Style.RESET_ALL}   ", end="")
+                    print(f"Try again with half the iteration time step parameter <dt>{Style.RESET_ALL}   ", end="")
                     print(f"or choose more plausible start values and more restrictive upper/lower limits for the body parameters{Style.RESET_ALL}  ", end="")
                     print(f"Consider moving the time intervals a bit.{Style.RESET_ALL}   ", end="")
                     print(f"{iteration=}  {time_d[iteration]=} {interval_extensions=}")
@@ -406,9 +406,9 @@ class CurveSimBody:
         else:
             if p.verbose:
                 print(f"{Fore.YELLOW}\nWARNING in function find_tt: Eclipser not in front of eclipsee at expected TT.")
-                print(f"This is due to a too large iteration time step parameter 'dt'{Style.RESET_ALL}   ", end="")
+                print(f"This is due to a too large iteration time step parameter <dt>{Style.RESET_ALL}   ", end="")
                 print(f"or due to an unstable star system.{Style.RESET_ALL}   ", end="")
-                print(f"Try again with half the iteration time step parameter 'dt'{Style.RESET_ALL}   ", end="")
+                print(f"Try again with half the iteration time step parameter <dt>{Style.RESET_ALL}   ", end="")
                 print(f"or choose more plausible start values and more restrictive upper/lower limits for the body parameters{Style.RESET_ALL}  ", end="")
                 print(f"Consider moving the time intervals a bit.{Style.RESET_ALL}   ", end="")
                 print(f"{iteration=}  {time_d[iteration]=} {interval_extensions=}")

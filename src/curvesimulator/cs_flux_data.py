@@ -208,7 +208,7 @@ class CurveSimFluxData:
             all_flux_transits = pd.concat(flux_transit_dfs, ignore_index=True)  # concat all dataframes
             all_flux_transits = all_flux_transits.sort_values(by="time", ascending=True).reset_index(drop=True)  # sort by time
 
-            # detect and remove duplicates by the 'time' column (any time value that appears more than once)
+            # detect and remove duplicates by the "time" column (any time value that appears more than once)
             duplicate_mask = all_flux_transits["time"].duplicated(keep=False)
             if duplicate_mask.any():
                 dup_row_count = int(duplicate_mask.sum())  # total number of rows that are part of duplicate groups

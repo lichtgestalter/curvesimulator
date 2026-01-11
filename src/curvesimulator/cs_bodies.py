@@ -34,9 +34,9 @@ class CurveSimBodies(list):
             hour, day, year = p.hour, p.day, p.year
 
         except AttributeError:
-            print(f"{Fore.YELLOW}\nWARNING: Section 'Astronomical Constants' in the configuration file is incomplete.")
+            print(f"{Fore.YELLOW}\nWARNING: Section <Astronomical Constants> in the configuration file is incomplete.")
             print(f"See https://github.com/lichtgestalter/curvesimulator/wiki.{Style.RESET_ALL}")
-        config = configparser.ConfigParser(inline_comment_prefixes='#')
+        config = configparser.ConfigParser(inline_comment_prefixes="#")
         config.optionxform = str  # Preserve case of the keys.
         config.read(p.config_file)  # Read config file. (This time the physical objects.)
 
@@ -151,33 +151,33 @@ class CurveSimBodies(list):
             sys.exit(1)
         for body in self:
             if body.radius <= 0:
-                print(f'{Fore.RED}\nERROR in config file: {body.name} has invalid or missing radius.')
+                print(f"{Fore.RED}\nERROR in config file: {body.name} has invalid or missing radius.")
                 sys.exit(1)
             if body.mass <= 0:
-                print(f'{Fore.RED}\nERROR in config file: {body.name} has invalid or missing mass.')
+                print(f"{Fore.RED}\nERROR in config file: {body.name} has invalid or missing mass.")
                 sys.exit(1)
             if body.luminosity < 0:
-                print(f'{Fore.RED}\nERROR in config file: {body.name} has invalid luminosity {body.luminosity=}.')
+                print(f"{Fore.RED}\nERROR in config file: {body.name} has invalid luminosity {body.luminosity=}.")
                 sys.exit(1)
             if body.luminosity > 0 and (body.limb_darkening_u1 is None or body.limb_darkening_u2 is None):  # if body.luminosity > 0 and limb darkening parameters are missing
-                print(f'{Fore.RED}\nERROR in config file: {body.name} has luminosity but invalid limb darkening parameter {body.limb_darkening=}.')
+                print(f"{Fore.RED}\nERROR in config file: {body.name} has luminosity but invalid limb darkening parameter {body.limb_darkening=}.")
                 sys.exit(1)
             for c in body.color:
                 if c < 0 or c > 1 or len(body.color) != 3:
-                    print(f'{Fore.RED}\nERROR in config file: {body.name} has invalid or missing color value.')
+                    print(f"{Fore.RED}\nERROR in config file: {body.name} has invalid or missing color value.")
                     sys.exit(1)
             # if body.velocity is None:
             #     if body.e < 0:
-            #         print(f'{Fore.RED}\nERROR in config file: {body.name} has invalid or missing eccentricity e.')
+            #         print(f"{Fore.RED}\nERROR in config file: {body.name} has invalid or missing eccentricity e.")
             #         sys.exit(1)
             #     if body.i < -1000:
-            #         print(f'{Fore.RED}\nERROR in config file: {body.name} has invalid or missing inclination i.')
+            #         print(f"{Fore.RED}\nERROR in config file: {body.name} has invalid or missing inclination i.")
             #         sys.exit(1)
             if body.a is not None and body.a <= 0:
-                print(f'{Fore.RED}\nERROR in config file: {body.name} has invalid semi-major axis a.')
+                print(f"{Fore.RED}\nERROR in config file: {body.name} has invalid semi-major axis a.")
                 sys.exit(1)
             if body.P is not None and body.P <= 0:
-                print(f'{Fore.RED}\nERROR in config file: {body.name} has invalid period P.')
+                print(f"{Fore.RED}\nERROR in config file: {body.name} has invalid period P.")
                 sys.exit(1)
             anomaly_counter = 0
             anomalies = [body.L, body.ma, body.ea, body.nu, body.T]
@@ -185,8 +185,8 @@ class CurveSimBodies(list):
                 if anomaly is not None:
                     anomaly_counter += 1
             if anomaly_counter > 1:
-                print(f'{Fore.YELLOW}\nWARNING: more than one anomaly (L, ma, ea, nu, T) has been specified in config file for {body.name}.')
-                print(f'Check for contradictions and/or remove superflous anomalies.{Style.RESET_ALL}')
+                print(f"{Fore.YELLOW}\nWARNING: more than one anomaly (L, ma, ea, nu, T) has been specified in config file for {body.name}.")
+                print(f"Check for contradictions and/or remove superflous anomalies.{Style.RESET_ALL}")
 
     # def calc_primary_body_initial_velocity(self):
     #     """Calculates the initial velocity of the primary body in the star system
@@ -269,8 +269,8 @@ class CurveSimBodies(list):
     @staticmethod
     def progress_bar(iteration, p):
         if p.total_iterations > 5:  # prevent DIV/0 in next line
-            if iteration % int(round(p.total_iterations / 10)) == 0:  # Inform user about program's progress.
-                print(f'{round(iteration / p.total_iterations * 10) * 10:3d}% ', end="")
+            if iteration % int(round(p.total_iterations / 10)) == 0:  # Inform user about program"s progress.
+                print(f"{round(iteration / p.total_iterations * 10) * 10:3d}% ", end="")
                 # print(self.energy(iteration, p))
 
     def calc_positions_eclipses_luminosity(self, p, time_s0):
@@ -301,13 +301,13 @@ class CurveSimBodies(list):
         """Calculate body positions and the resulting lightcurve."""
         if p.verbose:
             if p.video_file and p.flux_file is None:
-                print(f'Generating {p.frames} frames for a {p.frames / p.fps:.0f} seconds long video.')
-            print(f'Calculating {p.total_iterations:,} iterations ', end="")
+                print(f"Generating {p.frames} frames for a {p.frames / p.fps:.0f} seconds long video.")
+            print(f"Calculating {p.total_iterations:,} iterations ", end="")
             tic = time.perf_counter()
         sim_rv, sim_flux, bodies, rebound_sim, energy_change = self.calc_positions_eclipses_luminosity(p, time_s0)
         if p.verbose:
             toc = time.perf_counter()
-            print(f' {toc - tic:7.3f} seconds  ({p.total_iterations / (toc - tic):.0f} iterations/second)')
+            print(f" {toc - tic:7.3f} seconds  ({p.total_iterations / (toc - tic):.0f} iterations/second)")
             print(f"Log10 of the relative change of energy during simulation: {energy_change:.0f}")
             if energy_change > -6:
                 print(f"{Fore.YELLOW}The energy must not change significantly! Consider using a smaller time step (dt).{Style.RESET_ALL}")
@@ -317,7 +317,7 @@ class CurveSimBodies(list):
         """If autoscaling is on, this function calculates the radii of the circles (matplotlib patches) of the animation."""
         logs = [math.log10(body.radius) for body in self]  # log10 of all radii
         radii_out = [(p.max_radius - p.min_radius) * (i - min(logs)) / (max(logs) - min(logs)) + p.min_radius for i in logs]  # linear transformation to match the desired minmum and maximum radii
-        # print(f'patch radii:', end="  ")
+        # print(f"patch radii:", end="  ")
         for body, radius in zip(self, radii_out):
             body.patch_radius = radius
 

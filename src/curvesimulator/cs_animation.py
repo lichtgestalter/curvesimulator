@@ -22,7 +22,7 @@ class CurveSimAnimation:
     @staticmethod
     def check_ffmpeg():
         """Checks if ffmpeg is available"""
-        if shutil.which('ffmpeg') is None:
+        if shutil.which("ffmpeg") is None:
             print(f"{Fore.RED}\nERROR: ffmpeg is not available. Please install ffmpeg to save the video.")
             print("Visit ffmpeg.org to download an executable version.")
             print(f"Extract the zip file and add the bin directory to your system's PATH environment variable.{Style.RESET_ALL}")
@@ -49,7 +49,7 @@ class CurveSimAnimation:
         ax_left = plt.subplot2grid(shape=(6, 2), loc=(0, 0), rowspan=4, colspan=1)
         ax_left.set_xlim(-p.xlim, p.xlim)
         ax_left.set_ylim(-p.ylim, p.ylim)
-        ax_left.set_aspect('equal')
+        ax_left.set_aspect("equal")
         ax_left.set_facecolor("black")  # background color
         return ax_left
 
@@ -59,9 +59,9 @@ class CurveSimAnimation:
         ax_right = plt.subplot2grid(shape=(6, 2), loc=(0, 1), rowspan=4, colspan=1)
         ax_right.set_xlim(-p.xlim, p.xlim)
         ax_right.set_ylim(-p.ylim, p.ylim)
-        ax_right.set_aspect('equal')
+        ax_right.set_aspect("equal")
         ax_right.set_facecolor("black")  # background color
-        ax_right.text(.99, .99, "lichtgestalter/CurveSimulator", color='grey', fontsize=10, ha='right', va='top', transform=ax_right.transAxes)
+        ax_right.text(.99, .99, "lichtgestalter/CurveSimulator", color="grey", fontsize=10, ha="right", va="top", transform=ax_right.transAxes)
         return ax_right
 
     @staticmethod
@@ -71,19 +71,19 @@ class CurveSimAnimation:
         ax_lightcurve.set_facecolor("black")  # background color
 
         # commented out, because the rv-plot below has the same x-tics/-labels
-        # ax_lightcurve.text(1.00, -0.05, "BJD (TDB)", color='grey', fontsize=10, ha='right', va='bottom', transform=ax_lightcurve.transAxes)
+        # ax_lightcurve.text(1.00, -0.05, "BJD (TDB)", color="grey", fontsize=10, ha="right", va="bottom", transform=ax_lightcurve.transAxes)
         # lightcurve x-ticks, x-labels
-        # ax_lightcurve.tick_params(axis='x', colors='grey')
+        # ax_lightcurve.tick_params(axis="x", colors="grey")
         # xmax = time_s0[-1] / p.day
         # ax_lightcurve.set_xlim(0, xmax)
         # x_listticdelta = CurveSimAnimation.tic_delta(xmax)
         # digits = max(0, round(-math.log10(x_listticdelta) + 0.4))  # The labels get as many decimal places as the intervals between the tics.
         # xvalues = [x * x_listticdelta for x in range(round(xmax / x_listticdelta))]
-        # xlabels = [f'{round(x + p.start_date, 4):.{digits}f}' for x in xvalues]
+        # xlabels = [f"{round(x + p.start_date, 4):.{digits}f}" for x in xvalues]
         # ax_lightcurve.set_xticks(xvalues, labels=xlabels)
 
         # lightcurve y-ticks, y-labels
-        ax_lightcurve.tick_params(axis='y', colors='grey', labelsize=8)
+        ax_lightcurve.tick_params(axis="y", colors="grey", labelsize=8)
         minl = sim_flux.min(initial=None)
         maxl = sim_flux.max(initial=None)
         if minl == maxl:
@@ -94,7 +94,7 @@ class CurveSimAnimation:
         y_listticdelta = CurveSimAnimation.tic_delta(scope)
         digits = max(0, round(-math.log10(y_listticdelta) + 0.4) - 2)  # The labels get as many decimal places as the intervals between the tics.
         yvalues = [1 - y * y_listticdelta for y in range(round(float((maxl - minl) / y_listticdelta)))]
-        ylabels = [f'{round(100 * y, 10):.{digits}f} %' for y in yvalues]
+        ylabels = [f"{round(100 * y, 10):.{digits}f} %" for y in yvalues]
         ax_lightcurve.set_yticks(yvalues, labels=ylabels)
 
         # lightcurve data (white line)
@@ -112,20 +112,20 @@ class CurveSimAnimation:
         # rv_curve
         ax_rv_curve = plt.subplot2grid(shape=(6, 1), loc=(5, 0), rowspan=1, colspan=1)
         ax_rv_curve.set_facecolor("black")  # background color
-        ax_rv_curve.text(1.00, -0.05, "BJD (TDB)", color='grey', fontsize=10, ha='right', va='bottom', transform=ax_rv_curve.transAxes)
+        ax_rv_curve.text(1.00, -0.05, "BJD (TDB)", color="grey", fontsize=10, ha="right", va="bottom", transform=ax_rv_curve.transAxes)
 
         # rv_curve x-ticks, x-labels
-        ax_rv_curve.tick_params(axis='x', colors='grey')
+        ax_rv_curve.tick_params(axis="x", colors="grey")
         xmax = time_s0[-1] / p.day
         ax_rv_curve.set_xlim(0, xmax)
         x_listticdelta = CurveSimAnimation.tic_delta(xmax)
         digits = max(0, round(-math.log10(x_listticdelta) + 0.4))  # The labels get as many decimal places as the intervals between the tics.
         xvalues = [x * x_listticdelta for x in range(round(xmax / x_listticdelta))]
-        xlabels = [f'{round(x + p.start_date, 4):.{digits}f}' for x in xvalues]
+        xlabels = [f"{round(x + p.start_date, 4):.{digits}f}" for x in xvalues]
         ax_rv_curve.set_xticks(xvalues, labels=xlabels)
 
         # rv_curve y-ticks, y-labels
-        ax_rv_curve.tick_params(axis='y', colors='grey', labelsize=8)
+        ax_rv_curve.tick_params(axis="y", colors="grey", labelsize=8)
         minl = sim_rv.min(initial=None)
         maxl = sim_rv.max(initial=None)
         if minl == maxl:
@@ -136,7 +136,7 @@ class CurveSimAnimation:
         y_listticdelta = CurveSimAnimation.tic_delta(scope)
         digits = max(0, round(-math.log10(y_listticdelta) + 0.4) - 2)  # The labels get as many decimal places as the intervals between the tics.
         yvalues = [maxl - y * y_listticdelta for y in range(round(float((maxl - minl) / y_listticdelta)))]
-        ylabels = [f'{round(1 * y, 10):.{digits}f}' for y in yvalues]
+        ylabels = [f"{round(1 * y, 10):.{digits}f}" for y in yvalues]
         ax_rv_curve.set_yticks(yvalues, labels=ylabels)
 
         # rv_curve data (white line)
@@ -191,13 +191,13 @@ class CurveSimAnimation:
         rv_dot.center = time_s0[frame * p.sampling_rate] / p.day, sim_rv[frame * p.sampling_rate]
         # if frame > 10:
         #     bodies[0].circle_left.set_color((1.0, 0.2, 0.2))  # Example code for changing circle color during animation
-        if frame >= 10 and frame % int(round(p.frames / 10)) == 0:  # Inform user about program's progress.
-            print(f'{round(frame / p.frames * 10) * 10:3d}% ', end="")
+        if frame >= 10 and frame % int(round(p.frames / 10)) == 0:  # Inform user about program"s progress.
+            print(f"{round(frame / p.frames * 10) * 10:3d}% ", end="")
 
     def render(self, p, bodies, sim_rv, sim_flux, time_s0):
         """Calls next_frame() for each frame and saves the video."""
         if p.verbose:
-            print(f'Animating {p.frames:8d} frames:     ', end="")
+            print(f"Animating {p.frames:8d} frames:     ", end="")
             tic = time.perf_counter()
         frames = len(sim_flux) // p.sampling_rate
         anim = matplotlib.animation.FuncAnimation(self.fig, CurveSimAnimation.next_frame, fargs=(p, bodies, self.rv_dot, self.flux_dot, sim_rv, sim_flux, time_s0), interval=1000 / p.fps, frames=frames, blit=False)
@@ -206,13 +206,13 @@ class CurveSimAnimation:
             fps=p.fps,
             metadata={"title": " "},
             extra_args=[
-                '-vcodec', 'libx264',
-                '-crf', '18',  # Constant Rate Factor (lower value means better quality)
-                '-preset', 'slow',  # Preset for better compression
-                '-b:v', '30000k'  # Bitrate 5000k (increase as needed)
+                "-vcodec", "libx264",
+                "-crf", "18",  # Constant Rate Factor (lower value means better quality)
+                "-preset", "slow",  # Preset for better compression
+                "-b:v", "30000k"  # Bitrate 5000k (increase as needed)
             ]
         )
         if p.verbose:
             toc = time.perf_counter()
-            print(f' {toc - tic:7.2f} seconds  ({p.frames / (toc - tic):.0f} frames/second)')
-            print(f'{p.video_file} saved.')
+            print(f" {toc - tic:7.2f} seconds  ({p.frames / (toc - tic):.0f} frames/second)")
+            print(f"{p.video_file} saved.")

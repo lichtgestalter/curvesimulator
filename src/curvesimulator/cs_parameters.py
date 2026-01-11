@@ -16,10 +16,10 @@ class CurveSimParameters:
                        + ["e", "i", "P", "a", "Omega", "omega", "pomega"]
                        + ["L", "ma", "ea", "ea_deg", "nu", "T", "t"])
         self.standard_sections = ["Astronomical Constants", "Results", "Simulation", "Fitting", "Video", "Plot", "Scale", "Debug"]  # These sections must be present in the config file.
-        config = configparser.ConfigParser(inline_comment_prefixes='#')  # Inline comments in the config file start with "#".
+        config = configparser.ConfigParser(inline_comment_prefixes="#")  # Inline comments in the config file start with "#".
         config.optionxform = str  # Preserve case of the keys.
         CurveSimParameters.find_and_check_config_file(config_file, standard_sections=self.standard_sections)
-        config.read(config_file, encoding='utf-8')
+        config.read(config_file, encoding="utf-8")
         self.config_file = config_file
 
         # [Astronomical Constants]
@@ -153,15 +153,15 @@ class CurveSimParameters:
             self.thin_samples = int(eval(config.get("Fitting", "thin_samples", fallback="10")))
 
             default_unit = '{"mass": "m_jup", "radius": "r_jup", "e": "1", "i": "deg", "P": "d", "a": "AU", "Omega": "deg", "omega": "deg", "pomega": "deg", "L": "deg", "ma": "deg", "ea": "deg", "nu": "deg", "T": "s", "t": "s"}'
-            dict_str = config.get('Fitting', 'unit', fallback=default_unit)
+            dict_str = config.get("Fitting", "unit", fallback=default_unit)
             self.unit = eval(dict_str)
             default_scale = '{"mass": 1/m_jup, "radius": 1/r_jup, "e": 1, "i": rad2deg, "P": 1/day, "a": 1/au, "Omega": rad2deg, "omega": rad2deg, "pomega": rad2deg, "L": rad2deg, "ma": rad2deg, "ea": rad2deg, "nu": rad2deg, "T": 1, "t": 1}'
-            dict_str = config.get('Fitting', 'scale', fallback=default_scale)
+            dict_str = config.get("Fitting", "scale", fallback=default_scale)
             self.scale = eval(dict_str)
             self.fitting_parameters = self.read_fitting_parameters(config)
 
     def __repr__(self):
-        return f'CurveSimParameters from {self.config_file}'
+        return f"CurveSimParameters from {self.config_file}"
 
     def check_intervals(self):
         """Checks if the intervals in parameters starts_d, ends_d and dts are well defined.
@@ -173,7 +173,7 @@ class CurveSimParameters:
             print("At least one of the parameters starts/ends/dts is missing. Default values take effect.")
             self.starts_d = np.array([self.start_date], dtype=float)
             self.dts = np.array([self.dt], dtype=float)
-            self.ends_d = np.array([self.start_date + (self.frames * self.fps * self.dt) / self.day], dtype=float)  # default value. Assumes the video shall last 'frames' seconds.
+            self.ends_d = np.array([self.start_date + (self.frames * self.fps * self.dt) / self.day], dtype=float)  # default value. Assumes the video shall last "frames" seconds.
         if not (len(self.starts_d) == len(self.ends_d) == len(self.dts)):
             print(f"{Fore.YELLOW}\nWARNING: Parameters starts, ends and dts do not have the same number of items.{Style.RESET_ALL}")
             print(f"{Fore.YELLOW}Only the first {min(len(self.starts_d), len(self.ends_d), len(self.dts))} intervals will be processed.{Style.RESET_ALL}")
@@ -201,20 +201,20 @@ class CurveSimParameters:
         # Check program parameters and extract config file name from them.
         # if len(sys.argv) == 1:
         #     config_file = default
-        #     print(f'Using default config file {config_file}. Specify config file name as program parameter if you '
-        #           f'want to use another config file.')
+        #     print(f"Using default config file {config_file}. Specify config file name as program parameter if you "
+        #           f"want to use another config file.")
         # elif len(sys.argv) == 2:
         #     config_file = sys.argv[1]
-        #     print(f'Using {config_file} as config file.')
+        #     print(f"Using {config_file} as config file.")
         # else:
         #     config_file = sys.argv[1]
-        #     print(f'Using {config_file} as config file. Further program parameters are ignored.')
-        config = configparser.ConfigParser(inline_comment_prefixes='#')
+        #     print(f"Using {config_file} as config file. Further program parameters are ignored.")
+        config = configparser.ConfigParser(inline_comment_prefixes="#")
         config.optionxform = str  # Preserve case of the keys.
-        if len(config.read(config_file, encoding='utf-8')) < 1:  # does opening the config file fail?
+        if len(config.read(config_file, encoding="utf-8")) < 1:  # does opening the config file fail?
             print(f"{Fore.RED}\nERROR: Config file {config_file} not found.{Style.RESET_ALL}")
             print(f"{Fore.RED}Provide the config file name as the argument of the function curvesim.{Style.RESET_ALL}")
-            print(f"{Fore.RED}More information on https://github.com/lichtgestalter/curvesimulator/wiki '{Style.RESET_ALL}")
+            print(f"{Fore.RED}More information on https://github.com/lichtgestalter/curvesimulator/wiki {Style.RESET_ALL}")
             sys.exit(1)
         if not config_file.endswith(".ini"):
             print(f"{Fore.RED}Please only use config files with the .ini extension. (You tried to use {config_file}.){Style.RESET_ALL}")

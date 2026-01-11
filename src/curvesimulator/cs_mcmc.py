@@ -433,6 +433,9 @@ class CurveSimMCMC:
             self.max_likelihood_params = None
             self.max_log_prob = None
 
+    def make_max_likelihood_config_file(self):
+        pass
+
     def high_density_intervals(self):
         # Calculate HDI and other mcmc results.
         self.mean_params = []
@@ -854,6 +857,7 @@ class CurveSimMCMC:
             self.acceptance_fraction_plot(steps_done, "acceptance.png")
         self.scale_samples(flat_thin_samples)
         self.max_likelihood_parameters(flat_thin_samples)
+        self.make_max_likelihood_config_file()
 
         if p.tt_file:
             measured_tt = self.max_likelihood_tt(bodies, p, time_s0, time_d, measured_tt)
@@ -872,8 +876,6 @@ class CurveSimMCMC:
         self.average_residual_in_std_plot(p, steps_done, "avg_residual.png")
 
         bodies = CurveSimMCMC.bodies_from_fitting_params(bodies, self.fitting_parameters, param_type="max_likelihood")
-        # for body in bodies:  # HACK because length of body.positions is initialized with the correct value for simulation, NOT measurements
-        #     body.positions = np.ndarray((len(time_s0), 3), dtype=float)  # HACK DEBUG
         CurveSimMCMC.single_run(p, bodies, time_s0, time_d)
 
         self.integrated_autocorrelation_time.append(list(self.sampler.get_autocorr_time(tol=0)))

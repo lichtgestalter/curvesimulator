@@ -30,7 +30,7 @@ class CurveSimPhysics:
             if abs(delta) < tolerance:
                 return ea_guess - delta
             ea_guess -= delta
-        raise RuntimeError('Newton\'s root solver did not converge.')
+        raise RuntimeError("Newton\'s root solver did not converge.")
 
     @staticmethod
     def gravitational_parameter(bodies, g):

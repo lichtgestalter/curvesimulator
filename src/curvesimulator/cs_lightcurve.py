@@ -9,20 +9,20 @@ class CurveSimLightcurve(np.ndarray):
         return obj
 
     def __str__(self):
-        return f'CurveSimLightcurve: max={max(self)*100:.4f}%, min={min(self)*100:.4f}%, len={len(self)}'
+        return f"CurveSimLightcurve: max={max(self)*100:.4f}%, min={min(self)*100:.4f}%, len={len(self)}"
 
     def interpolate_max_depth(self, tt, p, iteration, start_index, end_index, dt, time_d):
         """
-        Interpolates the 'self' value at a given 'tt' using cubic interpolation
-        (Catmull-Rom like) based on surrounding 'iteration' points.
+        Interpolates the "self" value at a given "tt" using cubic interpolation
+        (Catmull-Rom like) based on surrounding "iteration" points.
 
         Args:
             self: sim_flux (Lightcurve)
             tt: The time value for which to interpolate [BJD]
             p: CurveSimulator parameters
             iteration: index of the simulation right before TT (iteration < iteration_tt < iteration + 1).
-            start_index: index of the first iteration in the current interval (parameters 'starts' and 'ends')
-            end_index: index + 1 of the last iteration in the current interval (parameters 'starts' and 'ends')
+            start_index: index of the first iteration in the current interval (parameters "starts" and "ends")
+            end_index: index + 1 of the last iteration in the current interval (parameters "starts" and "ends")
 
         Returns:
             The interpolated value at tt, or 1 if interpolation indices are out of bounds. (flux = 1 means depth = 0)
@@ -32,7 +32,7 @@ class CurveSimLightcurve(np.ndarray):
             if p.verbose:
                 print(f"{Fore.YELLOW}\nWARNING: Function interpolate_max_depth: Interpolation indices out of bounds at {iteration=}")
                 print(f"Depth of this transit has been stored in result file as 0.")
-                print(f"Try to move the intervals (parameters 'starts' and 'ends') a bit.{Style.RESET_ALL}")
+                print(f"Try to move the intervals (parameters <starts> and <ends>) a bit.{Style.RESET_ALL}")
             return 1
         # iteration_tt = (tt - (time_s0[iteration] / p.day + p.start_date)) / (dt /p.day) + iteration
         iteration_tt = (tt - time_d[iteration]) / (dt /p.day) + iteration
