@@ -2,6 +2,12 @@
 ## 0.5.7 Automated Flux Data Download
 
 ### jetzt
+- krieg ich bei single run nicht eigentlich auch plots fuer die einzelnen 
+  transits? Aber nicht beim mcmc single run! Vielleicht, weil ich tt-file 
+  auskommentieren musste? Falls das der Grund war: moeglichkeit finden, dass 
+  tt-file drin bleiben kann, obwohl mcmc nur mit flux daten arbeitet. 
+  Differenzierteres Configfile erforderlich.
+- 
 - Neue Kategorie Data in Configfile
 
 - single_run: Fallunterscheidungen sauberer machen
