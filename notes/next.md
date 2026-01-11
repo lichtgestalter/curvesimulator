@@ -2,9 +2,14 @@
 ## 0.5.7 Automated Flux Data Download
 
 ### jetzt
-
 - complete make_max_likelihood_config_file() in mcmc
-- 
+- Result json von F102 in bodies konvertieren und single run laufen lassen
+  - flux Daten mit an die verschobenen Transits angepasstem tt-file neue 
+    prozessieren
+  - In den Einzel-Transits-Plots nach d-Transits suchen
+- warum sieht rv_o_vs_c.png inzwischen so komisch aus?
+  - zumindest wenn aus mcmc heraus erzeugt, Beispiel F101 
+  - wegen den zusaetzlichen Flux-Daten von theoretischen d-transits???
 
 ### aktuell
 - Neue Kategorie Data in Configfile
