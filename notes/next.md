@@ -2,18 +2,19 @@
 ## 0.5.7 Automated Flux Data Download
 
 ### jetzt
-- Sektor 61 rausnehmen oder flux_err drastisch erhoehen 
 
 - complete make_max_likelihood_config_file() in mcmc
 - 
+
+### aktuell
+- Neue Kategorie Data in Configfile
+ 
 - single_run macht eigentlich auch plots fuer die einzelnen 
   transits. Aber nicht beim mcmc single run! Vielleicht, weil ich tt-file 
   auskommentieren musste? Falls das der Grund war: moeglichkeit finden, dass 
   tt-file drin bleiben kann, obwohl mcmc nur mit flux daten arbeitet. 
   Differenzierteres Configfile erforderlich.
 
- 
-- Neue Kategorie Data in Configfile
 
 - single_run: Fallunterscheidungen sauberer machen
   - Je nach Szenario ist es unnoetig, dass die Simulation fuer 
@@ -27,7 +28,6 @@
   - wird in (manchen) Dateinamen des Result-Outputs des Run benutzt
     - z.B. fuer gespeicherte Bodies Beispiel runid.TOI4504d.bdy
 
-### aktuell
 
 - Die einzelnen TT selber ordentlich fitten statt ExcelEyeballing
  
