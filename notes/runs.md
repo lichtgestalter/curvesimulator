@@ -281,6 +281,18 @@ The theoretical expectation for the average residual in std is sqrt(2/pi) ≈ 0.
   - 064 MaxL Werte von 063F
   - 065 wie 064, aber d.i <90 statt >90
 
+### MCMC-Flux with Jacobian Coordinate System
+- F100
+  - Is planet d inclination < 90 or > 90 degrees? It is < 90 !
+- F101
+  - limit planet d inclination to < 90 degrees
+- F102
+  - Without Sector 61
+    - Using my own flux_err_local instead of flux_err would reduce chi 
+      squared only by one third but the chi squared values in this 
+      sector are 4 times higher than in all other sectors.
+- 
+
 ## KEPLER-9
 
 ### MCMC fit von KEPLER-9
