@@ -10,7 +10,7 @@
   - In den Einzel-Transits-Plots nach d-Transits suchen
   - flux_err_local statt flux_err benutzen
     - wie veraendert sich chi squared (plot)?
-- warum sieht rv_o_vs_c.png inzwischen so komisch aus?
+- warum sieht rv_o_vs_c.png inzwischen in der Mitte so komisch aus?
   - zumindest wenn aus mcmc heraus erzeugt, Beispiel F101 
   - wegen den zusaetzlichen Flux-Daten von theoretischen d-transits???
 
