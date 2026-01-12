@@ -129,29 +129,106 @@ class CurveSimBody:
 
 
     @staticmethod
-    def load(filename):
-        """Loads a body from a file produced by `save`.
-        Returns a `CurveSimBody` instance with attributes restored.
+    def load(filename, p):
+        """Load a body from `../bodies/<filename>.bdy`.
+        Parses values with ast.literal_eval (no eval), assembles the constructor
+        args in the original __init__ order, calls CurveSimBody(*args) and then
+        restores any remaining attributes.
+        `p` (the parameter object) must be provided.
         """
         import ast
-        body = object.__new__(CurveSimBody)  # bypass __init__
+        import re
+        import os
+        import numpy as np
+
+        path = os.path.join("..", "bodies", filename + ".bdy")
+        data = {}
         try:
-            with open("../bodies/" + filename + ".bdy", "r", encoding="utf-8") as f:
+            with open(path, "r", encoding="utf-8") as f:
                 for raw in f:
                     line = raw.strip()
-                    if not line or line.startswith("#"):
-                        continue
-                    if "=" not in line:
+                    if not line or line.startswith("#") or "=" not in line:
                         continue
                     key, val_str = line.split("=", 1)
                     key = key.strip()
                     val_str = val_str.strip()
-                    value = ast.literal_eval(val_str)
-                    setattr(body, key, value)
+                    try:
+                        value = ast.literal_eval(val_str)
+                    except (ValueError, SyntaxError):
+                        # Handle common numpy reprs like "np.array([...])" or fallback to raw string
+                        m = re.match(r'^(?:np\.array|numpy\.array|array)\((.*)\)$', val_str)
+                        if m:
+                            inner = m.group(1).strip()
+                            try:
+                                parsed_inner = ast.literal_eval(inner)
+                                value = np.array(parsed_inner)
+                            except Exception:
+                                value = val_str
+                        else:
+                            value = val_str
+                    data[key] = value
         except Exception as e:
-            print(f"Error loading body from {filename}: {e}")
+            print(f"Error loading body from {path}: {e}")
             return None
+
+        # Build args in the same order as __init__ signature:
+        args = [
+            data.get("primary", False),               # primary
+            p,                                        # p (must be provided)
+            data.get("name"),                         # name
+            data.get("body_type"),                    # body_type
+            data.get("mass"),                         # mass
+            data.get("radius"),                       # radius
+            data.get("luminosity"),                   # luminosity
+            data.get("startposition"),                # startposition
+            data.get("velocity"),                     # velocity
+            data.get("P"),                            # P
+            data.get("a"),                            # a
+            data.get("e"),                            # e
+            data.get("i"),                            # i
+            data.get("Omega"),                        # Omega
+            data.get("omega"),                        # omega
+            data.get("pomega"),                       # pomega
+            data.get("L"),                            # L
+            data.get("ma"),                           # ma
+            data.get("ea"),                           # ea
+            data.get("nu"),                           # nu
+            data.get("T"),                            # T
+            data.get("t"),                            # t
+            data.get("limb_darkening_1"),             # limb_darkening_1
+            data.get("limb_darkening_2"),             # limb_darkening_2
+            data.get("limb_darkening_parameter_type"),# limb_darkening_parameter_type
+            data.get("color"),                        # color
+        ]
+
+        try:
+            body = CurveSimBody(*args)
+        except Exception as e:
+            print(f"Error constructing CurveSimBody from {path}: {e}")
+            return None
+
+        # Restore any remaining attributes that were saved but are not constructor args
+        constructor_keys = {
+            "primary", "name", "body_type", "mass", "radius", "luminosity",
+            "startposition", "velocity", "P", "a", "e", "i", "Omega", "omega",
+            "pomega", "L", "ma", "ea", "nu", "T", "t",
+            "limb_darkening_1", "limb_darkening_2", "limb_darkening_parameter_type",
+            "color"
+        }
+        for k, v in data.items():
+            if k in constructor_keys:
+                continue
+            # Avoid overwriting important internal arrays/derived attributes that are intentionally excluded in save
+            if k in {"positions", "velocity", "circle_left", "circle_right", "acceleration", "area_2d", "d", "h", "angle", "eclipsed_area", "patch_radius"}:
+                continue
+            try:
+                setattr(body, k, v)
+            except Exception:
+                # best-effort; ignore attributes that can't be set
+                continue
+
         return body
+
 
     # noinspection NonAsciiCharacters,PyPep8Naming,PyUnusedLocal
     # def calc_orbit_angles(self):
