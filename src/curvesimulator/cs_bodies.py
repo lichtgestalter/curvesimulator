@@ -43,33 +43,38 @@ class CurveSimBodies(list):
         # Physical bodies
         for section in config.sections():
             if section not in p.standard_sections:  # section describes a physical object
-                self.append(CurveSimBody(p=p,
-                                         primary=config.get(section, "primary", fallback=None),
-                                         name=section,
-                                         body_type=config.get(section, "body_type", fallback=None),
-                                         color=tuple([eval(x) for x in config.get(section, "color", fallback="-1").split(",")]),
-                                         mass=            p.read_param(config, section, "mass", fallback="-1"),
-                                         radius=          p.read_param(config, section, "radius", fallback="-1"),
-                                         luminosity=      p.read_param(config, section, "luminosity", fallback="0.0"),
-                                         limb_darkening_1=p.read_param(config, section, "limb_darkening_1", fallback="None"),
-                                         limb_darkening_2=p.read_param(config, section, "limb_darkening_2", fallback="None"),
-                                         limb_darkening_parameter_type=config.get(section, "limb_darkening_parameter_type", fallback=None),
-                                         startposition=                config.get(section, "startposition", fallback=None),
-                                         velocity=                     config.get(section, "velocity", fallback=None),
-                                         e=               p.read_param(config, section, "e", fallback="-1"),
-                                         i=               p.read_param(config, section, "i", fallback="-1111"),
-                                         P=               p.read_param(config, section, "P", fallback="None"),
-                                         a=               p.read_param(config, section, "a", fallback="None"),
-                                         Omega=           p.read_param(config, section, "Omega", fallback="None"),
-                                         omega=           p.read_param(config, section, "omega", fallback="None"),
-                                         pomega=          p.read_param(config, section, "pomega", fallback="None"),
-                                         L=               p.read_param(config, section, "L", fallback="None"),
-                                         ma=              p.read_param(config, section, "ma", fallback="None"),
-                                         ea=              p.read_param(config, section, "ea", fallback="None"),
-                                         nu=              p.read_param(config, section, "nu", fallback="None"),
-                                         T=               p.read_param(config, section, "T", fallback="None"),
-                                         t=               p.read_param(config, section, "t", fallback="0.0"),
-                                         ))
+                file = config.get(section, "file", fallback=None)
+                if file is None:
+                    body = CurveSimBody(p=p,
+                                             primary=config.get(section, "primary", fallback=None),
+                                             name=section,
+                                             body_type=config.get(section, "body_type", fallback=None),
+                                             color=tuple([eval(x) for x in config.get(section, "color", fallback="-1").split(",")]),
+                                             mass=            p.read_param(config, section, "mass", fallback="-1"),
+                                             radius=          p.read_param(config, section, "radius", fallback="-1"),
+                                             luminosity=      p.read_param(config, section, "luminosity", fallback="0.0"),
+                                             limb_darkening_1=p.read_param(config, section, "limb_darkening_1", fallback="None"),
+                                             limb_darkening_2=p.read_param(config, section, "limb_darkening_2", fallback="None"),
+                                             limb_darkening_parameter_type=config.get(section, "limb_darkening_parameter_type", fallback=None),
+                                             startposition=                config.get(section, "startposition", fallback=None),
+                                             velocity=                     config.get(section, "velocity", fallback=None),
+                                             e=               p.read_param(config, section, "e", fallback="-1"),
+                                             i=               p.read_param(config, section, "i", fallback="-1111"),
+                                             P=               p.read_param(config, section, "P", fallback="None"),
+                                             a=               p.read_param(config, section, "a", fallback="None"),
+                                             Omega=           p.read_param(config, section, "Omega", fallback="None"),
+                                             omega=           p.read_param(config, section, "omega", fallback="None"),
+                                             pomega=          p.read_param(config, section, "pomega", fallback="None"),
+                                             L=               p.read_param(config, section, "L", fallback="None"),
+                                             ma=              p.read_param(config, section, "ma", fallback="None"),
+                                             ea=              p.read_param(config, section, "ea", fallback="None"),
+                                             nu=              p.read_param(config, section, "nu", fallback="None"),
+                                             T=               p.read_param(config, section, "T", fallback="None"),
+                                             t=               p.read_param(config, section, "t", fallback="0.0"),
+                                             )
+                else:
+                    body = CurveSimBody.load(file)
+                self.append(body)
         self.check_body_parameters()
         p.bodynames2bodies(self)
         if p.action == "single_run":
@@ -187,6 +192,10 @@ class CurveSimBodies(list):
             if anomaly_counter > 1:
                 print(f"{Fore.YELLOW}\nWARNING: more than one anomaly (L, ma, ea, nu, T) has been specified in config file for {body.name}.")
                 print(f"Check for contradictions and/or remove superflous anomalies.{Style.RESET_ALL}")
+
+    def save(self, prefix="", suffix=""):
+        for body in self:
+            body.save(prefix, suffix)
 
     # def calc_primary_body_initial_velocity(self):
     #     """Calculates the initial velocity of the primary body in the star system

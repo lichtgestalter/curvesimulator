@@ -91,6 +91,67 @@ class CurveSimBody:
 
     def __repr__(self):
         return f"CurveSimBody: {self.name}"
+    #
+    # def save2(self, p, prefix="", suffix=""):
+    #     """Saves attributes of self in a file"""
+    #     filename = prefix + self.name + suffix + ".bdy"
+    #     print(filename)
+    #     print(self.__dict__)
+    #     exclude = ["positions", "velocity", "circle_left", "circle_right", "acceleration", "d", "h", "angle", "eclipsed_area", "patch_radius"]
+    #     for key in self.__dict__.keys():
+    #         if key not in exclude:
+    #             pass
+    #
+    # def load2(filename):
+    #     """Read attributes of body from a file"""
+    #     body = CurveSimBody()
+    #     return body
+
+    def save(self, prefix="", suffix=""):
+        """Saves attributes of self in a simple text file (key = repr(value)).
+        Excludes large/non-serializable/derived attributes listed in `exclude`.
+        """
+        filename = "../bodies/" + prefix + self.name + suffix + ".bdy"
+        exclude = ["positions", "velocity", "circle_left", "circle_right", "acceleration", "area_2d", "d", "h", "angle", "eclipsed_area", "patch_radius"]
+        try:
+            with open(filename, "w", encoding="utf-8") as f:
+                for key, val in self.__dict__.items():
+                    if key in exclude:
+                        continue
+                    if key.startswith("_"):
+                        continue
+                    # skip callables and methods
+                    if callable(val):
+                        continue
+                    f.write(f"{key} = {repr(val)}\n")
+        except Exception as e:
+            print(f"Error saving body to {filename}: {e}")
+
+
+    @staticmethod
+    def load(filename):
+        """Loads a body from a file produced by `save`.
+        Returns a `CurveSimBody` instance with attributes restored.
+        """
+        import ast
+        body = object.__new__(CurveSimBody)  # bypass __init__
+        try:
+            with open("../bodies/" + filename + ".bdy", "r", encoding="utf-8") as f:
+                for raw in f:
+                    line = raw.strip()
+                    if not line or line.startswith("#"):
+                        continue
+                    if "=" not in line:
+                        continue
+                    key, val_str = line.split("=", 1)
+                    key = key.strip()
+                    val_str = val_str.strip()
+                    value = ast.literal_eval(val_str)
+                    setattr(body, key, value)
+        except Exception as e:
+            print(f"Error loading body from {filename}: {e}")
+            return None
+        return body
 
     # noinspection NonAsciiCharacters,PyPep8Naming,PyUnusedLocal
     # def calc_orbit_angles(self):

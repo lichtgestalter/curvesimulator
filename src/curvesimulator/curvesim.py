@@ -6,6 +6,7 @@ import time
 
 from .cs_animation import CurveSimAnimation
 from .cs_bodies import CurveSimBodies
+from .cs_body import CurveSimBody
 from .cs_parameters import CurveSimParameters
 from .cs_mcmc import CurveSimMCMC, CurveSimLMfit
 from .cs_manual_fit import CurveSimManualFit
@@ -111,6 +112,10 @@ class CurveSimulator:
                 sys.exit(1)
         elif p.action == "single_run":
             bodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
+            # bodies.save(p, "vorne_", "_hinten")
+            # new_body = CurveSimBody.load("vorne_TOI4504d_hinten.bdy")
+            # new_body.save("abc__")
+            # exit(1)
             bodies, sim_flux, results = CurveSimMCMC.single_run(p, bodies)
             self.sim_flux = sim_flux
             self.results = results
