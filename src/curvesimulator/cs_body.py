@@ -18,7 +18,7 @@ def multiple_transit_error():
 # noinspection NonAsciiCharacters,PyPep8Naming,PyUnusedLocal
 class CurveSimBody:
 
-    def __init__(self, primary, p, name, body_type, mass, radius, luminosity, startposition, velocity, P, a, e, i, Omega, omega, pomega, L, ma, ea,
+    def __init__(self, p, primary, name, body_type, mass, radius, luminosity, startposition, velocity, P, a, e, i, Omega, omega, pomega, L, ma, ea,
                  nu, T, t, limb_darkening_1, limb_darkening_2, limb_darkening_parameter_type, color):
         """Initialize instance of physical body."""
         # For ease of use of constants in the config file they are additionally defined here without the prefix "p.".

@@ -73,7 +73,7 @@ class CurveSimBodies(list):
                                              t=               p.read_param(config, section, "t", fallback="0.0"),
                                              )
                 else:
-                    body = CurveSimBody.load(file)
+                    body = CurveSimBody.load(file, p)
                 self.append(body)
         self.check_body_parameters()
         p.bodynames2bodies(self)
