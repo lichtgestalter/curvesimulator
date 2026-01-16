@@ -2,7 +2,7 @@
 ## 0.5.7 Automated Flux Data Download
 
 ### jetzt
-- complete body.load()
+- body.load() vereinfachen?
 - complete make_max_likelihood_config_file() in mcmc
 - Result json von F102 in bodies konvertieren und single run laufen lassen
   - flux Daten mit an die verschobenen Transits angepasstem tt-file neue 
