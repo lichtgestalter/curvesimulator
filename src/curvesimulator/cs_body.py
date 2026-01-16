@@ -17,7 +17,6 @@ def multiple_transit_error():
 
 # noinspection NonAsciiCharacters,PyPep8Naming,PyUnusedLocal
 class CurveSimBody:
-
     def __init__(self, p, primary, name, body_type, mass, radius, luminosity, startposition, velocity, P, a, e, i, Omega, omega, pomega, L, ma, ea,
                  nu, T, t, limb_darkening_1, limb_darkening_2, limb_darkening_parameter_type, color):
         """Initialize instance of physical body."""
@@ -127,7 +126,6 @@ class CurveSimBody:
         except Exception as e:
             print(f"Error saving body to {filename}: {e}")
 
-
     @staticmethod
     def load(filename, p):
         """Load a body from `../bodies/<filename>.bdy`.
@@ -139,7 +137,7 @@ class CurveSimBody:
         import ast
         import re
         import os
-        import numpy as np
+        # import numpy as np
 
         path = os.path.join("..", "bodies", filename + ".bdy")
         data = {}
@@ -173,32 +171,32 @@ class CurveSimBody:
 
         # Build args in the same order as __init__ signature:
         args = [
-            data.get("primary", False),               # primary
-            p,                                        # p (must be provided)
-            data.get("name"),                         # name
-            data.get("body_type"),                    # body_type
-            data.get("mass"),                         # mass
-            data.get("radius"),                       # radius
-            data.get("luminosity"),                   # luminosity
-            data.get("startposition"),                # startposition
-            data.get("velocity"),                     # velocity
-            data.get("P"),                            # P
-            data.get("a"),                            # a
-            data.get("e"),                            # e
-            data.get("i"),                            # i
-            data.get("Omega"),                        # Omega
-            data.get("omega"),                        # omega
-            data.get("pomega"),                       # pomega
-            data.get("L"),                            # L
-            data.get("ma"),                           # ma
-            data.get("ea"),                           # ea
-            data.get("nu"),                           # nu
-            data.get("T"),                            # T
-            data.get("t"),                            # t
-            data.get("limb_darkening_1"),             # limb_darkening_1
-            data.get("limb_darkening_2"),             # limb_darkening_2
-            data.get("limb_darkening_parameter_type"),# limb_darkening_parameter_type
-            data.get("color"),                        # color
+            p,                                          # program parameters
+            data.get("primary", False),    # primary
+            data.get("name"),                           # name
+            data.get("body_type"),                      # body_type
+            data.get("mass"),                           # mass
+            data.get("radius"),                         # radius
+            data.get("luminosity"),                     # luminosity
+            data.get("startposition"),                  # startposition
+            data.get("velocity"),                       # velocity
+            data.get("P"),                              # P
+            data.get("a"),                              # a
+            data.get("e"),                              # e
+            data.get("i"),                              # i
+            data.get("Omega"),                          # Omega
+            data.get("omega"),                          # omega
+            data.get("pomega"),                         # pomega
+            data.get("L"),                              # L
+            data.get("ma"),                             # ma
+            data.get("ea"),                             # ea
+            data.get("nu"),                             # nu
+            data.get("T"),                              # T
+            data.get("t"),                              # t
+            data.get("limb_darkening_1"),               # limb_darkening_1
+            data.get("limb_darkening_2"),               # limb_darkening_2
+            data.get("limb_darkening_parameter_type"),  # limb_darkening_parameter_type
+            data.get("color"),                          # color
         ]
 
         try:
@@ -207,28 +205,7 @@ class CurveSimBody:
             print(f"Error constructing CurveSimBody from {path}: {e}")
             return None
 
-        # Restore any remaining attributes that were saved but are not constructor args
-        constructor_keys = {
-            "primary", "name", "body_type", "mass", "radius", "luminosity",
-            "startposition", "velocity", "P", "a", "e", "i", "Omega", "omega",
-            "pomega", "L", "ma", "ea", "nu", "T", "t",
-            "limb_darkening_1", "limb_darkening_2", "limb_darkening_parameter_type",
-            "color"
-        }
-        for k, v in data.items():
-            if k in constructor_keys:
-                continue
-            # Avoid overwriting important internal arrays/derived attributes that are intentionally excluded in save
-            if k in {"positions", "velocity", "circle_left", "circle_right", "acceleration", "area_2d", "d", "h", "angle", "eclipsed_area", "patch_radius"}:
-                continue
-            try:
-                setattr(body, k, v)
-            except Exception:
-                # best-effort; ignore attributes that can't be set
-                continue
-
         return body
-
 
     # noinspection NonAsciiCharacters,PyPep8Naming,PyUnusedLocal
     # def calc_orbit_angles(self):
@@ -720,25 +697,27 @@ class CurveSimBody:
            Therefore add a handful of extra frames."""
         if self.P is not None:
             return self.P / (p.dt * p.sampling_rate)
+        else:
+            return None
 
     def print_particle(self, simulation):
-            particle = simulation.particles[self.name]
-            print(f"\n{self.name}:")
-            print(f"x:     {particle.x:14.6e}")
-            print(f"y:     {particle.y:14.6e}")
-            print(f"z:     {particle.z:14.6e}")
-            print(f"vx:    {particle.vx:14.6e}")
-            print(f"vy:    {particle.vy:14.6e}")
-            print(f"vz:    {particle.vz:14.6e}")
-            try:
-                orbit = particle.orbit()
-            except ValueError:
-                orbit = False
-            if orbit:
-                print(f"a:     {particle.a:14.6e}")
-                print(f"P:     {particle.P:14.6e}")
-                print(f"e:     {particle.e:14.6e}")
-                print(f"i:     {particle.inc:14.6e}")
-                print(f"Omega: {particle.Omega:14.6e}")
-                print(f"omega: {particle.omega:14.6e}")
-                print(f"ma:    {particle.M:14.6e}")
+        particle = simulation.particles[self.name]
+        print(f"\n{self.name}:")
+        print(f"x:     {particle.x:14.6e}")
+        print(f"y:     {particle.y:14.6e}")
+        print(f"z:     {particle.z:14.6e}")
+        print(f"vx:    {particle.vx:14.6e}")
+        print(f"vy:    {particle.vy:14.6e}")
+        print(f"vz:    {particle.vz:14.6e}")
+        try:
+            orbit = particle.orbit()
+        except ValueError:
+            orbit = False
+        if orbit:
+            print(f"a:     {particle.a:14.6e}")
+            print(f"P:     {particle.P:14.6e}")
+            print(f"e:     {particle.e:14.6e}")
+            print(f"i:     {particle.inc:14.6e}")
+            print(f"Omega: {particle.Omega:14.6e}")
+            print(f"omega: {particle.omega:14.6e}")
+            print(f"ma:    {particle.M:14.6e}")

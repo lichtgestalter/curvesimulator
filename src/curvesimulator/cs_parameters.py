@@ -18,7 +18,7 @@ class CurveSimParameters:
         self.standard_sections = ["Astronomical Constants", "Results", "Simulation", "Fitting", "Video", "Plot", "Scale", "Debug"]  # These sections must be present in the config file.
         config = configparser.ConfigParser(inline_comment_prefixes="#")  # Inline comments in the config file start with "#".
         config.optionxform = str  # Preserve case of the keys.
-        CurveSimParameters.find_and_check_config_file(config_file, standard_sections=self.standard_sections)
+        CurveSimParameters.find_and_check_config_file(config_file)  #, standard_sections=self.standard_sections)
         config.read(config_file, encoding="utf-8")
         self.config_file = config_file
 
@@ -196,7 +196,7 @@ class CurveSimParameters:
         return start_indices, max_iterations, total_iterations
 
     @staticmethod
-    def find_and_check_config_file(config_file, standard_sections):
+    def find_and_check_config_file(config_file):
         """Check if config file can be opened and contains all standard sections."""
         # Check program parameters and extract config file name from them.
         # if len(sys.argv) == 1:
