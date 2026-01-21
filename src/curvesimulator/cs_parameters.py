@@ -1,9 +1,8 @@
-import random
-
 from colorama import Fore, Style
 import configparser
 import numpy as np
 import os
+import random
 import sys
 
 
@@ -14,7 +13,7 @@ class CurveSimParameters:
         self.PARAMS = (["body_type", "primary", "mass", "radius", "luminosity"]
                        + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
                        + ["e", "i", "P", "a", "Omega", "omega", "pomega"]
-                       + ["L", "ma", "ea", "ea_deg", "nu", "T", "t"])
+                       + ["L", "ma", "ea", "nu", "T", "t"])
         self.standard_sections = ["Astronomical Constants", "Results", "Simulation", "Fitting", "Video", "Plot", "Scale", "Debug"]  # These sections must be present in the config file.
         config = configparser.ConfigParser(inline_comment_prefixes="#")  # Inline comments in the config file start with "#".
         config.optionxform = str  # Preserve case of the keys.

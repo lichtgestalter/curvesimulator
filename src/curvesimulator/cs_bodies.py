@@ -1,3 +1,4 @@
+import ast
 from colorama import Fore, Style
 import configparser
 import json
@@ -45,40 +46,12 @@ class CurveSimBodies(list):
             if section not in p.standard_sections:  # section describes a physical object
                 file = config.get(section, "file", fallback=None)
                 if file is None:
-                    # body = CurveSimBody(p=p,
-                    #                     primary=config.get(section, "primary", fallback=None),
-                    #                     name=section,
-                    #                     body_type=config.get(section, "body_type", fallback=None),
-                    #                     color=tuple([eval(x) for x in config.get(section, "color", fallback="-1").split(",")]),
-                    #                     mass=p.read_param(config, section, "mass", fallback="-1"),
-                    #                     radius=p.read_param(config, section, "radius", fallback="-1"),
-                    #                     luminosity=p.read_param(config, section, "luminosity", fallback="0.0"),
-                    #                     limb_darkening_1=p.read_param(config, section, "limb_darkening_1", fallback="None"),
-                    #                     limb_darkening_2=p.read_param(config, section, "limb_darkening_2", fallback="None"),
-                    #                     limb_darkening_parameter_type=config.get(section, "limb_darkening_parameter_type", fallback=None),
-                    #                     startposition=config.get(section, "startposition", fallback=None),
-                    #                     velocity=config.get(section, "velocity", fallback=None),
-                    #                     e=p.read_param(config, section, "e", fallback="-1"),
-                    #                     i=p.read_param(config, section, "i", fallback="-1111"),
-                    #                     P=p.read_param(config, section, "P", fallback="None"),
-                    #                     a=p.read_param(config, section, "a", fallback="None"),
-                    #                     Omega=p.read_param(config, section, "Omega", fallback="None"),
-                    #                     omega=p.read_param(config, section, "omega", fallback="None"),
-                    #                     pomega=p.read_param(config, section, "pomega", fallback="None"),
-                    #                     L=p.read_param(config, section, "L", fallback="None"),
-                    #                     ma=p.read_param(config, section, "ma", fallback="None"),
-                    #                     ea=p.read_param(config, section, "ea", fallback="None"),
-                    #                     nu=p.read_param(config, section, "nu", fallback="None"),
-                    #                     T=p.read_param(config, section, "T", fallback="None"),
-                    #                     t=p.read_param(config, section, "t", fallback="0.0"),
-                    #                     )
-
                     kwargs = {
                         "p": p,
                         "primary": config.get(section, "primary", fallback=None),
                         "name": section,
                         "body_type": config.get(section, "body_type", fallback=None),
-                        "color": tuple([eval(x) for x in config.get(section, "color", fallback="-1").split(",")]),
+                        "color": tuple([ast.literal_eval(x) for x in config.get(section, "color", fallback="-1").split(",")]),
                         "mass": p.read_param(config, section, "mass", fallback="-1"),
                         "radius": p.read_param(config, section, "radius", fallback="-1"),
                         "luminosity": p.read_param(config, section, "luminosity", fallback="0.0"),

@@ -1,3 +1,4 @@
+import ast
 from colorama import Fore, Style
 import math
 import numpy as np
@@ -128,18 +129,10 @@ class CurveSimBody:
 
     @staticmethod
     def load(filename, p):
-        """Load a body from `../bodies/<filename>.bdy`.
-        Parses values with ast.literal_eval (no eval), assembles the constructor
-        args in the original __init__ order, calls CurveSimBody(*args) and then
-        restores any remaining attributes.
-        `p` (the parameter object) must be provided.
-        """
-        import ast
-        import re
-        import os
-        # import numpy as np
-
-        path = os.path.join("..", "bodies", filename + ".bdy")
+        """Loads a body from `../bodies/<filename>.bdy`,
+        assembles the constructor args in the original __init__ order,
+        calls CurveSimBody(*args)"""
+        path = "../bodies/" + filename + ".bdy"
         data = {}
         try:
             with open(path, "r", encoding="utf-8") as f:
@@ -150,24 +143,24 @@ class CurveSimBody:
                     key, val_str = line.split("=", 1)
                     key = key.strip()
                     val_str = val_str.strip()
-                    try:
-                        value = ast.literal_eval(val_str)
-                    except (ValueError, SyntaxError):
-                        # Handle common numpy reprs like "np.array([...])" or fallback to raw string
-                        m = re.match(r'^(?:np\.array|numpy\.array|array)\((.*)\)$', val_str)
-                        if m:
-                            inner = m.group(1).strip()
-                            try:
-                                parsed_inner = ast.literal_eval(inner)
-                                value = np.array(parsed_inner)
-                            except Exception:
-                                value = val_str
-                        else:
-                            value = val_str
-                    data[key] = value
+                    data[key] = ast.literal_eval(val_str)
         except Exception as e:
             print(f"Error loading body from {path}: {e}")
             return None
+
+        if "limb_darkening_1" not in data.keys():
+            data["limb_darkening_1"] = data.get("limb_darkening_u1")
+            data["limb_darkening_2"] = data.get("limb_darkening_u2")
+            data["limb_darkening_parameter_type"] = "u"
+
+        missing = []
+        for param in p.PARAMS:
+            if param not in data.keys():
+                data[param] = None
+                missing.append(param)
+        if missing:
+            print(f"{Fore.YELLOW}\nWARNING: Missing parameters in {filename + ".bdy"}: {missing} {Style.RESET_ALL}")
+
 
         # Build args in the same order as __init__ signature:
         args = [
