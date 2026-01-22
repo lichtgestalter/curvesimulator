@@ -433,7 +433,7 @@ class CurveSimMCMC:
             self.max_likelihood_params = None
             self.max_log_prob = None
 
-    def make_max_likelihood_config_file(self):
+    def save_max_likelihood_bodies(self):
         pass
 
     def high_density_intervals(self):
@@ -857,7 +857,7 @@ class CurveSimMCMC:
             self.acceptance_fraction_plot(steps_done, "acceptance.png")
         self.scale_samples(flat_thin_samples)
         self.max_likelihood_parameters(flat_thin_samples)
-        self.make_max_likelihood_config_file()
+        self.save_max_likelihood_bodies()
 
         if p.tt_file:
             measured_tt = self.max_likelihood_tt(bodies, p, time_s0, time_d, measured_tt)
