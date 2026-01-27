@@ -451,13 +451,16 @@ class CurveSimMCMC:
             self.mean_params.append(mean)
             self.median_params.append(median)
 
-    def max_likelihood_tt(self, bodies, p, time_s0, time_d, measured_tt):
+    def get_max_likelihood_bodies(self, bodies):
         i = 0
         for body_index, parameter_name in self.param_references:
             bodies[body_index].__dict__[parameter_name] = self.max_likelihood_params[i]  # update all parameters from theta
             i += 1
-        sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # run simulation
-        residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
+        return bodies
+
+    def max_likelihood_tt(self, max_likelihood_bodies, p, time_s0, time_d, measured_tt):
+        sim_rv, sim_flux, rebound_sim = max_likelihood_bodies.calc_physics(p, time_s0)  # run simulation
+        _, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
         return measured_tt
 
     @staticmethod
@@ -857,10 +860,11 @@ class CurveSimMCMC:
             self.acceptance_fraction_plot(steps_done, "acceptance.png")
         self.scale_samples(flat_thin_samples)
         self.max_likelihood_parameters(flat_thin_samples)
-        self.save_max_likelihood_bodies()
+        # self.save_max_likelihood_bodies()
 
         if p.tt_file:
-            measured_tt = self.max_likelihood_tt(bodies, p, time_s0, time_d, measured_tt)
+            max_likelihood_bodies = self.get_max_likelihood_bodies(bodies)
+            measured_tt = self.max_likelihood_tt(max_likelihood_bodies, p, time_s0, time_d, measured_tt)
             measured_tt = CurveSimMCMC.add_new_best_delta(measured_tt, steps_done)
             CurveSimMCMC.tt_delta_plot(p, steps_done, "tt_delta.png", measured_tt)
             self.tt_multi_delta_plot(steps_done, "tt_multi_delta.png", measured_tt)
@@ -876,7 +880,7 @@ class CurveSimMCMC:
         self.average_residual_in_std_plot(p, steps_done, "avg_residual.png")
 
         bodies = CurveSimMCMC.bodies_from_fitting_params(bodies, self.fitting_parameters, param_type="max_likelihood")
-        bodies.save(p)
+        bodies.save(p, prefix=p.comment, suffix="_maxL")
         CurveSimMCMC.single_run(p, bodies, time_s0, time_d)
 
         self.integrated_autocorrelation_time.append(list(self.sampler.get_autocorr_time(tol=0)))
