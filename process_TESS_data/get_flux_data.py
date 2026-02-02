@@ -122,7 +122,7 @@ def download_flux_lc(target, sector=None, author=None, exptime=None, save_plot=F
         plt.title(f'TOI 4504 Flux {sector=} {author=} {exptime=}')
         # plt.legend()
         plt.grid(True)
-        plt.savefig(f'../data/TOI-4504/plots/{sector}_{author}_{exptime}{cut}.png')
+        plt.savefig(f'../data/TOI-4504/tmp/{sector}_{author}_{exptime}{cut}.png')
         # plt.savefig(f'../research/star_systems/TOI-4504/lightkurve/{sector}/{sector}_{author}_{exptime}{cut}.png')
         plt.show()
     if save_error_plot:
@@ -133,13 +133,13 @@ def download_flux_lc(target, sector=None, author=None, exptime=None, save_plot=F
         plt.title(f'TOI 4504 Flux Error, TESS sector {sector}')
         # plt.legend()
         plt.grid(True)
-        plt.savefig(f'../data/TOI-4504/plots/{sector}_{author}_{exptime}{cut}_err.png')
+        plt.savefig(f'../data/TOI-4504/tmp/{sector}_{author}_{exptime}{cut}_err.png')
         plt.show()
     if save_csv:
-        pandas_file = f'../data/TOI-4504/downloads/{sector}_{author}_{exptime}{cut}.csv'
+        pandas_file = f'../data/TOI-4504/tmp/{sector}_{author}_{exptime}{cut}.csv'
         lc2csv(lc, pandas_file)
     if save_fits:
-        filename = f"../data/TOI-4504/downloads/{sector}_{author}_{exptime}{cut}.fits"
+        filename = f"../data/TOI-4504/tmp/{sector}_{author}_{exptime}{cut}.fits"
         lc.to_fits(filename, overwrite=True)
         print(f"Saved: {filename}")
 
@@ -222,6 +222,5 @@ def check_for_new_data(sector):
 #     get_new_lightcurve(sector)
 
 
-# get_new_lightcurve(97)
-check_for_new_data([97, 98, 99])
-# check_for_new_data([97])
+# get_new_lightcurve(98)
+check_for_new_data([98])
