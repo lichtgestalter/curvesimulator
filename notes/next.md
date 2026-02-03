@@ -2,9 +2,17 @@
 ## 0.5.7 Automated Flux Data Download
 
 ### jetzt
-- lesen von als Datei gespeicherten bodies reicht nicht fuer mcmc, weil 
-  upper, lower etc Werte (inklusive Identifizierung der Fitting Parameter) 
-  noch nicht in der Datei enthalten ist!
+- lesen/speichen von bodies als file
+  - um die fitting parameters ergaenzen
+    - in separatem .fit file?
+    - ist etwas umstaendlich, aber so passen die .bdy files zur Klase Body
+    - und die .fit files zur Klasse FittingParameter
+    - der body_index der fitting_parameter sollte vielleicht gar nicht im 
+      File gespeichert werden, sondern aus der Position des Bodys im 
+      Config-File abgeleitet werden. So koennen nicht Konflikte entstehen, 
+      falls die Body-Reihenfolge sich mal aendert.
+  
+
 - complete save_max_likelihood_bodies() in mcmc
   - unnoetig, weil schon in Zeile 883 von mcmc mit bodies.save(p, prefix=p.
     comment, suffix="_maxL") passiert?

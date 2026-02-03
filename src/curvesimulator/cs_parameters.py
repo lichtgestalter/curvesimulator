@@ -282,7 +282,7 @@ class CurveSimParameters:
                             print(f"body {body_index}: {parameter_name}")
                         if parameter_name in ["i", "Omega", "omega", "pomega", "ma", "nu", "ea", "L"]:
                             value, lower, upper, sigma = np.radians(value), np.radians(lower), np.radians(upper), np.radians(sigma)
-                        fitting_parameters.append(FittingParameter(self, body_index, parameter_name, value, lower, upper, sigma))
+                        fitting_parameters.append(FittingParameter(self, section, body_index, parameter_name, value, lower, upper, sigma))
                         fitting_parameters[-1].index = len(fitting_parameters) - 1
                 body_index += 1
         # print(f"Fitting {len(fitting_parameters)} parameters.")
@@ -358,7 +358,8 @@ class CurveSimParameters:
 
 
 class FittingParameter:
-    def __init__(self, p, body_index, parameter_name, startvalue, lower, upper, sigma):
+    def __init__(self, p, body_name, body_index, parameter_name, startvalue, lower, upper, sigma):
+        self.body_name = body_name
         self.body_index = body_index
         self.parameter_name = parameter_name
         self.unit = p.unit[parameter_name]
