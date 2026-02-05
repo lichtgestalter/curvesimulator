@@ -4,13 +4,15 @@
 ### jetzt
 - lesen/speichen von bodies als file
   - um die fitting parameters ergaenzen
-    - in separatem .fit file?
-    - ist etwas umstaendlich, aber so passen die .bdy files zur Klase Body
-    - und die .fit files zur Klasse FittingParameter
-    - der body_index der fitting_parameter sollte vielleicht gar nicht im 
-      File gespeichert werden, sondern aus der Position des Bodys im 
-      Config-File abgeleitet werden. So koennen nicht Konflikte entstehen, 
-      falls die Body-Reihenfolge sich mal aendert.
+  - save_fitting_parameters habe ich vibecoded
+    - muss noch ueberpreuft und optimiert werden
+  - in separatem .fit file?
+  - ist etwas umstaendlich, aber so passen die .bdy files zur Klase Body
+  - und die .fit files zur Klasse FittingParameter
+  - der body_index der fitting_parameter sollte vielleicht gar nicht im 
+    File gespeichert werden, sondern aus der Position des Bodys im 
+    Config-File abgeleitet werden. So koennen nicht Konflikte entstehen, 
+    falls die Body-Reihenfolge sich mal aendert.
   
 
 - complete save_max_likelihood_bodies() in mcmc

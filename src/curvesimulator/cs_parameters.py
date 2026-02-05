@@ -1,9 +1,11 @@
 from colorama import Fore, Style
 import configparser
+import json
 import numpy as np
 import os
 import random
 import sys
+import time
 
 
 class CurveSimParameters:
@@ -290,7 +292,40 @@ class CurveSimParameters:
 
     @staticmethod
     def save_fitting_parameters(fitting_parameters, prefix="", suffix=""):
-        print("CurveSimParameters.save_fitting_parameters", prefix, suffix)
+        """ fitting_parameters is as list of FittingParameter
+        Save it in JSON format"""
+        data = []
+        for fp in fitting_parameters:
+            item = {
+                "index": fp.index,
+                "body_name": fp.body_name,
+                hier weiter: ueberfluessige getattr entfernen
+                hier (oder in enrich funktion?) lesbare (also mit scale multiplizierte) attribute erzeugen
+                "body_index": getattr(fp, "body_index", None),
+                "parameter_name": getattr(fp, "parameter_name", None),
+                "unit": getattr(fp, "unit", None),
+                "long_parameter_name": getattr(fp, "long_parameter_name", None),
+                "scale": getattr(fp, "scale", None),
+                "startvalue": getattr(fp, "startvalue", None),
+                "lower": getattr(fp, "lower", None),
+                "upper": getattr(fp, "upper", None),
+                "sigma": getattr(fp, "sigma", None),
+            }
+            data.append(item)
+
+        base_name = f"{prefix}fitting_parameters{suffix}.json"
+        filename = base_name
+        counter = 1
+        while os.path.exists(filename):
+            filename = f"../fitting_parameters/{prefix}fitting_parameters{suffix}_{counter}.json"
+            counter += 1
+
+        payload = {"created": time.time(), "count": len(data), "fitting_parameters": data}
+        with open(filename, "w", encoding="utf-8") as fh:
+            json.dump(payload, fh, indent=2, ensure_ascii=False)
+
+        print(f"CurveSimParameters.save_fitting_parameters: saved {len(data)} entries to {filename}")
+        exit(88)
 
     def find_results_subdirectory(self):
         """Find the name of the non-existing subdirectory with
