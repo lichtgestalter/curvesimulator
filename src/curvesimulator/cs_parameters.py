@@ -288,6 +288,10 @@ class CurveSimParameters:
         # print(f"Fitting {len(fitting_parameters)} parameters.")
         return fitting_parameters
 
+    @staticmethod
+    def save_fitting_parameters(fitting_parameters, prefix="", suffix=""):
+        print("CurveSimParameters.save_fitting_parameters", prefix, suffix)
+
     def find_results_subdirectory(self):
         """Find the name of the non-existing subdirectory with
         the lowest number and create this subdirectory."""

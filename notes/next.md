@@ -82,17 +82,10 @@ NEXT! (vermutlich in cs_results.py reinschreiben)
 
 ### MCMC
 - nach einem Chunk auch die aktuelle Uhrzeit in die Konsole printen
-- RV, TT, Flux und 
+- RV, TT, Flux kombinierbar 
 - Verschiedene Moves ausprobieren: 
   - https://emcee.readthedocs.io/en/stable/user/moves/
 
-### Flux-MCMC
-- mcmc flux wieder zum Laufen bringen
-  - F056
-  - laeuft jetzt, aber mean, maxL und median bleiben manchmal identisch und 
-    konstant???
-  - bei Gelegenheit debuggen
-  
 ### LMfit
 - Multi LMFit: normalverteilte Startwerte
 - LMfit mit Fluxdaten laufen lassen? (erfordert neuen Code)

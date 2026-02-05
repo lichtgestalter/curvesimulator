@@ -880,7 +880,8 @@ class CurveSimMCMC:
         self.average_residual_in_std_plot(p, steps_done, "avg_residual.png")
 
         bodies = CurveSimMCMC.bodies_from_fitting_params(bodies, self.fitting_parameters, param_type="max_likelihood")
-        bodies.save(p, prefix=p.comment, suffix="_maxL")
+        bodies.save(prefix=p.comment, suffix="_maxL")
+        CurveSimParameters.save_fitting_parameters(self.fitting_parameters, prefix=p.comment, suffix="_maxL")
         CurveSimMCMC.single_run(p, bodies, time_s0, time_d)
 
         self.integrated_autocorrelation_time.append(list(self.sampler.get_autocorr_time(tol=0)))
