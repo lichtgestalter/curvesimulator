@@ -12,6 +12,8 @@ class CurveSimParameters:
 
     def __init__(self, config_file):
         """Read program parameters and properties of the physical bodies from config file."""
+        self.body_parameter_names = None
+        self.long_body_parameter_names = None
         self.PARAMS = (["body_type", "primary", "mass", "radius", "luminosity"]
                        + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
                        + ["e", "i", "P", "a", "Omega", "omega", "pomega"]
@@ -299,17 +301,16 @@ class CurveSimParameters:
             item = {
                 "index": fp.index,
                 "body_name": fp.body_name,
-                hier weiter: ueberfluessige getattr entfernen
-                hier (oder in enrich funktion?) lesbare (also mit scale multiplizierte) attribute erzeugen
-                "body_index": getattr(fp, "body_index", None),
-                "parameter_name": getattr(fp, "parameter_name", None),
-                "unit": getattr(fp, "unit", None),
-                "long_parameter_name": getattr(fp, "long_parameter_name", None),
-                "scale": getattr(fp, "scale", None),
-                "startvalue": getattr(fp, "startvalue", None),
-                "lower": getattr(fp, "lower", None),
-                "upper": getattr(fp, "upper", None),
-                "sigma": getattr(fp, "sigma", None),
+                # hier (oder in enrich funktion?) lesbare (also mit scale multiplizierte) attribute erzeugen
+                "body_index": fp.body_index,
+                "parameter_name": fp.parameter_name,
+                "unit": fp.unit,
+                "long_parameter_name": fp.long_parameter_name,
+                "scale": fp.scale,
+                "startvalue": fp.startvalue,
+                "lower": fp.lower,
+                "upper": fp.upper,
+                "sigma": fp.sigma,
             }
             data.append(item)
 
@@ -389,6 +390,7 @@ class CurveSimParameters:
         self.fitting_parameter_dic = {(fp.body_index, fp.parameter_name): fp.index for fp in self.fitting_parameters}
 
     def enrich_fitting_params(self, bodies):
+        """Add attributes body_parameter_name and long_body_parameter_name to each FittingParameter"""
         self.body_parameter_names = [f"{bodies[fp.body_index].name}.{fp.parameter_name}" for fp in self.fitting_parameters]
         self.long_body_parameter_names = [fpn + " [" + self.unit[fpn.split(".")[-1]] + "]" for fpn in self.body_parameter_names]
         for fp, fpn, fpnu in zip(self.fitting_parameters, self.body_parameter_names, self.long_body_parameter_names):

@@ -7,12 +7,15 @@
   - save_fitting_parameters habe ich vibecoded
     - muss noch ueberpreuft und optimiert werden
   - in separatem .fit file?
-  - ist etwas umstaendlich, aber so passen die .bdy files zur Klase Body
+  - ist etwas umstaendlich, aber so passen die .bdy files zur Klasse Body
   - und die .fit files zur Klasse FittingParameter
-  - der body_index der fitting_parameter sollte vielleicht gar nicht im 
+  - der body_index der fitting_parameter sollte wohl gar nicht im 
     File gespeichert werden, sondern aus der Position des Bodys im 
     Config-File abgeleitet werden. So koennen nicht Konflikte entstehen, 
     falls die Body-Reihenfolge sich mal aendert.
+  - read_fitting_parameters erweitern um fuenftes element scale
+    - so kriegt jeder fitting parameter seine eigene Skalierung (fx m_jup oder 
+      m_sun)
   
 
 - complete save_max_likelihood_bodies() in mcmc
