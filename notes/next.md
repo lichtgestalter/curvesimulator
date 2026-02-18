@@ -2,6 +2,9 @@
 ## 0.5.7 Automated Flux Data Download
 
 ### jetzt
+warum werden sektor 98 daten nicht downgeloaded und warum wird die letzte 
+Zeile in tt.csv geloescht???
+
 - lesen/speichen von bodies als file
   - um die fitting parameters ergaenzen
   - save_fitting_parameters habe ich vibecoded
