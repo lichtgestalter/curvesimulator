@@ -1,5 +1,9 @@
 import cv2
-camera = cv2.VideoCapture(0)
+
+ULIHOME = 0
+ASPIT = 1
+
+camera = cv2.VideoCapture(ULIHOME)
 while True:
     ret, frame = camera.read()
     print(ret)
