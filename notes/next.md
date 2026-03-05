@@ -2,10 +2,15 @@
 ## 0.5.7 Automated Flux Data Download
 
 ### jetzt
-warum werden sektor 98 daten nicht downgeloaded und warum wird die letzte 
-Zeile in tt.csv geloescht???
+Videos!
 
-- lesen/speichen von bodies als file
+### aktuell
+- BUG: Nutze tt_bug_debug.ini: 
+  - Warum werden Sektor 98 daten nicht downgeloaded und warum wird die 
+    letzte Zeile in tt_bug98.csv geloescht???
+
+
+- Lesen/speichen von bodies als file
   - um die fitting parameters ergaenzen
   - save_fitting_parameters habe ich vibecoded
     - muss noch ueberpreuft und optimiert werden
@@ -34,7 +39,7 @@ Zeile in tt.csv geloescht???
   - zumindest wenn aus mcmc heraus erzeugt, Beispiel F101 
   - wegen den zusaetzlichen Flux-Daten von theoretischen d-transits???
 
-### aktuell
+
 - Neue Kategorie Data in Configfile
  
 - single_run macht eigentlich auch plots fuer die einzelnen 
