@@ -219,7 +219,8 @@ class CurveSimMCMC:
             CurveSimResults.flux_residuals_plots_time(p, "flux_residuals_x=time", measured_flux, measured_tt)  # plot Flux residuals
             CurveSimResults.flux_residuals_plot_data(p, "flux_residuals_x=data", measured_flux)  # plot Flux residuals
             # plot something
-        results.calc_total_chi_squared(p.free_parameters)
+        if p.tt_file or p.rv_file or p.flux_file:
+            results.calc_total_chi_squared(p.free_parameters)
         if p.result_file:
             results.save_results(p)
         if p.sim_flux_file:
