@@ -172,6 +172,7 @@ class CurveSimAnimation:
 
     @staticmethod
     def next_frame(frame, p, bodies, rv_dot, flux_dot, sim_rv, sim_flux, time_s0):
+        frame_number = int(frame * p.sampling_rate)
         """Update patches. Send new circle positions to animation function.
         First parameter comes from iterator frames (a parameter of FuncAnimation).
         The other parameters are given to this function via the parameter fargs of FuncAnimation."""
@@ -179,16 +180,16 @@ class CurveSimAnimation:
         #     body.circle_left.set(zorder=body.positions[frame * p.sampling_rate][1])
         #     body.circle_left.center = body.positions[frame * p.sampling_rate][2] / p.scope_left, body.positions[frame * p.sampling_rate][0] / p.scope_left
         for body in bodies:  # left view: projection (x,y,z) -> (x,-z), order = y (y-axis points to viewer)
-            body.circle_left.set(zorder=body.positions[frame * p.sampling_rate][1])
-            body.circle_left.center = body.positions[frame * p.sampling_rate][0] / p.scope_left, -body.positions[frame * p.sampling_rate][2] / p.scope_left
+            body.circle_left.set(zorder=body.positions[frame_number][1])
+            body.circle_left.center = body.positions[frame_number][0] / p.scope_left, -body.positions[frame_number][2] / p.scope_left
         # for body in bodies:  # right view: projection (x,y,z) -> (z,y), order = -x (x-axis points away from viewer)
         #     body.circle_right.set(zorder=-body.positions[frame * p.sampling_rate][0])
         #     body.circle_right.center = body.positions[frame * p.sampling_rate][2] / p.scope_right, body.positions[frame * p.sampling_rate][1] / p.scope_right
         for body in bodies:  # right view: projection (x,y,z) -> (x,y), order = z (z-axis points to viewer)
-            body.circle_right.set(zorder=body.positions[frame * p.sampling_rate][2])
-            body.circle_right.center = body.positions[frame * p.sampling_rate][0] / p.scope_right, body.positions[frame * p.sampling_rate][1] / p.scope_right
-        flux_dot.center = time_s0[frame * p.sampling_rate] / p.day, sim_flux[frame * p.sampling_rate]
-        rv_dot.center = time_s0[frame * p.sampling_rate] / p.day, sim_rv[frame * p.sampling_rate]
+            body.circle_right.set(zorder=body.positions[frame_number][2])
+            body.circle_right.center = body.positions[frame_number][0] / p.scope_right, body.positions[frame_number][1] / p.scope_right
+        flux_dot.center = time_s0[frame_number] / p.day, sim_flux[frame_number]
+        rv_dot.center = time_s0[frame_number] / p.day, sim_rv[frame_number]
         # if frame > 10:
         #     bodies[0].circle_left.set_color((1.0, 0.2, 0.2))  # Example code for changing circle color during animation
         if frame >= 10 and frame % int(round(p.frames / 10)) == 0:  # Inform user about program"s progress.
@@ -196,10 +197,10 @@ class CurveSimAnimation:
 
     def render(self, p, bodies, sim_rv, sim_flux, time_s0):
         """Calls next_frame() for each frame and saves the video."""
+        frames = int(len(sim_flux) // p.sampling_rate)
         if p.verbose:
             print(f"Animating {p.frames:8d} frames:     ", end="")
             tic = time.perf_counter()
-        frames = len(sim_flux) // p.sampling_rate
         anim = matplotlib.animation.FuncAnimation(self.fig, CurveSimAnimation.next_frame, fargs=(p, bodies, self.rv_dot, self.flux_dot, sim_rv, sim_flux, time_s0), interval=1000 / p.fps, frames=frames, blit=False)
         anim.save(
             p.video_file,
