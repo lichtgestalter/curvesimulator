@@ -108,8 +108,8 @@ class CurveSimParameters:
             # self.sampling_rate = (self.total_iterations - 1) // self.frames + 1
             if self.sampling_rate < 1:
                 print(f"{Fore.YELLOW}\nWARNING: This simulation calculates only {self.total_iterations} iterations for {self.frames} video frames.{Style.RESET_ALL}")
-                print(f"{Fore.YELLOW}\n         Because of this undersampling, the video will be using the same iteration for consecutive frames.{Style.RESET_ALL}")
-                print(f"{Fore.YELLOW}\n         Decrease the number of frames or decrease dt (the real time difference between simulation iterations).{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}         Because of this undersampling, the video will be using the same iteration for consecutive frames.{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}         Decrease the number of frames or decrease dt (the real time difference between simulation iterations).{Style.RESET_ALL}")
             # [Scale]
             self.scope_left = eval(config.get("Scale", "scope_left"))
             self.star_scale_left = eval(config.get("Scale", "star_scale_left"))
