@@ -5,6 +5,13 @@
 Videos!
 
 ### aktuell
+- starts, ends in Parametern zurueckbauen
+  - soll keine Liste mehr sein, sondern Einzelwert
+  - Umbenennen in Videostart, Videoend?
+  - nur ein dt im ganzen Code verwenden
+
+
+## aktuell, wenn ich mit Videos fertig bin
 - BUG: Nutze tt_bug_debug.ini: 
   - Warum werden Sektor 98 daten nicht downgeloaded und warum wird die 
     letzte Zeile in tt_bug98.csv geloescht???

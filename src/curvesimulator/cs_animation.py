@@ -98,7 +98,9 @@ class CurveSimAnimation:
         ax_lightcurve.set_yticks(yvalues, labels=ylabels)
 
         # lightcurve data (white line)
-        ax_lightcurve.plot(time_s0 / p.day, sim_flux, color="white")
+        x = (time_s0 - p.starts_s0[0]) / p.day
+        ax_lightcurve.plot(x, sim_flux, color="white")  # debug hack
+        # ax_lightcurve.plot(time_s0 / p.day, sim_flux, color="white")
 
         # lightcurve red dot
         flux_dot = matplotlib.patches.Ellipse((0, 0), (time_s0[-1] - time_s0[0]) * p.flux_dot_width / p.day, scope * p.flux_dot_height)  # matplotlib patch
@@ -140,7 +142,9 @@ class CurveSimAnimation:
         ax_rv_curve.set_yticks(yvalues, labels=ylabels)
 
         # rv_curve data (white line)
-        ax_rv_curve.plot(time_s0 / p.day, sim_rv, color="white")
+        x = (time_s0 - p.starts_s0[0]) / p.day
+        ax_rv_curve.plot(x, sim_rv, color="white")
+        # ax_rv_curve.plot(time_s0 / p.day, sim_rv, color="white")
 
         # rv_curve green dot
         rv_dot = matplotlib.patches.Ellipse((0, 0), (time_s0[-1] - time_s0[0]) * p.rv_dot_width / p.day, scope * p.rv_dot_height)  # matplotlib patch
