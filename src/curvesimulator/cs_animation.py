@@ -99,11 +99,8 @@ class CurveSimAnimation:
 
         # lightcurve data (white line)
         x = (time_s0 - p.starts_s0[0]) / p.day  # debug hack
-        ax_lightcurve.plot(x, sim_flux, color="white")  # debug hack
-        # Ensure the lightcurve x-limits match the RV plot (no extra left/right margins)
         ax_lightcurve.set_xlim(float(x[0]), float(x[-1]))
-        # ax_lightcurve.set_xlim(0, xmax)
-        # ax_lightcurve.margins(x=0)
+        ax_lightcurve.plot(x, sim_flux, color="white")  # debug hack
 
         # lightcurve red dot
         flux_dot = patches.Ellipse((0, 0), (time_s0[-1] - time_s0[0]) * p.flux_dot_width / p.day, scope * p.flux_dot_height)  # matplotlib patch
@@ -132,7 +129,7 @@ class CurveSimAnimation:
         # build tick positions in relative days and corresponding absolute-time labels (BJD)
         n_ticks = max(1, int(round(float(x[-1]) / x_listticdelta)))
         xvalues = [i * x_listticdelta for i in range(n_ticks + 1)]
-        xlabels = [f"{round(val + p.start_date, 4):.{digits}f}" for val in xvalues]
+        xlabels = [f"{round(val + p.start_date + p.starts_s0[0] / p.day, 4):.{digits}f}" for val in xvalues]
         ax_rv_curve.set_xticks(xvalues, labels=xlabels)
 
         # rv_curve y-ticks, y-labels
