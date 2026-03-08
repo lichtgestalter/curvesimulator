@@ -1,7 +1,7 @@
 from colorama import Fore, Style
 import math
-import matplotlib
 import matplotlib.pyplot as plt  # from matplotlib import pyplot as plt
+from matplotlib import patches, animation
 import numpy as np
 import shutil
 import sys
@@ -98,12 +98,15 @@ class CurveSimAnimation:
         ax_lightcurve.set_yticks(yvalues, labels=ylabels)
 
         # lightcurve data (white line)
-        x = (time_s0 - p.starts_s0[0]) / p.day
+        x = (time_s0 - p.starts_s0[0]) / p.day  # debug hack
         ax_lightcurve.plot(x, sim_flux, color="white")  # debug hack
-        # ax_lightcurve.plot(time_s0 / p.day, sim_flux, color="white")
+        # Ensure the lightcurve x-limits match the RV plot (no extra left/right margins)
+        ax_lightcurve.set_xlim(float(x[0]), float(x[-1]))
+        # ax_lightcurve.set_xlim(0, xmax)
+        # ax_lightcurve.margins(x=0)
 
         # lightcurve red dot
-        flux_dot = matplotlib.patches.Ellipse((0, 0), (time_s0[-1] - time_s0[0]) * p.flux_dot_width / p.day, scope * p.flux_dot_height)  # matplotlib patch
+        flux_dot = patches.Ellipse((0, 0), (time_s0[-1] - time_s0[0]) * p.flux_dot_width / p.day, scope * p.flux_dot_height)  # matplotlib patch
         flux_dot.set(zorder=2)  # Dot in front of lightcurve.
         flux_dot.set_color((1, 0, 0))  # red
         ax_lightcurve.add_patch(flux_dot)
@@ -118,12 +121,18 @@ class CurveSimAnimation:
 
         # rv_curve x-ticks, x-labels
         ax_rv_curve.tick_params(axis="x", colors="grey")
-        xmax = time_s0[-1] / p.day
-        ax_rv_curve.set_xlim(0, xmax)
-        x_listticdelta = CurveSimAnimation.tic_delta(xmax)
+        # Use the same relative x-axis as the lightcurve: days since p.starts_s0[0]
+        x = (time_s0 - p.starts_s0[0]) / p.day
+        # xmax = float(x_rel_all[-1])
+        # ax_rv_curve.set_xlim(0, xmax)
+        ax_rv_curve.set_xlim(float(x[0]), float(x[-1]))
+
+        x_listticdelta = CurveSimAnimation.tic_delta(float(x[-1]))
         digits = max(0, round(-math.log10(x_listticdelta) + 0.4))  # The labels get as many decimal places as the intervals between the tics.
-        xvalues = [x * x_listticdelta for x in range(round(xmax / x_listticdelta))]
-        xlabels = [f"{round(x + p.start_date, 4):.{digits}f}" for x in xvalues]
+        # build tick positions in relative days and corresponding absolute-time labels (BJD)
+        n_ticks = max(1, int(round(float(x[-1]) / x_listticdelta)))
+        xvalues = [i * x_listticdelta for i in range(n_ticks + 1)]
+        xlabels = [f"{round(val + p.start_date, 4):.{digits}f}" for val in xvalues]
         ax_rv_curve.set_xticks(xvalues, labels=xlabels)
 
         # rv_curve y-ticks, y-labels
@@ -141,13 +150,13 @@ class CurveSimAnimation:
         ylabels = [f"{round(1 * y, 10):.{digits}f}" for y in yvalues]
         ax_rv_curve.set_yticks(yvalues, labels=ylabels)
 
-        # rv_curve data (white line)
+        # rv_curve data (white line) using relative days since p.starts_s0[0]
         x = (time_s0 - p.starts_s0[0]) / p.day
         ax_rv_curve.plot(x, sim_rv, color="white")
         # ax_rv_curve.plot(time_s0 / p.day, sim_rv, color="white")
 
         # rv_curve green dot
-        rv_dot = matplotlib.patches.Ellipse((0, 0), (time_s0[-1] - time_s0[0]) * p.rv_dot_width / p.day, scope * p.rv_dot_height)  # matplotlib patch
+        rv_dot = patches.Ellipse((0, 0), (time_s0[-1] - time_s0[0]) * p.rv_dot_width / p.day, scope * p.rv_dot_height)  # matplotlib patch
         rv_dot.set(zorder=2)  # Dot in front of rv_curve.
         rv_dot.set_color((0, 0.7, 0))  # green
         ax_rv_curve.add_patch(rv_dot)
@@ -192,12 +201,16 @@ class CurveSimAnimation:
         for body in bodies:  # right view: projection (x,y,z) -> (x,y), order = z (z-axis points to viewer)
             body.circle_right.set(zorder=body.positions[frame_number][2])
             body.circle_right.center = body.positions[frame_number][0] / p.scope_right, body.positions[frame_number][1] / p.scope_right
-        flux_dot.center = time_s0[frame_number] / p.day, sim_flux[frame_number]
-        rv_dot.center = time_s0[frame_number] / p.day, sim_rv[frame_number]
+        # Use relative x (days since p.starts_s0[0]) for both dots so they align with plotted curves
+        x_rel = (time_s0[frame_number] - p.starts_s0[0]) / p.day
+        flux_dot.center = x_rel, sim_flux[frame_number]
+        rv_dot.center = x_rel, sim_rv[frame_number]
         # if frame > 10:
         #     bodies[0].circle_left.set_color((1.0, 0.2, 0.2))  # Example code for changing circle color during animation
         if frame >= 10 and frame % int(round(p.frames / 10)) == 0:  # Inform user about program"s progress.
             print(f"{round(frame / p.frames * 10) * 10:3d}% ", end="")
+        # Return artists for compatibility with FuncAnimation (ignored if blit=False)
+        return [flux_dot, rv_dot]
 
     def render(self, p, bodies, sim_rv, sim_flux, time_s0):
         """Calls next_frame() for each frame and saves the video."""
@@ -205,7 +218,7 @@ class CurveSimAnimation:
         if p.verbose:
             print(f"Animating {p.frames:8d} frames:     ", end="")
             tic = time.perf_counter()
-        anim = matplotlib.animation.FuncAnimation(self.fig, CurveSimAnimation.next_frame, fargs=(p, bodies, self.rv_dot, self.flux_dot, sim_rv, sim_flux, time_s0), interval=1000 / p.fps, frames=frames, blit=False)
+        anim = animation.FuncAnimation(self.fig, CurveSimAnimation.next_frame, fargs=(p, bodies, self.rv_dot, self.flux_dot, sim_rv, sim_flux, time_s0), interval=1000 / p.fps, frames=frames, blit=False)
         anim.save(
             p.video_file,
             fps=p.fps,
