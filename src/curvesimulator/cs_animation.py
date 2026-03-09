@@ -122,8 +122,6 @@ class CurveSimAnimation:
         x = (time_s0 - p.starts_s0[0]) / p.day
         # xmax = float(x_rel_all[-1])
         # ax_rv_curve.set_xlim(0, xmax)
-        ax_rv_curve.set_xlim(float(x[0]), float(x[-1]))
-
         x_listticdelta = CurveSimAnimation.tic_delta(float(x[-1]))
         digits = max(0, round(-math.log10(x_listticdelta) + 0.4))  # The labels get as many decimal places as the intervals between the tics.
         # build tick positions in relative days and corresponding absolute-time labels (BJD)
@@ -131,6 +129,7 @@ class CurveSimAnimation:
         xvalues = [i * x_listticdelta for i in range(n_ticks + 1)]
         xlabels = [f"{round(val + p.start_date + p.starts_s0[0] / p.day, 4):.{digits}f}" for val in xvalues]
         ax_rv_curve.set_xticks(xvalues, labels=xlabels)
+        ax_rv_curve.set_xlim(float(x[0]), float(x[-1]))
 
         # rv_curve y-ticks, y-labels
         ax_rv_curve.tick_params(axis="y", colors="grey", labelsize=8)
