@@ -114,7 +114,8 @@ class CurveSimAnimation:
         # rv_curve
         ax_rv_curve = plt.subplot2grid(shape=(6, 1), loc=(5, 0), rowspan=1, colspan=1)
         ax_rv_curve.set_facecolor("black")  # background color
-        ax_rv_curve.text(1.00, -0.05, "BJD (TDB)", color="grey", fontsize=10, ha="right", va="bottom", transform=ax_rv_curve.transAxes)
+        ax_rv_curve.text(1.00, -0.15, "BJD (TDB)", color="grey", fontsize=10, ha="right", va="bottom", transform=ax_rv_curve.transAxes)
+        # ax_rv_curve.text(1.00, -0.05, "BJD (TDB)", color="grey", fontsize=10, ha="right", va="bottom", transform=ax_rv_curve.transAxes)
 
         # rv_curve x-ticks, x-labels
         ax_rv_curve.tick_params(axis="x", colors="grey")
@@ -142,7 +143,11 @@ class CurveSimAnimation:
         ax_rv_curve.set_ylim(minl - buffer, maxl + buffer)
         y_listticdelta = CurveSimAnimation.tic_delta(scope)
         digits = max(0, round(-math.log10(y_listticdelta) + 0.4) - 2)  # The labels get as many decimal places as the intervals between the tics.
-        yvalues = [maxl - y * y_listticdelta for y in range(round(float((maxl - minl) / y_listticdelta)))]
+        if maxl > 0 > minl:
+            yvalues = [maxl, 0, minl]
+        else:
+            yvalues = [maxl, minl]
+        # yvalues = [maxl - y * y_listticdelta for y in range(round(float((maxl - minl) / y_listticdelta)))]
         ylabels = [f"{round(1 * y, 10):.{digits}f}" for y in yvalues]
         ax_rv_curve.set_yticks(yvalues, labels=ylabels)
 

@@ -30,7 +30,7 @@ from curvesimulator import CurveSimulator
 
 def main():
     # curvesimulation = CurveSimulator(config_file="../configurations/TOI4504/debug.ini")
-    curvesimulation = CurveSimulator(config_file="../configurations/TOI4504/TOI-4504_V006.ini")
+    curvesimulation = CurveSimulator(config_file="../configurations/TOI4504/TOI-4504_V005.ini")
     print(curvesimulation)
 
 
