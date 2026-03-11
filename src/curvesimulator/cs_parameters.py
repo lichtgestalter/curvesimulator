@@ -103,6 +103,8 @@ class CurveSimParameters:
             # [Video]
             self.frames = eval(config.get("Video", "frames"))
             self.fps = eval(config.get("Video", "fps"))
+            self.clockwise = eval(config.get("Video", "clockwise", fallback="False"))
+
             # self.start_indices, self.max_iterations, self.total_iterations = self.check_intervals()
             self.sampling_rate = self.total_iterations / self.frames
             # self.sampling_rate = (self.total_iterations - 1) // self.frames + 1

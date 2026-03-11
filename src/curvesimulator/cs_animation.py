@@ -186,22 +186,21 @@ class CurveSimAnimation:
 
     @staticmethod
     def next_frame(frame, p, bodies, rv_dot, flux_dot, sim_rv, sim_flux, time_s0):
+        # p.clockwise = False
+        if p.clockwise:
+            x_direction = 1
+        else:
+            x_direction = -1
         frame_number = int(frame * p.sampling_rate)
         """Update patches. Send new circle positions to animation function.
         First parameter comes from iterator frames (a parameter of FuncAnimation).
         The other parameters are given to this function via the parameter fargs of FuncAnimation."""
-        # for body in bodies:  # left view: projection (x,y,z) -> (z,x), order = y (y-axis points to viewer)
-        #     body.circle_left.set(zorder=body.positions[frame * p.sampling_rate][1])
-        #     body.circle_left.center = body.positions[frame * p.sampling_rate][2] / p.scope_left, body.positions[frame * p.sampling_rate][0] / p.scope_left
         for body in bodies:  # left view: projection (x,y,z) -> (x,-z), order = y (y-axis points to viewer)
             body.circle_left.set(zorder=body.positions[frame_number][1])
-            body.circle_left.center = body.positions[frame_number][0] / p.scope_left, -body.positions[frame_number][2] / p.scope_left
-        # for body in bodies:  # right view: projection (x,y,z) -> (z,y), order = -x (x-axis points away from viewer)
-        #     body.circle_right.set(zorder=-body.positions[frame * p.sampling_rate][0])
-        #     body.circle_right.center = body.positions[frame * p.sampling_rate][2] / p.scope_right, body.positions[frame * p.sampling_rate][1] / p.scope_right
+            body.circle_left.center = x_direction * body.positions[frame_number][0] / p.scope_left, -body.positions[frame_number][2] / p.scope_left
         for body in bodies:  # right view: projection (x,y,z) -> (x,y), order = z (z-axis points to viewer)
             body.circle_right.set(zorder=body.positions[frame_number][2])
-            body.circle_right.center = body.positions[frame_number][0] / p.scope_right, body.positions[frame_number][1] / p.scope_right
+            body.circle_right.center = x_direction * body.positions[frame_number][0] / p.scope_right, body.positions[frame_number][1] / p.scope_right
         # Use relative x (days since p.starts_s0[0]) for both dots so they align with plotted curves
         x_rel = (time_s0[frame_number] - p.starts_s0[0]) / p.day
         flux_dot.center = x_rel, sim_flux[frame_number]
@@ -220,6 +219,7 @@ class CurveSimAnimation:
             print(f"Animating {p.frames:8d} frames:     ", end="")
             tic = time.perf_counter()
         anim = animation.FuncAnimation(self.fig, CurveSimAnimation.next_frame, fargs=(p, bodies, self.rv_dot, self.flux_dot, sim_rv, sim_flux, time_s0), interval=1000 / p.fps, frames=frames, blit=False)
+        # anim = animation.FuncAnimation(self.fig, CurveSimAnimation.next_frame_counterclockwise, fargs=(p, bodies, self.rv_dot, self.flux_dot, sim_rv, sim_flux, time_s0), interval=1000 / p.fps, frames=frames, blit=False)
         anim.save(
             p.video_file,
             fps=p.fps,

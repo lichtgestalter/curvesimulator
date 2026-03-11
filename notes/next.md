@@ -2,6 +2,7 @@
 ## 0.5.7 Automated Flux Data Download
 
 ### jetzt
+p.clockwise in config file
 
 #### Feature Requests von Simon:
 Texte in das Video:
@@ -12,7 +13,6 @@ Texte in das Video:
 “RV curve”
 
 Trennlinie zwischen linken und rechten Plot
-Planetenrichtung umkehren
 Masstab in Plots einzeichnen: z.B. Linie mit Text “0.1 AU”
 y-Achse bei Lightcurve und RV-curve dunkelgrau einzeichnen
 Optional ohne RV Plot
