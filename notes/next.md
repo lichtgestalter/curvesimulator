@@ -2,13 +2,45 @@
 ## 0.5.7 Automated Flux Data Download
 
 ### jetzt
-Videos!
+
+#### Feature Requests von Simon:
+Texte in das Video:
+“view from above”
+“view from earth”
+“TOI-4504”
+“light curve”
+“RV curve”
+
+Trennlinie zwischen linken und rechten Plot
+Planetenrichtung umkehren
+Masstab in Plots einzeichnen: z.B. Linie mit Text “0.1 AU”
+y-Achse bei Lightcurve und RV-curve dunkelgrau einzeichnen
+Optional ohne RV Plot
+Optional nur rechter oder nur linker Plot
+Stern mit Limb Darkening darstellen
+Lightcurve erst dunkelgrau, wird mit Fortschritt weiss
+
 
 ### aktuell
 - starts, ends in Parametern zurueckbauen
   - soll keine Liste mehr sein, sondern Einzelwert
   - Umbenennen in Videostart, Videoend?
   - nur ein dt im ganzen Code verwenden
+
+
+#### schnellere Videogeneration
+blit=True aktivieren
+Problem: Aktuell ist blit=False. Das bedeutet, dass Matplotlib bei jedem Frame das gesamte Bild neu zeichnet, was extrem langsam ist.
+Lösung: Setze blit=True in FuncAnimation. Dann werden nur die geänderten Objekte (die "Artists") neu gezeichnet.
+Voraussetzung: next_frame muss eine Liste aller geänderten Artists zurückgeben (was du bereits tust: [flux_dot, rv_dot]). Achtung: Alle Objekte, die sich ändern (z. B. die Kreise der bodies), müssen ebenfalls zurückgegeben werden!
+
+Falls FuncAnimation zu langsam bleibt, kannst du die Frames einzeln rendern und mit FFmpeg zusammenfügen:
+from matplotlib.animation import FFMpegWriter
+with FFMpegWriter(fps=p.fps) as writer:
+    for frame in range(frames):
+        CurveSimAnimation.next_frame(frame, p, bodies, rv_dot, flux_dot, sim_rv, sim_flux, time_s0)
+        writer.grab_frame()
+
 
 
 ## aktuell, wenn ich mit Videos fertig bin

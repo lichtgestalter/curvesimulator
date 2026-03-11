@@ -210,7 +210,6 @@ fitten
 - Sternmasse als Prior einbauen 🤔
 - Was ist mean osculating period? ✅
 
-
 #### Fragen/Antworten
 - KEPLER9 Paper
   - Section 3: "Finally, for each individual planet we correct the output 
@@ -242,12 +241,38 @@ fitten
         - Auf diese Weise werden Korelationen automatisch korrekt 
           beruecksichtigt, weil man ja weiss, welches m zu welchem P gehoert.
 
-- Naechste Schritte:
+#### Next Steps:
   - Simon kontaktiert Trifon wg. Zusammenarbeit
   - Uli versucht CurveSimulator (optional) auf Jacobi-Koordinaten umzustellen
 
+### Call mit Simon, 11.03.26:
+#### Vokabeln in Trifons Mail
+- TFOP = TESS Follow-Up Observing Program (coordinates who is working on 
+  which system, exchanges data)
+- TTV’s = Transit-Timing-Variations (Transit Midpoints only(TT))
+- TTVFast = similar to REBOUND but more specialized and faster
+- TDV's = Transit Duration Variations
+
+#### Feature Requests von Simon:
+Texte in das Video:
+“view from above”
+“view from earth”
+“TOI-4504”
+“light curve”
+“RV curve”
+
+Trennlinie zwischen linken und rechten Plot
+Planetenrichtung umkehren
+Masstab in Plots einzeichnen: z.B. Linie mit Text “0.1 AU”
+y-Achse bei Lightcurve und RV-curve dunkelgrau einzeichnen
+Optional ohne RV Plot
+Optional nur rechter oder nur linker Plot
+Stern mit Limb Darkening darstellen
+Lightcurve erst dunkelgrau, wird mit Fortschritt weiss
 
 #### Next Steps:
+Ich schreib Mail an Trifon+Vitkova mit Beispielvideos
+
 
 
 
