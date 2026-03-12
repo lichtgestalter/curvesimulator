@@ -2,7 +2,9 @@
 ## 0.5.7 Automated Flux Data Download
 
 ### jetzt
-p.clockwise in config file
+6 laengere realtime
+3 4 5 mehr frames damit lightcurve nicht stotterrt
+Video mit Planet b
 
 #### Feature Requests von Simon:
 Texte in das Video:
