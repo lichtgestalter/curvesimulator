@@ -61,7 +61,6 @@ class CurveSimAnimation:
         ax_right.set_ylim(-p.ylim, p.ylim)
         ax_right.set_aspect("equal")
         ax_right.set_facecolor("black")  # background color
-        ax_right.text(.99, .99, "lichtgestalter/CurveSimulator", color="grey", fontsize=10, ha="right", va="top", transform=ax_right.transAxes)
         return ax_right
 
     @staticmethod
@@ -70,17 +69,7 @@ class CurveSimAnimation:
         ax_lightcurve = plt.subplot2grid(shape=(6, 1), loc=(4, 0), rowspan=1, colspan=1)
         ax_lightcurve.set_facecolor("black")  # background color
 
-        # commented out, because the rv-plot below has the same x-tics/-labels
-        # ax_lightcurve.text(1.00, -0.05, "BJD (TDB)", color="grey", fontsize=10, ha="right", va="bottom", transform=ax_lightcurve.transAxes)
-        # lightcurve x-ticks, x-labels
-        # ax_lightcurve.tick_params(axis="x", colors="grey")
-        # xmax = time_s0[-1] / p.day
-        # ax_lightcurve.set_xlim(0, xmax)
-        # x_listticdelta = CurveSimAnimation.tic_delta(xmax)
-        # digits = max(0, round(-math.log10(x_listticdelta) + 0.4))  # The labels get as many decimal places as the intervals between the tics.
-        # xvalues = [x * x_listticdelta for x in range(round(xmax / x_listticdelta))]
-        # xlabels = [f"{round(x + p.start_date, 4):.{digits}f}" for x in xvalues]
-        # ax_lightcurve.set_xticks(xvalues, labels=xlabels)
+        # no x-tics/-labels because the rv-plot below has the same
 
         # lightcurve y-ticks, y-labels
         ax_lightcurve.tick_params(axis="y", colors="grey", labelsize=8)
@@ -115,14 +104,11 @@ class CurveSimAnimation:
         ax_rv_curve = plt.subplot2grid(shape=(6, 1), loc=(5, 0), rowspan=1, colspan=1)
         ax_rv_curve.set_facecolor("black")  # background color
         ax_rv_curve.text(1.00, -0.15, "BJD (TDB)", color="grey", fontsize=10, ha="right", va="bottom", transform=ax_rv_curve.transAxes)
-        # ax_rv_curve.text(1.00, -0.05, "BJD (TDB)", color="grey", fontsize=10, ha="right", va="bottom", transform=ax_rv_curve.transAxes)
 
         # rv_curve x-ticks, x-labels
         ax_rv_curve.tick_params(axis="x", colors="grey")
         # Use the same relative x-axis as the lightcurve: days since p.starts_s0[0]
         x = (time_s0 - p.starts_s0[0]) / p.day
-        # xmax = float(x_rel_all[-1])
-        # ax_rv_curve.set_xlim(0, xmax)
         x_listticdelta = CurveSimAnimation.tic_delta(float(x[-1]))
         digits = max(0, round(-math.log10(x_listticdelta) + 0.4))  # The labels get as many decimal places as the intervals between the tics.
         # build tick positions in relative days and corresponding absolute-time labels (BJD)
@@ -154,7 +140,6 @@ class CurveSimAnimation:
         # rv_curve data (white line) using relative days since p.starts_s0[0]
         x = (time_s0 - p.starts_s0[0]) / p.day
         ax_rv_curve.plot(x, sim_rv, color="white")
-        # ax_rv_curve.plot(time_s0 / p.day, sim_rv, color="white")
 
         # rv_curve green dot
         rv_dot = patches.Ellipse((0, 0), (time_s0[-1] - time_s0[0]) * p.rv_dot_width / p.day, scope * p.rv_dot_height)  # matplotlib patch
@@ -181,6 +166,8 @@ class CurveSimAnimation:
         ax_lightcurve, flux_dot = CurveSimAnimation.init_lightcurve_plot(sim_flux, time_s0, p)
         ax_rv_curve, rv_dot = CurveSimAnimation.init_rv_curve_plot(sim_rv, time_s0, p)
         plt.tight_layout()  # Automatically adjust padding horizontally as well as vertically.
+
+        fig.text(0.99, 0.99, "lichtgestalter/CurveSimulator", color="grey", fontsize=10, ha="right", va="top", transform=fig.transFigure)
 
         return fig, ax_right, ax_left, ax_lightcurve, rv_dot, flux_dot
 
