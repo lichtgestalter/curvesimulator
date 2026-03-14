@@ -100,3 +100,8 @@ files in folder "debug".
   Cartesian!
 ### 0.5.7 Automated Flux Data Download
 - action get_flux downloads observed flux according to tt_file
+### 0.5.8 TOI-4504 Videos
+New option clockwise in section Video (seen from above, do the bodies rotate 
+clockwise around their primary body?)
+New options show_left_plot, show_right_plot, show_lc_plot and show_rv_plot 
+in section Video.

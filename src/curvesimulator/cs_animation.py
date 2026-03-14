@@ -13,10 +13,12 @@ class CurveSimAnimation:
         CurveSimAnimation.check_ffmpeg()
         self.fig, ax_right, ax_left, ax_lightcurve, self.rv_dot, self.flux_dot = CurveSimAnimation.init_plot(p, sim_rv, sim_flux, time_s0)  # Adjust constants in section [Plot] of config file to fit your screen.
         for body in bodies:  # Circles represent the bodies in the animation. Set their colors and add them to the matplotlib axis.
-            body.circle_right.set_color(body.color)
             body.circle_left.set_color(body.color)
-            ax_right.add_patch(body.circle_right)
-            ax_left.add_patch(body.circle_left)
+            body.circle_right.set_color(body.color)
+            if p.show_left_plot:
+                ax_left.add_patch(body.circle_left)
+            if p.show_right_plot:
+                ax_right.add_patch(body.circle_right)
         self.render(p, bodies, sim_rv, sim_flux, time_s0)
 
     @staticmethod
@@ -44,9 +46,9 @@ class CurveSimAnimation:
             return delta
 
     @staticmethod
-    def init_left_plot(p):
+    def init_left_plot(p, shape, loc, rowspan, colspan):
         # left plot (overhead view)
-        ax_left = plt.subplot2grid(shape=(6, 2), loc=(0, 0), rowspan=4, colspan=1)
+        ax_left = plt.subplot2grid(shape=shape, loc=loc, rowspan=rowspan, colspan=colspan)
         ax_left.set_xlim(-p.xlim, p.xlim)
         ax_left.set_ylim(-p.ylim, p.ylim)
         ax_left.set_aspect("equal")
@@ -54,9 +56,9 @@ class CurveSimAnimation:
         return ax_left
 
     @staticmethod
-    def init_right_plot(p):
+    def init_right_plot(p, shape, loc, rowspan, colspan):
         # right plot (edge-on view)
-        ax_right = plt.subplot2grid(shape=(6, 2), loc=(0, 1), rowspan=4, colspan=1)
+        ax_right = plt.subplot2grid(shape=shape, loc=loc, rowspan=rowspan, colspan=colspan)
         ax_right.set_xlim(-p.xlim, p.xlim)
         ax_right.set_ylim(-p.ylim, p.ylim)
         ax_right.set_aspect("equal")
@@ -64,9 +66,9 @@ class CurveSimAnimation:
         return ax_right
 
     @staticmethod
-    def init_lightcurve_plot(sim_flux, time_s0, p):
+    def init_lightcurve_plot(sim_flux, time_s0, p, shape, loc, rowspan, colspan):
         # lightcurve
-        ax_lightcurve = plt.subplot2grid(shape=(6, 1), loc=(4, 0), rowspan=1, colspan=1)
+        ax_lightcurve = plt.subplot2grid(shape=shape, loc=loc, rowspan=rowspan, colspan=colspan)
         ax_lightcurve.set_facecolor("black")  # background color
 
         # no x-tics/-labels because the rv-plot below has the same
@@ -99,9 +101,9 @@ class CurveSimAnimation:
         return ax_lightcurve, flux_dot
 
     @staticmethod
-    def init_rv_curve_plot(sim_rv, time_s0, p):
+    def init_rv_curve_plot(sim_rv, time_s0, p, shape, loc, rowspan, colspan):
         # rv_curve
-        ax_rv_curve = plt.subplot2grid(shape=(6, 1), loc=(5, 0), rowspan=1, colspan=1)
+        ax_rv_curve = plt.subplot2grid(shape=shape, loc=loc, rowspan=rowspan, colspan=colspan)
         ax_rv_curve.set_facecolor("black")  # background color
         ax_rv_curve.text(1.00, -0.15, "BJD (TDB)", color="grey", fontsize=10, ha="right", va="bottom", transform=ax_rv_curve.transAxes)
 
@@ -161,10 +163,110 @@ class CurveSimAnimation:
         buffer = 0
         fig.subplots_adjust(left=buffer, right=1.0 - buffer, bottom=buffer, top=1 - buffer)  # Positions of the subplots edges, as a fraction of the figure width.
 
-        ax_left = CurveSimAnimation.init_left_plot(p)
-        ax_right = CurveSimAnimation.init_right_plot(p)
-        ax_lightcurve, flux_dot = CurveSimAnimation.init_lightcurve_plot(sim_flux, time_s0, p)
-        ax_rv_curve, rv_dot = CurveSimAnimation.init_rv_curve_plot(sim_rv, time_s0, p)
+Next: Aus config file lesen!
+        p.show_left_plot = False
+        p.show_right_plot = False
+        p.show_lc_plot = True
+        p.show_rv_plot = True
+
+        if p.show_left_plot and p.show_right_plot and p.show_lc_plot and p.show_rv_plot:
+            ax_left = CurveSimAnimation.init_left_plot(p, shape=(6, 2), loc=(0, 0), rowspan=4, colspan=1)
+            ax_right = CurveSimAnimation.init_right_plot(p, shape=(6, 2), loc=(0, 1), rowspan=4, colspan=1)
+            ax_lightcurve, flux_dot = CurveSimAnimation.init_lightcurve_plot(sim_flux, time_s0, p, shape=(6, 2), loc=(4, 0), rowspan=1, colspan=2)
+            ax_rv_curve, rv_dot = CurveSimAnimation.init_rv_curve_plot(sim_rv, time_s0, p, shape=(6, 2), loc=(5, 0), rowspan=1, colspan=2)
+        # no RV plot
+        elif p.show_left_plot and p.show_right_plot and p.show_lc_plot and not p.show_rv_plot:
+            ax_left = CurveSimAnimation.init_left_plot(p, shape=(5, 2), loc=(0, 0), rowspan=4, colspan=1)
+            ax_right = CurveSimAnimation.init_right_plot(p, shape=(5, 2), loc=(0, 1), rowspan=4, colspan=1)
+            ax_lightcurve, flux_dot = CurveSimAnimation.init_lightcurve_plot(sim_flux, time_s0, p, shape=(5, 2), loc=(4, 0), rowspan=1, colspan=2)
+            ax_rv_curve, rv_dot = None, None
+        # no light curve plot
+        elif p.show_left_plot and p.show_right_plot and not p.show_lc_plot and p.show_rv_plot:
+            ax_left = CurveSimAnimation.init_left_plot(p, shape=(5, 2), loc=(0, 0), rowspan=4, colspan=1)
+            ax_right = CurveSimAnimation.init_right_plot(p, shape=(5, 2), loc=(0, 1), rowspan=4, colspan=1)
+            ax_lightcurve, flux_dot = None, None
+            ax_rv_curve, rv_dot = CurveSimAnimation.init_rv_curve_plot(sim_rv, time_s0, p, shape=(5, 2), loc=(4, 0), rowspan=1, colspan=2)
+        # no light curve and no RV plot
+        elif p.show_left_plot and p.show_right_plot and not p.show_lc_plot and not p.show_rv_plot:
+            ax_left = CurveSimAnimation.init_left_plot(p, shape=(4, 2), loc=(0, 0), rowspan=4, colspan=1)
+            ax_right = CurveSimAnimation.init_right_plot(p, shape=(4, 2), loc=(0, 1), rowspan=4, colspan=1)
+            ax_lightcurve, flux_dot = None, None
+            ax_rv_curve, rv_dot = None, None
+
+        # right plot only
+        elif not p.show_left_plot and p.show_right_plot and not p.show_lc_plot and not p.show_rv_plot:
+            ax_left = None
+            ax_right = CurveSimAnimation.init_right_plot(p, shape=(1, 1), loc=(0, 0), rowspan=1, colspan=1)
+            ax_lightcurve, flux_dot = None, None
+            ax_rv_curve, rv_dot = None, None
+        # right plot + light curve
+        elif not p.show_left_plot and p.show_right_plot and p.show_lc_plot and not p.show_rv_plot:
+            ax_left = None
+            ax_right = CurveSimAnimation.init_right_plot(p, shape=(5, 1), loc=(0, 0), rowspan=4, colspan=1)
+            ax_lightcurve, flux_dot = CurveSimAnimation.init_lightcurve_plot(sim_flux, time_s0, p, shape=(5, 1), loc=(4, 0), rowspan=1, colspan=1)
+            ax_rv_curve, rv_dot = None, None
+        # right plot + rv curve
+        elif not p.show_left_plot and p.show_right_plot and not p.show_lc_plot and p.show_rv_plot:
+            ax_left = None
+            ax_right = CurveSimAnimation.init_right_plot(p, shape=(5, 1), loc=(0, 0), rowspan=4, colspan=1)
+            ax_lightcurve, flux_dot = None, None
+            ax_rv_curve, rv_dot = CurveSimAnimation.init_rv_curve_plot(sim_rv, time_s0, p, shape=(5, 1), loc=(4, 0), rowspan=1, colspan=1)
+        # right plot + light curve + rv curve
+        elif not p.show_left_plot and p.show_right_plot and p.show_lc_plot and p.show_rv_plot:
+            ax_left = None
+            ax_right = CurveSimAnimation.init_right_plot(p, shape=(6, 1), loc=(0, 0), rowspan=4, colspan=1)
+            ax_lightcurve, flux_dot = CurveSimAnimation.init_lightcurve_plot(sim_flux, time_s0, p, shape=(6, 1), loc=(4, 0), rowspan=1, colspan=1)
+            ax_rv_curve, rv_dot = CurveSimAnimation.init_rv_curve_plot(sim_rv, time_s0, p, shape=(6, 1), loc=(5, 0), rowspan=1, colspan=1)
+
+        # left plot only
+        elif p.show_left_plot and not p.show_right_plot and not p.show_lc_plot and not p.show_rv_plot:
+            ax_left = CurveSimAnimation.init_left_plot(p, shape=(1, 1), loc=(0, 0), rowspan=1, colspan=1)
+            ax_right = None
+            ax_lightcurve, flux_dot = None, None
+            ax_rv_curve, rv_dot = None, None
+        # left plot + light curve
+        elif p.show_left_plot and not p.show_right_plot and p.show_lc_plot and not p.show_rv_plot:
+            ax_left = CurveSimAnimation.init_left_plot(p, shape=(5, 1), loc=(0, 0), rowspan=4, colspan=1)
+            ax_right = None
+            ax_lightcurve, flux_dot = CurveSimAnimation.init_lightcurve_plot(sim_flux, time_s0, p, shape=(5, 1), loc=(4, 0), rowspan=1, colspan=1)
+            ax_rv_curve, rv_dot = None, None
+        # left plot + rv curve
+        elif p.show_left_plot and not p.show_right_plot and not p.show_lc_plot and p.show_rv_plot:
+            ax_left = CurveSimAnimation.init_left_plot(p, shape=(5, 1), loc=(0, 0), rowspan=4, colspan=1)
+            ax_right = None
+            ax_lightcurve, flux_dot = None, None
+            ax_rv_curve, rv_dot = CurveSimAnimation.init_rv_curve_plot(sim_rv, time_s0, p, shape=(5, 1), loc=(4, 0), rowspan=1, colspan=1)
+        # left plot + light curve + rv curve
+        elif p.show_left_plot and not p.show_right_plot and p.show_lc_plot and p.show_rv_plot:
+            ax_left = CurveSimAnimation.init_left_plot(p, shape=(6, 1), loc=(0, 0), rowspan=4, colspan=1)
+            ax_right = None
+            ax_lightcurve, flux_dot = CurveSimAnimation.init_lightcurve_plot(sim_flux, time_s0, p, shape=(6, 1), loc=(4, 0), rowspan=1, colspan=1)
+            ax_rv_curve, rv_dot = CurveSimAnimation.init_rv_curve_plot(sim_rv, time_s0, p, shape=(6, 1), loc=(5, 0), rowspan=1, colspan=1)
+
+        # light curve only
+        elif not p.show_left_plot and not p.show_right_plot and p.show_lc_plot and not p.show_rv_plot:
+            ax_left = None
+            ax_right = None
+            ax_lightcurve, flux_dot = CurveSimAnimation.init_lightcurve_plot(sim_flux, time_s0, p, shape=(1, 1), loc=(0, 0), rowspan=1, colspan=1)
+            ax_rv_curve, rv_dot = None, None
+        # rv curve only
+        elif not p.show_left_plot and not p.show_right_plot and not p.show_lc_plot and p.show_rv_plot:
+            ax_left = None
+            ax_right = None
+            ax_lightcurve, flux_dot = None, None
+            ax_rv_curve, rv_dot = CurveSimAnimation.init_rv_curve_plot(sim_rv, time_s0, p, shape=(1, 1), loc=(0, 0), rowspan=1, colspan=1)
+        # light curve + rv curve
+        elif not p.show_left_plot and not p.show_right_plot and p.show_lc_plot and p.show_rv_plot:
+            ax_left = None
+            ax_right = None
+            ax_lightcurve, flux_dot = CurveSimAnimation.init_lightcurve_plot(sim_flux, time_s0, p, shape=(2, 1), loc=(0, 0), rowspan=1, colspan=1)
+            ax_rv_curve, rv_dot = CurveSimAnimation.init_rv_curve_plot(sim_rv, time_s0, p, shape=(2, 1), loc=(1, 0), rowspan=1, colspan=1)
+
+        else:
+            print(f"{Fore.RED}\nERROR: No plot was chosen to be displayed in the video.")
+            print("Check the settings of parameters show_left_plot, show_right_plot, show_lc_plot and show_rv_plot.{Style.RESET_ALL}")
+            sys.exit(1)
+
         plt.tight_layout()  # Automatically adjust padding horizontally as well as vertically.
 
         fig.text(0.99, 0.99, "lichtgestalter/CurveSimulator", color="grey", fontsize=10, ha="right", va="top", transform=fig.transFigure)
@@ -190,8 +292,10 @@ class CurveSimAnimation:
             body.circle_right.center = x_direction * body.positions[frame_number][0] / p.scope_right, body.positions[frame_number][1] / p.scope_right
         # Use relative x (days since p.starts_s0[0]) for both dots so they align with plotted curves
         x_rel = (time_s0[frame_number] - p.starts_s0[0]) / p.day
-        flux_dot.center = x_rel, sim_flux[frame_number]
-        rv_dot.center = x_rel, sim_rv[frame_number]
+        if p.show_lc_plot:
+            flux_dot.center = x_rel, sim_flux[frame_number]
+        if p.show_rv_plot:
+            rv_dot.center = x_rel, sim_rv[frame_number]
         # if frame > 10:
         #     bodies[0].circle_left.set_color((1.0, 0.2, 0.2))  # Example code for changing circle color during animation
         if frame >= 10 and frame % int(round(p.frames / 10)) == 0:  # Inform user about program"s progress.

@@ -1,6 +1,10 @@
 # Next / in progress:
 ## 0.5.7 Automated Flux Data Download
 
+### done
+0.5.8 TOI-4504 Videos
+
+
 ### jetzt
 6 laengere realtime
 3 4 5 mehr frames damit lightcurve nicht stotterrt
@@ -332,6 +336,7 @@ MCMC-Result-JSON gespeichert werden sollen
     - Sind __init__.py und setup.py aktuell?
     - Dafuer auch benutzen: https://github.com/lichtgestalter/curvesimulator/network/dependencies
 
+shutil.which("ffmpeg") erfordert Python-Version >= 3.12?
 
 ### Video:
     
