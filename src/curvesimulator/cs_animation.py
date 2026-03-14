@@ -45,6 +45,8 @@ class CurveSimAnimation:
         else:
             return delta
 
+next: Titel von right_plot und Hauptplot ueberlagern sich, wenn left_plot=False
+
     @staticmethod
     def init_left_plot(p, shape, loc, rowspan, colspan):
         # left plot (overhead view)
