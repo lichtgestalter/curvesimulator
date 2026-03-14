@@ -104,6 +104,10 @@ class CurveSimParameters:
             self.frames = eval(config.get("Video", "frames"))
             self.fps = eval(config.get("Video", "fps"))
             self.clockwise = eval(config.get("Video", "clockwise", fallback="False"))
+            self.show_left_plot = eval(config.get("Video", "show_left_plot", fallback="True"))
+            self.show_right_plot = eval(config.get("Video", "show_right_plot", fallback="True"))
+            self.show_lc_plot = eval(config.get("Video", "show_lc_plot", fallback="True"))
+            self.show_rv_plot = eval(config.get("Video", "show_rv_plot", fallback="True"))
 
             # self.start_indices, self.max_iterations, self.total_iterations = self.check_intervals()
             self.sampling_rate = self.total_iterations / self.frames

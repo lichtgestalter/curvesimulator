@@ -53,6 +53,7 @@ class CurveSimAnimation:
         ax_left.set_ylim(-p.ylim, p.ylim)
         ax_left.set_aspect("equal")
         ax_left.set_facecolor("black")  # background color
+        ax_left.set_title("View from above", color="xkcd:light grey", fontsize=10)
         return ax_left
 
     @staticmethod
@@ -63,6 +64,7 @@ class CurveSimAnimation:
         ax_right.set_ylim(-p.ylim, p.ylim)
         ax_right.set_aspect("equal")
         ax_right.set_facecolor("black")  # background color
+        ax_right.set_title("View from Earth", color="xkcd:light grey", fontsize=10)
         return ax_right
 
     @staticmethod
@@ -74,6 +76,7 @@ class CurveSimAnimation:
         # no x-tics/-labels because the rv-plot below has the same
 
         # lightcurve y-ticks, y-labels
+        ax_lightcurve.set_ylabel("Relative Flux", color="grey", fontsize=8)
         ax_lightcurve.tick_params(axis="y", colors="grey", labelsize=8)
         minl = sim_flux.min(initial=None)
         maxl = sim_flux.max(initial=None)
@@ -121,6 +124,7 @@ class CurveSimAnimation:
         ax_rv_curve.set_xlim(float(x[0]), float(x[-1]))
 
         # rv_curve y-ticks, y-labels
+        ax_rv_curve.set_ylabel("Radial Velocity [m/s]", color="grey", labelpad=22, fontsize=8)
         ax_rv_curve.tick_params(axis="y", colors="grey", labelsize=8)
         minl = sim_rv.min(initial=None)
         maxl = sim_rv.max(initial=None)
@@ -162,12 +166,6 @@ class CurveSimAnimation:
         fig.set_facecolor("black")  # background color outside of ax_left and ax_lightcurve
         buffer = 0
         fig.subplots_adjust(left=buffer, right=1.0 - buffer, bottom=buffer, top=1 - buffer)  # Positions of the subplots edges, as a fraction of the figure width.
-
-Next: Aus config file lesen!
-        p.show_left_plot = False
-        p.show_right_plot = False
-        p.show_lc_plot = True
-        p.show_rv_plot = True
 
         if p.show_left_plot and p.show_right_plot and p.show_lc_plot and p.show_rv_plot:
             ax_left = CurveSimAnimation.init_left_plot(p, shape=(6, 2), loc=(0, 0), rowspan=4, colspan=1)
@@ -268,8 +266,8 @@ Next: Aus config file lesen!
             sys.exit(1)
 
         plt.tight_layout()  # Automatically adjust padding horizontally as well as vertically.
-
-        fig.text(0.99, 0.99, "lichtgestalter/CurveSimulator", color="grey", fontsize=10, ha="right", va="top", transform=fig.transFigure)
+        plt.suptitle("TOI 4504", color="white", fontsize=14)
+        fig.text(0.99, 0.99, "lichtgestalter/CurveSimulator", color="xkcd:purpley", fontsize=10, ha="right", va="top", transform=fig.transFigure)
 
         return fig, ax_right, ax_left, ax_lightcurve, rv_dot, flux_dot
 

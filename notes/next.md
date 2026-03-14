@@ -11,21 +11,20 @@
 Video mit Planet b
 
 #### Feature Requests von Simon:
-Texte in das Video:
-“view from above”
-“view from earth”
-“TOI-4504”
-“light curve”
-“RV curve”
-
+✅ Texte in das Video:
+  ✅ “view from above”
+  ✅ “view from earth”
+  ✅ “TOI-4504”
+  ✅ “light curve”
+  ✅ “RV curve”
+✅ Planetenrichtung umkehren
+✅ Optional ohne RV Plot
+✅ Optional nur rechter oder nur linker Plot
 Trennlinie zwischen linken und rechten Plot
 Masstab in Plots einzeichnen: z.B. Linie mit Text “0.1 AU”
 y-Achse bei Lightcurve und RV-curve dunkelgrau einzeichnen
-Optional ohne RV Plot
-Optional nur rechter oder nur linker Plot
 Stern mit Limb Darkening darstellen
 Lightcurve erst dunkelgrau, wird mit Fortschritt weiss
-
 
 ### aktuell
 - starts, ends in Parametern zurueckbauen
