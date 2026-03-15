@@ -45,8 +45,6 @@ class CurveSimAnimation:
         else:
             return delta
 
-next: Titel von right_plot und Hauptplot ueberlagern sich, wenn left_plot=False
-
     @staticmethod
     def init_left_plot(p, shape, loc, rowspan, colspan):
         # left plot (overhead view)
@@ -55,7 +53,28 @@ next: Titel von right_plot und Hauptplot ueberlagern sich, wenn left_plot=False
         ax_left.set_ylim(-p.ylim, p.ylim)
         ax_left.set_aspect("equal")
         ax_left.set_facecolor("black")  # background color
-        ax_left.set_title("View from above", color="xkcd:light grey", fontsize=10)
+        ax_left.set_title(p.left_title, color="xkcd:light grey", fontsize=10, y=0.9)
+
+        scale_bar_left = p.xlim * 0.74
+        scale_bar_right = p.xlim * 0.99
+        scale_bar_height = -0.94
+        scale_bar_length = p.scope_left * (scale_bar_right - scale_bar_left) / p.au
+        scale_bar_text_height = -0.97
+        # scale_bar_text_left = 1.03
+        scale_bar_text_left = (scale_bar_left + scale_bar_right) / 2
+        dy = 0.01 * (ax_left.get_ylim()[1] - ax_left.get_ylim()[0])
+
+
+
+
+
+        ax_left.hlines(y=scale_bar_height, xmin=scale_bar_left, xmax=scale_bar_right, color='grey', linewidth=1)
+        ax_left.vlines(x=scale_bar_left, ymin=scale_bar_height - dy, ymax=scale_bar_height + dy, color='grey', linewidth=1)
+        ax_left.vlines(x=scale_bar_right, ymin=scale_bar_height - dy, ymax=scale_bar_height + dy, color='grey', linewidth=1)
+
+        print(f"{p.scope_left=} {p.xlim=} {scale_bar_length=}")
+        ax_left.text(scale_bar_text_left, scale_bar_text_height, f"{scale_bar_length:.3f} AU", color='grey', fontsize=8, ha='center', va='top')
+        # ax_left.text(scale_bar_text_left, scale_bar_text_height, f"{scale_bar_length:.3f} AU", color='grey', fontsize=8, ha='left', va='top')
         return ax_left
 
     @staticmethod
@@ -66,7 +85,7 @@ next: Titel von right_plot und Hauptplot ueberlagern sich, wenn left_plot=False
         ax_right.set_ylim(-p.ylim, p.ylim)
         ax_right.set_aspect("equal")
         ax_right.set_facecolor("black")  # background color
-        ax_right.set_title("View from Earth", color="xkcd:light grey", fontsize=10)
+        ax_right.set_title(p.right_title, color="xkcd:light grey", fontsize=10, y=0.9)
         return ax_right
 
     @staticmethod
@@ -174,24 +193,29 @@ next: Titel von right_plot und Hauptplot ueberlagern sich, wenn left_plot=False
             ax_right = CurveSimAnimation.init_right_plot(p, shape=(6, 2), loc=(0, 1), rowspan=4, colspan=1)
             ax_lightcurve, flux_dot = CurveSimAnimation.init_lightcurve_plot(sim_flux, time_s0, p, shape=(6, 2), loc=(4, 0), rowspan=1, colspan=2)
             ax_rv_curve, rv_dot = CurveSimAnimation.init_rv_curve_plot(sim_rv, time_s0, p, shape=(6, 2), loc=(5, 0), rowspan=1, colspan=2)
+            fig.add_artist(plt.Line2D([0.5, 0.5], [0.4, 0.9], color='xkcd:dark grey', linewidth=1, transform=fig.transFigure))
         # no RV plot
         elif p.show_left_plot and p.show_right_plot and p.show_lc_plot and not p.show_rv_plot:
             ax_left = CurveSimAnimation.init_left_plot(p, shape=(5, 2), loc=(0, 0), rowspan=4, colspan=1)
             ax_right = CurveSimAnimation.init_right_plot(p, shape=(5, 2), loc=(0, 1), rowspan=4, colspan=1)
             ax_lightcurve, flux_dot = CurveSimAnimation.init_lightcurve_plot(sim_flux, time_s0, p, shape=(5, 2), loc=(4, 0), rowspan=1, colspan=2)
             ax_rv_curve, rv_dot = None, None
+            fig.add_artist(plt.Line2D([0.5, 0.5], [0.27, 0.9], color='xkcd:dark grey', linewidth=1, transform=fig.transFigure))
+
         # no light curve plot
         elif p.show_left_plot and p.show_right_plot and not p.show_lc_plot and p.show_rv_plot:
             ax_left = CurveSimAnimation.init_left_plot(p, shape=(5, 2), loc=(0, 0), rowspan=4, colspan=1)
             ax_right = CurveSimAnimation.init_right_plot(p, shape=(5, 2), loc=(0, 1), rowspan=4, colspan=1)
             ax_lightcurve, flux_dot = None, None
             ax_rv_curve, rv_dot = CurveSimAnimation.init_rv_curve_plot(sim_rv, time_s0, p, shape=(5, 2), loc=(4, 0), rowspan=1, colspan=2)
+            fig.add_artist(plt.Line2D([0.5, 0.5], [0.27, 0.9], color='xkcd:dark grey', linewidth=1, transform=fig.transFigure))
         # no light curve and no RV plot
         elif p.show_left_plot and p.show_right_plot and not p.show_lc_plot and not p.show_rv_plot:
             ax_left = CurveSimAnimation.init_left_plot(p, shape=(4, 2), loc=(0, 0), rowspan=4, colspan=1)
             ax_right = CurveSimAnimation.init_right_plot(p, shape=(4, 2), loc=(0, 1), rowspan=4, colspan=1)
             ax_lightcurve, flux_dot = None, None
             ax_rv_curve, rv_dot = None, None
+            fig.add_artist(plt.Line2D([0.5, 0.5], [0.07, 0.9], color='xkcd:dark grey', linewidth=1, transform=fig.transFigure))
 
         # right plot only
         elif not p.show_left_plot and p.show_right_plot and not p.show_lc_plot and not p.show_rv_plot:
@@ -268,7 +292,11 @@ next: Titel von right_plot und Hauptplot ueberlagern sich, wenn left_plot=False
             sys.exit(1)
 
         plt.tight_layout()  # Automatically adjust padding horizontally as well as vertically.
-        plt.suptitle("TOI 4504", color="white", fontsize=14)
+
+        # line = plt.Line2D([0.5, 0.5], [0.4, 0.9], color='xkcd:grey', linewidth=1, transform=fig.transFigure, zorder=10)
+        # fig.lines.append(line)  # Direkt zur Figure hinzufügen
+
+        plt.suptitle(p.main_title, color="white", fontsize=14)
         fig.text(0.99, 0.99, "lichtgestalter/CurveSimulator", color="xkcd:purpley", fontsize=10, ha="right", va="top", transform=fig.transFigure)
 
         return fig, ax_right, ax_left, ax_lightcurve, rv_dot, flux_dot

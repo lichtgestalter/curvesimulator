@@ -104,10 +104,6 @@ class CurveSimParameters:
             self.frames = eval(config.get("Video", "frames"))
             self.fps = eval(config.get("Video", "fps"))
             self.clockwise = eval(config.get("Video", "clockwise", fallback="False"))
-            self.show_left_plot = eval(config.get("Video", "show_left_plot", fallback="True"))
-            self.show_right_plot = eval(config.get("Video", "show_right_plot", fallback="True"))
-            self.show_lc_plot = eval(config.get("Video", "show_lc_plot", fallback="True"))
-            self.show_rv_plot = eval(config.get("Video", "show_rv_plot", fallback="True"))
 
             # self.start_indices, self.max_iterations, self.total_iterations = self.check_intervals()
             self.sampling_rate = self.total_iterations / self.frames
@@ -128,6 +124,14 @@ class CurveSimParameters:
             self.max_radius = eval(config.get("Scale", "max_radius")) / 100.0
 
             # [Plot]
+            self.show_left_plot = eval(config.get("Plot", "show_left_plot", fallback="True"))
+            self.show_right_plot = eval(config.get("Plot", "show_right_plot", fallback="True"))
+            self.show_lc_plot = eval(config.get("Plot", "show_lc_plot", fallback="True"))
+            self.show_rv_plot = eval(config.get("Plot", "show_rv_plot", fallback="True"))
+            self.main_title = config.get("Plot", "main_title", fallback="")
+            self.left_title = config.get("Plot", "left_title", fallback="View from above")
+            self.right_title = config.get("Plot", "right_title", fallback="View from Earth")
+
             self.figure_width = eval(config.get("Plot", "figure_width", fallback="16"))
             self.figure_height = eval(config.get("Plot", "figure_height", fallback="8"))
             self.xlim = eval(config.get("Plot", "xlim", fallback="1.25"))

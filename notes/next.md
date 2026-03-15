@@ -4,11 +4,9 @@
 ### done
 0.5.8 TOI-4504 Videos
 
-
 ### jetzt
-6 laengere realtime
-3 4 5 mehr frames damit lightcurve nicht stotterrt
-Video mit Planet b
+scale_bar_length_left und scale_bar_length_right von configfile lesen und in 
+init_left_plot verwenden um scale_bar_left zu berechnen
 
 #### Feature Requests von Simon:
 ✅ Texte in das Video:
@@ -20,7 +18,7 @@ Video mit Planet b
 ✅ Planetenrichtung umkehren
 ✅ Optional ohne RV Plot
 ✅ Optional nur rechter oder nur linker Plot
-Trennlinie zwischen linken und rechten Plot
+✅ Trennlinie zwischen linken und rechten Plot
 Masstab in Plots einzeichnen: z.B. Linie mit Text “0.1 AU”
 y-Achse bei Lightcurve und RV-curve dunkelgrau einzeichnen
 Stern mit Limb Darkening darstellen
