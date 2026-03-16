@@ -5,8 +5,8 @@
 0.5.8 TOI-4504 Videos
 
 ### jetzt
-scale_bar_length_left und scale_bar_length_right von configfile lesen und in 
-init_left_plot verwenden um scale_bar_left zu berechnen
+Sinnvoll automatisieren, wie viele Nachkommastellen des Massstabs gezeigt 
+werden?
 
 #### Feature Requests von Simon:
 ✅ Texte in das Video:
@@ -19,7 +19,7 @@ init_left_plot verwenden um scale_bar_left zu berechnen
 ✅ Optional ohne RV Plot
 ✅ Optional nur rechter oder nur linker Plot
 ✅ Trennlinie zwischen linken und rechten Plot
-Masstab in Plots einzeichnen: z.B. Linie mit Text “0.1 AU”
+✅ Masstab in Plots einzeichnen: z.B. Linie mit Text “0.1 AU”
 y-Achse bei Lightcurve und RV-curve dunkelgrau einzeichnen
 Stern mit Limb Darkening darstellen
 Lightcurve erst dunkelgrau, wird mit Fortschritt weiss

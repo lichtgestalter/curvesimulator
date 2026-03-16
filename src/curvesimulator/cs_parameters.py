@@ -114,9 +114,11 @@ class CurveSimParameters:
                 print(f"{Fore.YELLOW}         Decrease the number of frames or decrease dt (the real time difference between simulation iterations).{Style.RESET_ALL}")
             # [Scale]
             self.scope_left = eval(config.get("Scale", "scope_left"))
+            self.scale_bar_length_left = eval(config.get("Scale", "scale_bar_length_left"))
             self.star_scale_left = eval(config.get("Scale", "star_scale_left"))
             self.planet_scale_left = eval(config.get("Scale", "planet_scale_left"))
             self.scope_right = eval(config.get("Scale", "scope_right"))
+            self.scale_bar_length_right = eval(config.get("Scale", "scale_bar_length_right"))
             self.star_scale_right = eval(config.get("Scale", "star_scale_right"))
             self.planet_scale_right = eval(config.get("Scale", "planet_scale_right"))
             self.autoscaling = config.get("Scale", "autoscaling") == "on"

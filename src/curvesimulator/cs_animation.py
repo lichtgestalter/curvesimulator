@@ -1,3 +1,43 @@
+# Radialischer Farbverlauf mit pcolormesh
+# Ersetze die einfarbigen Circle-Patches durch pcolormesh, das einen Gradienten rendert. Dies funktioniert effizient in Animationen.
+#
+# Schritt 1: Erzeuge ein Gradienten-Image pro Body
+
+def create_radial_gradient(radius, size=100, base_color=(1,1,1), darkness=0.7):
+    """Erstellt ein RGBA-Image mit radialem Verlauf."""
+    y, x = np.ogrid[:size, :size]
+    center = size / 2
+    r = np.sqrt((x - center)**2 + (y - center)**2)
+    r = r / r.max() * radius  # Normalisiere auf Radius
+
+    # Alpha-Kanal: von innen 1.0 (voll sichtbar) nach außen 0.0 (transparent)
+    alpha = 1 - np.clip(r / radius, 0, 1)
+
+    # Farbverlauf: Basis * (1 - radialer Faktor)
+    factor = 1 - np.clip(r / radius, 0, 1)**1.5  # Exponent für weicheren Verlauf
+    gradient = np.array(base_color)[:, None, None] * factor
+
+    rgba = np.dstack([gradient, alpha])
+    return rgba
+
+# Schritt 2: In __init__ die Patches ersetzen
+    # In der Schleife für bodies:
+    # gradient_img = create_radial_gradient(body.radius_pixels, base_color=body.color)
+    # body.gradient_left = ax_left.pcolormesh(X, Y, gradient_img, shading='auto')
+    # body.gradient_right = ax_right.pcolormesh(X, Y, gradient_img, shading='auto')
+
+# Schritt 3: Positionierung in next_frame
+
+# Ersetze circle_left.center durch:
+#     for body in bodies:
+#         # Position im Koordinatensystem der Axes
+#         pos_x = x_direction * body.positions[frame_number][0] / p.scope_left
+#         pos_y = -body.positions[frame_number][2] / p.scope_left
+#         # Offset für pcolormesh (X,Y sind Grid)
+#         offset_x = pos_x - body.radius_pixels / p.scope_left
+#         offset_y = pos_y - body.radius_pixels / p.scope_left
+#         body.gradient_left.set_offsets(np.c_[X.flatten() + offset_x, Y.flatten() + offset_y])
+
 from colorama import Fore, Style
 import math
 import matplotlib.pyplot as plt  # from matplotlib import pyplot as plt
@@ -55,26 +95,16 @@ class CurveSimAnimation:
         ax_left.set_facecolor("black")  # background color
         ax_left.set_title(p.left_title, color="xkcd:light grey", fontsize=10, y=0.9)
 
-        scale_bar_left = p.xlim * 0.74
-        scale_bar_right = p.xlim * 0.99
-        scale_bar_height = -0.94
-        scale_bar_length = p.scope_left * (scale_bar_right - scale_bar_left) / p.au
-        scale_bar_text_height = -0.97
-        # scale_bar_text_left = 1.03
-        scale_bar_text_left = (scale_bar_left + scale_bar_right) / 2
-        dy = 0.01 * (ax_left.get_ylim()[1] - ax_left.get_ylim()[0])
-
-
-
-
-
-        ax_left.hlines(y=scale_bar_height, xmin=scale_bar_left, xmax=scale_bar_right, color='grey', linewidth=1)
-        ax_left.vlines(x=scale_bar_left, ymin=scale_bar_height - dy, ymax=scale_bar_height + dy, color='grey', linewidth=1)
-        ax_left.vlines(x=scale_bar_right, ymin=scale_bar_height - dy, ymax=scale_bar_height + dy, color='grey', linewidth=1)
-
-        print(f"{p.scope_left=} {p.xlim=} {scale_bar_length=}")
-        ax_left.text(scale_bar_text_left, scale_bar_text_height, f"{scale_bar_length:.3f} AU", color='grey', fontsize=8, ha='center', va='top')
-        # ax_left.text(scale_bar_text_left, scale_bar_text_height, f"{scale_bar_length:.3f} AU", color='grey', fontsize=8, ha='left', va='top')
+        scale_bar_end_x = p.xlim * 0.99
+        scale_bar_start_x = scale_bar_end_x - p.scale_bar_length_left / p.scope_left
+        dy = p.ylim * 0.02
+        scale_bar_height = p.ylim * -0.94
+        scale_bar_text_height = p.ylim * -0.97
+        scale_bar_text_start_x = (scale_bar_start_x + scale_bar_end_x) / 2
+        ax_left.hlines(y=scale_bar_height, xmin=scale_bar_start_x, xmax=scale_bar_end_x, color='grey', linewidth=1)
+        ax_left.vlines(x=scale_bar_start_x, ymin=scale_bar_height - dy, ymax=scale_bar_height + dy, color='grey', linewidth=1)
+        ax_left.vlines(x=scale_bar_end_x, ymin=scale_bar_height - dy, ymax=scale_bar_height + dy, color='grey', linewidth=1)
+        ax_left.text(scale_bar_text_start_x, scale_bar_text_height, f"{p.scale_bar_length_left / p.au:.1f} AU", color='grey', fontsize=8, ha='center', va='top')
         return ax_left
 
     @staticmethod
@@ -86,6 +116,17 @@ class CurveSimAnimation:
         ax_right.set_aspect("equal")
         ax_right.set_facecolor("black")  # background color
         ax_right.set_title(p.right_title, color="xkcd:light grey", fontsize=10, y=0.9)
+
+        scale_bar_end_x = p.xlim * 0.99
+        scale_bar_start_x = scale_bar_end_x - p.scale_bar_length_right / p.scope_right
+        dy = p.ylim * 0.02
+        scale_bar_height = p.ylim * -0.94
+        scale_bar_text_height = p.ylim * -0.97
+        scale_bar_text_start_x = (scale_bar_start_x + scale_bar_end_x) / 2
+        ax_right.hlines(y=scale_bar_height, xmin=scale_bar_start_x, xmax=scale_bar_end_x, color='grey', linewidth=1)
+        ax_right.vlines(x=scale_bar_start_x, ymin=scale_bar_height - dy, ymax=scale_bar_height + dy, color='grey', linewidth=1)
+        ax_right.vlines(x=scale_bar_end_x, ymin=scale_bar_height - dy, ymax=scale_bar_height + dy, color='grey', linewidth=1)
+        ax_right.text(scale_bar_text_start_x, scale_bar_text_height, f"{p.scale_bar_length_right / p.au:.1f} AU", color='grey', fontsize=8, ha='center', va='top')
         return ax_right
 
     @staticmethod
