@@ -1,47 +1,9 @@
-# Radialischer Farbverlauf mit pcolormesh
-# Ersetze die einfarbigen Circle-Patches durch pcolormesh, das einen Gradienten rendert. Dies funktioniert effizient in Animationen.
-#
-# Schritt 1: Erzeuge ein Gradienten-Image pro Body
-
-def create_radial_gradient(radius, size=100, base_color=(1,1,1), darkness=0.7):
-    """Erstellt ein RGBA-Image mit radialem Verlauf."""
-    y, x = np.ogrid[:size, :size]
-    center = size / 2
-    r = np.sqrt((x - center)**2 + (y - center)**2)
-    r = r / r.max() * radius  # Normalisiere auf Radius
-
-    # Alpha-Kanal: von innen 1.0 (voll sichtbar) nach außen 0.0 (transparent)
-    alpha = 1 - np.clip(r / radius, 0, 1)
-
-    # Farbverlauf: Basis * (1 - radialer Faktor)
-    factor = 1 - np.clip(r / radius, 0, 1)**1.5  # Exponent für weicheren Verlauf
-    gradient = np.array(base_color)[:, None, None] * factor
-
-    rgba = np.dstack([gradient, alpha])
-    return rgba
-
-# Schritt 2: In __init__ die Patches ersetzen
-    # In der Schleife für bodies:
-    # gradient_img = create_radial_gradient(body.radius_pixels, base_color=body.color)
-    # body.gradient_left = ax_left.pcolormesh(X, Y, gradient_img, shading='auto')
-    # body.gradient_right = ax_right.pcolormesh(X, Y, gradient_img, shading='auto')
-
-# Schritt 3: Positionierung in next_frame
-
-# Ersetze circle_left.center durch:
-#     for body in bodies:
-#         # Position im Koordinatensystem der Axes
-#         pos_x = x_direction * body.positions[frame_number][0] / p.scope_left
-#         pos_y = -body.positions[frame_number][2] / p.scope_left
-#         # Offset für pcolormesh (X,Y sind Grid)
-#         offset_x = pos_x - body.radius_pixels / p.scope_left
-#         offset_y = pos_y - body.radius_pixels / p.scope_left
-#         body.gradient_left.set_offsets(np.c_[X.flatten() + offset_x, Y.flatten() + offset_y])
-
 from colorama import Fore, Style
 import math
 import matplotlib.pyplot as plt  # from matplotlib import pyplot as plt
 from matplotlib import patches, animation
+from matplotlib.offsetbox import OffsetImage, AnnotationBbox
+import matplotlib.image as mpimg
 import numpy as np
 import shutil
 import sys
@@ -50,15 +12,24 @@ import time
 class CurveSimAnimation:
 
     def __init__(self, p, bodies, sim_rv, sim_flux, time_s0):
-        CurveSimAnimation.check_ffmpeg()
+        CurveSimAnimation.check_ffmpeg()  # is ffmpeg installed?
         self.fig, ax_right, ax_left, ax_lightcurve, self.rv_dot, self.flux_dot = CurveSimAnimation.init_plot(p, sim_rv, sim_flux, time_s0)  # Adjust constants in section [Plot] of config file to fit your screen.
         for body in bodies:  # Circles represent the bodies in the animation. Set their colors and add them to the matplotlib axis.
-            body.circle_left.set_color(body.color)
-            body.circle_right.set_color(body.color)
-            if p.show_left_plot:
-                ax_left.add_patch(body.circle_left)
-            if p.show_right_plot:
-                ax_right.add_patch(body.circle_right)
+            p.star_image = "../img/sun_test.png"
+            body.image_left = OffsetImage(mpimg.imread(p.star_image), zoom=1.0)
+            body.image_right = OffsetImage(mpimg.imread(p.star_image), zoom=1.0)
+            if body.body_type == "star" and p.star_image:
+                body.ab_left = AnnotationBbox(body.image_left, (0.2, 0.2), frameon=False, xycoords='data')
+                ax_left.add_artist(body.ab_left)
+                body.ab_right = AnnotationBbox(body.image_right, (-0.5, -0.5), frameon=False, xycoords='data')
+                ax_right.add_artist(body.ab_right)
+            else:
+                body.circle_left.set_color(body.color)
+                body.circle_right.set_color(body.color)
+                if p.show_left_plot:
+                    ax_left.add_patch(body.circle_left)
+                if p.show_right_plot:
+                    ax_right.add_patch(body.circle_right)
         self.render(p, bodies, sim_rv, sim_flux, time_s0)
 
     @staticmethod
@@ -354,11 +325,20 @@ class CurveSimAnimation:
         First parameter comes from iterator frames (a parameter of FuncAnimation).
         The other parameters are given to this function via the parameter fargs of FuncAnimation."""
         for body in bodies:  # left view: projection (x,y,z) -> (x,-z), order = y (y-axis points to viewer)
-            body.circle_left.set(zorder=body.positions[frame_number][1])
-            body.circle_left.center = x_direction * body.positions[frame_number][0] / p.scope_left, -body.positions[frame_number][2] / p.scope_left
+            if body.body_type == "star" and p.star_image:
+                body.ab_left.set_zorder(body.positions[frame_number][1])
+                body.ab_left.xybox = (x_direction * body.positions[frame_number][0] / p.scope_left, -body.positions[frame_number][2] / p.scope_left)
+            else:
+                body.circle_left.set(zorder=body.positions[frame_number][1])
+                body.circle_left.center = x_direction * body.positions[frame_number][0] / p.scope_left, -body.positions[frame_number][2] / p.scope_left
         for body in bodies:  # right view: projection (x,y,z) -> (x,y), order = z (z-axis points to viewer)
-            body.circle_right.set(zorder=body.positions[frame_number][2])
-            body.circle_right.center = x_direction * body.positions[frame_number][0] / p.scope_right, body.positions[frame_number][1] / p.scope_right
+            if body.body_type == "star" and p.star_image:
+                body.ab_right.set_zorder(body.positions[frame_number][2])
+                body.ab_right.xybox = (x_direction * body.positions[frame_number][0] / p.scope_right, body.positions[frame_number][1] / p.scope_right)
+            else:
+                body.circle_right.set(zorder=body.positions[frame_number][2])
+                body.circle_right.center = x_direction * body.positions[frame_number][0] / p.scope_right, body.positions[frame_number][1] / p.scope_right
+
         # Use relative x (days since p.starts_s0[0]) for both dots so they align with plotted curves
         x_rel = (time_s0[frame_number] - p.starts_s0[0]) / p.day
         if p.show_lc_plot:
@@ -369,8 +349,25 @@ class CurveSimAnimation:
         #     bodies[0].circle_left.set_color((1.0, 0.2, 0.2))  # Example code for changing circle color during animation
         if frame >= 10 and frame % int(round(p.frames / 10)) == 0:  # Inform user about program"s progress.
             print(f"{round(frame / p.frames * 10) * 10:3d}% ", end="")
+
         # Return artists for compatibility with FuncAnimation (ignored if blit=False)
-        return [flux_dot, rv_dot]
+        # Alle geänderten Artists sammeln
+        artists = [flux_dot] if flux_dot else []
+        if rv_dot:
+            artists.append(rv_dot)
+
+        # AnnotationBbox und Circles hinzufügen
+        for body in bodies:
+            if hasattr(body, 'ab_left') and body.ab_left:
+                artists.append(body.ab_left)
+            elif hasattr(body, 'circle_left') and p.show_left_plot:
+                artists.append(body.circle_left)
+            if hasattr(body, 'ab_right') and body.ab_right:
+                artists.append(body.ab_right)
+            elif hasattr(body, 'circle_right') and p.show_right_plot:
+                artists.append(body.circle_right)
+
+        return artists
 
     def render(self, p, bodies, sim_rv, sim_flux, time_s0):
         """Calls next_frame() for each frame and saves the video."""
