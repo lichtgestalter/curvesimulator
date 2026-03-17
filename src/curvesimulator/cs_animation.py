@@ -15,7 +15,7 @@ class CurveSimAnimation:
         CurveSimAnimation.check_ffmpeg()  # is ffmpeg installed?
         self.fig, ax_right, ax_left, ax_lightcurve, self.rv_dot, self.flux_dot = CurveSimAnimation.init_plot(p, sim_rv, sim_flux, time_s0)  # Adjust constants in section [Plot] of config file to fit your screen.
         for body in bodies:  # Circles represent the bodies in the animation. Set their colors and add them to the matplotlib axis.
-            p.star_image = "../img/sun_test.png"
+            p.star_image = "../img/star10.png"
             body.image_left = OffsetImage(mpimg.imread(p.star_image), zoom=1.0)
             body.image_right = OffsetImage(mpimg.imread(p.star_image), zoom=1.0)
             if body.body_type == "star" and p.star_image:
