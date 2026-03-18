@@ -16,9 +16,14 @@ class CurveSimAnimation:
         self.fig, ax_right, ax_left, ax_lightcurve, self.rv_dot, self.flux_dot = CurveSimAnimation.init_plot(p, sim_rv, sim_flux, time_s0)  # Adjust constants in section [Plot] of config file to fit your screen.
         for body in bodies:  # Circles represent the bodies in the animation. Set their colors and add them to the matplotlib axis.
             p.star_image = "../img/star10.png"
-            body.image_left = OffsetImage(mpimg.imread(p.star_image), zoom=1.0)
-            body.image_right = OffsetImage(mpimg.imread(p.star_image), zoom=1.0)
-            if body.body_type == "star" and p.star_image:
+            if body.body_type == "star" and p.star_image:  # debug: spaeter hier nur testen ob body.image nicht None ist
+                pixel_distance_left, pixel_distance_right = CurveSimAnimation.calc_pixel_diameter(p, body, ax_left, ax_right)
+                print(f"{pixel_distance_left=} {pixel_distance_right=}")
+
+                # debug: spaeter dann erst hier die Bilder abhaengig von den ermittelten Pixelzahlen auswaehlen
+
+                body.image_left = OffsetImage(mpimg.imread(p.star_image), zoom=1.0)
+                body.image_right = OffsetImage(mpimg.imread(p.star_image), zoom=1.0)
                 body.ab_left = AnnotationBbox(body.image_left, (0.2, 0.2), frameon=False, xycoords='data')
                 ax_left.add_artist(body.ab_left)
                 body.ab_right = AnnotationBbox(body.image_right, (-0.5, -0.5), frameon=False, xycoords='data')
@@ -40,6 +45,23 @@ class CurveSimAnimation:
             print("Visit ffmpeg.org to download an executable version.")
             print(f"Extract the zip file and add the bin directory to your system's PATH environment variable.{Style.RESET_ALL}")
             sys.exit(1)
+
+
+    @staticmethod
+    def calc_pixel_diameter(p, body, ax_left, ax_right):
+        """Berechnet die vertikale Pixel-Distanz zwischen zwei Punkten mit gleichem x-Wert."""
+
+        def pixel_dist_in_axis(ax, x1, y1, x2, y2):
+            p1_display = ax.transData.transform((x1, y1))  # plot coordinates to pixels
+            p2_display = ax.transData.transform((x2, y2))
+            dist_pixels = math.sqrt((p1_display[0] - p2_display[0])**2 + (p1_display[1] - p2_display[1])**2)  # euklidian distance
+            return dist_pixels
+
+        left = pixel_dist_in_axis(ax_left, -body.radius / p.scope_left, 0, body.radius / p.scope_left, 0)
+        right = pixel_dist_in_axis(ax_right, -body.radius / p.scope_right, 0, body.radius / p.scope_right, 0)
+        # left = pixel_dist_in_axis(ax_left, 0, -body.radius / p.scope_left, 0, body.radius / p.scope_left)
+        # right = pixel_dist_in_axis(ax_right, 0, -body.radius / p.scope_right, 0, body.radius / p.scope_right)
+        return left, right
 
     @staticmethod
     def tic_delta(scope):
@@ -106,7 +128,7 @@ class CurveSimAnimation:
         ax_lightcurve = plt.subplot2grid(shape=shape, loc=loc, rowspan=rowspan, colspan=colspan)
         ax_lightcurve.set_facecolor("black")  # background color
 
-        # no x-tics/-labels because the rv-plot below has the same
+        # no x-tics/-labels because the rv-plot below uses the same x-tics/-labels
 
         # lightcurve y-ticks, y-labels
         ax_lightcurve.set_ylabel("Relative Flux", color="grey", fontsize=8)
@@ -125,9 +147,9 @@ class CurveSimAnimation:
         ax_lightcurve.set_yticks(yvalues, labels=ylabels)
 
         # lightcurve data (white line)
-        x = (time_s0 - p.starts_s0[0]) / p.day  # debug hack
+        x = (time_s0 - p.starts_s0[0]) / p.day
         ax_lightcurve.set_xlim(float(x[0]), float(x[-1]))
-        ax_lightcurve.plot(x, sim_flux, color="white")  # debug hack
+        ax_lightcurve.plot(x, sim_flux, color="white")
 
         # lightcurve red dot
         flux_dot = patches.Ellipse((0, 0), (time_s0[-1] - time_s0[0]) * p.flux_dot_width / p.day, scope * p.flux_dot_height)  # matplotlib patch
@@ -304,9 +326,6 @@ class CurveSimAnimation:
             sys.exit(1)
 
         plt.tight_layout()  # Automatically adjust padding horizontally as well as vertically.
-
-        # line = plt.Line2D([0.5, 0.5], [0.4, 0.9], color='xkcd:grey', linewidth=1, transform=fig.transFigure, zorder=10)
-        # fig.lines.append(line)  # Direkt zur Figure hinzufügen
 
         plt.suptitle(p.main_title, color="white", fontsize=14)
         fig.text(0.99, 0.99, "lichtgestalter/CurveSimulator", color="xkcd:purpley", fontsize=10, ha="right", va="top", transform=fig.transFigure)
