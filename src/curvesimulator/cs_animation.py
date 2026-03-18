@@ -64,6 +64,14 @@ class CurveSimAnimation:
         return left, right
 
     @staticmethod
+    next: diese Funktion testen
+    def pixel_dist_bbox(ax):
+        # Achsenränder in Figure-Koordinaten → Pixel
+        bbox = ax.get_window_extent()  # Achsen-BoundingBox inkl. Padding
+        height_pixels = bbox.height   # Direkte Pixel-Höhe der Achse!
+        return height_pixels
+
+    @staticmethod
     def tic_delta(scope):
         """Returns a distance between two tics on an axis so that the total
         number of tics on that axis is between 5 and 10."""
