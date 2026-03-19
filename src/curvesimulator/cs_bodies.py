@@ -52,6 +52,8 @@ class CurveSimBodies(list):
                         "name": section,
                         "body_type": config.get(section, "body_type", fallback=None),
                         "color": tuple([ast.literal_eval(x) for x in config.get(section, "color", fallback="-1").split(",")]),
+                        "image_file_left": config.get(section, "image_file_left", fallback=None),
+                        "image_file_right": config.get(section, "image_file_right", fallback=None),
                         "mass": p.read_param(config, section, "mass", fallback="-1"),
                         "radius": p.read_param(config, section, "radius", fallback="-1"),
                         "luminosity": p.read_param(config, section, "luminosity", fallback="0.0"),

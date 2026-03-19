@@ -15,21 +15,20 @@ class CurveSimAnimation:
         CurveSimAnimation.check_ffmpeg()  # is ffmpeg installed?
         self.fig, ax_right, ax_left, ax_lightcurve, self.rv_dot, self.flux_dot = CurveSimAnimation.init_plot(p, sim_rv, sim_flux, time_s0)  # Adjust constants in section [Plot] of config file to fit your screen.
         for body in bodies:  # Circles represent the bodies in the animation. Set their colors and add them to the matplotlib axis.
-            p.star_image = "../img/star10.png"
-            if body.body_type == "star_debug" and p.star_image:  # debug: spaeter hier nur testen ob body.image nicht None ist
-                body.image_left = OffsetImage(mpimg.imread(p.star_image), zoom=1.0)
-                body.image_right = OffsetImage(mpimg.imread(p.star_image), zoom=1.0)
-                body.ab_left = AnnotationBbox(body.image_left, (0.2, 0.2), frameon=False, xycoords='data')
-                ax_left.add_artist(body.ab_left)
-                body.ab_right = AnnotationBbox(body.image_right, (-0.5, -0.5), frameon=False, xycoords='data')
-                ax_right.add_artist(body.ab_right)
-            else:
+            if body.image_file_left is None or body.image_file_right is None:
                 body.circle_left.set_color(body.color)
                 body.circle_right.set_color(body.color)
                 if p.show_left_plot:
                     ax_left.add_patch(body.circle_left)
                 if p.show_right_plot:
                     ax_right.add_patch(body.circle_right)
+            else:
+                body.image_left = OffsetImage(mpimg.imread(body.image_file_left), zoom=1.0)
+                body.image_right = OffsetImage(mpimg.imread(body.image_file_right), zoom=1.0)
+                body.ab_left = AnnotationBbox(body.image_left, (0.2, 0.2), frameon=False, xycoords='data')
+                ax_left.add_artist(body.ab_left)
+                body.ab_right = AnnotationBbox(body.image_right, (-0.5, -0.5), frameon=False, xycoords='data')
+                ax_right.add_artist(body.ab_right)
         self.render(p, bodies, sim_rv, sim_flux, time_s0)
 
     @staticmethod
@@ -321,19 +320,19 @@ class CurveSimAnimation:
         First parameter comes from iterator frames (a parameter of FuncAnimation).
         The other parameters are given to this function via the parameter fargs of FuncAnimation."""
         for body in bodies:  # left view: projection (x,y,z) -> (x,-z), order = y (y-axis points to viewer)
-            if body.body_type == "star_debug" and p.star_image:
-                body.ab_left.set_zorder(body.positions[frame_number][1])
-                body.ab_left.xybox = (x_direction * body.positions[frame_number][0] / p.scope_left, -body.positions[frame_number][2] / p.scope_left)
-            else:
+            if body.image_file_left is None or body.image_file_right is None:
                 body.circle_left.set(zorder=body.positions[frame_number][1])
                 body.circle_left.center = x_direction * body.positions[frame_number][0] / p.scope_left, -body.positions[frame_number][2] / p.scope_left
-        for body in bodies:  # right view: projection (x,y,z) -> (x,y), order = z (z-axis points to viewer)
-            if body.body_type == "star_debug" and p.star_image:
-                body.ab_right.set_zorder(body.positions[frame_number][2])
-                body.ab_right.xybox = (x_direction * body.positions[frame_number][0] / p.scope_right, body.positions[frame_number][1] / p.scope_right)
             else:
+                body.ab_left.set_zorder(body.positions[frame_number][1])
+                body.ab_left.xybox = (x_direction * body.positions[frame_number][0] / p.scope_left, -body.positions[frame_number][2] / p.scope_left)
+        for body in bodies:  # right view: projection (x,y,z) -> (x,y), order = z (z-axis points to viewer)
+            if body.image_file_left is None or body.image_file_right is None:
                 body.circle_right.set(zorder=body.positions[frame_number][2])
                 body.circle_right.center = x_direction * body.positions[frame_number][0] / p.scope_right, body.positions[frame_number][1] / p.scope_right
+            else:
+                body.ab_right.set_zorder(body.positions[frame_number][2])
+                body.ab_right.xybox = (x_direction * body.positions[frame_number][0] / p.scope_right, body.positions[frame_number][1] / p.scope_right)
 
         # Use relative x (days since p.starts_s0[0]) for both dots so they align with plotted curves
         x_rel = (time_s0[frame_number] - p.starts_s0[0]) / p.day

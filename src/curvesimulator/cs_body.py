@@ -19,7 +19,7 @@ def multiple_transit_error():
 # noinspection NonAsciiCharacters,PyPep8Naming,PyUnusedLocal
 class CurveSimBody:
     def __init__(self, p, primary, name, body_type, mass, radius, luminosity, startposition, velocity, P, a, e, i, Omega, omega, pomega, L, ma, ea,
-                 nu, T, t, limb_darkening_1, limb_darkening_2, limb_darkening_parameter_type, color):
+                 nu, T, t, limb_darkening_1, limb_darkening_2, limb_darkening_parameter_type, color, image_file_left, image_file_right):
         """Initialize instance of physical body."""
         # For ease of use of constants in the config file they are additionally defined here without the prefix "p.".
         g, au, r_sun, m_sun, l_sun = p.g, p.au, p.r_sun, p.m_sun, p.l_sun
@@ -28,6 +28,8 @@ class CurveSimBody:
         self.body_type = body_type  # "star" or "planet"
         self.primary = primary
         self.color = color  # (R, G, B)  each between 0 and 1
+        self.image_file_left = image_file_left
+        self.image_file_right = image_file_right
         self.mass = mass  # [kg]
         self.radius = radius  # [m]
         self.area_2d = math.pi * radius ** 2  # [m**2]
@@ -164,32 +166,34 @@ class CurveSimBody:
 
         # Build args in the same order as __init__ signature:
         args = [
-            p,                                          # program parameters
-            data.get("primary", False),    # primary
-            data.get("name"),                           # name
-            data.get("body_type"),                      # body_type
-            data.get("mass"),                           # mass
-            data.get("radius"),                         # radius
-            data.get("luminosity"),                     # luminosity
-            data.get("startposition"),                  # startposition
-            data.get("velocity"),                       # velocity
-            data.get("P"),                              # P
-            data.get("a"),                              # a
-            data.get("e"),                              # e
-            data.get("i"),                              # i
-            data.get("Omega"),                          # Omega
-            data.get("omega"),                          # omega
-            data.get("pomega"),                         # pomega
-            data.get("L"),                              # L
-            data.get("ma"),                             # ma
-            data.get("ea"),                             # ea
-            data.get("nu"),                             # nu
-            data.get("T"),                              # T
-            data.get("t"),                              # t
-            data.get("limb_darkening_1"),               # limb_darkening_1
-            data.get("limb_darkening_2"),               # limb_darkening_2
-            data.get("limb_darkening_parameter_type"),  # limb_darkening_parameter_type
-            data.get("color"),                          # color
+            p,
+            data.get("primary", False),
+            data.get("name"),
+            data.get("body_type"),
+            data.get("mass"),
+            data.get("radius"),
+            data.get("luminosity"),
+            data.get("startposition"),
+            data.get("velocity"),
+            data.get("P"),
+            data.get("a"),
+            data.get("e"),
+            data.get("i"),
+            data.get("Omega"),
+            data.get("omega"),
+            data.get("pomega"),
+            data.get("L"),
+            data.get("ma"),
+            data.get("ea"),
+            data.get("nu"),
+            data.get("T"),
+            data.get("t"),
+            data.get("limb_darkening_1"),
+            data.get("limb_darkening_2"),
+            data.get("limb_darkening_parameter_type"),
+            data.get("color"),
+            data.get("image_file_left"),
+            data.get("image_file_right"),
         ]
 
         try:
