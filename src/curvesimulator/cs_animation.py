@@ -65,7 +65,7 @@ class CurveSimAnimation:
         ax_left.set_facecolor("black")  # background color
         ax_left.set_title(p.left_title, color="xkcd:light grey", fontsize=10, y=0.9)
 
-        scale_bar_end_x = p.xlim * 0.99
+        scale_bar_end_x = p.xlim * 0.90
         scale_bar_start_x = scale_bar_end_x - p.scale_bar_length_left / p.scope_left
         dy = p.ylim * 0.02
         scale_bar_height = p.ylim * -0.94
@@ -74,7 +74,7 @@ class CurveSimAnimation:
         ax_left.hlines(y=scale_bar_height, xmin=scale_bar_start_x, xmax=scale_bar_end_x, color='grey', linewidth=1)
         ax_left.vlines(x=scale_bar_start_x, ymin=scale_bar_height - dy, ymax=scale_bar_height + dy, color='grey', linewidth=1)
         ax_left.vlines(x=scale_bar_end_x, ymin=scale_bar_height - dy, ymax=scale_bar_height + dy, color='grey', linewidth=1)
-        ax_left.text(scale_bar_text_start_x, scale_bar_text_height, f"{p.scale_bar_length_left / p.au:.1f} AU", color='grey', fontsize=8, ha='center', va='top')
+        ax_left.text(scale_bar_text_start_x, scale_bar_text_height, f"{p.scale_bar_length_left / p.au:.2f} AU", color='grey', fontsize=8, ha='center', va='top')
         return ax_left
 
     @staticmethod
@@ -96,7 +96,7 @@ class CurveSimAnimation:
         ax_right.hlines(y=scale_bar_height, xmin=scale_bar_start_x, xmax=scale_bar_end_x, color='grey', linewidth=1)
         ax_right.vlines(x=scale_bar_start_x, ymin=scale_bar_height - dy, ymax=scale_bar_height + dy, color='grey', linewidth=1)
         ax_right.vlines(x=scale_bar_end_x, ymin=scale_bar_height - dy, ymax=scale_bar_height + dy, color='grey', linewidth=1)
-        ax_right.text(scale_bar_text_start_x, scale_bar_text_height, f"{p.scale_bar_length_right / p.au:.1f} AU", color='grey', fontsize=8, ha='center', va='top')
+        ax_right.text(scale_bar_text_start_x, scale_bar_text_height, f"{p.scale_bar_length_right / p.au:.2f} AU", color='grey', fontsize=8, ha='center', va='top')
         return ax_right
 
     @staticmethod
