@@ -16,9 +16,9 @@ class CurveSimAnimation:
         self.fig, ax_right, ax_left, ax_lightcurve, self.rv_dot, self.flux_dot = CurveSimAnimation.init_plot(p, sim_rv, sim_flux, time_s0)  # Adjust constants in section [Plot] of config file to fit your screen.
         for body in bodies:  # Circles represent the bodies in the animation. Set their colors and add them to the matplotlib axis.
             p.star_image = "../img/star10.png"
-            if body.body_type == "star" and p.star_image:  # debug: spaeter hier nur testen ob body.image nicht None ist
-                pixel_distance_left, pixel_distance_right = CurveSimAnimation.calc_pixel_diameter(p, body, ax_left, ax_right)
-                print(f"{pixel_distance_left=} {pixel_distance_right=}")
+            pixel_distance_left, pixel_distance_right = CurveSimAnimation.calc_pixel_diameter(p, body, ax_left, ax_right)
+            print(f"{body.name} {pixel_distance_left=} {pixel_distance_right=}")
+            if body.body_type == "star_debug" and p.star_image:  # debug: spaeter hier nur testen ob body.image nicht None ist
 
                 # debug: spaeter dann erst hier die Bilder abhaengig von den ermittelten Pixelzahlen auswaehlen
 
@@ -59,12 +59,14 @@ class CurveSimAnimation:
 
         left = pixel_dist_in_axis(ax_left, -body.radius / p.scope_left, 0, body.radius / p.scope_left, 0)
         right = pixel_dist_in_axis(ax_right, -body.radius / p.scope_right, 0, body.radius / p.scope_right, 0)
+        # print(pixel_dist_in_axis(ax_left, 0, 0, 0.1 * p.au / p.scope_right, 0), "   0.1 AU in Pixels waagerecht")
+        # print(pixel_dist_in_axis(ax_left, 0, 0, 0, 0.1 * p.au / p.scope_right), "   0.1 AU in Pixels senkrecht")
         # left = pixel_dist_in_axis(ax_left, 0, -body.radius / p.scope_left, 0, body.radius / p.scope_left)
         # right = pixel_dist_in_axis(ax_right, 0, -body.radius / p.scope_right, 0, body.radius / p.scope_right)
         return left, right
 
     @staticmethod
-    next: diese Funktion testen
+    # next: diese Funktion testen
     def pixel_dist_bbox(ax):
         # Achsenränder in Figure-Koordinaten → Pixel
         bbox = ax.get_window_extent()  # Achsen-BoundingBox inkl. Padding
@@ -334,9 +336,11 @@ class CurveSimAnimation:
             sys.exit(1)
 
         plt.tight_layout()  # Automatically adjust padding horizontally as well as vertically.
-
         plt.suptitle(p.main_title, color="white", fontsize=14)
         fig.text(0.99, 0.99, "lichtgestalter/CurveSimulator", color="xkcd:purpley", fontsize=10, ha="right", va="top", transform=fig.transFigure)
+
+        print(CurveSimAnimation.pixel_dist_bbox(ax_left), "  l")
+        print(CurveSimAnimation.pixel_dist_bbox(ax_right), "  r")
 
         return fig, ax_right, ax_left, ax_lightcurve, rv_dot, flux_dot
 
@@ -352,14 +356,14 @@ class CurveSimAnimation:
         First parameter comes from iterator frames (a parameter of FuncAnimation).
         The other parameters are given to this function via the parameter fargs of FuncAnimation."""
         for body in bodies:  # left view: projection (x,y,z) -> (x,-z), order = y (y-axis points to viewer)
-            if body.body_type == "star" and p.star_image:
+            if body.body_type == "star_debug" and p.star_image:
                 body.ab_left.set_zorder(body.positions[frame_number][1])
                 body.ab_left.xybox = (x_direction * body.positions[frame_number][0] / p.scope_left, -body.positions[frame_number][2] / p.scope_left)
             else:
                 body.circle_left.set(zorder=body.positions[frame_number][1])
                 body.circle_left.center = x_direction * body.positions[frame_number][0] / p.scope_left, -body.positions[frame_number][2] / p.scope_left
         for body in bodies:  # right view: projection (x,y,z) -> (x,y), order = z (z-axis points to viewer)
-            if body.body_type == "star" and p.star_image:
+            if body.body_type == "star_debug" and p.star_image:
                 body.ab_right.set_zorder(body.positions[frame_number][2])
                 body.ab_right.xybox = (x_direction * body.positions[frame_number][0] / p.scope_right, body.positions[frame_number][1] / p.scope_right)
             else:

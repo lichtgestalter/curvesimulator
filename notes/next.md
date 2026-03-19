@@ -5,8 +5,6 @@
 0.5.8 TOI-4504 Videos
 
 ### jetzt
-Sinnvoll automatisieren, wie viele Nachkommastellen des Massstabs gezeigt 
-werden?
 
 #### Feature Requests von Simon:
 ✅ Texte in das Video:
