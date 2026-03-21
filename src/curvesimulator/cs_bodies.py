@@ -93,7 +93,7 @@ class CurveSimBodies(list):
 
     def init_rebound(self, p):
         # jacobi_test = True
-        jacobi_test = False
+        # jacobi_test = False
         simulation = rebound.Simulation()
         simulation.G = p.g  # gravitational constant
         star_count = sum(1 for body in self if body.body_type == "star")
@@ -126,17 +126,17 @@ class CurveSimBodies(list):
             kwargs["E"] = None if body.ea is None else body.ea
             kwargs["T"] = None if body.T is None else body.T
             kwargs["l"] = None if body.L is None else body.L
-            if jacobi_test and body.name == "TOI4504c":
-                kwargs["P"] = 7038411
-                kwargs["e"] = 0.03769992
-                kwargs["inc"] = 1.565415
-                kwargs["Omega"] = 0.0139592
-                kwargs["omega"] = 5.216664
-                kwargs["M"] = 2.490935
+            # if jacobi_test and body.name == "TOI4504c":
+            #     kwargs["P"] = 7038411
+            #     kwargs["e"] = 0.03769992
+            #     kwargs["inc"] = 1.565415
+            #     kwargs["Omega"] = 0.0139592
+            #     kwargs["omega"] = 5.216664
+            #     kwargs["M"] = 2.490935
 
             simulation.add(**kwargs)
-            if jacobi_test:
-                print(kwargs)
+            # if jacobi_test:
+            #     print(kwargs)
             i += 1
         simulation.move_to_com()  # move origin to center of mass before integrating -> better numerical stability
         # if p.action == "single_run":  # obsolete????  does not seem to help for MCMC, but is a good choice when creating a result file including transit times
@@ -144,10 +144,10 @@ class CurveSimBodies(list):
         #         simulation.ri_whfast.safe_mode = 0  # see https://rebound.readthedocs.io/en/latest/ipython_examples/AdvWHFast/
         #         simulation.ri_whfast.corrector = 11  # hopefully more accurate
 
-        if jacobi_test:
-            for body in self:
-                body.print_particle(simulation)
-            # exit(1)
+        # if jacobi_test:
+        #     for body in self:
+        #         body.print_particle(simulation)
+        #     exit(1)
 
         return simulation
 
