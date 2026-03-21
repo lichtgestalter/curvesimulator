@@ -105,10 +105,21 @@ class CurveSimBodies(list):
         if star_count == 0:
             print(f"{Fore.RED}\nERROR: No body in config file has body type star.{Style.RESET_ALL}")
             sys.exit(1)
-        i = 0
+
+
+# star = simulation.particles[0]
+# for i, body in enumerate(self[1:], start=1):
+#     kwargs = {...}
+    # Explicit Jacobi primary:
+    # kwargs["primary"] = simulation.calculate_com(first=i)
+    # simulation.add(**kwargs)
+
+
+        # i = 0
         for body in self[0:1]:  # hack debug: works only when the first body is the only star and all other bodies are orbiting this star (no binary, no moons, ...)
             simulation.add(m=body.mass, r=body.radius, hash=body.name)
-        for body in self[1:]:  # hack debug: works only when the first body is the only star and all other bodies are orbiting this star (no binary, no moons, ...)
+        for i, body in enumerate(self[1:], start=1):
+        # for body in self[1:]:  # hack debug: works only when the first body is the only star and all other bodies are orbiting this star (no binary, no moons, ...)
             kwargs = {}
             # kwargs["primary"] = simulation.particles[self[0].name]
             kwargs["m"] = body.mass
@@ -116,16 +127,26 @@ class CurveSimBodies(list):
             kwargs["hash"] = body.name
             kwargs["inc"] = body.i
             kwargs["e"] = body.e
-            kwargs["P"] = None if body.P is None else body.P
-            kwargs["a"] = None if body.a is None else body.a
+            if body.P is not None:
+                kwargs["P"] = body.P
+            if body.a is not None:
+                kwargs["a"] = body.a
             kwargs["Omega"] = None if body.Omega is None else body.Omega
             kwargs["omega"] = None if body.omega is None else body.omega
             kwargs["pomega"] = None if body.pomega is None else body.pomega
-            kwargs["M"] = None if body.ma is None else body.ma
-            kwargs["f"] = None if body.nu is None else body.nu
-            kwargs["E"] = None if body.ea is None else body.ea
-            kwargs["T"] = None if body.T is None else body.T
-            kwargs["l"] = None if body.L is None else body.L
+            if body.ma is not None:
+                kwargs["M"] = body.ma
+            if body.nu is not None:
+                kwargs["f"] = body.nu
+            if body.ea is not None:
+                kwargs["E"] = body.ea
+            if body.T is not None:
+                kwargs["T"] = body.T
+            if body.L is not None:
+                kwargs["l"] = body.L
+
+            simulation.add(**kwargs)
+
             # if jacobi_test and body.name == "TOI4504c":
             #     kwargs["P"] = 7038411
             #     kwargs["e"] = 0.03769992
@@ -134,10 +155,9 @@ class CurveSimBodies(list):
             #     kwargs["omega"] = 5.216664
             #     kwargs["M"] = 2.490935
 
-            simulation.add(**kwargs)
             # if jacobi_test:
             #     print(kwargs)
-            i += 1
+            # i += 1
         simulation.move_to_com()  # move origin to center of mass before integrating -> better numerical stability
         # if p.action == "single_run":  # obsolete????  does not seem to help for MCMC, but is a good choice when creating a result file including transit times
         #     if p.result_file:
@@ -148,8 +168,32 @@ class CurveSimBodies(list):
         #     for body in self:
         #         body.print_particle(simulation)
         #     exit(1)
-
+        CurveSimBodies.print_simulation_particles(simulation)
         return simulation
+
+    @staticmethod
+    def print_simulation_particles(simulation):
+        print("\n--- Simulation Particles ---")
+        for i, particle in enumerate(simulation.particles):
+            print(f"\nParticle {i}:")
+            print(f"  hash      = {particle.hash}")
+            print(f"  mass (m)  = {particle.m}")
+            print(f"  radius (r)= {particle.r}")
+            print(f"  position  = ({particle.x}, {particle.y}, {particle.z})")
+            print(f"  velocity  = ({particle.vx}, {particle.vy}, {particle.vz})")
+
+            # Orbital elements (relative to primary if available)
+            try:
+                orbit = particle.orbit()
+                print(f"  P         = {orbit.P/(60 * 60 * 24)}")
+                print(f"  a         = {orbit.a}")
+                print(f"  e         = {orbit.e}")
+                print(f"  i         = {math.degrees(orbit.inc)}")
+                print(f"  Omega     = {math.degrees(orbit.Omega)}")
+                print(f"  omega     = {math.degrees(orbit.omega)}")
+                print(f"  ma        = {math.degrees(orbit.M)}")
+            except Exception:
+                print("  (No orbital elements available)")
 
     def check_body_parameters(self):
         """Checking parameters of physical bodies in the config file"""
@@ -183,6 +227,10 @@ class CurveSimBodies(list):
             #     if body.i < -1000:
             #         print(f"{Fore.RED}\nERROR in config file: {body.name} has invalid or missing inclination i.")
             #         sys.exit(1)
+            if body.a is not None and body.P is not None:
+                print(f"{Fore.RED}\nERROR in config file: Period P and semi-major axis a have been specified for {body.name}.")
+                print(f"{Fore.RED}Remove one parameter from the config file.")
+                sys.exit(1)
             if body.a is not None and body.a <= 0:
                 print(f"{Fore.RED}\nERROR in config file: {body.name} has invalid semi-major axis a.")
                 sys.exit(1)
