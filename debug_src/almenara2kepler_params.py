@@ -58,7 +58,7 @@ def compute_e_and_omega(sqrt_e_cosw, sqrt_e_sinw):
     # Normalize to 0–360 degrees
     if omega_deg < 0:
         omega_deg += 360
-
+    print(f"Almenara {sqrt_e_sinw=}  {sqrt_e_cosw=} {np.degrees(np.arctan2(sqrt_e_sinw, sqrt_e_cosw))%360=}")
     return e, omega_deg
 
 

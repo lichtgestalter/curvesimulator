@@ -98,6 +98,7 @@ class CurveSimBodies(list):
         simulation.G = p.g  # gravitational constant
         star_count = sum(1 for body in self if body.body_type == "star")
         if star_count == 1:
+            # simulation.integrator = "ias15"
             simulation.integrator = "whfast"
             simulation.dt = p.dt
         if p.verbose:
@@ -106,22 +107,11 @@ class CurveSimBodies(list):
             print(f"{Fore.RED}\nERROR: No body in config file has body type star.{Style.RESET_ALL}")
             sys.exit(1)
 
-
-# star = simulation.particles[0]
-# for i, body in enumerate(self[1:], start=1):
-#     kwargs = {...}
-    # Explicit Jacobi primary:
-    # kwargs["primary"] = simulation.calculate_com(first=i)
-    # simulation.add(**kwargs)
-
-
-        # i = 0
         for body in self[0:1]:  # hack debug: works only when the first body is the only star and all other bodies are orbiting this star (no binary, no moons, ...)
             simulation.add(m=body.mass, r=body.radius, hash=body.name)
+
         for i, body in enumerate(self[1:], start=1):
-        # for body in self[1:]:  # hack debug: works only when the first body is the only star and all other bodies are orbiting this star (no binary, no moons, ...)
             kwargs = {}
-            # kwargs["primary"] = simulation.particles[self[0].name]
             kwargs["m"] = body.mass
             kwargs["r"] = body.radius
             kwargs["hash"] = body.name
@@ -131,9 +121,13 @@ class CurveSimBodies(list):
                 kwargs["P"] = body.P
             if body.a is not None:
                 kwargs["a"] = body.a
-            kwargs["Omega"] = None if body.Omega is None else body.Omega
-            kwargs["omega"] = None if body.omega is None else body.omega
-            kwargs["pomega"] = None if body.pomega is None else body.pomega
+            if body.pomega is not None:
+                kwargs["pomega"] = body.pomega
+            else:
+                if body.Omega is not None:
+                    kwargs["Omega"] = body.Omega
+                if body.omega is not None:
+                    kwargs["omega"] = body.omega
             if body.ma is not None:
                 kwargs["M"] = body.ma
             if body.nu is not None:
@@ -145,31 +139,47 @@ class CurveSimBodies(list):
             if body.L is not None:
                 kwargs["l"] = body.L
 
+            # primary = CurveSimBodies.get_com_particle(simulation, range(i))
+            # kwargs["primary"] = primary
+
             simulation.add(**kwargs)
-
-            # if jacobi_test and body.name == "TOI4504c":
-            #     kwargs["P"] = 7038411
-            #     kwargs["e"] = 0.03769992
-            #     kwargs["inc"] = 1.565415
-            #     kwargs["Omega"] = 0.0139592
-            #     kwargs["omega"] = 5.216664
-            #     kwargs["M"] = 2.490935
-
-            # if jacobi_test:
-            #     print(kwargs)
-            # i += 1
         simulation.move_to_com()  # move origin to center of mass before integrating -> better numerical stability
+        CurveSimBodies.print_simulation_particles(simulation)
+
         # if p.action == "single_run":  # obsolete????  does not seem to help for MCMC, but is a good choice when creating a result file including transit times
         #     if p.result_file:
         #         simulation.ri_whfast.safe_mode = 0  # see https://rebound.readthedocs.io/en/latest/ipython_examples/AdvWHFast/
         #         simulation.ri_whfast.corrector = 11  # hopefully more accurate
-
-        # if jacobi_test:
-        #     for body in self:
-        #         body.print_particle(simulation)
-        #     exit(1)
-        CurveSimBodies.print_simulation_particles(simulation)
         return simulation
+
+    @staticmethod
+    def get_com_particle(simulation, indices):
+        """Returns a temporary particle representing the center of mass
+        of the given particle indices."""
+        m_tot = 0.0
+        x = y = z = 0.0
+        vx = vy = vz = 0.0
+
+        for i in indices:
+            p = simulation.particles[i]
+            m_tot += p.m
+            x += p.m * p.x
+            y += p.m * p.y
+            z += p.m * p.z
+            vx += p.m * p.vx
+            vy += p.m * p.vy
+            vz += p.m * p.vz
+
+        com = rebound.Particle()
+        com.m = m_tot
+        com.x = x / m_tot
+        com.y = y / m_tot
+        com.z = z / m_tot
+        com.vx = vx / m_tot
+        com.vy = vy / m_tot
+        com.vz = vz / m_tot
+
+        return com
 
     @staticmethod
     def print_simulation_particles(simulation):
@@ -181,11 +191,36 @@ class CurveSimBodies(list):
             print(f"  radius (r)= {particle.r}")
             print(f"  position  = ({particle.x}, {particle.y}, {particle.z})")
             print(f"  velocity  = ({particle.vx}, {particle.vy}, {particle.vz})")
-
-            # Orbital elements (relative to primary if available)
             try:
                 orbit = particle.orbit()
-                print(f"  P         = {orbit.P/(60 * 60 * 24)}")
+                print(f"Orbital elements (relative to primary if available)")
+                print(f"  P         = {orbit.P / (60 * 60 * 24)}")
+                print(f"  a         = {orbit.a}")
+                print(f"  e         = {orbit.e}")
+                print(f"  i         = {math.degrees(orbit.inc)}")
+                print(f"  Omega     = {math.degrees(orbit.Omega)}")
+                print(f"  omega     = {math.degrees(orbit.omega)}")
+                print(f"  ma        = {math.degrees(orbit.M)}")
+            except Exception:
+                print("  (No orbital elements available)")
+            try:
+                primary = CurveSimBodies.get_com_particle(simulation, range(i))
+                orbit = particle.orbit(primary=primary)
+                print(f"Orbital elements (relative to manually computed primary if available)")
+                print(f"  P         = {orbit.P / (60 * 60 * 24)}")
+                print(f"  a         = {orbit.a}")
+                print(f"  e         = {orbit.e}")
+                print(f"  i         = {math.degrees(orbit.inc)}")
+                print(f"  Omega     = {math.degrees(orbit.Omega)}")
+                print(f"  omega     = {math.degrees(orbit.omega)}")
+                print(f"  ma        = {math.degrees(orbit.M)}")
+            except Exception:
+                print("  (No orbital elements available)")
+            try:
+                primary = CurveSimBodies.get_com_particle(simulation, range(i))
+                orbit = particle.orbit(primary=simulation.particles[0])
+                print(f"Orbital elements (relative to star if available)")
+                print(f"  P         = {orbit.P / (60 * 60 * 24)}")
                 print(f"  a         = {orbit.a}")
                 print(f"  e         = {orbit.e}")
                 print(f"  i         = {math.degrees(orbit.inc)}")
@@ -480,3 +515,152 @@ class CurveSimBodies(list):
                     result[body.name][key] = attr * scale
         line = json.dumps(result)
         return line
+
+# Loesung1
+# Drop-in solution for your loop
+# Replace your second loop with this:
+# particles = simulation.particles
+#
+# for i, body in enumerate(self[1:], start=1):
+#     # --- build COM of all previous particles ---
+#     com = rebound.Particle(m=0.0)
+#     total_mass = 0.0
+#
+#     for j in range(i):
+#         p = particles[j]
+#         com.x += p.m * p.x
+#         com.y += p.m * p.y
+#         com.z += p.m * p.z
+#         com.vx += p.m * p.vx
+#         com.vy += p.m * p.vy
+#         com.vz += p.m * p.vz
+#         total_mass += p.m
+#
+#     com.x /= total_mass
+#     com.y /= total_mass
+#     com.z /= total_mass
+#     com.vx /= total_mass
+#     com.vy /= total_mass
+#     com.vz /= total_mass
+#     com.m = total_mass
+#
+#     # --- now add particle relative to this COM ---
+#     kwargs = {}
+#     kwargs["m"] = body.mass
+#     kwargs["r"] = body.radius
+#     kwargs["hash"] = body.name
+#
+#     if body.P is not None:
+#         kwargs["P"] = body.P
+#     elif body.a is not None:
+#         kwargs["a"] = body.a
+#
+#     if body.e is not None:
+#         kwargs["e"] = body.e
+#     if body.i is not None:
+#         kwargs["inc"] = body.i
+#     if body.Omega is not None:
+#         kwargs["Omega"] = body.Omega
+#     if body.omega is not None:
+#         kwargs["omega"] = body.omega
+#     if body.ma is not None:
+#         kwargs["M"] = body.ma
+#
+#     # 🔥 THIS is the crucial line
+#     kwargs["primary"] = com
+#
+#     simulation.add(**kwargs)
+#
+# Loesung2:
+# Step 1 — helper function
+# Add this:
+# def get_com_particle(simulation, indices):
+#     """
+#     Returns a temporary particle representing the center of mass
+#     of the given particle indices.
+#     """
+#     m_tot = 0.0
+#     x = y = z = 0.0
+#     vx = vy = vz = 0.0
+#
+#     for i in indices:
+#         p = simulation.particles[i]
+#         m_tot += p.m
+#         x += p.m * p.x
+#         y += p.m * p.y
+#         z += p.m * p.z
+#         vx += p.m * p.vx
+#         vy += p.m * p.vy
+#         vz += p.m * p.vz
+#
+#     com = rebound.Particle()
+#     com.m = m_tot
+#     com.x = x / m_tot
+#     com.y = y / m_tot
+#     com.z = z / m_tot
+#     com.vx = vx / m_tot
+#     com.vy = vy / m_tot
+#     com.vz = vz / m_tot
+#
+#     return com
+
+# Step 2 — use it in your loop
+# Replace your second loop with:
+# for i, body in enumerate(self[1:], start=1):
+#     kwargs = {}
+#
+#     kwargs["m"] = body.mass
+#     kwargs["r"] = body.radius
+#     kwargs["hash"] = body.name
+#
+#     if body.i is not None:
+#         kwargs["inc"] = body.i
+#     if body.e is not None:
+#         kwargs["e"] = body.e
+#
+#     if body.P is not None:
+#         kwargs["P"] = body.P
+#     elif body.a is not None:
+#         kwargs["a"] = body.a
+#
+#     if body.Omega is not None:
+#         kwargs["Omega"] = body.Omega
+#     if body.omega is not None:
+#         kwargs["omega"] = body.omega
+#
+#     if body.ma is not None:
+#         kwargs["M"] = body.ma
+#     elif body.nu is not None:
+#         kwargs["f"] = body.nu
+#     elif body.ea is not None:
+#         kwargs["E"] = body.ea
+#     elif body.T is not None:
+#         kwargs["T"] = body.T
+#     elif body.L is not None:
+#         kwargs["l"] = body.L
+#
+#     # 🔥 THIS is the important line
+#     primary = get_com_particle(simulation, range(i))
+#     kwargs["primary"] = primary
+#
+#     simulation.add(**kwargs)
+
+# Now you are doing true Jacobi initialization:
+#
+# Body 1 → primary = star
+# Body 2 → primary = COM(star + body1)
+# Body 3 → primary = COM(star + body1 + body2)
+#
+# 👉 This matches what other N-body codes typically mean by “Jacobi elements”
+# 🔥 Why your previous result was off
+#
+# Even though REBOUND claims Jacobi behavior by default:
+#
+# 👉 Its implicit construction depends on insertion order and internal assumptions
+#
+# Those are not guaranteed to match other implementations.
+#
+# So you had:
+#
+# Same parameters
+# Different Cartesian realization

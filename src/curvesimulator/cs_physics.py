@@ -77,7 +77,7 @@ class CurveSimPhysics:
             return None, None
         print(f"{Fore.RED}\nERROR in config file: limb_darkening_parameter_type must be a or u or q.")
         print(f"                      limb_darkening must be [a0,a1,a2] or [u1,u2] or [q1,q2] correspondingly.")
-        print(f"                      But config file contains: limb_darkening_parameter_type = {parameter_type} and limb_darkening = {parameters}{Style.RESET_ALL}")
+        print(f"                      But config file contains: limb_darkening_parameter_type = {parameter_type}{Style.RESET_ALL}")
         sys.exit(1)
 
     @staticmethod
