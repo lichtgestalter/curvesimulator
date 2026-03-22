@@ -721,8 +721,8 @@ class CurveSimBodies(list):
     #     body1.positions[iteration] = body1.positions[iteration - 1] + movement
 
     @staticmethod
-    def update_position(body, iteration, rebound_sim):
-        particle = rebound_sim.particles[body.name]
+    def update_position(body, iteration, simulation):
+        particle = simulation.particles[body.name]
         body.positions[iteration] = np.array([particle.x, particle.y, particle.z])
 
     # @staticmethod
@@ -740,26 +740,26 @@ class CurveSimBodies(list):
     def calc_positions_eclipses_luminosity(self, p, time_s0):
         """Calculate distances, forces, accelerations, velocities of the bodies for each iteration.
         The resulting body positions and the lightcurve are stored for later use in the animation."""
-        rebound_sim = CurveSimBodies.init_rebound(self, p)
+        simulation = CurveSimBodies.init_rebound(self, p)
         stars = [body for body in self if body.body_type == "star"]
         sim_flux = CurveSimLightcurve(p.total_iterations)  # Initialize lightcurve (essentially a np.ndarray)
         sim_rv = np.full(p.total_iterations, np.nan, dtype=float)
-        initial_sim_state = CurveSimRebound(rebound_sim)
+        initial_sim_state = CurveSimRebound(simulation)
 
         for iteration in range(p.total_iterations):
-            rebound_sim.integrate(time_s0[iteration])
+            simulation.integrate(time_s0[iteration])
             for body in self:
-                CurveSimBodies.update_position(body, iteration, rebound_sim)
+                CurveSimBodies.update_position(body, iteration, simulation)
             sim_flux[iteration] = self.total_luminosity(stars, iteration, p)  # Update sim_flux.
-            sim_rv[iteration] = -rebound_sim.particles[p.rv_body].vz
+            sim_rv[iteration] = -simulation.particles[p.rv_body].vz
             if p.verbose:
                 CurveSimBodies.progress_bar(iteration, p)
 
-        new_sim_state = CurveSimRebound(rebound_sim)
+        new_sim_state = CurveSimRebound(simulation)
         energy_change = initial_sim_state.sim_check_deltas(new_sim_state)
         lightcurve_max = float(sim_flux.max(initial=None))
         sim_flux /= lightcurve_max  # Normalize flux.
-        return sim_rv, sim_flux, self, rebound_sim, energy_change
+        return sim_rv, sim_flux, self, simulation, energy_change
 
     def calc_physics(self, p, time_s0):
         """Calculate body positions and the resulting lightcurve."""
@@ -768,14 +768,14 @@ class CurveSimBodies(list):
                 print(f"Generating {p.frames} frames for a {p.frames / p.fps:.0f} seconds long video.")
             print(f"Calculating {p.total_iterations:,} iterations ", end="")
             tic = time.perf_counter()
-        sim_rv, sim_flux, bodies, rebound_sim, energy_change = self.calc_positions_eclipses_luminosity(p, time_s0)
+        sim_rv, sim_flux, bodies, simulation, energy_change = self.calc_positions_eclipses_luminosity(p, time_s0)
         if p.verbose:
             toc = time.perf_counter()
             print(f" {toc - tic:7.3f} seconds  ({p.total_iterations / (toc - tic):.0f} iterations/second)")
             print(f"Log10 of the relative change of energy during simulation: {energy_change:.0f}")
             if energy_change > -6:
                 print(f"{Fore.YELLOW}The energy must not change significantly! Consider using a smaller time step (dt).{Style.RESET_ALL}")
-        return sim_rv, sim_flux, rebound_sim
+        return sim_rv, sim_flux, simulation
 
     def calc_patch_radii(self, p):
         """If autoscaling is on, this function calculates the radii of the circles (matplotlib patches) of the animation."""
@@ -815,9 +815,9 @@ class CurveSimBodies(list):
     #                     potential_energy += body1.mass * body2.mass / distance
     #     return kinetic_energy - p.g * potential_energy
 
-    def find_transits(self, rebound_sim, p, sim_flux, time_s0, time_d):
+    def find_transits(self, simulation, p, sim_flux, time_s0, time_d):
         print()
-        rebound_sim.dt = p.result_dt
+        simulation.dt = p.result_dt
         results = CurveSimResults(self)
         for start_index, end_index, dt in zip(p.start_indices[:-1], p.start_indices[1:], p.dts):
             for i in range(start_index, end_index):
@@ -826,13 +826,13 @@ class CurveSimBodies(list):
                         eclipser_before_eclipsee = eclipser.positions[i][2] > eclipsee.positions[i][2]
                         transit_between_iterations = (eclipser.positions[i][0] - eclipsee.positions[i][0]) * (eclipser.positions[i - 1][0] - eclipsee.positions[i - 1][0]) <= 0  # transit between i-1 and i?
                         if eclipser_before_eclipsee and transit_between_iterations:
-                            tt, impact, depth, close_enough = eclipsee.find_tt(eclipser, i - 1, rebound_sim, p, sim_flux, time_s0, time_d, start_index, end_index, dt)
+                            tt, impact, depth, close_enough = eclipsee.find_tt(eclipser, i - 1, simulation, p, sim_flux, time_s0, time_d, start_index, end_index, dt)
                             if close_enough:  # eclipser and eclipsee are close enough at actual TT
-                                tt_s0 = rebound_sim.t
-                                t1 = eclipsee.find_t1234(eclipser, tt_s0, i, rebound_sim, time_s0, start_index, end_index, p, transittimetype="T1")
-                                t2 = eclipsee.find_t1234(eclipser, tt_s0, i, rebound_sim, time_s0, start_index, end_index, p, transittimetype="T2")
-                                t3 = eclipsee.find_t1234(eclipser, tt_s0, i - 1, rebound_sim, time_s0, start_index, end_index, p, transittimetype="T3")
-                                t4 = eclipsee.find_t1234(eclipser, tt_s0, i - 1, rebound_sim, time_s0, start_index, end_index, p, transittimetype="T4")
+                                tt_s0 = simulation.t
+                                t1 = eclipsee.find_t1234(eclipser, tt_s0, i, simulation, time_s0, start_index, end_index, p, transittimetype="T1")
+                                t2 = eclipsee.find_t1234(eclipser, tt_s0, i, simulation, time_s0, start_index, end_index, p, transittimetype="T2")
+                                t3 = eclipsee.find_t1234(eclipser, tt_s0, i - 1, simulation, time_s0, start_index, end_index, p, transittimetype="T3")
+                                t4 = eclipsee.find_t1234(eclipser, tt_s0, i - 1, simulation, time_s0, start_index, end_index, p, transittimetype="T4")
                                 t12, t23, t34, t14 = CurveSimPhysics.calc_transit_intervals(t1, t2, t3, t4)
                                 results["Bodies"][eclipser.name]["Transits"].append(Transit(eclipsee))
                                 results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["EclipsedBody"] = eclipsee.name
@@ -850,9 +850,9 @@ class CurveSimBodies(list):
         return results
 
     @staticmethod
-    def find_tts(rebound_sim, p, sim_flux, time_s0, time_d):
+    def find_tts(simulation, p, sim_flux, time_s0, time_d):
         tts = []
-        rebound_sim.dt = p.result_dt
+        simulation.dt = p.result_dt
         for start_index, end_index, dt in zip(p.start_indices[:-1], p.start_indices[1:], p.dts):
             for i in range(start_index, end_index):
                 for eclipser in p.eclipsers:
@@ -860,7 +860,7 @@ class CurveSimBodies(list):
                         eclipser_before_eclipsee = eclipser.positions[i][2] > eclipsee.positions[i][2]
                         transit_between_iterations = (eclipser.positions[i][0] - eclipsee.positions[i][0]) * (eclipser.positions[i - 1][0] - eclipsee.positions[i - 1][0]) <= 0  # transit between i-1 and i?
                         if eclipser_before_eclipsee and transit_between_iterations:
-                            tt, b, depth, close_enough = eclipsee.find_tt(eclipser, i - 1, rebound_sim, p, sim_flux, time_s0, time_d, start_index, end_index, dt)
+                            tt, b, depth, close_enough = eclipsee.find_tt(eclipser, i - 1, simulation, p, sim_flux, time_s0, time_d, start_index, end_index, dt)
                             if close_enough:
                                 tts.append([eclipser.name, eclipsee.name, tt])
         # convert tts into a pandas Dataframe with columns eclipser, eclipsee, tt
@@ -1277,26 +1277,26 @@ class CurveSimBody:
         relative_radius = (self.radius + self.d - other.h) / (2 * self.radius)  # Relative distance between approximated center C of eclipsed area and center of self
         return area, relative_radius
 
-    # def find_tt_old(self, other, iteration, rebound_sim, p, sim_flux, time_s0, time_d, start_index, end_index, dt):
+    # def find_tt_old(self, other, iteration, simulation, p, sim_flux, time_s0, time_d, start_index, end_index, dt):
     #     """other eclipses self. Find the exact time of transit (TT).
     #         iteration should be the last one before TT. """
-    #     eclipser = rebound_sim.particles[other.name]
-    #     eclipsee = rebound_sim.particles[self.name]
-    #     rebound_sim.integrate(time_s0[iteration])
+    #     eclipser = simulation.particles[other.name]
+    #     eclipsee = simulation.particles[self.name]
+    #     simulation.integrate(time_s0[iteration])
     #     dx_left = eclipser.x - eclipsee.x
-    #     t_left = rebound_sim.t
-    #     rebound_sim.integrate(time_s0[iteration + 1])
-    #     t_right = rebound_sim.t
+    #     t_left = simulation.t
+    #     simulation.integrate(time_s0[iteration + 1])
+    #     t_right = simulation.t
     #     dx_right = eclipser.x - eclipsee.x
     #     interval_extensions = 0
     #     while dx_left * dx_right >= 0:  # dx per definition 0 at TT. If dx_left and dx_right have the same sign due to numeric instability in rebound, enlarge the search interval.
     #         t_left -= dt
     #         t_right += dt
-    #         rebound_sim.integrate(t_left)
+    #         simulation.integrate(t_left)
     #         dx_left = eclipser.x - eclipsee.x
-    #         t_left = rebound_sim.t
-    #         rebound_sim.integrate(t_right)
-    #         t_right = rebound_sim.t
+    #         t_left = simulation.t
+    #         simulation.integrate(t_right)
+    #         t_right = simulation.t
     #         dx_right = eclipser.x - eclipsee.x
     #         interval_extensions += 1
     #     if interval_extensions > 0 and p.verbose:
@@ -1306,14 +1306,14 @@ class CurveSimBody:
     #     if dx_left * dx_right < 0 and eclipser.z >= eclipsee.z:  # sign of dx changed and eclipser in front of eclipsee
     #         while t_right - t_left > 1e-1:  # bisect until desired precision reached
     #             t_middle = (t_right + t_left) / 2
-    #             rebound_sim.integrate(t_middle)
+    #             simulation.integrate(t_middle)
     #             if dx_left * (eclipser.x - eclipsee.x) < 0:  # TT lies between t_left and t_middle
-    #                 t_right = rebound_sim.t  # middle is now the new right
+    #                 t_right = simulation.t  # middle is now the new right
     #                 dx_right = eclipser.x - eclipsee.x
     #             else:  # TT lies between t_right and middle
-    #                 t_left = rebound_sim.t  # middle is now the new left
+    #                 t_left = simulation.t  # middle is now the new left
     #                 dx_left = eclipser.x - eclipsee.x
-    #         tt = rebound_sim.t / p.day + p.start_date
+    #         tt = simulation.t / p.day + p.start_date
     #         d = CurveSimPhysics.distance_2d_particle(eclipser, eclipsee)
     #         impact = d / self.radius
     #         close_enough = d <= self.radius + other.radius
@@ -1324,26 +1324,26 @@ class CurveSimBody:
     #         print(f"If that does not help, please open an issue on https://github.com/lichtgestalter/curvesimulator/issues and provide your config file.{Style.RESET_ALL}")
     #         return -1, -1, -1, False
 
-    def find_tt(self, other, iteration, rebound_sim, p, sim_flux, time_s0, time_d, start_index, end_index, dt):
+    def find_tt(self, other, iteration, simulation, p, sim_flux, time_s0, time_d, start_index, end_index, dt):
         """other eclipses self. Find the exact time of transit (TT).
             iteration should be the last one before TT. """
-        eclipser = rebound_sim.particles[other.name]
-        eclipsee = rebound_sim.particles[self.name]
-        rebound_sim.integrate(time_s0[iteration])
+        eclipser = simulation.particles[other.name]
+        eclipsee = simulation.particles[self.name]
+        simulation.integrate(time_s0[iteration])
         dx_left = eclipser.x - eclipsee.x
-        t_left = rebound_sim.t
-        rebound_sim.integrate(time_s0[iteration + 1])
-        t_right = rebound_sim.t
+        t_left = simulation.t
+        simulation.integrate(time_s0[iteration + 1])
+        t_right = simulation.t
         dx_right = eclipser.x - eclipsee.x
         interval_extensions = 0
         while dx_left * dx_right >= 0:  # dx per definition 0 at TT. If dx_left and dx_right have the same sign due to numeric instability in rebound, enlarge the search interval.
             t_left -= dt
             t_right += dt
-            rebound_sim.integrate(t_left)
+            simulation.integrate(t_left)
             dx_left = eclipser.x - eclipsee.x
-            t_left = rebound_sim.t
-            rebound_sim.integrate(t_right)
-            t_right = rebound_sim.t
+            t_left = simulation.t
+            simulation.integrate(t_right)
+            t_right = simulation.t
             dx_right = eclipser.x - eclipsee.x
             interval_extensions += 1
             if interval_extensions > p.max_interval_extensions:
@@ -1365,14 +1365,14 @@ class CurveSimBody:
         if dx_left * dx_right < 0 and eclipser.z >= eclipsee.z:  # sign of dx changed and eclipser in front of eclipsee
             while t_right - t_left > p.transit_precision:  # bisect until desired precision reached
                 t_middle = (t_right + t_left) / 2
-                rebound_sim.integrate(t_middle)
+                simulation.integrate(t_middle)
                 if dx_left * (eclipser.x - eclipsee.x) < 0:  # TT lies between t_left and t_middle
-                    t_right = rebound_sim.t  # middle is now the new right
+                    t_right = simulation.t  # middle is now the new right
                     dx_right = eclipser.x - eclipsee.x
                 else:  # TT lies between t_right and middle
-                    t_left = rebound_sim.t  # middle is now the new left
+                    t_left = simulation.t  # middle is now the new left
                     dx_left = eclipser.x - eclipsee.x
-            tt = rebound_sim.t / p.day + p.start_date
+            tt = simulation.t / p.day + p.start_date
             d = CurveSimPhysics.distance_2d_particle(eclipser, eclipsee)
             impact = d / self.radius
             close_enough = d <= self.radius + other.radius
@@ -1393,10 +1393,10 @@ class CurveSimBody:
                 print(f"{iteration=}  {time_d[iteration]=} {interval_extensions=}")
             return -1, -1, -1, False
 
-    # def find_t1234_old(self, other, iteration, rebound_sim, time_s0, start_index, end_index, p, transittimetype):
+    # def find_t1234_old(self, other, iteration, simulation, time_s0, start_index, end_index, p, transittimetype):
     #     """other eclipses self. Find where ingress starts (T1) or egress ends (T4)."""
-    #     eclipser = rebound_sim.particles[other.name]
-    #     eclipsee = rebound_sim.particles[self.name]
+    #     eclipser = simulation.particles[other.name]
+    #     eclipsee = simulation.particles[self.name]
     #     if transittimetype in ["T1", "T4"]:
     #         d_max = self.radius + other.radius
     #     else:
@@ -1411,36 +1411,36 @@ class CurveSimBody:
     #             return None  # incomplete transit at start or end of current simulation interval
     #         iteration_delta += step
     #         d = CurveSimPhysics.distance_2d(other, self, iteration + iteration_delta)
-    #     rebound_sim.integrate((time_s0[iteration + iteration_delta]))
+    #     simulation.integrate((time_s0[iteration + iteration_delta]))
     #     d_old = CurveSimPhysics.distance_2d_particle(eclipser, eclipsee)
-    #     t_old = rebound_sim.t
-    #     rebound_sim.integrate(time_s0[iteration])
-    #     t_new = rebound_sim.t
+    #     t_old = simulation.t
+    #     simulation.integrate(time_s0[iteration])
+    #     t_new = simulation.t
     #     d_new = CurveSimPhysics.distance_2d_particle(eclipser, eclipsee)
     #     if transittimetype not in ["T1", "T2"]:
     #         t_new, t_old = t_old, t_new
     #     if d_old > d_max > d_new:  # T1 or T2  or T3 or T4 lies between t_old and t_new
     #         while t_new - t_old > 1e-1:  # bisect until desired precision reached
-    #             rebound_sim.integrate((t_new + t_old) / 2)
+    #             simulation.integrate((t_new + t_old) / 2)
     #             in_eclipse = CurveSimPhysics.distance_2d_particle(eclipser, eclipsee) < d_max
     #             if transittimetype in ["T1", "T2"]:
     #                 if in_eclipse: # T1 or T2 lies between t_old and (t_new + t_old) / 2
-    #                     t_new = rebound_sim.t
+    #                     t_new = simulation.t
     #                 else:
-    #                     t_old = rebound_sim.t
+    #                     t_old = simulation.t
     #             else:
     #                 if in_eclipse: # T3 or T4 lies between t_new and (t_new + t_old) / 2
-    #                     t_old = rebound_sim.t
+    #                     t_old = simulation.t
     #                 else:
-    #                     t_new = rebound_sim.t
-    #         return rebound_sim.t / p.day + p.start_date
+    #                     t_new = simulation.t
+    #         return simulation.t / p.day + p.start_date
     #     else:  # grazing transit (or rebound inaccuracy?)
     #         return None
 
-    def find_t1234(self, other, tt_s0, iteration, rebound_sim, time_s0, start_index, end_index, p, transittimetype):
+    def find_t1234(self, other, tt_s0, iteration, simulation, time_s0, start_index, end_index, p, transittimetype):
         """other eclipses self. Find where ingress starts (T1) or egress ends (T4)."""
-        eclipser = rebound_sim.particles[other.name]
-        eclipsee = rebound_sim.particles[self.name]
+        eclipser = simulation.particles[other.name]
+        eclipsee = simulation.particles[self.name]
         if transittimetype in ["T1", "T4"]:
             d_event = self.radius + other.radius  # distance at T1, T4
         else:
@@ -1455,32 +1455,32 @@ class CurveSimBody:
                 return None  # incomplete transit at start or end of current simulation interval
             iteration_delta += step
             d = CurveSimPhysics.distance_2d_body(other, self, iteration + iteration_delta)
-        rebound_sim.integrate((time_s0[iteration + iteration_delta]))
+        simulation.integrate((time_s0[iteration + iteration_delta]))
         d_old = CurveSimPhysics.distance_2d_particle(eclipser, eclipsee)
-        t_old = rebound_sim.t
-        rebound_sim.integrate(tt_s0)
-        t_new = rebound_sim.t
+        t_old = simulation.t
+        simulation.integrate(tt_s0)
+        t_new = simulation.t
         d_new = CurveSimPhysics.distance_2d_particle(eclipser, eclipsee)
         if transittimetype not in ["T1", "T2"]:
             t_new, t_old = t_old, t_new  # T1 or T2  or T3 or T4 lies between t_old and t_new
         while t_new - t_old > p.transit_precision:  # bisect until desired precision reached
-            rebound_sim.integrate((t_new + t_old) / 2)
+            simulation.integrate((t_new + t_old) / 2)
             d = CurveSimPhysics.distance_2d_particle(eclipser, eclipsee)
             in_eclipse = d < d_event
             if transittimetype in ["T1", "T2"]:
                 if in_eclipse:  # T1 or T2 lies between t_old and (t_new + t_old) / 2
-                    t_new = rebound_sim.t
+                    t_new = simulation.t
                 else:
-                    t_old = rebound_sim.t
+                    t_old = simulation.t
             else:
                 if in_eclipse:  # T3 or T4 lies between t_new and (t_new + t_old) / 2
-                    t_old = rebound_sim.t
+                    t_old = simulation.t
                 else:
-                    t_new = rebound_sim.t
-        if abs(rebound_sim.t - tt_s0) < p.transit_precision:
+                    t_new = simulation.t
+        if abs(simulation.t - tt_s0) < p.transit_precision:
             return None
         else:
-            return rebound_sim.t / p.day + p.start_date
+            return simulation.t / p.day + p.start_date
 
     # def eclipsed_by(self, other, iteration, p):
     #     """Returns area, relative_radius
@@ -1808,22 +1808,22 @@ class CurveSimMCMC:
     def single_run(p, bodies=None, time_s0=None, time_d=None):
         if time_s0 is None and time_d is None:
             time_s0, time_d = CurveSimParameters.init_time_arrays(p)  # s0 in seconds, starting at 0. d in BJD.
-        sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # Calculate all body positions and the resulting lightcurve
-        results = bodies.find_transits(rebound_sim, p, sim_flux, time_s0, time_d)
+        sim_rv, sim_flux, simulation = bodies.calc_physics(p, time_s0)  # Calculate all body positions and the resulting lightcurve
+        results = bodies.find_transits(simulation, p, sim_flux, time_s0, time_d)
         results["chi_squared_tt"], results["chi_squared_rv"], results["chi_squared_flux"], results["chi_squared_total"] = 0, 0, 0, 0
         results["measurements_tt"], results["measurements_rv"], results["measurements_flux"], results["measurements_total"] = 0, 0, 0, 0
         if p.video_file:
             CurveSimAnimation(p, bodies, sim_rv, sim_flux, time_s0)  # Create a video
         if p.tt_file:
             measured_tt = CurveSimResults.get_measured_tt(p)
-            residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
+            residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, simulation, sim_flux, time_d, time_s0)
             measured_tt = results.calc_tt_chi_squared(measured_tt, p.free_parameters)  # store chi squared and p-value in results
             CurveSimMCMC.tt_delta_plot(p, 0, "tt_o_vs_c.png", measured_tt)  # compare observed vs. computed TT
         else:
             measured_tt = None
         if p.rv_file:
             measured_rv = CurveSimResults.get_measured_rv(p)
-            measured_rv = CurveSimResults.calc_rv_residuals(measured_rv, p.rv_body, rebound_sim)  # compare observed vs. computed RV
+            measured_rv = CurveSimResults.calc_rv_residuals(measured_rv, p.rv_body, simulation)  # compare observed vs. computed RV
             measured_rv = results.calc_rv_chi_squared(measured_rv, p.free_parameters)  # store chi squared and p-value in results
             CurveSimResults.sim_rv_plot(p, sim_rv, time_d, "rv_computed")  # plot computed RV
             CurveSimResults.rv_observed_computed_plot(p, sim_rv, time_d, "rv_o_vs_c", measured_rv)  # plot computed and observed RV
@@ -1862,14 +1862,14 @@ class CurveSimMCMC:
 
             # measured_tt = CurveSimMCMC.get_measured_tt(p)
             # p.bodynames2bodies(bodies)
-            # _, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
+            # _, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, simulation, sim_flux, time_d, time_s0)
             # dummy_mcmc = CurveSimMCMC(None, None, None, None, None, None, None, dummy_object=True)
             # dummy_mcmc.tt_delta_plot(1, "Vitkova_MaxL_tt_delta.png", measured_tt)
         return bodies, sim_flux, results
 
     @staticmethod
-    def match_transit_times(measured_tt, p, rebound_sim, sim_flux, time_d, time_s0):
-        sim_tt = CurveSimBodies.find_tts(rebound_sim, p, sim_flux, time_s0, time_d)  # sim_tt is a list of tuples (eclipser, eclipsee, tt)
+    def match_transit_times(measured_tt, p, simulation, sim_flux, time_d, time_s0):
+        sim_tt = CurveSimBodies.find_tts(simulation, p, sim_flux, time_s0, time_d)  # sim_tt is a list of tuples (eclipser, eclipsee, tt)
         nearest_sim_tt = []
         for idx, row in measured_tt.iterrows():
             eclipser = row["eclipser"]
@@ -1931,7 +1931,7 @@ class CurveSimMCMC:
         for body_index, parameter_name in param_references:
             bodies[body_index].__dict__[parameter_name] = theta[i]  # update all parameters from theta
             i += 1
-        sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # run simulation
+        sim_rv, sim_flux, simulation = bodies.calc_physics(p, time_s0)  # run simulation
         residuals_flux = (measured_flux_array - sim_flux) / flux_err  # residuals are weighted with uncertainty!
         residuals_flux_sum_squared = np.sum(residuals_flux ** 2)
         return residuals_flux_sum_squared
@@ -1959,8 +1959,8 @@ class CurveSimMCMC:
         for body_index, parameter_name in param_references:
             bodies[body_index].__dict__[parameter_name] = theta[i]  # update all parameters from theta
             i += 1
-        sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # run simulation
-        residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
+        sim_rv, sim_flux, simulation = bodies.calc_physics(p, time_s0)  # run simulation
+        residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, simulation, sim_flux, time_d, time_s0)
         return residuals_tt_sum_squared
 
     @staticmethod
@@ -2082,8 +2082,8 @@ class CurveSimMCMC:
         return bodies
 
     def max_likelihood_tt(self, max_likelihood_bodies, p, time_s0, time_d, measured_tt):
-        sim_rv, sim_flux, rebound_sim = max_likelihood_bodies.calc_physics(p, time_s0)  # run simulation
-        _, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
+        sim_rv, sim_flux, simulation = max_likelihood_bodies.calc_physics(p, time_s0)  # run simulation
+        _, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, simulation, sim_flux, time_d, time_s0)
         return measured_tt
 
     @staticmethod
@@ -2588,8 +2588,8 @@ class CurveSimLMfit:
         # measured_tt: pandas DataFrame with columns eclipser, tt, tt_err
         for body_index, parameter_name in param_references:
             bodies[body_index].__dict__[parameter_name] = params[bodies[body_index].name + "_" + parameter_name].value  # update all parameters from params
-        sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # run simulation
-        residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
+        sim_rv, sim_flux, simulation = bodies.calc_physics(p, time_s0)  # run simulation
+        residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, simulation, sim_flux, time_d, time_s0)
         return residuals_tt_sum_squared
 
     def save_lmfit_results(self, p):
@@ -3329,9 +3329,9 @@ class CurveSimPhysics:
         return t12, t23, t34, t14
 
 class CurveSimRebound:
-    def __init__(self, rebound_sim):
-        self.sim = rebound_sim
-        self.energy = rebound_sim.energy()
+    def __init__(self, simulation):
+        self.sim = simulation
+        self.energy = simulation.energy()
         self.total_momentum = self.calc_total_momentum()
         self.total_angular_momentum = self.calc_total_angular_momentum()
         self.center_of_mass_position = self.calc_center_of_mass_position()
@@ -3555,14 +3555,14 @@ class CurveSimResults(dict):
         return results
 
     @staticmethod
-    def calc_rv_residuals(measured_rv, body_name, rebound_sim):
+    def calc_rv_residuals(measured_rv, body_name, simulation):
 
-        def rv_at_t(t, rebound_sim, body):
-            rebound_sim.integrate(t)
+        def rv_at_t(t, simulation, body):
+            simulation.integrate(t)
             return -body.vz
 
-        body = rebound_sim.particles[body_name]
-        measured_rv["rv_sim"] = [rv_at_t(t, rebound_sim, body) for t in measured_rv["time_s0"]]
+        body = simulation.particles[body_name]
+        measured_rv["rv_sim"] = [rv_at_t(t, simulation, body) for t in measured_rv["time_s0"]]
         measured_rv["residual"] = measured_rv["rv_rel"] - measured_rv["rv_sim"]
         return measured_rv
 
