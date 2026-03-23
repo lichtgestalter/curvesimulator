@@ -24,6 +24,7 @@ class CurveSimBodies(list):
 
     # noinspection PyUnusedLocal
     def __init__(self, p):
+        p.myintegration = False  # debug
         """Initialize instances of physical bodies.
         Read program parameters and properties of the bodies from config file.
         Initialize the circles in the animation (matplotlib patches)"""
@@ -372,24 +373,26 @@ class CurveSimBodies(list):
         """Calculate distances, forces, accelerations, velocities of the bodies for each iteration.
         The resulting body positions and the lightcurve are stored for later use in the animation."""
 
-        # debug
-        # simulation = CurveSimBodies.init_rebound(self, p)
-        simulation = MyIntegration(p, self)
-        CurveSimBodies.init_myintegration(self, simulation)
+        if p.myintegration:  # debug
+            simulation = MyIntegration(p, self)
+            CurveSimBodies.init_myintegration(self, simulation)
+        else:
+            simulation = CurveSimBodies.init_rebound(self, p)
 
         stars = [body for body in self if body.body_type == "star"]
         sim_flux = CurveSimLightcurve(p.total_iterations)  # Initialize lightcurve (essentially a np.ndarray)
         sim_rv = np.full(p.total_iterations, np.nan, dtype=float)
-        initial_sim_state = CurveSimRebound(simulation)
+        if not p.myintegration:
+            initial_sim_state = CurveSimRebound(simulation)
 
         for iteration in range(p.total_iterations):
-
-            if iteration == 0:
-                E0 = simulation.total_energy()
-            E = simulation.total_energy()
-            rel_error = (E - E0) / abs(E0)
-            if iteration % (p.total_iterations // 10) == 0:
-                print(f"Energy drift: {rel_error:.2e}")
+            if p.myintegration:
+                if iteration == 0:
+                    E0 = simulation.total_energy()
+                E = simulation.total_energy()
+                rel_error = (E - E0) / abs(E0)
+                if iteration % (p.total_iterations // 10) == 0:
+                    print(f"Energy drift: {rel_error:.2e}")
 
             simulation.integrate(time_s0[iteration])
             for body in self:
@@ -398,9 +401,12 @@ class CurveSimBodies(list):
             sim_rv[iteration] = -simulation.particles[p.rv_body].vz
             if p.verbose:
                 CurveSimBodies.progress_bar(iteration, p)
+        if not p.myintegration:
+            new_sim_state = CurveSimRebound(simulation)
+            energy_change = initial_sim_state.sim_check_deltas(new_sim_state)
+        else:
+            energy_change = None
 
-        new_sim_state = CurveSimRebound(simulation)
-        energy_change = initial_sim_state.sim_check_deltas(new_sim_state)
         lightcurve_max = float(sim_flux.max(initial=None))
         sim_flux /= lightcurve_max  # Normalize flux.
         return sim_rv, sim_flux, self, simulation, energy_change
