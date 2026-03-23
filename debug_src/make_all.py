@@ -5,8 +5,8 @@ def make_all(inputs, output):
         output: string (name of output file)
 
     The function reads all input files and concatenates them (inputs[0] first).
-    All lines that import code (starting with "import" or "from")
-    are moved to the top and duplicates are removed.
+    All lines that import code (starting with "import" or "from") are moved to the top.
+    Duplicates and curvesimulator's internal imports are removed.
     The result is stored in output.
     """
     import_lines = []
@@ -27,7 +27,7 @@ def make_all(inputs, output):
 
     import_lines = [line for line in import_lines if not line.startswith("from .cs_")]
     import_lines = [line for line in import_lines if not line.startswith("from curvesimulator")]
-    import_lines = [line for line in import_lines if not line.startswith("import fcntl")]
+    import_lines = [line for line in import_lines if not line.startswith("import fcntl")]  # Package does not exist? Unix specific.
 
     with open(output, "w", encoding="utf-8") as out:
         for line in import_lines:
