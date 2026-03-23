@@ -1,9 +1,9 @@
 from colorama import Fore, Style
 import math
-import matplotlib.pyplot as plt  # from matplotlib import pyplot as plt
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
 from matplotlib import patches, animation
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
-import matplotlib.image as mpimg
 import numpy as np
 import shutil
 import sys

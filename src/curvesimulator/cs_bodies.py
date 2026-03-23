@@ -92,8 +92,6 @@ class CurveSimBodies(list):
         return names[:-2]
 
     def init_rebound(self, p):
-        # jacobi_test = True
-        # jacobi_test = False
         simulation = rebound.Simulation()
         simulation.G = p.g  # gravitational constant
         star_count = sum(1 for body in self if body.body_type == "star")
@@ -373,26 +371,39 @@ class CurveSimBodies(list):
     def calc_positions_eclipses_luminosity(self, p, time_s0):
         """Calculate distances, forces, accelerations, velocities of the bodies for each iteration.
         The resulting body positions and the lightcurve are stored for later use in the animation."""
-        rebound_sim = CurveSimBodies.init_rebound(self, p)
+
+        # debug
+        # simulation = CurveSimBodies.init_rebound(self, p)
+        simulation = MyIntegration(p, self)
+        CurveSimBodies.init_myintegration(self, simulation)
+
         stars = [body for body in self if body.body_type == "star"]
         sim_flux = CurveSimLightcurve(p.total_iterations)  # Initialize lightcurve (essentially a np.ndarray)
         sim_rv = np.full(p.total_iterations, np.nan, dtype=float)
-        initial_sim_state = CurveSimRebound(rebound_sim)
+        initial_sim_state = CurveSimRebound(simulation)
 
         for iteration in range(p.total_iterations):
-            rebound_sim.integrate(time_s0[iteration])
+
+            if iteration == 0:
+                E0 = simulation.total_energy()
+            E = simulation.total_energy()
+            rel_error = (E - E0) / abs(E0)
+            if iteration % (p.total_iterations // 10) == 0:
+                print(f"Energy drift: {rel_error:.2e}")
+
+            simulation.integrate(time_s0[iteration])
             for body in self:
-                CurveSimBodies.update_position(body, iteration, rebound_sim)
+                CurveSimBodies.update_position(body, iteration, simulation)
             sim_flux[iteration] = self.total_luminosity(stars, iteration, p)  # Update sim_flux.
-            sim_rv[iteration] = -rebound_sim.particles[p.rv_body].vz
+            sim_rv[iteration] = -simulation.particles[p.rv_body].vz
             if p.verbose:
                 CurveSimBodies.progress_bar(iteration, p)
 
-        new_sim_state = CurveSimRebound(rebound_sim)
+        new_sim_state = CurveSimRebound(simulation)
         energy_change = initial_sim_state.sim_check_deltas(new_sim_state)
         lightcurve_max = float(sim_flux.max(initial=None))
         sim_flux /= lightcurve_max  # Normalize flux.
-        return sim_rv, sim_flux, self, rebound_sim, energy_change
+        return sim_rv, sim_flux, self, simulation, energy_change
 
     def calc_physics(self, p, time_s0):
         """Calculate body positions and the resulting lightcurve."""
@@ -516,151 +527,249 @@ class CurveSimBodies(list):
         line = json.dumps(result)
         return line
 
-# Loesung1
-# Drop-in solution for your loop
-# Replace your second loop with this:
-# particles = simulation.particles
-#
-# for i, body in enumerate(self[1:], start=1):
-#     # --- build COM of all previous particles ---
-#     com = rebound.Particle(m=0.0)
-#     total_mass = 0.0
-#
-#     for j in range(i):
-#         p = particles[j]
-#         com.x += p.m * p.x
-#         com.y += p.m * p.y
-#         com.z += p.m * p.z
-#         com.vx += p.m * p.vx
-#         com.vy += p.m * p.vy
-#         com.vz += p.m * p.vz
-#         total_mass += p.m
-#
-#     com.x /= total_mass
-#     com.y /= total_mass
-#     com.z /= total_mass
-#     com.vx /= total_mass
-#     com.vy /= total_mass
-#     com.vz /= total_mass
-#     com.m = total_mass
-#
-#     # --- now add particle relative to this COM ---
-#     kwargs = {}
-#     kwargs["m"] = body.mass
-#     kwargs["r"] = body.radius
-#     kwargs["hash"] = body.name
-#
-#     if body.P is not None:
-#         kwargs["P"] = body.P
-#     elif body.a is not None:
-#         kwargs["a"] = body.a
-#
-#     if body.e is not None:
-#         kwargs["e"] = body.e
-#     if body.i is not None:
-#         kwargs["inc"] = body.i
-#     if body.Omega is not None:
-#         kwargs["Omega"] = body.Omega
-#     if body.omega is not None:
-#         kwargs["omega"] = body.omega
-#     if body.ma is not None:
-#         kwargs["M"] = body.ma
-#
-#     # 🔥 THIS is the crucial line
-#     kwargs["primary"] = com
-#
-#     simulation.add(**kwargs)
-#
-# Loesung2:
-# Step 1 — helper function
-# Add this:
-# def get_com_particle(simulation, indices):
-#     """
-#     Returns a temporary particle representing the center of mass
-#     of the given particle indices.
-#     """
-#     m_tot = 0.0
-#     x = y = z = 0.0
-#     vx = vy = vz = 0.0
-#
-#     for i in indices:
-#         p = simulation.particles[i]
-#         m_tot += p.m
-#         x += p.m * p.x
-#         y += p.m * p.y
-#         z += p.m * p.z
-#         vx += p.m * p.vx
-#         vy += p.m * p.vy
-#         vz += p.m * p.vz
-#
-#     com = rebound.Particle()
-#     com.m = m_tot
-#     com.x = x / m_tot
-#     com.y = y / m_tot
-#     com.z = z / m_tot
-#     com.vx = vx / m_tot
-#     com.vy = vy / m_tot
-#     com.vz = vz / m_tot
-#
-#     return com
 
-# Step 2 — use it in your loop
-# Replace your second loop with:
-# for i, body in enumerate(self[1:], start=1):
-#     kwargs = {}
-#
-#     kwargs["m"] = body.mass
-#     kwargs["r"] = body.radius
-#     kwargs["hash"] = body.name
-#
-#     if body.i is not None:
-#         kwargs["inc"] = body.i
-#     if body.e is not None:
-#         kwargs["e"] = body.e
-#
-#     if body.P is not None:
-#         kwargs["P"] = body.P
-#     elif body.a is not None:
-#         kwargs["a"] = body.a
-#
-#     if body.Omega is not None:
-#         kwargs["Omega"] = body.Omega
-#     if body.omega is not None:
-#         kwargs["omega"] = body.omega
-#
-#     if body.ma is not None:
-#         kwargs["M"] = body.ma
-#     elif body.nu is not None:
-#         kwargs["f"] = body.nu
-#     elif body.ea is not None:
-#         kwargs["E"] = body.ea
-#     elif body.T is not None:
-#         kwargs["T"] = body.T
-#     elif body.L is not None:
-#         kwargs["l"] = body.L
-#
-#     # 🔥 THIS is the important line
-#     primary = get_com_particle(simulation, range(i))
-#     kwargs["primary"] = primary
-#
-#     simulation.add(**kwargs)
 
-# Now you are doing true Jacobi initialization:
-#
-# Body 1 → primary = star
-# Body 2 → primary = COM(star + body1)
-# Body 3 → primary = COM(star + body1 + body2)
-#
-# 👉 This matches what other N-body codes typically mean by “Jacobi elements”
-# 🔥 Why your previous result was off
-#
-# Even though REBOUND claims Jacobi behavior by default:
-#
-# 👉 Its implicit construction depends on insertion order and internal assumptions
-#
-# Those are not guaranteed to match other implementations.
-#
-# So you had:
-#
-# Same parameters
-# Different Cartesian realization
+    def init_myintegration(self, simulation):
+        bodies = self
+
+        # --- helper: compute COM of already-added particles ---
+        def get_com(indices):
+            m_tot = 0.0
+            r = np.zeros(3)
+            v = np.zeros(3)
+
+            for idx in indices:
+                p = simulation._particles_list[idx]
+                m_tot += p.m
+                r += p.m * np.array([p.x, p.y, p.z])
+                v += p.m * np.array([p.vx, p.vy, p.vz])
+
+            return m_tot, r / m_tot, v / m_tot
+
+        simulation._particles_list = []
+
+        # --- first body (star) ---
+        star = bodies[0]
+        simulation.add(
+            name=star.name,
+            m=star.mass,
+            r=star.radius,
+            x=0, y=0, z=0,
+            vx=0, vy=0, vz=0
+        )
+
+        # simulation._particles_list.append(simulation.particles[star.name])
+
+        # --- remaining bodies ---
+        for i, body in enumerate(bodies[1:], start=1):
+
+            m_com, r_com, v_com = get_com(range(i))
+
+            # gravitational parameter (Jacobi!)
+            mu = simulation.G * (m_com + body.mass)
+
+            # --- determine semi-major axis ---
+            if body.a is not None:
+                a = body.a
+            elif body.P is not None:
+                # Kepler's 3rd law with Jacobi mass
+                a = ( (mu * body.P**2) / (4 * np.pi**2) )**(1/3)
+            else:
+                raise ValueError(f"Body {body.name}: need either a or P")
+
+            e = body.e
+            inc = body.i
+            Omega = body.Omega or 0.0
+            omega = body.omega or 0.0
+            M = body.ma or 0.0
+
+            # --- solve Kepler ---
+            E = M
+            for _ in range(50):
+                E -= (E - e*np.sin(E) - M) / (1 - e*np.cos(E))
+
+            # --- true anomaly ---
+            nu = 2*np.arctan2(
+                np.sqrt(1+e)*np.sin(E/2),
+                np.sqrt(1-e)*np.cos(E/2)
+            )
+
+            r = a * (1 - e*np.cos(E))
+
+            # orbital plane
+            x_orb = r * np.cos(nu)
+            y_orb = r * np.sin(nu)
+
+            # velocity in orbital plane
+            n = np.sqrt(mu / a**3)
+            vx_orb = -a * n * np.sin(E) / (1 - e*np.cos(E))
+            vy_orb =  a * n * np.sqrt(1 - e**2) * np.cos(E) / (1 - e*np.cos(E))
+
+            # --- rotation matrices ---
+            cosO, sinO = np.cos(Omega), np.sin(Omega)
+            cosi, sini = np.cos(inc), np.sin(inc)
+            cosw, sinw = np.cos(omega), np.sin(omega)
+
+            def rotate(x, y):
+                X = (cosO*cosw - sinO*sinw*cosi)*x + (-cosO*sinw - sinO*cosw*cosi)*y
+                Y = (sinO*cosw + cosO*sinw*cosi)*x + (-sinO*sinw + cosO*cosw*cosi)*y
+                Z = (sini*sinw)*x + (sini*cosw)*y
+                return np.array([X, Y, Z])
+
+            r_vec = rotate(x_orb, y_orb)
+            v_vec = rotate(vx_orb, vy_orb)
+
+            # --- convert from Jacobi → inertial ---
+            r_vec += r_com
+            v_vec += v_com
+
+            simulation.add(
+                name=body.name,
+                m=body.mass,
+                r=body.radius,
+                x=r_vec[0], y=r_vec[1], z=r_vec[2],
+                vx=v_vec[0], vy=v_vec[1], vz=v_vec[2]
+            )
+
+            # simulation._particles_list.append(simulation.particles[body.name])
+
+
+class MyParticle:
+    def __init__(self, name, m, r):
+        self.name = name
+        self.m = m
+        self.r = r
+        self.x = self.y = self.z = 0.0
+        self.vx = self.vy = self.vz = 0.0
+
+
+class MyIntegration:
+    def __init__(self, p, bodies):
+        self.G = p.g
+        self.t = 0.0
+        self.dt = p.dt
+        self.particles = {}          # name → particle
+        self._particles_list = []    # ordered list (needed for Jacobi)
+
+        # central mass (Jacobi approx)
+        self.star = bodies[0]
+        self.M0 = self.star.mass
+
+        # create particles
+        for body in bodies:
+            self.particles[body.name] = MyParticle(body.name, body.mass, body.radius)
+
+        # store orbital elements
+        self.orbits = {}
+        for body in bodies[1:]:
+            self.orbits[body.name] = {
+                "a": body.a,
+                "P": body.P,
+                "e": body.e,
+                "i": body.i,
+                "Omega": body.Omega or 0.0,
+                "omega": body.omega or 0.0,
+                "M0": body.ma or 0.0,
+                "t0": 0.0,
+                "mu": self.G * (self.M0 + body.mass)
+            }
+
+    def add(self, name, m, r, x, y, z, vx, vy, vz):
+        p = MyParticle(name, m, r)
+        p.x, p.y, p.z = x, y, z
+        p.vx, p.vy, p.vz = vx, vy, vz
+        self.particles[name] = p
+        self._particles_list.append(p)
+
+    def integrate(self, t):
+        self.t = t
+
+        # star fixed at origin
+        star = self.particles[self.star.name]
+        star.x = star.y = star.z = 0.0
+        star.vx = star.vy = star.vz = 0.0
+
+        for name, orb in self.orbits.items():
+            a = orb["a"]
+            e = orb["e"]
+            i = orb["i"]
+            Omega = orb["Omega"]
+            omega = orb["omega"]
+            M0 = orb["M0"]
+            P = orb["P"]
+            mu = orb["mu"]
+
+            # mean motion
+            n = 2 * math.pi / P
+
+            # mean anomaly
+            M = M0 + n * (t - orb["t0"])
+
+            # solve Kepler: E - e sin E = M
+            E = self.solve_kepler(M, e)
+
+            # true anomaly
+            nu = 2 * math.atan2(
+                math.sqrt(1 + e) * math.sin(E / 2),
+                math.sqrt(1 - e) * math.cos(E / 2)
+            )
+
+            # distance
+            r = a * (1 - e * math.cos(E))
+
+            # orbital plane coords
+            x_orb = r * math.cos(nu)
+            y_orb = r * math.sin(nu)
+
+            # rotation to inertial frame
+            cosO, sinO = math.cos(Omega), math.sin(Omega)
+            cosi, sini = math.cos(i), math.sin(i)
+            cosw, sinw = math.cos(omega), math.sin(omega)
+
+            x = (cosO * cosw - sinO * sinw * cosi) * x_orb + (-cosO * sinw - sinO * cosw * cosi) * y_orb
+            y = (sinO * cosw + cosO * sinw * cosi) * x_orb + (-sinO * sinw + cosO * cosw * cosi) * y_orb
+            z = (sini * sinw) * x_orb + (sini * cosw) * y_orb
+
+            p = self.particles[name]
+            p.x, p.y, p.z = x, y, z
+
+            # velocity (approx)
+            vx = -math.sin(E) * n * a / (1 - e * math.cos(E))
+            vy = math.sqrt(1 - e**2) * math.cos(E) * n * a / (1 - e * math.cos(E))
+
+            p.vx, p.vy, p.vz = vx, vy, 0.0
+
+    def solve_kepler(self, M, e, tol=1e-10):
+        E = M if e < 0.8 else math.pi
+        for _ in range(50):
+            dE = (E - e * math.sin(E) - M) / (1 - e * math.cos(E))
+            E -= dE
+            if abs(dE) < tol:
+                break
+        return E
+
+    def total_energy(self):
+        kinetic = 0.0
+        potential = 0.0
+
+        plist = list(self.particles.values())
+
+        # kinetic
+        for p in plist:
+            v2 = p.vx**2 + p.vy**2 + p.vz**2
+            kinetic += 0.5 * p.m * v2
+
+        # potential
+        for i in range(len(plist)):
+            for j in range(i+1, len(plist)):
+                pi = plist[i]
+                pj = plist[j]
+
+                dx = pj.x - pi.x
+                dy = pj.y - pi.y
+                dz = pj.z - pi.z
+
+                r = np.sqrt(dx*dx + dy*dy + dz*dz + 1e-12)
+                potential -= self.G * pi.m * pj.m / r
+
+        return kinetic + potential
