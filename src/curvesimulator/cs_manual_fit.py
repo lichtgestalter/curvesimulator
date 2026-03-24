@@ -1,5 +1,5 @@
 import math
-from matplotlib.figure import Figure
+# from matplotlib.figure import Figure
 from matplotlib import pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np

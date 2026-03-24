@@ -42,7 +42,7 @@ path = "../src/curvesimulator/"
 inputs = [path + "cs_animation.py",
           path + "cs_bodies.py",
           path + "cs_body.py",
-          # path + "cs_flux_data.py",
+          path + "cs_flux_data.py",
           path + "cs_lightcurve.py",
           path + "cs_manual_fit.py",
           path + "cs_mcmc.py",

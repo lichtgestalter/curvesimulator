@@ -11,7 +11,7 @@ import pandas as pd
 
 from .cs_results import CurveSimResults
 
-path = "../../data/TOI-4504/"
+cs_flux_path = "../../data/TOI-4504/"
 day = 60 * 60 * 24
 
 # Sector    3           6           9          12          28          31          34          37          61          64          67          89c         95c
@@ -591,26 +591,26 @@ def combine_flux_data(start_sec, end_sec, filename):
 def get_all_c_d_transits(spoc_only=False, no_transits=False):
     sm = 0.0  # safety margin
     if not spoc_only:
-        transits03 = SectorData(3, path + f"downloads/3_TGLC_1800.csv", transits_filename=path + f"3_TGLC_1800_t.csv", no_transits_filename=path + f"3_TGLC_1800_not.csv", lefts=[C_T1[0] - sm], rights=[C_T4[0] + sm])
-        transits06 = SectorData(6, path + f"downloads/6_QLP_1800.csv", transits_filename=path + f"6_QLP_1800_t.csv", no_transits_filename=path + f"6_QLP_1800_not.csv", lefts=[C_T1[1] - sm], rights=[C_T4[1] + sm])
-        transits09 = SectorData(9, path + f"downloads/9_QLP_1800.csv", transits_filename=path + f"9_QLP_1800_t.csv", no_transits_filename=path + f"9_QLP_1800_not.csv", lefts=[C_T1[2] - sm], rights=[C_T4[2] + sm])
-        transits12 = SectorData(12, path + f"downloads/12_QLP_1800.csv", transits_filename=path + f"12_QLP_1800_t.csv", no_transits_filename=path + f"12_QLP_1800_not.csv", lefts=[C_T1[3] - sm], rights=[C_T4[3] + sm])
-    transits28 = SectorData(28, path + f"downloads/28_SPOC_120.csv", transits_filename=path + f"28_SPOC_120_t.csv", no_transits_filename=path + f"28_SPOC_120_not.csv", lefts=[C_T1[4] - sm], rights=[C_T4[4] + sm])
-    transits31 = SectorData(31, path + f"downloads/31_SPOC_120.csv", transits_filename=path + f"31_SPOC_120_t.csv", no_transits_filename=path + f"31_SPOC_120_not.csv", lefts=[C_T1[5] - sm], rights=[C_T4[5] + sm])
-    transits34 = SectorData(34, path + f"downloads/34_SPOC_120.csv", transits_filename=path + f"34_SPOC_120_t.csv", no_transits_filename=path + f"34_SPOC_120_not.csv", lefts=[C_T1[6] - sm], rights=[C_T4[6] + sm])
-    transits37 = SectorData(37, path + f"downloads/37_SPOC_120.csv", transits_filename=path + f"37_SPOC_120_t.csv", no_transits_filename=path + f"37_SPOC_120_not.csv", lefts=[C_T1[7] - sm], rights=[C_T4[7] + sm])
-    transits61 = SectorData(61, path + f"downloads/61_QLP_200.csv", transits_filename=path + f"61_QLP_200_t.csv", no_transits_filename=path + f"61_QLP_200_not.csv", lefts=[C_T1[8] - sm], rights=[C_T4[8] + sm])
-    transits64 = SectorData(64, path + f"downloads/64_SPOC_120.csv", transits_filename=path + f"64_SPOC_120_t.csv", no_transits_filename=path + f"64_SPOC_120_not.csv", lefts=[C_T1[9] - sm], rights=[C_T4[9] + sm])
-    transits67 = SectorData(67, path + f"downloads/67_SPOC_120.csv", transits_filename=path + f"67_SPOC_120_t.csv", no_transits_filename=path + f"67_SPOC_120_not.csv", lefts=[C_T1[10] - sm], rights=[C_T4[10] + sm])
-    transits88 = SectorData(88, path + f"downloads/88_SPOC_120.csv", transits_filename=path + f"88_SPOC_120_t.csv", no_transits_filename=path + f"88_SPOC_120_not.csv", lefts=[D_T1[0] - sm], rights=[D_T4[0] + sm])
-    transits94 = SectorData(94, path + f"downloads/94_SPOC_120.csv", transits_filename=path + f"94_SPOC_120_t.csv", no_transits_filename=path + f"94_SPOC_120_not.csv", lefts=[D_T1[2] - sm], rights=[D_T4[2] + sm])
-    transits89 = SectorData(89, path + f"downloads/89_SPOC_120.csv", transits_filename=path + f"89_SPOC_120_t.csv", no_transits_filename=path + f"89_SPOC_120_not.csv", lefts=[C_T1[11] - sm, D_T1[1] - sm], rights=[C_T4[11] + sm, D_T4[1] + sm])
-    transits95 = SectorData(95, path + f"downloads/95_SPOC_120.csv", transits_filename=path + f"95_SPOC_120_t.csv", no_transits_filename=path + f"95_SPOC_120_not.csv", lefts=[C_T1[12] - sm, D_T1[3] - sm], rights=[C_T4[12] + sm, D_T4[3] + sm])
+        transits03 = SectorData(3, cs_flux_path + f"downloads/3_TGLC_1800.csv", transits_filename=cs_flux_path + f"3_TGLC_1800_t.csv", no_transits_filename=cs_flux_path + f"3_TGLC_1800_not.csv", lefts=[C_T1[0] - sm], rights=[C_T4[0] + sm])
+        transits06 = SectorData(6, cs_flux_path + f"downloads/6_QLP_1800.csv", transits_filename=cs_flux_path + f"6_QLP_1800_t.csv", no_transits_filename=cs_flux_path + f"6_QLP_1800_not.csv", lefts=[C_T1[1] - sm], rights=[C_T4[1] + sm])
+        transits09 = SectorData(9, cs_flux_path + f"downloads/9_QLP_1800.csv", transits_filename=cs_flux_path + f"9_QLP_1800_t.csv", no_transits_filename=cs_flux_path + f"9_QLP_1800_not.csv", lefts=[C_T1[2] - sm], rights=[C_T4[2] + sm])
+        transits12 = SectorData(12, cs_flux_path + f"downloads/12_QLP_1800.csv", transits_filename=cs_flux_path + f"12_QLP_1800_t.csv", no_transits_filename=cs_flux_path + f"12_QLP_1800_not.csv", lefts=[C_T1[3] - sm], rights=[C_T4[3] + sm])
+    transits28 = SectorData(28, cs_flux_path + f"downloads/28_SPOC_120.csv", transits_filename=cs_flux_path + f"28_SPOC_120_t.csv", no_transits_filename=cs_flux_path + f"28_SPOC_120_not.csv", lefts=[C_T1[4] - sm], rights=[C_T4[4] + sm])
+    transits31 = SectorData(31, cs_flux_path + f"downloads/31_SPOC_120.csv", transits_filename=cs_flux_path + f"31_SPOC_120_t.csv", no_transits_filename=cs_flux_path + f"31_SPOC_120_not.csv", lefts=[C_T1[5] - sm], rights=[C_T4[5] + sm])
+    transits34 = SectorData(34, cs_flux_path + f"downloads/34_SPOC_120.csv", transits_filename=cs_flux_path + f"34_SPOC_120_t.csv", no_transits_filename=cs_flux_path + f"34_SPOC_120_not.csv", lefts=[C_T1[6] - sm], rights=[C_T4[6] + sm])
+    transits37 = SectorData(37, cs_flux_path + f"downloads/37_SPOC_120.csv", transits_filename=cs_flux_path + f"37_SPOC_120_t.csv", no_transits_filename=cs_flux_path + f"37_SPOC_120_not.csv", lefts=[C_T1[7] - sm], rights=[C_T4[7] + sm])
+    transits61 = SectorData(61, cs_flux_path + f"downloads/61_QLP_200.csv", transits_filename=cs_flux_path + f"61_QLP_200_t.csv", no_transits_filename=cs_flux_path + f"61_QLP_200_not.csv", lefts=[C_T1[8] - sm], rights=[C_T4[8] + sm])
+    transits64 = SectorData(64, cs_flux_path + f"downloads/64_SPOC_120.csv", transits_filename=cs_flux_path + f"64_SPOC_120_t.csv", no_transits_filename=cs_flux_path + f"64_SPOC_120_not.csv", lefts=[C_T1[9] - sm], rights=[C_T4[9] + sm])
+    transits67 = SectorData(67, cs_flux_path + f"downloads/67_SPOC_120.csv", transits_filename=cs_flux_path + f"67_SPOC_120_t.csv", no_transits_filename=cs_flux_path + f"67_SPOC_120_not.csv", lefts=[C_T1[10] - sm], rights=[C_T4[10] + sm])
+    transits88 = SectorData(88, cs_flux_path + f"downloads/88_SPOC_120.csv", transits_filename=cs_flux_path + f"88_SPOC_120_t.csv", no_transits_filename=cs_flux_path + f"88_SPOC_120_not.csv", lefts=[D_T1[0] - sm], rights=[D_T4[0] + sm])
+    transits94 = SectorData(94, cs_flux_path + f"downloads/94_SPOC_120.csv", transits_filename=cs_flux_path + f"94_SPOC_120_t.csv", no_transits_filename=cs_flux_path + f"94_SPOC_120_not.csv", lefts=[D_T1[2] - sm], rights=[D_T4[2] + sm])
+    transits89 = SectorData(89, cs_flux_path + f"downloads/89_SPOC_120.csv", transits_filename=cs_flux_path + f"89_SPOC_120_t.csv", no_transits_filename=cs_flux_path + f"89_SPOC_120_not.csv", lefts=[C_T1[11] - sm, D_T1[1] - sm], rights=[C_T4[11] + sm, D_T4[1] + sm])
+    transits95 = SectorData(95, cs_flux_path + f"downloads/95_SPOC_120.csv", transits_filename=cs_flux_path + f"95_SPOC_120_t.csv", no_transits_filename=cs_flux_path + f"95_SPOC_120_not.csv", lefts=[C_T1[12] - sm, D_T1[3] - sm], rights=[C_T4[12] + sm, D_T4[3] + sm])
 
     if not spoc_only:
         transits03.df_transits["flux_err"] = transits03.df_transits["flux_err"].apply(lambda x: 0.002 if pd.isna(x) or x == 0 else x)
     transits61.df_transits.flux_err *= 3.0
-    df2csv(transits61.df_transits, path + f"61_QLP_200.csv")
+    df2csv(transits61.df_transits, cs_flux_path + f"61_QLP_200.csv")
 
     transits = []
     if not spoc_only:
@@ -629,7 +629,7 @@ def get_all_c_d_transits(spoc_only=False, no_transits=False):
         all_processed_dfs = [t.df_transits for t in transits]
         all_df = pd.concat(all_processed_dfs, ignore_index=True)
         all_df = all_df.dropna(subset=["flux"]).sort_values(by="time", ascending=True)
-        df2csv(all_df, path + "TOI4504_transits_sm0_3til95new.csv")
+        df2csv(all_df, cs_flux_path + "TOI4504_transits_sm0_3til95new.csv")
 
     return all_processed_dfs
 
@@ -637,7 +637,7 @@ def get_all_c_d_transits(spoc_only=False, no_transits=False):
 def get_other_flux_for_b_transits():
     transits = []
     for sector in spoc_sectors_no_c_d:
-        transits.append(SectorData(sector, path + f"downloads/{sector}_SPOC_120.csv", no_transits_filename=path + f"{sector}_SPOC_120_not.csv"))
+        transits.append(SectorData(sector, cs_flux_path + f"downloads/{sector}_SPOC_120.csv", no_transits_filename=cs_flux_path + f"{sector}_SPOC_120_not.csv"))
         if sector == 61:
             plot_flux_df(transits[-1].df_no_transits, title="Sector " + str(sector) + " Processed")
     all_processed_dfs = [t.df_no_transits for t in transits]
@@ -655,11 +655,11 @@ def combine_all_flux():
     all_df = pd.concat(dfs_cleaned_from_cd_transits + dfs_from_other_sectors, ignore_index=True)
     all_df = all_df.dropna(subset=["flux"]).sort_values(by="time", ascending=True)
     all_df = all_df[(all_df["flux"] >= 0.98) & (all_df["flux"] <= 1.02)]
-    df2csv(all_df, path + "TOI4504_no_transits_sm0_27til94.csv")
-    df2csv_deutsch(all_df, path + "TOI4504_no_transits_sm0_27til94_DE.csv")
+    df2csv(all_df, cs_flux_path + "TOI4504_no_transits_sm0_27til94.csv")
+    df2csv_deutsch(all_df, cs_flux_path + "TOI4504_no_transits_sm0_27til94_DE.csv")
 
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
     # get_all_c_d_transits()
     #
     # combine_all_flux()
@@ -684,4 +684,4 @@ if __name__ == "__main__":
     # df_extracted = extract_regular_transits(df, 2458400, 2.42614, 0.33, 0.45)
     # df2csv(df_extracted, path + f"TOI4504_b_transits_27til94.csv")
 
-    get_all_c_d_transits()
+    # get_all_c_d_transits()
