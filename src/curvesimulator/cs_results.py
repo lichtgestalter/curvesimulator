@@ -749,5 +749,5 @@ def try_colors_in_plot():
     plt.savefig(plot_filename1)
 
 
-if __name__ == "__main__":
-    try_colors_in_plot()
+# if __name__ == "__main__":
+#     try_colors_in_plot()
