@@ -7,7 +7,7 @@ from functools import wraps
 import json
 import lmfit
 import math
-from matplotlib import pyplot as plt
+import matplotlib.pyplot as plt
 from multiprocessing import Pool
 import numpy as np
 import os

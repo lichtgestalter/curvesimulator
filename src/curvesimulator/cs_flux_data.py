@@ -4,7 +4,7 @@ import sys
 from colorama import Fore, Style
 import lightkurve as lk
 import math
-from matplotlib import pyplot as plt
+import matplotlib.pyplot as plt
 from matplotlib import rcParams
 import numpy as np
 import pandas as pd

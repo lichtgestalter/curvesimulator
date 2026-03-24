@@ -24,7 +24,7 @@ class CurveSimBodies(list):
 
     # noinspection PyUnusedLocal
     def __init__(self, p):
-        p.myintegration = False  # debug
+        p.myintegration = True  # debug
         """Initialize instances of physical bodies.
         Read program parameters and properties of the bodies from config file.
         Initialize the circles in the animation (matplotlib patches)"""

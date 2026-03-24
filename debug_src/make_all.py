@@ -28,6 +28,7 @@ def make_all(inputs, output):
     import_lines = [line for line in import_lines if not line.startswith("from .cs_")]
     import_lines = [line for line in import_lines if not line.startswith("from curvesimulator")]
     import_lines = [line for line in import_lines if not line.startswith("import fcntl")]  # Package does not exist? Unix specific.
+    import_lines.sort()
 
     with open(output, "w", encoding="utf-8") as out:
         for line in import_lines:
