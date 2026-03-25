@@ -479,9 +479,13 @@ class CurveSimBodies(list):
                     for eclipsee in p.eclipsees:
                         eclipser_before_eclipsee = eclipser.positions[i][2] > eclipsee.positions[i][2]
                         transit_between_iterations = (eclipser.positions[i][0] - eclipsee.positions[i][0]) * (eclipser.positions[i - 1][0] - eclipsee.positions[i - 1][0]) <= 0  # transit between i-1 and i?
+                        if i > 9171:
+                            print("e before e", i)  # debug
                         if eclipser_before_eclipsee and transit_between_iterations:
                             tt, impact, depth, close_enough = eclipsee.find_tt(eclipser, i - 1, rebound_sim, p, sim_flux, time_s0, time_d, start_index, end_index, dt)
+                            print("transit between", i)  # debug
                             if close_enough:  # eclipser and eclipsee are close enough at actual TT
+                                print("close enough", i)  # debug
                                 tt_s0 = rebound_sim.t
                                 t1 = eclipsee.find_t1234(eclipser, tt_s0, i, rebound_sim, time_s0, start_index, end_index, p, transittimetype="T1")
                                 t2 = eclipsee.find_t1234(eclipser, tt_s0, i, rebound_sim, time_s0, start_index, end_index, p, transittimetype="T2")
