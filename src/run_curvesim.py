@@ -18,13 +18,6 @@
 #     main()
 
 
-# Compatibility shim: some older libraries expect numpy.in1d which may be removed in newer NumPy versions.
-# Provide a safe alias to numpy.isin before importing other packages (e.g., astropy/lightkurve) that use it.
-# import numpy as np
-# if not hasattr(np, 'in1d'):
-#     np.in1d = np.isin
-
-
 # Current version for developers
 from curvesimulator import CurveSimulator
 
