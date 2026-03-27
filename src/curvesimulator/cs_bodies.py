@@ -26,7 +26,7 @@ class CurveSimBodies(list):
     def __init__(self, p):
 
 
-        p.myintegration = True  # debug
+        p.myintegration = False  # debug
 
 
         """Initialize instances of physical bodies.
@@ -147,7 +147,7 @@ class CurveSimBodies(list):
 
             simulation.add(**kwargs)
         simulation.move_to_com()  # move origin to center of mass before integrating -> better numerical stability
-        CurveSimBodies.print_simulation_particles(simulation)
+        CurveSimBodies.print_simulation_particles(p, simulation)
 
         # if p.action == "single_run":  # obsolete????  does not seem to help for MCMC, but is a good choice when creating a result file including transit times
         #     if p.result_file:
@@ -185,51 +185,50 @@ class CurveSimBodies(list):
         return com
 
     @staticmethod
-    def print_simulation_particles(simulation):
+    def print_simulation_particles(p, simulation):
         print("\n--- Simulation Particles ---")
         for i, particle in enumerate(simulation.particles):
-            print(f"\nParticle {i}:")
-            print(f"  hash      = {particle.hash}")
-            print(f"  mass (m)  = {particle.m}")
-            print(f"  radius (r)= {particle.r}")
-            print(f"  position  = ({particle.x}, {particle.y}, {particle.z})")
-            print(f"  velocity  = ({particle.vx}, {particle.vy}, {particle.vz})")
+            print(f"\n\nParticle {i}:")
+            print(f"  m [m_jup] = {particle.m / p.m_jup:.3f}")
+            print(f"  r [r_jup] = {particle.r / p.r_jup:.3f}")
+            print(f"  position  = (x: {particle.x:,.0f}  y: {particle.y:,.0f}  z: {particle.z:,.0f})".replace(",", " "))
+            print(f"  velocity  = (x: {particle.vx:,.0f}  y: {particle.vy:,.0f}  z: {particle.vz:,.0f})".replace(",", " "))
             try:
                 orbit = particle.orbit()
-                print(f"Orbital elements (relative to primary if available)")
-                print(f"  P         = {orbit.P / (60 * 60 * 24)}")
-                print(f"  a         = {orbit.a}")
-                print(f"  e         = {orbit.e}")
-                print(f"  i         = {math.degrees(orbit.inc)}")
-                print(f"  Omega     = {math.degrees(orbit.Omega)}")
-                print(f"  omega     = {math.degrees(orbit.omega)}")
-                print(f"  ma        = {math.degrees(orbit.M)}")
+                print(f"\nOrbital elements (relative to primary (Jacobi is default))")
+                print(f"  P [d]     = {orbit.P / (60 * 60 * 24):.3f}")
+                print(f"  a [AU]    = {orbit.a / p.au:.3f}")
+                print(f"  e         = {orbit.e:.3f}")
+                print(f"  i         = {math.degrees(orbit.inc):.1f}")
+                print(f"  Omega     = {math.degrees(orbit.Omega):.1f}")
+                print(f"  omega     = {math.degrees(orbit.omega):.1f}")
+                print(f"  ma        = {math.degrees(orbit.M):.1f}")
             except Exception:
                 print("  (No orbital elements available)")
             try:
                 primary = CurveSimBodies.get_com_particle(simulation, range(i))
                 orbit = particle.orbit(primary=primary)
-                print(f"Orbital elements (relative to manually computed primary if available)")
-                print(f"  P         = {orbit.P / (60 * 60 * 24)}")
-                print(f"  a         = {orbit.a}")
-                print(f"  e         = {orbit.e}")
-                print(f"  i         = {math.degrees(orbit.inc)}")
-                print(f"  Omega     = {math.degrees(orbit.Omega)}")
-                print(f"  omega     = {math.degrees(orbit.omega)}")
-                print(f"  ma        = {math.degrees(orbit.M)}")
+                print(f"\nOrbital elements (relative to manually computed COM-primary)")
+                print(f"  P [d]     = {orbit.P / (60 * 60 * 24):.3f}")
+                print(f"  a [AU]    = {orbit.a / p.au:.3f}")
+                print(f"  e         = {orbit.e:.3f}")
+                print(f"  i         = {math.degrees(orbit.inc):.1f}")
+                print(f"  Omega     = {math.degrees(orbit.Omega):.1f}")
+                print(f"  omega     = {math.degrees(orbit.omega):.1f}")
+                print(f"  ma        = {math.degrees(orbit.M):.1f}")
             except Exception:
                 print("  (No orbital elements available)")
             try:
                 primary = CurveSimBodies.get_com_particle(simulation, range(i))
                 orbit = particle.orbit(primary=simulation.particles[0])
-                print(f"Orbital elements (relative to star if available)")
-                print(f"  P         = {orbit.P / (60 * 60 * 24)}")
-                print(f"  a         = {orbit.a}")
-                print(f"  e         = {orbit.e}")
-                print(f"  i         = {math.degrees(orbit.inc)}")
-                print(f"  Omega     = {math.degrees(orbit.Omega)}")
-                print(f"  omega     = {math.degrees(orbit.omega)}")
-                print(f"  ma        = {math.degrees(orbit.M)}")
+                print(f"\nOrbital elements (relative to star)")
+                print(f"  P [d]     = {orbit.P / (60 * 60 * 24):.3f}")
+                print(f"  a [AU]    = {orbit.a / p.au:.3f}")
+                print(f"  e         = {orbit.e:.3f}")
+                print(f"  i         = {math.degrees(orbit.inc):.1f}")
+                print(f"  Omega     = {math.degrees(orbit.Omega):.1f}")
+                print(f"  omega     = {math.degrees(orbit.omega):.1f}")
+                print(f"  ma        = {math.degrees(orbit.M):.1f}")
             except Exception:
                 print("  (No orbital elements available)")
 
@@ -586,31 +585,28 @@ class CurveSimBodies(list):
         # --- planets ---
         for i, body in enumerate(self[1:], start=1):
             m_com, r_com, v_com = get_com(i)
-
             mu = simulation.G * (m_com + body.mass)
-
             e = body.e
             inc = body.i
             Omega = body.Omega or 0.0
             omega = body.omega or 0.0
 
-            # --- derive mean anomaly M from whichever anomaly type is provided ---
-            M = 0.0  # default; overridden below if any anomaly is specified
+            # --- derive mean anomaly ma from whichever anomaly type is provided ---
+            ma = 0.0  # default; overridden below if any anomaly is specified
             if body.ma is not None:
-                M = body.ma
+                ma = body.ma
             elif body.ea is not None:
-                M = body.ea - e * np.sin(body.ea)
+                ma = body.ea - e * np.sin(body.ea)
             elif body.nu is not None:
                 ea_from_nu = 2 * np.arctan(np.sqrt((1 - e) / (1 + e)) * np.tan(body.nu / 2))
-                M = ea_from_nu - e * np.sin(ea_from_nu)
+                ma = ea_from_nu - e * np.sin(ea_from_nu)
             elif body.L is not None:
-                M = body.L - (omega + Omega)
+                ma = body.L - (omega + Omega)
             elif body.T is not None:
-                pass  # M is computed after a is known (needs n); handled below
+                pass
             else:
-                M = 0.0
+                ma = 0.0
 
-            # --- semi-major axis ---
             if body.a is not None:
                 a = body.a
             elif body.P is not None:
@@ -621,26 +617,21 @@ class CurveSimBodies(list):
             # --- handle T (time of periapsis) now that a is known ---
             if body.T is not None and body.ma is None and body.ea is None and body.nu is None and body.L is None:
                 n = np.sqrt(mu / a ** 3)
-                M = n * body.T
-            elif body.T is not None and M is None:  # fallback
-                M = 0.0
+                ma = n * body.T
+            elif body.T is not None and ma is None:  # fallback
+                ma = 0.0
 
             # --- solve Kepler ---
-            E = M
+            E = ma
             for _ in range(50):
-                E -= (E - e * np.sin(E) - M) / (1 - e * np.cos(E))
+                E -= (E - e * np.sin(E) - ma) / (1 - e * np.cos(E))
 
             # --- position in perifocal frame ---
-            # Correct formulas: X = a*(cos(E) - e),  Y = a*sqrt(1-e²)*sin(E)
-            # The intermediate radius r is only needed for the velocity denominators below.
-            r = a * (1 - e * np.cos(E))   # used in velocity formula denominator
-
             x_orb = a * (np.cos(E) - e)
             y_orb = a * np.sqrt(1 - e ** 2) * np.sin(E)
 
             # --- velocity ---
             n = np.sqrt(mu / a ** 3)
-
             vx_orb = -a * n * np.sin(E) / (1 - e * np.cos(E))
             vy_orb = a * n * np.sqrt(1 - e ** 2) * np.cos(E) / (1 - e * np.cos(E))
 
@@ -657,11 +648,9 @@ class CurveSimBodies(list):
                 m=body.mass,
                 r=body.radius,
                 x=r_vec[0], y=r_vec[1], z=r_vec[2],
-                vx=v_vec[0], vy=v_vec[1], vz=v_vec[2]
-            )
+                vx=v_vec[0], vy=v_vec[1], vz=v_vec[2])
 
-        # Fix Bug 2: shift COM to origin (same as init_rebound's simulation.move_to_com())
-        simulation.move_to_com()
+        simulation.move_to_com()  # shift COM to origin (same as init_rebound's simulation.move_to_com())
 
 
 class MyParticle:
