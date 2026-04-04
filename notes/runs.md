@@ -1,5 +1,9 @@
 ## TOI-4504 Simulationen
 
+### Exo Striker
+On Notebook2013, in Terminal, in directory ~/exostriker/exostriker, call 
+python3.12 gui.py
+
 ### Simulierte TT mit LMfit fitten
 - Generiere mit den X024ML Parametern Simulierten Flux und TT 
 - TOI4504c Inklination von 89.69 auf 89.79, damit Planet c nicht zu 

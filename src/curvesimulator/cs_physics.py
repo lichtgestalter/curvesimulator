@@ -93,7 +93,7 @@ class CurveSimPhysics:
             return None
         mu_values = np.linspace(0, 1, 1000)
         intensities = CurveSimPhysics.intensity(mu_values, limb_darkening_u1, limb_darkening_u2)
-        return 2 * np.trapz(intensities * mu_values, mu_values)
+        return 2 * np.trapezoid(intensities * mu_values, mu_values)
 
     @staticmethod
     def limbdarkening(relative_radius, limb_darkening_u1, limb_darkening_u2):
