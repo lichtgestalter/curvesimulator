@@ -1,8 +1,86 @@
-## TOI-4504 Simulationen
+## Andere Software
 
 ### Exo Striker
-On Notebook2013, in Terminal, in directory ~/exostriker/exostriker, call 
+- On Notebook2013, in Terminal, in directory ~/exostriker/exostriker, call 
 python3.12 gui.py
+- Unverstaendliche Fehlermeldungen
+- letztes Update 2026
+#### Fazit:
+- Viele manuelle Eingriffe, bis es immerhin auf Linux laeuft
+- Eingaben werden nur teilweise gespeicherrt (in Session)
+- Kaum Dokumentation
+- Ich krieg es nicht genutzt
+
+### Juliet
+- Doku: https://juliet.readthedocs.io/en/latest/
+- Code: https://github.com/nespinoza/juliet
+- Sprache: Python
+- letztes Update 2026
+#### Fazit:
+- Kann kein n-body
+
+### PlanetPlanet
+- https://github.com/rodluger/planetplanet
+- Sprache: Python
+- letztes Update 2017
+#### Fazit:
+- ???
+
+### jnkepler
+- Doku: 
+- Code: https://github.com/kemasuda/jnkepler
+- Sprache: Python
+- letztes Update: 2026 
+#### Fazit:
+- ?
+
+### PyDynamicaLC
+- Code: https://github.com/YoffeG/PyDynamicaLC
+- Sprache: Python
+- letztes Update 2024
+#### Fazit:
+- ???
+
+### Photodynamics.jl
+- Paper: https://academic.oup.com/mnras/article/540/1/106/8125473?login=false
+  - Table 1 listet diverse andere Softwarepakete auf
+- Code: https://github.com/langfzac/Photodynamics.jl
+- Doku: https://langfzac.github.io/Photodynamics.jl/dev/
+- Sprache: Julia
+- letztes Update 2025
+#### Fazit:
+- ???
+
+### photodynam
+- Paper: https://ui.adsabs.harvard.edu/abs/2017ascl.soft12013C/abstract
+- Code: https://github.com/dfm/photodynam
+- Doku: ???
+- Sprache: C++
+- letztes Update: 2013
+#### Fazit:
+- ?
+
+### PhoDyMM
+- Doku: 
+- Code: https://github.com/dragozzine/PhoDyMM
+- Paper1: https://ui.adsabs.harvard.edu/abs/2022BAAS...54e.360J/abstract
+- Paper2: https://baas.aas.org/pub/2024n8i106p01/release/1
+- Sprache: C (Python intern?)
+- Betriebssystem: Linux
+- letztes Update: 2025
+#### Fazit:
+- ?
+
+### ???
+- Doku: 
+- Code: 
+- Sprache: 
+- letztes Update: 
+#### Fazit:
+- ?
+
+
+## TOI-4504 Simulationen
 
 ### Simulierte TT mit LMfit fitten
 - Generiere mit den X024ML Parametern Simulierten Flux und TT 
