@@ -19,20 +19,20 @@ python3.12 gui.py
 #### Fazit:
 - Kann kein n-body
 
-### PlanetPlanet
-- https://github.com/rodluger/planetplanet
-- Sprache: Python
-- letztes Update 2017
-#### Fazit:
-- ???
-
 ### jnkepler
-- Doku: 
+- Doku: https://jnkepler.readthedocs.io/en/stable/
 - Code: https://github.com/kemasuda/jnkepler
 - Sprache: Python
 - letztes Update: 2026 
 #### Fazit:
 - ?
+
+### PlanetPlanet
+- Code: https://github.com/rodluger/planetplanet
+- Sprache: Python
+- letztes Update 2017
+#### Fazit:
+- ???
 
 ### PyDynamicaLC
 - Code: https://github.com/YoffeG/PyDynamicaLC
