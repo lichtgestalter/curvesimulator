@@ -25,7 +25,9 @@ python3.12 gui.py
 - Sprache: Python
 - letztes Update: 2026 
 #### Fazit:
-- ?
+- Benutzt nur die abgewandelten Kepler-Parameter ecosw und esinw
+- Keine Funktion fuer Single-Run dokumentiert? Beispielcode laesst direkt 
+  einen Fit laufen.
 
 ### PlanetPlanet
 - Code: https://github.com/rodluger/planetplanet
