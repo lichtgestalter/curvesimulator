@@ -5,6 +5,11 @@
 0.5.8 TOI-4504 Videos
 -
 ### jetzt
+- print_simulation_particles()  naeher angucken
+  - tut die wirklich , was sie sagt?
+- Option in configfile: astrocentric vs. Jacobi coordinates
+
+
 
 #### Feature Requests von Simon:
 ✅ Texte in das Video:
