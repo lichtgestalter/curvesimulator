@@ -9,6 +9,12 @@
   - tut die wirklich , was sie sagt?
 - Option in configfile: astrocentric vs. Jacobi coordinates
 
+- Almenara's TT mit T0=254840 und mit derem alternativen T0 reproduzieren
+  - Ist der Fehler gleich gross?
+  - Ist nur die Periode des aeusseren Planeten betroffen?
+- Simulation auf das allernotwendigste an Code reduzieren und Hanno Rein 
+  schicken
+
 
 
 #### Feature Requests von Simon:
