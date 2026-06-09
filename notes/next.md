@@ -9,18 +9,18 @@
 
 3. Periodendefinitionen vergleichen/verstehen
 Vielleicht ist das der Grund fuer die Abweichung?
-sidereal period
-synodic period
+   - sidereal period
+   - synodic period
 
 4. TTVFast zum Vergleich heranziehen
 https://github.com/simonrw/ttvfast-python
 
 5. Mindestens eines dieser System nachrechnen. Ich nehme, dass wo es am einfachsten zu sein scheint. Also, wo ich das Paper am ehesten verstehe und die relevanten Kepler Parameter finde.
-Kepler 18 William Cochran
-Kepler36 Joshua Carter
-Trappist (Eric Agol)
-TOI 1130
-TOI 1136
+   - Kepler 18 William Cochran
+   - Kepler36 Joshua Carter
+   - Trappist (Eric Agol)
+   - TOI 1130
+   - TOI 1136
 
 
 #### Debugging
