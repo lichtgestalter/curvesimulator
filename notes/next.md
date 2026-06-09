@@ -1,10 +1,29 @@
 # Next / in progress:
-## 0.5.7 Automated Flux Data Download
 
 ### done
-0.5.8 TOI-4504 Videos
 -
 ### jetzt
+1. Trifon schreiben
+
+2. Hanno Rein schreiben
+
+3. Periodendefinitionen vergleichen/verstehen
+Vielleicht ist das der Grund fuer die Abweichung?
+sidereal period
+synodic period
+
+4. TTVFast zum Vergleich heranziehen
+https://github.com/simonrw/ttvfast-python
+
+5. Mindestens eines dieser System nachrechnen. Ich nehme, dass wo es am einfachsten zu sein scheint. Also, wo ich das Paper am ehesten verstehe und die relevanten Kepler Parameter finde.
+Kepler 18 William Cochran
+Kepler36 Joshua Carter
+Trappist (Eric Agol)
+TOI 1130
+TOI 1136
+
+
+#### Debugging
 - print_simulation_particles()  naeher angucken
   - tut die wirklich , was sie sagt?
 - Option in configfile: astrocentric vs. Jacobi coordinates
@@ -17,51 +36,42 @@
 
 
 
-#### Feature Requests von Simon:
-✅ Texte in das Video:
-  ✅ “view from above”
-  ✅ “view from earth”
-  ✅ “TOI-4504”
-  ✅ “light curve”
-  ✅ “RV curve”
-✅ Planetenrichtung umkehren
-✅ Optional ohne RV Plot
-✅ Optional nur rechter oder nur linker Plot
-✅ Trennlinie zwischen linken und rechten Plot
-✅ Masstab in Plots einzeichnen: z.B. Linie mit Text “0.1 AU”
-y-Achse bei Lightcurve und RV-curve dunkelgrau einzeichnen
-Stern mit Limb Darkening darstellen
-Lightcurve erst dunkelgrau, wird mit Fortschritt weiss
+## Wenn ich den Perioden-Bug gefunden habe
+### Diese Punkte neu priorisieren und evtl. in die weiter unten folgenden Topic einsortieren
+- Intern in curvesimulator statt e und omega diese benutzen:
+  - sqrt(e)*sin(omega) und sqrt(e)*cos(omega)
+  - Ansonsten koennte es bei sehr grossen und sehr kleinen Exzentrizitaeten langsamer sein oder sogar Fehler geben.
+  - Als Input und Output Parameter kann ich dem User anbieten:
+    - e undomega
+    - sqrt(e)*sin(omega) und sqrt(e)*cos(omega) (benutzt Almenara)
+    - h = e*sin(omega) und k = e*cos(omega) (benutzt Trifon)
+ 
+- schnellere Videogeneration (AI Tipps ...)
+  - blit=True aktivieren
+  - Problem: Aktuell ist blit=False. Das bedeutet, dass Matplotlib bei jedem 
+    Frame das gesamte Bild neu zeichnet, was extrem langsam ist.
+  - Lösung: Setze blit=True in FuncAnimation. Dann werden nur die geänderten 
+    Objekte (die "Artists") neu gezeichnet.
+  - Voraussetzung: next_frame muss eine Liste aller geänderten Artists 
+    zurückgeben (was du bereits tust: [flux_dot, rv_dot]). Achtung: Alle Objekte, die sich ändern (z. B. die Kreise der bodies), müssen ebenfalls zurückgegeben werden!
+  - Falls FuncAnimation zu langsam bleibt, kannst du die Frames einzeln rendern 
+  und mit FFmpeg zusammenfügen:
+  - from matplotlib.animation import FFMpegWriter
+  - with FFMpegWriter(fps=p.fps) as writer:
+      for frame in range(frames):
+          CurveSimAnimation.next_frame(frame, p, bodies, rv_dot, flux_dot, sim_rv, sim_flux, time_s0)
+          writer.grab_frame()
 
-### aktuell
+- BUG: Nutze tt_bug_debug.ini: (Schon Geloest???)
+  - Warum werden Sektor 98 daten nicht downgeloaded und warum wird die 
+    letzte Zeile in tt_bug98.csv geloescht???
+
 - starts, ends in Parametern zurueckbauen
   - soll keine Liste mehr sein, sondern Einzelwert
   - Umbenennen in Videostart, Videoend?
   - nur ein dt im ganzen Code verwenden
 
-
-#### schnellere Videogeneration
-blit=True aktivieren
-Problem: Aktuell ist blit=False. Das bedeutet, dass Matplotlib bei jedem Frame das gesamte Bild neu zeichnet, was extrem langsam ist.
-Lösung: Setze blit=True in FuncAnimation. Dann werden nur die geänderten Objekte (die "Artists") neu gezeichnet.
-Voraussetzung: next_frame muss eine Liste aller geänderten Artists zurückgeben (was du bereits tust: [flux_dot, rv_dot]). Achtung: Alle Objekte, die sich ändern (z. B. die Kreise der bodies), müssen ebenfalls zurückgegeben werden!
-
-Falls FuncAnimation zu langsam bleibt, kannst du die Frames einzeln rendern und mit FFmpeg zusammenfügen:
-from matplotlib.animation import FFMpegWriter
-with FFMpegWriter(fps=p.fps) as writer:
-    for frame in range(frames):
-        CurveSimAnimation.next_frame(frame, p, bodies, rv_dot, flux_dot, sim_rv, sim_flux, time_s0)
-        writer.grab_frame()
-
-
-
-## aktuell, wenn ich mit Videos fertig bin
-- BUG: Nutze tt_bug_debug.ini: 
-  - Warum werden Sektor 98 daten nicht downgeloaded und warum wird die 
-    letzte Zeile in tt_bug98.csv geloescht???
-
-
-- Lesen/speichen von bodies als file
+- Lesen/speichen von bodies als file (Hatte ich schon mal mit angefangen...)
   - um die fitting parameters ergaenzen
   - save_fitting_parameters habe ich vibecoded
     - muss noch ueberpreuft und optimiert werden
@@ -75,7 +85,6 @@ with FFMpegWriter(fps=p.fps) as writer:
   - read_fitting_parameters erweitern um fuenftes element scale
     - so kriegt jeder fitting parameter seine eigene Skalierung (fx m_jup oder 
       m_sun)
-  
 
 - complete save_max_likelihood_bodies() in mcmc
   - unnoetig, weil schon in Zeile 883 von mcmc mit bodies.save(p, prefix=p.

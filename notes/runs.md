@@ -31,10 +31,19 @@ python3.12 gui.py
 
 ### PlanetPlanet
 - Code: https://github.com/rodluger/planetplanet
+- Paper: https://iopscience.iop.org/article/10.3847/1538-4357/aa9c43/pdf
 - Sprache: Python
 - letztes Update 2017
 #### Fazit:
 - ???
+
+### TTV Fast
+- Doku: https://github.com/kdeck/TTVFast/blob/master/c_version/README
+- Code: https://github.com/simonrw/ttvfast-python 
+- Sprache: Python (wrapper)
+- letztes Update: 2018
+#### Fazit:
+- ?
 
 ### PyDynamicaLC
 - Code: https://github.com/YoffeG/PyDynamicaLC
@@ -53,15 +62,6 @@ python3.12 gui.py
 #### Fazit:
 - ???
 
-### photodynam
-- Paper: https://ui.adsabs.harvard.edu/abs/2017ascl.soft12013C/abstract
-- Code: https://github.com/dfm/photodynam
-- Doku: ???
-- Sprache: C++
-- letztes Update: 2013
-#### Fazit:
-- ?
-
 ### PhoDyMM
 - Doku: 
 - Code: https://github.com/dragozzine/PhoDyMM
@@ -70,6 +70,15 @@ python3.12 gui.py
 - Sprache: C (Python intern?)
 - Betriebssystem: Linux
 - letztes Update: 2025
+#### Fazit:
+- ?
+
+### photodynam
+- Paper: https://ui.adsabs.harvard.edu/abs/2017ascl.soft12013C/abstract
+- Code: https://github.com/dfm/photodynam
+- Doku: ???
+- Sprache: C++
+- letztes Update: 2013
 #### Fazit:
 - ?
 
