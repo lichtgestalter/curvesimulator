@@ -35,11 +35,18 @@ python3.12 gui.py
 - Sprache: Python
 - letztes Update 2017
 #### Fazit:
-- ???
+- Mit viel Aufwand und AI-Hilfe uralten Code zum Laufen gebracht.
+- Laut AI nutzt PlanetPlanet Rebound und will Jacobi Koordinaten. Ist also 
+  eigentlich sehr geeignet fuer den Vergleich mit CurveSimulator.
+- Die errechneten Transit Times sind aber hochgradig unglaubwuerdig. Der 
+  erste TT con Planet c und d passt noch ungefaehr aber danach betraegt der 
+  Abstand zwischen TT z.B. bei Planet d 43.5, 41.7, 43.1, 40.5, 40.5, 39.7, 39.5, 39.5, 39.2
+- Ausserdem erzeugt Planet d angeblich Transits auch bei Start-Inklination 
+  91.1. 
+
 
 ### TTV Fast
-- Doku: https://github.com/kdeck/TTVFast/blob/master/c_version/README
-- Code: https://github.com/simonrw/ttvfast-python 
+- Doku+Code: https://github.com/simonrw/ttvfast-python 
 - Sprache: Python (wrapper)
 - letztes Update: 2018
 #### Fazit:

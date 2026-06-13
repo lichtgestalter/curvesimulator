@@ -113,17 +113,17 @@ class CurveSimParameters:
                 print(f"{Fore.YELLOW}         Because of this undersampling, the video will be using the same iteration for consecutive frames.{Style.RESET_ALL}")
                 print(f"{Fore.YELLOW}         Decrease the number of frames or decrease dt (the real time difference between simulation iterations).{Style.RESET_ALL}")
             # [Scale]
-            self.scope_left = eval(config.get("Scale", "scope_left"))
-            self.scale_bar_length_left = eval(config.get("Scale", "scale_bar_length_left"))
-            self.star_scale_left = eval(config.get("Scale", "star_scale_left"))
-            self.planet_scale_left = eval(config.get("Scale", "planet_scale_left"))
-            self.scope_right = eval(config.get("Scale", "scope_right"))
-            self.scale_bar_length_right = eval(config.get("Scale", "scale_bar_length_right"))
-            self.star_scale_right = eval(config.get("Scale", "star_scale_right"))
-            self.planet_scale_right = eval(config.get("Scale", "planet_scale_right"))
-            self.autoscaling = config.get("Scale", "autoscaling") == "on"
-            self.min_radius = eval(config.get("Scale", "min_radius")) / 100.0
-            self.max_radius = eval(config.get("Scale", "max_radius")) / 100.0
+            self.scope_left = eval(config.get("Scale", "scope_left", fallback="au"))
+            self.scale_bar_length_left = eval(config.get("Scale", "scale_bar_length_left", fallback="au"))
+            self.star_scale_left = eval(config.get("Scale", "star_scale_left", fallback=1.0))
+            self.planet_scale_left = eval(config.get("Scale", "planet_scale_left", fallback=1.0))
+            self.scope_right = eval(config.get("Scale", "scope_right", fallback="au"))
+            self.scale_bar_length_right = eval(config.get("Scale", "scale_bar_length_right", fallback="au"))
+            self.star_scale_right = eval(config.get("Scale", "star_scale_right", fallback=1.0))
+            self.planet_scale_right = eval(config.get("Scale", "planet_scale_right", fallback=1.0))
+            self.autoscaling = config.get("Scale", "autoscaling", fallback="on") == "on"
+            self.min_radius = eval(config.get("Scale", "min_radius", fallback=0.4)) / 100.0
+            self.max_radius = eval(config.get("Scale", "max_radius", fallback=2.0)) / 100.0
 
             # [Plot]
             self.show_left_plot = eval(config.get("Plot", "show_left_plot", fallback="True"))
