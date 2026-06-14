@@ -50,7 +50,11 @@ python3.12 gui.py
 - Sprache: Python (wrapper)
 - letztes Update: 2018
 #### Fazit:
-- ?
+- Fast TTV reproduziert die beobachteten TT mit Trifons Bet Fit Parametern sehr gut.
+- Anpassung von Periode c alleine reicht nicht, um mit Ulis Best Fit die 
+  beobachteten TT zu reproduzieren!
+- Next: Meinen Code reduzieren fuer Fehlersuche und Hanno Rein.
+
 
 ### PyDynamicaLC
 - Code: https://github.com/YoffeG/PyDynamicaLC
