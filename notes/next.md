@@ -3,41 +3,33 @@
 ### done
 -
 ### jetzt
-1. Trifon schreiben
-
-2. Hanno Rein schreiben
-
-3. Periodendefinitionen vergleichen/verstehen
-Vielleicht ist das der Grund fuer die Abweichung?
-   - sidereal period
-   - synodic period
-
-4. TTVFast zum Vergleich heranziehen
-https://github.com/simonrw/ttvfast-python
-
-5. Mindestens eines dieser System nachrechnen. Ich nehme, dass wo es am einfachsten zu sein scheint. Also, wo ich das Paper am ehesten verstehe und die relevanten Kepler Parameter finde.
-   - Kepler 18 William Cochran
-   - Kepler36 Joshua Carter
-   - Trappist (Eric Agol)
-   - TOI 1130
-   - TOI 1136
+jacobi_masses=True in Code einbauen.
+Kann ich jetzt Trifon reproduzieren?
 
 
-#### Debugging
+#### next
+- so ganz habe ich das mit der Option jacobi_masses=True noch nicht kapiert
+https://rebound.hanno-rein.de/ipython_examples/OrbitalElements/
+ 
 - print_simulation_particles()  naeher angucken
   - tut die wirklich , was sie sagt?
 - Option in configfile: astrocentric vs. Jacobi coordinates
 
 - Almenara's TT mit T0=254840 und mit derem alternativen T0 reproduzieren
-  - Ist der Fehler gleich gross?
-  - Ist nur die Periode des aeusseren Planeten betroffen?
-- Simulation auf das allernotwendigste an Code reduzieren und Hanno Rein 
-  schicken
+
 
 
 
 ## Wenn ich den Perioden-Bug gefunden habe
 ### Diese Punkte neu priorisieren und evtl. in die weiter unten folgenden Topic einsortieren
+- Mindestens eines dieser System nachrechnen. Ich nehme, dass wo es am 
+einfachsten zu sein scheint. Also, wo ich das Paper am ehesten verstehe und die relevanten Kepler Parameter finde.
+  - Kepler 18 William Cochran
+  - Kepler36 Joshua Carter
+  - Trappist (Eric Agol)
+  - TOI 1130
+  - TOI 1136
+ 
 - Intern in curvesimulator statt e und omega diese benutzen:
   - sqrt(e)*sin(omega) und sqrt(e)*cos(omega)
   - Ansonsten koennte es bei sehr grossen und sehr kleinen Exzentrizitaeten langsamer sein oder sogar Fehler geben.

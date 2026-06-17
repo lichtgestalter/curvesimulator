@@ -44,7 +44,6 @@ python3.12 gui.py
 - Ausserdem erzeugt Planet d angeblich Transits auch bei Start-Inklination 
   91.1. 
 
-
 ### TTV Fast
 - Doku+Code: https://github.com/simonrw/ttvfast-python 
 - Sprache: Python (wrapper)
@@ -53,7 +52,12 @@ python3.12 gui.py
 - Fast TTV reproduziert die beobachteten TT mit Trifons Bet Fit Parametern sehr gut.
 - Anpassung von Periode c alleine reicht nicht, um mit Ulis Best Fit die 
   beobachteten TT zu reproduzieren!
-- Next: Meinen Code reduzieren fuer Fehlersuche und Hanno Rein.
+- Vielleicht in CurevSimulator Rebound durch ttvfast ersetzen?
+- Nachteil: Nur 1-Stern-Systeme
+- Nachteil: Nur TT, keine Info zu T1, T2, T3, T4
+- Nachteil: Keine xyz-Koordinaten. Dadurch wohl keine Videos moeglich.
+- Vorteil: Angeblich 5 bis 20 mal schneller als rebound. Vielleicht in MCMC 
+  einsetzen?
 
 
 ### PyDynamicaLC
@@ -92,15 +96,6 @@ python3.12 gui.py
 - letztes Update: 2013
 #### Fazit:
 - ?
-
-### ???
-- Doku: 
-- Code: 
-- Sprache: 
-- letztes Update: 
-#### Fazit:
-- ?
-
 
 ## TOI-4504 Simulationen
 
