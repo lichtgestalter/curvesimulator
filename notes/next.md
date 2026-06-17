@@ -3,9 +3,9 @@
 ### done
 -
 ### jetzt
-jacobi_masses=True in Code einbauen.
-Kann ich jetzt Trifon reproduzieren?
-
+Sofia anmelden
+Trifon schreiben
+Simon schreiben
 
 #### next
 - so ganz habe ich das mit der Option jacobi_masses=True noch nicht kapiert
