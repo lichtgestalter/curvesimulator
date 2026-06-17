@@ -126,9 +126,13 @@ def toi4504_trifon():
     results = ttvfast.ttvfast(planets, stellar_mass, start_time, dt, end_time, rv_times=None, input_flag=0) # input_flag: 0 = Jacobi, 1 = astrocentric elements , 2 = astrocentric cartesian
     positions = results.get("positions")
     # print_summary(positions, results)
-    print_events(positions, start=0, stop=999, planet=0)
-    print_events(positions, start=0, stop=999, planet=1)
+    # print_events(positions, start=0, stop=999, planet=0)
+    # print_events(positions, start=0, stop=999, planet=1)
+    i = 93
+    planet_indices, epochs, times, rsky, vsky = positions
+    print(" idx |plnt| epoch|       time       |     rsky    |     vsky")
+    print(f"{i:4d} | {planet_indices[i]:2d} | {epochs[i]:4d} | {times[i]: 16.4f} | {rsky[i]: 11.4f} | {vsky[i]: 11.4f}")
 
 
-# toi4504_trifon()
-toi4504_uli()
+toi4504_trifon()
+# toi4504_uli()
