@@ -4,8 +4,6 @@
 -
 ### jetzt
 Sofia anmelden
-Trifon schreiben
-Simon schreiben
 
 #### next
 - so ganz habe ich das mit der Option jacobi_masses=True noch nicht kapiert
@@ -24,11 +22,13 @@ https://rebound.hanno-rein.de/ipython_examples/OrbitalElements/
 ### Diese Punkte neu priorisieren und evtl. in die weiter unten folgenden Topic einsortieren
 - Mindestens eines dieser System nachrechnen. Ich nehme, dass wo es am 
 einfachsten zu sein scheint. Also, wo ich das Paper am ehesten verstehe und die relevanten Kepler Parameter finde.
-  - Kepler 18 William Cochran
-  - Kepler36 Joshua Carter
-  - Trappist (Eric Agol)
-  - TOI 1130
-  - TOI 1136
+  - Simons Empfehlungen:
+    - Kepler 18 William Cochran
+    - Kepler36 Joshua Carter
+    - Trappist (Eric Agol)
+    - TOI 1130
+    - TOI 1136
+  - Was mit Gliese 876, das Trifon erwaehnte? Sieht spannend aus.
  
 - Intern in curvesimulator statt e und omega diese benutzen:
   - sqrt(e)*sin(omega) und sqrt(e)*cos(omega)
@@ -347,10 +347,6 @@ shutil.which("ffmpeg") erfordert Python-Version >= 3.12?
 
 ### Video:
     
-- **BUG!!!!!!!** Seit ich keine Sampling rate mehr als Parameter habe laueft 
-  irgendwas 
-schief
-    Beispiel: Teilweise werden weniger frames erzeugt als im Config File angegeben
 
 - Orbits einzeichnen?
     - Kleiner Punkt (nur 1 Pixel?) fuer jeden Frame fuer jeden Koerper
@@ -363,8 +359,8 @@ schief
         during animation"
     - nur 3 bis 4 statt 5 bis 10 y-labels (ist oft so gequetscht)
 
-- Option einbauen, die ein png Bild der Lichtkurve (und RV-Kurve?) erzeugt, 
-statt ein Video (oder zusaetzlich)
+- Option einbauen, die ein png Bild (eine Art Screenshot) der Lichtkurve (und 
+  RV-Kurve?) erzeugt, statt ein Video (oder zusaetzlich)
 
 - Realtime zwischen 2 frames ausrechnen und direkt im GUI anzeigen (muss 
 nicht in jedem Intervall gleich sein)

@@ -4,6 +4,10 @@
 -----------
 ## Fragen an Simon:
 
+Abstract
+Gliese 876
+
+--------------
 
 - Was war hiermit gmeint?:
     - Um MCMC zu testen, von Hand gucken, welche Transits passen, die anderen 
@@ -272,6 +276,19 @@ fitten
 #### Next Steps:
 Ich schreib Mail an Trifon+Vitkova mit Beispielvideos
 
+### Call mit Simon, 09.06.26:
+#### Was ich gemacht habe
+Erfolglose Fehlersuche
+#### Next Steps:
+Fehler weiter suchen
+Paper von anderen Systemem versuchen zu reproduzieren.
+
+
+
+
+
+
+
 
 
 
@@ -283,7 +300,6 @@ Ich schreib Mail an Trifon+Vitkova mit Beispielvideos
 - Where do astronomers gather? Is https://astronomy.stackexchange.com/ the best place to ask questions?
 - Is there a community of astronomers specialized in exoplanets that would be welcoming to a dabbling layman like me?
 - How do I reliably find out about new papers with interesting star systems? Searching on "arxiv.org"? Or is there a better way?
-
 
 
 ## PR-Kontakte:

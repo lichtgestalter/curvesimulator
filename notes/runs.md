@@ -42,7 +42,9 @@ python3.12 gui.py
   erste TT con Planet c und d passt noch ungefaehr aber danach betraegt der 
   Abstand zwischen TT z.B. bei Planet d 43.5, 41.7, 43.1, 40.5, 40.5, 39.7, 39.5, 39.5, 39.2
 - Ausserdem erzeugt Planet d angeblich Transits auch bei Start-Inklination 
-  91.1. 
+  91.1.
+- Gut moeglich, dass ich verkehrte Einheiten insbesondere der Abstaende oder 
+  Massen benutzt habe.
 
 ### TTV Fast
 - Doku+Code: https://github.com/simonrw/ttvfast-python 
@@ -59,6 +61,13 @@ python3.12 gui.py
 - Vorteil: Angeblich 5 bis 20 mal schneller als rebound. Vielleicht in MCMC 
   einsetzen?
 
+#### exoplanet
+- Doku: https://docs.exoplanet.codes/en/v0.1.4/
+- Code: https://github.com/exoplanet-dev/exoplanet
+- Sprache: Native Python Library
+- Beherrscht sogar Dinge wie "Gaussian process models for stellar variability"
+- Macht MCMC
+- letztes Update: 2025 (last year) 
 
 ### PyDynamicaLC
 - Code: https://github.com/YoffeG/PyDynamicaLC
