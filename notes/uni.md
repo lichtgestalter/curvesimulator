@@ -6,6 +6,12 @@
 
 Abstract
 Gliese 876
+Next: 
+- meine alten Parameter in die neuen Parameter konvertieren?
+- Mit Trifons Daten MCMC
+  - Wir vergleichen Performance, Gefittete Parameter und Likelihood
+
+
 
 --------------
 

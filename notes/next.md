@@ -6,6 +6,18 @@
 Sofia anmelden
 
 #### next
+- meine alten Parameter in die neuen Parameter konvertieren? Vielleicht geht 
+  das ganz einfach mit Rebound? Zum Beispiel ueber den Umweg State Vector?
+
+Ich habe einen Parametersatz im Jacobisystem (Planetenmassen, 
+Planetenbahnparameter usw.).
+Damit initialisiere ich eine Simulation in Rebound mit dem 
+Parameter jacobimasses auf false gesetzt.
+Ermittle mir den entsprechenden Parametersatz2, ebenfalls im Jacobisystem, 
+der genau das gleiche System beschreibt, wenn ich mit Parametersatz2 in 
+Rebound eine Simulation initialisiere mit dem Parameter jacobimasse=True. 
+
+
 - so ganz habe ich das mit der Option jacobi_masses=True noch nicht kapiert
 https://rebound.hanno-rein.de/ipython_examples/OrbitalElements/
  
