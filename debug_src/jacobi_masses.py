@@ -5,7 +5,7 @@ g     = 6.67430e-11          # [m**3/kg/s**2] gravitational constant
 m_sun = 1.98847e30           # [kg]  solar mass
 m_jup = 1.8981246e27         # [kg]  Jupiter mass
 day   = 24 * 60 * 60         # [s]
-deg   = 1 / 180 * math.pi
+deg   = 1 / 180 * math.pi    # Multiply to convert deg to rad
 
 
 def jacobimassestrue_to_jacobimassesfalse(m_star, masses, orbital_elements, g):
