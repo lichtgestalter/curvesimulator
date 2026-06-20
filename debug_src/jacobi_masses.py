@@ -20,8 +20,8 @@ def jacobimassestrue_to_jacobimassesfalse(m_star, masses, orbital_elements, g):
     sim = rebound.Simulation()
     sim.G = g
     sim.add(m=m_star)
-    for m, el in zip(masses, orbital_elements):
-        sim.add(m=m, jacobi_masses=True, **el)
+    for mass, element in zip(masses, orbital_elements):
+        sim.add(m=mass, jacobi_masses=True, **element)
     sim.move_to_com()
 
     return [(p.x, p.y, p.z, p.vx, p.vy, p.vz) for p in sim.particles]
@@ -44,8 +44,8 @@ def orbital_elements_to_coords(m_star, masses, orbital_elements, g, jacobi_masse
     sim = rebound.Simulation()
     sim.G = g
     sim.add(m=m_star)
-    for m, el in zip(masses, orbital_elements):
-        sim.add(m=m, jacobi_masses=jacobi_masses, **el)
+    for mass, element in zip(masses, orbital_elements):
+        sim.add(m=mass, jacobi_masses=jacobi_masses, **element)
     sim.move_to_com()
     return [(p.x, p.y, p.z, p.vx, p.vy, p.vz) for p in sim.particles]
 
@@ -68,8 +68,8 @@ def jacobimassesfalse_to_jacobimassestrue(m_star, masses, orbital_elements, g):
     sim = rebound.Simulation()
     sim.G = g
     sim.add(m=m_star)
-    for m, el in zip(masses, orbital_elements):
-        sim.add(m=m, jacobi_masses=False, **el)
+    for mass, element in zip(masses, orbital_elements):
+        sim.add(m=mass, jacobi_masses=False, **element)
     sim.move_to_com()
 
     return [orbit_to_elements(orbit) for orbit in sim.orbits(jacobi_masses=True)]
@@ -82,8 +82,8 @@ def wrap(angle_rad):
 
 def wrap_signed(angle_rad):
     """Wrap angle in radians to (-180, 180] degrees."""
-    d = math.degrees(angle_rad) % 360.0
-    return d - 360.0 if d > 180.0 else d
+    degrees = math.degrees(angle_rad) % 360.0
+    return degrees - 360.0 if degrees > 180.0 else degrees
 
 
 if __name__ == "__main__":
@@ -104,14 +104,14 @@ if __name__ == "__main__":
     converted = jacobimassesfalse_to_jacobimassestrue(m_star, masses, orbital_elements, g)
 
     print("Input (jacobi_masses=False) -> Output (jacobi_masses=True)\n")
-    for name, inp, out in zip(planet_names, orbital_elements, converted):
-        print(f"[{name}]")
-        print(f"  in : P={inp['P']/day:12.6f} d  e={inp['e']:.6f}  inc={wrap(inp['inc']):9.6f} deg  "
-              f"Omega={wrap_signed(inp['Omega']):10.6f} deg  omega={wrap(inp['omega']):10.6f} deg  "
-              f"M={wrap_signed(inp['M']):10.6f} deg")
-        print(f"  out: P={out['P']/day:12.6f} d  e={out['e']:.6f}  inc={wrap(out['inc']):9.6f} deg  "
-              f"Omega={wrap_signed(out['Omega']):10.6f} deg  omega={wrap(out['omega']):10.6f} deg  "
-              f"M={wrap_signed(out['M']):10.6f} deg")
+    for planet_name, element, conv_element in zip(planet_names, orbital_elements, converted):
+        print(f"[{planet_name}]")
+        print(f"  in : P={element['P']/day:12.6f} d  e={element['e']:.6f}  inc={wrap(element['inc']):9.6f} deg  "
+              f"Omega={wrap_signed(element['Omega']):10.6f} deg  omega={wrap(element['omega']):10.6f} deg  "
+              f"M={wrap_signed(element['M']):10.6f} deg")
+        print(f"  conv_element: P={conv_element['P']/day:12.6f} d  e={conv_element['e']:.6f}  inc={wrap(conv_element['inc']):9.6f} deg  "
+              f"Omega={wrap_signed(conv_element['Omega']):10.6f} deg  omega={wrap(conv_element['omega']):10.6f} deg  "
+              f"M={wrap_signed(conv_element['M']):10.6f} deg")
         print()
 
     coords_false = orbital_elements_to_coords(m_star, masses, orbital_elements, g, jacobi_masses=False)

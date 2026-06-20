@@ -232,8 +232,11 @@ sinnvoll vereinigen oder mit einer Hierarchie versehen.
 - **BUG!** Ich speichere fuer den Stern ueberfluessige Parameter mit falschen 
   Werten ab? Z.B. e und i.
 - Orbitparameter regelmaessig (z.B. bei jedem Transit) im Resultfile speichern.
+- Zusaetzlich auch die Orbitparameter angeben wenn der Parameter 
+  jacobimasses andersrum gesetzt gewesen waere (siehe jacobi_masses.py)
 
 ### Parameters/Config File
+- Parameter jacobimasses True/False. Defaultwert? Welcher?
 - Falls ich LMfit in CurveSimulator behalte: Den User warnen, wenn ein 
   illegaler Bodyname gewaehlt wurde (Kein Leerzeichen, kein Bindestrich, 
   keine fuehrende Ziffer)
