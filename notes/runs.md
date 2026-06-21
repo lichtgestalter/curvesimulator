@@ -1,10 +1,11 @@
 ## Configfile Names
-- TOI-4504_F100-102 Jacobian, jacobimasses=False, MCMC Flux
-- TOI-4504_T057-060 astrocentric, MCMC TT
-- TOI-4504_T100-102 Jacobian, jacobimasses=False, MCMC TT
-- TOI-4504_V001-007 Videos for Trifon 19.03.2026, Jacobian, jacobimasses=False 
-- TOI-4504_Xnnn astrocentric, jacobimasses=False, LMfit TT, MCMC TT,MCMC flux,
-Simulations
+- astrocentric
+  - TOI-4504_T057-062 MCMC TT
+  - TOI-4504_Xnnn LMfit TT, MCMC TT,MCMC flux,
+- jacobimassesFalse
+  - TOI-4504_F100-102 Jacobian, MCMC Flux
+  - TOI-4504_T100-102 Jacobian, MCMC TT
+  - TOI-4504_V001-007 Videos for Trifon 19.03.2026, Jacobian, Simulations
 
 ## TOI-4504 Simulationen
 
