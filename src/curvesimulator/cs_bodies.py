@@ -24,11 +24,7 @@ class CurveSimBodies(list):
 
     # noinspection PyUnusedLocal
     def __init__(self, p):
-
-
-        p.myintegration = False  # debug
-
-
+        p.myintegration = False  # if True, instead of Rebound, use a simple adhoc integration provided in this code
         """Initialize instances of physical bodies.
         Read program parameters and properties of the bodies from config file.
         Initialize the circles in the animation (matplotlib patches)"""
@@ -148,7 +144,7 @@ class CurveSimBodies(list):
 
             simulation.add(**kwargs)
         simulation.move_to_com()  # move origin to center of mass before integrating -> better numerical stability
-        CurveSimBodies.print_simulation_particles(p, simulation)
+        # CurveSimBodies.print_simulation_particles(p, simulation)
 
         # if p.action == "single_run":  # obsolete????  does not seem to help for MCMC, but is a good choice when creating a result file including transit times
         #     if p.result_file:

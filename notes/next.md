@@ -236,6 +236,8 @@ sinnvoll vereinigen oder mit einer Hierarchie versehen.
   jacobimasses andersrum gesetzt gewesen waere (siehe jacobi_masses.py)
 
 ### Parameters/Config File
+- wenn die Bodies einen Parameter `primary` haben definiere Rebound 
+  astrocentric, sonst Jacobian 
 - Parameter jacobimasses True/False. Defaultwert? Welcher?
 - Falls ich LMfit in CurveSimulator behalte: Den User warnen, wenn ein 
   illegaler Bodyname gewaehlt wurde (Kein Leerzeichen, kein Bindestrich, 
