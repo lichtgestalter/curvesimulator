@@ -3,68 +3,16 @@
 ### done
 -
 ### jetzt
-Sofia anmelden
 
-#### next
-- meine alten Parameter in die neuen Parameter konvertieren? Vielleicht geht 
-  das ganz einfach mit Rebound? Zum Beispiel ueber den Umweg State Vector?
+#### Vor Sofia
+- neues Repository CurveSimulator_internal verschieben
+- Poster machen
+- Neues Package auf pypi publizieren
+- Wiki auf Github aktualisieren (ich habe ein eigenes Pycharm Projekt dafuer)
+- Viele Dateien ((fast) alles ausser \src ?) in Unterordner internal und in 
 
-Ich habe einen Parametersatz im Jacobisystem (Planetenmassen, 
-Planetenbahnparameter usw.).
-Damit initialisiere ich eine Simulation in Rebound mit dem 
-Parameter jacobimasses auf false gesetzt.
-Ermittle mir den entsprechenden Parametersatz2, ebenfalls im Jacobisystem, 
-der genau das gleiche System beschreibt, wenn ich mit Parametersatz2 in 
-Rebound eine Simulation initialisiere mit dem Parameter jacobimasse=True. 
-
-
-- so ganz habe ich das mit der Option jacobi_masses=True noch nicht kapiert
-https://rebound.hanno-rein.de/ipython_examples/OrbitalElements/
- 
-- print_simulation_particles()  naeher angucken
-  - tut die wirklich , was sie sagt?
-- Option in configfile: astrocentric vs. Jacobi coordinates
-
-- Almenara's TT mit T0=254840 und mit derem alternativen T0 reproduzieren
-
-
-
-
-## Wenn ich den Perioden-Bug gefunden habe
-### Diese Punkte neu priorisieren und evtl. in die weiter unten folgenden Topic einsortieren
-- Mindestens eines dieser System nachrechnen. Ich nehme, dass wo es am 
-einfachsten zu sein scheint. Also, wo ich das Paper am ehesten verstehe und die relevanten Kepler Parameter finde.
-  - Simons Empfehlungen:
-    - Kepler 18 William Cochran
-    - Kepler36 Joshua Carter
-    - Trappist (Eric Agol)
-    - TOI 1130
-    - TOI 1136
-  - Was mit Gliese 876, das Trifon erwaehnte? Sieht spannend aus.
- 
-- Intern in curvesimulator statt e und omega diese benutzen:
-  - sqrt(e)*sin(omega) und sqrt(e)*cos(omega)
-  - Ansonsten koennte es bei sehr grossen und sehr kleinen Exzentrizitaeten langsamer sein oder sogar Fehler geben.
-  - Als Input und Output Parameter kann ich dem User anbieten:
-    - e undomega
-    - sqrt(e)*sin(omega) und sqrt(e)*cos(omega) (benutzt Almenara)
-    - h = e*sin(omega) und k = e*cos(omega) (benutzt Trifon)
- 
-- schnellere Videogeneration (AI Tipps ...)
-  - blit=True aktivieren
-  - Problem: Aktuell ist blit=False. Das bedeutet, dass Matplotlib bei jedem 
-    Frame das gesamte Bild neu zeichnet, was extrem langsam ist.
-  - Lösung: Setze blit=True in FuncAnimation. Dann werden nur die geänderten 
-    Objekte (die "Artists") neu gezeichnet.
-  - Voraussetzung: next_frame muss eine Liste aller geänderten Artists 
-    zurückgeben (was du bereits tust: [flux_dot, rv_dot]). Achtung: Alle Objekte, die sich ändern (z. B. die Kreise der bodies), müssen ebenfalls zurückgegeben werden!
-  - Falls FuncAnimation zu langsam bleibt, kannst du die Frames einzeln rendern 
-  und mit FFmpeg zusammenfügen:
-  - from matplotlib.animation import FFMpegWriter
-  - with FFMpegWriter(fps=p.fps) as writer:
-      for frame in range(frames):
-          CurveSimAnimation.next_frame(frame, p, bodies, rv_dot, flux_dot, sim_rv, sim_flux, time_s0)
-          writer.grab_frame()
+### Bald (manche Punkte evtl. in die weiter unten folgenden Topics einsortieren)
+- WHFast convergence issue debuggen (warnung ist deaktiviert)
 
 - BUG: Nutze tt_bug_debug.ini: (Schon Geloest???)
   - Warum werden Sektor 98 daten nicht downgeloaded und warum wird die 
@@ -73,26 +21,27 @@ einfachsten zu sein scheint. Also, wo ich das Paper am ehesten verstehe und die 
 - starts, ends in Parametern zurueckbauen
   - soll keine Liste mehr sein, sondern Einzelwert
   - Umbenennen in Videostart, Videoend?
-  - nur ein dt im ganzen Code verwenden
+  - nur ein dt im ganzen Code und Configfile verwenden
 
-- Lesen/speichen von bodies als file (Hatte ich schon mal mit angefangen...)
-  - um die fitting parameters ergaenzen
-  - save_fitting_parameters habe ich vibecoded
-    - muss noch ueberpreuft und optimiert werden
-  - in separatem .fit file?
-  - ist etwas umstaendlich, aber so passen die .bdy files zur Klasse Body
-  - und die .fit files zur Klasse FittingParameter
-  - der body_index der fitting_parameter sollte wohl gar nicht im 
-    File gespeichert werden, sondern aus der Position des Bodys im 
-    Config-File abgeleitet werden. So koennen nicht Konflikte entstehen, 
-    falls die Body-Reihenfolge sich mal aendert.
-  - read_fitting_parameters erweitern um fuenftes element scale
-    - so kriegt jeder fitting parameter seine eigene Skalierung (fx m_jup oder 
-      m_sun)
+- Rueckwaerts integrieren: Epoch soll in der Mitte oder sogar ausserhalb des 
+  Simulationszeitraums liegen duerfen!
 
-- complete save_max_likelihood_bodies() in mcmc
-  - unnoetig, weil schon in Zeile 883 von mcmc mit bodies.save(p, prefix=p.
-    comment, suffix="_maxL") passiert?
+- nach TT UND/ODER flux UND/ODER RV UND/ODER Priors fitten
+  - Priors sind sowas wie Sternmasse auf einen geratenen Wert festlegen, und 
+    diesen zusammen mit (grosser) Streuung as zusaetzliche Beobachtung behandeln
+
+- Mindestens eines dieser System nachrechnen. Ich nehme, dass wo es am 
+einfachsten zu sein scheint. Also, wo ich das Paper am ehesten verstehe und die relevanten Kepler Parameter finde.
+  - Simons Empfehlungen:
+    - Kepler 18 William Cochran
+    - Kepler36 Joshua Carter
+    - Trappist (Eric Agol)
+    - TOI 1130
+    - TOI 1136
+    - Gliese 876 (erwaehnt Almenara, wohl nur RV Observations)
+
+### TOI-4504  
+- Die einzelnen TT selber ordentlich fitten statt ExcelEyeballing
 - Result json von F102 in bodies konvertieren und single run laufen lassen
   - flux Daten mit an die verschobenen Transits angepasstem tt-file neue 
     prozessieren
@@ -102,33 +51,7 @@ einfachsten zu sein scheint. Also, wo ich das Paper am ehesten verstehe und die 
 - warum sieht rv_o_vs_c.png inzwischen in der Mitte so komisch aus?
   - zumindest wenn aus mcmc heraus erzeugt, Beispiel F101 
   - wegen den zusaetzlichen Flux-Daten von theoretischen d-transits???
-
-
-- Neue Kategorie Data in Configfile
  
-- single_run macht eigentlich auch plots fuer die einzelnen 
-  transits. Aber nicht beim mcmc single run! Vielleicht, weil ich tt-file 
-  auskommentieren musste? Falls das der Grund war: moeglichkeit finden, dass 
-  tt-file drin bleiben kann, obwohl mcmc nur mit flux daten arbeitet. 
-  Differenzierteres Configfile erforderlich.
-
-
-- single_run: Fallunterscheidungen sauberer machen
-  - Je nach Szenario ist es unnoetig, dass die Simulation fuer 
-    Standardabstaende dt berechnet wird (nur fuer Video sinnvoll?) 
-  - Siehe # HACK: Hier wird body.positions nachtraeglich vergroessert, fuer 
-    den Fall dass flux_file mehr Datenpunkte hat, als die Simulation
-
-- neuer Parameter run_id
-  - wird als unterverzeichnisname (statt laufender Nummer? oder neue 
-    laufende Nummer hierrunter?) fuer die Ergebnisse benutzt
-  - wird in (manchen) Dateinamen des Result-Outputs des Run benutzt
-    - z.B. fuer gespeicherte Bodies Beispiel runid.TOI4504d.bdy
-
-
-- Die einzelnen TT selber ordentlich fitten statt ExcelEyeballing
- 
-- WHFast convergence issue debuggen (warnung ist deaktiviert)
 
 ### Auswertungen 
 NEXT! (vermutlich in cs_results.py reinschreiben)
@@ -162,6 +85,24 @@ NEXT! (vermutlich in cs_results.py reinschreiben)
 - RV, TT, Flux kombinierbar 
 - Verschiedene Moves ausprobieren: 
   - https://emcee.readthedocs.io/en/stable/user/moves/
+- complete save_max_likelihood_bodies() in mcmc
+  - unnoetig, weil schon in Zeile 883 von mcmc mit bodies.save(p, prefix=p.
+    comment, suffix="_maxL") passiert?
+- In mcmc Results: Max likelihood simflux vs measure flux plotten.  Oder 
+direkt nur die Residuen plotten.
+- Testen ob Performance besser, wenn bodies.find_tts einen Dataframe returniert
+und CurveSimMCMC.residuals_tt_sum_squared entsprechend angepasst wird.
+(Vermutlich nicht schneller, aber etwas eleganter?)
+
+- In einem File command.txt kann ich Anweisungen speichern, die nach jedem 
+  Chunk oder sogar nach jeder Iteration ausgelesen werden. 
+  - Eine Option: Erstelle Video/Resultfile/Simflux fuer die aktuelle max 
+    likelihood
+  - Erstelle jetzt saemtliche Result-Plots (statt nach jedem Chunk?)
+
+- Andere emcee-Moves probieren (Parameter a von Stretching erhoehen brachte 
+  erstmal 
+  nix)
 
 ### LMfit
 - Multi LMFit: normalverteilte Startwerte
@@ -179,50 +120,40 @@ NEXT! (vermutlich in cs_results.py reinschreiben)
 - Derzeit nur moeglich nach TT ODER flux zu fitten.
   - Kombination sinnvoll?
 
-## Mit GUI (manuell) fitten/minimieren
-- UPDATE PLOT ist noch buggy
-- Vielleicht lieber selber eine Liste mit den 4 lines anlegen
-  - schon bei einrichten des Plots
-  - dann immer manuell die aelteste entfernen und die neueste hinzufuegen
-- guifit.save_lmfit_results tut noch nix
-
 ### Sonstige
-- Moeglichkeit entfernen, unterschiedliche dt konfigurieren zu koennen.
-- In mcmc Results: Max likelihood simflux vs measure flux plotten.  Oder 
-direkt nur die Residuen plotten.
-- Testen ob Performance besser, wenn bodies.find_tts einen Dataframe returniert
-und CurveSimMCMC.residuals_tt_sum_squared entsprechend angepasst wird.
-(Vermutlich nicht schneller, aber etwas eleganter?)
-
-- In einem File command.txt kann ich Anweisungen speichern, die nach jedem 
-  Chunk oder sogar nach jeder Iteration ausgelesen werden. 
-  - Eine Option: Erstelle Video/Resultfile/Simflux fuer die aktuelle max 
-    likelihood
-  - Erstelle jetzt saemtliche Result-Plots (statt nach jedem Chunk?)
-
-- Andere emcee-Moves probieren (Parameter a von Stretching erhoehen brachte 
-  erstmal 
-  nix)
 
 -Kompliziertere Fitting-Parameter Bereiche zulassen. 
   - Z.B. i in [86;88] oder [92;94]
   - Abhaengigkeit von anderen Fitting-Parametern
 
-### RV-MCMC
-- zunaechst nur moeglich nach TT ODER flux ODER RV zu fitten
-
 ### Housekeeping:
+- single_run: Fallunterscheidungen sauberer machen
+  - Je nach Szenario ist es unnoetig, dass die Simulation fuer 
+    Standardabstaende dt berechnet wird (nur fuer Video sinnvoll?) 
+  - Siehe # HACK: Hier wird body.positions nachtraeglich vergroessert, fuer 
+    den Fall dass flux_file mehr Datenpunkte hat, als die Simulation
 - checken ob die Bodynamen in eclipsers_names, eclipsees_names, primary 
   existieren
-
 - Klasse in flux_data anlegen? (import * ist haesslich)
-
 - Simulationscheck klappt fuer Drehimpuls, Energie und Center of Mass, aber 
 nicht fuer Impuls.
     - Vielleicht Berechnungsfehler des Impulses?
-
-
-## Programming Hinter MCMC-Integration zurueckgestellt:
+- print_simulation_particles()  naeher angucken
+  - tut die wirklich , was sie sagt?
+- Lesen/speichen von bodies als file (Hatte ich schon mal mit angefangen...)
+  - um die fitting parameters ergaenzen
+  - save_fitting_parameters habe ich vibecoded
+    - muss noch ueberpreuft und optimiert werden
+  - in separatem .fit file?
+  - ist etwas umstaendlich, aber so passen die .bdy files zur Klasse Body
+  - und die .fit files zur Klasse FittingParameter
+  - der body_index der fitting_parameter sollte wohl gar nicht im 
+    File gespeichert werden, sondern aus der Position des Bodys im 
+    Config-File abgeleitet werden. So koennen nicht Konflikte entstehen, 
+    falls die Body-Reihenfolge sich mal aendert.
+  - read_fitting_parameters erweitern um fuenftes element scale
+    - so kriegt jeder fitting parameter seine eigene Skalierung (fx m_jup oder 
+      m_sun)
 
 ### Result file:
 - In save_mcmc_results() die "MCMC parameters" und "Program Parameters" 
@@ -234,19 +165,11 @@ sinnvoll vereinigen oder mit einer Hierarchie versehen.
 - Orbitparameter regelmaessig (z.B. bei jedem Transit) im Resultfile speichern.
 - Zusaetzlich auch die Orbitparameter angeben wenn der Parameter 
   jacobimasses andersrum gesetzt gewesen waere (siehe jacobi_masses.py)
+- Aus Result-JSON-File die MaxLikelihoodParameter als Bodies speichern oder 
+  in neues Configfile speichern. (Vielleicht ist es klug, dass die 
+  Body-Files genau so aussehen wie die Body-Sektionen im Config-File.)  
 
-### Parameters/Config File
-- wenn die Bodies einen Parameter `primary` haben definiere Rebound 
-  astrocentric, sonst Jacobian 
-- Parameter jacobimasses True/False. Defaultwert? Welcher?
-- Falls ich LMfit in CurveSimulator behalte: Den User warnen, wenn ein 
-  illegaler Bodyname gewaehlt wurde (Kein Leerzeichen, kein Bindestrich, 
-  keine fuehrende Ziffer)
-- Extra Spalte bei Body-Params in Configfile mit dem Wert n oder u
-  - n normal distribution (Spalte sigma ist std einer Gaussglocke)
-  - u uniform distribution (Gleichverteilung von Startwert - sigma bis 
-    Startwert + sigma)
- 
+
 ### GUI:
 - GUI fuer alles!!!
 - Config File (optional) per GUI erstellen?
@@ -280,22 +203,49 @@ um wen?)
   und Rebound damit fuettern.
 - Code entsorgen, der durch rebound abgedeckt wird.
 
-
 ### Configfile:
+- Option in configfile: astrocentric vs. Jacobi coordinates
+- Neue Kategorie Data in Configfile
+  - Habe vergessen, was da rein soll. Vielleicht die ganzen Filenames?
+- single_run macht eigentlich auch plots fuer die einzelnen 
+  transits. Aber nicht beim mcmc single run! Vielleicht, weil ich tt-file 
+  auskommentieren musste? Falls das der Grund war: moeglichkeit finden, dass 
+  tt-file drin bleiben kann, obwohl mcmc nur mit flux daten arbeitet. 
+  Differenzierteres Configfile erforderlich.
+- wenn die Bodies einen Parameter `primary` haben definiere Rebound 
+  astrocentric, sonst Jacobian 
+- Parameter jacobimasses True/False. Defaultwert? Welcher?
+- Falls ich LMfit in CurveSimulator behalte: Den User warnen, wenn ein 
+  illegaler Bodyname gewaehlt wurde (Kein Leerzeichen, kein Bindestrich, 
+  keine fuehrende Ziffer)
+- Extra Spalte bei Body-Params in Configfile mit dem Wert n oder u
+  - n normal distribution (Spalte sigma ist std einer Gaussglocke)
+  - u uniform distribution (Gleichverteilung von Startwert - sigma bis 
+    Startwert + sigma)
 - Neu eingefuehrte Konstanten in Configfile statt hart im Code, z.B.
     - Mindestgenauigkeit bei binary search von Transittimes
     - Akzeptable Energieveraenderung
     - credible_mass
 - Jeder Parameter soll seine eigene Skalierung haben koennen.
   - Also z.B. Sonnen-Masse anderen Faktor als Planetenmasse
-
+- neuer Parameter run_id
+  - wird als unterverzeichnisname (statt laufender Nummer? oder neue 
+    laufende Nummer hierrunter?) fuer die Ergebnisse benutzt
+  - wird in (manchen) Dateinamen des Result-Outputs des Run benutzt
+    - z.B. fuer gespeicherte Bodies Beispiel runid.TOI4504d.bdy
 
 ### Result evaluation:
 - komfortabel fuer User nutzbar machen.
     - z.B. Plots fuer Entwicklung von T14 oder b
 
-
 ### Physics:
+- Intern in curvesimulator statt e und omega diese benutzen:
+  - sqrt(e)*sin(omega) und sqrt(e)*cos(omega)
+  - Ansonsten koennte es bei sehr grossen und sehr kleinen Exzentrizitaeten langsamer sein oder sogar Fehler geben.
+  - Als Input und Output Parameter kann ich dem User anbieten:
+    - e undomega
+    - sqrt(e)*sin(omega) und sqrt(e)*cos(omega) (benutzt Almenara)
+    - h = e*sin(omega) und k = e*cos(omega) (benutzt Trifon)
 - Meine Untersuchungen zum optimalen dt fuer ein konkretes System (Tabelle 
 Rebound in TOI-4504.xlsx):
     - Kann ich das userfreundlich automatisieren?
@@ -338,54 +288,55 @@ periode, phase(shift?))]
     - Nora said (in episode 37, at 15:30): Peaks in frequency spectrum are random.
 - Should flares be modeled or are they too unpredictable?
 
-
 ### Housekeeping:
 - Alle kritischen Textmeldungen mit colorama einfaerben (siehe color.py in 
 Ordner debug)
-
 - Warnungen unterdruecken??? Nervt jedenfalls waehrend mcmc
   - Vielleicht ist die Loesung auch, einen eigenen mcmc Fortschrittscounter zu 
     machen      
- 
-
               WARNING in function find_tt: Rebound integration results are possibly not accurate enough.
               Try again with half the overall iteration time step parameter 'dt'.
-
 - Im Config file steuern, ob Histogramm densities und bin_edges im 
 MCMC-Result-JSON gespeichert werden sollen
     - Ist derzeit auskommentiert in mcmc_histograms()
-
 - Package mal wieder hochladen und mit pip testen.
 - Dependencies checken
     - Sind __init__.py und setup.py aktuell?
     - Dafuer auch benutzen: https://github.com/lichtgestalter/curvesimulator/network/dependencies
-
 shutil.which("ffmpeg") erfordert Python-Version >= 3.12?
 
 ### Video:
-    
-
+- schnellere Videogeneration (AI Tipps ...)
+  - blit=True aktivieren
+  - Problem: Aktuell ist blit=False. Das bedeutet, dass Matplotlib bei jedem 
+    Frame das gesamte Bild neu zeichnet, was extrem langsam ist.
+  - Lösung: Setze blit=True in FuncAnimation. Dann werden nur die geänderten 
+    Objekte (die "Artists") neu gezeichnet.
+  - Voraussetzung: next_frame muss eine Liste aller geänderten Artists 
+    zurückgeben (was du bereits tust: [flux_dot, rv_dot]). Achtung: Alle Objekte, die sich ändern (z. B. die Kreise der bodies), müssen ebenfalls zurückgegeben werden!
+  - Falls FuncAnimation zu langsam bleibt, kannst du die Frames einzeln rendern 
+  und mit FFmpeg zusammenfügen:
+  - from matplotlib.animation import FFMpegWriter
+  - with FFMpegWriter(fps=p.fps) as writer:
+      for frame in range(frames):
+          CurveSimAnimation.next_frame(frame, p, bodies, rv_dot, flux_dot, sim_rv, sim_flux, time_s0)
+          writer.grab_frame()
 - Orbits einzeichnen?
     - Kleiner Punkt (nur 1 Pixel?) fuer jeden Frame fuer jeden Koerper
     - Option draw_orbits (on/off) (pro Video oder pro Koerper?)
     - Option orbit_color
-
 - Radial velocity:
     - Farbe des Sterns abhängig von RV varieren
       - Suche in cs_animation.py nach "Example code for changing circle color 
         during animation"
     - nur 3 bis 4 statt 5 bis 10 y-labels (ist oft so gequetscht)
-
 - Option einbauen, die ein png Bild (eine Art Screenshot) der Lichtkurve (und 
   RV-Kurve?) erzeugt, statt ein Video (oder zusaetzlich)
-
 - Realtime zwischen 2 frames ausrechnen und direkt im GUI anzeigen (muss 
 nicht in jedem Intervall gleich sein)
 
 ### Dokumentation:
-
 - Alles zu MCMC und rebound fehlt noch.
-
 - Example videos
     - Videos erstellen und (auf youtube? eher vimeo wg. Bildqualitaet) 
   veröffentlichen.
@@ -394,22 +345,18 @@ nicht in jedem Intervall gleich sein)
       (https://youtu.be/7diyCCIqiIc), courtesy of youtube.
   - Sternsysteme aus weiteren Papern visualisieren.
       Zunaechst nur Systeme mit nur einem Stern
-
 - Dokumentation (Wiki) aktualisieren.
     - Wenn man mehrere Intervalle in starts/ends hat:
         - Anzahl in starts/ends/dt muss gleich sein (sonst wird Rest ignoriert)
         - Wenn lightcurve doof aussieht liegt das wahrscheinlich daran, dass 
           eines der Intervalle mitten in einem Transit startet oder endet.
         - Man kann starts/ends/dt komplett weglassen (Hinweis auf default Werte)
-
     - Results Output auf eigener Seite im Wiki dokumentieren.
     - Im Wiki die Videos verlinken.
     - Evtl. restliche Formulierungen von AI verbessern lassen.
-
               Take a look at this text on a page of a wiki about a python library. The text is written in mark-up language.
               Improve the language, for example by removing spelling errors and making the formulations more elegant.
               Format your improvements in the same mark-up language: ""
-
 - Um Hinweis auf CurveSimulator(-Paper?) bei Veroeffentlichungen bitten
     - Im GitHubWiki
     - Print in Konsole
@@ -417,6 +364,13 @@ nicht in jedem Intervall gleich sein)
     - Copyright notice ins Video?
 
 ## Ferne Zukunft / Neues Projekt
+### Mit GUI (manuell) fitten/minimieren
+- UPDATE PLOT ist noch buggy
+- Vielleicht lieber selber eine Liste mit den 4 lines anlegen
+  - schon bei einrichten des Plots
+  - dann immer manuell die aelteste entfernen und die neueste hinzufuegen
+- guifit.save_lmfit_results tut noch nix
+
 ### Einen manuellen/visuelle Fitter bauen
 - Man waehlt 2 der Fittingparameter aus.
 - Bekommt ein Diagramm der bisher ermittelten Residuen angezeigt
@@ -429,7 +383,8 @@ nicht in jedem Intervall gleich sein)
 - Daraufhin werden die Residuen fuer alle Kombinationen der beiden 
   Parameter entlang der eingezeichneten Linien berechnet und geplottet.
 - Man kann den Wertebereich des Diagramms verschieben und hineinzoomen. 
-- Wenn der Fitter nix zu tun hat, geht er zu lokalen Minima uns sucht drumherum.
+- Wenn der Fitter nix zu tun hat, geht er zu lokalen Minima und sucht 
+  drumherum.
 - Man kann auch waehrend des Fits Startwerte definieren von denen aus mit 
   einer zu waehlenden LMfit-Methode gesucht wird. Auch die LMfit runs gehen 
   in die Datenbank aller Residuen ein.
