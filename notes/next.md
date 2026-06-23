@@ -1,10 +1,10 @@
 # Next / in progress:
 
-### done
+## done
 -
-### jetzt
+## jetzt
 
-#### Vor Sofia
+## Vor Sofia
 - neues Repository CurveSimulator_internal verschieben
 - Poster machen
 - benutzte Packages soweit moeglich auf neueste Version updaten?
@@ -15,7 +15,7 @@
 - Wiki auf Github aktualisieren (ich habe ein eigenes Pycharm Projekt dafuer)
 - Viele Dateien ((fast) alles ausser \src ?) in Unterordner internal und in 
 
-### Bald (manche Punkte evtl. in die weiter unten folgenden Topics einsortieren)
+## Bald (manche Punkte evtl. in die weiter unten folgenden Topics einsortieren)
 - WHFast convergence issue debuggen (warnung ist deaktiviert)
 
 - BUG: Nutze tt_bug_debug.ini: (Schon Geloest???)
@@ -56,6 +56,7 @@ einfachsten zu sein scheint. Also, wo ich das Paper am ehesten verstehe und die 
   - zumindest wenn aus mcmc heraus erzeugt, Beispiel F101 
   - wegen den zusaetzlichen Flux-Daten von theoretischen d-transits???
  
+## later
 
 ### Auswertungen 
 NEXT! (vermutlich in cs_results.py reinschreiben)
