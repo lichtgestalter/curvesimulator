@@ -7,7 +7,11 @@
 #### Vor Sofia
 - neues Repository CurveSimulator_internal verschieben
 - Poster machen
+- benutzte Packages soweit moeglich auf neueste Version updaten?
+- falls notwendig evtl. cs_flux_data und somit Abhaengigkeit von 
+  lightkurve/astropy temporaer aus dem Projekt entfernen.
 - Neues Package auf pypi publizieren
+- Simon auf Apple testen lassen
 - Wiki auf Github aktualisieren (ich habe ein eigenes Pycharm Projekt dafuer)
 - Viele Dateien ((fast) alles ausser \src ?) in Unterordner internal und in 
 
