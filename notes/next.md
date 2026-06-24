@@ -5,6 +5,7 @@
 ## jetzt
 
 ## Vor Sofia
+- Viele Dateien ((fast) alles ausser \src ?) in Unterordner internal und in 
 - neues Repository CurveSimulator_internal verschieben
 - Poster machen
 - benutzte Packages soweit moeglich auf neueste Version updaten?
@@ -13,7 +14,6 @@
 - Neues Package auf pypi publizieren
 - Simon auf Apple testen lassen
 - Wiki auf Github aktualisieren (ich habe ein eigenes Pycharm Projekt dafuer)
-- Viele Dateien ((fast) alles ausser \src ?) in Unterordner internal und in 
 
 ## Bald (manche Punkte evtl. in die weiter unten folgenden Topics einsortieren)
 - WHFast convergence issue debuggen (warnung ist deaktiviert)
