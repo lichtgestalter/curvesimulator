@@ -729,7 +729,6 @@ class CurveSimResults(dict):
         plt.close()
 
 
-
 def try_colors_in_plot():
     plot_filename1 = "color_test.png"
     distance = 10
