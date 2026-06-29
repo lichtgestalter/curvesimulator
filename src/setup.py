@@ -13,7 +13,7 @@ with open(readme_path, "r", encoding="utf-8") as fh:
 
 setup(
     name="curvesimulator",
-    version="0.5",
+    version="0.6",
     packages=find_packages(),
     install_requires=[
         # List your dependencies here
@@ -21,21 +21,19 @@ setup(
         "configparser",
         "corner",
         "emcee",
-        # "emcee.autocorr",
-        "json",
+        # "json", commented out because it is a standard lib
         "matplotlib",
-        "multiprocessing",
+        # "multiprocessing", commented out because it is a standard lib
         "numpy",
+        # "numpy>=1.5,<2.3",  example showing how to constrain versions
         "rebound"
     ],
     author="Uli Scheuss",
-    description="CurveSimulator generates a video of the movements and eclipses of celestial bodies and the resulting lightcurve.",
+    description="CurveSimulator is a n-body library for orbital parameter determination and visualization of exoplanet systems.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/lichtgestalter/curvesimulator",
     classifiers=[
-        "Programming Language :: Python :: 3.10",
-        "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
         "Programming Language :: Python :: 3.13",
         "License :: OSI Approved :: MIT License",
