@@ -17,16 +17,16 @@ setup(
     packages=find_packages(),
     install_requires=[
         # List your dependencies here
-        "colorama",
-        "configparser",
-        "corner",
-        "emcee",
-        # "json", commented out because it is a standard lib
-        "matplotlib",
-        # "multiprocessing", commented out because it is a standard lib
-        "numpy",
-        # "numpy>=1.5,<2.3",  example showing how to constrain versions
-        "rebound"
+        "colorama",          # prints colored text in console
+        "configparser",      # reads config file
+        "corner",            # generates corner plot for mcmc results
+        "emcee",             # Markov chain Monte Carlo
+        # "json",              commented out because it is a standard lib
+        "matplotlib",        # plots
+        # "multiprocessing",   commented out because it is a standard lib
+        "numpy",             # numerical (vector) operations
+        # "numpy>=1.5,<2.3",   example showing how to constrain versions
+        "rebound"            # N-body integration
     ],
     author="Uli Scheuss",
     description="CurveSimulator is a n-body library for orbital parameter determination and visualization of exoplanet systems.",

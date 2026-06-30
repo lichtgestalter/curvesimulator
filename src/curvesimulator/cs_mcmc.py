@@ -643,6 +643,9 @@ class CurveSimMCMC:
         plt.close(fig)
 
     def calc_maxlikelihood_avg_residual_in_std(self, p):
+        """
+         Estimates the average (over all observations) residual in units of standard deviations.
+         Converts the maximum log-likelihood into an RootMeanSquare-like per-datum misfit."""
         flux, rv, tt = 0, 0, 0
         if p.flux_file:
             flux = getattr(p, "total_iterations", 0)

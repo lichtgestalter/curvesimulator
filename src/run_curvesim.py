@@ -1,4 +1,4 @@
-# Short version: x
+# Short version:
 # from curvesimulator import curvesim
 # curvesim("../configurations/MyFirstConfigFile.ini")
 #
