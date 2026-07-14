@@ -21,7 +21,7 @@ class CurveSimParameters:
         self.standard_sections = ["Astronomical Constants", "Results", "Simulation", "Fitting", "Video", "Plot", "Scale", "Debug"]  # These sections must be present in the config file.
         config = configparser.ConfigParser(inline_comment_prefixes="#")  # Inline comments in the config file start with "#".
         config.optionxform = str  # Preserve case of the keys.
-        CurveSimParameters.find_and_check_config_file(config_file)  #, standard_sections=self.standard_sections)
+        CurveSimParameters.find_and_check_config_file(config_file)  # standard_sections=self.standard_sections)
         config.read(config_file, encoding="utf-8")
         self.config_file = config_file
 
@@ -54,8 +54,7 @@ class CurveSimParameters:
 
         # [Simulation]
         self.action = config.get("Simulation", "action", fallback="results_only")
-        # self.single_run = eval(config.get("Simulation", "single_run", fallback="False"))
-        # self.results_only = eval(config.get("Simulation", "results_only", fallback="False"))
+        self.jacobi_masses = eval(config.get("Simulation", "jacobi_masses", fallback="True"))
         self.dt = eval(config.get("Simulation", "dt"))
         self.start_date = eval(config.get("Simulation", "start_date", fallback="0.0"))
 
@@ -73,16 +72,18 @@ class CurveSimParameters:
         self.eclipsees_names = list([x for x in config.get("Fitting", "eclipsees_names", fallback="None").split("#")[0].split(",")])
 
         # [Results]
-        self.result_file = config.get("Results", "result_file", fallback="None")
-        if self.result_file == "None":
-            self.result_file = None
+        self.result_file = config.get("Results", "result_file", fallback=None)
+        # self.result_file = config.get("Results", "result_file", fallback="None")
+        # if self.result_file == "None":
+        #     self.result_file = None
         self.result_dt = eval(config.get("Results", "result_dt", fallback="100"))
         self.max_interval_extensions = eval(config.get("Results", "max_interval_extensions", fallback="10"))
 
         # [Simulation]
-        self.results_directory = config.get("Simulation", "results_directory", fallback="None")
-        if self.results_directory == "None":
-            self.results_directory = None
+        self.results_directory = config.get("Simulation", "results_directory", fallback=None)
+        # self.results_directory = config.get("Simulation", "results_directory", fallback="None")
+        # if self.results_directory == "None":
+        #     self.results_directory = None
         if self.results_directory is not None:
             self.find_results_subdirectory()
         self.starts_d = np.array(eval(config.get("Simulation", "starts", fallback="[]")), dtype=float)
@@ -96,8 +97,8 @@ class CurveSimParameters:
         self.flux_plots_bottom = eval(config.get("Fitting", "flux_plots_bottom", fallback="0.97"))
 
         if self.action == "single_run":  # run simulation, generate video and transit results
-            if self.sim_flux_file == "None":
-                self.sim_flux_file = None
+            # if self.sim_flux_file == "None":
+            #     self.sim_flux_file = None
             self.sim_flux_err = eval(config.get("Simulation", "sim_flux_err", fallback="0.0"))
 
             # [Video]

@@ -111,7 +111,7 @@ class CurveSimBodies(list):
 
         for i, body in enumerate(self[1:], start=1):
             kwargs = {}
-            kwargs["jacobi_masses"] = True  # debug
+            kwargs["jacobi_masses"] = p.jacobi_masses
             kwargs["m"] = body.mass
             kwargs["r"] = body.radius
             kwargs["hash"] = body.name
