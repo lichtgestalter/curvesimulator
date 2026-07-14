@@ -55,7 +55,7 @@ class CurveSimParameters:
         # [Simulation]
         self.action = config.get("Simulation", "action", fallback="results_only")
         self.jacobi_masses = eval(config.get("Simulation", "jacobi_masses", fallback="True"))
-        self.dt = eval(config.get("Simulation", "dt"))
+        self.dt = eval(config.get("Simulation", "dt", fallback="1000"))
         self.start_date = eval(config.get("Simulation", "start_date", fallback="0.0"))
 
         # [Video]
@@ -102,8 +102,8 @@ class CurveSimParameters:
             self.sim_flux_err = eval(config.get("Simulation", "sim_flux_err", fallback="0.0"))
 
             # [Video]
-            self.frames = eval(config.get("Video", "frames"))
-            self.fps = eval(config.get("Video", "fps"))
+            self.frames = eval(config.get("Video", "frames", fallback="150"))
+            self.fps = eval(config.get("Video", "fps", fallback="30"))
             self.clockwise = eval(config.get("Video", "clockwise", fallback="False"))
 
             # self.start_indices, self.max_iterations, self.total_iterations = self.check_intervals()
@@ -131,7 +131,7 @@ class CurveSimParameters:
             self.show_right_plot = eval(config.get("Plot", "show_right_plot", fallback="True"))
             self.show_lc_plot = eval(config.get("Plot", "show_lc_plot", fallback="True"))
             self.show_rv_plot = eval(config.get("Plot", "show_rv_plot", fallback="True"))
-            self.main_title = config.get("Plot", "main_title", fallback="")
+            self.main_title = config.get("Plot", "main_title", fallback="parameter main_title missing")
             self.left_title = config.get("Plot", "left_title", fallback="View from above")
             self.right_title = config.get("Plot", "right_title", fallback="View from Earth")
 
