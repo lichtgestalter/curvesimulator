@@ -18,7 +18,7 @@ class CurveSimParameters:
                        + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
                        + ["e", "i", "P", "a", "Omega", "omega", "pomega"]
                        + ["L", "ma", "ea", "nu", "T", "t"])
-        self.standard_sections = ["Astronomical Constants", "Results", "Simulation", "Fitting", "Video", "Plot", "Scale", "Debug"]  # These sections must be present in the config file.
+        self.standard_sections = ["Astronomical Constants", "Results", "Simulation", "Fitting", "Video", "VideoPlot", "VideoScale", "Debug"]  # These sections must be present in the config file.
         config = configparser.ConfigParser(inline_comment_prefixes="#")  # Inline comments in the config file start with "#".
         config.optionxform = str  # Preserve case of the keys.
         CurveSimParameters.find_and_check_config_file(config_file)  # standard_sections=self.standard_sections)
@@ -73,6 +73,14 @@ class CurveSimParameters:
         self.eclipsees_names = list([x for x in config.get("Fitting", "eclipsees_names", fallback="None").split("#")[0].split(",")])
 
         # [Results]
+        self.results_directory = config.get("Results", "results_directory", fallback=None)
+        if self.results_directory is None:  # For legacy config file where results_directory was in section Simulation
+            self.results_directory = config.get("Simulation", "results_directory", fallback=None)
+        # self.results_directory = config.get("Simulation", "results_directory", fallback="None")
+        # if self.results_directory == "None":
+        #     self.results_directory = None
+        if self.results_directory is not None:
+            self.find_results_subdirectory()
         self.result_file = config.get("Results", "result_file", fallback=None)
         # self.result_file = config.get("Results", "result_file", fallback="None")
         # if self.result_file == "None":
@@ -81,12 +89,6 @@ class CurveSimParameters:
         self.max_interval_extensions = eval(config.get("Results", "max_interval_extensions", fallback="10"))
 
         # [Simulation]
-        self.results_directory = config.get("Simulation", "results_directory", fallback=None)
-        # self.results_directory = config.get("Simulation", "results_directory", fallback="None")
-        # if self.results_directory == "None":
-        #     self.results_directory = None
-        if self.results_directory is not None:
-            self.find_results_subdirectory()
         self.starts_d = np.array(eval(config.get("Simulation", "starts", fallback="[]")), dtype=float)
         self.ends_d = np.array(eval(config.get("Simulation", "ends", fallback="[]")), dtype=float)
         self.dts = np.array(eval(config.get("Simulation", "dts", fallback="[]")), dtype=float)
@@ -114,36 +116,36 @@ class CurveSimParameters:
                 print(f"{Fore.YELLOW}\nWARNING: This simulation calculates only {self.total_iterations} iterations for {self.frames} video frames.{Style.RESET_ALL}")
                 print(f"{Fore.YELLOW}         Because of this undersampling, the video will be using the same iteration for consecutive frames.{Style.RESET_ALL}")
                 print(f"{Fore.YELLOW}         Decrease the number of frames or decrease dt (the real time difference between simulation iterations).{Style.RESET_ALL}")
-            # [Scale]
-            self.scope_left = eval(config.get("Scale", "scope_left", fallback="au"))
-            self.scale_bar_length_left = eval(config.get("Scale", "scale_bar_length_left", fallback="au"))
-            self.star_scale_left = eval(config.get("Scale", "star_scale_left", fallback=1.0))
-            self.planet_scale_left = eval(config.get("Scale", "planet_scale_left", fallback=1.0))
-            self.scope_right = eval(config.get("Scale", "scope_right", fallback="au"))
-            self.scale_bar_length_right = eval(config.get("Scale", "scale_bar_length_right", fallback="au"))
-            self.star_scale_right = eval(config.get("Scale", "star_scale_right", fallback=1.0))
-            self.planet_scale_right = eval(config.get("Scale", "planet_scale_right", fallback=1.0))
-            self.autoscaling = config.get("Scale", "autoscaling", fallback="on") == "on"
-            self.min_radius = eval(config.get("Scale", "min_radius", fallback=0.4)) / 100.0
-            self.max_radius = eval(config.get("Scale", "max_radius", fallback=2.0)) / 100.0
+            # [VideoScale]
+            self.scope_left = eval(config.get("VideoScale", "scope_left", fallback="au"))
+            self.scale_bar_length_left = eval(config.get("VideoScale", "scale_bar_length_left", fallback="au"))
+            self.star_scale_left = eval(config.get("VideoScale", "star_scale_left", fallback=1.0))
+            self.planet_scale_left = eval(config.get("VideoScale", "planet_scale_left", fallback=1.0))
+            self.scope_right = eval(config.get("VideoScale", "scope_right", fallback="au"))
+            self.scale_bar_length_right = eval(config.get("VideoScale", "scale_bar_length_right", fallback="au"))
+            self.star_scale_right = eval(config.get("VideoScale", "star_scale_right", fallback=1.0))
+            self.planet_scale_right = eval(config.get("VideoScale", "planet_scale_right", fallback=1.0))
+            self.autoscaling = config.get("VideoScale", "autoscaling", fallback="on") == "on"
+            self.min_radius = eval(config.get("VideoScale", "min_radius", fallback=0.4)) / 100.0
+            self.max_radius = eval(config.get("VideoScale", "max_radius", fallback=2.0)) / 100.0
 
-            # [Plot]
-            self.show_left_plot = eval(config.get("Plot", "show_left_plot", fallback="True"))
-            self.show_right_plot = eval(config.get("Plot", "show_right_plot", fallback="True"))
-            self.show_lc_plot = eval(config.get("Plot", "show_lc_plot", fallback="True"))
-            self.show_rv_plot = eval(config.get("Plot", "show_rv_plot", fallback="True"))
-            self.main_title = config.get("Plot", "main_title", fallback="Main Title")
-            self.left_title = config.get("Plot", "left_title", fallback="View from above")
-            self.right_title = config.get("Plot", "right_title", fallback="View from Earth")
+            # [VideoPlot]
+            self.show_left_plot = eval(config.get("VideoPlot", "show_left_plot", fallback="True"))
+            self.show_right_plot = eval(config.get("VideoPlot", "show_right_plot", fallback="True"))
+            self.show_lc_plot = eval(config.get("VideoPlot", "show_lc_plot", fallback="True"))
+            self.show_rv_plot = eval(config.get("VideoPlot", "show_rv_plot", fallback="True"))
+            self.main_title = config.get("VideoPlot", "main_title", fallback="Main Title")
+            self.left_title = config.get("VideoPlot", "left_title", fallback="View from above")
+            self.right_title = config.get("VideoPlot", "right_title", fallback="View from Earth")
 
-            self.figure_width = eval(config.get("Plot", "figure_width", fallback="16"))
-            self.figure_height = eval(config.get("Plot", "figure_height", fallback="8"))
-            self.xlim = eval(config.get("Plot", "xlim", fallback="1.25"))
-            self.ylim = eval(config.get("Plot", "ylim", fallback="1.0"))
-            self.flux_dot_height = eval(config.get("Plot", "flux_dot_height", fallback="0.077"))
-            self.flux_dot_width = eval(config.get("Plot", "flux_dot_width", fallback="0.005"))
-            self.rv_dot_height = eval(config.get("Plot", "rv_dot_height", fallback="0.077"))
-            self.rv_dot_width = eval(config.get("Plot", "rv_dot_width", fallback="0.005"))
+            self.figure_width = eval(config.get("VideoPlot", "figure_width", fallback="16"))
+            self.figure_height = eval(config.get("VideoPlot", "figure_height", fallback="8"))
+            self.xlim = eval(config.get("VideoPlot", "xlim", fallback="1.25"))
+            self.ylim = eval(config.get("VideoPlot", "ylim", fallback="1.0"))
+            self.flux_dot_height = eval(config.get("VideoPlot", "flux_dot_height", fallback="0.077"))
+            self.flux_dot_width = eval(config.get("VideoPlot", "flux_dot_width", fallback="0.005"))
+            self.rv_dot_height = eval(config.get("VideoPlot", "rv_dot_height", fallback="0.077"))
+            self.rv_dot_width = eval(config.get("VideoPlot", "rv_dot_width", fallback="0.005"))
         else:  # run MCMC, fit parameters to flux measurements
             # [Fitting]
             if self.tt_file:
@@ -164,7 +166,7 @@ class CurveSimParameters:
             self.load_backend = eval(config.get("Fitting", "load_backend", fallback="False"))
             self.walkers = int(eval(config.get("Fitting", "walkers", fallback="32")))
             self.steps = int(eval(config.get("Fitting", "steps", fallback="10000")))
-            self.moves = config.get("Fitting", "moves", fallback="None")
+            self.moves = config.get("Fitting", "moves", fallback="(emcee.moves.StretchMove(a=2.0))")
             self.burn_in = int(eval(config.get("Fitting", "burn_in", fallback="500")))
             if self.burn_in < 1:
                 self.burn_in = 1
