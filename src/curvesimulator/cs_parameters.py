@@ -34,15 +34,16 @@ class CurveSimParameters:
         l_sun = eval(config.get("Astronomical Constants", "l_sun", fallback="None"))
         r_jup = eval(config.get("Astronomical Constants", "r_jup", fallback="None"))
         m_jup = eval(config.get("Astronomical Constants", "m_jup", fallback="None"))
+        r_nep = eval(config.get("Astronomical Constants", "r_nep", fallback="None"))
+        m_nep = eval(config.get("Astronomical Constants", "m_nep", fallback="None"))
         r_earth = eval(config.get("Astronomical Constants", "r_earth", fallback="None"))
         m_earth = eval(config.get("Astronomical Constants", "m_earth", fallback="None"))
-        v_earth = eval(config.get("Astronomical Constants", "v_earth", fallback="None"))
         hour = eval(config.get("Astronomical Constants", "hour", fallback="None"))
         day = eval(config.get("Astronomical Constants", "day", fallback="None"))
         year = eval(config.get("Astronomical Constants", "year", fallback="None"))
         rad2deg = eval(config.get("Astronomical Constants", "rad2deg", fallback="None"))
         self.g, self.au, self.r_sun, self.m_sun, self.l_sun = g, au, r_sun, m_sun, l_sun,
-        self.r_jup, self.m_jup, self.r_earth, self.m_earth, self.v_earth = r_jup, m_jup, r_earth, m_earth, v_earth
+        self.r_jup, self.m_jup, self.r_nep, self.m_nep, self.r_earth, self.m_earth = r_jup, m_jup, r_nep, m_nep, r_earth, m_earth
         self.hour, self.day, self.year, self.rad2deg = hour, day, year, rad2deg
 
         # [Results]
@@ -131,7 +132,7 @@ class CurveSimParameters:
             self.show_right_plot = eval(config.get("Plot", "show_right_plot", fallback="True"))
             self.show_lc_plot = eval(config.get("Plot", "show_lc_plot", fallback="True"))
             self.show_rv_plot = eval(config.get("Plot", "show_rv_plot", fallback="True"))
-            self.main_title = config.get("Plot", "main_title", fallback="parameter main_title missing")
+            self.main_title = config.get("Plot", "main_title", fallback="Main Title")
             self.left_title = config.get("Plot", "left_title", fallback="View from above")
             self.right_title = config.get("Plot", "right_title", fallback="View from Earth")
 
@@ -162,7 +163,6 @@ class CurveSimParameters:
             self.backend = config.get("Fitting", "backend", fallback=None)  # e.g. emcee_backend.h5
             self.load_backend = eval(config.get("Fitting", "load_backend", fallback="False"))
             self.walkers = int(eval(config.get("Fitting", "walkers", fallback="32")))
-            self.target_flux = eval(config.get("Fitting", "target_flux", fallback="None"))
             self.steps = int(eval(config.get("Fitting", "steps", fallback="10000")))
             self.moves = config.get("Fitting", "moves", fallback="None")
             self.burn_in = int(eval(config.get("Fitting", "burn_in", fallback="500")))
@@ -260,7 +260,7 @@ class CurveSimParameters:
     def read_param(self, config, section, param, fallback):
         # For ease of use of these constants in the config file they are additionally defined here without the prefix "self.".
         g, au, r_sun, m_sun, l_sun = self.g, self.au, self.r_sun, self.m_sun, self.l_sun
-        r_jup, m_jup, r_earth, m_earth, v_earth = self.r_jup, self.m_jup, self.r_earth, self.m_earth, self.v_earth
+        r_jup, m_jup, r_nep, m_nep, r_earth, m_earth = self.r_jup, self.m_jup, self.r_nep, self.m_nep, self.r_earth, self.m_earth
         hour, day, year = self.hour, self.day, self.year
         line = config.get(section, param, fallback=fallback)
         value = eval(line.split(",")[0])
@@ -272,7 +272,7 @@ class CurveSimParameters:
     def read_param_and_bounds(self, config, section, param):
         # For ease of use of these constants in the config file they are additionally defined here without the prefix "self.".
         g, au, r_sun, m_sun, l_sun = self.g, self.au, self.r_sun, self.m_sun, self.l_sun
-        r_jup, m_jup, r_earth, m_earth, v_earth = self.r_jup, self.m_jup, self.r_earth, self.m_earth, self.v_earth
+        r_jup, m_jup, r_nep, m_nep, r_earth, m_earth = self.r_jup, self.m_jup, self.r_nep, self.m_nep, self.r_earth, self.m_earth
         hour, day, year = self.hour, self.day, self.year
         line = config.get(section, param, fallback=None)
         if line is None:

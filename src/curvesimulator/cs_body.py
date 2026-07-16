@@ -23,7 +23,7 @@ class CurveSimBody:
         """Initialize instance of physical body."""
         # For ease of use of constants in the config file they are additionally defined here without the prefix "p.".
         g, au, r_sun, m_sun, l_sun = p.g, p.au, p.r_sun, p.m_sun, p.l_sun
-        r_jup, m_jup, r_earth, m_earth, v_earth = p.r_jup, p.m_jup, p.r_earth, p.m_earth, p.v_earth
+        r_jup, m_jup, r_nep, m_nep, r_earth, m_earth = p.r_jup, p.m_jup, p.r_nep, p.m_nep, p.r_earth, p.m_earth
         self.name = name  # name
         self.body_type = body_type  # "star" or "planet"
         self.primary = primary

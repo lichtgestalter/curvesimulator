@@ -558,7 +558,7 @@ class CurveSimResults(dict):
                     # linewidths= [1,                     0],
                     grid=False,
                     legend=True,
-                    left=transit.tt - p.tt_padding,  # debug: offset in Parameterfile aufnehmen?
+                    left=transit.tt - p.tt_padding,
                     right=transit.tt + p.tt_padding,
                     top=p.flux_plots_top,
                     bottom=p.flux_plots_bottom,

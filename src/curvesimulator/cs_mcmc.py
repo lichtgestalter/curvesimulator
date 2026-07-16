@@ -342,22 +342,6 @@ class CurveSimMCMC:
         return residuals_tt_sum_squared
 
     @staticmethod
-    def residuals_tt_sum_squared_simple(theta, param_references, bodies, time_s0, p):
-        """Useful when the config file values of starts and ends are
-        chosen so that all simulated flux should be inside transits.
-         In that case it is sufficient to merely compare all simulated
-         flux to the target flux, which is a single value of about the flux at TT """
-        i = 0
-        for body_index, parameter_name in param_references:
-            bodies[body_index].__dict__[parameter_name] = theta[i]  # update all parameters from theta
-            i += 1
-        sim_rv, sim_flux, _ = bodies.calc_physics(p, time_s0)  # run simulation
-
-        residuals_tt = sim_flux - p.target_flux
-        residuals_tt_sum_squared = np.sum(residuals_tt ** 2)
-        return residuals_tt_sum_squared
-
-    @staticmethod
     def hdi_std_mean(data, credible_mass=0.68):
         # Calculate HDI (1-sigma interval with highest density).
         # Data contains samples from the flattened and thinned mcmc-chains and gets sorted.
