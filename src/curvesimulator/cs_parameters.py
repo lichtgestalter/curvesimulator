@@ -265,8 +265,9 @@ class CurveSimParameters:
         r_jup, m_jup, r_nep, m_nep, r_earth, m_earth = self.r_jup, self.m_jup, self.r_nep, self.m_nep, self.r_earth, self.m_earth
         hour, day, year = self.hour, self.day, self.year
         line = config.get(section, param, fallback=fallback)
+        if line is None:
+            return None
         value = eval(line.split(",")[0])
-        # read_param(config, section, "ma", fallback="None")
         if value is not None and param in ["i", "Omega", "omega", "pomega", "ma", "nu", "ea", "L"]:
             value = np.radians(value)
         return value
