@@ -47,12 +47,15 @@ class CurveSimBodies(list):
             if section not in p.standard_sections:  # section describes a physical object
                 file = config.get(section, "file", fallback=None)
                 if file is None:
+                    color = config.get(section, "color", fallback=None)
+                    if color is not None:
+                        color = tuple([ast.literal_eval(x) for x in color.split(",")])
                     kwargs = {
                         "p": p,
                         "primary": config.get(section, "primary", fallback=None),
                         "name": section,
                         "body_type": config.get(section, "body_type", fallback=None),
-                        "color": tuple([ast.literal_eval(x) for x in config.get(section, "color", fallback=None).split(",")]),
+                        "color": color,
                         # "color": tuple([ast.literal_eval(x) for x in config.get(section, "color", fallback="-1").split(",")]),
                         "image_file_left": config.get(section, "image_file_left", fallback=None),
                         "image_file_right": config.get(section, "image_file_right", fallback=None),
@@ -125,6 +128,15 @@ class CurveSimBodies(list):
             print(f"{Fore.RED}\nERROR: No body in config file has body type star.{Style.RESET_ALL}")
             sys.exit(1)
 
+        # Check if bodies are defined in Jacobi coordinates or astrocentric.
+        primaries = [body.primary for body in self]
+        p.jacobi_coordinates = all(x is None for x in primaries)
+        if all(x is not None for x in primaries) and primaries[0] != "self":
+            print(f"{Fore.RED}\nERROR: Primaries are ill defined.{Style.RESET_ALL}")
+            print(f"{Fore.RED}\nJacobi coordinates: No body has a primary.{Style.RESET_ALL}")
+            print(f"{Fore.RED}\nAstrocentric: 1st body has primary 'self'. All other bodies have the name of a already defined body as primary.{Style.RESET_ALL}")
+            sys.exit(1)
+
         for body in self[0:1]:  # hack debug: works only when the first body is the only star and all other bodies are orbiting this star (no binary, no moons, ...)
             simulation.add(m=body.mass, r=body.radius, hash=body.name)
 
@@ -157,10 +169,9 @@ class CurveSimBodies(list):
                 kwargs["T"] = body.T
             if body.L is not None:
                 kwargs["l"] = body.L
-
-            # primary = CurveSimBodies.get_com_particle(simulation, range(i))
-            # kwargs["primary"] = primary
-
+            if not p.jacobi_coordinates:
+                primary = CurveSimBodies.get_com_particle(simulation, range(i))
+                kwargs["primary"] = primary
             simulation.add(**kwargs)
         simulation.move_to_com()  # move origin to center of mass before integrating -> better numerical stability
         # CurveSimBodies.print_simulation_particles(p, simulation)
@@ -269,10 +280,11 @@ class CurveSimBodies(list):
             if body.luminosity > 0 and (body.limb_darkening_u1 is None or body.limb_darkening_u2 is None):  # if body.luminosity > 0 and limb darkening parameters are missing
                 print(f"{Fore.RED}\nERROR in config file: {body.name} has luminosity but invalid limb darkening parameter {body.limb_darkening=}.")
                 sys.exit(1)
-            for c in body.color:
-                if c < 0 or c > 1 or len(body.color) != 3:
-                    print(f"{Fore.RED}\nERROR in config file: {body.name} has invalid or missing color value.")
-                    sys.exit(1)
+            if body.color is not None:
+                for c in body.color:
+                    if c < 0 or c > 1 or len(body.color) != 3:
+                        print(f"{Fore.RED}\nERROR in config file: {body.name} has invalid or missing color value.")
+                        sys.exit(1)
             # if body.velocity is None:
             #     if body.e < 0:
             #         print(f"{Fore.RED}\nERROR in config file: {body.name} has invalid or missing eccentricity e.")

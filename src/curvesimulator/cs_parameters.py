@@ -57,6 +57,8 @@ class CurveSimParameters:
         self.action = config.get("Simulation", "action", fallback="results_only")
         self.jacobi_masses = eval(config.get("Simulation", "jacobi_masses", fallback="True"))
         self.dt = eval(config.get("Simulation", "dt", fallback="1000"))
+        self.result_dt = self.dt  # Debug Parameter deprecated. Replace usages in code with dt.
+        self.dts = [self.dt]  # Debug Parameter deprecated. Replace usages in code with dt.
         self.start_date = eval(config.get("Simulation", "start_date", fallback="0.0"))
 
         # [Video]
@@ -85,13 +87,13 @@ class CurveSimParameters:
         # self.result_file = config.get("Results", "result_file", fallback="None")
         # if self.result_file == "None":
         #     self.result_file = None
-        self.result_dt = eval(config.get("Results", "result_dt", fallback="100"))
+        # self.result_dt = eval(config.get("Results", "result_dt", fallback="100"))
         self.max_interval_extensions = eval(config.get("Results", "max_interval_extensions", fallback="10"))
 
         # [Simulation]
         self.starts_d = np.array(eval(config.get("Simulation", "starts", fallback="[]")), dtype=float)
         self.ends_d = np.array(eval(config.get("Simulation", "ends", fallback="[]")), dtype=float)
-        self.dts = np.array(eval(config.get("Simulation", "dts", fallback="[]")), dtype=float)
+        # self.dts = np.array(eval(config.get("Simulation", "dts", fallback="[]")), dtype=float)
 
         self.sim_flux_file = config.get("Simulation", "sim_flux_file", fallback=None)
         self.start_indices, self.max_iterations, self.total_iterations = self.check_intervals()
@@ -155,12 +157,13 @@ class CurveSimParameters:
                 # self.start_indices, self.max_iterations, self.total_iterations = self.check_intervals()
                 self.best_residuals_tt_sum_squared = 1e99
 
-            self.guifit = eval(config.get("Fitting", "guifit", fallback="False"))
+            # self.guifit = eval(config.get("Fitting", "guifit", fallback="False"))
             self.lmfit = eval(config.get("Fitting", "lmfit", fallback="False"))
             self.lmfit_method = config.get("Fitting", "lmfit_method", fallback="powell")
             self.lmfit_max_tt_delta = eval(config.get("Fitting", "lmfit_max_tt_delta", fallback="1/(24*60*60)"))
             self.flux_weight = int(eval(config.get("Fitting", "flux_weight", fallback="1")))
             self.tt_weight = int(eval(config.get("Fitting", "tt_weight", fallback="1")))
+            self.rv_weight = int(eval(config.get("Fitting", "rv_weight", fallback="1")))
 
             self.backend = config.get("Fitting", "backend", fallback=None)  # e.g. emcee_backend.h5
             self.load_backend = eval(config.get("Fitting", "load_backend", fallback="False"))
