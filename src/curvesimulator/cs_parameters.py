@@ -51,7 +51,7 @@ class CurveSimParameters:
         self.verbose = eval(config.get("Results", "verbose", fallback="False"))
         self.transit_precision = eval(config.get("Results", "transit_precision", fallback="1"))
 
-        self.flux_data_directory = config.get("Results", "flux_data_directory", fallback="")
+        self.flux_data_directory = config.get("Results", "flux_data_directory", fallback=".")
 
         # [Simulation]
         self.action = config.get("Simulation", "action", fallback="results_only")
@@ -75,14 +75,14 @@ class CurveSimParameters:
         self.eclipsees_names = list([x for x in config.get("Fitting", "eclipsees_names", fallback="None").split("#")[0].split(",")])
 
         # [Results]
-        self.results_directory = config.get("Results", "results_directory", fallback=None)
-        if self.results_directory is None:  # For legacy config file where results_directory was in section Simulation
-            self.results_directory = config.get("Simulation", "results_directory", fallback=None)
+        self.results_directory = config.get("Results", "results_directory", fallback=".")
+        # if self.results_directory is None:  # For legacy config file where results_directory was in section Simulation
+        #     self.results_directory = config.get("Simulation", "results_directory", fallback=None)
         # self.results_directory = config.get("Simulation", "results_directory", fallback="None")
         # if self.results_directory == "None":
         #     self.results_directory = None
-        if self.results_directory is not None:
-            self.find_results_subdirectory()
+        # if self.results_directory is not None:
+        self.find_results_subdirectory()
         self.result_file = config.get("Results", "result_file", fallback=None)
         # self.result_file = config.get("Results", "result_file", fallback="None")
         # if self.result_file == "None":
@@ -238,7 +238,7 @@ class CurveSimParameters:
         config.optionxform = str  # Preserve case of the keys.
         if len(config.read(config_file, encoding="utf-8")) < 1:  # does opening the config file fail?
             print(f"{Fore.RED}\nERROR: Config file {config_file} not found.{Style.RESET_ALL}")
-            print(f"{Fore.RED}Provide the config file name as the argument of the function curvesim.{Style.RESET_ALL}")
+            print(f"{Fore.RED}Provide the config file name as the argument of CurveSimulator().{Style.RESET_ALL}")
             print(f"{Fore.RED}More information on https://github.com/lichtgestalter/curvesimulator/wiki {Style.RESET_ALL}")
             sys.exit(1)
         if not config_file.endswith(".ini"):

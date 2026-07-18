@@ -30,6 +30,7 @@ def main():
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/Almenara_AppendixA1/Almenara_AppendixA1.ini")
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/Almenara/Almenara.ini")
 
+    # curvesimulation = CurveSimulator(config_file="../doc/examples/1/1.ini")
 
     print(curvesimulation)
 

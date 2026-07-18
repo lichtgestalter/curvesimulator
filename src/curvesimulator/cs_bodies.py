@@ -170,12 +170,12 @@ class CurveSimBodies(list):
             if body.L is not None:
                 kwargs["l"] = body.L
             if not p.jacobi_coordinates:
-                primary = CurveSimBodies.get_com_particle(simulation, range(i))
+                primary = simulation.particles[body.primary]
+                # primary = CurveSimBodies.get_com_particle(simulation, range(i))  # Setting no primary has the same result as setting the primary as the center of mass of all up to now defined bodies: parameters are in Jacobi coordinates
                 kwargs["primary"] = primary
             simulation.add(**kwargs)
         simulation.move_to_com()  # move origin to center of mass before integrating -> better numerical stability
         # CurveSimBodies.print_simulation_particles(p, simulation)
-
         # if p.action == "single_run":  # obsolete????  does not seem to help for MCMC, but is a good choice when creating a result file including transit times
         #     if p.result_file:
         #         simulation.ri_whfast.safe_mode = 0  # see https://rebound.readthedocs.io/en/latest/ipython_examples/AdvWHFast/
