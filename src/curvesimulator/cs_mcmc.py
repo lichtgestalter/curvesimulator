@@ -187,6 +187,8 @@ class CurveSimMCMC:
         if time_s0 is None and time_d is None:
             time_s0, time_d = CurveSimParameters.init_time_arrays(p)  # s0 in seconds, starting at 0. d in BJD.
         sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # Calculate all body positions and the resulting lightcurve
+        if p.sim_flux_file:
+            sim_flux.save_sim_flux(p, time_d)
         results = bodies.find_transits(rebound_sim, p, sim_flux, time_s0, time_d)
         results["chi_squared_tt"], results["chi_squared_rv"], results["chi_squared_flux"], results["chi_squared_total"] = 0, 0, 0, 0
         results["measurements_tt"], results["measurements_rv"], results["measurements_flux"], results["measurements_total"] = 0, 0, 0, 0
@@ -223,8 +225,6 @@ class CurveSimMCMC:
             results.calc_total_chi_squared(p.free_parameters)
         if p.result_file:
             results.save_results(p)
-        if p.sim_flux_file:
-            sim_flux.save_sim_flux(p, time_d)
         # self.sim_flux = sim_flux
         # self.results = results
         vitkova_debug = False

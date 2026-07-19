@@ -93,6 +93,7 @@ class CurveSimParameters:
         # [Simulation]
         self.starts_d = np.array(eval(config.get("Simulation", "starts", fallback="[]")), dtype=float)
         self.ends_d = np.array(eval(config.get("Simulation", "ends", fallback="[]")), dtype=float)
+        self.end_date = self.ends_d[0]  # temporary hack until self.ends_d is no longer a list
         # self.dts = np.array(eval(config.get("Simulation", "dts", fallback="[]")), dtype=float)
 
         self.sim_flux_file = config.get("Simulation", "sim_flux_file", fallback=None)

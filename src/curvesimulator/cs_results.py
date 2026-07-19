@@ -228,23 +228,14 @@ class CurveSimResults(dict):
         n_measurements : Number of measurements/observations
         n_parameters :   Number of free parameters in the model
         """
-        df = n_measurements - n_parameters  # degrees of freedom
-        p_value = 1 - stats.chi2.cdf(chi_squared, df)  # cumulative distribution function
-        # print(f"Chi-squared value:      {chi_squared}")
-        # print(f"Number of measurements: {n_measurements}")
-        # print(f"Number of parameters:   {n_parameters}")
-        # print(f"Degrees of freedom:     {df}")
-        # print(f"P-value:                {p_value:.4f}\n")
-        # if p_value > 0.05:
-        #     print(f"The fit is acceptable (p > 0.05). There is no significant evidence that your model is inconsistent with the data.")
-        # else:
-        #     print(f"The fit is poor (p < 0.05). Your model may not adequately describe the data.")
+        degrees_of_freedom = n_measurements - n_parameters
+        p_value = 1 - stats.chi2.cdf(chi_squared, degrees_of_freedom)  # cumulative distribution function
         return p_value
 
     @staticmethod
     def get_measured_flux(p):
-        measured_flux = pd.read_csv(p.flux_file)
-        measured_flux = measured_flux[measured_flux["time"] >= p.start_date]
+        df = pd.read_csv(p.flux_file)
+        measured_flux = df[(df["time"] >= p.start_date) & (df["time"] <= p.end_date)]
         measured_flux["time_s0"] = (measured_flux["time"] - p.start_date) * p.day
         time_s0 = np.array(measured_flux["time_s0"], dtype=float)
         measured_flux_array = np.array(measured_flux["flux"])
@@ -256,14 +247,14 @@ class CurveSimResults(dict):
     @staticmethod
     def get_measured_tt(p):
         df = pd.read_csv(p.tt_file)
-        df = df[df["tt"] >= p.start_date]
+        df = df[(df["tt"] >= p.start_date) & (df["tt"] <= p.end_date)]
         p.tt_datasize = len(df["tt"])
         return df
 
     @staticmethod
     def get_measured_rv(p):
         df = pd.read_csv(p.rv_file)
-        df = df[df["time"] >= p.start_date]
+        df = df[(df["time"] >= p.start_date) & (df["time"] <= p.end_date)]
         p.rv_datasize = len(df["time"])
         df["time_s0"] = (df["time"] - p.start_date) * p.day
         return df
@@ -433,6 +424,10 @@ class CurveSimResults(dict):
 
     @staticmethod
     def rv_observed_computed_plot(p, sim_rv, time_d, plot_filename, measured_rv):
+        min = np.min(measured_rv["time"])
+        max = np.max(measured_rv["time"])
+        min_time = min - 0.03 * (max - min)  # 3% padding to make sure that datapoints at the edges are visible
+        max_time = max + 0.03 * (max - min)
         CurveSimResults.plot_this(
             title=f"Radial Velocity: observed vs. computed",
             x_label="Time [BJD]",
@@ -446,8 +441,8 @@ class CurveSimResults(dict):
             linewidths= [1,        0],
             grid=False,
             legend=True,
-            left=np.min(measured_rv["time"]) - 5,  # debug: offset in Parameterfile aufnehmen?
-            right=np.max(measured_rv["time"]) + 5,
+            left=min_time,
+            right=max_time,
             plot_file=p.results_directory + plot_filename,
         )
 
