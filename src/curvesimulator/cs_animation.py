@@ -101,7 +101,6 @@ class CurveSimAnimation:
 
     @staticmethod
     def init_lightcurve_plot(sim_flux, time_s0, p, shape, loc, rowspan, colspan):
-        # lightcurve
         ax_lightcurve = plt.subplot2grid(shape=shape, loc=loc, rowspan=rowspan, colspan=colspan)
         ax_lightcurve.set_facecolor("black")  # background color
 
@@ -137,10 +136,9 @@ class CurveSimAnimation:
 
     @staticmethod
     def init_rv_curve_plot(sim_rv, time_s0, p, shape, loc, rowspan, colspan):
-        # rv_curve
         ax_rv_curve = plt.subplot2grid(shape=shape, loc=loc, rowspan=rowspan, colspan=colspan)
         ax_rv_curve.set_facecolor("black")  # background color
-        ax_rv_curve.text(1.00, -0.15, "BJD (TDB)", color="grey", fontsize=10, ha="right", va="bottom", transform=ax_rv_curve.transAxes)
+        ax_rv_curve.text(0.97, -0.11, "BJD (TDB)", color="grey", fontsize=8, ha="right", va="bottom", transform=ax_rv_curve.transAxes)
 
         # rv_curve x-ticks, x-labels
         ax_rv_curve.tick_params(axis="x", colors="grey")
