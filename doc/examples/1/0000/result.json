@@ -48,7 +48,7 @@
         "transit_precision": 1,
         "flux_data_directory": ".",
         "action": "single_run",
-        "jacobi_masses": false,
+        "jacobi_masses": true,
         "dt": 60,
         "result_dt": 60,
         "dts": [
@@ -118,8 +118,8 @@
         "show_lc_plot": true,
         "show_rv_plot": true,
         "main_title": "Example 1",
-        "left_title": "View from above",
-        "right_title": "View from Earth",
+        "left_title": "View from above (star enlarged 4x, planets enlarged 150x)",
+        "right_title": "View from Earth (to scale, 73x zoom compared to the left side)",
         "figure_width": 16,
         "figure_height": 8,
         "xlim": 1.25,
@@ -235,7 +235,7 @@
                         "T23": 0.15600545145571232,
                         "T34": 0.002540906425565481,
                         "T14": 0.1610731603577733,
-                        "b": 0.3752828682073457,
+                        "b": 0.3752828682073456,
                         "depth": 0.00022504622007826658
                     }
                 }
@@ -288,32 +288,32 @@
                 {
                     "Transit_params": {
                         "EclipsedBody": "SomeStar",
-                        "T1": 2460002.7039528415,
-                        "T2": 2460002.7114217286,
-                        "TT": 2460002.886599392,
-                        "T3": 2460003.061709312,
-                        "T4": 2460003.069187765,
-                        "T12": 0.007468887139111757,
-                        "T23": 0.35028758319094777,
-                        "T34": 0.00747845321893692,
-                        "T14": 0.36523492354899645,
-                        "b": 0.7490789616644261,
-                        "depth": 8.511232363111813e-05
+                        "T1": 2460002.7039528983,
+                        "T2": 2460002.7114217672,
+                        "TT": 2460002.886621094,
+                        "T3": 2460003.0617307085,
+                        "T4": 2460003.0692101126,
+                        "T12": 0.007468868978321552,
+                        "T23": 0.35030894121155143,
+                        "T34": 0.007479404099285603,
+                        "T14": 0.3652572142891586,
+                        "b": 0.7490789589028085,
+                        "depth": 8.511232382683337e-05
                     }
                 }
             ]
         }
     },
-    "chi_squared_tt": 0.9969277931787953,
-    "chi_squared_rv": 5.656211144724558,
-    "chi_squared_flux": 333.3899184114342,
-    "chi_squared_total": 340.0430573493376,
+    "chi_squared_tt": 1.003752984788493,
+    "chi_squared_rv": 5.656210053579163,
+    "chi_squared_flux": 333.3897280870271,
+    "chi_squared_total": 340.04969112539476,
     "measurements_tt": 2,
     "measurements_rv": 7,
     "measurements_flux": 346,
     "measurements_total": 355,
-    "pvalue_tt": 0.6074630694832233,
-    "pvalue_rv": 0.5804147850081764,
-    "pvalue_flux": 0.6772023170811841,
-    "pvalue_total": 0.7068807721429758
+    "pvalue_tt": 0.6053935767402404,
+    "pvalue_rv": 0.5804149155605685,
+    "pvalue_flux": 0.6772049785457035,
+    "pvalue_total": 0.706792635748732
 }

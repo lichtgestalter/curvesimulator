@@ -122,15 +122,15 @@ class CurveSimParameters:
             # [VideoScale]
             self.scope_left = eval(config.get("VideoScale", "scope_left", fallback="au"))
             self.scale_bar_length_left = eval(config.get("VideoScale", "scale_bar_length_left", fallback="au"))
-            self.star_scale_left = eval(config.get("VideoScale", "star_scale_left", fallback=1.0))
-            self.planet_scale_left = eval(config.get("VideoScale", "planet_scale_left", fallback=1.0))
+            self.star_scale_left = eval(config.get("VideoScale", "star_scale_left", fallback="1.0"))
+            self.planet_scale_left = eval(config.get("VideoScale", "planet_scale_left", fallback="1.0"))
             self.scope_right = eval(config.get("VideoScale", "scope_right", fallback="au"))
             self.scale_bar_length_right = eval(config.get("VideoScale", "scale_bar_length_right", fallback="au"))
-            self.star_scale_right = eval(config.get("VideoScale", "star_scale_right", fallback=1.0))
-            self.planet_scale_right = eval(config.get("VideoScale", "planet_scale_right", fallback=1.0))
+            self.star_scale_right = eval(config.get("VideoScale", "star_scale_right", fallback="1.0"))
+            self.planet_scale_right = eval(config.get("VideoScale", "planet_scale_right", fallback="1.0"))
             self.autoscaling = config.get("VideoScale", "autoscaling", fallback="on") == "on"
-            self.min_radius = eval(config.get("VideoScale", "min_radius", fallback=0.4)) / 100.0
-            self.max_radius = eval(config.get("VideoScale", "max_radius", fallback=2.0)) / 100.0
+            self.min_radius = eval(config.get("VideoScale", "min_radius", fallback="0.4")) / 100.0
+            self.max_radius = eval(config.get("VideoScale", "max_radius", fallback="2.0")) / 100.0
 
             # [VideoPlot]
             self.show_left_plot = eval(config.get("VideoPlot", "show_left_plot", fallback="True"))
@@ -282,19 +282,18 @@ class CurveSimParameters:
         r_jup, m_jup, r_nep, m_nep, r_earth, m_earth = self.r_jup, self.m_jup, self.r_nep, self.m_nep, self.r_earth, self.m_earth
         hour, day, year = self.hour, self.day, self.year
         line = config.get(section, param, fallback=None)
-        if line is None:
+        if line is None:  # parameter not in config file
             return None, None, None, None
         else:
-            items = line.split("#")[0].split(",")
+            items = line.split("#")[0].split(",")  # remove inline comment
         if len(items) == 4:
             value, lower, upper, sigma = items
             return eval(value), eval(lower), eval(upper), eval(sigma)
-        else:
+        else:  # parameter in config file but does not have 4 values
             return None, None, None, None
 
     def read_fitting_parameters(self, config):
-        """Search for body parameters in the config file that are meant to
-        be used as fitting parameters in MCMC.
+        """Search for body parameters in the config file that are meant to be used as fitting parameters.
         Fitting parameters have 4 values instead of 1, separated by commas:
         Initial Value, Lower Bound, Upper Bound, Standard Deviation of the Initial Values of all chains (with mean = Initial Value)."""
         body_index = 0
@@ -303,7 +302,7 @@ class CurveSimParameters:
             print(f"Running MCMC with these fitting parameters:")
         for section in config.sections():
             if section not in self.standard_sections:  # section describes a physical object
-                for parameter_name in ["mass", "radius", "e", "i", "a", "P", "Omega", "pomega", "omega", "L", "nu", "ma", "ea", "T"]:
+                for parameter_name in ["mass", "radius", "luminosity", "limb_darkening_1", "limb_darkening_2", "e", "i", "a", "P", "Omega", "pomega", "omega", "L", "nu", "ma", "ea", "T"]:
                     value, lower, upper, sigma = self.read_param_and_bounds(config, section, parameter_name)
                     if value is not None:
                         if self.verbose:
