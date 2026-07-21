@@ -1,18 +1,25 @@
-This file is in Markdown format. Make sure to view it with an appropriate 
-program so it appears properly formatted. 
+# Example 1: Fitting Transit Times with LMFit
 
-- Body parameters in the config file may be specified either as a single 
-number/expression or as a tuple of four numbers.  
-- For single runs, only the single value or the first value of the tuple is 
-relevant.  
-- When fitting, parameters specified as single numbers are treated as fixed 
-values, while parameters specified as tuples of four numbers (separated by 
-commas) are treated as fitting parameters.  
-  - The first item of the tuple is the initial value.  
-  - The second and third items are the lower and upper bounds.  
-  - The fourth item is the standard deviation used to generate random, normally 
-  distributed starting values around the initial value.  
+## What it does
+Running `run_example.py` reads `config.ini`, which instructs the program to:
+- read `flux.csv`, `rv.csv`, and `tt.csv`
+- run the integration once
+- generate `video.mp4`, showing the movements of the bodies, the light curve 
+  and the radial velocity curve
+- add Gaussian white noise to the simulated flux and save it as `sim_flux.csv`
+- calculate all transit events and save the parameters of each individual 
+  transit, along with extensive additional information, in a JSON file
+- generate numerous plots comparing the observed and computed flux, radial 
+  velocity, and transit times
+- save the results of each run in a separate numbered subdirectory
 
+The individual components can be disabled in the configuration file by 
+commenting out the corresponding file names.   
+For example, you can disable the generation of the video or the 
+simulated flux file and, instead of using the three data sources, only read 
+in the flux.
+
+## Files in this example
 
 | File                           | Description                                                                                           |
 |--------------------------------|-------------------------------------------------------------------------------------------------------|
