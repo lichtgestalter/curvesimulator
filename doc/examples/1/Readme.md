@@ -3,7 +3,7 @@ program so it appears properly formatted.
 
 | File                           | Description                                                                                           |
 |--------------------------------|-------------------------------------------------------------------------------------------------------|
-| run_example.py                 | Execute this 2-line Python script to run this example yourself.                                       |
+| run_example.py                 | Execute this Python script to run this example yourself. It uses a Windows-safe main entrypoint.     |
 | **Input:**                     |                                                                                                       |
 | config.ini                     | This configuration file controls what CurveSimulator does.                                            |
 | flux.csv, rv.csv, tt.csv       | Observations                                                                                          |

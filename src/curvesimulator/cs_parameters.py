@@ -154,7 +154,7 @@ class CurveSimParameters:
             if self.tt_file:
                 self.starts_d = np.array(eval(config.get("Simulation", "starts", fallback="[]")), dtype=float)
                 self.ends_d = np.array(eval(config.get("Simulation", "ends", fallback="[]")), dtype=float)
-                self.dts = np.array(eval(config.get("Simulation", "dts", fallback="[]")), dtype=float)
+                # self.dts = np.array(eval(config.get("Simulation", "dts", fallback="[]")), dtype=float)
                 # self.start_indices, self.max_iterations, self.total_iterations = self.check_intervals()
                 self.best_residuals_tt_sum_squared = 1e99
 

@@ -30,6 +30,7 @@ def main():
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/Trifon_22.03.26/Trifon_22.03.26.ini")
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/Almenara_AppendixA1/Almenara_AppendixA1.ini")
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/Almenara/Almenara.ini")
+
     curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/configurations/TOI4504/astrocentric/TOI-4504_lmfit_retry.ini")
 
     print(curvesimulation)

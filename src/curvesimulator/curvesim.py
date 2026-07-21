@@ -14,7 +14,7 @@ from .cs_results import CurveSimResults
 from .cs_flux_data import CurveSimFluxData
 
 import os
-from multiprocessing import Process, JoinableQueue
+from multiprocessing import Process, JoinableQueue, current_process, parent_process
 # import numpy as np
 import warnings
 
@@ -23,7 +23,7 @@ def _lmfit_worker_queue(task_queue, result_queue):
     for task in iter(task_queue.get, None):
         config_file, time_s0, time_d, measured_tt, p, run_id = task
         p.randomize_startvalues_uniform()
-        p.TOI4504_startvalue_hack()
+        # p.TOI4504_startvalue_hack()
         bodies_local = CurveSimBodies(p)
         lmfit_run = CurveSimLMfit(p, bodies_local, time_s0, time_d, measured_tt)
         try:
@@ -72,14 +72,25 @@ def run_all_queue(tasks, max_workers):
         w.join()
 
 
+def _is_multiprocessing_child_import():
+    try:
+        return current_process().name != "MainProcess" and parent_process() is not None
+    except Exception:
+        return current_process().name != "MainProcess"
+
+
 class CurveSimulator:
     def __init__(self, config_file=""):
         warnings.filterwarnings("ignore", module="rebound")
         p = CurveSimParameters(config_file)  # Read program parameters from config file.
         bodies = None
+        self.parameters = p
+        self.bodies = bodies
         if p.verbose:
             print(p)
         if p.action in ["lmfit", "guifit", "mcmc"]:
+            if _is_multiprocessing_child_import():
+                return
             measured_flux_array, flux_uncertainty, measured_tt, time_s0, time_d, tt_s0, tt_d = (None,) * 7
             if p.flux_file:
                 time_s0, time_d, measured_flux_array, flux_uncertainty, measured_flux = CurveSimResults.get_measured_flux(p)
@@ -98,7 +109,7 @@ class CurveSimulator:
                 sys.exit(0)
             elif p.action == "lmfit":
                 num_workers = max(1, os.cpu_count() - 1)  # number of parallel lmfit runs (multiprocessing). Leave one CPU availabe for other programs
-                total_runs = 1000  # total number of lmfit runs
+                total_runs = 1000  # total number of lmfit runs before process queue gets emptied and multiprocessing restarts
                 print(f"{num_workers=}, {total_runs=}")
                 while True:
                     tasks = [(config_file, time_s0, time_d, measured_tt, p, i) for i in range(total_runs)]
@@ -130,10 +141,10 @@ class CurveSimulator:
             # tt_sim = results.get_transit_data("TOI4504c", "TOI4504", "TT")
             # print(tt_sim)
 
-            CurveSimResults.ttv_to_date_plot(p, amplitude=2.1, period=965, x_offset=-340, osc_per=82.97213)
-            CurveSimResults.ttv_to_date_plot(p, amplitude=2.1, period=965, x_offset=-450, osc_per=82.83)
-            CurveSimResults.ttv_to_date_plot(p, amplitude=2.08, period=965, x_offset=-449, osc_per=82.834)
-            CurveSimResults.ttv_to_date_plot(p, amplitude=2.0, period=946.5, x_offset=-393, osc_per=82.5438)
+            # CurveSimResults.ttv_to_date_plot(p, amplitude=2.1, period=965, x_offset=-340, osc_per=82.97213)
+            # CurveSimResults.ttv_to_date_plot(p, amplitude=2.1, period=965, x_offset=-450, osc_per=82.83)
+            # CurveSimResults.ttv_to_date_plot(p, amplitude=2.08, period=965, x_offset=-449, osc_per=82.834)
+            # CurveSimResults.ttv_to_date_plot(p, amplitude=2.0, period=946.5, x_offset=-393, osc_per=82.5438)
             sys.exit(0)
         elif p.action == "get_tess_data":
             CurveSimFluxData.get_tess_flux(p)
@@ -142,8 +153,6 @@ class CurveSimulator:
         else:
             print(f"{Fore.RED}\nERROR: Invalid value for parameter <action> in configuration file {Style.RESET_ALL}")
             sys.exit(1)
-        self.parameters = p
-        self.bodies = bodies
 
     def __repr__(self):
         print("CurveSimulator object created with attributes: ", end="")

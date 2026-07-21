@@ -1,3 +1,9 @@
 from curvesimulator import CurveSimulator
 
-curvesimulation = CurveSimulator(config_file="config.ini")
+
+def main():
+    CurveSimulator(config_file="config.ini")
+
+
+if __name__ == "__main__":
+    main()
