@@ -302,7 +302,7 @@ class CurveSimParameters:
         return fitting_parameters
 
     @staticmethod
-    def save_fitting_parameters(fitting_parameters, prefix="", suffix=""):
+    def save_fitting_parameters(fitting_parameters, directory=".", prefix="", suffix=""):
         """ fitting_parameters is as list of FittingParameter
         Save it in JSON format"""
         data = []
@@ -323,11 +323,11 @@ class CurveSimParameters:
             }
             data.append(item)
 
-        base_name = f"{prefix}fitting_parameters{suffix}.json"
+        base_name = f"{directory}/{prefix}fitting_parameters{suffix}.json"
         filename = base_name
         counter = 1
         while os.path.exists(filename):
-            filename = f"../fitting_parameters/{prefix}fitting_parameters{suffix}_{counter}.json"
+            filename = f"{directory}/{prefix}fitting_parameters{suffix}_{counter}.json"
             counter += 1
 
         payload = {"created": time.time(), "count": len(data), "fitting_parameters": data}
@@ -335,7 +335,7 @@ class CurveSimParameters:
             json.dump(payload, fh, indent=2, ensure_ascii=False)
 
         print(f"CurveSimParameters.save_fitting_parameters: saved {len(data)} entries to {filename}")
-        exit(88)
+        # exit(88)
 
     def find_results_subdirectory(self):
         """Find the name of the non-existing subdirectory with

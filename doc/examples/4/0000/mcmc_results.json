@@ -1,0 +1,328 @@
+{
+    "CurveSimulator Documentation": "https://github.com/lichtgestalter/curvesimulator/wiki",
+    "Simulation Parameters": {
+        "comment": "No comment",
+        "start_realtime": "22.07.26 16:14:10 [DD.MM.YY hh:mm:ss]",
+        "end_realtime": "22.07.26 16:15:23 [DD.MM.YY hh:mm:ss]",
+        "run_time": "00:00:01:13 [dd:hh:mm:ss]",
+        "run_time_per_iteration": "0.035 [s]",
+        "simulations_per_second": "921 [iterations*walkers/runtime]",
+        "results_directory": "./0001/",
+        "start_date": 2460000,
+        "default_dt": 5000,
+        "flux_data_points": 35,
+        "walkers": 32,
+        "burn_in_steps": 100,
+        "steps_after_burn_in": 2000,
+        "moves": "(emcee.moves.StretchMove()     , 0.6), (emcee.moves.DEMove       (), 0.4)",
+        "thin_samples": 10,
+        "tt_file": "tt.csv",
+        "tt_data_points": 2,
+        "max_log_prob": -9.966510085176231e-05,
+        "max_likelihood_avg_residual_in_std": 0.009983240999383032,
+        "mean_delta": 3.869854845106602e-05,
+        "max_delta": 4.485622048377991e-05,
+        "param_json": "{\"max_delta\": 4.485622048377991e-05, \"mean_delta\": 3.869854845106602e-05, \"SomeStar\": {\"body_type\": \"star\", \"mass\": 1047.5971914594015, \"radius\": 9.73115873104683, \"luminosity\": 3.828e+26, \"limb_darkening_u1\": 0.45, \"limb_darkening_u2\": 0.23, \"mean_intensity\": 0.8116668553772325, \"intensity\": 251754968.1428863}, \"InnerPlanet\": {\"body_type\": \"planet\", \"mass\": 0.009438790266982473, \"radius\": 0.133822001063056, \"luminosity\": 0.0, \"intensity\": 0.0, \"e\": 0.0, \"i\": 89.0, \"a\": 0.09999999999999999, \"Omega\": 0.0, \"omega\": 0.0, \"ma\": 5.875354675827345}, \"OuterPlanet\": {\"body_type\": \"planet\", \"mass\": 0.003146263422327491, \"radius\": 0.08921466737537066, \"luminosity\": 0.0, \"intensity\": 0.0, \"e\": 0.045, \"i\": 90.2, \"a\": 0.9999999999999999, \"Omega\": 0.0, \"omega\": 0.0, \"ma\": 82.00156033769186}}"
+    },
+    "measured_tt_list": {
+        "eclipser": [
+            "InnerPlanet",
+            "OuterPlanet"
+        ],
+        "tt": [
+            2460002.699,
+            2460002.885
+        ],
+        "tt_err": [
+            0.00458,
+            0.0032
+        ],
+        "nr": [
+            0,
+            0
+        ],
+        "nearest_sim": [
+            2460002.6990448562,
+            2460002.8850325407
+        ],
+        "delta": [
+            4.485622048377991e-05,
+            3.254087641835213e-05
+        ],
+        "step_100": [
+            1.6598962247371674e-05,
+            -0.0003489288501441479
+        ],
+        "step_200": [
+            -0.00028009945526719093,
+            0.0002868538722395897
+        ],
+        "step_400": [
+            -0.0001388145610690117,
+            7.492629811167717e-05
+        ],
+        "step_700": [
+            4.485622048377991e-05,
+            3.254087641835213e-05
+        ]
+    },
+    "Bodies": {
+        "SomeStar": {
+            "body_type": "star",
+            "mass": 1.98847e+30,
+            "radius": 695700000.0,
+            "luminosity": 3.828e+26,
+            "limb_darkening_u1": 0.45,
+            "limb_darkening_u2": 0.23,
+            "mean_intensity": 0.8116668553772325,
+            "intensity": 251754968.1428863
+        },
+        "InnerPlanet": {
+            "body_type": "planet",
+            "mass": 1.7916e+25,
+            "radius": 9567202.5,
+            "luminosity": 0.0,
+            "intensity": 0.0,
+            "e": 0.0,
+            "i": 1.5533430342749532,
+            "a": 14959787070.0,
+            "Omega": 0.0,
+            "Omega_deg": 0.0,
+            "omega": 0.0,
+            "omega_deg": 0.0
+        },
+        "OuterPlanet": {
+            "body_type": "planet",
+            "mass": 5.972e+24,
+            "radius": 6378135.0,
+            "luminosity": 0.0,
+            "intensity": 0.0,
+            "e": 0.045,
+            "i": 1.5742869852988852,
+            "a": 149597870700.0,
+            "Omega": 0.0,
+            "Omega_deg": 0.0,
+            "omega": 0.0,
+            "omega_deg": 0.0
+        }
+    },
+    "Fitting Parameters": {
+        "InnerPlanet.ma": {
+            "body_name": "InnerPlanet",
+            "body_index": 1,
+            "parameter_name": "ma",
+            "unit": "deg",
+            "long_parameter_name": "ma[deg]",
+            "scale": 57.29577951308232,
+            "startvalue": 6.000000000000001,
+            "lower": -20.0,
+            "upper": 29.999999999999996,
+            "sigma": 10.0,
+            "index": 0,
+            "body_parameter_name": "InnerPlanet.ma",
+            "long_body_parameter_name": "InnerPlanet.ma [deg]",
+            "hdi_min": 5.7302153973848595,
+            "hdi_max": 6.026399010560957,
+            "std": 0.18989525457276313,
+            "mean": 5.882373701519066,
+            "median": 5.8834195285030235,
+            "max_likelihood": 5.875354675827345
+        },
+        "OuterPlanet.ma": {
+            "body_name": "OuterPlanet",
+            "body_index": 2,
+            "parameter_name": "ma",
+            "unit": "deg",
+            "long_parameter_name": "ma[deg]",
+            "scale": 57.29577951308232,
+            "startvalue": 82.0,
+            "lower": 0.0,
+            "upper": 180.0,
+            "sigma": 10.0,
+            "index": 1,
+            "body_parameter_name": "OuterPlanet.ma",
+            "long_body_parameter_name": "OuterPlanet.ma [deg]",
+            "hdi_min": 81.99846954261518,
+            "hdi_max": 82.00523590396361,
+            "std": 9.234851602160637,
+            "mean": 82.01378996265153,
+            "median": 82.0015992076117,
+            "max_likelihood": 82.00156033769186
+        }
+    },
+    "ProgramParameters": {
+        "body_parameter_names": null,
+        "long_body_parameter_names": null,
+        "PARAMS": [
+            "body_type",
+            "primary",
+            "mass",
+            "radius",
+            "luminosity",
+            "limb_darkening_u1",
+            "limb_darkening_u2",
+            "mean_intensity",
+            "intensity",
+            "e",
+            "i",
+            "P",
+            "a",
+            "Omega",
+            "omega",
+            "pomega",
+            "L",
+            "ma",
+            "ea",
+            "nu",
+            "T",
+            "t"
+        ],
+        "config_file": "config.ini",
+        "g": 6.6743e-11,
+        "au": 149597870700.0,
+        "r_sun": 695700000.0,
+        "m_sun": 1.98847e+30,
+        "l_sun": 3.828e+26,
+        "r_jup": 71492000.0,
+        "m_jup": 1.8981246e+27,
+        "r_nep": 24622000.0,
+        "m_nep": 1.024092e+26,
+        "r_earth": 6378135.0,
+        "m_earth": 5.972e+24,
+        "hour": 3600,
+        "day": 86400,
+        "year": 31556925.216,
+        "rad2deg": 57.29577951308232,
+        "verbose": false,
+        "transit_precision": 1,
+        "flux_data_directory": ".",
+        "action": "mcmc",
+        "jacobi_masses": true,
+        "dt": 5000,
+        "result_dt": 5000,
+        "dts": [
+            5000.0
+        ],
+        "video_file": null,
+        "mcmc_multi_processing": true,
+        "free_parameters": 2,
+        "flux_file": null,
+        "rv_file": null,
+        "rv_body": null,
+        "eclipsers_names": [
+            "InnerPlanet",
+            "OuterPlanet"
+        ],
+        "eclipsees_names": [
+            "SomeStar"
+        ],
+        "result_file": null,
+        "max_interval_extensions": 5,
+        "starts_d": [
+            2460001.9
+        ],
+        "ends_d": [
+            2460003.9
+        ],
+        "end_date": 2460003.9,
+        "sim_flux_file": null,
+        "starts_s0": [
+            164159.99999195337
+        ],
+        "ends_s0": [
+            336959.9999919534
+        ],
+        "start_indices": [
+            0,
+            35
+        ],
+        "max_iterations": [
+            35
+        ],
+        "tt_padding": 0.3,
+        "flux_plots_top": 1.015,
+        "flux_plots_bottom": 0.97,
+        "sim_flux_err": 0.0,
+        "frames": 150,
+        "fps": 30,
+        "clockwise": false,
+        "sampling_rate": 0.23333333333333334,
+        "scope_left": 149597870700.0,
+        "scale_bar_length_left": 149597870700.0,
+        "star_scale_left": 1.0,
+        "planet_scale_left": 1.0,
+        "scope_right": 149597870700.0,
+        "scale_bar_length_right": 149597870700.0,
+        "star_scale_right": 1.0,
+        "planet_scale_right": 1.0,
+        "autoscaling": true,
+        "min_radius": 0.004,
+        "max_radius": 0.02,
+        "show_left_plot": true,
+        "show_right_plot": true,
+        "show_lc_plot": true,
+        "show_rv_plot": false,
+        "main_title": "Main Title",
+        "left_title": "View from above",
+        "right_title": "View from Earth",
+        "figure_width": 16,
+        "figure_height": 8,
+        "xlim": 1.25,
+        "ylim": 1.0,
+        "flux_dot_height": 0.077,
+        "flux_dot_width": 0.005,
+        "rv_dot_height": 0.077,
+        "rv_dot_width": 0.005,
+        "best_residuals_tt_sum_squared": 1e+99,
+        "lmfit": false,
+        "lmfit_method": "powell",
+        "lmfit_max_tt_delta": 1.1574074074074073e-05,
+        "flux_weight": 1,
+        "tt_weight": 1,
+        "rv_weight": 1,
+        "backend": null,
+        "load_backend": false,
+        "steps": 100000000,
+        "chunk_size": 100,
+        "bins": [
+            30,
+            200
+        ],
+        "unit": {
+            "mass": "m_jup",
+            "radius": "r_jup",
+            "e": "1",
+            "i": "deg",
+            "P": "d",
+            "a": "AU",
+            "Omega": "deg",
+            "omega": "deg",
+            "pomega": "deg",
+            "L": "deg",
+            "ma": "deg",
+            "ea": "deg",
+            "nu": "deg",
+            "T": "s",
+            "t": "s"
+        },
+        "scale": {
+            "mass": 5.268358041405712e-28,
+            "radius": 1.3987579029821518e-08,
+            "e": 1,
+            "i": 57.29577951308232,
+            "P": 1.1574074074074073e-05,
+            "a": 6.684587122268445e-12,
+            "Omega": 57.29577951308232,
+            "omega": 57.29577951308232,
+            "pomega": 57.29577951308232,
+            "L": 57.29577951308232,
+            "ma": 57.29577951308232,
+            "ea": 57.29577951308232,
+            "nu": 57.29577951308232,
+            "T": 1,
+            "t": 1
+        },
+        "myintegration": false,
+        "jacobi_coordinates": true
+    }
+}

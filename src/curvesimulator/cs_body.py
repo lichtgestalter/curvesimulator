@@ -109,11 +109,11 @@ class CurveSimBody:
     #     body = CurveSimBody()
     #     return body
 
-    def save(self, prefix="", suffix=""):
+    def save(self, directory=".", prefix="", suffix=""):
         """Saves attributes of self in a simple text file (key = repr(value)).
         Excludes large/non-serializable/derived attributes listed in `exclude`.
         """
-        filename = "../bodies/" + prefix + self.name + suffix + ".bdy"
+        filename = directory + prefix + self.name + suffix + ".bdy"
         exclude = ["positions", "velocity", "circle_left", "circle_right", "acceleration", "area_2d", "d", "h", "angle", "eclipsed_area", "patch_radius"]
         try:
             with open(filename, "w", encoding="utf-8") as f:
@@ -130,11 +130,11 @@ class CurveSimBody:
             print(f"Error saving body to {filename}: {e}")
 
     @staticmethod
-    def load(filename, p):
+    def load(filename, p, directory="."):
         """Loads a body from `../bodies/<filename>.bdy`,
         assembles the constructor args in the original __init__ order,
         calls CurveSimBody(*args)"""
-        path = "../bodies/" + filename + ".bdy"
+        path = directory +"/" + filename + ".bdy"
         data = {}
         try:
             with open(path, "r", encoding="utf-8") as f:

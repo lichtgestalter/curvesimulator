@@ -82,7 +82,7 @@ class CurveSimBodies(list):
                     }
                     body = CurveSimBody(**kwargs)
                 else:
-                    body = CurveSimBody.load(file, p)
+                    body = CurveSimBody.load(file, p, ".")
                 self.append(body)
         self.check_body_parameters()
         p.bodynames2bodies(self)
@@ -292,9 +292,9 @@ class CurveSimBodies(list):
                 print(f"{Fore.YELLOW}\nWARNING: more than one anomaly (L, ma, ea, nu, T) has been specified in config file for {body.name}.")
                 print(f"Check for contradictions and/or remove superflous anomalies.{Style.RESET_ALL}")
 
-    def save(self, prefix="", suffix=""):
+    def save(self, directory=".", prefix="", suffix=""):
         for body in self:
-            body.save(prefix, suffix)
+            body.save(directory, prefix, suffix)
 
     # def calc_primary_body_initial_velocity(self):
     #     """Calculates the initial velocity of the primary body in the star system

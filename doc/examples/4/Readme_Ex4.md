@@ -1,12 +1,11 @@
-# Example 3: Fitting Transit Times with LMFit
+# Example 4: Fitting Transit Times with MCMC
 
 ## What it does
 Running `run_example.py` reads `config.ini`, which instructs the program to:
 - read `tt.csv`
-- perform a least-squares fit with 2 fitting parameters: the mean anomaly 
+- perform a Markov Chain Monte Carlo fit with 2 fitting parameters: the mean anomaly 
   of the inner and the outer planet
-- save the results of each run in a separate numbered subdirectory in 
-  `lmfit_best_fits.txt`
+- save the results of each run in a separate numbered subdirectory
 
 ## Files in this example
 | File                           | Description                                                                                           |
