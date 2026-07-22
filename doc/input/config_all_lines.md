@@ -1,3 +1,22 @@
+# The Configuration File
+
+## How it works
+
+The only thing you have to do in Python is to tell Curvesimulator which 
+config file to use.  
+
+Everything Curvesimulator does is controlled by this config file.
+
+Use [config_all_lines] as a starting point for your own config file, or 
+use one of the config files from the [examples].
+
+## All possible parameters
+
+This is an overview of all available parameters for the configuration of 
+CurveSimulator runs.   
+
+
+
 | Section / Parameter           | Default Value                                                                                                                                                                                                         | Example Value                                                                                                                                                                                                         | Comment                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 |-------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | [Astronomical Constants]      |                                                                                                                                                                                                                       |                                                                                                                                                                                                                       | You may use the constants defined in this section in all subsequent sections, e.g. "scope_left = 1.9 * au". Do not remove any parameters from this section!                                                                                                                                                                                                                                                                                                                                                          |

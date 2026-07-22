@@ -1,12 +1,10 @@
 import os
 from setuptools import setup, find_packages
 
-# Get the directory containing this file
-current_directory = os.path.abspath(os.path.dirname(__file__))
-# remove the src directory from the path
-current_directory = os.path.dirname(current_directory)
-# Construct the path to the README file
-readme_path = os.path.join(current_directory, 'README.md')
+# Read project info from ../README.md and put it on pypi.org
+current_directory = os.path.abspath(os.path.dirname(__file__))  # Get the directory containing this file
+current_directory = os.path.dirname(current_directory)  # remove the src directory from the path
+readme_path = os.path.join(current_directory, 'README.md')  # Construct the path to the README file
 
 with open(readme_path, "r", encoding="utf-8") as fh:
     long_description = fh.read()
@@ -17,21 +15,22 @@ setup(
     packages=find_packages(),
     install_requires=[
         # List your dependencies here
-        "colorama",          # prints colored text in console
-        "configparser",      # reads config file
-        "corner",            # generates corner plot for mcmc results
-        "emcee",             # Markov chain Monte Carlo
+        "colorama",           # prints colored text in console
+        "configparser",       # reads config file
+        "corner",             # generates corner plot for mcmc results
+        "emcee",              # Markov chain Monte Carlo
         # "json",              commented out because it is a standard lib
-        "lightkurve",        # TESS light-curve download/processing
-        "lmfit",             # local minimization fits
-        "matplotlib",        # plots
+        "lightkurve",         # TESS light-curve download/processing
+        "lmfit",              # local minimization fits
+        # "matplotlib",       # plots
+        "matplotlib==3.10.0",  # plots
         # "multiprocessing",   commented out because it is a standard lib
-        "numpy",             # numerical (vector) operations
-        # "numpy>=1.5,<2.3",   example showing how to constrain versions
-        "pandas",            # tabular flux / TT / RV data
-        "rebound",           # N-body integration
+        "numpy",              # numerical (vector) operations
+        # "numpy>=1.5,<2.3",    example showing how to constrain versions
+        "pandas",             # tabular flux / TT / RV data
+        "rebound",            # N-body integration
         # "rebound @ https://github.com/hannorein/rebound/archive/refs/tags/5.1.0.tar.gz",  # PyPI sdist is incomplete for Windows/Python 3.13; GitHub release archive includes missing assembly source
-        "scipy",             # statistics and optimization helpers
+        "scipy",              # statistics and optimization helpers
     ],
     author="Uli Scheuss",
     description="CurveSimulator is a n-body library for orbital parameter determination and visualization of exoplanet systems.",
