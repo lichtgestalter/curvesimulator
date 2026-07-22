@@ -76,18 +76,9 @@ class CurveSimParameters:
 
         # [Results]
         self.results_directory = config.get("Results", "results_directory", fallback=".")
-        # if self.results_directory is None:  # For legacy config file where results_directory was in section Simulation
-        #     self.results_directory = config.get("Simulation", "results_directory", fallback=None)
-        # self.results_directory = config.get("Simulation", "results_directory", fallback="None")
-        # if self.results_directory == "None":
-        #     self.results_directory = None
-        # if self.results_directory is not None:
-        self.find_results_subdirectory()
         self.result_file = config.get("Results", "result_file", fallback=None)
-        # self.result_file = config.get("Results", "result_file", fallback="None")
-        # if self.result_file == "None":
-        #     self.result_file = None
-        # self.result_dt = eval(config.get("Results", "result_dt", fallback="100"))
+        if self.result_file is not None or self.action in ["lmfit", "mcmc"]:
+            self.find_results_subdirectory()
         self.max_interval_extensions = eval(config.get("Results", "max_interval_extensions", fallback="10"))
 
         # [Simulation]
@@ -95,61 +86,56 @@ class CurveSimParameters:
         self.ends_d = np.array(eval(config.get("Simulation", "ends", fallback="[]")), dtype=float)
         self.end_date = self.ends_d[0]  # temporary hack until self.ends_d is no longer a list
         # self.dts = np.array(eval(config.get("Simulation", "dts", fallback="[]")), dtype=float)
-
         self.sim_flux_file = config.get("Simulation", "sim_flux_file", fallback=None)
         self.start_indices, self.max_iterations, self.total_iterations = self.check_intervals()
         self.tt_padding = eval(config.get("Fitting", "tt_padding", fallback="0.3"))
         self.flux_plots_top = eval(config.get("Fitting", "flux_plots_top", fallback="1.015"))
         self.flux_plots_bottom = eval(config.get("Fitting", "flux_plots_bottom", fallback="0.97"))
+        self.sim_flux_err = eval(config.get("Simulation", "sim_flux_err", fallback="0.0"))
 
-        if self.action == "single_run":  # run simulation, generate video and transit results
-            # if self.sim_flux_file == "None":
-            #     self.sim_flux_file = None
-            self.sim_flux_err = eval(config.get("Simulation", "sim_flux_err", fallback="0.0"))
+        # [Video]
+        self.frames = eval(config.get("Video", "frames", fallback="150"))
+        self.fps = eval(config.get("Video", "fps", fallback="30"))
+        self.clockwise = eval(config.get("Video", "clockwise", fallback="False"))
 
-            # [Video]
-            self.frames = eval(config.get("Video", "frames", fallback="150"))
-            self.fps = eval(config.get("Video", "fps", fallback="30"))
-            self.clockwise = eval(config.get("Video", "clockwise", fallback="False"))
+        self.sampling_rate = self.total_iterations / self.frames
+        # [VideoScale]
+        self.scope_left = eval(config.get("VideoScale", "scope_left", fallback="au"))
+        self.scale_bar_length_left = eval(config.get("VideoScale", "scale_bar_length_left", fallback="au"))
+        self.star_scale_left = eval(config.get("VideoScale", "star_scale_left", fallback="1.0"))
+        self.planet_scale_left = eval(config.get("VideoScale", "planet_scale_left", fallback="1.0"))
+        self.scope_right = eval(config.get("VideoScale", "scope_right", fallback="au"))
+        self.scale_bar_length_right = eval(config.get("VideoScale", "scale_bar_length_right", fallback="au"))
+        self.star_scale_right = eval(config.get("VideoScale", "star_scale_right", fallback="1.0"))
+        self.planet_scale_right = eval(config.get("VideoScale", "planet_scale_right", fallback="1.0"))
+        self.autoscaling = config.get("VideoScale", "autoscaling", fallback="on") == "on"
+        self.min_radius = eval(config.get("VideoScale", "min_radius", fallback="0.4")) / 100.0
+        self.max_radius = eval(config.get("VideoScale", "max_radius", fallback="2.0")) / 100.0
 
-            # self.start_indices, self.max_iterations, self.total_iterations = self.check_intervals()
-            self.sampling_rate = self.total_iterations / self.frames
-            # self.sampling_rate = (self.total_iterations - 1) // self.frames + 1
+        # [VideoPlot]
+        self.show_left_plot = eval(config.get("VideoPlot", "show_left_plot", fallback="True"))
+        self.show_right_plot = eval(config.get("VideoPlot", "show_right_plot", fallback="True"))
+        self.show_lc_plot = eval(config.get("VideoPlot", "show_lc_plot", fallback="True"))
+        self.show_rv_plot = eval(config.get("VideoPlot", "show_rv_plot", fallback="False"))
+        self.main_title = config.get("VideoPlot", "main_title", fallback="Main Title")
+        self.left_title = config.get("VideoPlot", "left_title", fallback="View from above")
+        self.right_title = config.get("VideoPlot", "right_title", fallback="View from Earth")
+
+        self.figure_width = eval(config.get("VideoPlot", "figure_width", fallback="16"))
+        self.figure_height = eval(config.get("VideoPlot", "figure_height", fallback="8"))
+        self.xlim = eval(config.get("VideoPlot", "xlim", fallback="1.25"))
+        self.ylim = eval(config.get("VideoPlot", "ylim", fallback="1.0"))
+        self.flux_dot_height = eval(config.get("VideoPlot", "flux_dot_height", fallback="0.077"))
+        self.flux_dot_width = eval(config.get("VideoPlot", "flux_dot_width", fallback="0.005"))
+        self.rv_dot_height = eval(config.get("VideoPlot", "rv_dot_height", fallback="0.077"))
+        self.rv_dot_width = eval(config.get("VideoPlot", "rv_dot_width", fallback="0.005"))
+
+        if self.action == "single_run":
             if self.sampling_rate < 1:
                 print(f"{Fore.YELLOW}\nWARNING: This simulation calculates only {self.total_iterations} iterations for {self.frames} video frames.{Style.RESET_ALL}")
                 print(f"{Fore.YELLOW}         Because of this undersampling, the video will be using the same iteration for consecutive frames.{Style.RESET_ALL}")
                 print(f"{Fore.YELLOW}         Decrease the number of frames or decrease dt (the real time difference between simulation iterations).{Style.RESET_ALL}")
-            # [VideoScale]
-            self.scope_left = eval(config.get("VideoScale", "scope_left", fallback="au"))
-            self.scale_bar_length_left = eval(config.get("VideoScale", "scale_bar_length_left", fallback="au"))
-            self.star_scale_left = eval(config.get("VideoScale", "star_scale_left", fallback="1.0"))
-            self.planet_scale_left = eval(config.get("VideoScale", "planet_scale_left", fallback="1.0"))
-            self.scope_right = eval(config.get("VideoScale", "scope_right", fallback="au"))
-            self.scale_bar_length_right = eval(config.get("VideoScale", "scale_bar_length_right", fallback="au"))
-            self.star_scale_right = eval(config.get("VideoScale", "star_scale_right", fallback="1.0"))
-            self.planet_scale_right = eval(config.get("VideoScale", "planet_scale_right", fallback="1.0"))
-            self.autoscaling = config.get("VideoScale", "autoscaling", fallback="on") == "on"
-            self.min_radius = eval(config.get("VideoScale", "min_radius", fallback="0.4")) / 100.0
-            self.max_radius = eval(config.get("VideoScale", "max_radius", fallback="2.0")) / 100.0
-
-            # [VideoPlot]
-            self.show_left_plot = eval(config.get("VideoPlot", "show_left_plot", fallback="True"))
-            self.show_right_plot = eval(config.get("VideoPlot", "show_right_plot", fallback="True"))
-            self.show_lc_plot = eval(config.get("VideoPlot", "show_lc_plot", fallback="True"))
-            self.show_rv_plot = eval(config.get("VideoPlot", "show_rv_plot", fallback="True"))
-            self.main_title = config.get("VideoPlot", "main_title", fallback="Main Title")
-            self.left_title = config.get("VideoPlot", "left_title", fallback="View from above")
-            self.right_title = config.get("VideoPlot", "right_title", fallback="View from Earth")
-
-            self.figure_width = eval(config.get("VideoPlot", "figure_width", fallback="16"))
-            self.figure_height = eval(config.get("VideoPlot", "figure_height", fallback="8"))
-            self.xlim = eval(config.get("VideoPlot", "xlim", fallback="1.25"))
-            self.ylim = eval(config.get("VideoPlot", "ylim", fallback="1.0"))
-            self.flux_dot_height = eval(config.get("VideoPlot", "flux_dot_height", fallback="0.077"))
-            self.flux_dot_width = eval(config.get("VideoPlot", "flux_dot_width", fallback="0.005"))
-            self.rv_dot_height = eval(config.get("VideoPlot", "rv_dot_height", fallback="0.077"))
-            self.rv_dot_width = eval(config.get("VideoPlot", "rv_dot_width", fallback="0.005"))
-        else:  # run MCMC, fit parameters to flux measurements
+        else:  # not a single run. Code in this else block should probably run every time -> could be outside an else block
             # [Fitting]
             if self.tt_file:
                 self.starts_d = np.array(eval(config.get("Simulation", "starts", fallback="[]")), dtype=float)

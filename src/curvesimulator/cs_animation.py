@@ -369,7 +369,6 @@ class CurveSimAnimation:
             print(f"Animating {p.frames:8d} frames:     ", end="")
             tic = time.perf_counter()
         anim = animation.FuncAnimation(self.fig, CurveSimAnimation.next_frame, fargs=(p, bodies, self.rv_dot, self.flux_dot, sim_rv, sim_flux, time_s0), interval=1000 / p.fps, frames=frames, blit=False)
-        # anim = animation.FuncAnimation(self.fig, CurveSimAnimation.next_frame_counterclockwise, fargs=(p, bodies, self.rv_dot, self.flux_dot, sim_rv, sim_flux, time_s0), interval=1000 / p.fps, frames=frames, blit=False)
         anim.save(
             p.video_file,
             fps=p.fps,

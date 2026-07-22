@@ -393,7 +393,10 @@ class CurveSimBodies(list):
 
         stars = [body for body in self if body.body_type == "star"]
         sim_flux = CurveSimLightcurve(p.total_iterations)  # Initialize lightcurve (essentially a np.ndarray)
-        sim_rv = np.full(p.total_iterations, np.nan, dtype=float)
+        if p.show_rv_plot or p.rv_file:
+            sim_rv = np.full(p.total_iterations, np.nan, dtype=float)
+        else:
+            sim_rv = None
         if not p.myintegration:
             initial_sim_state = CurveSimRebound(simulation)
 
@@ -410,7 +413,8 @@ class CurveSimBodies(list):
             for body in self:
                 CurveSimBodies.update_position(body, iteration, simulation)
             sim_flux[iteration] = self.total_luminosity(stars, iteration, p)  # Update sim_flux.
-            sim_rv[iteration] = -simulation.particles[p.rv_body].vz
+            if p.show_rv_plot or p.rv_file:
+                sim_rv[iteration] = -simulation.particles[p.rv_body].vz
             if p.verbose:
                 CurveSimBodies.progress_bar(iteration, p)
         if not p.myintegration:

@@ -920,9 +920,9 @@ class CurveSimLMfit:
         for (body_index, parameter_name), (lower, upper) in zip(self.param_references, self.param_bounds):
             self.params.add(bodies[body_index].name + "_" + parameter_name, value=bodies[body_index].__dict__[parameter_name], min=lower, max=upper)
 
-        if p.flux_file:
-            Hier Parameter in args anpassen:
-            self.result = lmfit.minimize(CurveSimLMfit.lmfit_residual_flux, self.params, method=p.lmfit_method, args=(self.param_references, bodies, time_s0, time_d, measured_tt, p))
+        # if p.flux_file:  debug_lmfit_flux
+        #     Hier Parameter in args anpassen:
+        #     self.result = lmfit.minimize(CurveSimLMfit.lmfit_residual_flux, self.params, method=p.lmfit_method, args=(self.param_references, bodies, time_s0, time_d, measured_tt, p))
         if p.tt_file:
             self.result = lmfit.minimize(CurveSimLMfit.lmfit_residual_tt, self.params, method=p.lmfit_method, args=(self.param_references, bodies, time_s0, time_d, measured_tt, p))
         # self.result = lmfit.minimize(CurveSimLMfit.lmfit_residual_tt, self.params, method="powell", args=(self.param_references, bodies, time_s0, time_d, measured_tt, p))
@@ -953,17 +953,18 @@ class CurveSimLMfit:
         # does not even find minimum for 3 params   slsqp	SequentialLinearSquaresProgramming
         # does not find minimum + needs more residual than params  leastsq: Levenberg-Marquardt (default, for least-squares problems)
 
-    @staticmethod
-    def lmfit_residual_flux(params, param_references, bodies, time_s0, time_d, measured_tt, p):
-        # NEU!!!   BAUSTELLE!!!
-        for body_index, parameter_name in param_references:
-            bodies[body_index].__dict__[parameter_name] = params[bodies[body_index].name + "_" + parameter_name].value  # update all parameters from params
-        sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # run simulation
-        residuals_flux_sum_squared = CurveSimMCMC.residuals_flux_sum_squared(params, param_references, bodies, time_s0, sim_flux, flux_err, p)
-        return residuals_flux_sum_squared
-
-        # def residuals_flux_sum_squared(theta, param_references, bodies, time_s0, measured_flux_array, flux_err, p):
-        # def residuals_tt_sum_squared  (theta, param_references, bodies, time_s0, time_d, measured_tt, p):
+    # debug_lmfit_flux
+    # @staticmethod
+    # def lmfit_residual_flux(params, param_references, bodies, time_s0, time_d, measured_tt, p):
+    #     # NEU!!!   BAUSTELLE!!!
+    #     for body_index, parameter_name in param_references:
+    #         bodies[body_index].__dict__[parameter_name] = params[bodies[body_index].name + "_" + parameter_name].value  # update all parameters from params
+    #     sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # run simulation
+    #     residuals_flux_sum_squared = CurveSimMCMC.residuals_flux_sum_squared(params, param_references, bodies, time_s0, sim_flux, flux_err, p)
+    #     return residuals_flux_sum_squared
+    #     # Die folgenden 2 Zeilen sind hier nur zur Uebersicht, welche Parameter die Funktionen brauchen:
+    #     # def residuals_flux_sum_squared(theta, param_references, bodies, time_s0, measured_flux_array, flux_err, p):
+    #     # def residuals_tt_sum_squared  (theta, param_references, bodies, time_s0, time_d, measured_tt, p):
 
     @staticmethod
     def lmfit_residual_tt(params, param_references, bodies, time_s0, time_d, measured_tt, p):

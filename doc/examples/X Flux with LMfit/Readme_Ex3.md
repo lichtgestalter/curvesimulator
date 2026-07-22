@@ -1,10 +1,13 @@
-# Example 3: Fitting Transit Times with LMFit
+# This is just a cop from Example 2 as a starting point!
+
+# Example x: Fitting Flux with LMFit
+
+
 
 ## What it does
 Running `run_example.py` reads `config.ini`, which instructs the program to:
 - read `tt.csv`
-- perform a least-squares fit with a 2 fitting parameters: the mean anomaly 
-  of the inner and the outer planet
+- perform a least-squares fit with a single fitting parameter: the mean anomaly of the outer planet
 - save the results of each run in a separate numbered subdirectory in 
   `lmfit_best_fits.txt`
 
