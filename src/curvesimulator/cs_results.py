@@ -532,8 +532,8 @@ class CurveSimResults(dict):
             legend=True,
             left=left,
             right=right,
-            top=p.flux_plots_top,
-            bottom=p.flux_plots_bottom,
+            # top=p.flux_plots_top,
+            # bottom=p.flux_plots_bottom,
             plot_file=p.results_directory + plot_filename,
         )
         if measured_tt is not None:
