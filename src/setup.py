@@ -22,11 +22,16 @@ setup(
         "corner",            # generates corner plot for mcmc results
         "emcee",             # Markov chain Monte Carlo
         # "json",              commented out because it is a standard lib
+        "lightkurve",        # TESS light-curve download/processing
+        "lmfit",             # local minimization fits
         "matplotlib",        # plots
         # "multiprocessing",   commented out because it is a standard lib
         "numpy",             # numerical (vector) operations
         # "numpy>=1.5,<2.3",   example showing how to constrain versions
-        "rebound"            # N-body integration
+        "pandas",            # tabular flux / TT / RV data
+        "rebound",           # N-body integration
+        # "rebound @ https://github.com/hannorein/rebound/archive/refs/tags/5.1.0.tar.gz",  # PyPI sdist is incomplete for Windows/Python 3.13; GitHub release archive includes missing assembly source
+        "scipy",             # statistics and optimization helpers
     ],
     author="Uli Scheuss",
     description="CurveSimulator is a n-body library for orbital parameter determination and visualization of exoplanet systems.",

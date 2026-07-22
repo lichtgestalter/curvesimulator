@@ -17,5 +17,3 @@ The video simultaneously displays a view of the star system from the top and fro
 - Fast video generation (takes about the same time as playing time)
 - Efficient storage (only 0.5 MB disk space per minute of video)
 - Customizable via a configuration file
-
-Get started quickly by having a look at CurveSimulator's [wiki](https://github.com/lichtgestalter/curvesimulator/wiki).

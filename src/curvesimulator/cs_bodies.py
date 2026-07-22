@@ -119,14 +119,14 @@ class CurveSimBodies(list):
             sys.exit(1)
 
         for body in self[0:1]:  # hack debug: works only when the first body is the only star and all other bodies are orbiting this star (no binary, no moons, ...)
-            simulation.add(m=body.mass, r=body.radius, hash=body.name)
+            simulation.add(m=body.mass, r=body.radius, name=body.name)
 
         for i, body in enumerate(self[1:], start=1):
             kwargs = {}
             kwargs["jacobi_masses"] = p.jacobi_masses
             kwargs["m"] = body.mass
             kwargs["r"] = body.radius
-            kwargs["hash"] = body.name
+            kwargs["name"] = body.name
             kwargs["inc"] = body.i
             kwargs["e"] = body.e
             if body.P is not None:
