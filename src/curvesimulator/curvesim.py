@@ -109,8 +109,8 @@ class CurveSimulator:
                 sys.exit(0)
             elif p.action == "lmfit":
                 num_workers = max(1, os.cpu_count() - 1)  # number of parallel lmfit runs (multiprocessing). Leave one CPU availabe for other programs
-                chunk_runs = 5  # total number of lmfit runs before process queue gets emptied and multiprocessing restarts
-                max_runs = 15
+                chunk_runs = 100  # total number of lmfit runs before process queue gets emptied and multiprocessing restarts
+                max_runs = 210
                 run_counter = 0
                 print(f"{num_workers=}, {chunk_runs=}, {run_counter=}, {max_runs=}")
                 while run_counter < max_runs:
@@ -118,6 +118,7 @@ class CurveSimulator:
                     run_all_queue(tasks, num_workers)
                     run_counter += chunk_runs
                     print(f"{num_workers=}, {chunk_runs=}, {run_counter=}, {max_runs=}")
+                sys.exit(0)
             if p.action == "mcmc":
                 mcmc = CurveSimMCMC(p, bodies, time_s0, time_d, measured_flux_array, flux_uncertainty, measured_tt)
                 self.sampler = mcmc.sampler  # mcmc object
