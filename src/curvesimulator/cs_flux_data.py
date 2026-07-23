@@ -1,6 +1,5 @@
-# from colorama import Fore, Style
-import sys
-
+import warnings
+warnings.filterwarnings("ignore", module="lightkurve", message="Warning: the tpfmodel submodule is not available*")
 from colorama import Fore, Style
 import lightkurve as lk
 import math
@@ -8,6 +7,7 @@ import matplotlib.pyplot as plt
 from matplotlib import rcParams
 import numpy as np
 import pandas as pd
+import sys
 
 from .cs_results import CurveSimResults
 
