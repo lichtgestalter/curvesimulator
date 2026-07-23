@@ -276,7 +276,7 @@
         "best_residuals_tt_sum_squared": 1e+99,
         "lmfit": false,
         "lmfit_method": "powell",
-        "lmfit_max_tt_delta": 1.1574074074074073e-05,
+        "ls_max_tt_delta": 1.1574074074074073e-05,
         "flux_weight": 1,
         "tt_weight": 1,
         "rv_weight": 1,

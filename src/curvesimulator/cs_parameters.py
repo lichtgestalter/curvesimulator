@@ -145,9 +145,11 @@ class CurveSimParameters:
                 self.best_residuals_tt_sum_squared = 1e99
 
             # self.guifit = eval(config.get("Fitting", "guifit", fallback="False"))
-            self.lmfit = eval(config.get("Fitting", "lmfit", fallback="False"))
+            # self.lmfit = eval(config.get("Fitting", "lmfit", fallback="False"))
             self.lmfit_method = config.get("Fitting", "lmfit_method", fallback="powell")
-            self.lmfit_max_tt_delta = eval(config.get("Fitting", "lmfit_max_tt_delta", fallback="1/(24*60*60)"))
+            self.ls_chunk_size = int(eval(config.get("Fitting", "ls_chunk_size", fallback="1000")))
+            self.ls_steps = int(eval(config.get("Fitting", "ls_steps", fallback="10000")))
+            self.ls_max_tt_delta = eval(config.get("Fitting", "ls_max_tt_delta", fallback="1/(24*60*60)"))
             self.flux_weight = int(eval(config.get("Fitting", "flux_weight", fallback="1")))
             self.tt_weight = int(eval(config.get("Fitting", "tt_weight", fallback="1")))
             self.rv_weight = int(eval(config.get("Fitting", "rv_weight", fallback="1")))
