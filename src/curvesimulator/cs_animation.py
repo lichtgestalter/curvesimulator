@@ -2,10 +2,11 @@ from colorama import Fore, Style
 import math
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
-from matplotlib import patches, animation
+from matplotlib import patches
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 import numpy as np
 import shutil
+import subprocess
 import sys
 import time
 
@@ -14,20 +15,30 @@ class CurveSimAnimation:
     def __init__(self, p, bodies, sim_rv, sim_flux, time_s0):
         CurveSimAnimation.check_ffmpeg()  # is ffmpeg installed?
         self.fig, ax_right, ax_left, ax_lightcurve, self.rv_dot, self.flux_dot = CurveSimAnimation.init_plot(p, sim_rv, sim_flux, time_s0)  # Adjust constants in section [Plot] of config file to fit your screen.
+        # rv_dot/flux_dot change every frame. Mark them "animated" so the initial full draw
+        # (used to cache the static background for blitting) does NOT bake them in.
+        if self.rv_dot is not None:
+            self.rv_dot.set_animated(True)
+        if self.flux_dot is not None:
+            self.flux_dot.set_animated(True)
         for body in bodies:  # Circles represent the bodies in the animation. Set their colors and add them to the matplotlib axis.
             if body.image_file_left is None or body.image_file_right is None:
                 body.circle_left.set_color(body.color)
                 body.circle_right.set_color(body.color)
                 if p.show_left_plot:
+                    body.circle_left.set_animated(True)  # Moves every frame -> exclude from cached background.
                     ax_left.add_patch(body.circle_left)
                 if p.show_right_plot:
+                    body.circle_right.set_animated(True)
                     ax_right.add_patch(body.circle_right)
             else:
                 body.image_left = OffsetImage(mpimg.imread(body.image_file_left), zoom=1.0)
                 body.image_right = OffsetImage(mpimg.imread(body.image_file_right), zoom=1.0)
                 body.ab_left = AnnotationBbox(body.image_left, (0.2, 0.2), frameon=False, xycoords='data')
+                body.ab_left.set_animated(True)
                 ax_left.add_artist(body.ab_left)
                 body.ab_right = AnnotationBbox(body.image_right, (-0.5, -0.5), frameon=False, xycoords='data')
+                body.ab_right.set_animated(True)
                 ax_right.add_artist(body.ab_right)
         self.render(p, bodies, sim_rv, sim_flux, time_s0)
 
@@ -343,13 +354,13 @@ class CurveSimAnimation:
         if frame >= 10 and frame % int(round(p.frames / 10)) == 0:  # Inform user about program"s progress.
             print(f"{round(frame / p.frames * 10) * 10:3d}% ", end="")
 
-        # Return artists for compatibility with FuncAnimation (ignored if blit=False)
-        # Alle geänderten Artists sammeln
+        # Collect the artists that changed this frame. render() uses these to blit
+        # only the changed regions instead of redrawing the whole figure.
         artists = [flux_dot] if flux_dot else []
         if rv_dot:
             artists.append(rv_dot)
 
-        # AnnotationBbox und Circles hinzufügen
+        # Add AnnotationBboxes (image mode) or circles (non-image mode).
         for body in bodies:
             if hasattr(body, 'ab_left') and body.ab_left:
                 artists.append(body.ab_left)
@@ -363,23 +374,74 @@ class CurveSimAnimation:
         return artists
 
     def render(self, p, bodies, sim_rv, sim_flux, time_s0):
-        """Calls next_frame() for each frame and saves the video."""
+        """Calls next_frame() for each frame and saves the video.
+
+        Note: matplotlib's animation.Animation.save() hard-codes blit=False for every frame
+        it saves (see its source: `anim._draw_next_frame(d, blit=False)`), so blit=True on
+        FuncAnimation has NO effect at all when the animation is written to a video file via
+        anim.save() - blit only ever helps interactive on-screen animation (plt.show()).
+        To actually benefit from blitting (only redraw the artists that changed instead of
+        the whole figure every frame) we drive the rendering manually here and pipe the raw
+        pixel data straight into ffmpeg, instead of going through FuncAnimation/anim.save().
+        """
         frames = int(len(sim_flux) // p.sampling_rate)
         if p.verbose:
             print(f"Animating {p.frames:8d} frames:     ", end="")
             tic = time.perf_counter()
-        anim = animation.FuncAnimation(self.fig, CurveSimAnimation.next_frame, fargs=(p, bodies, self.rv_dot, self.flux_dot, sim_rv, sim_flux, time_s0), interval=1000 / p.fps, frames=frames, blit=False)
-        anim.save(
-            p.video_file,
-            fps=p.fps,
-            metadata={"title": " "},
-            extra_args=[
-                "-vcodec", "libx264",
-                "-crf", "18",  # Constant Rate Factor (lower value means better quality)
-                "-preset", "slow",  # Preset for better compression
-                "-b:v", "30000k"  # Bitrate 5000k (increase as needed)
-            ]
-        )
+
+        fig = self.fig
+        canvas = fig.canvas
+        canvas.draw()  # Full initial draw of everything NOT marked animated -> the static background.
+        renderer = canvas.get_renderer()
+        background = canvas.copy_from_bbox(fig.bbox)
+        buf = np.asarray(renderer.buffer_rgba())
+        height, width = buf.shape[0], buf.shape[1]
+        ffmpeg_cmd = [
+            "ffmpeg",
+            "-hide_banner",    # suppress version/configuration banner
+            "-loglevel", "error",   # only print errors
+            "-y",
+            "-f", "rawvideo",
+            "-vcodec", "rawvideo",
+            "-s", f"{width}x{height}",
+            "-pix_fmt", "rgba",
+            "-r", str(p.fps),
+            "-i", "-",
+            "-an",
+            "-vcodec", "libx264",
+            "-crf", "18",  # Constant Rate Factor (lower value means better quality)
+            "-preset", "slow",  # Preset for better compression
+            "-b:v", "30000k",  # Bitrate
+            "-pix_fmt", "yuv420p",
+            str(p.video_file),
+        ]
+        proc = subprocess.Popen(ffmpeg_cmd, stdin=subprocess.PIPE)
+
+        try:
+            for frame in range(frames):
+                artists = CurveSimAnimation.next_frame(frame, p, bodies, self.rv_dot, self.flux_dot, sim_rv, sim_flux, time_s0)
+                canvas.restore_region(background)
+                # Group by axes and sort by zorder, then draw only the changed artists on top of the cached background.
+                by_axes = {}
+                for artist in artists:
+                    if artist is None:
+                        continue
+                    by_axes.setdefault(artist.axes, []).append(artist)
+                for ax, arts in by_axes.items():
+                    arts.sort(key=lambda a: a.get_zorder())
+                    for a in arts:
+                        if ax is not None:
+                            ax.draw_artist(a)
+                        else:
+                            fig.draw_artist(a)
+                canvas.blit(fig.bbox)
+                proc.stdin.write(np.asarray(renderer.buffer_rgba()).tobytes())
+        finally:
+            proc.stdin.close()
+            proc.wait()
+            if proc.returncode != 0:
+                print(f"{Fore.RED}\nERROR: ffmpeg exited with code {proc.returncode} while writing {p.video_file}.{Style.RESET_ALL}")
+
         if p.verbose:
             toc = time.perf_counter()
             print(f" {toc - tic:7.2f} seconds  ({p.frames / (toc - tic):.0f} frames/second)")
