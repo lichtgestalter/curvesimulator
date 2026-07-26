@@ -1,4 +1,4 @@
-time,rv_abs,rv_rel,rv_err,rv_jit
+time,rv,rv_rel,rv_err,rv_jit
 2450000,0,-200,0,0.2
 2460001.92,0,0.4,0,0.2
 2460002.547,0,0.2,0,0.2

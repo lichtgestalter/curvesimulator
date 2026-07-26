@@ -1,5 +1,5 @@
 import bisect
-# from colorama import Fore, Style
+from colorama import Fore, Style
 import copy
 import json
 import math
@@ -9,7 +9,7 @@ import pandas as pd
 import os
 import re
 import scipy.stats as stats
-
+import sys
 
 class Transit(dict):
     def __init__(self, eclipsed_body):
@@ -233,9 +233,17 @@ class CurveSimResults(dict):
         return p_value
 
     @staticmethod
+    def check_required_columns(required_columns, df, file):
+        missing_columns = required_columns - set(df.columns)
+        if missing_columns:
+            print(f"{Fore.RED}\nERROR: Missing required columns in {file}: {missing_columns}{Style.RESET_ALL}")
+            sys.exit(1)
+
+    @staticmethod
     def get_measured_flux(p):
         df = pd.read_csv(p.flux_file)
-        measured_flux = df[(df["time"] >= p.start_date) & (df["time"] <= p.end_date)]
+        CurveSimResults.check_required_columns({"time", "flux", "flux_err"}, df, p.flux_file)
+        measured_flux = df[(df["time"] >= p.start_date) & (df["time"] <= p.end_date)].copy()
         measured_flux["time_s0"] = (measured_flux["time"] - p.start_date) * p.day
         time_s0 = np.array(measured_flux["time_s0"], dtype=float)
         measured_flux_array = np.array(measured_flux["flux"])
@@ -247,17 +255,22 @@ class CurveSimResults(dict):
     @staticmethod
     def get_measured_tt(p):
         df = pd.read_csv(p.tt_file)
-        df = df[(df["tt"] >= p.start_date) & (df["tt"] <= p.end_date)]
+        CurveSimResults.check_required_columns({"eclipser", "tt", "tt_err", "nr"}, df, p.tt_file)
+        df = df[(df["tt"] >= p.start_date) & (df["tt"] <= p.end_date)].copy()
         p.tt_datasize = len(df["tt"])
         return df
 
     @staticmethod
     def get_measured_rv(p):
         df = pd.read_csv(p.rv_file)
-        df = df[(df["time"] >= p.start_date) & (df["time"] <= p.end_date)]
+        CurveSimResults.check_required_columns({"time", "rv", "rv_err"}, df, p.rv_file)
+        df = df[(df["time"] >= p.start_date) & (df["time"] <= p.end_date)].copy()
         p.rv_datasize = len(df["time"])
-        df["time_s0"] = (df["time"] - p.start_date) * p.day
+        df["time_s0"] = (df["time"] - p.start_date) * p.day  # observation times in seconds; starting with 0 at epoch
+        df["rv_corr"] = df["rv"] + p.rv_offset  # rv corrected by the constant shift
+        df["rv_total_err"] = df["rv_err"] * df["rv_err"] + p.rv_jitter * p.rv_jitter  # combined RV uncertainty from measurement uncertainty and jitter
         return df
+
 
     @staticmethod
     def _to_list(val, default):
