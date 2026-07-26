@@ -61,6 +61,8 @@ class CurveSimBodies(list):
                         "mass": p.read_param(config, section, "mass", fallback=None),
                         "radius": p.read_param(config, section, "radius", fallback=None),
                         "luminosity": p.read_param(config, section, "luminosity", fallback="0.0"),
+                        "rv_offset": p.read_param(config, section, "rv_offset", fallback=None),
+                        "rv_jitter": p.read_param(config, section, "rv_jitter", fallback=None),
                         "limb_darkening_1": p.read_param(config, section, "limb_darkening_1", fallback=None),
                         "limb_darkening_2": p.read_param(config, section, "limb_darkening_2", fallback=None),
                         "limb_darkening_parameter_type": config.get(section, "limb_darkening_parameter_type", fallback=None),

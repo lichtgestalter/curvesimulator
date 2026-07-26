@@ -14,7 +14,7 @@ class CurveSimParameters:
         """Read program parameters and properties of the physical bodies from config file."""
         self.body_parameter_names = None
         self.long_body_parameter_names = None
-        self.PARAMS = (["body_type", "primary", "mass", "radius", "luminosity"]
+        self.PARAMS = (["body_type", "primary", "mass", "radius", "luminosity", "rv_offset", "rv_jitter"]
                        + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
                        + ["e", "i", "P", "a", "Omega", "omega", "pomega"]
                        + ["L", "ma", "ea", "nu", "T", "t"])
@@ -290,7 +290,7 @@ class CurveSimParameters:
             print(f"Running MCMC with these fitting parameters:")
         for section in config.sections():
             if section not in self.standard_sections:  # section describes a physical object
-                for parameter_name in ["mass", "radius", "luminosity", "limb_darkening_1", "limb_darkening_2", "e", "i", "a", "P", "Omega", "pomega", "omega", "L", "nu", "ma", "ea", "T"]:
+                for parameter_name in ["mass", "radius", "luminosity", "rv_offset", "rv_jitter", "limb_darkening_1", "limb_darkening_2", "e", "i", "a", "P", "Omega", "pomega", "omega", "L", "nu", "ma", "ea", "T"]:
                     value, lower, upper, sigma = self.read_param_and_bounds(config, section, parameter_name)
                     if value is not None:
                         if self.verbose:

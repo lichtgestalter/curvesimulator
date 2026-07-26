@@ -782,7 +782,7 @@ class CurveSimMCMC:
             results["measured_tt_list"] = measured_tt.to_dict(orient="list")  # Convert measured_tt DataFrame to a serializable format
 
         results["Bodies"] = {}
-        params = (["body_type", "primary", "mass", "radius", "luminosity"]
+        params = (["body_type", "primary", "mass", "radius", "luminosity", "rv_offset", "rv_jitter"]
                   + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
                   + ["e", "i", "P", "a", "Omega", "Omega_deg", "omega", "omega_deg", "pomega", "pomega_deg"]
                   + ["L", "L_deg", "ma", "ma_deg", "ea", "ea_deg", "nu", "nu_deg", "T", "t"])
@@ -1050,7 +1050,7 @@ class CurveSimLMfit:
         #     results["Simulation Parameters"]["tt_best_sim"] = list(p.best_tt_df["nearest_sim"])
 
         results["Bodies"] = {}
-        params = (["body_type", "primary", "mass", "radius", "luminosity"]
+        params = (["body_type", "primary", "mass", "radius", "luminosity", "rv_offset", "rv_jitter"]
                   + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
                   + ["e", "i", "P", "a", "Omega", "omega", "pomega"]
                   + ["L", "ma", "ea", "ea_deg", "nu", "T", "t"])

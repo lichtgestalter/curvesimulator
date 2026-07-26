@@ -18,7 +18,7 @@ def multiple_transit_error():
 
 # noinspection NonAsciiCharacters,PyPep8Naming,PyUnusedLocal
 class CurveSimBody:
-    def __init__(self, p, primary, name, body_type, mass, radius, luminosity, startposition, velocity, P, a, e, i, Omega, omega, pomega, L, ma, ea,
+    def __init__(self, p, primary, name, body_type, mass, radius, luminosity, rv_offset, rv_jitter, startposition, velocity, P, a, e, i, Omega, omega, pomega, L, ma, ea,
                  nu, T, t, limb_darkening_1, limb_darkening_2, limb_darkening_parameter_type, color, image_file_left, image_file_right):
         """Initialize instance of physical body."""
         # For ease of use of constants in the config file they are additionally defined here without the prefix "p.".
@@ -34,6 +34,8 @@ class CurveSimBody:
         self.radius = radius  # [m]
         self.area_2d = math.pi * radius ** 2  # [m**2]
         self.luminosity = luminosity  # [W]
+        self.rv_offset = rv_offset  # [m/s]
+        self.rv_jitter = rv_jitter  # [m/s]
         self.limb_darkening_u1, self.limb_darkening_u2 = CurveSimPhysics.get_limbdarkening_parameters(limb_darkening_1, limb_darkening_2, limb_darkening_parameter_type)
         self.mean_intensity = CurveSimPhysics.calc_mean_intensity(self.limb_darkening_u1, self.limb_darkening_u2)
         self.intensity = luminosity / self.area_2d  # luminosity per (apparent) area [W/m**2]
@@ -172,6 +174,8 @@ class CurveSimBody:
             data.get("body_type"),
             data.get("mass"),
             data.get("radius"),
+            data.get("rv_offset"),
+            data.get("rv_jitter"),
             data.get("luminosity"),
             data.get("startposition"),
             data.get("velocity"),
@@ -195,13 +199,11 @@ class CurveSimBody:
             data.get("image_file_left"),
             data.get("image_file_right"),
         ]
-
         try:
             body = CurveSimBody(*args)
         except Exception as e:
             print(f"Error constructing CurveSimBody from {path}: {e}")
             return None
-
         return body
 
     # noinspection NonAsciiCharacters,PyPep8Naming,PyUnusedLocal
