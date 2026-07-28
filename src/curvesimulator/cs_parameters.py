@@ -354,7 +354,7 @@ class CurveSimParameters:
         self.results_directory = self.results_directory + f"/{next_subdirectory:04d}/"
         os.makedirs(self.results_directory)
 
-    def bodynames2bodies(self, bodies):
+    def init_eclipsers_eclipsees(self, bodies):
         """ Generates 2 lists of bodies (self.eclipsers, self.eclipsees)
          based on 2 lists of strings (self.eclipsers_names, self.eclipsees_names)"""
         eclipsers, eclipsees = [], []

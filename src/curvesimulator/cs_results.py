@@ -180,7 +180,7 @@ class CurveSimResults(dict):
 
         body = rebound_sim.particles[body_name]
         measured_rv["rv_sim"] = [rv_at_t(t, rebound_sim, body) for t in measured_rv["time_s0"]]
-        measured_rv["residual"] = measured_rv["rv_rel"] - measured_rv["rv_sim"]
+        measured_rv["residual"] = measured_rv["rv_corr"] - measured_rv["rv_sim"]
         return measured_rv
 
     @staticmethod
@@ -190,7 +190,7 @@ class CurveSimResults(dict):
         return measured_flux
 
     def calc_rv_chi_squared(self, measured_rv, free_parameters):
-        measured_rv["chi_squared"] = measured_rv["residual"] / measured_rv["rv_jit"]
+        measured_rv["chi_squared"] = measured_rv["residual"] / measured_rv["rv_total_err"]
         measured_rv["chi_squared"] = measured_rv["chi_squared"] * measured_rv["chi_squared"]
         self["chi_squared_rv"] = measured_rv["chi_squared"].sum()
         self["measurements_rv"] = measured_rv.shape[0]
@@ -268,7 +268,7 @@ class CurveSimResults(dict):
         p.rv_datasize = len(df["time"])
         df["time_s0"] = (df["time"] - p.start_date) * p.day  # observation times in seconds; starting with 0 at epoch
         df["rv_corr"] = df["rv"] + p.rv_offset  # rv corrected by the constant shift
-        df["rv_total_err"] = df["rv_err"] * df["rv_err"] + p.rv_jitter * p.rv_jitter  # combined RV uncertainty from measurement uncertainty and jitter
+        df["rv_total_err"] = np.sqrt(df["rv_err"] * df["rv_err"] + p.rv_jitter * p.rv_jitter)  # combined RV uncertainty from measurement uncertainty and jitter
         return df
 
 
@@ -446,7 +446,7 @@ class CurveSimResults(dict):
             x_label="Time [BJD]",
             y_label="RV [m/s]",
             x_lists=    [time_d,   measured_rv["time"]],
-            y_lists=    [sim_rv,   measured_rv["rv_rel"]],
+            y_lists=    [sim_rv,   measured_rv["rv_corr"]],
             data_labels=["computed", "observed"],
             linestyles= ["-",      ""],
             markersizes=[0,        3],
@@ -640,13 +640,13 @@ class CurveSimResults(dict):
         plt.xlim(left=left, right=right)
         # plt.ylim(bottom=bottom, top=top)
 
-        for time, residual, jitter in zip(x, y, measured_rv["rv_jit"]):
-            plt.vlines(time, residual - jitter, residual + jitter, colors="xkcd:black", linewidth=1)
+        for time, residual, error in zip(x, y, measured_rv["rv_total_err"]):
+            plt.vlines(time, residual - error, residual + error, colors="xkcd:black", linewidth=1)
 
         plt.plot(x[0], y[0], marker=markers[0], markersize=markersizes[0], linestyle=linestyles[0], label=data_labels[0], color=colors[0], linewidth=linewidths[0])
         plt.hlines(0, left, right, colors="xkcd:black", linewidth=1)
-        plt.hlines(measured_rv["rv_jit"].mean(), left, right, colors="xkcd:warm grey", linewidth=1, linestyles="--")
-        plt.hlines(-measured_rv["rv_jit"].mean(), left, right, colors="xkcd:warm grey", linewidth=1, linestyles="--")
+        plt.hlines(measured_rv["rv_total_err"].mean(), left, right, colors="xkcd:warm grey", linewidth=1, linestyles="--")
+        plt.hlines(-measured_rv["rv_total_err"].mean(), left, right, colors="xkcd:warm grey", linewidth=1, linestyles="--")
         plt.savefig(plot_file)
 
     @staticmethod

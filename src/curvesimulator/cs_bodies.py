@@ -87,7 +87,8 @@ class CurveSimBodies(list):
                     body = CurveSimBody.load(file, p, ".")
                 self.append(body)
         self.check_body_parameters()
-        p.bodynames2bodies(self)
+        p.rv_offset, p.rv_jitter = self.get_rv_offset_and_jitter(p)
+        p.init_eclipsers_eclipsees(self)
         if p.action == "single_run":
             self.generate_patches(p)
 
@@ -241,6 +242,19 @@ class CurveSimBodies(list):
                 print(f"  ma        = {math.degrees(orbit.M):.1f}")
             except Exception:
                 print("  (No orbital elements available)")
+
+    def get_body_from_name(self, bodyname):
+        for body in self:
+            if body.name == bodyname:
+                return body
+        return None
+
+    def get_rv_offset_and_jitter(self, p):
+        rv_body = self.get_body_from_name(p.rv_body)
+        if rv_body is None:
+            return None
+        else:
+            return rv_body.rv_offset, rv_body.rv_jitter
 
     def check_body_parameters(self):
         """Checking parameters of physical bodies in the config file"""
@@ -709,15 +723,19 @@ class MyIntegration:
         """Shift positions and velocities so the center of mass is at the origin with zero net momentum."""
         plist = self._particles_list
         m_tot = sum(p.m for p in plist)
-        rx = sum(p.m * p.x  for p in plist) / m_tot
-        ry = sum(p.m * p.y  for p in plist) / m_tot
-        rz = sum(p.m * p.z  for p in plist) / m_tot
+        rx = sum(p.m * p.x for p in plist) / m_tot
+        ry = sum(p.m * p.y for p in plist) / m_tot
+        rz = sum(p.m * p.z for p in plist) / m_tot
         vx = sum(p.m * p.vx for p in plist) / m_tot
         vy = sum(p.m * p.vy for p in plist) / m_tot
         vz = sum(p.m * p.vz for p in plist) / m_tot
         for p in plist:
-            p.x  -= rx;  p.y  -= ry;  p.z  -= rz
-            p.vx -= vx;  p.vy -= vy;  p.vz -= vz
+            p.x -= rx;
+            p.y -= ry;
+            p.z -= rz
+            p.vx -= vx;
+            p.vy -= vy;
+            p.vz -= vz
 
     def compute_accelerations(self):
         plist = self._particles_list

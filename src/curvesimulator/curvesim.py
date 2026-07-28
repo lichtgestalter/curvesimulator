@@ -16,7 +16,6 @@ from .cs_results import CurveSimResults
 from .cs_flux_data import CurveSimFluxData
 
 
-
 def _lmfit_worker_queue(task_queue, result_queue):
     for task in iter(task_queue.get, None):
         config_file, time_s0, time_d, measured_tt, p, run_id = task
