@@ -252,7 +252,7 @@ class CurveSimBodies(list):
     def get_rv_offset_and_jitter(self, p):
         rv_body = self.get_body_from_name(p.rv_body)
         if rv_body is None:
-            return None
+            return None, None
         else:
             return rv_body.rv_offset, rv_body.rv_jitter
 
