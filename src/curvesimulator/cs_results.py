@@ -240,17 +240,22 @@ class CurveSimResults(dict):
             sys.exit(1)
 
     @staticmethod
+    def get_sector_params(p):
+        sector_params = pd.read_csv(p.sector_params_file)
+        CurveSimResults.check_required_columns({"sector", "offset", "offset_low", "offset_high", "offset_spread", "jitter", "jitter_low", "jitter_high", "jitter_spread"}, sector_params, p.sector_params_file)
+        offset_map = sector_params.set_index("sector")["offset"]
+        jitter_map = sector_params.set_index("sector")["jitter"]
+        return offset_map, jitter_map
+
+    @staticmethod
     def get_measured_flux(p):
         df = pd.read_csv(p.flux_file)
         if p.sector_params_file:
             CurveSimResults.check_required_columns({"time", "flux", "flux_err", "sector"}, df, p.flux_file)
         else:
             CurveSimResults.check_required_columns({"time", "flux", "flux_err"}, df, p.flux_file)
+            df["flux_total_err"] = df["flux_err"]
         measured_flux = df[(df["time"] >= p.start_date) & (df["time"] <= p.end_date)].copy()
-        if p.sector_params_file:
-            0  # debug Platzhalter
-            # debug hier sector_params_file einlesen
-            # debug hier Spalte flux_err aus flux_err und eingelesenem jitter neu berechnen
         measured_flux["time_s0"] = (measured_flux["time"] - p.start_date) * p.day
         time_s0 = np.array(measured_flux["time_s0"], dtype=float)
         measured_flux_array = np.array(measured_flux["flux"])
@@ -278,6 +283,25 @@ class CurveSimResults(dict):
         df["rv_total_err"] = np.sqrt(df["rv_err"] * df["rv_err"] + p.rv_jitter * p.rv_jitter)  # combined RV uncertainty from measurement uncertainty and jitter
         return df
 
+    @staticmethod
+    def flux_corr(measured_flux, offset_map):
+        """
+        Adds or updates column measured_flux["flux_corr"], where
+        flux_corr = flux - offset
+        with offset matched to measured_flux via the "sector" column. """
+        offset = measured_flux["sector"].map(offset_map)
+        measured_flux["flux_corr"] = measured_flux["flux"] - offset
+        return measured_flux
+
+    @staticmethod
+    def flux_total_err(measured_flux, jitter_map):
+        """
+        Adds or updates column measured_flux["flux_total_err"], where
+        flux_total_err = sqrt(flux_err^2 + jitter^2)
+        with jitter matched to measured_flux via the "sector" column. """
+        jitter = measured_flux["sector"].map(jitter_map)
+        measured_flux["flux_total_err"] = np.sqrt(measured_flux["flux_err"] ** 2 + jitter ** 2)
+        return measured_flux
 
     @staticmethod
     def _to_list(val, default):
