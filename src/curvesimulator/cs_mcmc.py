@@ -294,14 +294,17 @@ class CurveSimMCMC:
             For example: ["Tmin_pri", "P_days", "incl_deg", "R1a", "R2R1"]
         """
         residuals_sum_squared = 0
+        log_norm_term = 0
         if p.flux_file:
             residuals_sum_squared += p.flux_weight * CurveSimMCMC.residuals_flux_sum_squared(theta, param_references, bodies, time_s0, measured_flux_array, flux_err, p)
+            if p.sector_params_file:
+                log_norm_term += -0.5 * np.sum(np.log(2 * np.pi * flux_err**2))
         if p.tt_file:
             residuals_sum_squared += p.tt_weight * CurveSimMCMC.residuals_tt_sum_squared(theta, param_references, bodies, time_s0, time_d, measured_tt, p)
-            # residuals_sum_squared += p.tt_weight * CurveSimMCMC.residuals_tt_sum_squared_simple(theta, param_references, bodies, time_s0, p)
         # if p.rv_file:
         #     residuals_sum_squared += p.rv_weight * CurveSimMCMC.residuals_rv_sum_squared(theta, param_references, bodies, time_s0, time_d, measured_flux_array, flux_err, p)
-        return -0.5 * residuals_sum_squared
+        # return -0.5 * residuals_sum_squared
+        return -0.5 * residuals_sum_squared + log_norm_term
 
     @staticmethod
     def residuals_flux_sum_squared(theta, param_references, bodies, time_s0, measured_flux_array, flux_err, p):

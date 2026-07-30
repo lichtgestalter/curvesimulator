@@ -68,6 +68,7 @@ class CurveSimParameters:
         self.mcmc_multi_processing = eval(config.get("Fitting", "mcmc_multi_processing", fallback="True"))
         self.free_parameters = eval(config.get("Fitting", "free_parameters", fallback="None"))
         self.flux_file = config.get("Fitting", "flux_file", fallback=None)
+        self.sector_params_file = config.get("Fitting", "sector_params_file", fallback=None)
         self.tt_file = config.get("Fitting", "tt_file", fallback=None)
         self.rv_file = config.get("Fitting", "rv_file", fallback=None)
         self.rv_body = config.get("Fitting", "rv_body", fallback=None)

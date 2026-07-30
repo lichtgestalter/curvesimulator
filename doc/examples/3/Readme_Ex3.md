@@ -1,7 +1,7 @@
 # Example 3: Fitting Transit Times with LMFit
 
 ## What it does
-Running `run_example.py` reads `config.ini`, which instructs the program to:
+Running `run_example3.py` reads `config3.ini`, which instructs the program to:
 - read `tt.csv`
 - perform a least-squares fit with 2 fitting parameters: the mean anomaly 
   of the inner and the outer planet
@@ -11,9 +11,9 @@ Running `run_example.py` reads `config.ini`, which instructs the program to:
 ## Files in this example
 | File                           | Description                                                                                           |
 |--------------------------------|-------------------------------------------------------------------------------------------------------|
-| run_example.py                 | Execute this Python script to run this example yourself.                                              |
+| run_example3.py                | Execute this Python script to run this example yourself.                                              |
 | **Input:**                     |                                                                                                       |
-| config.ini                     | This configuration file controls what CurveSimulator does.                                            |
+| config3.ini                    | This configuration file controls what CurveSimulator does.                                            |
 | tt.csv                         | Transit Time Observations                                                                             |
 | **Output:**                    | Created by CurveSimulator in this example.                                                            |
 | Subdirectories 0000, 0001, ... | Contain result plots and a JSON file with transit parameters, body parameters, fit quality, and more. |

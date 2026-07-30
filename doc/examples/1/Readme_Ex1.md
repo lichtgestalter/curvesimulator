@@ -1,7 +1,7 @@
 # Example 1: Fitting Transit Times with LMFit
 
 ## What it does
-Running `run_example.py` reads `config.ini`, which instructs the program to:
+Running `run_example1.py` reads `config1.ini`, which instructs the program to:
 - read `flux.csv`, `rv.csv`, and `tt.csv`
 - run the integration once
 - generate `video.mp4`, showing the movements of the bodies, the light curve 
@@ -23,9 +23,9 @@ in the flux.
 
 | File                           | Description                                                                                                  |
 |--------------------------------|--------------------------------------------------------------------------------------------------------------|
-| run_example.py                 | Execute this Python script to run this example yourself. It uses a Windows-safe main entrypoint.             |
+| run_example1.py                | Execute this Python script to run this example yourself. It uses a Windows-safe main entrypoint.             |
 | **Input:**                     |                                                                                                              |
-| config.ini                     | This configuration file controls what CurveSimulator does. Click the link to learn about the file structure. |
+| config1.ini                    | This configuration file controls what CurveSimulator does. Click the link to learn about the file structure. |
 | flux.csv                       | Flux observations. Click the link to learn about the file structure.                                         |                                                                                     |
 | rv.csv                         | Radial velocity observations. Click the link to learn about the file structure.                              |
 | tt.csv                         | Tansit times observations. Click the link to learn about the file structure.                                 |                                                                             |

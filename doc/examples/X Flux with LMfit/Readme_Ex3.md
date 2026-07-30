@@ -5,7 +5,7 @@
 
 
 ## What it does
-Running `run_example.py` reads `config.ini`, which instructs the program to:
+Running `run_example.py` reads `config1.ini`, which instructs the program to:
 - read `tt.csv`
 - perform a least-squares fit with a single fitting parameter: the mean anomaly of the outer planet
 - save the results of each run in a separate numbered subdirectory in 
