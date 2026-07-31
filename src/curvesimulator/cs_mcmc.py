@@ -95,7 +95,7 @@ def append_line_locked(filename, line, wait=0.1):
 
 class CurveSimMCMC:
 
-    def __init__(self, p, bodies, time_s0, time_d, measured_flux_array, flux_err, measured_tt, dummy_object=False):
+    def __init__(self, p, bodies, time_s0, time_d, flux_corr, flux_total_err, measured_tt, dummy_object=False):
         self.results_directory = p.results_directory
         if dummy_object:
             return
@@ -128,7 +128,7 @@ class CurveSimMCMC:
         self.param_bounds = [(fp.lower, fp.upper) for fp in self.fitting_parameters]
         self.ndim = len(self.param_references)
         self.theta0 = self.random_initial_values()
-        self.args = (self.param_bounds, self.param_references, bodies, time_s0, time_d, measured_flux_array, flux_err, measured_tt, p)
+        self.args = (self.param_bounds, self.param_references, bodies, time_s0, time_d, flux_corr, flux_total_err, measured_tt, p)
         self.moves = eval(self.moves)
         self.acceptance_fractions = []
         self.integrated_autocorrelation_time = []
@@ -163,11 +163,11 @@ class CurveSimMCMC:
 
         if p.mcmc_multi_processing:
             with Pool() as pool:  # enable multi processing
-                self.mcmc_fit(p, bodies, time_s0, time_d, measured_flux_array, flux_err, measured_tt, steps_done, pool)
+                self.mcmc_fit(p, bodies, time_s0, time_d, flux_corr, flux_total_err, measured_tt, steps_done, pool)
         else:
-            self.mcmc_fit(p, bodies, time_s0, time_d, measured_flux_array, flux_err, measured_tt, steps_done)
+            self.mcmc_fit(p, bodies, time_s0, time_d, flux_corr, flux_total_err, measured_tt, steps_done)
 
-    def mcmc_fit(self, p, bodies, time_s0, time_d, measured_flux_array, flux_err, measured_tt, steps_done, pool=None):
+    def mcmc_fit(self, p, bodies, time_s0, time_d, flux_corr, flux_total_err, measured_tt, steps_done, pool=None):
         self.sampler = emcee.EnsembleSampler(p.walkers, self.ndim, CurveSimMCMC.log_probability, pool=pool, moves=self.moves, args=self.args, backend=self.backend)
         # self.sampler = emcee.EnsembleSampler(p.walkers, self.ndim, CurveSimMCMC.log_probability, pool=pool, moves=self.moves, args=self.args)
         if not p.load_backend:
@@ -177,7 +177,7 @@ class CurveSimMCMC:
         for chunk in range(1, self.steps // self.chunk_size):
             self.theta = self.sampler.run_mcmc(self.theta, self.chunk_size, progress=True)
             steps_done += self.chunk_size
-            self.mcmc_results(p, bodies, steps_done, time_s0, time_d, measured_tt, measured_flux_array, flux_err, chunk)
+            self.mcmc_results(p, bodies, steps_done, time_s0, time_d, measured_tt, flux_corr, flux_total_err, chunk)
 
     def __repr__(self):
         return f"CurveSimMCMC with {self.walkers} walkers."
@@ -210,6 +210,8 @@ class CurveSimMCMC:
             CurveSimResults.rv_residuals_plot(p, "rv_residuals", measured_rv)  # plot RV residuals
         if p.flux_file:
             time_s0, _, _, _, measured_flux = CurveSimResults.get_measured_flux(p)
+            del measured_flux["flux_err"]  # remove the original columns to make sure they will not be used anywhere
+            del measured_flux["flux"]
             for body in bodies:  # HACK because length of body.positions is initialized with the correct value for simulation, NOT measurements
                 body.positions = np.ndarray((len(time_s0), 3), dtype=float)
             _, sim_flux, _ = bodies.calc_physics(p, time_s0)  # run simulation
@@ -265,11 +267,11 @@ class CurveSimMCMC:
         return residuals_tt_sum_squared, measured_tt
 
     @staticmethod
-    def log_probability(theta, param_bounds, param_references, bodies, time_s0, time_d, measured_flux_array, flux_err, measured_tt, p):
+    def log_probability(theta, param_bounds, param_references, bodies, time_s0, time_d, flux_corr, flux_total_err, measured_tt, p):
         lp = CurveSimMCMC.log_prior(theta, param_bounds)
         if not np.isfinite(lp):
             return -np.inf
-        return lp + CurveSimMCMC.log_likelihood(theta, param_references, bodies, time_s0, time_d, measured_flux_array, flux_err, measured_tt, p)
+        return lp + CurveSimMCMC.log_likelihood(theta, param_references, bodies, time_s0, time_d, flux_corr, flux_total_err, measured_tt, p)
 
     @staticmethod
     def log_prior(theta, param_bounds):
@@ -280,8 +282,8 @@ class CurveSimMCMC:
         return 0
 
     @staticmethod
-    def log_likelihood(theta, param_references, bodies, time_s0, time_d, measured_flux_array, flux_err, measured_tt, p):
-        # def log_likelihood(theta, param_references, bodies, time_s0, measured_flux_array, flux_err, measured_tt, tt_err, measured_rv, rv_err, p):
+    def log_likelihood(theta, param_references, bodies, time_s0, time_d, flux_corr, flux_total_err, measured_tt, p):
+        # def log_likelihood(theta, param_references, bodies, time_s0, flux_corr, flux_total_err, measured_tt, tt_err, measured_rv, rv_err, p):
         """
         theta:
             List containing the current numerical values of the `param_references` (see below).
@@ -296,24 +298,24 @@ class CurveSimMCMC:
         residuals_sum_squared = 0
         log_norm_term = 0
         if p.flux_file:
-            residuals_sum_squared += p.flux_weight * CurveSimMCMC.residuals_flux_sum_squared(theta, param_references, bodies, time_s0, measured_flux_array, flux_err, p)
+            residuals_sum_squared += p.flux_weight * CurveSimMCMC.residuals_flux_sum_squared(theta, param_references, bodies, time_s0, flux_corr, flux_total_err, p)
             if p.sector_params_file:
-                log_norm_term += -0.5 * np.sum(np.log(2 * np.pi * flux_err**2))
+                log_norm_term += -0.5 * np.sum(np.log(2 * np.pi * flux_total_err ** 2))
         if p.tt_file:
             residuals_sum_squared += p.tt_weight * CurveSimMCMC.residuals_tt_sum_squared(theta, param_references, bodies, time_s0, time_d, measured_tt, p)
         # if p.rv_file:
-        #     residuals_sum_squared += p.rv_weight * CurveSimMCMC.residuals_rv_sum_squared(theta, param_references, bodies, time_s0, time_d, measured_flux_array, flux_err, p)
+        #     residuals_sum_squared += p.rv_weight * CurveSimMCMC.residuals_rv_sum_squared(theta, param_references, bodies, time_s0, time_d, flux_corr, flux_total_err, p)
         # return -0.5 * residuals_sum_squared
         return -0.5 * residuals_sum_squared + log_norm_term
 
     @staticmethod
-    def residuals_flux_sum_squared(theta, param_references, bodies, time_s0, measured_flux_array, flux_err, p):
+    def residuals_flux_sum_squared(theta, param_references, bodies, time_s0, flux_corr, flux_total_err, p):
         i = 0
         for body_index, parameter_name in param_references:
             bodies[body_index].__dict__[parameter_name] = theta[i]  # update all parameters from theta
             i += 1
         sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # run simulation
-        residuals_flux = (measured_flux_array - sim_flux) / flux_err  # residuals are weighted with uncertainty!
+        residuals_flux = (flux_corr - sim_flux) / flux_total_err  # residuals are weighted with uncertainty!
         residuals_flux_sum_squared = np.sum(residuals_flux ** 2)
         return residuals_flux_sum_squared
 
@@ -839,7 +841,7 @@ class CurveSimMCMC:
             print(f"{Fore.YELLOW}Printed Results to console because saving failed.{Style.RESET_ALL}")
 
     @stopwatch()
-    def mcmc_results(self, p, bodies, steps_done, time_s0, time_d, measured_tt, measured_flux_array, flux_err, chunk):
+    def mcmc_results(self, p, bodies, steps_done, time_s0, time_d, measured_tt, flux_corr, flux_total_err, chunk):
         flat_thin_samples = self.sampler.get_chain(discard=self.burn_in, thin=self.thin_samples, flat=True)
         # discard the initial self.burn_in steps from each chain to ensure only samples that represent the equilibrium distribution are analyzed.
         # thin=10: keep only every 10th sample from the chain to reduce autocorrelation in the chains and the size of the resulting arrays.
@@ -863,8 +865,8 @@ class CurveSimMCMC:
         self.high_density_intervals()
 
         if p.flux_file:
-            median_residuals_flux_sum_squared = CurveSimMCMC.residuals_flux_sum_squared(self.median_params, self.param_references, bodies, time_s0, measured_flux_array, flux_err, p)
-            mean_residuals_flux_sum_squared = CurveSimMCMC.residuals_flux_sum_squared(self.mean_params, self.param_references, bodies, time_s0, measured_flux_array, flux_err, p)
+            median_residuals_flux_sum_squared = CurveSimMCMC.residuals_flux_sum_squared(self.median_params, self.param_references, bodies, time_s0, flux_corr, flux_total_err, p)
+            mean_residuals_flux_sum_squared = CurveSimMCMC.residuals_flux_sum_squared(self.mean_params, self.param_references, bodies, time_s0, flux_corr, flux_total_err, p)
             flux_data_points = getattr(p, "total_iterations", 0)
             self.mean_avg_residual_in_std.append(math.sqrt(mean_residuals_flux_sum_squared / flux_data_points))
             self.median_avg_residual_in_std.append(math.sqrt(median_residuals_flux_sum_squared / flux_data_points))
@@ -963,10 +965,10 @@ class CurveSimLMfit:
     #     for body_index, parameter_name in param_references:
     #         bodies[body_index].__dict__[parameter_name] = params[bodies[body_index].name + "_" + parameter_name].value  # update all parameters from params
     #     sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # run simulation
-    #     residuals_flux_sum_squared = CurveSimMCMC.residuals_flux_sum_squared(params, param_references, bodies, time_s0, sim_flux, flux_err, p)
+    #     residuals_flux_sum_squared = CurveSimMCMC.residuals_flux_sum_squared(params, param_references, bodies, time_s0, sim_flux, flux_total_err, p)
     #     return residuals_flux_sum_squared
     #     # Die folgenden 2 Zeilen sind hier nur zur Uebersicht, welche Parameter die Funktionen brauchen:
-    #     # def residuals_flux_sum_squared(theta, param_references, bodies, time_s0, measured_flux_array, flux_err, p):
+    #     # def residuals_flux_sum_squared(theta, param_references, bodies, time_s0, flux_corr, flux_total_err, p):
     #     # def residuals_tt_sum_squared  (theta, param_references, bodies, time_s0, time_d, measured_tt, p):
 
     @staticmethod

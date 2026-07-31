@@ -88,9 +88,9 @@ class CurveSimulator:
         if p.action in ["lmfit", "guifit", "mcmc"]:
             if _is_multiprocessing_child_import():
                 return
-            measured_flux_array, flux_uncertainty, measured_tt, time_s0, time_d, tt_s0, tt_d = (None,) * 7
+            flux_corr, flux_total_err, measured_tt, time_s0, time_d, tt_s0, tt_d = (None,) * 7
             if p.flux_file:
-                time_s0, time_d, measured_flux_array, flux_uncertainty, measured_flux = CurveSimResults.get_measured_flux(p)
+                time_s0, time_d, flux_corr, flux_total_err, measured_flux = CurveSimResults.get_measured_flux(p)
             elif p.tt_file:
                 time_s0, time_d = CurveSimParameters.init_time_arrays(p)  # s0 in seconds, starting at 0. d in BJD.
                 measured_tt = CurveSimResults.get_measured_tt(p)
@@ -115,7 +115,7 @@ class CurveSimulator:
                     print(f"{num_workers=}, {p.ls_chunk_size=}, {run_counter=}, {p.ls_steps=}")
                 sys.exit(0)
             if p.action == "mcmc":
-                mcmc = CurveSimMCMC(p, bodies, time_s0, time_d, measured_flux_array, flux_uncertainty, measured_tt)
+                mcmc = CurveSimMCMC(p, bodies, time_s0, time_d, flux_corr, flux_total_err, measured_tt)
                 self.sampler = mcmc.sampler  # mcmc object
                 self.theta = mcmc.theta  # current state of mcmc chains. By saving sampler and theta it is possible to continue the mcmc later on.
             else:

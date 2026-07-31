@@ -186,7 +186,7 @@ class CurveSimResults(dict):
     @staticmethod
     def calc_flux_residuals(measured_flux, sim_flux):
         measured_flux["flux_sim"] = sim_flux
-        measured_flux["residual"] = measured_flux["flux"] - measured_flux["flux_sim"]
+        measured_flux["residual"] = measured_flux["flux_corr"] - measured_flux["flux_sim"]
         return measured_flux
 
     def calc_rv_chi_squared(self, measured_rv, free_parameters):
@@ -198,7 +198,7 @@ class CurveSimResults(dict):
         return measured_rv
 
     def calc_flux_chi_squared(self, measured_flux, free_parameters):
-        measured_flux["chi_squared"] = measured_flux["residual"] / measured_flux["flux_err"]
+        measured_flux["chi_squared"] = measured_flux["residual"] / measured_flux["flux_total_err"]
         measured_flux["chi_squared"] = measured_flux["chi_squared"] * measured_flux["chi_squared"]
         self["chi_squared_flux"] = measured_flux["chi_squared"].sum()
         self["measurements_flux"] = measured_flux.shape[0]
@@ -250,19 +250,25 @@ class CurveSimResults(dict):
     @staticmethod
     def get_measured_flux(p):
         df = pd.read_csv(p.flux_file)
-        if p.sector_params_file:
+        if p.sector_params_file:  # parameters offset and jitter for each observed sector exist
             CurveSimResults.check_required_columns({"time", "flux", "flux_err", "sector"}, df, p.flux_file)
+            offset_map, jitter_map = CurveSimResults.get_sector_params(p)
+            df = CurveSimResults.flux_corr(df, offset_map)
+            df = CurveSimResults.flux_total_err(df, jitter_map)
         else:
             CurveSimResults.check_required_columns({"time", "flux", "flux_err"}, df, p.flux_file)
             df["flux_total_err"] = df["flux_err"]
+            df["flux_corr"] = df["flux"]
+            del df["flux_err"]  # remove the original columns to make sure they will not be used anywhere
+            del df["flux"]
         measured_flux = df[(df["time"] >= p.start_date) & (df["time"] <= p.end_date)].copy()
         measured_flux["time_s0"] = (measured_flux["time"] - p.start_date) * p.day
         time_s0 = np.array(measured_flux["time_s0"], dtype=float)
-        measured_flux_array = np.array(measured_flux["flux"])
-        flux_err = np.array(measured_flux["flux_err"], dtype=float)
+        flux_corr = np.array(measured_flux["flux_corr"])
+        flux_total_err = np.array(measured_flux["flux_total_err"], dtype=float)
         p.total_iterations = len(time_s0)
         time_d = time_s0 / p.day + p.start_date
-        return time_s0, time_d, measured_flux_array, flux_err, measured_flux
+        return time_s0, time_d, flux_corr, flux_total_err, measured_flux
 
     @staticmethod
     def get_measured_tt(p):
@@ -290,7 +296,7 @@ class CurveSimResults(dict):
         flux_corr = flux - offset
         with offset matched to measured_flux via the "sector" column. """
         offset = measured_flux["sector"].map(offset_map)
-        measured_flux["flux_corr"] = measured_flux["flux"] - offset
+        measured_flux["flux_corr"] = measured_flux["flux"] + offset
         return measured_flux
 
     @staticmethod
@@ -560,13 +566,13 @@ class CurveSimResults(dict):
         right = np.max(measured_flux["time"])
         left -= (right - left) * 0.02
         right += (right - left) * 0.02
-        measured_flux["bin_30min"] = CurveSimResults.bin_time_window2(measured_flux["time"], measured_flux["flux"], 30 / (2 * 60 * 24))
+        measured_flux["bin_30min"] = CurveSimResults.bin_time_window2(measured_flux["time"], measured_flux["flux_corr"], 30 / (2 * 60 * 24))
         CurveSimResults.plot_this(
             title=f"Flux: observed vs. computed",
             x_label="Time [BJD]",
             y_label="Normalized Flux",
             x_lists=    [measured_flux["time"], measured_flux["time"]],
-            y_lists=    [measured_flux["flux"], measured_flux["flux_sim"]],
+            y_lists=    [measured_flux["flux_corr"], measured_flux["flux_sim"]],
             data_labels=["observed",            "computed"],
             linestyles= ["",                    ""],
             markersizes=[1,                     1],
@@ -589,7 +595,7 @@ class CurveSimResults(dict):
                     x_label="Time [BJD]",
                     y_label="Normalized Flux",
                     x_lists=    [measured_flux["time"], measured_flux["time"],      measured_flux["time"]],
-                    y_lists=    [measured_flux["flux"], measured_flux["bin_30min"], measured_flux["flux_sim"]],
+                    y_lists=    [measured_flux["flux_corr"], measured_flux["bin_30min"], measured_flux["flux_sim"]],
                     data_labels=["observed",            "obs. 30 min",              "computed"],
                     linestyles= ["",                    "-",                        ""],
                     markersizes=[1,                     0,                          1],
@@ -611,7 +617,7 @@ class CurveSimResults(dict):
             x_label="Datapoints",
             y_label="Normalized Flux",
             x_lists=    [[x for x in range(measured_flux.shape[0])],     [x for x in range(measured_flux.shape[0])]],
-            y_lists=    [measured_flux["flux"],                          measured_flux["flux_sim"]],
+            y_lists=    [measured_flux["flux_corr"],                          measured_flux["flux_sim"]],
             data_labels=["observed",                                     "computed"],
             linestyles= ["",                                             ""],
             markersizes=[1,                                              1],
@@ -726,7 +732,7 @@ class CurveSimResults(dict):
         plt.ticklabel_format(useOffset=False, style="plain", axis="x")   # show x-labels as they are
         plt.xlim(left=left, right=right)
         # plt.ylim(bottom=bottom, top=top)
-        plt.vlines(measured_flux["time"], measured_flux["residual"] - measured_flux["flux_err"], measured_flux["residual"] + measured_flux["flux_err"], colors="xkcd:black", linewidth=1)
+        plt.vlines(measured_flux["time"], measured_flux["residual"] - measured_flux["flux_total_err"], measured_flux["residual"] + measured_flux["flux_total_err"], colors="xkcd:black", linewidth=1)
         plt.plot(x[0], y[0], marker=markers[0], markersize=markersizes[0], linestyle=linestyles[0], label=data_labels[0], color=colors[0], linewidth=linewidths[0])
         plt.hlines(0, left, right, colors="xkcd:black", linewidth=1)
         plt.savefig(plot_file)
@@ -755,12 +761,12 @@ class CurveSimResults(dict):
         # plt.grid(True)
         plt.ticklabel_format(useOffset=False, style="plain", axis="x")   # show x-labels as they are
 
-        # for time, residual, jitter in zip(x, y, measured_flux["flux_err"]):
+        # for time, residual, jitter in zip(x, y, measured_flux["flux_total_err"]):
         #     plt.vlines(time, residual - jitter, residual + jitter, colors="xkcd:black", linewidth=1)
-        # for time, residual, jitter in zip(x, y, measured_flux["flux_err"]):
+        # for time, residual, jitter in zip(x, y, measured_flux["flux_total_err"]):
         #     plt.vlines(time, residual - jitter, residual + jitter, colors="xkcd:black", linewidth=1)
-        # plt.vlines(measured_flux["time"], measured_flux["residual"] - measured_flux["flux_err"], measured_flux["residual"] + measured_flux["flux_err"], colors="xkcd:black", linewidth=1)
-        plt.vlines(range(len(measured_flux["time"])), measured_flux["residual"] - measured_flux["flux_err"], measured_flux["residual"] + measured_flux["flux_err"], colors="xkcd:black", linewidth=1)
+        # plt.vlines(measured_flux["time"], measured_flux["residual"] - measured_flux["flux_total_err"], measured_flux["residual"] + measured_flux["flux_total_err"], colors="xkcd:black", linewidth=1)
+        plt.vlines(range(len(measured_flux["time"])), measured_flux["residual"] - measured_flux["flux_total_err"], measured_flux["residual"] + measured_flux["flux_total_err"], colors="xkcd:black", linewidth=1)
 
         plt.plot(x[0], y[0], marker=markers[0], markersize=markersizes[0], linestyle=linestyles[0], label=data_labels[0], color=colors[0], linewidth=linewidths[0])
         plt.hlines(0, x[0][0], x[0][-1], colors="xkcd:black", linewidth=1)
