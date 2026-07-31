@@ -33,7 +33,7 @@ class CurveSimResults(dict):
         for body in bodies:
             self["Bodies"][body.name] = {}
             self["Bodies"][body.name]["BodyParameters"] = {}
-            self["Bodies"][body.name]["Transits"]= []
+            self["Bodies"][body.name]["Transits"] = []
             for key in body.__dict__.keys():
                 if key not in exclude:
                     self["Bodies"][body.name]["BodyParameters"][key] = getattr(body, key)
@@ -54,7 +54,6 @@ class CurveSimResults(dict):
             # for key in list(body.__dict__.keys()):  # uncomment to prevent null-values in result file
             #     if body.__dict__[key] is None:
             #         del body.__dict__[key]
-
 
     def __repr__(self):
         string = ""
@@ -111,44 +110,43 @@ class CurveSimResults(dict):
                 p_copy.__dict__[name] = [float(i) for i in orig]
         self["ProgramParameters"] = p_copy.__dict__
 
-
-        # diagnostic helper
-        def _find_unserializable(obj, path="self", visited=None, max_depth=1000):
-            if visited is None:
-                visited = set()
-            obj_id = id(obj)
-            if obj_id in visited or max_depth <= 0:
-                return []
-            visited.add(obj_id)
-            try:
-                json.dumps(obj)
-                return []
-            except Exception:
-                # drill down for containers
-                failures = []
-                if isinstance(obj, dict):
-                    for k, v in obj.items():
-                        failures.extend(_find_unserializable(v, f"{path}[{repr(k)}]", visited, max_depth - 1))
-                    if not failures:
-                        failures.append((path, type(obj).__name__, "dict contains non-serializable contents"))
-                elif isinstance(obj, (list, tuple, set)):
-                    for i, v in enumerate(obj):
-                        failures.extend(_find_unserializable(v, f"{path}[{i}]", visited, max_depth - 1))
-                    if not failures:
-                        failures.append((path, type(obj).__name__, f"{type(obj).__name__} contains non-serializable contents"))
-                else:
-                    # leaf non-serializable object
-                    failures.append((path, type(obj).__name__, repr(obj)[:200]))
-                return failures
-
-        # check serialization of self
-        failures = _find_unserializable(self)
-        if failures:
-            # format a concise message with a few examples
-            msg_lines = ["Failed to JSON-serialize `self`. Problematic paths (path, type, sample):"]
-            for path, tname, sample in failures[:20]:
-                msg_lines.append(f" - {path}: {tname} -> {sample}")
-            raise RuntimeError("\n".join(msg_lines))
+        # # diagnostic helper
+        # def _find_unserializable(obj, _path="self", visited=None, max_depth=1000):
+        #     if visited is None:
+        #         visited = set()
+        #     obj_id = id(obj)
+        #     if obj_id in visited or max_depth <= 0:
+        #         return []
+        #     visited.add(obj_id)
+        #     try:
+        #         json.dumps(obj)
+        #         return []
+        #     except Exception:
+        #         # drill down for containers
+        #         _failures = []
+        #         if isinstance(obj, dict):
+        #             for k, v in obj.items():
+        #                 _failures.extend(_find_unserializable(v, f"{_path}[{repr(k)}]", visited, max_depth - 1))
+        #             if not _failures:
+        #                 _failures.append((_path, type(obj).__name__, "dict contains non-serializable contents"))
+        #         elif isinstance(obj, (list, tuple, set)):
+        #             for i, v in enumerate(obj):
+        #                 _failures.extend(_find_unserializable(v, f"{_path}[{i}]", visited, max_depth - 1))
+        #             if not _failures:
+        #                 _failures.append((_path, type(obj).__name__, f"{type(obj).__name__} contains non-serializable contents"))
+        #         else:
+        #             # leaf non-serializable object
+        #             _failures.append((_path, type(obj).__name__, repr(obj)[:200]))
+        #         return _failures
+        #
+        # # check serialization of self
+        # failures = _find_unserializable(self)
+        # if failures:
+        #     # format a concise message with a few examples
+        #     msg_lines = ["Failed to JSON-serialize `self`. Problematic paths (path, type, sample):"]
+        #     for path, tname, sample in failures[:20]:
+        #         msg_lines.append(f" - {path}: {tname} -> {sample}")
+        #     raise RuntimeError("\n".join(msg_lines))
 
         self.results2json(p_copy)
         if p.verbose:
@@ -174,9 +172,9 @@ class CurveSimResults(dict):
     @staticmethod
     def calc_rv_residuals(measured_rv, body_name, rebound_sim):
 
-        def rv_at_t(t, rebound_sim, body):
-            rebound_sim.integrate(t)
-            return -body.vz
+        def rv_at_t(t, sim, b):
+            sim.integrate(t)
+            return -b.vz
 
         body = rebound_sim.particles[body_name]
         measured_rv["rv_sim"] = [rv_at_t(t, rebound_sim, body) for t in measured_rv["time_s0"]]
@@ -205,6 +203,13 @@ class CurveSimResults(dict):
         self["pvalue_flux"] = CurveSimResults.chi_squared_pvalue(self["chi_squared_flux"], self["measurements_flux"], free_parameters)
         return measured_flux
 
+    def calc_flux_log_maxlikelihood(self, measured_flux):
+        log_norm_term = np.log(2 * np.pi * measured_flux["flux_total_err"] ** 2).sum()
+        self["log_maxlikelihood_flux"] = -0.5 * (self["chi_squared_flux"] + log_norm_term)
+        print(f"{log_norm_term=}")
+        print(f"{self["chi_squared_flux"]=}")
+        print(f"{self["log_maxlikelihood_flux"]=}")  # debug
+
     def calc_tt_chi_squared(self, measured_tt, free_parameters):
         measured_tt["chi_squared"] = measured_tt["delta"] / measured_tt["tt_err"]
         measured_tt["chi_squared"] = measured_tt["chi_squared"] * measured_tt["chi_squared"]
@@ -217,7 +222,6 @@ class CurveSimResults(dict):
         self["chi_squared_total"] = self["chi_squared_rv"] + self["chi_squared_flux"] + self["chi_squared_tt"]
         self["measurements_total"] = self["measurements_rv"] + self["measurements_flux"] + self["measurements_tt"]
         self["pvalue_total"] = CurveSimResults.chi_squared_pvalue(self["chi_squared_total"], self["measurements_total"], free_parameters)
-
 
     @staticmethod
     def chi_squared_pvalue(chi_squared, n_measurements, n_parameters):
@@ -242,9 +246,10 @@ class CurveSimResults(dict):
     @staticmethod
     def get_sector_params(p):
         sector_params = pd.read_csv(p.sector_params_file)
-        CurveSimResults.check_required_columns({"sector", "offset", "offset_low", "offset_high", "offset_spread", "jitter", "jitter_low", "jitter_high", "jitter_spread"}, sector_params, p.sector_params_file)
+        CurveSimResults.check_required_columns({"sector", "offset", "offset_low", "offset_up", "offset_spread", "jitter", "jitter_low", "jitter_high", "jitter_spread"}, sector_params, p.sector_params_file)
         offset_map = sector_params.set_index("sector")["offset"]
         jitter_map = sector_params.set_index("sector")["jitter"]
+        # How to change the offset_value for sector s: offset_map.loc[s] = 4.2
         return offset_map, jitter_map
 
     @staticmethod
@@ -296,7 +301,7 @@ class CurveSimResults(dict):
         flux_corr = flux - offset
         with offset matched to measured_flux via the "sector" column. """
         offset = measured_flux["sector"].map(offset_map)
-        measured_flux["flux_corr"] = measured_flux["flux"] + offset
+        measured_flux["flux_corr"] = measured_flux["flux"] - offset
         return measured_flux
 
     @staticmethod
@@ -327,25 +332,25 @@ class CurveSimResults(dict):
 
     @staticmethod
     def plot_this(
-            x_lists,                   # positions of data points on x-axis
-            y_lists: list,             # each list item is a list or numpy array which will be displayed as a curve
-            data_labels: list = None,  # each list item is a string representing the label of a curve
-            title: str = None,         # plot title
-            x_label: str = None,       # label of x-axis
-            y_label: str = None,       # label of y-axis
-            markers=None,              # single marker or list/tuple of markers
-            markersizes=None,          # single markersize or list/tuple of markersizes
-            linestyles=None,           # single linestyle or list/tuple of linestyles
-            colors=None,               # single color or list/tuple of colors
-            linewidths=None,           # single linewidt or list/tuple of linewidts
-            left: float = None,        # cut off x-axis
-            right: float = None,       # cut off x-axis
-            bottom: float = None,      # cut off y-axis
-            top: float = None,         # cut off y-axis
-            legend: bool = None,       # display legend?
-            grid: bool = None,         # display grid?
-            show_plot: bool = False,   # show plot?
-            plot_file: str = None,     # file name if the plot shall be saved as .png
+            x_lists,            # positions of data points on x-axis
+            y_lists: list,      # each list item is a list or numpy array which will be displayed as a curve
+            data_labels=None,   # each list item is a string representing the label of a curve
+            title=None,         # plot title
+            x_label=None,       # label of x-axis
+            y_label=None,       # label of y-axis
+            markers=None,       # single marker or list/tuple of markers
+            markersizes=None,   # single markersize or list/tuple of markersizes
+            linestyles=None,    # single linestyle or list/tuple of linestyles
+            colors=None,        # single color or list/tuple of colors
+            linewidths=None,    # single linewidt or list/tuple of linewidts
+            left=None,          # cut off x-axis
+            right=None,         # cut off x-axis
+            bottom=None,        # cut off y-axis
+            top=None,           # cut off y-axis
+            legend=None,        # bool: display legend?
+            grid=None,          # bool: display grid?
+            show_plot=False,    # bool: show plot?
+            plot_file=None,     # file name if the plot shall be saved as .png
     ) -> None:
         if data_labels is None:
             data_labels = [f"data{i}" for i in range(len(y_lists))]
@@ -400,7 +405,6 @@ class CurveSimResults(dict):
         if show_plot:
             plt.show()
         plt.close()
-
 
     def plot_parameter(self, eclipser, eclipsee, parameter, start, end, filename="", title=None):
         if not title:
@@ -474,10 +478,10 @@ class CurveSimResults(dict):
 
     @staticmethod
     def rv_observed_computed_plot(p, sim_rv, time_d, plot_filename, measured_rv):
-        min = np.min(measured_rv["time"])
-        max = np.max(measured_rv["time"])
-        min_time = min - 0.03 * (max - min)  # 3% padding to make sure that datapoints at the edges are visible
-        max_time = max + 0.03 * (max - min)
+        min_t = np.min(measured_rv["time"])
+        max_t = np.max(measured_rv["time"])
+        min_time = min_t - 0.03 * (max_t - min_t)  # 3% padding to make sure that datapoints at the edges are visible
+        max_time = max_t + 0.03 * (max_t - min_t)
         CurveSimResults.plot_this(
             title=f"Radial Velocity: observed vs. computed",
             x_label="Time [BJD]",
@@ -512,7 +516,6 @@ class CurveSimResults(dict):
             values_to_bin = value[left:right]
             mean[i] = values_to_bin.mean() if values_to_bin.size > 0 else np.nan
         return mean
-
 
     @staticmethod
     def bin_time_window2(time, value, half_window_size):
@@ -557,7 +560,6 @@ class CurveSimResults(dict):
         means[nonzero] = window_sums[nonzero] / window_counts[nonzero]
 
         return means
-
 
     @staticmethod
     def flux_observed_computed_plots_time(p, plot_filename, measured_flux, measured_tt):

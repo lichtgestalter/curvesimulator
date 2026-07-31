@@ -2,7 +2,7 @@
 
 ## What it does
 Running `run_example1.py` reads `config1.ini`, which instructs the program to:
-- read `flux.csv`, `rv.csv`, and `tt.csv`
+- read `flux.csv`, `sector_params.csv`, `rv.csv`, and `tt.csv`
 - run the integration once
 - generate `video.mp4`, showing the movements of the bodies, the light curve 
   and the radial velocity curve
@@ -21,17 +21,17 @@ in the flux.
 
 ## Files in this example
 
-| File                           | Description                                                                                                  |
-|--------------------------------|--------------------------------------------------------------------------------------------------------------|
-| run_example1.py                | Execute this Python script to run this example yourself. It uses a Windows-safe main entrypoint.             |
-| **Input:**                     |                                                                                                              |
-| config1.ini                    | This configuration file controls what CurveSimulator does. Click the link to learn about the file structure. |
-| flux.csv                       | Flux observations. Click the link to learn about the file structure.                                         |                                                                                     |
-| rv.csv                         | Radial velocity observations. Click the link to learn about the file structure.                              |
-| tt.csv                         | Tansit times observations. Click the link to learn about the file structure.                                 |                                                                             |
-| **Output:**                    | Created by CurveSimulator in this example.                                                                   |
-| sim_flux.csv                   | Simulated flux including white noise.                                                                        |
-| video.mp4                      | Video of the simulation.                                                                                     |
-| videoHQ.mp4                    | Backup video in high quality. Will not be overwritten when this example runs.                                |
-| Subdirectories 0000, 0001, ... | Contain result plots and a JSON file with transit parameters, body parameters, fit quality, and more.        |
-
+| File                           | Description                                                                                           |
+|--------------------------------|-------------------------------------------------------------------------------------------------------|
+| run_example1.py                | Execute this Python script to run this example yourself. It uses a Windows-safe main entrypoint.      |
+| **Input:**                     |                                                                                                       |
+| config1.ini                    | This configuration file controls what CurveSimulator does.                                            |
+| flux.csv                       | Flux observations.                                                                                    |                                                                                     |
+| sector_params.csv              | Parameters for flux offset and jitter per sector.                                                     |                                                                                     |
+| rv.csv                         | Radial velocity observations.                                                                         |
+| tt.csv                         | Tansit times observations.                                                                            |                                                                             |
+| **Output:**                    | Created by CurveSimulator in this example.                                                            |
+| sim_flux.csv                   | Simulated flux including white noise.                                                                 |
+| video.mp4                      | Video of the simulation.                                                                              |
+| videoHQ.mp4                    | Backup video in high quality. Will not be overwritten when this example runs.                         |
+| Subdirectories 0000, 0001, ... | Contain result plots and a JSON file with transit parameters, body parameters, fit quality, and more. |

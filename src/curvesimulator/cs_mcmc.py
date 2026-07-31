@@ -210,13 +210,15 @@ class CurveSimMCMC:
             CurveSimResults.rv_residuals_plot(p, "rv_residuals", measured_rv)  # plot RV residuals
         if p.flux_file:
             time_s0, _, _, _, measured_flux = CurveSimResults.get_measured_flux(p)
-            del measured_flux["flux_err"]  # remove the original columns to make sure they will not be used anywhere
-            del measured_flux["flux"]
+            if p.sector_params_file:  # parameters offset and jitter for each observed sector exist
+                del measured_flux["flux_err"]  # remove the original columns to make sure they will not be used anywhere
+                del measured_flux["flux"]
             for body in bodies:  # HACK because length of body.positions is initialized with the correct value for simulation, NOT measurements
                 body.positions = np.ndarray((len(time_s0), 3), dtype=float)
             _, sim_flux, _ = bodies.calc_physics(p, time_s0)  # run simulation
             measured_flux = CurveSimResults.calc_flux_residuals(measured_flux, sim_flux)  # compare observed vs. computed flux
             results.calc_flux_chi_squared(measured_flux, p.free_parameters)  # store chi squared and p-value in results
+            results.calc_flux_log_maxlikelihood(measured_flux)  # store -log(L) in results
             CurveSimResults.flux_observed_computed_plots_time(p, "flux_o_vs_c_x=time", measured_flux, measured_tt)  # plot computed and observed flux
             CurveSimResults.flux_observed_computed_plot_data(p, "flux_o_vs_c_x=data", measured_flux)  # plot computed and observed flux
             CurveSimResults.flux_chi_squared_plot_data(p, "flux_chi2_x=data", measured_flux)  # plot flux chi squared per datapoint
@@ -300,13 +302,13 @@ class CurveSimMCMC:
         if p.flux_file:
             residuals_sum_squared += p.flux_weight * CurveSimMCMC.residuals_flux_sum_squared(theta, param_references, bodies, time_s0, flux_corr, flux_total_err, p)
             if p.sector_params_file:
-                log_norm_term += -0.5 * np.sum(np.log(2 * np.pi * flux_total_err ** 2))
+                log_norm_term += np.sum(np.log(2 * np.pi * flux_total_err ** 2))
         if p.tt_file:
             residuals_sum_squared += p.tt_weight * CurveSimMCMC.residuals_tt_sum_squared(theta, param_references, bodies, time_s0, time_d, measured_tt, p)
         # if p.rv_file:
         #     residuals_sum_squared += p.rv_weight * CurveSimMCMC.residuals_rv_sum_squared(theta, param_references, bodies, time_s0, time_d, flux_corr, flux_total_err, p)
         # return -0.5 * residuals_sum_squared
-        return -0.5 * residuals_sum_squared + log_norm_term
+        return -0.5 * (residuals_sum_squared + log_norm_term)
 
     @staticmethod
     def residuals_flux_sum_squared(theta, param_references, bodies, time_s0, flux_corr, flux_total_err, p):
