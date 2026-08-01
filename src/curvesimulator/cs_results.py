@@ -204,7 +204,7 @@ class CurveSimResults(dict):
         return measured_flux
 
     def calc_flux_log_maxlikelihood(self, measured_flux):
-        log_norm_term = np.log(2 * np.pi * measured_flux["flux_total_err"] ** 2).sum()
+        log_norm_term = np.log(2 * np.pi * measured_flux["flux_total_err"] ** 2).sum()  # logarithm of the summed Gaussian normalization term
         self["log_maxlikelihood_flux"] = -0.5 * (self["chi_squared_flux"] + log_norm_term)
         print(f"{log_norm_term=}")
         print(f"{self["chi_squared_flux"]=}")
@@ -251,6 +251,11 @@ class CurveSimResults(dict):
         jitter_map = sector_params.set_index("sector")["jitter"]
         # How to change the offset_value for sector s: offset_map.loc[s] = 4.2
         return offset_map, jitter_map
+
+    @staticmethod
+    def save_sim_flux_with_observation_timeline(p, measured_flux):
+        df = pd.DataFrame({"time": measured_flux["time"], "flux": measured_flux["flux_sim"]})
+        df.to_csv(p.sim_flux_file, index=False)
 
     @staticmethod
     def get_measured_flux(p):
@@ -689,7 +694,7 @@ class CurveSimResults(dict):
         plt.savefig(plot_file)
 
     @staticmethod
-    def flux_residuals_plots_time(p, plot_filename, measured_flux, measured_tt):
+    def flux_residuals_all_plots_time(p, plot_filename, measured_flux, measured_tt):
         CurveSimResults.flux_residuals_plot_time(p, plot_filename, measured_flux)
         if measured_tt is not None:
             subdirectory = "fluxresiduals_per_transit/"

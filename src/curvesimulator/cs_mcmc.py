@@ -169,7 +169,6 @@ class CurveSimMCMC:
 
     def mcmc_fit(self, p, bodies, time_s0, time_d, flux_corr, flux_total_err, measured_tt, steps_done, pool=None):
         self.sampler = emcee.EnsembleSampler(p.walkers, self.ndim, CurveSimMCMC.log_probability, pool=pool, moves=self.moves, args=self.args, backend=self.backend)
-        # self.sampler = emcee.EnsembleSampler(p.walkers, self.ndim, CurveSimMCMC.log_probability, pool=pool, moves=self.moves, args=self.args)
         if not p.load_backend:
             self.theta = self.sampler.run_mcmc(self.theta0, self.burn_in, progress=True)
         else:
@@ -187,8 +186,8 @@ class CurveSimMCMC:
         if time_s0 is None and time_d is None:
             time_s0, time_d = CurveSimParameters.init_time_arrays(p)  # s0 in seconds, starting at 0. d in BJD.
         sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # Calculate all body positions and the resulting lightcurve
-        if p.sim_flux_file:
-            sim_flux.save_sim_flux(p, time_d)
+        if p.sim_flux_file and not p.flux_file:  # save simulated flux (regular spaced with p.dt, because no flux observations were made available)
+            sim_flux.save_sim_flux_with_synthetic_timeline(p, time_d)
         results = bodies.find_transits(rebound_sim, p, sim_flux, time_s0, time_d)
         results["chi_squared_tt"], results["chi_squared_rv"], results["chi_squared_flux"], results["chi_squared_total"] = 0, 0, 0, 0
         results["measurements_tt"], results["measurements_rv"], results["measurements_flux"], results["measurements_total"] = 0, 0, 0, 0
@@ -217,12 +216,14 @@ class CurveSimMCMC:
                 body.positions = np.ndarray((len(time_s0), 3), dtype=float)
             _, sim_flux, _ = bodies.calc_physics(p, time_s0)  # run simulation
             measured_flux = CurveSimResults.calc_flux_residuals(measured_flux, sim_flux)  # compare observed vs. computed flux
+            if p.sim_flux_file:
+                CurveSimResults.save_sim_flux_with_observation_timeline(p, measured_flux)  # save simulated flux (for same time values as flux observations)
             results.calc_flux_chi_squared(measured_flux, p.free_parameters)  # store chi squared and p-value in results
             results.calc_flux_log_maxlikelihood(measured_flux)  # store -log(L) in results
             CurveSimResults.flux_observed_computed_plots_time(p, "flux_o_vs_c_x=time", measured_flux, measured_tt)  # plot computed and observed flux
             CurveSimResults.flux_observed_computed_plot_data(p, "flux_o_vs_c_x=data", measured_flux)  # plot computed and observed flux
             CurveSimResults.flux_chi_squared_plot_data(p, "flux_chi2_x=data", measured_flux)  # plot flux chi squared per datapoint
-            CurveSimResults.flux_residuals_plots_time(p, "flux_residuals_x=time", measured_flux, measured_tt)  # plot Flux residuals
+            CurveSimResults.flux_residuals_all_plots_time(p, "flux_residuals_x=time", measured_flux, measured_tt)  # plot Flux residuals
             CurveSimResults.flux_residuals_plot_data(p, "flux_residuals_x=data", measured_flux)  # plot Flux residuals
             # plot something
         if p.tt_file or p.rv_file or p.flux_file:
@@ -302,7 +303,7 @@ class CurveSimMCMC:
         if p.flux_file:
             residuals_sum_squared += p.flux_weight * CurveSimMCMC.residuals_flux_sum_squared(theta, param_references, bodies, time_s0, flux_corr, flux_total_err, p)
             if p.sector_params_file:
-                log_norm_term += np.sum(np.log(2 * np.pi * flux_total_err ** 2))
+                log_norm_term += np.sum(np.log(2 * np.pi * flux_total_err ** 2))  # logarithm of the summed Gaussian normalization term
         if p.tt_file:
             residuals_sum_squared += p.tt_weight * CurveSimMCMC.residuals_tt_sum_squared(theta, param_references, bodies, time_s0, time_d, measured_tt, p)
         # if p.rv_file:

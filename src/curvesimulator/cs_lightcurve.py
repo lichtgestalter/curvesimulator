@@ -52,7 +52,7 @@ class CurveSimLightcurve(np.ndarray):
         )
         return interpolated_value
 
-    def save_sim_flux(self, p, time_d):
+    def save_sim_flux_with_synthetic_timeline(self, p, time_d):
         noisy_flux = self + np.random.normal(0, p.sim_flux_err, self.shape)
         flux_err = np.full(self.shape, p.sim_flux_err)
         data = np.column_stack((time_d, noisy_flux, flux_err))
