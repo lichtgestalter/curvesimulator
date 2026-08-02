@@ -301,6 +301,8 @@ class CurveSimParameters:
                         fitting_parameters.append(FittingParameter(self, section, body_index, parameter_name, value, lower, upper, sigma))
                         fitting_parameters[-1].index = len(fitting_parameters) - 1
                 body_index += 1
+        # sectorparams42 hier auch flux offset/jitter einlesen!?!
+
         # print(f"Fitting {len(fitting_parameters)} parameters.")
         return fitting_parameters
 

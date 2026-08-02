@@ -313,9 +313,17 @@ class CurveSimMCMC:
 
     @staticmethod
     def residuals_flux_sum_squared(theta, param_references, bodies, time_s0, flux_corr, flux_total_err, p):
+
+        if p.sector_params_file: # sectorparams42 hier
+            0
+          # update offset_map and jitter_map from theta. Index i nutzen. i hat schon den richtigen Wert!
+          # call flux_corr(measured_flux, offset_map)
+          # call flux_total_err(measured_flux, jitter_map)
+          # flux_corr = np.array(measured_flux["flux_corr"])
+          # flux_total_err = np.array(measured_flux["flux_total_err"])
         i = 0
         for body_index, parameter_name in param_references:
-            bodies[body_index].__dict__[parameter_name] = theta[i]  # update all parameters from theta
+            bodies[body_index].__dict__[parameter_name] = theta[i]  # update body parameters from theta
             i += 1
         sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # run simulation
         residuals_flux = (flux_corr - sim_flux) / flux_total_err  # residuals are weighted with uncertainty!
