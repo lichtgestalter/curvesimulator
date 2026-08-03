@@ -7,6 +7,7 @@ import random
 import sys
 import time
 
+from .cs_results import CurveSimResults
 
 class CurveSimParameters:
 
@@ -131,49 +132,49 @@ class CurveSimParameters:
         self.rv_dot_height = eval(config.get("VideoPlot", "rv_dot_height", fallback="0.077"))
         self.rv_dot_width = eval(config.get("VideoPlot", "rv_dot_width", fallback="0.005"))
 
-        if self.action == "single_run":
+        if self.action == "single_run" and self.video_file:
             if self.sampling_rate < 1:
                 print(f"{Fore.YELLOW}\nWARNING: This simulation calculates only {self.total_iterations} iterations for {self.frames} video frames.{Style.RESET_ALL}")
                 print(f"{Fore.YELLOW}         Because of this undersampling, the video will be using the same iteration for consecutive frames.{Style.RESET_ALL}")
                 print(f"{Fore.YELLOW}         Decrease the number of frames or decrease dt (the real time difference between simulation iterations).{Style.RESET_ALL}")
-        else:  # not a single run. Code in this else block should probably run every time -> could be outside an else block
-            # [Fitting]
-            if self.tt_file:
-                self.starts_d = np.array(eval(config.get("Simulation", "starts", fallback="[]")), dtype=float)
-                self.ends_d = np.array(eval(config.get("Simulation", "ends", fallback="[]")), dtype=float)
-                # self.dts = np.array(eval(config.get("Simulation", "dts", fallback="[]")), dtype=float)
-                # self.start_indices, self.max_iterations, self.total_iterations = self.check_intervals()
-                self.best_residuals_tt_sum_squared = 1e99
+        # else:  # not a single run. Code in this else block should probably run every time -> could be outside an else block
+        # [Fitting]
+        if self.tt_file:
+            self.starts_d = np.array(eval(config.get("Simulation", "starts", fallback="[]")), dtype=float)
+            self.ends_d = np.array(eval(config.get("Simulation", "ends", fallback="[]")), dtype=float)
+            # self.dts = np.array(eval(config.get("Simulation", "dts", fallback="[]")), dtype=float)
+            # self.start_indices, self.max_iterations, self.total_iterations = self.check_intervals()
+            self.best_residuals_tt_sum_squared = 1e99
 
-            # self.guifit = eval(config.get("Fitting", "guifit", fallback="False"))
-            # self.lmfit = eval(config.get("Fitting", "lmfit", fallback="False"))
-            self.lmfit_method = config.get("Fitting", "lmfit_method", fallback="powell")
-            self.ls_chunk_size = int(eval(config.get("Fitting", "ls_chunk_size", fallback="1000")))
-            self.ls_steps = int(eval(config.get("Fitting", "ls_steps", fallback="10000")))
-            self.ls_max_tt_delta = eval(config.get("Fitting", "ls_max_tt_delta", fallback="1/(24*60*60)"))
-            self.flux_weight = int(eval(config.get("Fitting", "flux_weight", fallback="1")))
-            self.tt_weight = int(eval(config.get("Fitting", "tt_weight", fallback="1")))
-            self.rv_weight = int(eval(config.get("Fitting", "rv_weight", fallback="1")))
+        # self.guifit = eval(config.get("Fitting", "guifit", fallback="False"))
+        # self.lmfit = eval(config.get("Fitting", "lmfit", fallback="False"))
+        self.lmfit_method = config.get("Fitting", "lmfit_method", fallback="powell")
+        self.ls_chunk_size = int(eval(config.get("Fitting", "ls_chunk_size", fallback="1000")))
+        self.ls_steps = int(eval(config.get("Fitting", "ls_steps", fallback="10000")))
+        self.ls_max_tt_delta = eval(config.get("Fitting", "ls_max_tt_delta", fallback="1/(24*60*60)"))
+        self.flux_weight = int(eval(config.get("Fitting", "flux_weight", fallback="1")))
+        self.tt_weight = int(eval(config.get("Fitting", "tt_weight", fallback="1")))
+        self.rv_weight = int(eval(config.get("Fitting", "rv_weight", fallback="1")))
 
-            self.backend = config.get("Fitting", "backend", fallback=None)  # e.g. emcee_backend.h5
-            self.load_backend = eval(config.get("Fitting", "load_backend", fallback="False"))
-            self.walkers = int(eval(config.get("Fitting", "walkers", fallback="32")))
-            self.steps = int(eval(config.get("Fitting", "steps", fallback="10000")))
-            self.moves = config.get("Fitting", "moves", fallback="(emcee.moves.StretchMove(a=2.0))")
-            self.burn_in = int(eval(config.get("Fitting", "burn_in", fallback="500")))
-            if self.burn_in < 1:
-                self.burn_in = 1
-            self.chunk_size = int(eval(config.get("Fitting", "chunk_size", fallback="500")))
-            self.bins = tuple([eval(x) for x in config.get("Fitting", "bins", fallback="30").split("#")[0].split(",")])
-            self.thin_samples = int(eval(config.get("Fitting", "thin_samples", fallback="10")))
+        self.backend = config.get("Fitting", "backend", fallback=None)  # e.g. emcee_backend.h5
+        self.load_backend = eval(config.get("Fitting", "load_backend", fallback="False"))
+        self.walkers = int(eval(config.get("Fitting", "walkers", fallback="32")))
+        self.steps = int(eval(config.get("Fitting", "steps", fallback="10000")))
+        self.moves = config.get("Fitting", "moves", fallback="(emcee.moves.StretchMove(a=2.0))")
+        self.burn_in = int(eval(config.get("Fitting", "burn_in", fallback="500")))
+        if self.burn_in < 1:
+            self.burn_in = 1
+        self.chunk_size = int(eval(config.get("Fitting", "chunk_size", fallback="500")))
+        self.bins = tuple([eval(x) for x in config.get("Fitting", "bins", fallback="30").split("#")[0].split(",")])
+        self.thin_samples = int(eval(config.get("Fitting", "thin_samples", fallback="10")))
 
-            default_unit = '{"mass": "m_jup", "radius": "r_jup", "e": "1", "i": "deg", "P": "d", "a": "AU", "Omega": "deg", "omega": "deg", "pomega": "deg", "L": "deg", "ma": "deg", "ea": "deg", "nu": "deg", "T": "s", "t": "s"}'
-            dict_str = config.get("Fitting", "unit", fallback=default_unit)
-            self.unit = eval(dict_str)
-            default_scale = '{"mass": 1/m_jup, "radius": 1/r_jup, "e": 1, "i": rad2deg, "P": 1/day, "a": 1/au, "Omega": rad2deg, "omega": rad2deg, "pomega": rad2deg, "L": rad2deg, "ma": rad2deg, "ea": rad2deg, "nu": rad2deg, "T": 1, "t": 1}'
-            dict_str = config.get("Fitting", "scale", fallback=default_scale)
-            self.scale = eval(dict_str)
-            self.fitting_parameters = self.read_fitting_parameters(config)
+        default_unit = '{"mass": "m_jup", "radius": "r_jup", "e": "1", "i": "deg", "P": "d", "a": "AU", "Omega": "deg", "omega": "deg", "pomega": "deg", "L": "deg", "ma": "deg", "ea": "deg", "nu": "deg", "T": "s", "t": "s"}'
+        dict_str = config.get("Fitting", "unit", fallback=default_unit)
+        self.unit = eval(dict_str)
+        default_scale = '{"mass": 1/m_jup, "radius": 1/r_jup, "e": 1, "i": rad2deg, "P": 1/day, "a": 1/au, "Omega": rad2deg, "omega": rad2deg, "pomega": rad2deg, "L": rad2deg, "ma": rad2deg, "ea": rad2deg, "nu": rad2deg, "T": 1, "t": 1}'
+        dict_str = config.get("Fitting", "scale", fallback=default_scale)
+        self.scale = eval(dict_str)
+        self.fitting_parameters = self.read_fitting_parameters(config)
 
     def __repr__(self):
         return f"CurveSimParameters from {self.config_file}"
@@ -282,6 +283,12 @@ class CurveSimParameters:
             return None, None, None, None
 
     def read_fitting_parameters(self, config):
+        fitting_parameters = self.read_fitting_body_parameters(config)
+        if self.sector_params_file:  # append sector params to fitting_parameters
+            fitting_parameters = self.read_fitting_sector_parameters(fitting_parameters)
+        return fitting_parameters
+
+    def read_fitting_body_parameters(self, config):
         """Search for body parameters in the config file that are meant to be used as fitting parameters.
         Fitting parameters have 4 values instead of 1, separated by commas:
         Initial Value, Lower Bound, Upper Bound, Standard Deviation of the Initial Values of all chains (with mean = Initial Value)."""
@@ -301,9 +308,14 @@ class CurveSimParameters:
                         fitting_parameters.append(FittingParameter(self, section, body_index, parameter_name, value, lower, upper, sigma))
                         fitting_parameters[-1].index = len(fitting_parameters) - 1
                 body_index += 1
-        # sectorparams42 hier auch flux offset/jitter einlesen!?!
-
         # print(f"Fitting {len(fitting_parameters)} parameters.")
+        return fitting_parameters
+
+    def read_fitting_sector_parameters(self, fitting_parameters):
+        _, _, sector_params = CurveSimResults.get_sector_params(self)
+        for row in sector_params.itertuples(index=False):
+            fitting_parameters.append(FittingParameter(self, "SectorParams", None, f"offset_{row.sector}", row.offset, row.offset_low, row.offset_up, row.offset_spread))
+            fitting_parameters.append(FittingParameter(self, "SectorParams", None, f"jitter_{row.sector}", row.jitter, row.jitter_low, row.jitter_high, row.jitter_spread))
         return fitting_parameters
 
     @staticmethod
@@ -417,9 +429,20 @@ class FittingParameter:
         self.body_name = body_name
         self.body_index = body_index
         self.parameter_name = parameter_name
-        self.unit = p.unit[parameter_name]
-        self.long_parameter_name = parameter_name + "[" + p.unit[parameter_name] + "]"
-        self.scale = p.scale[parameter_name]
+
+        # self.unit = p.unit[parameter_name]
+        # self.long_parameter_name = parameter_name + "[" + p.unit[parameter_name] + "]"
+        # self.scale = p.scale[parameter_name]
+
+        if parameter_name in p.unit:
+            self.unit = p.unit[parameter_name]
+            self.long_parameter_name = f"{parameter_name}[{self.unit}]"
+            self.scale = p.scale[parameter_name]
+        else:  # e.g. sector params like "offset_42", "jitter_42"
+            self.unit = "1"
+            self.long_parameter_name = parameter_name
+            self.scale = 1.0
+
         self.startvalue = startvalue
         self.lower = lower
         self.upper = upper

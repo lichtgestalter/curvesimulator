@@ -250,7 +250,7 @@ class CurveSimResults(dict):
         offset_map = sector_params.set_index("sector")["offset"]
         jitter_map = sector_params.set_index("sector")["jitter"]
         # How to change the offset_value for sector s: offset_map.loc[s] = 4.2
-        return offset_map, jitter_map
+        return offset_map, jitter_map, sector_params
 
     @staticmethod
     def save_sim_flux_with_observation_timeline(p, measured_flux):
@@ -262,7 +262,7 @@ class CurveSimResults(dict):
         df = pd.read_csv(p.flux_file)
         if p.sector_params_file:  # parameters offset and jitter for each observed sector exist
             CurveSimResults.check_required_columns({"time", "flux", "flux_err", "sector"}, df, p.flux_file)
-            offset_map, jitter_map = CurveSimResults.get_sector_params(p)
+            offset_map, jitter_map, _ = CurveSimResults.get_sector_params(p)
             df = CurveSimResults.flux_corr(df, offset_map)
             df = CurveSimResults.flux_total_err(df, jitter_map)
         else:
