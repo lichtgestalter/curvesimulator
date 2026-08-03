@@ -396,10 +396,14 @@ class CurveSimAnimation:
         background = canvas.copy_from_bbox(fig.bbox)
         buf = np.asarray(renderer.buffer_rgba())
         height, width = buf.shape[0], buf.shape[1]
+        # libx264 with yuv420p output requires even width/height. Odd pixel dimensions
+        # (which can happen depending on figure_width/figure_height/dpi) make ffmpeg exit
+        # immediately, which in turn causes a BrokenPipeError on the very first stdin.write().
+        width -= width % 2
+        height -= height % 2
         ffmpeg_cmd = [
             "ffmpeg",
-            "-hide_banner",    # suppress version/configuration banner
-            "-loglevel", "error",   # only print errors
+            "-loglevel", "error",   # only print errors (also suppresses the version/configuration banner)
             "-y",
             "-f", "rawvideo",
             "-vcodec", "rawvideo",
@@ -415,7 +419,7 @@ class CurveSimAnimation:
             "-pix_fmt", "yuv420p",
             str(p.video_file),
         ]
-        proc = subprocess.Popen(ffmpeg_cmd, stdin=subprocess.PIPE)
+        proc = subprocess.Popen(ffmpeg_cmd, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
 
         try:
             for frame in range(frames):
@@ -435,12 +439,23 @@ class CurveSimAnimation:
                         else:
                             fig.draw_artist(a)
                 canvas.blit(fig.bbox)
-                proc.stdin.write(np.asarray(renderer.buffer_rgba()).tobytes())
+                frame_buf = np.asarray(renderer.buffer_rgba())[:height, :width]
+                try:
+                    proc.stdin.write(frame_buf.tobytes())
+                except BrokenPipeError:
+                    break  # ffmpeg died; stop feeding it and report its stderr below.
         finally:
-            proc.stdin.close()
+            try:
+                proc.stdin.close()
+            except OSError:
+                pass
+            stderr_output = proc.stderr.read()
+            proc.stderr.close()
             proc.wait()
             if proc.returncode != 0:
                 print(f"{Fore.RED}\nERROR: ffmpeg exited with code {proc.returncode} while writing {p.video_file}.{Style.RESET_ALL}")
+                if stderr_output:
+                    print(f"{Fore.RED}ffmpeg output:\n{stderr_output.decode(errors='replace')}{Style.RESET_ALL}")
 
         if p.verbose:
             toc = time.perf_counter()

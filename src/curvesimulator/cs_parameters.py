@@ -283,9 +283,9 @@ class CurveSimParameters:
             return None, None, None, None
 
     def read_fitting_parameters(self, config):
-        fitting_parameters = self.read_fitting_body_parameters(config)
+        fitting_parameters, body_index = self.read_fitting_body_parameters(config)
         if self.sector_params_file:  # append sector params to fitting_parameters
-            fitting_parameters = self.read_fitting_sector_parameters(fitting_parameters)
+            fitting_parameters = self.read_fitting_sector_parameters(fitting_parameters, body_index)
         return fitting_parameters
 
     def read_fitting_body_parameters(self, config):
@@ -309,13 +309,15 @@ class CurveSimParameters:
                         fitting_parameters[-1].index = len(fitting_parameters) - 1
                 body_index += 1
         # print(f"Fitting {len(fitting_parameters)} parameters.")
-        return fitting_parameters
+        return fitting_parameters, body_index
 
-    def read_fitting_sector_parameters(self, fitting_parameters):
+    def read_fitting_sector_parameters(self, fitting_parameters, body_index):
         _, _, sector_params = CurveSimResults.get_sector_params(self)
         for row in sector_params.itertuples(index=False):
-            fitting_parameters.append(FittingParameter(self, "SectorParams", None, f"offset_{row.sector}", row.offset, row.offset_low, row.offset_up, row.offset_spread))
-            fitting_parameters.append(FittingParameter(self, "SectorParams", None, f"jitter_{row.sector}", row.jitter, row.jitter_low, row.jitter_high, row.jitter_spread))
+            fitting_parameters.append(FittingParameter(self, "SectorParams", body_index, f"offset_{row.sector}", row.offset, row.offset_low, row.offset_up, row.offset_spread))
+            fitting_parameters[-1].index = len(fitting_parameters) - 1
+            fitting_parameters.append(FittingParameter(self, "SectorParams", body_index, f"jitter_{row.sector}", row.jitter, row.jitter_low, row.jitter_high, row.jitter_spread))
+            fitting_parameters[-1].index = len(fitting_parameters) - 1
         return fitting_parameters
 
     @staticmethod
