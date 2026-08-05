@@ -120,7 +120,9 @@ class CurveSimMCMC:
         self.steps = p.steps
         self.credible_mass = 0.68
         self.param_references = [(fp.body_index, fp.parameter_name) for fp in self.fitting_parameters]  # list of names of fitting parameters. Needed so these parameters can be updated inside log_likelihood().
-        self.body_parameter_names = [f"{bodies[fp.body_index].name}.{fp.parameter_name}" for fp in self.fitting_parameters]
+        self.body_parameter_names = [f"{bodies[fp.body_index].name}.{fp.parameter_name}" for fp in self.fitting_parameters[:p.fitting_body_parameters]]
+        hier weiter
+        ich denke, ich brauche auch namen fuer die sector parameter
         self.long_body_parameter_names = [fpn + " [" + self.unit[fpn.split(".")[-1]] + "]" for fpn in self.body_parameter_names]
         for fp, fpn, fpnu in zip(p.fitting_parameters, self.body_parameter_names, self.long_body_parameter_names):
             fp.body_parameter_name = fpn

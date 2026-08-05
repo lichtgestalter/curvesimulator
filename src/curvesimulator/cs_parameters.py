@@ -174,6 +174,7 @@ class CurveSimParameters:
         default_scale = '{"mass": 1/m_jup, "radius": 1/r_jup, "e": 1, "i": rad2deg, "P": 1/day, "a": 1/au, "Omega": rad2deg, "omega": rad2deg, "pomega": rad2deg, "L": rad2deg, "ma": rad2deg, "ea": rad2deg, "nu": rad2deg, "T": 1, "t": 1}'
         dict_str = config.get("Fitting", "scale", fallback=default_scale)
         self.scale = eval(dict_str)
+        self.fitting_body_parameters = None  # Number of fitting parameters that are body params. Used to handle body params and other (e.g. sector) params differently.
         self.fitting_parameters = self.read_fitting_parameters(config)
 
     def __repr__(self):
@@ -308,6 +309,7 @@ class CurveSimParameters:
                         fitting_parameters.append(FittingParameter(self, section, body_index, parameter_name, value, lower, upper, sigma))
                         fitting_parameters[-1].index = len(fitting_parameters) - 1
                 body_index += 1
+        self.fitting_body_parameters = len(fitting_parameters)
         # print(f"Fitting {len(fitting_parameters)} parameters.")
         return fitting_parameters, body_index
 
