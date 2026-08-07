@@ -80,7 +80,7 @@ class CurveSimulator:
     def __init__(self, config_file=""):
         warnings.filterwarnings("ignore", module="rebound")
         p = CurveSimParameters(config_file)  # Read program parameters from config file.
-        bodies = None
+        bodies, measured_flux, measured_tt = None, None, None
         self.parameters = p
         self.bodies = bodies
         if p.verbose:
@@ -115,7 +115,7 @@ class CurveSimulator:
                     print(f"{num_workers=}, {p.ls_chunk_size=}, {run_counter=}, {p.ls_steps=}")
                 sys.exit(0)
             if p.action == "mcmc":
-                mcmc = CurveSimMCMC(p, bodies, time_s0, time_d, flux_corr, flux_total_err, measured_tt)
+                mcmc = CurveSimMCMC(p, bodies, time_s0, time_d, flux_corr, flux_total_err, measured_flux, measured_tt)
                 self.sampler = mcmc.sampler  # mcmc object
                 self.theta = mcmc.theta  # current state of mcmc chains. By saving sampler and theta it is possible to continue the mcmc later on.
             else:

@@ -249,6 +249,8 @@ class CurveSimResults(dict):
         CurveSimResults.check_required_columns({"sector", "offset", "offset_low", "offset_up", "offset_spread", "jitter", "jitter_low", "jitter_high", "jitter_spread"}, sector_params, p.sector_params_file)
         offset_map = sector_params.set_index("sector")["offset"]
         jitter_map = sector_params.set_index("sector")["jitter"]
+        p.offset_map = offset_map
+        p.jitter_map = jitter_map
         # How to change the offset_value for sector s: offset_map.loc[s] = 4.2
         return offset_map, jitter_map, sector_params
 
@@ -264,13 +266,13 @@ class CurveSimResults(dict):
             CurveSimResults.check_required_columns({"time", "flux", "flux_err", "sector"}, df, p.flux_file)
             offset_map, jitter_map, _ = CurveSimResults.get_sector_params(p)
             df = CurveSimResults.flux_corr(df, offset_map)
-            df = CurveSimResults.flux_total_err(df, jitter_map)
+            df, p.log_norm_term = CurveSimResults.flux_total_err(df, jitter_map)
         else:
             CurveSimResults.check_required_columns({"time", "flux", "flux_err"}, df, p.flux_file)
             df["flux_total_err"] = df["flux_err"]
             df["flux_corr"] = df["flux"]
-            del df["flux_err"]  # remove the original columns to make sure they will not be used anywhere
-            del df["flux"]
+            # del df["flux_err"]  # remove the original columns to make sure they will not be used anywhere
+            # del df["flux"]
         measured_flux = df[(df["time"] >= p.start_date) & (df["time"] <= p.end_date)].copy()
         measured_flux["time_s0"] = (measured_flux["time"] - p.start_date) * p.day
         time_s0 = np.array(measured_flux["time_s0"], dtype=float)
@@ -317,7 +319,8 @@ class CurveSimResults(dict):
         with jitter matched to measured_flux via the "sector" column. """
         jitter = measured_flux["sector"].map(jitter_map)
         measured_flux["flux_total_err"] = np.sqrt(measured_flux["flux_err"] ** 2 + jitter ** 2)
-        return measured_flux
+        log_norm_term = np.sum(np.log(2 * np.pi * measured_flux["flux_total_err"] ** 2))  # logarithm of the summed Gaussian normalization term
+        return measured_flux, log_norm_term
 
     @staticmethod
     def _to_list(val, default):
