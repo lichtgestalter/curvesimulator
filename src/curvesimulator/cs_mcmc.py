@@ -183,7 +183,7 @@ class CurveSimMCMC:
         return f"CurveSimMCMC with {self.walkers} walkers."
 
     @staticmethod
-    def single_run(p, bodies=None, time_s0=None, time_d=None):
+    def single_run(p, bodies=None, time_s0=None, time_d=None, measured_flux=None):
         if time_s0 is None and time_d is None:
             time_s0, time_d = CurveSimParameters.init_time_arrays(p)  # s0 in seconds, starting at 0. d in BJD.
         sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # Calculate all body positions and the resulting lightcurve
@@ -209,10 +209,11 @@ class CurveSimMCMC:
             CurveSimResults.rv_observed_computed_plot(p, sim_rv, time_d, "rv_o_vs_c", measured_rv)  # plot computed and observed RV
             CurveSimResults.rv_residuals_plot(p, "rv_residuals", measured_rv)  # plot RV residuals
         if p.flux_file:
-            time_s0, _, _, _, measured_flux = CurveSimResults.get_measured_flux(p)
-            if p.sector_params_file:  # parameters offset and jitter for each observed sector exist
-                del measured_flux["flux_err"]  # remove the original columns to make sure they will not be used anywhere
-                del measured_flux["flux"]
+            if measured_flux is None:
+                time_s0, _, _, _, measured_flux = CurveSimResults.get_measured_flux(p)
+            # if p.sector_params_file:  # parameters offset and jitter for each observed sector exist
+                # del measured_flux["flux_err"]  # remove the original columns to make sure they will not be used anywhere
+                # del measured_flux["flux"]
             for body in bodies:  # HACK because length of body.positions is initialized with the correct value for simulation, NOT measurements
                 body.positions = np.ndarray((len(time_s0), 3), dtype=float)
             _, sim_flux, _ = bodies.calc_physics(p, time_s0)  # run simulation
@@ -300,17 +301,20 @@ class CurveSimMCMC:
             For example: ["Tmin_pri", "P_days", "incl_deg", "R1a", "R2R1"]
         """
         residuals_sum_squared = 0
-        # log_norm_term = 0
+        log_norm_term = 0
         if p.flux_file:
-            residuals_sum_squared += p.flux_weight * CurveSimMCMC.residuals_flux_sum_squared(theta, param_references, bodies, time_s0, flux_corr, flux_total_err, measured_flux, p)
+            rss, lnt = p.flux_weight * CurveSimMCMC.residuals_flux_sum_squared(theta, param_references, bodies, time_s0, flux_corr, flux_total_err, measured_flux, p)
+            residuals_sum_squared += p.flux_weight * rss
+            log_norm_term += p.flux_weight * lnt
             # if p.sector_params_file:
             #     log_norm_term += np.sum(np.log(2 * np.pi * flux_total_err ** 2))  # logarithm of the summed Gaussian normalization term
         if p.tt_file:
             residuals_sum_squared += p.tt_weight * CurveSimMCMC.residuals_tt_sum_squared(theta, param_references, bodies, time_s0, time_d, measured_tt, p)
         # if p.rv_file:
-        #     residuals_sum_squared += p.rv_weight * CurveSimMCMC.residuals_rv_sum_squared(theta, param_references, bodies, time_s0, time_d, flux_corr, flux_total_err, p)
+            # residuals_sum_squared += p.rv_weight * CurveSimMCMC.residuals_rv_sum_squared(theta, param_references, bodies, time_s0, time_d, flux_corr, flux_total_err, p)
+            # hier muss so wie beim flux der LogNormalisierungsterm dynamisch mit dem RV-Jitter aus theta berechnet werden statt statisch aus p.rv_jitter
         # return -0.5 * residuals_sum_squared
-        return -0.5 * (residuals_sum_squared + p.log_norm_term)
+        return -0.5 * (residuals_sum_squared + log_norm_term)
 
     @staticmethod
     def residuals_flux_sum_squared(theta, param_references, bodies, time_s0, flux_corr, flux_total_err, measured_flux, p):
@@ -318,18 +322,22 @@ class CurveSimMCMC:
         for body_index, parameter_name in param_references[:p.fitting_body_parameters]:
             bodies[body_index].__dict__[parameter_name] = theta[i]  # update body parameters from theta
             i += 1
+        log_norm_term = p.log_norm_term
         if p.sector_params_file:
             for sector in p.offset_map.index:
                 p.offset_map.loc[sector] = theta[i]
                 p.jitter_map.loc[sector] = theta[i + 1]
                 i += 2
-            CurveSimResults.flux_corr(measured_flux, p.offset_map)  # updates measured_flux
-            CurveSimResults.flux_total_err(measured_flux, p.jitter_map)  # updates measured_flux
+            _, flux_corr = CurveSimResults.flux_corr(measured_flux, p.offset_map)  # updates measured_flux
+            # _, flux_total_err, _ = CurveSimResults.flux_total_err(measured_flux, p.jitter_map)  # updates measured_flux too
+            _, flux_total_err, log_norm_term = CurveSimResults.flux_total_err(measured_flux, p.jitter_map)  # updates measured_flux too
 
         sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # run simulation
+        # residuals_flux = (measured_flux["flux_corr"] - sim_flux) / measured_flux["flux_total_err"]  # residuals are weighted with uncertainty!
         residuals_flux = (flux_corr - sim_flux) / flux_total_err  # residuals are weighted with uncertainty!
         residuals_flux_sum_squared = np.sum(residuals_flux ** 2)
-        return residuals_flux_sum_squared
+        # return residuals_flux_sum_squared
+        return residuals_flux_sum_squared, log_norm_term
 
     @staticmethod
     def bodies_from_fitting_params(bodies, fitting_parameters, param_type=None):
@@ -392,6 +400,8 @@ class CurveSimMCMC:
             param = fpn.split(".")[-1]
             ss *= self.scale[param]
             self.scales.append(self.scale[param])
+        for _ in self.sector_parameter_names:
+            self.scales.append(1)
 
     # @stopwatch()
     def trace_plots(self, steps_done, plot_filename):
@@ -404,7 +414,7 @@ class CurveSimMCMC:
                 if self.ndim == 1:
                     axes = [axes]
                 chains = np.moveaxis(self.sampler.get_chain(flat=False, thin=self.thin_samples_plot), -1, 0)
-                for i, (chain, ax, name, scale) in enumerate(zip(chains, axes, self.long_body_parameter_names, self.scales)):
+                for i, (chain, ax, name, scale) in enumerate(zip(chains, axes, self.long_body_parameter_names + self.sector_parameter_names, self.scales)):
                     nsteps = chain.shape[0]
                     x = np.arange(1, nsteps + 1) * self.thin_samples_plot  # 1*thin, 2*thin, ...
                     ax.plot(x, chain * scale, color="xkcd:black", alpha=0.05)
@@ -505,15 +515,15 @@ class CurveSimMCMC:
         plt.close(fig)
 
     # @stopwatch()
-    def mcmc_corner_plot(self, steps_done, plot_filename):
+    def mcmc_corner_plot(self, steps_done, plot_filename, p):
         if self.corner_plot_ok:
             try:
                 plot_filename = self.results_directory + plot_filename
                 if self.ndim > 1:
                     fig = corner.corner(
-                        self.scaled_samples,
+                        self.scaled_samples[:, :p.fitting_body_parameters],
                         labels=self.long_body_parameter_names,
-                        truths=self.max_likelihood_params_scaled,
+                        truths=self.max_likelihood_params_scaled[:p.fitting_body_parameters],
                         title_fmt=".4f",
                         quiet=True
                     )
@@ -541,7 +551,7 @@ class CurveSimMCMC:
                 if self.ndim == 1:
                     axes = [axes]
                 x = np.arange(1, nsteps + 1) * self.thin_samples_plot
-                for dim, param_name in enumerate(self.long_body_parameter_names):
+                for dim, param_name in enumerate(self.long_body_parameter_names + self.sector_parameter_names):
                     ax = axes[dim]
                     for walker in range(nwalkers):
                         chain_1d = samples[:, walker, dim]
@@ -570,7 +580,7 @@ class CurveSimMCMC:
         fig, ax = plt.subplots(figsize=(10, 6))
         colors = ["xkcd:royal blue", "xkcd:red", "xkcd:black", "xkcd:frog green", "xkcd:piss yellow", "xkcd:purply blue", "xkcd:sepia", "xkcd:wine", "xkcd:ocean", "xkcd:rust", "xkcd:forest", "xkcd:pale violet", "xkcd:robin's egg", "xkcd:pinkish purple", "xkcd:azure", "xkcd:hot pink", "xkcd:mango", "xkcd:baby pink", "xkcd:fluorescent green", "xkcd:medium grey"]
         linestyles = ["solid", "dashed", "dashdot", "dotted"]
-        for i, (autocorr_times, fpn) in enumerate(zip(integrated_autocorrelation_time, self.long_body_parameter_names)):
+        for i, (autocorr_times, fpn) in enumerate(zip(integrated_autocorrelation_time, self.long_body_parameter_names + self.sector_parameter_names)):
             color = colors[i % len(colors)]
             linestyle = linestyles[(i // len(colors)) % len(linestyles)]
             ax.plot(steps, autocorr_times, label=fpn, color=color, linestyle=linestyle)
@@ -586,7 +596,7 @@ class CurveSimMCMC:
 
         steps_done_div_integrated_autocorrelation_time = steps / integrated_autocorrelation_time
         fig, ax = plt.subplots(figsize=(10, 6))
-        for i, (autocorr_times, fpn) in enumerate(zip(steps_done_div_integrated_autocorrelation_time, self.long_body_parameter_names)):
+        for i, (autocorr_times, fpn) in enumerate(zip(steps_done_div_integrated_autocorrelation_time, self.long_body_parameter_names + self.sector_parameter_names)):
             color = colors[i % len(colors)]
             linestyle = linestyles[(i // len(colors)) % len(linestyles)]
             ax.plot(steps, autocorr_times, label=fpn, color=color, linestyle=linestyle)
@@ -885,8 +895,8 @@ class CurveSimMCMC:
         self.high_density_intervals()
 
         if p.flux_file:
-            median_residuals_flux_sum_squared = CurveSimMCMC.residuals_flux_sum_squared(self.median_params, self.param_references, bodies, time_s0, flux_corr, flux_total_err, measured_flux, p)
-            mean_residuals_flux_sum_squared = CurveSimMCMC.residuals_flux_sum_squared(self.mean_params, self.param_references, bodies, time_s0, flux_corr, flux_total_err, measured_flux, p)
+            median_residuals_flux_sum_squared, _ = CurveSimMCMC.residuals_flux_sum_squared(self.median_params, self.param_references, bodies, time_s0, flux_corr, flux_total_err, measured_flux, p)
+            mean_residuals_flux_sum_squared, _ = CurveSimMCMC.residuals_flux_sum_squared(self.mean_params, self.param_references, bodies, time_s0, flux_corr, flux_total_err, measured_flux, p)
             flux_data_points = getattr(p, "total_iterations", 0)
             self.mean_avg_residual_in_std.append(math.sqrt(mean_residuals_flux_sum_squared / flux_data_points))
             self.median_avg_residual_in_std.append(math.sqrt(median_residuals_flux_sum_squared / flux_data_points))
@@ -894,11 +904,8 @@ class CurveSimMCMC:
 
         bodies = CurveSimMCMC.bodies_from_fitting_params(bodies, self.fitting_parameters[:p.fitting_body_parameters], param_type="max_likelihood")
         bodies.save(directory=p.results_directory, prefix="", suffix="_maxL")
-        # sectorparams42 Muessen hier so wie die bodies auch offset und jitter aktulisiert werden?
-        # sectorparams42 Warum hier ein Single Run ???
-
         # CurveSimParameters.save_fitting_parameters(self.fitting_parameters, directory=p.results_directory, prefix="", suffix="_maxL")
-        CurveSimMCMC.single_run(p, bodies, time_s0, time_d)
+        CurveSimMCMC.single_run(p, bodies, time_s0, time_d, measured_flux)  # creates o vs. c, chi^2 and residuals plots. measured_flux enthaelt bereits die aktualisierten flux_corr und flux_total_err
 
         self.integrated_autocorrelation_time.append(list(self.sampler.get_autocorr_time(tol=0)))
         self.integrated_autocorrelation_time_plot(steps_done, "int_autocorr_time.png", "steps_per_i_ac_time.png")
@@ -914,7 +921,7 @@ class CurveSimMCMC:
         if chunk % 10 == 0:
             flat_thin_samples = self.sampler.get_chain(discard=self.burn_in, thin=self.thin_samples_plot, flat=True)
             self.scale_samples(flat_thin_samples)
-            self.mcmc_corner_plot(steps_done, "corner.png")
+            self.mcmc_corner_plot(steps_done, "corner.png", p)
 
 
 class CurveSimLMfit:
