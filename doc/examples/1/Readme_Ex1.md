@@ -33,5 +33,4 @@ in the flux.
 | **Output:**                    | Created by CurveSimulator in this example.                                                            |
 | sim_flux.csv                   | Simulated flux including white noise.                                                                 |
 | video.mp4                      | Video of the simulation.                                                                              |
-| videoHQ.mp4                    | Backup video in high quality. Will not be overwritten when this example runs.                         |
 | Subdirectories 0000, 0001, ... | Contain result plots and a JSON file with transit parameters, body parameters, fit quality, and more. |

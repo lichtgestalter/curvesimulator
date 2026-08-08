@@ -100,6 +100,7 @@ class CurveSimResults(dict):
         to_remove = [
             "fitting_parameters", "standard_sections", "eclipsers", "eclipsees",
             "fitting_parameter_dic",
+            "offset_map", "jitter_map",
         ]
         for name in to_remove:
             if hasattr(p_copy, name):
@@ -305,6 +306,7 @@ class CurveSimResults(dict):
         flux_corr = flux - offset
         with offset matched to measured_flux via the "sector" column. """
         offset = measured_flux["sector"].map(offset_map)
+        # measured_flux["flux_corr"] = measured_flux["flux"] + offset
         measured_flux["flux_corr"] = measured_flux["flux"] - offset
         flux_corr = np.array(measured_flux["flux_corr"])
         return measured_flux, flux_corr

@@ -28,8 +28,8 @@ def main():
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/T200/TOI-4504_T200.ini")
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/Trifon_22.03.26/Trifon_22.03.26.ini")
 
-    # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/Trifon_2026.07.15/trifon_mcmc.ini")
-    curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/Trifon_2026.07.15/trifon_single_run.ini")
+    curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/Trifon_2026.07.15/trifon_mcmc.ini")
+    # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/Trifon_2026.07.15/trifon_single_run.ini")
 
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/Almenara_AppendixA1/Almenara_AppendixA1.ini")
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/Almenara/Almenara.ini")

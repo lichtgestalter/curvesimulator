@@ -19,4 +19,3 @@ configuration file by setting the parameters `show_left_plot`,
 | config2.ini     | This configuration file controls what CurveSimulator does.                                       |
 | **Output:**     | Created by CurveSimulator in this example.                                                       |
 | video.mp4       | Video of the simulation.                                                                         |
-| videoHQ.mp4     | Backup video in high quality. Will not be overwritten when this example runs.                    |
