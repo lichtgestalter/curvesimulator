@@ -70,7 +70,7 @@ class CurveSimParameters:
         self.free_parameters = eval(config.get("Fitting", "free_parameters", fallback="None"))
         self.flux_file = config.get("Fitting", "flux_file", fallback=None)
         self.sector_params_file = config.get("Fitting", "sector_params_file", fallback=None)
-        self.log_norm_term = 0
+        self.log_norm_term_flux = 0
         self.tt_file = config.get("Fitting", "tt_file", fallback=None)
         self.rv_file = config.get("Fitting", "rv_file", fallback=None)
         self.rv_body = config.get("Fitting", "rv_body", fallback=None)

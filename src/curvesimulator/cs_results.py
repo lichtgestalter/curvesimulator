@@ -205,8 +205,8 @@ class CurveSimResults(dict):
         return measured_flux
 
     def calc_flux_log_maxlikelihood(self, measured_flux):
-        log_norm_term = np.log(2 * np.pi * measured_flux["flux_total_err"] ** 2).sum()  # logarithm of the summed Gaussian normalization term
-        self["log_maxlikelihood_flux"] = -0.5 * (self["chi_squared_flux"] + log_norm_term)
+        self["log_norm_term_flux"] = np.log(2 * np.pi * measured_flux["flux_total_err"] ** 2).sum()  # logarithm of the summed Gaussian normalization term
+        self["log_maxlikelihood_flux"] = -0.5 * (self["chi_squared_flux"] + self["log_norm_term_flux"])
 
     def calc_tt_chi_squared(self, measured_tt, free_parameters):
         measured_tt["chi_squared"] = measured_tt["delta"] / measured_tt["tt_err"]
@@ -264,7 +264,7 @@ class CurveSimResults(dict):
             CurveSimResults.check_required_columns({"time", "flux", "flux_err", "sector"}, df, p.flux_file)
             offset_map, jitter_map, _ = CurveSimResults.get_sector_params(p)
             df, _ = CurveSimResults.flux_corr(df, offset_map)
-            df, _, p.log_norm_term = CurveSimResults.flux_total_err(df, jitter_map)
+            df, _, p.log_norm_term_flux = CurveSimResults.flux_total_err(df, jitter_map)
         else:
             CurveSimResults.check_required_columns({"time", "flux", "flux_err"}, df, p.flux_file)
             df["flux_total_err"] = df["flux_err"]
@@ -319,9 +319,9 @@ class CurveSimResults(dict):
         with jitter matched to measured_flux via the "sector" column. """
         jitter = measured_flux["sector"].map(jitter_map)
         measured_flux["flux_total_err"] = np.sqrt(measured_flux["flux_err"] ** 2 + jitter ** 2)
-        log_norm_term = np.sum(np.log(2 * np.pi * measured_flux["flux_total_err"] ** 2))  # logarithm of the summed Gaussian normalization term
+        log_norm_term_flux = np.sum(np.log(2 * np.pi * measured_flux["flux_total_err"] ** 2))  # logarithm of the summed Gaussian normalization term
         flux_total_err = np.array(measured_flux["flux_total_err"], dtype=float)
-        return measured_flux, flux_total_err, log_norm_term
+        return measured_flux, flux_total_err, log_norm_term_flux
 
     @staticmethod
     def _to_list(val, default):

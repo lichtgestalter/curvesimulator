@@ -301,20 +301,20 @@ class CurveSimMCMC:
             For example: ["Tmin_pri", "P_days", "incl_deg", "R1a", "R2R1"]
         """
         residuals_sum_squared = 0
-        log_norm_term = 0
+        log_norm_term_flux = 0
         if p.flux_file:
             rss, lnt = p.flux_weight * CurveSimMCMC.residuals_flux_sum_squared(theta, param_references, bodies, time_s0, flux_corr, flux_total_err, measured_flux, p)
             residuals_sum_squared += p.flux_weight * rss
-            log_norm_term += p.flux_weight * lnt
+            log_norm_term_flux += p.flux_weight * lnt
             # if p.sector_params_file:
-            #     log_norm_term += np.sum(np.log(2 * np.pi * flux_total_err ** 2))  # logarithm of the summed Gaussian normalization term
+            #     log_norm_term_flux += np.sum(np.log(2 * np.pi * flux_total_err ** 2))  # logarithm of the summed Gaussian normalization term
         if p.tt_file:
             residuals_sum_squared += p.tt_weight * CurveSimMCMC.residuals_tt_sum_squared(theta, param_references, bodies, time_s0, time_d, measured_tt, p)
         # if p.rv_file:
             # residuals_sum_squared += p.rv_weight * CurveSimMCMC.residuals_rv_sum_squared(theta, param_references, bodies, time_s0, time_d, flux_corr, flux_total_err, p)
             # hier muss so wie beim flux der LogNormalisierungsterm dynamisch mit dem RV-Jitter aus theta berechnet werden statt statisch aus p.rv_jitter
         # return -0.5 * residuals_sum_squared
-        return -0.5 * (residuals_sum_squared + log_norm_term)
+        return -0.5 * (residuals_sum_squared + log_norm_term_flux)
 
     @staticmethod
     def residuals_flux_sum_squared(theta, param_references, bodies, time_s0, flux_corr, flux_total_err, measured_flux, p):
@@ -322,7 +322,7 @@ class CurveSimMCMC:
         for body_index, parameter_name in param_references[:p.fitting_body_parameters]:
             bodies[body_index].__dict__[parameter_name] = theta[i]  # update body parameters from theta
             i += 1
-        log_norm_term = p.log_norm_term
+        log_norm_term_flux = p.log_norm_term_flux
         if p.sector_params_file:
             for sector in p.offset_map.index:
                 p.offset_map.loc[sector] = theta[i]
@@ -330,14 +330,14 @@ class CurveSimMCMC:
                 i += 2
             _, flux_corr = CurveSimResults.flux_corr(measured_flux, p.offset_map)  # updates measured_flux
             # _, flux_total_err, _ = CurveSimResults.flux_total_err(measured_flux, p.jitter_map)  # updates measured_flux too
-            _, flux_total_err, log_norm_term = CurveSimResults.flux_total_err(measured_flux, p.jitter_map)  # updates measured_flux too
+            _, flux_total_err, log_norm_term_flux = CurveSimResults.flux_total_err(measured_flux, p.jitter_map)  # updates measured_flux too
 
         sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # run simulation
         # residuals_flux = (measured_flux["flux_corr"] - sim_flux) / measured_flux["flux_total_err"]  # residuals are weighted with uncertainty!
         residuals_flux = (flux_corr - sim_flux) / flux_total_err  # residuals are weighted with uncertainty!
         residuals_flux_sum_squared = np.sum(residuals_flux ** 2)
         # return residuals_flux_sum_squared
-        return residuals_flux_sum_squared, log_norm_term
+        return residuals_flux_sum_squared, log_norm_term_flux
 
     @staticmethod
     def bodies_from_fitting_params(bodies, fitting_parameters, param_type=None):
@@ -666,12 +666,12 @@ class CurveSimMCMC:
             tt = getattr(p, "tt_datasize", 0)
 
         # # return -0.5 * residuals_sum_squared
-        # return  x = -0.5 * (residuals_sum_squared + log_norm_term)
+        # return  x = -0.5 * (residuals_sum_squared + log_norm_term_flux)
 
-        # -2 * x = residuals_sum_squared + log_norm_term
-        # residuals_sum_squared = -2 * x - log_norm_term
+        # -2 * x = residuals_sum_squared + log_norm_term_flux
+        # residuals_sum_squared = -2 * x - log_norm_term_flux
 
-        maxlikelihood_avg_residual_in_std = math.sqrt((-2 * self.max_log_prob - p.log_norm_term) / (flux + rv + tt))  # convert log_prob to chi^2 by subtracting the logarithm of the summed Gaussian normalization term
+        maxlikelihood_avg_residual_in_std = math.sqrt((-2 * self.max_log_prob - p.log_norm_term_flux) / (flux + rv + tt))  # convert log_prob to chi^2 by subtracting the logarithm of the summed Gaussian normalization term
         self.max_likelihood_avg_residual_in_std.append(maxlikelihood_avg_residual_in_std)
 
     # @stopwatch()
@@ -806,8 +806,8 @@ class CurveSimMCMC:
         # if p.rv_file:
             # results["Simulation Parameters"]["rv_file"] = p.rv_file
 
-        results["Simulation Parameters"]["max_log_prob"] = self.max_log_prob
-        results["Simulation Parameters"]["max_likelihood_avg_residual_in_std"] = self.max_likelihood_avg_residual_in_std[-1]
+        # results["Simulation Parameters"]["max_log_prob"] = self.max_log_prob  # contradicts my own calculations, commented out for now
+        # results["Simulation Parameters"]["max_likelihood_avg_residual_in_std"] = self.max_likelihood_avg_residual_in_std[-1]  # commented out for now, I don't trust my calculation
 
         if p.tt_file:
             results["Simulation Parameters"]["mean_delta"] = float(np.mean(np.abs(measured_tt["delta"])))
@@ -900,7 +900,7 @@ class CurveSimMCMC:
             flux_data_points = getattr(p, "total_iterations", 0)
             self.mean_avg_residual_in_std.append(math.sqrt(mean_residuals_flux_sum_squared / flux_data_points))
             self.median_avg_residual_in_std.append(math.sqrt(median_residuals_flux_sum_squared / flux_data_points))
-        self.average_residual_in_std_plot(p, steps_done, "avg_residual.png")
+        # self.average_residual_in_std_plot(p, steps_done, "avg_residual.png")
 
         bodies = CurveSimMCMC.bodies_from_fitting_params(bodies, self.fitting_parameters[:p.fitting_body_parameters], param_type="max_likelihood")
         bodies.save(directory=p.results_directory, prefix="", suffix="_maxL")
