@@ -70,6 +70,10 @@ class CurveSimParameters:
         self.free_parameters = eval(config.get("Fitting", "free_parameters", fallback="None"))
         self.flux_file = config.get("Fitting", "flux_file", fallback=None)
         self.sector_params_file = config.get("Fitting", "sector_params_file", fallback=None)
+        if self.sector_params_file is None:
+            self.sector_params_fit = False
+        else:
+            self.sector_params_fit = eval(config.get("Fitting", "sector_params_fit", fallback="False"))
         self.log_norm_term_flux = 0
         self.tt_file = config.get("Fitting", "tt_file", fallback=None)
         self.rv_file = config.get("Fitting", "rv_file", fallback=None)
@@ -176,7 +180,8 @@ class CurveSimParameters:
         dict_str = config.get("Fitting", "scale", fallback=default_scale)
         self.scale = eval(dict_str)
         self.fitting_body_parameters = None  # Number of fitting parameters that are body params. Used to handle body params and other (e.g. sector) params differently.
-        self.fitting_parameters = self.read_fitting_parameters(config)
+        if self.action in ["lmfit", "guifit", "mcmc"]:
+            self.fitting_parameters = self.read_fitting_parameters(config)
 
     def __repr__(self):
         return f"CurveSimParameters from {self.config_file}"
@@ -286,7 +291,7 @@ class CurveSimParameters:
 
     def read_fitting_parameters(self, config):
         fitting_parameters, body_index = self.read_fitting_body_parameters(config)
-        if self.sector_params_file:  # append sector params to fitting_parameters
+        if self.sector_params_fit:  # append sector params to fitting_parameters
             fitting_parameters = self.read_fitting_sector_parameters(fitting_parameters, body_index)
         return fitting_parameters
 

@@ -211,9 +211,6 @@ class CurveSimMCMC:
         if p.flux_file:
             if measured_flux is None:
                 time_s0, _, _, _, measured_flux = CurveSimResults.get_measured_flux(p)
-            # if p.sector_params_file:  # parameters offset and jitter for each observed sector exist
-                # del measured_flux["flux_err"]  # remove the original columns to make sure they will not be used anywhere
-                # del measured_flux["flux"]
             for body in bodies:  # HACK because length of body.positions is initialized with the correct value for simulation, NOT measurements
                 body.positions = np.ndarray((len(time_s0), 3), dtype=float)
             _, sim_flux, _ = bodies.calc_physics(p, time_s0)  # run simulation
@@ -323,7 +320,7 @@ class CurveSimMCMC:
             bodies[body_index].__dict__[parameter_name] = theta[i]  # update body parameters from theta
             i += 1
         log_norm_term_flux = p.log_norm_term_flux
-        if p.sector_params_file:
+        if p.sector_params_fit:
             for sector in p.offset_map.index:
                 p.offset_map.loc[sector] = theta[i]
                 p.jitter_map.loc[sector] = theta[i + 1]
@@ -378,6 +375,8 @@ class CurveSimMCMC:
         n = len(sorted_data)
         interval_idx_inc = int(np.floor(credible_mass * n))
         intervals = sorted_data[interval_idx_inc:] - sorted_data[:n - interval_idx_inc]
+        # print(len(intervals))
+        # print(intervals[0])
         min_idx = np.argmin(intervals)
         hdi_min = sorted_data[min_idx]
         hdi_max = sorted_data[min_idx + interval_idx_inc]
@@ -891,7 +890,7 @@ class CurveSimMCMC:
             measured_tt = CurveSimMCMC.add_new_best_delta(measured_tt, steps_done)
             CurveSimMCMC.tt_delta_plot(p, steps_done, "tt_delta.png", measured_tt)
             self.tt_multi_delta_plot(steps_done, "tt_multi_delta.png", measured_tt)
-        self.calc_maxlikelihood_avg_residual_in_std(p)
+        # self.calc_maxlikelihood_avg_residual_in_std(p)
         self.high_density_intervals()
 
         if p.flux_file:
