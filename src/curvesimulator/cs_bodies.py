@@ -13,7 +13,7 @@ import time
 
 from curvesimulator.cs_body import CurveSimBody
 from curvesimulator.cs_lightcurve import CurveSimLightcurve
-# from curvesimulator.cs_parameters import CurveSimParameters
+from curvesimulator.cs_parameters import CurveSimParameters
 from curvesimulator.cs_physics import CurveSimPhysics
 from curvesimulator.cs_rebound import CurveSimRebound
 from curvesimulator.cs_results import CurveSimResults
@@ -44,7 +44,7 @@ class CurveSimBodies(list):
 
         # Physical bodies
         for section in config.sections():
-            if section not in p.standard_sections:  # section describes a physical object
+            if section not in p.standard_sections and CurveSimParameters.section_name_valid(section):  # section describes a physical object and has a legal name
                 file = config.get(section, "file", fallback=None)
                 if file is None:
                     color = config.get(section, "color", fallback=None)
@@ -80,7 +80,6 @@ class CurveSimBodies(list):
                         "ea": p.read_param(config, section, "ea", fallback=None),
                         "nu": p.read_param(config, section, "nu", fallback=None),
                         "T": p.read_param(config, section, "T", fallback=None),
-                        "t": p.read_param(config, section, "t", fallback=None),
                     }
                     body = CurveSimBody(**kwargs)
                 else:
@@ -121,7 +120,7 @@ class CurveSimBodies(list):
             print(f"{Fore.RED}\nAstrocentric: 1st body has primary 'self'. All other bodies have the name of a already defined body as primary.{Style.RESET_ALL}")
             sys.exit(1)
 
-        for body in self[0:1]:  # hack debug: works only when the first body is the only star and all other bodies are orbiting this star (no binary, no moons, ...)
+        for body in self[0:1]:
             simulation.add(m=body.mass, r=body.radius, name=body.name)
 
         for i, body in enumerate(self[1:], start=1):

@@ -19,7 +19,7 @@ def multiple_transit_error():
 # noinspection NonAsciiCharacters,PyPep8Naming,PyUnusedLocal
 class CurveSimBody:
     def __init__(self, p, primary, name, body_type, mass, radius, luminosity, rv_offset, rv_jitter, startposition, velocity, P, a, e, i, Omega, omega, pomega, L, ma, ea,
-                 nu, T, t, limb_darkening_1, limb_darkening_2, limb_darkening_parameter_type, color, image_file_left, image_file_right):
+                 nu, T, limb_darkening_1, limb_darkening_2, limb_darkening_parameter_type, color, image_file_left, image_file_right):
         """Initialize instance of physical body."""
         # For ease of use of constants in the config file they are additionally defined here without the prefix "p.".
         g, au, r_sun, m_sun, l_sun = p.g, p.au, p.r_sun, p.m_sun, p.l_sun
@@ -65,7 +65,6 @@ class CurveSimBody:
         self.nu = nu  # [rad] true anomaly
         self.nu_deg = None if nu is None else math.degrees(nu)  # [deg] true anomaly. Per definition = 270° at the time of an exoplanet's primary transit.
         self.T = T  # [s] Time of periapsis
-        self.t = t  # [s] optional additional time delta. For example time since last time of transit
 
         self.mu = None  # Gravitational Parameter. Depends on the masses of at least 2 bodies.
 
@@ -191,7 +190,6 @@ class CurveSimBody:
             data.get("ea"),
             data.get("nu"),
             data.get("T"),
-            data.get("t"),
             data.get("limb_darkening_1"),
             data.get("limb_darkening_2"),
             data.get("limb_darkening_parameter_type"),
