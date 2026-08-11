@@ -57,7 +57,7 @@ observed transit times.
 ### Videos of planetary systems
 
 _CurveSimulator_ generates videos of the movements and eclipses of 
-celestial bodies. The video can simultaneously display: 
+celestial bodies. The video can simultaneously display any combination of: 
 * a view of the star system from above 
 * a view from Earth (edge view) 
 * an animated plot of the system's total luminosity (lightcurve) 
