@@ -27,7 +27,8 @@ free to reach out to us.
 
 ### Robust and Fast Planetary System Parameter Estimation
 
-_CurveSimulator_ determines orbital parameter using n-Body simulations.
+_CurveSimulator_ determines orbital parameters of exoplanet systems using 
+n-Body simulations.
 
 Markov Chain Monte Carlo (MCMC) sampler (emcee package) build the parameter 
 posteriors and obtain parameter uncertainties.
