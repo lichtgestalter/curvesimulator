@@ -11,7 +11,7 @@
 _CurveSimulator_ is a reliable n-Body Python package for fast and 
   flexible Orbital Parameter Determination (MCMC).   
 
-It also generates highly configurable videos for teaching, public outreach, 
+It can also generate highly configurable videos for teaching, public outreach, 
 and scientific insight.   
 
 If _CurveSimulator_ could be useful for your next research project feel 
@@ -20,7 +20,7 @@ next version of CurveSimulator with your feedback.
 
 ### Fast and easy to use
 
-Just run five lines of Python code that never change.   
+Just run five lines of Python code that never need to change.   
 Everything else is controlled through one user-friendly configuration file.   
 The software is continuously developed and improved.   
 
@@ -30,14 +30,14 @@ The software is continuously developed and improved.
 _CurveSimulator_ determines orbital parameters of exoplanet systems using 
 n-Body simulations (rebound package).
 
-Markov Chain Monte Carlo (MCMC) sampler (emcee package) build the parameter 
-posteriors and obtain parameter uncertainties.
+Markov Chain Monte Carlo (MCMC) sampler build the parameter 
+posteriors and obtain parameter uncertainties (emcee package).
 
 _CurveSimulator_ can process different types of observations: Flux, 
 transit times and radial velocity.
 
-For fast preliminary results, run least-squares fits (LMfit package) on 
-observed transit times.
+For fast preliminary results, run least-squares fits on 
+observed transit times (LMfit package).
 
 
 #### Output
@@ -50,10 +50,10 @@ observed transit times.
   diagnostics. 
 
 #### Performance Example
-* Fitting 50 parameters using 20000 flux data points and integrating 
-  body movements over 7 years
-* 5000 iterations of 100 MCMC Walkers on an average Windows PC take under 3 
-  hours.
+* Let's fit 50 parameters using 20000 flux data points and integrate 3 
+  body movements over 7 years.
+* Then 5000 iterations of 100 MCMC Walkers on an average Windows PC take 
+  under 3 hours.
 * That's 45 simulation runs per second.
 
 
@@ -63,7 +63,7 @@ _CurveSimulator_ generates videos of the movements and eclipses of
 celestial bodies. The video can simultaneously display any combination of: 
 * a view of the star system from above 
 * a view from Earth (edge view) 
-* an animated plot of the system's total luminosity (lightcurve) 
+* an animated plot of the system's total luminosity over time (lightcurve) 
 * an animated plot of the star's radial velocity over time     
 
 Video generation is very fast: One minute playing time takes only seconds to 
