@@ -29,7 +29,7 @@
             "T",
             "t"
         ],
-        "config_file": "config.ini",
+        "config_file": "config1.ini",
         "g": 6.6743e-11,
         "au": 149597870700.0,
         "r_sun": 695700000.0,
@@ -61,6 +61,9 @@
         "mcmc_multi_processing": true,
         "free_parameters": 0,
         "flux_file": "flux.csv",
+        "sector_params_file": "sector_params.csv",
+        "sector_params_fit": false,
+        "log_norm_term_flux": -4778.334374534921,
         "tt_file": "tt.csv",
         "rv_file": "rv.csv",
         "rv_body": "SomeStar",
@@ -130,6 +133,29 @@
         "flux_dot_width": 0.0034482758620689655,
         "rv_dot_height": 0.058823529411764705,
         "rv_dot_width": 0.0034482758620689655,
+        "best_residuals_tt_sum_squared": 1e+99,
+        "lmfit_method": "powell",
+        "ls_chunk_size": 1000,
+        "ls_steps": 10000,
+        "ls_max_tt_delta": 1.1574074074074073e-05,
+        "flux_weight": 1,
+        "tt_weight": 1,
+        "rv_weight": 1,
+        "backend": null,
+        "load_backend": false,
+        "walkers": 32,
+        "steps": 10000,
+        "moves": "(emcee.moves.StretchMove(a=2.0))",
+        "burn_in": 500,
+        "chunk_size": 500,
+        "bins": [
+            30,
+            200
+        ],
+        "thin_samples": 10,
+        "unit": "{\"mass\": \"m_jup\", \"radius\": \"r_jup\", \"e\": \"1\", \"i\": \"deg\", \"P\": \"d\", \"a\": \"AU\", \"Omega\": \"deg\", \"omega\": \"deg\", \"pomega\": \"deg\", \"L\": \"deg\", \"ma\": \"deg\", \"ea\": \"deg\", \"nu\": \"deg\", \"T\": \"s\", \"t\": \"s\"}",
+        "scale": "{\"mass\": 1/m_jup, \"radius\": 1/r_jup, \"e\": 1, \"i\": rad2deg, \"P\": 1/day, \"a\": 1/au, \"Omega\": rad2deg, \"omega\": rad2deg, \"pomega\": rad2deg, \"L\": rad2deg, \"ma\": rad2deg, \"ea\": rad2deg, \"nu\": rad2deg, \"T\": 1, \"t\": 1}",
+        "fitting_body_parameters": null,
         "myintegration": false,
         "rv_offset": -100.0,
         "rv_jitter": 0.2,
@@ -180,7 +206,6 @@
                 "nu": null,
                 "nu_deg": null,
                 "T": null,
-                "t": null,
                 "mu": null
             },
             "Transits": []
@@ -227,7 +252,6 @@
                 "nu": null,
                 "nu_deg": null,
                 "T": null,
-                "t": null,
                 "mu": null
             },
             "Transits": [
@@ -291,7 +315,6 @@
                 "nu": null,
                 "nu_deg": null,
                 "T": null,
-                "t": null,
                 "mu": null
             },
             "Transits": [
@@ -314,16 +337,20 @@
             ]
         }
     },
-    "chi_squared_tt": 1.003752984788493,
-    "chi_squared_rv": 5.603360881035031,
-    "chi_squared_flux": 333.3897280870271,
-    "chi_squared_total": 339.9968419528506,
-    "measurements_tt": 2,
-    "measurements_rv": 7,
-    "measurements_flux": 346,
-    "measurements_total": 355,
-    "pvalue_tt": 0.6053935767402404,
-    "pvalue_rv": 0.586747637262196,
-    "pvalue_flux": 0.6772049785457035,
-    "pvalue_total": 0.7074944808680601
+    "Fit": {
+        "chi_squared_tt": 1.003752984788493,
+        "chi_squared_rv": 5.603360881035031,
+        "chi_squared_flux": 333.3897280870271,
+        "chi_squared_total": 339.9968419528506,
+        "measurements_tt": 2,
+        "measurements_rv": 7,
+        "measurements_flux": 346,
+        "measurements_total": 355,
+        "pvalue_tt": 0.6053935767402404,
+        "pvalue_rv": 0.586747637262196,
+        "pvalue_flux": 0.6772049785457035,
+        "pvalue_total": 0.7074944808680601,
+        "log_norm_term_flux": -4778.334374534921,
+        "log_maxlikelihood_flux": 2222.472323223947
+    }
 }

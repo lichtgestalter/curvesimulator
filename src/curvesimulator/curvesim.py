@@ -81,8 +81,8 @@ class CurveSimulator:
         warnings.filterwarnings("ignore", module="rebound")
         p = CurveSimParameters(config_file)  # Read program parameters from config file.
         bodies, measured_flux, measured_tt = None, None, None
-        self.parameters = p
-        self.bodies = bodies
+        self.parameters = p  # grants access from the executed script by making it an attribute of the CurveSimulator object
+        self.bodies = bodies  # grants access from the executed script by making it an attribute of the CurveSimulator object
         if p.verbose:
             print(p)
         if p.action in ["lmfit", "guifit", "mcmc"]:
@@ -128,8 +128,9 @@ class CurveSimulator:
             # new_body.save("abc__")
             # exit(1)
             bodies, sim_flux, results = CurveSimMCMC.single_run(p, bodies)
-            self.sim_flux = sim_flux
-            self.results = results
+            self.bodies = bodies  # grants access from the executed script by making it an attribute of the CurveSimulator object
+            self.sim_flux = sim_flux  # grants access from the executed script by making it an attribute of the CurveSimulator object
+            self.results = results  # grants access from the executed script by making it an attribute of the CurveSimulator object
         elif p.action == "results_only":
             # time_s0, time_d = CurveSimParameters.init_time_arrays(p)  # s0 in seconds, starting at 0. d in BJD.
             # bodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation

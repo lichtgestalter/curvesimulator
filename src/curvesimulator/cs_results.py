@@ -54,6 +54,7 @@ class CurveSimResults(dict):
             # for key in list(body.__dict__.keys()):  # uncomment to prevent null-values in result file
             #     if body.__dict__[key] is None:
             #         del body.__dict__[key]
+        self["Fit"] = {}
 
     def __repr__(self):
         string = ""
@@ -191,35 +192,35 @@ class CurveSimResults(dict):
     def calc_rv_chi_squared(self, measured_rv, free_parameters):
         measured_rv["chi_squared"] = measured_rv["residual"] / measured_rv["rv_total_err"]
         measured_rv["chi_squared"] = measured_rv["chi_squared"] * measured_rv["chi_squared"]
-        self["chi_squared_rv"] = measured_rv["chi_squared"].sum()
-        self["measurements_rv"] = measured_rv.shape[0]
-        self["pvalue_rv"] = CurveSimResults.chi_squared_pvalue(self["chi_squared_rv"], self["measurements_rv"], free_parameters)
+        self["Fit"]["chi_squared_rv"] = measured_rv["chi_squared"].sum()
+        self["Fit"]["measurements_rv"] = measured_rv.shape[0]
+        self["Fit"]["pvalue_rv"] = CurveSimResults.chi_squared_pvalue(self["Fit"]["chi_squared_rv"], self["Fit"]["measurements_rv"], free_parameters)
         return measured_rv
 
     def calc_flux_chi_squared(self, measured_flux, free_parameters):
         measured_flux["chi_squared"] = measured_flux["residual"] / measured_flux["flux_total_err"]
         measured_flux["chi_squared"] = measured_flux["chi_squared"] * measured_flux["chi_squared"]
-        self["chi_squared_flux"] = measured_flux["chi_squared"].sum()
-        self["measurements_flux"] = measured_flux.shape[0]
-        self["pvalue_flux"] = CurveSimResults.chi_squared_pvalue(self["chi_squared_flux"], self["measurements_flux"], free_parameters)
+        self["Fit"]["chi_squared_flux"] = measured_flux["chi_squared"].sum()
+        self["Fit"]["measurements_flux"] = measured_flux.shape[0]
+        self["Fit"]["pvalue_flux"] = CurveSimResults.chi_squared_pvalue(self["Fit"]["chi_squared_flux"], self["Fit"]["measurements_flux"], free_parameters)
         return measured_flux
 
     def calc_flux_log_maxlikelihood(self, measured_flux):
-        self["log_norm_term_flux"] = np.log(2 * np.pi * measured_flux["flux_total_err"] ** 2).sum()  # logarithm of the summed Gaussian normalization term
-        self["log_maxlikelihood_flux"] = -0.5 * (self["chi_squared_flux"] + self["log_norm_term_flux"])
+        self["Fit"]["log_norm_term_flux"] = np.log(2 * np.pi * measured_flux["flux_total_err"] ** 2).sum()  # logarithm of the summed Gaussian normalization term
+        self["Fit"]["log_maxlikelihood_flux"] = -0.5 * (self["Fit"]["chi_squared_flux"] + self["Fit"]["log_norm_term_flux"])
 
     def calc_tt_chi_squared(self, measured_tt, free_parameters):
         measured_tt["chi_squared"] = measured_tt["delta"] / measured_tt["tt_err"]
         measured_tt["chi_squared"] = measured_tt["chi_squared"] * measured_tt["chi_squared"]
-        self["chi_squared_tt"] = measured_tt["chi_squared"].sum()
-        self["measurements_tt"] = measured_tt.shape[0]
-        self["pvalue_tt"] = CurveSimResults.chi_squared_pvalue(self["chi_squared_tt"], self["measurements_tt"], free_parameters)
+        self["Fit"]["chi_squared_tt"] = measured_tt["chi_squared"].sum()
+        self["Fit"]["measurements_tt"] = measured_tt.shape[0]
+        self["Fit"]["pvalue_tt"] = CurveSimResults.chi_squared_pvalue(self["Fit"]["chi_squared_tt"], self["Fit"]["measurements_tt"], free_parameters)
         return measured_tt
 
     def calc_total_chi_squared(self, free_parameters):
-        self["chi_squared_total"] = self["chi_squared_rv"] + self["chi_squared_flux"] + self["chi_squared_tt"]
-        self["measurements_total"] = self["measurements_rv"] + self["measurements_flux"] + self["measurements_tt"]
-        self["pvalue_total"] = CurveSimResults.chi_squared_pvalue(self["chi_squared_total"], self["measurements_total"], free_parameters)
+        self["Fit"]["chi_squared_total"] = self["Fit"]["chi_squared_rv"] + self["Fit"]["chi_squared_flux"] + self["Fit"]["chi_squared_tt"]
+        self["Fit"]["measurements_total"] = self["Fit"]["measurements_rv"] + self["Fit"]["measurements_flux"] + self["Fit"]["measurements_tt"]
+        self["Fit"]["pvalue_total"] = CurveSimResults.chi_squared_pvalue(self["Fit"]["chi_squared_total"], self["Fit"]["measurements_total"], free_parameters)
 
     @staticmethod
     def chi_squared_pvalue(chi_squared, n_measurements, n_parameters):

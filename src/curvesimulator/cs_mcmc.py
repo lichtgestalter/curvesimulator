@@ -190,8 +190,9 @@ class CurveSimMCMC:
         if p.sim_flux_file and not p.flux_file:  # save simulated flux (regular spaced with p.dt, because no flux observations were made available)
             sim_flux.save_sim_flux_with_synthetic_timeline(p, time_d)
         results = bodies.find_transits(rebound_sim, p, sim_flux, time_s0, time_d)
-        results["chi_squared_tt"], results["chi_squared_rv"], results["chi_squared_flux"], results["chi_squared_total"] = 0, 0, 0, 0
-        results["measurements_tt"], results["measurements_rv"], results["measurements_flux"], results["measurements_total"] = 0, 0, 0, 0
+        results["Fit"]["chi_squared_tt"], results["Fit"]["chi_squared_rv"], results["Fit"]["chi_squared_flux"], results["Fit"]["chi_squared_total"] = 0, 0, 0, 0
+        results["Fit"]["measurements_tt"], results["Fit"]["measurements_rv"], results["Fit"]["measurements_flux"], results["Fit"]["measurements_total"] = 0, 0, 0, 0
+        results["Fit"]["pvalue_tt"], results["Fit"]["pvalue_rv"], results["Fit"]["pvalue_flux"], results["Fit"]["pvalue_total"] = 0, 0, 0, 0
         if p.video_file:
             CurveSimAnimation(p, bodies, sim_rv, sim_flux, time_s0)  # Create a video
         if p.tt_file:
