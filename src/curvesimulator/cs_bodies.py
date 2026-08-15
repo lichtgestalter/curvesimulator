@@ -117,7 +117,7 @@ class CurveSimBodies(list):
         if all(x is not None for x in primaries) and primaries[0] != "self":
             print(f"{Fore.RED}\nERROR: Primaries are ill defined.{Style.RESET_ALL}")
             print(f"{Fore.RED}\nJacobi coordinates: No body has a primary.{Style.RESET_ALL}")
-            print(f"{Fore.RED}\nAstrocentric: 1st body has primary 'self'. All other bodies have the name of a already defined body as primary.{Style.RESET_ALL}")
+            print(f"{Fore.RED}\nAstrocentric: 1st body has primary 'self'. All other bodies have the name of an already defined body as primary.{Style.RESET_ALL}")
             sys.exit(1)
 
         for body in self[0:1]:

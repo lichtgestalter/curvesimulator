@@ -690,7 +690,7 @@ class CurveSimBody:
 
     def calc_frames_per_orbit(self, p):
         """Calculates for each body how many video frames are needed to complete one orbit.
-           ffmpeg (or the video display program?) tends to omit the last few frames.
+           FFmpeg (or the video display program?) tends to omit the last few frames.
            Therefore add a handful of extra frames."""
         if self.P is not None:
             return self.P / (p.dt * p.sampling_rate)

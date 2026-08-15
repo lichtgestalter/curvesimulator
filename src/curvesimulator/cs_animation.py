@@ -13,7 +13,7 @@ import time
 class CurveSimAnimation:
 
     def __init__(self, p, bodies, sim_rv, sim_flux, time_s0):
-        CurveSimAnimation.check_ffmpeg()  # is ffmpeg installed?
+        CurveSimAnimation.check_ffmpeg()  # is FFmpeg installed?
         self.fig, ax_right, ax_left, ax_lightcurve, self.rv_dot, self.flux_dot = CurveSimAnimation.init_plot(p, sim_rv, sim_flux, time_s0)  # Adjust constants in section [Plot] of config file to fit your screen.
         # rv_dot/flux_dot change every frame. Mark them "animated" so the initial full draw
         # (used to cache the static background for blitting) does NOT bake them in.
@@ -46,7 +46,7 @@ class CurveSimAnimation:
     def check_ffmpeg():
         """Checks if ffmpeg is in PATH"""
         if shutil.which("ffmpeg") is None:
-            print(f"{Fore.RED}\nERROR: ffmpeg is not available. Please install ffmpeg to save the video.")
+            print(f"{Fore.RED}\nERROR: FFmpeg is not available. Please install FFmpeg to save the video.")
             print("Visit ffmpeg.org to download an executable version.")
             print(f"On Windows, extract the zip file and add the bin directory to your system's PATH environment variable.{Style.RESET_ALL}")
             sys.exit(1)
@@ -382,7 +382,7 @@ class CurveSimAnimation:
         anim.save() - blit only ever helps interactive on-screen animation (plt.show()).
         To actually benefit from blitting (only redraw the artists that changed instead of
         the whole figure every frame) we drive the rendering manually here and pipe the raw
-        pixel data straight into ffmpeg, instead of going through FuncAnimation/anim.save().
+        pixel data straight into FFmpeg, instead of going through FuncAnimation/anim.save().
         """
         frames = int(len(sim_flux) // p.sampling_rate)
         if p.verbose:
@@ -397,7 +397,7 @@ class CurveSimAnimation:
         buf = np.asarray(renderer.buffer_rgba())
         height, width = buf.shape[0], buf.shape[1]
         # libx264 with yuv420p output requires even width/height. Odd pixel dimensions
-        # (which can happen depending on figure_width/figure_height/dpi) make ffmpeg exit
+        # (which can happen depending on figure_width/figure_height/dpi) make FFmpeg exit
         # immediately, which in turn causes a BrokenPipeError on the very first stdin.write().
         width -= width % 2
         height -= height % 2
@@ -443,7 +443,7 @@ class CurveSimAnimation:
                 try:
                     proc.stdin.write(frame_buf.tobytes())
                 except BrokenPipeError:
-                    break  # ffmpeg died; stop feeding it and report its stderr below.
+                    break  # FFmpeg died; stop feeding it and report its stderr below.
         finally:
             try:
                 proc.stdin.close()
@@ -453,9 +453,9 @@ class CurveSimAnimation:
             proc.stderr.close()
             proc.wait()
             if proc.returncode != 0:
-                print(f"{Fore.RED}\nERROR: ffmpeg exited with code {proc.returncode} while writing {p.video_file}.{Style.RESET_ALL}")
+                print(f"{Fore.RED}\nERROR: FFmpeg exited with code {proc.returncode} while writing {p.video_file}.{Style.RESET_ALL}")
                 if stderr_output:
-                    print(f"{Fore.RED}ffmpeg output:\n{stderr_output.decode(errors='replace')}{Style.RESET_ALL}")
+                    print(f"{Fore.RED}FFmpeg output:\n{stderr_output.decode(errors='replace')}{Style.RESET_ALL}")
 
         if p.verbose:
             toc = time.perf_counter()
