@@ -18,7 +18,7 @@ class CurveSimParameters:
         self.PARAMS = (["body_type", "primary", "mass", "radius", "luminosity", "rv_offset", "rv_jitter"]
                        + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
                        + ["e", "i", "P", "a", "Omega", "omega", "pomega"]
-                       + ["L", "ma", "ea", "nu", "T", "t"])
+                       + ["L", "ma", "ea", "nu", "T"])
         self.standard_sections = ["Astronomical Constants", "Results", "Simulation", "Fitting", "Video", "VideoPlot", "VideoScale", "Debug"]  # These sections must be present in the config file.
         config = configparser.ConfigParser(inline_comment_prefixes="#")  # Inline comments in the config file start with "#".
         config.optionxform = str  # Preserve case of the keys.
@@ -47,13 +47,6 @@ class CurveSimParameters:
         self.r_jup, self.m_jup, self.r_nep, self.m_nep, self.r_earth, self.m_earth = r_jup, m_jup, r_nep, m_nep, r_earth, m_earth
         self.hour, self.day, self.year, self.rad2deg = hour, day, year, rad2deg
 
-        # [Results]
-        self.comment = config.get("Results", "comment", fallback="No comment")
-        self.verbose = eval(config.get("Results", "verbose", fallback="False"))
-        self.transit_precision = eval(config.get("Results", "transit_precision", fallback="1"))
-
-        self.flux_data_directory = config.get("Results", "flux_data_directory", fallback=".")
-
         # [Simulation]
         self.action = config.get("Simulation", "action", fallback="results_only")
         self.jacobi_masses = eval(config.get("Simulation", "jacobi_masses", fallback="True"))
@@ -62,8 +55,35 @@ class CurveSimParameters:
         self.dts = [self.dt]  # Debug Parameter deprecated. Replace usages in code with dt.
         self.start_date = eval(config.get("Simulation", "start_date", fallback="0.0"))
 
-        # [Video]
-        self.video_file = config.get("Video", "video_file", fallback=None)
+        self.starts_d = np.array(eval(config.get("Simulation", "starts", fallback="[]")), dtype=float)
+        self.ends_d = np.array(eval(config.get("Simulation", "ends", fallback="[]")), dtype=float)
+        self.end_date = self.ends_d[0]  # temporary hack until self.ends_d is no longer a list
+        # self.dts = np.array(eval(config.get("Simulation", "dts", fallback="[]")), dtype=float)
+        self.sim_flux_file = config.get("Simulation", "sim_flux_file", fallback=None)
+        self.start_indices, self.max_iterations, self.total_iterations = self.check_intervals()
+        self.sim_flux_err = eval(config.get("Simulation", "sim_flux_err", fallback="0.0"))
+
+        # [Results]
+        self.comment = config.get("Results", "comment", fallback="No comment")
+        self.verbose = eval(config.get("Results", "verbose", fallback="False"))
+        self.transit_precision = eval(config.get("Results", "transit_precision", fallback="1"))
+        self.flux_data_directory = config.get("Results", "flux_data_directory", fallback=".")
+        self.results_directory = config.get("Results", "results_directory", fallback=".")
+        self.result_file = config.get("Results", "result_file", fallback=None)
+        if self.result_file is not None or self.action in ["lmfit", "mcmc"]:
+            self.find_results_subdirectory()
+        self.max_interval_extensions = eval(config.get("Results", "max_interval_extensions", fallback="10"))
+
+        default_unit = '{"mass": "m_jup", "radius": "r_jup", "e": "1", "i": "deg", "P": "d", "a": "AU", "Omega": "deg", "omega": "deg", "pomega": "deg", "L": "deg", "ma": "deg", "ea": "deg", "nu": "deg", "T": "s"}'
+        dict_str = config.get("Results", "unit", fallback=default_unit)
+        self.unit = eval(dict_str)
+        default_scale = '{"mass": 1/m_jup, "radius": 1/r_jup, "e": 1, "i": rad2deg, "P": 1/day, "a": 1/au, "Omega": rad2deg, "omega": rad2deg, "pomega": rad2deg, "L": rad2deg, "ma": rad2deg, "ea": rad2deg, "nu": rad2deg, "T": 1}'
+        dict_str = config.get("Results", "scale", fallback=default_scale)
+        self.scale = eval(dict_str)
+        self.tt_padding = eval(config.get("Results", "tt_padding", fallback="0.3"))
+        self.bins = tuple([eval(x) for x in config.get("Results", "bins", fallback="30").split("#")[0].split(",")])
+        self.flux_plots_top = eval(config.get("Results", "flux_plots_top", fallback="1.015"))
+        self.flux_plots_bottom = eval(config.get("Results", "flux_plots_bottom", fallback="0.97"))
 
         # [Fitting]
         self.mcmc_multi_processing = eval(config.get("Fitting", "mcmc_multi_processing", fallback="True"))
@@ -81,31 +101,45 @@ class CurveSimParameters:
         self.eclipsers_names = list([x.strip() for x in config.get("Fitting", "eclipsers_names", fallback="None").split("#")[0].split(",")])
         self.eclipsees_names = list([x for x in config.get("Fitting", "eclipsees_names", fallback="None").split("#")[0].split(",")])
 
-        # [Results]
-        self.results_directory = config.get("Results", "results_directory", fallback=".")
-        self.result_file = config.get("Results", "result_file", fallback=None)
-        if self.result_file is not None or self.action in ["lmfit", "mcmc"]:
-            self.find_results_subdirectory()
-        self.max_interval_extensions = eval(config.get("Results", "max_interval_extensions", fallback="10"))
+        if self.tt_file:
+            self.starts_d = np.array(eval(config.get("Simulation", "starts", fallback="[]")), dtype=float)
+            self.ends_d = np.array(eval(config.get("Simulation", "ends", fallback="[]")), dtype=float)
+            # self.dts = np.array(eval(config.get("Simulation", "dts", fallback="[]")), dtype=float)
+            # self.start_indices, self.max_iterations, self.total_iterations = self.check_intervals()
+            self.best_residuals_tt_sum_squared = 1e99
 
-        # [Simulation]
-        self.starts_d = np.array(eval(config.get("Simulation", "starts", fallback="[]")), dtype=float)
-        self.ends_d = np.array(eval(config.get("Simulation", "ends", fallback="[]")), dtype=float)
-        self.end_date = self.ends_d[0]  # temporary hack until self.ends_d is no longer a list
-        # self.dts = np.array(eval(config.get("Simulation", "dts", fallback="[]")), dtype=float)
-        self.sim_flux_file = config.get("Simulation", "sim_flux_file", fallback=None)
-        self.start_indices, self.max_iterations, self.total_iterations = self.check_intervals()
-        self.tt_padding = eval(config.get("Fitting", "tt_padding", fallback="0.3"))
-        self.flux_plots_top = eval(config.get("Fitting", "flux_plots_top", fallback="1.015"))
-        self.flux_plots_bottom = eval(config.get("Fitting", "flux_plots_bottom", fallback="0.97"))
-        self.sim_flux_err = eval(config.get("Simulation", "sim_flux_err", fallback="0.0"))
+        # self.guifit = eval(config.get("Fitting", "guifit", fallback="False"))
+        # self.lmfit = eval(config.get("Fitting", "lmfit", fallback="False"))
+        self.lmfit_method = config.get("Fitting", "lmfit_method", fallback="powell")
+        self.ls_chunk_size = int(eval(config.get("Fitting", "ls_chunk_size", fallback="1000")))
+        self.ls_steps = int(eval(config.get("Fitting", "ls_steps", fallback="10000")))
+        self.ls_max_tt_delta = eval(config.get("Fitting", "ls_max_tt_delta", fallback="1/(24*60*60)"))
+        self.flux_weight = int(eval(config.get("Fitting", "flux_weight", fallback="1")))
+        self.tt_weight = int(eval(config.get("Fitting", "tt_weight", fallback="1")))
+        self.rv_weight = int(eval(config.get("Fitting", "rv_weight", fallback="1")))
+
+        self.backend = config.get("Fitting", "backend", fallback=None)  # e.g. emcee_backend.h5
+        self.load_backend = eval(config.get("Fitting", "load_backend", fallback="False"))
+        self.walkers = int(eval(config.get("Fitting", "walkers", fallback="32")))
+        self.steps = int(eval(config.get("Fitting", "steps", fallback="10000")))
+        self.moves = config.get("Fitting", "moves", fallback="(emcee.moves.StretchMove(a=2.0))")
+        self.burn_in = int(eval(config.get("Fitting", "burn_in", fallback="500")))
+        if self.burn_in < 1:
+            self.burn_in = 1
+        self.chunk_size = int(eval(config.get("Fitting", "chunk_size", fallback="500")))
+        self.thin_samples = int(eval(config.get("Fitting", "thin_samples", fallback="10")))
+
+        self.fitting_body_parameters = None  # Number of fitting parameters that are body params. Used to handle body params and other (e.g. sector) params differently.
+        if self.action in ["lmfit", "guifit", "mcmc"]:
+            self.fitting_parameters = self.read_fitting_parameters(config)
 
         # [Video]
+        self.video_file = config.get("Video", "video_file", fallback=None)
         self.frames = eval(config.get("Video", "frames", fallback="150"))
         self.fps = eval(config.get("Video", "fps", fallback="30"))
         self.clockwise = eval(config.get("Video", "clockwise", fallback="False"))
-
         self.sampling_rate = self.total_iterations / self.frames
+
         # [VideoScale]
         self.scope_left = eval(config.get("VideoScale", "scope_left", fallback="au"))
         self.scale_bar_length_left = eval(config.get("VideoScale", "scale_bar_length_left", fallback="au"))
@@ -143,45 +177,6 @@ class CurveSimParameters:
                 print(f"{Fore.YELLOW}         Because of this undersampling, the video will be using the same iteration for consecutive frames.{Style.RESET_ALL}")
                 print(f"{Fore.YELLOW}         Decrease the number of frames or decrease dt (the real time difference between simulation iterations).{Style.RESET_ALL}")
         # else:  # not a single run. Code in this else block should probably run every time -> could be outside an else block
-        # [Fitting]
-        if self.tt_file:
-            self.starts_d = np.array(eval(config.get("Simulation", "starts", fallback="[]")), dtype=float)
-            self.ends_d = np.array(eval(config.get("Simulation", "ends", fallback="[]")), dtype=float)
-            # self.dts = np.array(eval(config.get("Simulation", "dts", fallback="[]")), dtype=float)
-            # self.start_indices, self.max_iterations, self.total_iterations = self.check_intervals()
-            self.best_residuals_tt_sum_squared = 1e99
-
-        # self.guifit = eval(config.get("Fitting", "guifit", fallback="False"))
-        # self.lmfit = eval(config.get("Fitting", "lmfit", fallback="False"))
-        self.lmfit_method = config.get("Fitting", "lmfit_method", fallback="powell")
-        self.ls_chunk_size = int(eval(config.get("Fitting", "ls_chunk_size", fallback="1000")))
-        self.ls_steps = int(eval(config.get("Fitting", "ls_steps", fallback="10000")))
-        self.ls_max_tt_delta = eval(config.get("Fitting", "ls_max_tt_delta", fallback="1/(24*60*60)"))
-        self.flux_weight = int(eval(config.get("Fitting", "flux_weight", fallback="1")))
-        self.tt_weight = int(eval(config.get("Fitting", "tt_weight", fallback="1")))
-        self.rv_weight = int(eval(config.get("Fitting", "rv_weight", fallback="1")))
-
-        self.backend = config.get("Fitting", "backend", fallback=None)  # e.g. emcee_backend.h5
-        self.load_backend = eval(config.get("Fitting", "load_backend", fallback="False"))
-        self.walkers = int(eval(config.get("Fitting", "walkers", fallback="32")))
-        self.steps = int(eval(config.get("Fitting", "steps", fallback="10000")))
-        self.moves = config.get("Fitting", "moves", fallback="(emcee.moves.StretchMove(a=2.0))")
-        self.burn_in = int(eval(config.get("Fitting", "burn_in", fallback="500")))
-        if self.burn_in < 1:
-            self.burn_in = 1
-        self.chunk_size = int(eval(config.get("Fitting", "chunk_size", fallback="500")))
-        self.bins = tuple([eval(x) for x in config.get("Fitting", "bins", fallback="30").split("#")[0].split(",")])
-        self.thin_samples = int(eval(config.get("Fitting", "thin_samples", fallback="10")))
-
-        default_unit = '{"mass": "m_jup", "radius": "r_jup", "e": "1", "i": "deg", "P": "d", "a": "AU", "Omega": "deg", "omega": "deg", "pomega": "deg", "L": "deg", "ma": "deg", "ea": "deg", "nu": "deg", "T": "s", "t": "s"}'
-        dict_str = config.get("Fitting", "unit", fallback=default_unit)
-        self.unit = eval(dict_str)
-        default_scale = '{"mass": 1/m_jup, "radius": 1/r_jup, "e": 1, "i": rad2deg, "P": 1/day, "a": 1/au, "Omega": rad2deg, "omega": rad2deg, "pomega": rad2deg, "L": rad2deg, "ma": rad2deg, "ea": rad2deg, "nu": rad2deg, "T": 1, "t": 1}'
-        dict_str = config.get("Fitting", "scale", fallback=default_scale)
-        self.scale = eval(dict_str)
-        self.fitting_body_parameters = None  # Number of fitting parameters that are body params. Used to handle body params and other (e.g. sector) params differently.
-        if self.action in ["lmfit", "guifit", "mcmc"]:
-            self.fitting_parameters = self.read_fitting_parameters(config)
 
     def __repr__(self):
         return f"CurveSimParameters from {self.config_file}"

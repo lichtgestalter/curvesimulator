@@ -819,7 +819,7 @@ class CurveSimMCMC:
         params = (["body_type", "primary", "mass", "radius", "luminosity", "rv_offset", "rv_jitter"]
                   + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
                   + ["e", "i", "P", "a", "Omega", "Omega_deg", "omega", "omega_deg", "pomega", "pomega_deg"]
-                  + ["L", "L_deg", "ma", "ma_deg", "ea", "ea_deg", "nu", "nu_deg", "T", "t"])
+                  + ["L", "L_deg", "ma", "ma_deg", "ea", "ea_deg", "nu", "nu_deg", "T"])
         fitting_param_tuples = [(fp.body_index, fp.parameter_name) for fp in self.fitting_parameters]
         for i, body in enumerate(bodies):
             results["Bodies"][body.name] = {}
@@ -1088,7 +1088,7 @@ class CurveSimLMfit:
         params = (["body_type", "primary", "mass", "radius", "luminosity", "rv_offset", "rv_jitter"]
                   + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
                   + ["e", "i", "P", "a", "Omega", "omega", "pomega"]
-                  + ["L", "ma", "ea", "ea_deg", "nu", "T", "t"])
+                  + ["L", "ma", "ea", "ea_deg", "nu", "T"])
 
         for i, body in enumerate(bodies):
             results["Bodies"][body.name] = {}

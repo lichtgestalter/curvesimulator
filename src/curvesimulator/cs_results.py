@@ -63,7 +63,7 @@ class CurveSimResults(dict):
                 string += f"{body:15} {len(self["Bodies"][body]["Transits"]):3} transit\n"
             elif len(self["Bodies"][body]["Transits"]) > 1:
                 string += f"{body:15} {len(self["Bodies"][body]["Transits"]):3} transits\n"
-        return string[:-1]
+        return "CurveSimResults:\n" + string[:-1]
 
     @staticmethod
     def iteration2time(iteration, p):
