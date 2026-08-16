@@ -54,7 +54,6 @@ class CurveSimParameters:
         self.result_dt = self.dt  # Debug Parameter deprecated. Replace usages in code with dt.
         self.dts = [self.dt]  # Debug Parameter deprecated. Replace usages in code with dt.
         self.start_date = eval(config.get("Simulation", "start_date", fallback="0.0"))
-
         self.starts_d = np.array(eval(config.get("Simulation", "starts", fallback="[]")), dtype=float)
         self.ends_d = np.array(eval(config.get("Simulation", "ends", fallback="[]")), dtype=float)
         self.end_date = self.ends_d[0]  # temporary hack until self.ends_d is no longer a list
@@ -62,6 +61,7 @@ class CurveSimParameters:
         self.sim_flux_file = config.get("Simulation", "sim_flux_file", fallback=None)
         self.start_indices, self.max_iterations, self.total_iterations = self.check_intervals()
         self.sim_flux_err = eval(config.get("Simulation", "sim_flux_err", fallback="0.0"))
+        self.rv_body = config.get("Simulation", "rv_body", fallback=None)
 
         # [Results]
         self.comment = config.get("Results", "comment", fallback="No comment")
@@ -97,7 +97,6 @@ class CurveSimParameters:
         self.log_norm_term_flux = 0
         self.tt_file = config.get("Fitting", "tt_file", fallback=None)
         self.rv_file = config.get("Fitting", "rv_file", fallback=None)
-        self.rv_body = config.get("Fitting", "rv_body", fallback=None)
         self.eclipsers_names = list([x.strip() for x in config.get("Fitting", "eclipsers_names", fallback="None").split("#")[0].split(",")])
         self.eclipsees_names = list([x for x in config.get("Fitting", "eclipsees_names", fallback="None").split("#")[0].split(",")])
 
