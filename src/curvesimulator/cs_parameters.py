@@ -54,9 +54,9 @@ class CurveSimParameters:
         self.result_dt = self.dt  # Debug Parameter deprecated. Replace usages in code with dt.
         self.dts = [self.dt]  # Debug Parameter deprecated. Replace usages in code with dt.
         self.start_date = eval(config.get("Simulation", "start_date", fallback="0.0"))
-        self.starts_d = np.array(eval(config.get("Simulation", "starts", fallback="[]")), dtype=float)
-        self.ends_d = np.array(eval(config.get("Simulation", "ends", fallback="[]")), dtype=float)
-        self.end_date = self.ends_d[0]  # temporary hack until self.ends_d is no longer a list
+        self.sim_start = np.array(eval(config.get("Simulation", "sim_start", fallback="[]")), dtype=float)
+        self.sim_end = np.array(eval(config.get("Simulation", "sim_end", fallback="[]")), dtype=float)
+        self.end_date = self.sim_end[0]  # temporary hack until self.sim_end is no longer a list
         # self.dts = np.array(eval(config.get("Simulation", "dts", fallback="[]")), dtype=float)
         self.sim_flux_file = config.get("Simulation", "sim_flux_file", fallback=None)
         self.start_indices, self.max_iterations, self.total_iterations = self.check_intervals()
@@ -101,8 +101,8 @@ class CurveSimParameters:
         self.eclipsees_names = list([x for x in config.get("Fitting", "eclipsees_names", fallback="None").split("#")[0].split(",")])
 
         if self.tt_file:
-            self.starts_d = np.array(eval(config.get("Simulation", "starts", fallback="[]")), dtype=float)
-            self.ends_d = np.array(eval(config.get("Simulation", "ends", fallback="[]")), dtype=float)
+            self.sim_start = np.array(eval(config.get("Simulation", "starts", fallback="[]")), dtype=float)
+            self.sim_end = np.array(eval(config.get("Simulation", "ends", fallback="[]")), dtype=float)
             # self.dts = np.array(eval(config.get("Simulation", "dts", fallback="[]")), dtype=float)
             # self.start_indices, self.max_iterations, self.total_iterations = self.check_intervals()
             self.best_residuals_tt_sum_squared = 1e99
@@ -189,32 +189,32 @@ class CurveSimParameters:
         return True
 
     def check_intervals(self):
-        """Checks if the intervals in parameters starts_d, ends_d and dts are well defined.
+        """Checks if the intervals in parameters sim_start, sim_end and dts are well defined.
            Calculates the indices for time_s0, time_d and sim_flux where the intervals start and end.
            Calculates the total number of iterations for which body positions and flux will be simulated and stored.
            Creates alternative parameters starts_s0, ends_s0 in seconds instead of days and starting with 0 at start_date.
          """
-        if len(self.starts_d) == 0 or len(self.ends_d) == 0 or len(self.dts) == 0:
+        if len(self.sim_start) == 0 or len(self.sim_end) == 0 or len(self.dts) == 0:
             print("At least one of the parameters starts/ends/dts is missing. Default values take effect.")
-            self.starts_d = np.array([self.start_date], dtype=float)
+            self.sim_start = np.array([self.start_date], dtype=float)
             self.dts = np.array([self.dt], dtype=float)
-            self.ends_d = np.array([self.start_date + (self.frames * self.fps * self.dt) / self.day], dtype=float)  # default value. Assumes the video shall last "frames" seconds.
-        if not (len(self.starts_d) == len(self.ends_d) == len(self.dts)):
+            self.sim_end = np.array([self.start_date + (self.frames * self.fps * self.dt) / self.day], dtype=float)  # default value. Assumes the video shall last "frames" seconds.
+        if not (len(self.sim_start) == len(self.sim_end) == len(self.dts)):
             print(f"{Fore.YELLOW}\nWARNING: Parameters starts, ends and dts do not have the same number of items.{Style.RESET_ALL}")
-            print(f"{Fore.YELLOW}Only the first {min(len(self.starts_d), len(self.ends_d), len(self.dts))} intervals will be processed.{Style.RESET_ALL}")
-        for start, end in zip(self.starts_d, self.ends_d):
+            print(f"{Fore.YELLOW}Only the first {min(len(self.sim_start), len(self.sim_end), len(self.dts))} intervals will be processed.{Style.RESET_ALL}")
+        for start, end in zip(self.sim_start, self.sim_end):
             if start > end:
                 print(f"{Fore.RED}\nERROR in parameters starts/ends: One interval ends before it begins.{Style.RESET_ALL}")
                 sys.exit(1)
-        for nextstart, end in zip(self.starts_d[1:], self.ends_d[:-1]):
+        for nextstart, end in zip(self.sim_start[1:], self.sim_end[:-1]):
             if end > nextstart:
                 print(f"{Fore.RED}\nERROR in parameters starts/ends: One interval starts before its predecessor ends.{Style.RESET_ALL}")
                 sys.exit(1)
-        if self.start_date > self.starts_d[0]:
+        if self.start_date > self.sim_start[0]:
             print(f"{Fore.RED}\nERROR in parameter starts: First interval starts before the simulation's start_date.{Style.RESET_ALL}")
             sys.exit(1)
-        self.starts_s0 = (self.starts_d - self.start_date) * self.day  # convert BJD to seconds and start at zero
-        self.ends_s0 = (self.ends_d - self.start_date) * self.day  # convert BJD to seconds and start at zero
+        self.starts_s0 = (self.sim_start - self.start_date) * self.day  # convert BJD to seconds and start at zero
+        self.ends_s0 = (self.sim_end - self.start_date) * self.day  # convert BJD to seconds and start at zero
         max_iterations = [int((end - start) / dt) + 1 for start, end, dt in zip(self.starts_s0, self.ends_s0, self.dts)]  # each interval's number of iterations
         start_indices = [sum(max_iterations[:i]) for i in range(len(max_iterations) + 1)]  # indices of each interval's first iteration
         total_iterations = sum(max_iterations)

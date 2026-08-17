@@ -106,7 +106,7 @@ class CurveSimResults(dict):
         for name in to_remove:
             if hasattr(p_copy, name):
                 delattr(p_copy, name)
-        for name in ("starts_s0", "starts_d", "ends_s0", "ends_d", "dts"):
+        for name in ("starts_s0", "sim_start", "ends_s0", "sim_end", "dts"):
             if hasattr(p_copy, name):
                 orig = getattr(p_copy, name)
                 p_copy.__dict__[name] = [float(i) for i in orig]

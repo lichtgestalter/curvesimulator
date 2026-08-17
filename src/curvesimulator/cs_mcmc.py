@@ -849,7 +849,7 @@ class CurveSimMCMC:
             if hasattr(p_copy, name):
                 delattr(p_copy, name)
 
-        for name in ("starts_s0", "starts_d", "ends_s0", "ends_d", "dts"):
+        for name in ("starts_s0", "sim_start", "ends_s0", "sim_end", "dts"):
             if hasattr(p_copy, name):
                 orig = getattr(p_copy, name)
                 p_copy.__dict__[name] = [float(i) for i in orig]
@@ -1132,9 +1132,9 @@ class CurveSimLMfit:
         del p_copy.start_date
         del p_copy.results_directory
         del p_copy.starts_s0
-        del p_copy.starts_d
+        del p_copy.sim_start
         del p_copy.ends_s0
-        del p_copy.ends_d
+        del p_copy.sim_end
         del p_copy.dts
         results["ProgramParameters"] = p_copy.__dict__
 
