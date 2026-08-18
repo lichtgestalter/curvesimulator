@@ -51,15 +51,11 @@ class CurveSimParameters:
         self.action = config.get("Simulation", "action", fallback="results_only")
         self.jacobi_masses = eval(config.get("Simulation", "jacobi_masses", fallback="True"))
         self.dt = eval(config.get("Simulation", "dt", fallback="1000"))
-        self.result_dt = self.dt  # Debug Parameter deprecated. Replace usages in code with dt.
-        self.dts = [self.dt]  # Debug Parameter deprecated. Replace usages in code with dt.
         self.epoch = eval(config.get("Simulation", "epoch", fallback="0.0"))
-        self.sim_start = np.array(eval(config.get("Simulation", "sim_start", fallback="[]")), dtype=float)
-        self.sim_end = np.array(eval(config.get("Simulation", "sim_end", fallback="[]")), dtype=float)
-        self.end_date = self.sim_end[0]  # temporary hack until self.sim_end is no longer a list
-        # self.dts = np.array(eval(config.get("Simulation", "dts", fallback="[]")), dtype=float)
+        self.sim_start = eval(config.get("Simulation", "sim_start", fallback="None"))
+        self.sim_end = eval(config.get("Simulation", "sim_end", fallback="None"))
         self.sim_flux_file = config.get("Simulation", "sim_flux_file", fallback=None)
-        self.start_indices, self.max_iterations, self.total_iterations = self.check_intervals()
+        self.iterations = self.check_sim_interval()
         self.sim_flux_err = eval(config.get("Simulation", "sim_flux_err", fallback="0.0"))
         self.rv_body = config.get("Simulation", "rv_body", fallback=None)
 
@@ -73,7 +69,6 @@ class CurveSimParameters:
         if self.result_file is not None or self.action in ["lmfit", "mcmc"]:
             self.find_results_subdirectory()
         self.max_interval_extensions = eval(config.get("Results", "max_interval_extensions", fallback="10"))
-
         default_unit = '{"mass": "m_jup", "radius": "r_jup", "e": "1", "i": "deg", "P": "d", "a": "AU", "Omega": "deg", "omega": "deg", "pomega": "deg", "L": "deg", "ma": "deg", "ea": "deg", "nu": "deg", "T": "s"}'
         dict_str = config.get("Results", "unit", fallback=default_unit)
         self.unit = eval(dict_str)
@@ -99,16 +94,7 @@ class CurveSimParameters:
         self.rv_file = config.get("Fitting", "rv_file", fallback=None)
         self.eclipsers_names = list([x.strip() for x in config.get("Fitting", "eclipsers_names", fallback="None").split("#")[0].split(",")])
         self.eclipsees_names = list([x for x in config.get("Fitting", "eclipsees_names", fallback="None").split("#")[0].split(",")])
-
-        if self.tt_file:
-            self.sim_start = np.array(eval(config.get("Simulation", "starts", fallback="[]")), dtype=float)
-            self.sim_end = np.array(eval(config.get("Simulation", "ends", fallback="[]")), dtype=float)
-            # self.dts = np.array(eval(config.get("Simulation", "dts", fallback="[]")), dtype=float)
-            # self.start_indices, self.max_iterations, self.total_iterations = self.check_intervals()
-            self.best_residuals_tt_sum_squared = 1e99
-
-        # self.guifit = eval(config.get("Fitting", "guifit", fallback="False"))
-        # self.lmfit = eval(config.get("Fitting", "lmfit", fallback="False"))
+        self.best_residuals_tt_sum_squared = 1e99
         self.lmfit_method = config.get("Fitting", "lmfit_method", fallback="powell")
         self.ls_chunk_size = int(eval(config.get("Fitting", "ls_chunk_size", fallback="1000")))
         self.ls_steps = int(eval(config.get("Fitting", "ls_steps", fallback="10000")))
@@ -116,7 +102,6 @@ class CurveSimParameters:
         self.flux_weight = int(eval(config.get("Fitting", "flux_weight", fallback="1")))
         self.tt_weight = int(eval(config.get("Fitting", "tt_weight", fallback="1")))
         self.rv_weight = int(eval(config.get("Fitting", "rv_weight", fallback="1")))
-
         self.backend = config.get("Fitting", "backend", fallback=None)  # e.g. emcee_backend.h5
         self.load_backend = eval(config.get("Fitting", "load_backend", fallback="False"))
         self.walkers = int(eval(config.get("Fitting", "walkers", fallback="32")))
@@ -127,7 +112,6 @@ class CurveSimParameters:
             self.burn_in = 1
         self.chunk_size = int(eval(config.get("Fitting", "chunk_size", fallback="500")))
         self.thin_samples = int(eval(config.get("Fitting", "thin_samples", fallback="10")))
-
         self.fitting_body_parameters = None  # Number of fitting parameters that are body params. Used to handle body params and other (e.g. sector) params differently.
         if self.action in ["lmfit", "guifit", "mcmc"]:
             self.fitting_parameters = self.read_fitting_parameters(config)
@@ -137,7 +121,7 @@ class CurveSimParameters:
         self.frames = eval(config.get("Video", "frames", fallback="150"))
         self.fps = eval(config.get("Video", "fps", fallback="30"))
         self.clockwise = eval(config.get("Video", "clockwise", fallback="False"))
-        self.sampling_rate = self.total_iterations / self.frames
+        self.sampling_rate = self.iterations / self.frames
 
         # [VideoScale]
         self.scope_left = eval(config.get("VideoScale", "scope_left", fallback="au"))
@@ -160,7 +144,6 @@ class CurveSimParameters:
         self.main_title = config.get("VideoPlot", "main_title", fallback="Main Title")
         self.left_title = config.get("VideoPlot", "left_title", fallback="View from above")
         self.right_title = config.get("VideoPlot", "right_title", fallback="View from Earth")
-
         self.figure_width = eval(config.get("VideoPlot", "figure_width", fallback="16"))
         self.figure_height = eval(config.get("VideoPlot", "figure_height", fallback="8"))
         self.xlim = eval(config.get("VideoPlot", "xlim", fallback="1.25"))
@@ -172,10 +155,9 @@ class CurveSimParameters:
 
         if self.action == "single_run" and self.video_file:
             if self.sampling_rate < 1:
-                print(f"{Fore.YELLOW}\nWARNING: This simulation calculates only {self.total_iterations} iterations for {self.frames} video frames.{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}\nWARNING: This simulation calculates only {self.iterations} iterations for {self.frames} video frames.{Style.RESET_ALL}")
                 print(f"{Fore.YELLOW}         Because of this undersampling, the video will be using the same iteration for consecutive frames.{Style.RESET_ALL}")
                 print(f"{Fore.YELLOW}         Decrease the number of frames or decrease dt (the real time difference between simulation iterations).{Style.RESET_ALL}")
-        # else:  # not a single run. Code in this else block should probably run every time -> could be outside an else block
 
     def __repr__(self):
         return f"CurveSimParameters from {self.config_file}"
@@ -188,37 +170,22 @@ class CurveSimParameters:
             sys.exit(1)
         return True
 
-    def check_intervals(self):
-        """Checks if the intervals in parameters sim_start, sim_end and dts are well defined.
+    def check_sim_interval(self):
+        """Checks if parameters sim_start and sim_end are well defined.
            Calculates the indices for time_s0, time_d and sim_flux where the intervals start and end.
            Calculates the total number of iterations for which body positions and flux will be simulated and stored.
            Creates alternative parameters starts_s0, ends_s0 in seconds instead of days and starting with 0 at epoch.
          """
-        if len(self.sim_start) == 0 or len(self.sim_end) == 0 or len(self.dts) == 0:
-            print("At least one of the parameters starts/ends/dts is missing. Default values take effect.")
-            self.sim_start = np.array([self.epoch], dtype=float)
-            self.dts = np.array([self.dt], dtype=float)
-            self.sim_end = np.array([self.epoch + (self.frames * self.fps * self.dt) / self.day], dtype=float)  # default value. Assumes the video shall last "frames" seconds.
-        if not (len(self.sim_start) == len(self.sim_end) == len(self.dts)):
-            print(f"{Fore.YELLOW}\nWARNING: Parameters starts, ends and dts do not have the same number of items.{Style.RESET_ALL}")
-            print(f"{Fore.YELLOW}Only the first {min(len(self.sim_start), len(self.sim_end), len(self.dts))} intervals will be processed.{Style.RESET_ALL}")
-        for start, end in zip(self.sim_start, self.sim_end):
-            if start > end:
-                print(f"{Fore.RED}\nERROR in parameters starts/ends: One interval ends before it begins.{Style.RESET_ALL}")
-                sys.exit(1)
-        for nextstart, end in zip(self.sim_start[1:], self.sim_end[:-1]):
-            if end > nextstart:
-                print(f"{Fore.RED}\nERROR in parameters starts/ends: One interval starts before its predecessor ends.{Style.RESET_ALL}")
-                sys.exit(1)
-        if self.epoch > self.sim_start[0]:
-            print(f"{Fore.RED}\nERROR in parameter starts: First interval starts before the simulation's epoch.{Style.RESET_ALL}")
+        if self.sim_start is None or self.sim_end is None:
+            print(f"{Fore.RED}\nERROR in configuration file: At least one of the parameters sim_start and sim_end is missing.{Style.RESET_ALL}")
             sys.exit(1)
-        self.starts_s0 = (self.sim_start - self.epoch) * self.day  # convert BJD to seconds and start at zero
-        self.ends_s0 = (self.sim_end - self.epoch) * self.day  # convert BJD to seconds and start at zero
-        max_iterations = [int((end - start) / dt) + 1 for start, end, dt in zip(self.starts_s0, self.ends_s0, self.dts)]  # each interval's number of iterations
-        start_indices = [sum(max_iterations[:i]) for i in range(len(max_iterations) + 1)]  # indices of each interval's first iteration
-        total_iterations = sum(max_iterations)
-        return start_indices, max_iterations, total_iterations
+        if self.sim_start > self.sim_end:
+            print(f"{Fore.RED}\nERROR in configuration file: sim_start is after sim_end.{Style.RESET_ALL}")
+            sys.exit(1)
+        self.sim_start_s0 = (self.sim_start - self.epoch) * self.day  # convert BJD to seconds and start at zero
+        self.sim_end_s0 = (self.sim_end - self.epoch) * self.day  # convert BJD to seconds and start at zero
+        iterations = int((self.sim_end_s0 - self.sim_start_s0) / self.dt) + 1  # number of iterations
+        return iterations
 
     @staticmethod
     def find_and_check_config_file(config_file):
@@ -252,13 +219,10 @@ class CurveSimParameters:
 
     @staticmethod
     def init_time_arrays(p):
-        time_s0 = np.zeros(p.max_iterations, dtype=float)
+        time_s0 = np.zeros(p.iterations, dtype=float)
         # time_s0 = np.zeros(p.total_iterations, dtype=float)
-        i = 0
-        for start, dt, max_iteration in zip(p.starts_s0, p.dts, p.max_iterations):
-            for j in range(max_iteration):
-                time_s0[i] = start + j * dt
-                i += 1
+        for i in range(p.iterations):
+            time_s0[i] = p.sim_start_s0 + i * p.dt
         time_d = time_s0 / p.day + p.epoch
         return time_s0, time_d
 

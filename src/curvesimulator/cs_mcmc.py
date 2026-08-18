@@ -849,7 +849,7 @@ class CurveSimMCMC:
             if hasattr(p_copy, name):
                 delattr(p_copy, name)
 
-        for name in ("starts_s0", "sim_start", "ends_s0", "sim_end", "dts"):
+        for name in ("dummy1", "dummy2"):  # List names of list-attributes here, in order to convert them to something JSON can understand
             if hasattr(p_copy, name):
                 orig = getattr(p_copy, name)
                 p_copy.__dict__[name] = [float(i) for i in orig]
@@ -1122,7 +1122,7 @@ class CurveSimLMfit:
         del p_copy.eclipsers
         del p_copy.eclipsees
         del p_copy.tt_file
-        del p_copy.total_iterations
+        del p_copy.iterations
         del p_copy.walkers
         del p_copy.moves
         del p_copy.burn_in
@@ -1131,11 +1131,10 @@ class CurveSimLMfit:
         del p_copy.comment
         del p_copy.epoch
         del p_copy.results_directory
-        del p_copy.starts_s0
+        del p_copy.sim_start_s0
         del p_copy.sim_start
-        del p_copy.ends_s0
+        del p_copy.sim_end_s0
         del p_copy.sim_end
-        del p_copy.dts
         results["ProgramParameters"] = p_copy.__dict__
 
         filename = p.results_directory + f"/lmfit_results.tmp.json"

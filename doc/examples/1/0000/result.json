@@ -26,8 +26,7 @@
             "ma",
             "ea",
             "nu",
-            "T",
-            "t"
+            "T"
         ],
         "config_file": "config1.ini",
         "g": 6.6743e-11,
@@ -45,19 +44,34 @@
         "day": 86400,
         "year": 31556925.216,
         "rad2deg": 57.29577951308232,
+        "action": "single_run",
+        "jacobi_masses": true,
+        "dt": 60,
+        "epoch": 2460000,
+        "sim_start": 2460001.9,
+        "sim_end": 2460003.9,
+        "sim_flux_file": "sim_flux.csv",
+        "sim_start_s0": 164159.99999195337,
+        "sim_end_s0": 336959.9999919534,
+        "iterations": 346,
+        "sim_flux_err": 0.0004,
+        "rv_body": "SomeStar",
         "comment": "some comment",
         "verbose": true,
         "transit_precision": 1,
         "flux_data_directory": ".",
-        "action": "single_run",
-        "jacobi_masses": true,
-        "dt": 60,
-        "result_dt": 60,
-        "dts": [
-            60.0
+        "results_directory": "./0000/",
+        "result_file": "result.json",
+        "max_interval_extensions": 5,
+        "unit": "{\"mass\": \"m_jup\", \"radius\": \"r_jup\", \"e\": \"1\", \"i\": \"deg\", \"P\": \"d\", \"a\": \"AU\", \"Omega\": \"deg\", \"omega\": \"deg\", \"pomega\": \"deg\", \"L\": \"deg\", \"ma\": \"deg\", \"ea\": \"deg\", \"nu\": \"deg\", \"T\": \"s\"}",
+        "scale": "{\"mass\": 1/m_jup, \"radius\": 1/r_jup, \"e\": 1, \"i\": rad2deg, \"P\": 1/day, \"a\": 1/au, \"Omega\": rad2deg, \"omega\": rad2deg, \"pomega\": rad2deg, \"L\": rad2deg, \"ma\": rad2deg, \"ea\": rad2deg, \"nu\": rad2deg, \"T\": 1}",
+        "tt_padding": 0.3,
+        "bins": [
+            30,
+            200
         ],
-        "start_date": 2460000,
-        "video_file": "video.mp4",
+        "flux_plots_top": 1.0015,
+        "flux_plots_bottom": 0.9985,
         "mcmc_multi_processing": true,
         "free_parameters": 0,
         "flux_file": "flux.csv",
@@ -66,7 +80,6 @@
         "log_norm_term_flux": -4778.334374534921,
         "tt_file": "tt.csv",
         "rv_file": "rv.csv",
-        "rv_body": "SomeStar",
         "eclipsers_names": [
             "InnerPlanet",
             "OuterPlanet"
@@ -74,35 +87,24 @@
         "eclipsees_names": [
             "SomeStar"
         ],
-        "results_directory": "./0000/",
-        "result_file": "result.json",
-        "max_interval_extensions": 5,
-        "starts_d": [
-            2460001.9
-        ],
-        "ends_d": [
-            2460003.9
-        ],
-        "end_date": 2460003.9,
-        "sim_flux_file": "sim_flux.csv",
-        "starts_s0": [
-            164159.99999195337
-        ],
-        "ends_s0": [
-            336959.9999919534
-        ],
-        "start_indices": [
-            0,
-            2881
-        ],
-        "max_iterations": [
-            2881
-        ],
-        "total_iterations": 346,
-        "tt_padding": 0.3,
-        "flux_plots_top": 1.0015,
-        "flux_plots_bottom": 0.9985,
-        "sim_flux_err": 0.0004,
+        "best_residuals_tt_sum_squared": 1e+99,
+        "lmfit_method": "powell",
+        "ls_chunk_size": 1000,
+        "ls_steps": 10000,
+        "ls_max_tt_delta": 1.1574074074074073e-05,
+        "flux_weight": 1,
+        "tt_weight": 1,
+        "rv_weight": 1,
+        "backend": null,
+        "load_backend": false,
+        "walkers": 32,
+        "steps": 10000,
+        "moves": "(emcee.moves.StretchMove(a=2.0))",
+        "burn_in": 500,
+        "chunk_size": 500,
+        "thin_samples": 10,
+        "fitting_body_parameters": null,
+        "video_file": "video.mp4",
         "frames": 500,
         "fps": 25,
         "clockwise": false,
@@ -133,29 +135,6 @@
         "flux_dot_width": 0.0034482758620689655,
         "rv_dot_height": 0.058823529411764705,
         "rv_dot_width": 0.0034482758620689655,
-        "best_residuals_tt_sum_squared": 1e+99,
-        "lmfit_method": "powell",
-        "ls_chunk_size": 1000,
-        "ls_steps": 10000,
-        "ls_max_tt_delta": 1.1574074074074073e-05,
-        "flux_weight": 1,
-        "tt_weight": 1,
-        "rv_weight": 1,
-        "backend": null,
-        "load_backend": false,
-        "walkers": 32,
-        "steps": 10000,
-        "moves": "(emcee.moves.StretchMove(a=2.0))",
-        "burn_in": 500,
-        "chunk_size": 500,
-        "bins": [
-            30,
-            200
-        ],
-        "thin_samples": 10,
-        "unit": "{\"mass\": \"m_jup\", \"radius\": \"r_jup\", \"e\": \"1\", \"i\": \"deg\", \"P\": \"d\", \"a\": \"AU\", \"Omega\": \"deg\", \"omega\": \"deg\", \"pomega\": \"deg\", \"L\": \"deg\", \"ma\": \"deg\", \"ea\": \"deg\", \"nu\": \"deg\", \"T\": \"s\", \"t\": \"s\"}",
-        "scale": "{\"mass\": 1/m_jup, \"radius\": 1/r_jup, \"e\": 1, \"i\": rad2deg, \"P\": 1/day, \"a\": 1/au, \"Omega\": rad2deg, \"omega\": rad2deg, \"pomega\": rad2deg, \"L\": rad2deg, \"ma\": rad2deg, \"ea\": rad2deg, \"nu\": rad2deg, \"T\": 1, \"t\": 1}",
-        "fitting_body_parameters": null,
         "myintegration": false,
         "rv_offset": -100.0,
         "rv_jitter": 0.2,

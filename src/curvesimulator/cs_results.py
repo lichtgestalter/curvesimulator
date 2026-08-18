@@ -106,10 +106,12 @@ class CurveSimResults(dict):
         for name in to_remove:
             if hasattr(p_copy, name):
                 delattr(p_copy, name)
-        for name in ("starts_s0", "sim_start", "ends_s0", "sim_end", "dts"):
+
+        for name in ("dummy1", "dummy2"):  # List names of list-attributes here, in order to convert them to something JSON can understand
             if hasattr(p_copy, name):
                 orig = getattr(p_copy, name)
                 p_copy.__dict__[name] = [float(i) for i in orig]
+
         self["ProgramParameters"] = p_copy.__dict__
 
         # # diagnostic helper
@@ -272,12 +274,12 @@ class CurveSimResults(dict):
             df["flux_corr"] = df["flux"]
             # del df["flux_err"]  # remove the original columns to make sure they will not be used anywhere
             # del df["flux"]
-        measured_flux = df[(df["time"] >= p.epoch) & (df["time"] <= p.end_date)].copy()
+        measured_flux = df[(df["time"] >= p.epoch) & (df["time"] <= p.sim_end)].copy()
         measured_flux["time_s0"] = (measured_flux["time"] - p.epoch) * p.day
         time_s0 = np.array(measured_flux["time_s0"], dtype=float)
         flux_corr = np.array(measured_flux["flux_corr"])
         flux_total_err = np.array(measured_flux["flux_total_err"], dtype=float)
-        p.total_iterations = len(time_s0)
+        p.iterations = len(time_s0)
         time_d = time_s0 / p.day + p.epoch
         return time_s0, time_d, flux_corr, flux_total_err, measured_flux
 
@@ -285,7 +287,7 @@ class CurveSimResults(dict):
     def get_measured_tt(p):
         df = pd.read_csv(p.tt_file)
         CurveSimResults.check_required_columns({"eclipser", "tt", "tt_err", "nr"}, df, p.tt_file)
-        df = df[(df["tt"] >= p.epoch) & (df["tt"] <= p.end_date)].copy()
+        df = df[(df["tt"] >= p.epoch) & (df["tt"] <= p.sim_end)].copy()
         p.tt_datasize = len(df["tt"])
         return df
 
@@ -293,7 +295,7 @@ class CurveSimResults(dict):
     def get_measured_rv(p):
         df = pd.read_csv(p.rv_file)
         CurveSimResults.check_required_columns({"time", "rv", "rv_err"}, df, p.rv_file)
-        df = df[(df["time"] >= p.epoch) & (df["time"] <= p.end_date)].copy()
+        df = df[(df["time"] >= p.epoch) & (df["time"] <= p.sim_end)].copy()
         p.rv_datasize = len(df["time"])
         df["time_s0"] = (df["time"] - p.epoch) * p.day  # observation times in seconds; starting with 0 at epoch
         df["rv_corr"] = df["rv"] + p.rv_offset  # rv corrected by the constant shift

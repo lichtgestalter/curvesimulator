@@ -81,7 +81,7 @@
         "ends_d": [
             2460003.9
         ],
-        "end_date": 2460003.9,
+        "sim_end": 2460003.9,
         "sim_flux_file": null,
         "starts_s0": [
             164159.99999195337
@@ -93,7 +93,7 @@
             0,
             35
         ],
-        "max_iterations": [
+        "iterations": [
             35
         ],
         "total_iterations": 346,

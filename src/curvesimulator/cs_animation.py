@@ -134,7 +134,7 @@ class CurveSimAnimation:
         ax_lightcurve.set_yticks(yvalues, labels=ylabels)
 
         # lightcurve data (white line)
-        x = (time_s0 - p.starts_s0[0]) / p.day
+        x = (time_s0 - p.sim_start_s0) / p.day
         ax_lightcurve.set_xlim(float(x[0]), float(x[-1]))
         ax_lightcurve.plot(x, sim_flux, color="white")
 
@@ -153,14 +153,14 @@ class CurveSimAnimation:
 
         # rv_curve x-ticks, x-labels
         ax_rv_curve.tick_params(axis="x", colors="grey")
-        # Use the same relative x-axis as the lightcurve: days since p.starts_s0[0]
-        x = (time_s0 - p.starts_s0[0]) / p.day
+        # Use the same relative x-axis as the lightcurve: days since p.sim_start_s0[0]
+        x = (time_s0 - p.sim_start_s0) / p.day
         x_listticdelta = CurveSimAnimation.tic_delta(float(x[-1]))
         digits = max(0, round(-math.log10(x_listticdelta) + 0.4))  # The labels get as many decimal places as the intervals between the tics.
         # build tick positions in relative days and corresponding absolute-time labels (BJD)
         n_ticks = max(1, int(round(float(x[-1]) / x_listticdelta)))
         xvalues = [i * x_listticdelta for i in range(n_ticks + 1)]
-        xlabels = [f"{round(val + p.epoch + p.starts_s0[0] / p.day, 4):.{digits}f}" for val in xvalues]
+        xlabels = [f"{round(val + p.epoch + p.sim_start_s0 / p.day, 4):.{digits}f}" for val in xvalues]
         ax_rv_curve.set_xticks(xvalues, labels=xlabels)
         ax_rv_curve.set_xlim(float(x[0]), float(x[-1]))
 
@@ -184,8 +184,8 @@ class CurveSimAnimation:
         ylabels = [f"{round(1 * y, 10):.{digits}f}" for y in yvalues]
         ax_rv_curve.set_yticks(yvalues, labels=ylabels)
 
-        # rv_curve data (white line) using relative days since p.starts_s0[0]
-        x = (time_s0 - p.starts_s0[0]) / p.day
+        # rv_curve data (white line) using relative days since p.sim_start_s0[0]
+        x = (time_s0 - p.sim_start_s0) / p.day
         ax_rv_curve.plot(x, sim_rv, color="white")
 
         # rv_curve green dot
@@ -343,8 +343,8 @@ class CurveSimAnimation:
                 body.ab_right.set_zorder(body.positions[frame_number][2])
                 body.ab_right.xybox = (x_direction * body.positions[frame_number][0] / p.scope_right, body.positions[frame_number][1] / p.scope_right)
 
-        # Use relative x (days since p.starts_s0[0]) for both dots so they align with plotted curves
-        x_rel = (time_s0[frame_number] - p.starts_s0[0]) / p.day
+        # Use relative x (days since p.sim_start_s0[0]) for both dots so they align with plotted curves
+        x_rel = (time_s0[frame_number] - p.sim_start_s0) / p.day
         if p.show_lc_plot:
             flux_dot.center = x_rel, sim_flux[frame_number]
         if p.show_rv_plot:

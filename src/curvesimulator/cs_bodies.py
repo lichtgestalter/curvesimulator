@@ -391,9 +391,9 @@ class CurveSimBodies(list):
 
     @staticmethod
     def progress_bar(iteration, p):
-        if p.total_iterations > 5:  # prevent DIV/0 in next line
-            if iteration % int(round(p.total_iterations / 10)) == 0:  # Inform user about program"s progress.
-                print(f"{round(iteration / p.total_iterations * 10) * 10:3d}% ", end="")
+        if p.iterations > 5:  # prevent DIV/0 in next line
+            if iteration % int(round(p.iterations / 10)) == 0:  # Inform user about program"s progress.
+                print(f"{round(iteration / p.iterations * 10) * 10:3d}% ", end="")
                 # print(self.energy(iteration, p))
 
     def calc_positions_eclipses_luminosity(self, p, time_s0):
@@ -407,15 +407,15 @@ class CurveSimBodies(list):
             simulation = CurveSimBodies.init_rebound(self, p)
 
         stars = [body for body in self if body.body_type == "star"]
-        sim_flux = CurveSimLightcurve(p.total_iterations)  # Initialize lightcurve (essentially a np.ndarray)
+        sim_flux = CurveSimLightcurve(p.iterations)  # Initialize lightcurve (essentially a np.ndarray)
         if p.show_rv_plot or p.rv_file:
-            sim_rv = np.full(p.total_iterations, np.nan, dtype=float)
+            sim_rv = np.full(p.iterations, np.nan, dtype=float)
         else:
             sim_rv = None
         if not p.myintegration:
             initial_sim_state = CurveSimRebound(simulation)
 
-        for iteration in range(p.total_iterations):
+        for iteration in range(p.iterations):
             if p.myintegration:
                 if iteration == 0:
                     E0 = simulation.total_energy()
@@ -447,12 +447,12 @@ class CurveSimBodies(list):
         if p.verbose:
             if p.video_file and p.flux_file is None:
                 print(f"Generating {p.frames} frames for a {p.frames / p.fps:.0f} seconds long video.")
-            print(f"Calculating {p.total_iterations:,} iterations ", end="")
+            print(f"Calculating {p.iterations:,} iterations ", end="")
             tic = time.perf_counter()
         sim_rv, sim_flux, bodies, rebound_sim, energy_change = self.calc_positions_eclipses_luminosity(p, time_s0)
         if p.verbose:
             toc = time.perf_counter()
-            print(f" {toc - tic:7.3f} seconds  ({p.total_iterations / (toc - tic):.0f} iterations/second)")
+            print(f" {toc - tic:7.3f} seconds  ({p.iterations / (toc - tic):.0f} iterations/second)")
             print(f"Log10 of the relative change of energy during simulation: {energy_change:.0f}")
             if energy_change > -6:
                 print(f"{Fore.YELLOW}The energy must not change significantly! Consider using a smaller time step (dt).{Style.RESET_ALL}")
@@ -498,61 +498,59 @@ class CurveSimBodies(list):
 
     def find_transits(self, rebound_sim, p, sim_flux, time_s0, time_d):
         print()
-        rebound_sim.dt = p.result_dt
+        rebound_sim.dt = p.dt
         results = CurveSimResults(self)
-        for start_index, end_index, dt in zip(p.start_indices[:-1], p.start_indices[1:], p.dts):
-            for i in range(start_index, end_index):
-                for eclipser in p.eclipsers:
-                    for eclipsee in p.eclipsees:
-                        eclipser_before_eclipsee = eclipser.positions[i][2] > eclipsee.positions[i][2]
-                        transit_between_iterations = (eclipser.positions[i][0] - eclipsee.positions[i][0]) * (eclipser.positions[i - 1][0] - eclipsee.positions[i - 1][0]) <= 0  # transit between i-1 and i?
-                        if eclipser_before_eclipsee and transit_between_iterations:
-                            if p.myintegration:  # debug
+        for i in range(p.iterations):
+            for eclipser in p.eclipsers:
+                for eclipsee in p.eclipsees:
+                    eclipser_before_eclipsee = eclipser.positions[i][2] > eclipsee.positions[i][2]
+                    transit_between_iterations = (eclipser.positions[i][0] - eclipsee.positions[i][0]) * (eclipser.positions[i - 1][0] - eclipsee.positions[i - 1][0]) <= 0  # transit between i-1 and i?
+                    if eclipser_before_eclipsee and transit_between_iterations:
+                        if p.myintegration:  # debug
+                            results["Bodies"][eclipser.name]["Transits"].append(Transit(eclipsee))
+                            results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["EclipsedBody"] = eclipsee.name
+                            results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["TT"] = i * p.dt / p.day + p.epoch
+                            # print(f"myintegration transit at {i * p.dt / p.day + p.epoch:.2f}")
+                        else:
+                            tt, impact, depth, close_enough = eclipsee.find_tt(eclipser, i - 1, rebound_sim, p, sim_flux, time_s0, time_d, 0, p.iterations, p.dt)
+                            if close_enough:  # eclipser and eclipsee are close enough at actual TT
+                                tt_s0 = rebound_sim.t
+                                t1 = eclipsee.find_t1234(eclipser, tt_s0, i, rebound_sim, time_s0, 0, p.iterations, p, transittimetype="T1")
+                                t2 = eclipsee.find_t1234(eclipser, tt_s0, i, rebound_sim, time_s0, 0, p.iterations, p, transittimetype="T2")
+                                t3 = eclipsee.find_t1234(eclipser, tt_s0, i - 1, rebound_sim, time_s0, 0, p.iterations, p, transittimetype="T3")
+                                t4 = eclipsee.find_t1234(eclipser, tt_s0, i - 1, rebound_sim, time_s0, 0, p.iterations, p, transittimetype="T4")
+                                t12, t23, t34, t14 = CurveSimPhysics.calc_transit_intervals(t1, t2, t3, t4)
                                 results["Bodies"][eclipser.name]["Transits"].append(Transit(eclipsee))
                                 results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["EclipsedBody"] = eclipsee.name
-                                results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["TT"] = i * p.result_dt / p.day + p.epoch
-                                # print(f"myintegration transit at {i * p.result_dt / p.day + p.epoch:.2f}")
-                            else:
-                                tt, impact, depth, close_enough = eclipsee.find_tt(eclipser, i - 1, rebound_sim, p, sim_flux, time_s0, time_d, start_index, end_index, dt)
-                                if close_enough:  # eclipser and eclipsee are close enough at actual TT
-                                    tt_s0 = rebound_sim.t
-                                    t1 = eclipsee.find_t1234(eclipser, tt_s0, i, rebound_sim, time_s0, start_index, end_index, p, transittimetype="T1")
-                                    t2 = eclipsee.find_t1234(eclipser, tt_s0, i, rebound_sim, time_s0, start_index, end_index, p, transittimetype="T2")
-                                    t3 = eclipsee.find_t1234(eclipser, tt_s0, i - 1, rebound_sim, time_s0, start_index, end_index, p, transittimetype="T3")
-                                    t4 = eclipsee.find_t1234(eclipser, tt_s0, i - 1, rebound_sim, time_s0, start_index, end_index, p, transittimetype="T4")
-                                    t12, t23, t34, t14 = CurveSimPhysics.calc_transit_intervals(t1, t2, t3, t4)
-                                    results["Bodies"][eclipser.name]["Transits"].append(Transit(eclipsee))
-                                    results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["EclipsedBody"] = eclipsee.name
-                                    results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T1"] = t1
-                                    results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T2"] = t2
-                                    results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["TT"] = tt
-                                    results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T3"] = t3
-                                    results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T4"] = t4
-                                    results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T12"] = t12
-                                    results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T23"] = t23
-                                    results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T34"] = t34
-                                    results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T14"] = t14
-                                    results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["b"] = impact
-                                    results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["depth"] = depth
+                                results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T1"] = t1
+                                results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T2"] = t2
+                                results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["TT"] = tt
+                                results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T3"] = t3
+                                results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T4"] = t4
+                                results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T12"] = t12
+                                results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T23"] = t23
+                                results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T34"] = t34
+                                results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T14"] = t14
+                                results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["b"] = impact
+                                results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["depth"] = depth
         return results
 
     @staticmethod
     def find_tts(rebound_sim, p, sim_flux, time_s0, time_d):
         tts = []
-        rebound_sim.dt = p.result_dt
-        for start_index, end_index, dt in zip(p.start_indices[:-1], p.start_indices[1:], p.dts):
-            for i in range(start_index, end_index):
-                for eclipser in p.eclipsers:
-                    for eclipsee in p.eclipsees:
-                        eclipser_before_eclipsee = eclipser.positions[i][2] > eclipsee.positions[i][2]
-                        transit_between_iterations = (eclipser.positions[i][0] - eclipsee.positions[i][0]) * (eclipser.positions[i - 1][0] - eclipsee.positions[i - 1][0]) <= 0  # transit between i-1 and i?
-                        if eclipser_before_eclipsee and transit_between_iterations:
-                            if p.myintegration:  # debug
-                                tts.append([eclipser.name, eclipsee.name, i * p.result_dt / p.day + p.epoch])
-                            else:
-                                tt, b, depth, close_enough = eclipsee.find_tt(eclipser, i - 1, rebound_sim, p, sim_flux, time_s0, time_d, start_index, end_index, dt)
-                                if close_enough:
-                                    tts.append([eclipser.name, eclipsee.name, tt])
+        rebound_sim.dt = p.dt
+        for i in range(0, p.iterations):
+            for eclipser in p.eclipsers:
+                for eclipsee in p.eclipsees:
+                    eclipser_before_eclipsee = eclipser.positions[i][2] > eclipsee.positions[i][2]
+                    transit_between_iterations = (eclipser.positions[i][0] - eclipsee.positions[i][0]) * (eclipser.positions[i - 1][0] - eclipsee.positions[i - 1][0]) <= 0  # transit between i-1 and i?
+                    if eclipser_before_eclipsee and transit_between_iterations:
+                        if p.myintegration:  # debug
+                            tts.append([eclipser.name, eclipsee.name, i * p.dt / p.day + p.epoch])
+                        else:
+                            tt, b, depth, close_enough = eclipsee.find_tt(eclipser, i - 1, rebound_sim, p, sim_flux, time_s0, time_d, 0, p.iterations, p.dt)
+                            if close_enough:
+                                tts.append([eclipser.name, eclipsee.name, tt])
         # maybe add this: convert tts into a pandas Dataframe with columns eclipser, eclipsee, tt
         return tts
 
