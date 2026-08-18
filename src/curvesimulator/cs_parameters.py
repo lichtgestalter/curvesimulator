@@ -53,7 +53,7 @@ class CurveSimParameters:
         self.dt = eval(config.get("Simulation", "dt", fallback="1000"))
         self.result_dt = self.dt  # Debug Parameter deprecated. Replace usages in code with dt.
         self.dts = [self.dt]  # Debug Parameter deprecated. Replace usages in code with dt.
-        self.start_date = eval(config.get("Simulation", "start_date", fallback="0.0"))
+        self.epoch = eval(config.get("Simulation", "epoch", fallback="0.0"))
         self.sim_start = np.array(eval(config.get("Simulation", "sim_start", fallback="[]")), dtype=float)
         self.sim_end = np.array(eval(config.get("Simulation", "sim_end", fallback="[]")), dtype=float)
         self.end_date = self.sim_end[0]  # temporary hack until self.sim_end is no longer a list
@@ -192,13 +192,13 @@ class CurveSimParameters:
         """Checks if the intervals in parameters sim_start, sim_end and dts are well defined.
            Calculates the indices for time_s0, time_d and sim_flux where the intervals start and end.
            Calculates the total number of iterations for which body positions and flux will be simulated and stored.
-           Creates alternative parameters starts_s0, ends_s0 in seconds instead of days and starting with 0 at start_date.
+           Creates alternative parameters starts_s0, ends_s0 in seconds instead of days and starting with 0 at epoch.
          """
         if len(self.sim_start) == 0 or len(self.sim_end) == 0 or len(self.dts) == 0:
             print("At least one of the parameters starts/ends/dts is missing. Default values take effect.")
-            self.sim_start = np.array([self.start_date], dtype=float)
+            self.sim_start = np.array([self.epoch], dtype=float)
             self.dts = np.array([self.dt], dtype=float)
-            self.sim_end = np.array([self.start_date + (self.frames * self.fps * self.dt) / self.day], dtype=float)  # default value. Assumes the video shall last "frames" seconds.
+            self.sim_end = np.array([self.epoch + (self.frames * self.fps * self.dt) / self.day], dtype=float)  # default value. Assumes the video shall last "frames" seconds.
         if not (len(self.sim_start) == len(self.sim_end) == len(self.dts)):
             print(f"{Fore.YELLOW}\nWARNING: Parameters starts, ends and dts do not have the same number of items.{Style.RESET_ALL}")
             print(f"{Fore.YELLOW}Only the first {min(len(self.sim_start), len(self.sim_end), len(self.dts))} intervals will be processed.{Style.RESET_ALL}")
@@ -210,11 +210,11 @@ class CurveSimParameters:
             if end > nextstart:
                 print(f"{Fore.RED}\nERROR in parameters starts/ends: One interval starts before its predecessor ends.{Style.RESET_ALL}")
                 sys.exit(1)
-        if self.start_date > self.sim_start[0]:
-            print(f"{Fore.RED}\nERROR in parameter starts: First interval starts before the simulation's start_date.{Style.RESET_ALL}")
+        if self.epoch > self.sim_start[0]:
+            print(f"{Fore.RED}\nERROR in parameter starts: First interval starts before the simulation's epoch.{Style.RESET_ALL}")
             sys.exit(1)
-        self.starts_s0 = (self.sim_start - self.start_date) * self.day  # convert BJD to seconds and start at zero
-        self.ends_s0 = (self.sim_end - self.start_date) * self.day  # convert BJD to seconds and start at zero
+        self.starts_s0 = (self.sim_start - self.epoch) * self.day  # convert BJD to seconds and start at zero
+        self.ends_s0 = (self.sim_end - self.epoch) * self.day  # convert BJD to seconds and start at zero
         max_iterations = [int((end - start) / dt) + 1 for start, end, dt in zip(self.starts_s0, self.ends_s0, self.dts)]  # each interval's number of iterations
         start_indices = [sum(max_iterations[:i]) for i in range(len(max_iterations) + 1)]  # indices of each interval's first iteration
         total_iterations = sum(max_iterations)
@@ -259,7 +259,7 @@ class CurveSimParameters:
             for j in range(max_iteration):
                 time_s0[i] = start + j * dt
                 i += 1
-        time_d = time_s0 / p.day + p.start_date
+        time_d = time_s0 / p.day + p.epoch
         return time_s0, time_d
 
     def read_param(self, config, section, param, fallback):

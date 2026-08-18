@@ -787,7 +787,7 @@ class CurveSimMCMC:
         results["Simulation Parameters"]["simulations_per_second"] = f"{(self.burn_in + steps_done) * self.walkers / runtime:.0f} [iterations*walkers/runtime]"
 
         results["Simulation Parameters"]["results_directory"] = self.results_directory
-        results["Simulation Parameters"]["start_date"] = p.start_date
+        results["Simulation Parameters"]["epoch"] = p.epoch
         results["Simulation Parameters"]["default_dt"] = p.dt
         results["Simulation Parameters"]["flux_data_points"] = getattr(p, "total_iterations", None)
         results["Simulation Parameters"]["walkers"] = self.walkers
@@ -841,7 +841,7 @@ class CurveSimMCMC:
         to_remove = [
             "fitting_parameters", "standard_sections", "eclipsers", "eclipsees",
             "tt_file", "total_iterations", "walkers", "moves", "burn_in",
-            "thin_samples", "comment", "start_date", "results_directory",
+            "thin_samples", "comment", "epoch", "results_directory",
             "fitting_parameter_dic", "tt_datasize",
             "offset_map", "jitter_map",
         ]
@@ -1129,7 +1129,7 @@ class CurveSimLMfit:
         del p_copy.thin_samples
         del p_copy.tt_datasize
         del p_copy.comment
-        del p_copy.start_date
+        del p_copy.epoch
         del p_copy.results_directory
         del p_copy.starts_s0
         del p_copy.sim_start

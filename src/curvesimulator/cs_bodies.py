@@ -510,8 +510,8 @@ class CurveSimBodies(list):
                             if p.myintegration:  # debug
                                 results["Bodies"][eclipser.name]["Transits"].append(Transit(eclipsee))
                                 results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["EclipsedBody"] = eclipsee.name
-                                results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["TT"] = i * p.result_dt / p.day + p.start_date
-                                # print(f"myintegration transit at {i * p.result_dt / p.day + p.start_date:.2f}")
+                                results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["TT"] = i * p.result_dt / p.day + p.epoch
+                                # print(f"myintegration transit at {i * p.result_dt / p.day + p.epoch:.2f}")
                             else:
                                 tt, impact, depth, close_enough = eclipsee.find_tt(eclipser, i - 1, rebound_sim, p, sim_flux, time_s0, time_d, start_index, end_index, dt)
                                 if close_enough:  # eclipser and eclipsee are close enough at actual TT
@@ -548,7 +548,7 @@ class CurveSimBodies(list):
                         transit_between_iterations = (eclipser.positions[i][0] - eclipsee.positions[i][0]) * (eclipser.positions[i - 1][0] - eclipsee.positions[i - 1][0]) <= 0  # transit between i-1 and i?
                         if eclipser_before_eclipsee and transit_between_iterations:
                             if p.myintegration:  # debug
-                                tts.append([eclipser.name, eclipsee.name, i * p.result_dt / p.day + p.start_date])
+                                tts.append([eclipser.name, eclipsee.name, i * p.result_dt / p.day + p.epoch])
                             else:
                                 tt, b, depth, close_enough = eclipsee.find_tt(eclipser, i - 1, rebound_sim, p, sim_flux, time_s0, time_d, start_index, end_index, dt)
                                 if close_enough:

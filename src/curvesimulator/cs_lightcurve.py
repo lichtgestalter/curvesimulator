@@ -34,7 +34,7 @@ class CurveSimLightcurve(np.ndarray):
                 print(f"Depth of this transit has been stored in result file as 0.")
                 print(f"Try to move the intervals (parameters <starts> and <ends>) a bit.{Style.RESET_ALL}")
             return 1
-        # iteration_tt = (tt - (time_s0[iteration] / p.day + p.start_date)) / (dt /p.day) + iteration
+        # iteration_tt = (tt - (time_s0[iteration] / p.day + p.epoch)) / (dt /p.day) + iteration
         iteration_tt = (tt - time_d[iteration]) / (dt /p.day) + iteration
         P0 = self[iteration - 1]  # f_im1
         P1 = self[iteration]  # f_i

@@ -68,7 +68,7 @@ class CurveSimResults(dict):
     @staticmethod
     def iteration2time(iteration, p):
         """Calculate the date of an iteration in BJD"""
-        return p.start_date + iteration * p.dt / p.day
+        return p.epoch + iteration * p.dt / p.day
 
     def results2json(self, p):
         """Converts self to JSON and saves it."""
@@ -272,20 +272,20 @@ class CurveSimResults(dict):
             df["flux_corr"] = df["flux"]
             # del df["flux_err"]  # remove the original columns to make sure they will not be used anywhere
             # del df["flux"]
-        measured_flux = df[(df["time"] >= p.start_date) & (df["time"] <= p.end_date)].copy()
-        measured_flux["time_s0"] = (measured_flux["time"] - p.start_date) * p.day
+        measured_flux = df[(df["time"] >= p.epoch) & (df["time"] <= p.end_date)].copy()
+        measured_flux["time_s0"] = (measured_flux["time"] - p.epoch) * p.day
         time_s0 = np.array(measured_flux["time_s0"], dtype=float)
         flux_corr = np.array(measured_flux["flux_corr"])
         flux_total_err = np.array(measured_flux["flux_total_err"], dtype=float)
         p.total_iterations = len(time_s0)
-        time_d = time_s0 / p.day + p.start_date
+        time_d = time_s0 / p.day + p.epoch
         return time_s0, time_d, flux_corr, flux_total_err, measured_flux
 
     @staticmethod
     def get_measured_tt(p):
         df = pd.read_csv(p.tt_file)
         CurveSimResults.check_required_columns({"eclipser", "tt", "tt_err", "nr"}, df, p.tt_file)
-        df = df[(df["tt"] >= p.start_date) & (df["tt"] <= p.end_date)].copy()
+        df = df[(df["tt"] >= p.epoch) & (df["tt"] <= p.end_date)].copy()
         p.tt_datasize = len(df["tt"])
         return df
 
@@ -293,9 +293,9 @@ class CurveSimResults(dict):
     def get_measured_rv(p):
         df = pd.read_csv(p.rv_file)
         CurveSimResults.check_required_columns({"time", "rv", "rv_err"}, df, p.rv_file)
-        df = df[(df["time"] >= p.start_date) & (df["time"] <= p.end_date)].copy()
+        df = df[(df["time"] >= p.epoch) & (df["time"] <= p.end_date)].copy()
         p.rv_datasize = len(df["time"])
-        df["time_s0"] = (df["time"] - p.start_date) * p.day  # observation times in seconds; starting with 0 at epoch
+        df["time_s0"] = (df["time"] - p.epoch) * p.day  # observation times in seconds; starting with 0 at epoch
         df["rv_corr"] = df["rv"] + p.rv_offset  # rv corrected by the constant shift
         df["rv_total_err"] = np.sqrt(df["rv_err"] * df["rv_err"] + p.rv_jitter * p.rv_jitter)  # combined RV uncertainty from measurement uncertainty and jitter
         return df

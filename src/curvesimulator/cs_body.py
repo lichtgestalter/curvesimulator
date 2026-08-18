@@ -446,7 +446,7 @@ class CurveSimBody:
     #             else:  # TT lies between t_right and middle
     #                 t_left = rebound_sim.t  # middle is now the new left
     #                 dx_left = eclipser.x - eclipsee.x
-    #         tt = rebound_sim.t / p.day + p.start_date
+    #         tt = rebound_sim.t / p.day + p.epoch
     #         d = CurveSimPhysics.distance_2d_particle(eclipser, eclipsee)
     #         impact = d / self.radius
     #         close_enough = d <= self.radius + other.radius
@@ -505,7 +505,7 @@ class CurveSimBody:
                 else:  # TT lies between t_right and middle
                     t_left = rebound_sim.t  # middle is now the new left
                     dx_left = eclipser.x - eclipsee.x
-            tt = rebound_sim.t / p.day + p.start_date
+            tt = rebound_sim.t / p.day + p.epoch
             d = CurveSimPhysics.distance_2d_particle(eclipser, eclipsee)
             impact = d / self.radius
             close_enough = d <= self.radius + other.radius
@@ -566,7 +566,7 @@ class CurveSimBody:
     #                     t_old = rebound_sim.t
     #                 else:
     #                     t_new = rebound_sim.t
-    #         return rebound_sim.t / p.day + p.start_date
+    #         return rebound_sim.t / p.day + p.epoch
     #     else:  # grazing transit (or rebound inaccuracy?)
     #         return None
 
@@ -613,7 +613,7 @@ class CurveSimBody:
         if abs(rebound_sim.t - tt_s0) < p.transit_precision:
             return None
         else:
-            return rebound_sim.t / p.day + p.start_date
+            return rebound_sim.t / p.day + p.epoch
 
     # def eclipsed_by(self, other, iteration, p):
     #     """Returns area, relative_radius
