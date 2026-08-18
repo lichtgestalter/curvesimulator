@@ -1151,7 +1151,7 @@ class CurveSimLMfit:
         if p.verbose:
             print(f" Saved LMfit results to {filename}")
 
-    def save_best_fit(self, p, bodies, measured_tt):
+    def save_best_fit_bak(self, p, bodies, measured_tt):
         max_delta = float(np.max(np.abs(measured_tt["delta"])))
         mean_delta = float(np.mean(np.abs(measured_tt["delta"])))
         color = Fore.WHITE
@@ -1165,6 +1165,31 @@ class CurveSimLMfit:
                 color = Fore.CYAN
             if mean_delta < 0.0024 or max_delta < 0.0048:
                 color = Fore.MAGENTA
+            line = bodies.bodies2param_json(measured_tt, p)
+            filename = p.results_directory + f"/lmfit_best_fits.txt"
+            try:
+                append_line_locked(filename, line, wait=0.1)
+            except OSError as e:
+                # non-fatal: print error but continue
+                print(f"{Fore.RED}\nERROR: Could not write best fit to `lmfit_best_fits.txt`: {e}{Style.RESET_ALL}")
+        runtime = CurveSimMCMC.seconds2readable(time.perf_counter() - self.start_timestamp)
+        print(f"{color}Runtime: {runtime}   max_delta: {max_delta:7.4f} days  mean_delta: {mean_delta:7.4f} days{Style.RESET_ALL}    ", end="")
+
+    def save_best_fit(self, p, bodies, measured_tt):
+        max_delta = float(np.max(np.abs(measured_tt["delta"])))
+        mean_delta = float(np.mean(np.abs(measured_tt["delta"])))
+
+        p.lmfit_colors = [Fore.WHITE, Fore.RED, Fore.YELLOW, Fore.GREEN, Fore.CYAN, Fore.MAGENTA]
+        p.thresholds = [1.0, 0.1, 0.02, 0.004, 0.0024]
+
+        for col, thres in zip(p.lmfit_colors, p.lmfit_thresholds):
+            if mean_delta > thres:
+                color = col
+                break
+            else:
+                color = p.lmfit_colors[-1]
+
+        if mean_delta < p.lmfit_thresholds[0]:  # only fits under this threshold get written into the result file
             line = bodies.bodies2param_json(measured_tt, p)
             filename = p.results_directory + f"/lmfit_best_fits.txt"
             try:
