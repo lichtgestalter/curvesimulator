@@ -111,11 +111,35 @@ class CurveSimAnimation:
         return ax_right
 
     @staticmethod
+    def init_curve_plot_x_axis(ax_rv_curve, p, time_s0):
+        # rv_curve x-ticks, x-labels
+        ax_rv_curve.tick_params(axis="x", colors="grey")
+        # Use the same relative x-axis as the lightcurve: days since p.sim_start_s0[0]
+        x = (time_s0 - p.sim_start_s0) / p.day
+        x_listticdelta = CurveSimAnimation.tic_delta(float(x[-1]))
+        digits = max(0, round(-math.log10(x_listticdelta) + 0.4))  # The labels get as many decimal places as the intervals between the tics.
+        # build tick positions in relative days and corresponding absolute-time labels (BJD)
+        n_ticks = max(1, int(round(float(x[-1]) / x_listticdelta)))
+        xvalues = [i * x_listticdelta for i in range(n_ticks + 1)]
+        xlabels = [f"{round(val + p.epoch + p.sim_start_s0 / p.day, 4):.{digits}f}" for val in xvalues]
+        ax_rv_curve.set_xticks(xvalues, labels=xlabels)
+        ax_rv_curve.set_xlim(float(x[0]), float(x[-1]))
+
+    @staticmethod
+    def animated_dot(ax_lightcurve, p, scope, time_s0, color):
+        flux_dot = patches.Ellipse((0, 0), (time_s0[-1] - time_s0[0]) * p.flux_dot_width / p.day, scope * p.flux_dot_height)  # matplotlib patch
+        flux_dot.set(zorder=2)  # Dot in front of lightcurve.
+        flux_dot.set_color(color)
+        ax_lightcurve.add_patch(flux_dot)
+        return flux_dot
+
+    @staticmethod
     def init_lightcurve_plot(sim_flux, time_s0, p, shape, loc, rowspan, colspan):
         ax_lightcurve = plt.subplot2grid(shape=shape, loc=loc, rowspan=rowspan, colspan=colspan)
         ax_lightcurve.set_facecolor("black")  # background color
 
-        # no x-tics/-labels because the rv-plot below uses the same x-tics/-labels
+        if not p.show_rv_plot:  # no x-tics/-labels when the rv-plot is present below because it uses the same x-tics/-labels
+            CurveSimAnimation.init_curve_plot_x_axis(ax_lightcurve, p, time_s0)
 
         # lightcurve y-ticks, y-labels
         ax_lightcurve.set_ylabel("Relative Flux", color="grey", fontsize=8)
@@ -138,11 +162,7 @@ class CurveSimAnimation:
         ax_lightcurve.set_xlim(float(x[0]), float(x[-1]))
         ax_lightcurve.plot(x, sim_flux, color="white")
 
-        # lightcurve red dot
-        flux_dot = patches.Ellipse((0, 0), (time_s0[-1] - time_s0[0]) * p.flux_dot_width / p.day, scope * p.flux_dot_height)  # matplotlib patch
-        flux_dot.set(zorder=2)  # Dot in front of lightcurve.
-        flux_dot.set_color((1, 0, 0))  # red
-        ax_lightcurve.add_patch(flux_dot)
+        flux_dot = CurveSimAnimation.animated_dot(ax_lightcurve, p, scope, time_s0, color=(1, 0, 0))  # lightcurve red dot
         return ax_lightcurve, flux_dot
 
     @staticmethod
@@ -151,18 +171,7 @@ class CurveSimAnimation:
         ax_rv_curve.set_facecolor("black")  # background color
         ax_rv_curve.text(0.97, -0.11, "BJD (TDB)", color="grey", fontsize=8, ha="right", va="bottom", transform=ax_rv_curve.transAxes)
 
-        # rv_curve x-ticks, x-labels
-        ax_rv_curve.tick_params(axis="x", colors="grey")
-        # Use the same relative x-axis as the lightcurve: days since p.sim_start_s0[0]
-        x = (time_s0 - p.sim_start_s0) / p.day
-        x_listticdelta = CurveSimAnimation.tic_delta(float(x[-1]))
-        digits = max(0, round(-math.log10(x_listticdelta) + 0.4))  # The labels get as many decimal places as the intervals between the tics.
-        # build tick positions in relative days and corresponding absolute-time labels (BJD)
-        n_ticks = max(1, int(round(float(x[-1]) / x_listticdelta)))
-        xvalues = [i * x_listticdelta for i in range(n_ticks + 1)]
-        xlabels = [f"{round(val + p.epoch + p.sim_start_s0 / p.day, 4):.{digits}f}" for val in xvalues]
-        ax_rv_curve.set_xticks(xvalues, labels=xlabels)
-        ax_rv_curve.set_xlim(float(x[0]), float(x[-1]))
+        CurveSimAnimation.init_curve_plot_x_axis(ax_rv_curve, p, time_s0)  # rv_curve x-ticks, x-labels
 
         # rv_curve y-ticks, y-labels
         ax_rv_curve.set_ylabel("Radial Velocity [m/s]", color="grey", labelpad=22, fontsize=8)
@@ -188,11 +197,7 @@ class CurveSimAnimation:
         x = (time_s0 - p.sim_start_s0) / p.day
         ax_rv_curve.plot(x, sim_rv, color="white")
 
-        # rv_curve green dot
-        rv_dot = patches.Ellipse((0, 0), (time_s0[-1] - time_s0[0]) * p.rv_dot_width / p.day, scope * p.rv_dot_height)  # matplotlib patch
-        rv_dot.set(zorder=2)  # Dot in front of rv_curve.
-        rv_dot.set_color((0, 0.7, 0))  # green
-        ax_rv_curve.add_patch(rv_dot)
+        rv_dot = CurveSimAnimation.animated_dot(ax_rv_curve, p, scope, time_s0, color=(0, 0.7, 0))  # rv curve green dot
         return ax_rv_curve, rv_dot
 
     @staticmethod
