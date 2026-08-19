@@ -102,7 +102,7 @@ class CurveSimBodies(list):
         simulation.G = p.g  # gravitational constant
         star_count = sum(1 for body in self if body.body_type == "star")
         if star_count == 1:
-            # simulation.integrator = "ias15"
+            # simulation.integrator = "ias15"  # default integrator
             simulation.integrator = "whfast"
             simulation.dt = p.dt
         if p.verbose:
@@ -421,7 +421,7 @@ class CurveSimBodies(list):
                     E0 = simulation.total_energy()
                 E = simulation.total_energy()
                 rel_error = (E - E0) / abs(E0)
-                # if iteration % (p.total_iterations // 10) == 0:
+                # if iteration % (p.iterations // 10) == 0:
                 #     print(f"Energy drift: {rel_error:.2e}")
 
             simulation.integrate(time_s0[iteration])

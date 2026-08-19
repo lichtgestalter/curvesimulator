@@ -5,6 +5,7 @@ import json
 import numpy as np
 import os
 import random
+import shutil
 import sys
 import time
 
@@ -49,8 +50,9 @@ class CurveSimParameters:
         self.hour, self.day, self.year, self.rad2deg = hour, day, year, rad2deg
 
         # [Simulation]
-        self.action = config.get("Simulation", "action", fallback="results_only")
+        self.action = config.get("Simulation", "action", fallback="None")
         self.jacobi_masses = eval(config.get("Simulation", "jacobi_masses", fallback="True"))
+        self.rebound_warnings = eval(config.get("Simulation", "rebound_warnings", fallback="True"))
         self.dt = eval(config.get("Simulation", "dt", fallback="1000"))
         self.epoch = eval(config.get("Simulation", "epoch", fallback="0.0"))
         self.sim_start = eval(config.get("Simulation", "sim_start", fallback="None"))
@@ -69,6 +71,7 @@ class CurveSimParameters:
         self.result_file = config.get("Results", "result_file", fallback=None)
         if self.result_file is not None or self.action in ["lmfit", "mcmc"]:
             self.find_results_subdirectory()
+            self.copy_config_file()
         self.max_interval_extensions = eval(config.get("Results", "max_interval_extensions", fallback="10"))
         default_unit = '{"mass": "m_jup", "radius": "r_jup", "e": "1", "i": "deg", "P": "d", "a": "AU", "Omega": "deg", "omega": "deg", "pomega": "deg", "L": "deg", "ma": "deg", "ea": "deg", "nu": "deg", "T": "s"}'
         dict_str = config.get("Results", "unit", fallback=default_unit)
@@ -179,6 +182,36 @@ class CurveSimParameters:
             sys.exit(1)
         return True
 
+    def find_mandatory_parameters(self):
+        mandatory_list = ["g", "au", "l_sun", "r_sun", "m_sun", "r_jup", "m_jup", "r_nep", "m_nep", "r_earth", "m_earth", "hour", "day", "year", "rad2deg"]  # astronomical_units
+        mandatory_list += ["action"]
+        if self.rv_file is not None:
+            mandatory_list += ["rv_body"]  #  "rv_offset", "rv_jitter" move to def find_mandatory_body_parameters()
+        if self.tt_file is not None:
+            mandatory_list += ["eclipsers_names", "eclipsees_names"]
+        if self.action in ["mcmc", "lmfit"]:
+            mandatory_list += ["result_file"]
+        mandatory = set(mandatory_list)
+        print(mandatory)
+        return mandatory
+
+    def find_mandatory_body_parameters(self, body):  # debug Baustelle!
+        mandatory_list = []
+        if self.rv_file is not None:
+            mandatory_list += ["rv_offset", "rv_jitter"]
+        body.mandatory = set(mandatory_list)
+        print(body.mandatory)
+
+    def check_for_missing_parameters(self, mandatory_parameters):
+        for attribute in mandatory_parameters:
+            value = getattr(self, attribute)
+            if value is None:
+                print(f"{Fore.RED}\nERROR: Parameter {attribute} has to be specified in {self.config_file}.{Style.RESET_ALL}")
+                sys.exit(1)
+
+    def check_for_missing_body_parameters(self, body):
+        pass
+
     def check_sim_interval(self):
         """Checks if parameters sim_start and sim_end are well defined.
            Calculates the indices for time_s0, time_d and sim_flux where the intervals start and end.
@@ -229,7 +262,6 @@ class CurveSimParameters:
     @staticmethod
     def init_time_arrays(p):
         time_s0 = np.zeros(p.iterations, dtype=float)
-        # time_s0 = np.zeros(p.total_iterations, dtype=float)
         for i in range(p.iterations):
             time_s0[i] = p.sim_start_s0 + i * p.dt
         time_d = time_s0 / p.day + p.epoch
@@ -353,6 +385,10 @@ class CurveSimParameters:
             next_subdirectory += 1
         self.results_directory = self.results_directory + f"/{next_subdirectory:04d}/"
         os.makedirs(self.results_directory)
+
+    def copy_config_file(self):
+        """Copy the file self.config_file into the directory self.results_directory"""
+        shutil.copy(self.config_file, self.results_directory)
 
     def init_eclipsers_eclipsees(self, bodies):
         """ Generates 2 lists of bodies (self.eclipsers, self.eclipsees)

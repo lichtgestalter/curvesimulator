@@ -46,6 +46,7 @@
         "rad2deg": 57.29577951308232,
         "action": "single_run",
         "jacobi_masses": true,
+        "rebound_warnings": false,
         "dt": 60,
         "epoch": 2460000,
         "sim_start": 2460001.9,
@@ -91,6 +92,13 @@
         "lmfit_method": "powell",
         "ls_chunk_size": 1000,
         "ls_steps": 10000,
+        "ls_thresholds": [
+            1.0,
+            0.1,
+            0.01,
+            0.001,
+            0.0001
+        ],
         "ls_max_tt_delta": 1.1574074074074073e-05,
         "flux_weight": 1,
         "tt_weight": 1,

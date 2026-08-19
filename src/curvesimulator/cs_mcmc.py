@@ -659,7 +659,7 @@ class CurveSimMCMC:
          Converts the maximum log-likelihood into an RootMeanSquare-like per-datum misfit."""
         flux, rv, tt = 0, 0, 0
         if p.flux_file:
-            flux = getattr(p, "total_iterations", 0)
+            flux = getattr(p, "iterations", 0)
         if p.rv_file:
             rv = getattr(p, "rv_datasize", 0)
         if p.tt_file:
@@ -789,7 +789,7 @@ class CurveSimMCMC:
         results["Simulation Parameters"]["results_directory"] = self.results_directory
         results["Simulation Parameters"]["epoch"] = p.epoch
         results["Simulation Parameters"]["default_dt"] = p.dt
-        results["Simulation Parameters"]["flux_data_points"] = getattr(p, "total_iterations", None)
+        results["Simulation Parameters"]["flux_data_points"] = getattr(p, "iterations", None)
         results["Simulation Parameters"]["walkers"] = self.walkers
         results["Simulation Parameters"]["burn_in_steps"] = self.burn_in
         results["Simulation Parameters"]["steps_after_burn_in"] = int(steps_done)
@@ -840,7 +840,7 @@ class CurveSimMCMC:
         p_copy = copy.deepcopy(p)
         to_remove = [
             "fitting_parameters", "standard_sections", "eclipsers", "eclipsees",
-            "tt_file", "total_iterations", "walkers", "moves", "burn_in",
+            "tt_file", "iterations", "walkers", "moves", "burn_in",
             "thin_samples", "comment", "epoch", "results_directory",
             "fitting_parameter_dic", "tt_datasize",
             "offset_map", "jitter_map",
@@ -897,7 +897,7 @@ class CurveSimMCMC:
         if p.flux_file:
             median_residuals_flux_sum_squared, _ = CurveSimMCMC.residuals_flux_sum_squared(self.median_params, self.param_references, bodies, time_s0, flux_corr, flux_total_err, measured_flux, p)
             mean_residuals_flux_sum_squared, _ = CurveSimMCMC.residuals_flux_sum_squared(self.mean_params, self.param_references, bodies, time_s0, flux_corr, flux_total_err, measured_flux, p)
-            flux_data_points = getattr(p, "total_iterations", 0)
+            flux_data_points = getattr(p, "iterations", 0)
             self.mean_avg_residual_in_std.append(math.sqrt(mean_residuals_flux_sum_squared / flux_data_points))
             self.median_avg_residual_in_std.append(math.sqrt(median_residuals_flux_sum_squared / flux_data_points))
         # self.average_residual_in_std_plot(p, steps_done, "avg_residual.png")

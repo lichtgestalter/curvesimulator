@@ -78,8 +78,11 @@ def _is_multiprocessing_child_import():
 
 class CurveSimulator:
     def __init__(self, config_file=""):
-        warnings.filterwarnings("ignore", module="rebound")
         p = CurveSimParameters(config_file)  # Read program parameters from config file.
+        mandatory_parameters = p.find_mandatory_parameters()
+        p.check_for_missing_parameters(mandatory_parameters)
+        if not p.rebound_warnings:
+            warnings.filterwarnings("ignore", module="rebound")
         bodies, measured_flux, measured_tt = None, None, None
         self.parameters = p  # grants access from the executed script by making it an attribute of the CurveSimulator object
         self.bodies = bodies  # grants access from the executed script by making it an attribute of the CurveSimulator object
