@@ -1,3 +1,4 @@
+import ast
 from colorama import Fore, Style
 import configparser
 import json
@@ -98,6 +99,14 @@ class CurveSimParameters:
         self.lmfit_method = config.get("Fitting", "lmfit_method", fallback="powell")
         self.ls_chunk_size = int(eval(config.get("Fitting", "ls_chunk_size", fallback="1000")))
         self.ls_steps = int(eval(config.get("Fitting", "ls_steps", fallback="10000")))
+        ls_thresholds = config.get("Fitting", "ls_thresholds", fallback=None)
+        if ls_thresholds is not None:
+            self.ls_thresholds = tuple([ast.literal_eval(x) for x in ls_thresholds.split(",")])
+            if len(self.ls_thresholds) != 5:
+                print(f"{Fore.RED}\nERROR: Parameter ls_thresholds must have exactly 5 items, but {self.ls_thresholds=}{Style.RESET_ALL}")
+                sys.exit(1)
+        else:
+            self.ls_thresholds = (1.0, 0.1, 0.01, 0.001, 0.0001)
         self.ls_max_tt_delta = eval(config.get("Fitting", "ls_max_tt_delta", fallback="1/(24*60*60)"))
         self.flux_weight = int(eval(config.get("Fitting", "flux_weight", fallback="1")))
         self.tt_weight = int(eval(config.get("Fitting", "tt_weight", fallback="1")))
