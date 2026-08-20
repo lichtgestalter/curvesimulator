@@ -192,7 +192,7 @@ class CurveSimParameters:
         if self.action in ["mcmc", "lmfit"]:
             mandatory_list += ["result_file"]
         mandatory = set(mandatory_list)
-        print(mandatory)
+        # print(mandatory)
         return mandatory
 
     def find_mandatory_body_parameters(self, body):  # debug Baustelle!
