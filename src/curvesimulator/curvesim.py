@@ -101,7 +101,7 @@ class CurveSimulator:
             for body in bodies:  # HACK because length of body.positions is initialized with the correct value for simulation, NOT measurements
                 body.positions = np.ndarray((len(time_s0), 3), dtype=float)
             p.init_fitting_parameter_dic()
-            print(f"Fitting {len(p.fitting_parameters)} parameters.")
+            print(f"Fitting {p.free_parameters} parameters.")
             if p.action == "guifit":
                 p.enrich_fitting_params(bodies)
                 self.guifit = CurveSimManualFit(p, bodies, time_s0, time_d, measured_tt)

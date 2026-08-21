@@ -189,7 +189,7 @@ class CurveSimMCMC:
         sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # Calculate all body positions and the resulting lightcurve
         if p.sim_flux_file and not p.flux_file:  # save simulated flux (regular spaced with p.dt, because no flux observations were made available)
             sim_flux.save_sim_flux_with_synthetic_timeline(p, time_d)
-        results = bodies.find_transits(rebound_sim, p, sim_flux, time_s0, time_d)
+        results = bodies.find_transits(rebound_sim, p, time_s0, time_d)
         results["Fit"]["chi_squared_tt"], results["Fit"]["chi_squared_rv"], results["Fit"]["chi_squared_flux"], results["Fit"]["chi_squared_total"] = 0, 0, 0, 0
         results["Fit"]["measurements_tt"], results["Fit"]["measurements_rv"], results["Fit"]["measurements_flux"], results["Fit"]["measurements_total"] = 0, 0, 0, 0
         results["Fit"]["pvalue_tt"], results["Fit"]["pvalue_rv"], results["Fit"]["pvalue_flux"], results["Fit"]["pvalue_total"] = 0, 0, 0, 0
@@ -197,7 +197,7 @@ class CurveSimMCMC:
             CurveSimAnimation(p, bodies, sim_rv, sim_flux, time_s0)  # Create a video
         if p.tt_file:
             measured_tt = CurveSimResults.get_measured_tt(p)
-            residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
+            residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, time_d, time_s0)
             measured_tt = results.calc_tt_chi_squared(measured_tt, p.free_parameters)  # store chi squared and p-value in results
             CurveSimMCMC.tt_delta_plot(p, 0, "tt_o_vs_c.png", measured_tt)  # compare observed vs. computed TT
         else:
@@ -251,8 +251,8 @@ class CurveSimMCMC:
         return bodies, sim_flux, results
 
     @staticmethod
-    def match_transit_times(measured_tt, p, rebound_sim, sim_flux, time_d, time_s0):
-        sim_tt = CurveSimBodies.find_tts(rebound_sim, p, sim_flux, time_s0, time_d)  # sim_tt is a list of tuples (eclipser, eclipsee, tt)
+    def match_transit_times(measured_tt, p, rebound_sim, time_d, time_s0):
+        sim_tt = CurveSimBodies.find_tts(rebound_sim, p, time_s0, time_d)  # sim_tt is a list of tuples (eclipser, eclipsee, tt)
         nearest_sim_tt = []
         for idx, row in measured_tt.iterrows():
             eclipser = row["eclipser"]
@@ -361,7 +361,7 @@ class CurveSimMCMC:
             bodies[body_index].__dict__[parameter_name] = theta[i]  # update all parameters from theta
             i += 1
         sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # run simulation
-        residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
+        residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, time_d, time_s0)
         return residuals_tt_sum_squared
 
     @staticmethod
@@ -472,7 +472,7 @@ class CurveSimMCMC:
 
     def max_likelihood_tt(self, max_likelihood_bodies, p, time_s0, time_d, measured_tt):
         sim_rv, sim_flux, rebound_sim = max_likelihood_bodies.calc_physics(p, time_s0)  # run simulation
-        _, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
+        _, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, time_d, time_s0)
         return measured_tt
 
     @staticmethod
@@ -1007,7 +1007,7 @@ class CurveSimLMfit:
         for body_index, parameter_name in param_references:
             bodies[body_index].__dict__[parameter_name] = params[bodies[body_index].name + "_" + parameter_name].value  # update all parameters from params
         sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # run simulation
-        residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, sim_flux, time_d, time_s0)
+        residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, time_d, time_s0)
         return residuals_tt_sum_squared
 
     def save_lmfit_results(self, p):

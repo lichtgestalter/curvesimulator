@@ -409,54 +409,7 @@ class CurveSimBody:
         relative_radius = (self.radius + self.d - other.h) / (2 * self.radius)  # Relative distance between approximated center C of eclipsed area and center of self
         return area, relative_radius
 
-    # def find_tt_old(self, other, iteration, rebound_sim, p, sim_flux, time_s0, time_d, start_index, end_index, dt):
-    #     """other eclipses self. Find the exact time of transit (TT).
-    #         iteration should be the last one before TT. """
-    #     eclipser = rebound_sim.particles[other.name]
-    #     eclipsee = rebound_sim.particles[self.name]
-    #     rebound_sim.integrate(time_s0[iteration])
-    #     dx_left = eclipser.x - eclipsee.x
-    #     t_left = rebound_sim.t
-    #     rebound_sim.integrate(time_s0[iteration + 1])
-    #     t_right = rebound_sim.t
-    #     dx_right = eclipser.x - eclipsee.x
-    #     interval_extensions = 0
-    #     while dx_left * dx_right >= 0:  # dx per definition 0 at TT. If dx_left and dx_right have the same sign due to numeric instability in rebound, enlarge the search interval.
-    #         t_left -= dt
-    #         t_right += dt
-    #         rebound_sim.integrate(t_left)
-    #         dx_left = eclipser.x - eclipsee.x
-    #         t_left = rebound_sim.t
-    #         rebound_sim.integrate(t_right)
-    #         t_right = rebound_sim.t
-    #         dx_right = eclipser.x - eclipsee.x
-    #         interval_extensions += 1
-    #     if interval_extensions > 0 and p.verbose:
-    #         print(f"{Fore.YELLOW}\nWARNING in function find_tt: Rebound integration results are possibly not accurate enough.")
-    #         print(f"Try again with half the overall iteration time step parameter "dt".{Style.RESET_ALL}   ", end="")
-    #         print(f"{iteration=}   {interval_extensions=}")
-    #     if dx_left * dx_right < 0 and eclipser.z >= eclipsee.z:  # sign of dx changed and eclipser in front of eclipsee
-    #         while t_right - t_left > 1e-1:  # bisect until desired precision reached
-    #             t_middle = (t_right + t_left) / 2
-    #             rebound_sim.integrate(t_middle)
-    #             if dx_left * (eclipser.x - eclipsee.x) < 0:  # TT lies between t_left and t_middle
-    #                 t_right = rebound_sim.t  # middle is now the new right
-    #                 dx_right = eclipser.x - eclipsee.x
-    #             else:  # TT lies between t_right and middle
-    #                 t_left = rebound_sim.t  # middle is now the new left
-    #                 dx_left = eclipser.x - eclipsee.x
-    #         tt = rebound_sim.t / p.day + p.epoch
-    #         d = CurveSimPhysics.distance_2d_particle(eclipser, eclipsee)
-    #         impact = d / self.radius
-    #         close_enough = d <= self.radius + other.radius
-    #         depth = 1 - sim_flux.interpolate_max_depth(tt, p, iteration, start_index, end_index, dt, time_d)
-    #         return tt, impact, depth, close_enough
-    #     else:
-    #         print(f"{Fore.RED}\nERROR in function find_tt: Try with a smaller iteration time step dt.")
-    #         print(f"If that does not help, please open an issue on https://github.com/lichtgestalter/curvesimulator/issues and provide your config file.{Style.RESET_ALL}")
-    #         return -1, -1, -1, False
-
-    def find_tt(self, other, iteration, rebound_sim, p, sim_flux, time_s0, time_d, start_index, end_index, dt):
+    def find_tt(self, other, iteration, rebound_sim, p, time_s0, time_d, start_index, end_index, dt):
         """other eclipses self. Find the exact time of transit (TT).
             iteration should be the last one before TT. """
         eclipser = rebound_sim.particles[other.name]
@@ -513,7 +466,8 @@ class CurveSimBody:
             else:
                 depth = 0
             # print(f"{tt:12.6f};{eclipsee.vz:8.2f}")
-            return tt, impact, depth, close_enough
+            inclination = eclipser.inc * p.rad2deg
+            return tt, impact, depth, close_enough, inclination
         else:
             if p.verbose:
                 print(f"{Fore.YELLOW}\nWARNING in function find_tt: Eclipser not in front of eclipsee at expected TT.")
@@ -523,7 +477,7 @@ class CurveSimBody:
                 print(f"or choose more plausible start values and more restrictive upper/lower limits for the body parameters{Style.RESET_ALL}  ", end="")
                 print(f"Consider moving the time intervals a bit.{Style.RESET_ALL}   ", end="")
                 print(f"{iteration=}  {time_d[iteration]=} {interval_extensions=}")
-            return -1, -1, -1, False
+            return -1, -1, -1, False, -1
 
     # def find_t1234_old(self, other, iteration, rebound_sim, time_s0, start_index, end_index, p, transittimetype):
     #     """other eclipses self. Find where ingress starts (T1) or egress ends (T4)."""

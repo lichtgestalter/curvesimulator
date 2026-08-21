@@ -31,9 +31,9 @@ class FittingGUI:
         self.parameter_frames = []
         self.active_parameter_index = 0  # First parameter is active by default
         self.param_rows = 2
-        self.params_per_row = (len(p.fitting_parameters) + 1) // 2
+        self.params_per_row = (p.free_parameters + 1) // 2
         self.number_of_params = self.param_rows * self.params_per_row
-        self.number_of_params = len(p.fitting_parameters)
+        self.number_of_params = p.free_parameters
 
         self._initialize_grid_weights()
         self._initialize_parameter_data(p)
@@ -201,7 +201,7 @@ class FittingGUI:
         for (body_index, parameter_name), fp in zip(param_references, p.fitting_parameters):
             self.bodies[body_index].__dict__[parameter_name] = fp.startvalue
         sim_rv, sim_flux, rebound_sim = self.bodies.calc_physics(p, self.time_s0)  # run simulation
-        return CurveSimMCMC.match_transit_times(self.measured_tt, p, rebound_sim, sim_flux, self.time_d, self.time_s0)
+        return CurveSimMCMC.match_transit_times(self.measured_tt, p, rebound_sim, self.time_d, self.time_s0)
 
     def update_entry_fields(self, p):
         """Update the Tkinter entry variables from the internal data model."""

@@ -85,8 +85,8 @@ class CurveSimParameters:
         self.flux_plots_bottom = eval(config.get("Results", "flux_plots_bottom", fallback="0.97"))
 
         # [Fitting]
+        self.free_parameters = 0  # Init. Gets overwritten when fitting.
         self.mcmc_multi_processing = eval(config.get("Fitting", "mcmc_multi_processing", fallback="True"))
-        self.free_parameters = eval(config.get("Fitting", "free_parameters", fallback="None"))
         self.flux_file = config.get("Fitting", "flux_file", fallback=None)
         self.sector_params_file = config.get("Fitting", "sector_params_file", fallback=None)
         if self.sector_params_file is None:
@@ -300,6 +300,7 @@ class CurveSimParameters:
         fitting_parameters, body_index = self.read_fitting_body_parameters(config)
         if self.sector_params_fit:  # append sector params to fitting_parameters
             fitting_parameters = self.read_fitting_sector_parameters(fitting_parameters, body_index)
+        self.free_parameters = len(fitting_parameters)
         return fitting_parameters
 
     def read_fitting_body_parameters(self, config):
