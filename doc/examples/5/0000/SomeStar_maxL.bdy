@@ -33,5 +33,4 @@ ea_deg = None
 nu = None
 nu_deg = None
 T = None
-t = None
 mu = None

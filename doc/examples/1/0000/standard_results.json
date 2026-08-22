@@ -62,7 +62,7 @@
         "transit_precision": 1,
         "flux_data_directory": ".",
         "results_directory": "./0000/",
-        "result_file": "result.json",
+        "result_file": "standard_results.json",
         "max_interval_extensions": 5,
         "unit": "{\"mass\": \"m_jup\", \"radius\": \"r_jup\", \"e\": \"1\", \"i\": \"deg\", \"P\": \"d\", \"a\": \"AU\", \"Omega\": \"deg\", \"omega\": \"deg\", \"pomega\": \"deg\", \"L\": \"deg\", \"ma\": \"deg\", \"ea\": \"deg\", \"nu\": \"deg\", \"T\": \"s\"}",
         "scale": "{\"mass\": 1/m_jup, \"radius\": 1/r_jup, \"e\": 1, \"i\": rad2deg, \"P\": 1/day, \"a\": 1/au, \"Omega\": rad2deg, \"omega\": rad2deg, \"pomega\": rad2deg, \"L\": rad2deg, \"ma\": rad2deg, \"ea\": rad2deg, \"nu\": rad2deg, \"T\": 1}",
@@ -73,8 +73,8 @@
         ],
         "flux_plots_top": 1.0015,
         "flux_plots_bottom": 0.9985,
+        "free_parameters": 2,
         "mcmc_multi_processing": true,
-        "free_parameters": 0,
         "flux_file": "flux.csv",
         "sector_params_file": "sector_params.csv",
         "sector_params_fit": false,
@@ -255,7 +255,8 @@
                         "T34": 0.002540906425565481,
                         "T14": 0.1610731603577733,
                         "b": 0.3752828682073456,
-                        "depth": 0.00022504622007826658
+                        "depth": 0.00022504622007826658,
+                        "i": 89.00000000617436
                     }
                 }
             ]
@@ -318,7 +319,8 @@
                         "T34": 0.007479404099285603,
                         "T14": 0.3652572142891586,
                         "b": 0.7490789589028085,
-                        "depth": 8.511232382683337e-05
+                        "depth": 8.511232382683337e-05,
+                        "i": 90.19999999982578
                     }
                 }
             ]
@@ -333,10 +335,10 @@
         "measurements_rv": 7,
         "measurements_flux": 346,
         "measurements_total": 355,
-        "pvalue_tt": 0.6053935767402404,
-        "pvalue_rv": 0.586747637262196,
-        "pvalue_flux": 0.6772049785457035,
-        "pvalue_total": 0.7074944808680601,
+        "pvalue_tt": NaN,
+        "pvalue_rv": 0.34674504549019347,
+        "pvalue_flux": 0.6492373570572245,
+        "pvalue_total": 0.6809475739140387,
         "log_norm_term_flux": -4778.334374534921,
         "log_maxlikelihood_flux": 2222.472323223947
     }

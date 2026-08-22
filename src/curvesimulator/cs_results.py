@@ -196,7 +196,8 @@ class CurveSimResults(dict):
         measured_rv["chi_squared"] = measured_rv["chi_squared"] * measured_rv["chi_squared"]
         self["Fit"]["chi_squared_rv"] = measured_rv["chi_squared"].sum()
         self["Fit"]["measurements_rv"] = measured_rv.shape[0]
-        self["Fit"]["pvalue_rv"] = CurveSimResults.chi_squared_pvalue(self["Fit"]["chi_squared_rv"], self["Fit"]["measurements_rv"], free_parameters)
+        if free_parameters is not None:
+            self["Fit"]["pvalue_rv"] = CurveSimResults.chi_squared_pvalue(self["Fit"]["chi_squared_rv"], self["Fit"]["measurements_rv"], free_parameters)
         return measured_rv
 
     def calc_flux_chi_squared(self, measured_flux, free_parameters):
@@ -204,7 +205,8 @@ class CurveSimResults(dict):
         measured_flux["chi_squared"] = measured_flux["chi_squared"] * measured_flux["chi_squared"]
         self["Fit"]["chi_squared_flux"] = measured_flux["chi_squared"].sum()
         self["Fit"]["measurements_flux"] = measured_flux.shape[0]
-        self["Fit"]["pvalue_flux"] = CurveSimResults.chi_squared_pvalue(self["Fit"]["chi_squared_flux"], self["Fit"]["measurements_flux"], free_parameters)
+        if free_parameters is not None:
+            self["Fit"]["pvalue_flux"] = CurveSimResults.chi_squared_pvalue(self["Fit"]["chi_squared_flux"], self["Fit"]["measurements_flux"], free_parameters)
         return measured_flux
 
     def calc_flux_log_maxlikelihood(self, measured_flux):
@@ -216,13 +218,19 @@ class CurveSimResults(dict):
         measured_tt["chi_squared"] = measured_tt["chi_squared"] * measured_tt["chi_squared"]
         self["Fit"]["chi_squared_tt"] = measured_tt["chi_squared"].sum()
         self["Fit"]["measurements_tt"] = measured_tt.shape[0]
-        self["Fit"]["pvalue_tt"] = CurveSimResults.chi_squared_pvalue(self["Fit"]["chi_squared_tt"], self["Fit"]["measurements_tt"], free_parameters)
+        if free_parameters is not None:
+            self["Fit"]["pvalue_tt"] = CurveSimResults.chi_squared_pvalue(self["Fit"]["chi_squared_tt"], self["Fit"]["measurements_tt"], free_parameters)
         return measured_tt
 
     def calc_total_chi_squared(self, free_parameters):
-        self["Fit"]["chi_squared_total"] = self["Fit"]["chi_squared_rv"] + self["Fit"]["chi_squared_flux"] + self["Fit"]["chi_squared_tt"]
+        rv = 0 if self["Fit"]["chi_squared_rv"] is None else self["Fit"]["chi_squared_rv"]
+        fl = 0 if self["Fit"]["chi_squared_flux"] is None else self["Fit"]["chi_squared_flux"]
+        tt = 0 if self["Fit"]["chi_squared_tt"] is None else self["Fit"]["chi_squared_tt"]
+        self["Fit"]["chi_squared_total"] = rv + fl + tt
+        # self["Fit"]["chi_squared_total"] = self["Fit"]["chi_squared_rv"] + self["Fit"]["chi_squared_flux"] + self["Fit"]["chi_squared_tt"]
         self["Fit"]["measurements_total"] = self["Fit"]["measurements_rv"] + self["Fit"]["measurements_flux"] + self["Fit"]["measurements_tt"]
-        self["Fit"]["pvalue_total"] = CurveSimResults.chi_squared_pvalue(self["Fit"]["chi_squared_total"], self["Fit"]["measurements_total"], free_parameters)
+        if free_parameters is not None:
+            self["Fit"]["pvalue_total"] = CurveSimResults.chi_squared_pvalue(self["Fit"]["chi_squared_total"], self["Fit"]["measurements_total"], free_parameters)
 
     @staticmethod
     def chi_squared_pvalue(chi_squared, n_measurements, n_parameters):

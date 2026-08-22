@@ -2,23 +2,23 @@
     "CurveSimulator Documentation": "https://github.com/lichtgestalter/curvesimulator/wiki",
     "Simulation Parameters": {
         "comment": "No comment",
-        "start_realtime": "09.08.26 12:35:42 [DD.MM.YY hh:mm:ss]",
-        "end_realtime": "09.08.26 12:47:25 [DD.MM.YY hh:mm:ss]",
-        "run_time": "00:00:11:43 [dd:hh:mm:ss]",
-        "run_time_per_iteration": "0.118 [s]",
-        "simulations_per_second": "270 [iterations*walkers/runtime]",
+        "start_realtime": "22.08.26 10:41:43 [DD.MM.YY hh:mm:ss]",
+        "end_realtime": "22.08.26 10:42:07 [DD.MM.YY hh:mm:ss]",
+        "run_time": "00:00:00:24 [dd:hh:mm:ss]",
+        "run_time_per_iteration": "0.069 [s]",
+        "simulations_per_second": "466 [iterations*walkers/runtime]",
         "results_directory": "./0000/",
-        "start_date": 2460000,
+        "epoch": 2460000,
         "default_dt": 5000,
         "flux_data_points": 346,
         "walkers": 32,
-        "burn_in_steps": 40,
-        "steps_after_burn_in": 5900,
+        "burn_in_steps": 150,
+        "steps_after_burn_in": 200,
         "moves": "(emcee.moves.StretchMove()     , 0.6), (emcee.moves.DEMove       (), 0.4)",
         "thin_samples": 1,
         "flux_file": "flux.csv",
-        "mean_avg_residual_in_std": 0.9555611935520999,
-        "median_avg_residual_in_std": 0.9586452600084742
+        "mean_avg_residual_in_std": 0.9534702972872656,
+        "median_avg_residual_in_std": 0.9540354723580824
     },
     "Bodies": {
         "SomeStar": {
@@ -75,12 +75,12 @@
             "index": 0,
             "body_parameter_name": "InnerPlanet.ma",
             "long_body_parameter_name": "InnerPlanet.ma [deg]",
-            "hdi_min": 3.256232053019889,
-            "hdi_max": 5.902013053230129,
-            "std": 5.636185995803605,
-            "mean": 4.569292089888442,
-            "median": 4.20501866468323,
-            "max_likelihood": 3.9255660540669215
+            "hdi_min": 2.967328483372475,
+            "hdi_max": 5.8040032425896095,
+            "std": 7.791518774595963,
+            "mean": 3.261159434219861,
+            "median": 4.051198057457778,
+            "max_likelihood": 3.8857641237976206
         },
         "OuterPlanet.ma": {
             "body_name": "OuterPlanet",
@@ -96,12 +96,12 @@
             "index": 1,
             "body_parameter_name": "OuterPlanet.ma",
             "long_body_parameter_name": "OuterPlanet.ma [deg]",
-            "hdi_min": 58.498547098988865,
-            "hdi_max": 178.69584509409495,
-            "std": 51.532644341313265,
-            "mean": 91.55405658185593,
-            "median": 92.43700735543891,
-            "max_likelihood": 106.7138935991706
+            "hdi_min": 69.8978689217525,
+            "hdi_max": 179.38847686808444,
+            "std": 52.19744829647615,
+            "mean": 97.15690459125743,
+            "median": 101.90856497267826,
+            "max_likelihood": 28.11815213061352
         },
         "offset_0": {
             "body_name": "SectorParams",
@@ -117,12 +117,12 @@
             "index": 2,
             "body_parameter_name": "offset_0",
             "long_body_parameter_name": "offset_0",
-            "hdi_min": -1.4508617785801374e-05,
-            "hdi_max": 0.00010291076639248953,
-            "std": 5.9990495096625684e-05,
-            "mean": 4.974255522491151e-05,
-            "median": 4.782291522925574e-05,
-            "max_likelihood": 3.9942343743474485e-05
+            "hdi_min": -1.3723744117698781e-05,
+            "hdi_max": 8.29767806073055e-05,
+            "std": 5.447903475622409e-05,
+            "mean": 3.405190686249204e-05,
+            "median": 3.3353553396748386e-05,
+            "max_likelihood": 7.189488849279752e-05
         },
         "jitter_0": {
             "body_name": "SectorParams",
@@ -138,12 +138,12 @@
             "index": 3,
             "body_parameter_name": "jitter_0",
             "long_body_parameter_name": "jitter_0",
-            "hdi_min": 1.75216461059598e-08,
-            "hdi_max": 9.603592878188422e-05,
-            "std": 5.589841164384824e-05,
-            "mean": 7.563391242139057e-05,
-            "median": 6.443862954896187e-05,
-            "max_likelihood": 4.571691489095944e-05
+            "hdi_min": 2.014611876125374e-08,
+            "hdi_max": 7.58876640068391e-05,
+            "std": 5.9525727705116106e-05,
+            "mean": 6.458399886438276e-05,
+            "median": 4.700447332840183e-05,
+            "max_likelihood": 7.449062014661011e-06
         },
         "offset_1": {
             "body_name": "SectorParams",
@@ -159,12 +159,12 @@
             "index": 4,
             "body_parameter_name": "offset_1",
             "long_body_parameter_name": "offset_1",
-            "hdi_min": -9.837977068825284e-05,
-            "hdi_max": -1.1600303726244361e-05,
-            "std": 4.35937603034725e-05,
-            "mean": -5.635391684714295e-05,
-            "median": -5.635631699843802e-05,
-            "max_likelihood": -5.288755680531249e-05
+            "hdi_min": -9.50251287080666e-05,
+            "hdi_max": -1.2638496600393064e-05,
+            "std": 4.199996733727286e-05,
+            "mean": -5.407771648947962e-05,
+            "median": -5.452532132605487e-05,
+            "max_likelihood": -5.699910564726756e-05
         },
         "jitter_1": {
             "body_name": "SectorParams",
@@ -180,12 +180,12 @@
             "index": 5,
             "body_parameter_name": "jitter_1",
             "long_body_parameter_name": "jitter_1",
-            "hdi_min": 3.36136516577893e-05,
-            "hdi_max": 0.00018777889977873716,
-            "std": 7.124095882336134e-05,
-            "mean": 0.00012172329500467962,
-            "median": 0.0001186912724314044,
-            "max_likelihood": 0.00010483261078713174
+            "hdi_min": 9.272368282728332e-05,
+            "hdi_max": 0.0002181127426581448,
+            "std": 6.401658822291545e-05,
+            "mean": 0.0001326545921555387,
+            "median": 0.00013686320721407894,
+            "max_likelihood": 3.985471234134214e-05
         },
         "offset_2": {
             "body_name": "SectorParams",
@@ -201,12 +201,12 @@
             "index": 6,
             "body_parameter_name": "offset_2",
             "long_body_parameter_name": "offset_2",
-            "hdi_min": -3.948286435761371e-05,
-            "hdi_max": 3.6715655293404015e-05,
-            "std": 3.8461881485350644e-05,
-            "mean": -2.644281049192513e-06,
-            "median": -3.063537530113644e-06,
-            "max_likelihood": -9.601304587633319e-06
+            "hdi_min": -3.193303074508656e-05,
+            "hdi_max": 4.4611309781898996e-05,
+            "std": 3.985719741396893e-05,
+            "mean": -4.384088938442842e-06,
+            "median": -5.891770835481945e-06,
+            "max_likelihood": -1.45468638446385e-05
         },
         "jitter_2": {
             "body_name": "SectorParams",
@@ -222,12 +222,12 @@
             "index": 7,
             "body_parameter_name": "jitter_2",
             "long_body_parameter_name": "jitter_2",
-            "hdi_min": 6.505759695820215e-08,
-            "hdi_max": 9.360824593584706e-05,
-            "std": 5.1349970722372865e-05,
-            "mean": 7.311097850485903e-05,
-            "median": 6.42512288410079e-05,
-            "max_likelihood": 2.471593938595128e-05
+            "hdi_min": 8.954817343488514e-06,
+            "hdi_max": 0.00010297590175045105,
+            "std": 5.0479780169956296e-05,
+            "mean": 7.517135257533026e-05,
+            "median": 7.132437302033101e-05,
+            "max_likelihood": 3.4703315955032485e-05
         },
         "offset_3": {
             "body_name": "SectorParams",
@@ -243,12 +243,12 @@
             "index": 8,
             "body_parameter_name": "offset_3",
             "long_body_parameter_name": "offset_3",
-            "hdi_min": -5.4505213377525685e-05,
-            "hdi_max": 5.614734143704058e-05,
-            "std": 5.4752399817934647e-05,
-            "mean": -5.671625036375488e-07,
-            "median": -9.001936635670029e-07,
-            "max_likelihood": 5.866156929499019e-07
+            "hdi_min": -6.532280438045635e-05,
+            "hdi_max": 4.53822128483916e-05,
+            "std": 5.540831894761672e-05,
+            "mean": 2.1602224385005083e-06,
+            "median": 6.208293183964762e-06,
+            "max_likelihood": 3.431054567428833e-05
         },
         "jitter_3": {
             "body_name": "SectorParams",
@@ -264,12 +264,12 @@
             "index": 9,
             "body_parameter_name": "jitter_3",
             "long_body_parameter_name": "jitter_3",
-            "hdi_min": 2.3243572744198362e-05,
-            "hdi_max": 0.00020049098029872804,
-            "std": 8.33161903596917e-05,
-            "mean": 0.00013899888356881706,
-            "median": 0.00013415650191790927,
-            "max_likelihood": 0.0001738508125013163
+            "hdi_min": 3.780138099992874e-05,
+            "hdi_max": 0.00020970814325371766,
+            "std": 7.9015317675307e-05,
+            "mean": 0.00013803462688544247,
+            "median": 0.00013469507065977306,
+            "max_likelihood": 0.00017312952628793665
         }
     },
     "ProgramParameters": {
@@ -298,8 +298,7 @@
             "ma",
             "ea",
             "nu",
-            "T",
-            "t"
+            "T"
         ],
         "config_file": "config5.ini",
         "g": 6.6743e-11,
@@ -317,57 +316,95 @@
         "day": 86400,
         "year": 31556925.216,
         "rad2deg": 57.29577951308232,
+        "action": "mcmc",
+        "jacobi_masses": true,
+        "rebound_warnings": true,
+        "dt": 5000,
+        "sim_start": 2460001.9,
+        "sim_end": 2460003.9,
+        "sim_flux_file": null,
+        "sim_start_s0": 164159.99999195337,
+        "sim_end_s0": 336959.9999919534,
+        "sim_flux_err": 0.0,
+        "rv_body": null,
         "verbose": false,
         "transit_precision": 1,
         "flux_data_directory": ".",
-        "action": "mcmc",
-        "jacobi_masses": true,
-        "dt": 5000,
-        "result_dt": 5000,
-        "dts": [
-            5000.0
+        "result_file": "standard_results.json",
+        "max_interval_extensions": 10,
+        "unit": {
+            "mass": "m_jup",
+            "radius": "r_jup",
+            "e": "1",
+            "i": "deg",
+            "P": "d",
+            "a": "AU",
+            "Omega": "deg",
+            "omega": "deg",
+            "pomega": "deg",
+            "L": "deg",
+            "ma": "deg",
+            "ea": "deg",
+            "nu": "deg",
+            "T": "s"
+        },
+        "scale": {
+            "mass": 5.268358041405712e-28,
+            "radius": 1.3987579029821518e-08,
+            "e": 1,
+            "i": 57.29577951308232,
+            "P": 1.1574074074074073e-05,
+            "a": 6.684587122268445e-12,
+            "Omega": 57.29577951308232,
+            "omega": 57.29577951308232,
+            "pomega": 57.29577951308232,
+            "L": 57.29577951308232,
+            "ma": 57.29577951308232,
+            "ea": 57.29577951308232,
+            "nu": 57.29577951308232,
+            "T": 1
+        },
+        "tt_padding": 0.3,
+        "bins": [
+            30,
+            200
         ],
-        "video_file": null,
-        "mcmc_multi_processing": true,
+        "flux_plots_top": 1.01,
+        "flux_plots_bottom": 0.975,
         "free_parameters": 10,
+        "mcmc_multi_processing": true,
         "flux_file": "flux.csv",
         "sector_params_file": "sector_params.csv",
+        "sector_params_fit": true,
         "log_norm_term_flux": -4778.334374534921,
         "rv_file": null,
-        "rv_body": null,
         "eclipsers_names": [
             "None"
         ],
         "eclipsees_names": [
             "None"
         ],
-        "result_file": "results_example5.json",
-        "max_interval_extensions": 10,
-        "starts_d": [
-            2460001.9
+        "best_residuals_tt_sum_squared": 1e+99,
+        "lmfit_method": "powell",
+        "ls_chunk_size": 1000,
+        "ls_steps": 10000,
+        "ls_thresholds": [
+            1.0,
+            0.1,
+            0.01,
+            0.001,
+            0.0001
         ],
-        "ends_d": [
-            2460003.9
-        ],
-        "sim_end": 2460003.9,
-        "sim_flux_file": null,
-        "starts_s0": [
-            164159.99999195337
-        ],
-        "ends_s0": [
-            336959.9999919534
-        ],
-        "start_indices": [
-            0,
-            35
-        ],
-        "iterations": [
-            35
-        ],
-        "tt_padding": 0.3,
-        "flux_plots_top": 1.01,
-        "flux_plots_bottom": 0.975,
-        "sim_flux_err": 0.0,
+        "ls_max_tt_delta": 1.1574074074074073e-05,
+        "flux_weight": 1,
+        "tt_weight": 1,
+        "rv_weight": 1,
+        "backend": null,
+        "load_backend": false,
+        "steps": 100000000,
+        "chunk_size": 100,
+        "fitting_body_parameters": 2,
+        "video_file": null,
         "frames": 150,
         "fps": 30,
         "clockwise": false,
@@ -398,56 +435,6 @@
         "flux_dot_width": 0.005,
         "rv_dot_height": 0.077,
         "rv_dot_width": 0.005,
-        "lmfit_method": "powell",
-        "ls_chunk_size": 1000,
-        "ls_steps": 10000,
-        "ls_max_tt_delta": 1.1574074074074073e-05,
-        "flux_weight": 1,
-        "tt_weight": 1,
-        "rv_weight": 1,
-        "backend": null,
-        "load_backend": false,
-        "steps": 100000000,
-        "chunk_size": 50,
-        "bins": [
-            30,
-            200
-        ],
-        "unit": {
-            "mass": "m_jup",
-            "radius": "r_jup",
-            "e": "1",
-            "i": "deg",
-            "P": "d",
-            "a": "AU",
-            "Omega": "deg",
-            "omega": "deg",
-            "pomega": "deg",
-            "L": "deg",
-            "ma": "deg",
-            "ea": "deg",
-            "nu": "deg",
-            "T": "s",
-            "t": "s"
-        },
-        "scale": {
-            "mass": 5.268358041405712e-28,
-            "radius": 1.3987579029821518e-08,
-            "e": 1,
-            "i": 57.29577951308232,
-            "P": 1.1574074074074073e-05,
-            "a": 6.684587122268445e-12,
-            "Omega": 57.29577951308232,
-            "omega": 57.29577951308232,
-            "pomega": 57.29577951308232,
-            "L": 57.29577951308232,
-            "ma": 57.29577951308232,
-            "ea": 57.29577951308232,
-            "nu": 57.29577951308232,
-            "T": 1,
-            "t": 1
-        },
-        "fitting_body_parameters": 2,
         "myintegration": false,
         "rv_offset": null,
         "rv_jitter": null,

@@ -26,10 +26,9 @@
             "ma",
             "ea",
             "nu",
-            "T",
-            "t"
+            "T"
         ],
-        "config_file": "config5.ini",
+        "config_file": "config4.ini",
         "g": 6.6743e-11,
         "au": 149597870700.0,
         "r_sun": 695700000.0,
@@ -45,62 +44,105 @@
         "day": 86400,
         "year": 31556925.216,
         "rad2deg": 57.29577951308232,
+        "action": "mcmc",
+        "jacobi_masses": true,
+        "rebound_warnings": true,
+        "dt": 5000,
+        "epoch": 2460000,
+        "sim_start": 2460001.9,
+        "sim_end": 2460003.9,
+        "sim_flux_file": null,
+        "sim_start_s0": 164159.99999195337,
+        "sim_end_s0": 336959.9999919534,
+        "iterations": 35,
+        "sim_flux_err": 0.0,
+        "rv_body": null,
         "comment": "No comment",
         "verbose": false,
         "transit_precision": 1,
         "flux_data_directory": ".",
-        "action": "mcmc",
-        "jacobi_masses": true,
-        "dt": 5000,
-        "result_dt": 5000,
-        "dts": [
-            5000.0
+        "results_directory": "./0000/",
+        "result_file": "standard_results.json",
+        "max_interval_extensions": 5,
+        "unit": {
+            "mass": "m_jup",
+            "radius": "r_jup",
+            "e": "1",
+            "i": "deg",
+            "P": "d",
+            "a": "AU",
+            "Omega": "deg",
+            "omega": "deg",
+            "pomega": "deg",
+            "L": "deg",
+            "ma": "deg",
+            "ea": "deg",
+            "nu": "deg",
+            "T": "s"
+        },
+        "scale": {
+            "mass": 5.268358041405712e-28,
+            "radius": 1.3987579029821518e-08,
+            "e": 1,
+            "i": 57.29577951308232,
+            "P": 1.1574074074074073e-05,
+            "a": 6.684587122268445e-12,
+            "Omega": 57.29577951308232,
+            "omega": 57.29577951308232,
+            "pomega": 57.29577951308232,
+            "L": 57.29577951308232,
+            "ma": 57.29577951308232,
+            "ea": 57.29577951308232,
+            "nu": 57.29577951308232,
+            "T": 1
+        },
+        "tt_padding": 0.3,
+        "bins": [
+            30,
+            200
         ],
-        "start_date": 2460000,
-        "video_file": null,
+        "flux_plots_top": 1.015,
+        "flux_plots_bottom": 0.97,
+        "free_parameters": 2,
         "mcmc_multi_processing": true,
-        "free_parameters": 10,
-        "flux_file": "flux.csv",
-        "sector_params_file": "sector_params.csv",
-        "log_norm_term_flux": -4778.334374534921,
-        "tt_file": null,
+        "flux_file": null,
+        "sector_params_file": null,
+        "sector_params_fit": false,
+        "log_norm_term_flux": 0,
+        "tt_file": "tt.csv",
         "rv_file": null,
-        "rv_body": null,
         "eclipsers_names": [
-            "None"
+            "InnerPlanet",
+            "OuterPlanet"
         ],
         "eclipsees_names": [
-            "None"
+            "SomeStar"
         ],
-        "results_directory": "./0000/",
-        "result_file": "results_example5.json",
-        "max_interval_extensions": 10,
-        "starts_d": [
-            2460001.9
+        "best_residuals_tt_sum_squared": 1e+99,
+        "lmfit_method": "powell",
+        "ls_chunk_size": 1000,
+        "ls_steps": 10000,
+        "ls_thresholds": [
+            1.0,
+            0.1,
+            0.01,
+            0.001,
+            0.0001
         ],
-        "ends_d": [
-            2460003.9
-        ],
-        "sim_end": 2460003.9,
-        "sim_flux_file": null,
-        "starts_s0": [
-            164159.99999195337
-        ],
-        "ends_s0": [
-            336959.9999919534
-        ],
-        "start_indices": [
-            0,
-            35
-        ],
-        "iterations": [
-            35
-        ],
-        "total_iterations": 346,
-        "tt_padding": 0.3,
-        "flux_plots_top": 1.01,
-        "flux_plots_bottom": 0.975,
-        "sim_flux_err": 0.0,
+        "ls_max_tt_delta": 1.1574074074074073e-05,
+        "flux_weight": 1,
+        "tt_weight": 1,
+        "rv_weight": 1,
+        "backend": null,
+        "load_backend": false,
+        "walkers": 32,
+        "steps": 1001,
+        "moves": "(emcee.moves.StretchMove()     , 0.6), (emcee.moves.DEMove       (), 0.4)",
+        "burn_in": 100,
+        "chunk_size": 100,
+        "thin_samples": 10,
+        "fitting_body_parameters": 2,
+        "video_file": null,
         "frames": 150,
         "fps": 30,
         "clockwise": false,
@@ -131,60 +173,7 @@
         "flux_dot_width": 0.005,
         "rv_dot_height": 0.077,
         "rv_dot_width": 0.005,
-        "lmfit_method": "powell",
-        "ls_chunk_size": 1000,
-        "ls_steps": 10000,
-        "ls_max_tt_delta": 1.1574074074074073e-05,
-        "flux_weight": 1,
-        "tt_weight": 1,
-        "rv_weight": 1,
-        "backend": null,
-        "load_backend": false,
-        "walkers": 32,
-        "steps": 100000000,
-        "moves": "(emcee.moves.StretchMove()     , 0.6), (emcee.moves.DEMove       (), 0.4)",
-        "burn_in": 40,
-        "chunk_size": 50,
-        "bins": [
-            30,
-            200
-        ],
-        "thin_samples": 1,
-        "unit": {
-            "mass": "m_jup",
-            "radius": "r_jup",
-            "e": "1",
-            "i": "deg",
-            "P": "d",
-            "a": "AU",
-            "Omega": "deg",
-            "omega": "deg",
-            "pomega": "deg",
-            "L": "deg",
-            "ma": "deg",
-            "ea": "deg",
-            "nu": "deg",
-            "T": "s",
-            "t": "s"
-        },
-        "scale": {
-            "mass": 5.268358041405712e-28,
-            "radius": 1.3987579029821518e-08,
-            "e": 1,
-            "i": 57.29577951308232,
-            "P": 1.1574074074074073e-05,
-            "a": 6.684587122268445e-12,
-            "Omega": 57.29577951308232,
-            "omega": 57.29577951308232,
-            "pomega": 57.29577951308232,
-            "L": 57.29577951308232,
-            "ma": 57.29577951308232,
-            "ea": 57.29577951308232,
-            "nu": 57.29577951308232,
-            "T": 1,
-            "t": 1
-        },
-        "fitting_body_parameters": 2,
+        "tt_datasize": 2,
         "myintegration": false,
         "rv_offset": null,
         "rv_jitter": null,
@@ -233,7 +222,6 @@
                 "nu": null,
                 "nu_deg": null,
                 "T": null,
-                "t": null,
                 "mu": null
             },
             "Transits": []
@@ -273,17 +261,34 @@
                 "pomega_deg": null,
                 "L": null,
                 "L_deg": null,
-                "ma": 0.06851405264798952,
-                "ma_deg": 3.9255660540669215,
+                "ma": 0.10247952593157593,
+                "ma_deg": 5.871644322380777,
                 "ea": null,
                 "ea_deg": null,
                 "nu": null,
                 "nu_deg": null,
                 "T": null,
-                "t": null,
                 "mu": null
             },
-            "Transits": []
+            "Transits": [
+                {
+                    "Transit_params": {
+                        "EclipsedBody": "SomeStar",
+                        "T1": 2460002.6186256204,
+                        "T2": 2460002.621156878,
+                        "TT": 2460002.699172013,
+                        "T3": 2460002.7771785865,
+                        "T4": 2460002.7797161406,
+                        "T12": 0.0025312574580311775,
+                        "T23": 0.1560217086225748,
+                        "T34": 0.0025375541299581528,
+                        "T14": 0.16109052021056414,
+                        "b": 0.3752828608585332,
+                        "depth": 0.00022504622041353428,
+                        "i": 89.00000000617693
+                    }
+                }
+            ]
         },
         "OuterPlanet": {
             "BodyParameters": {
@@ -320,29 +325,48 @@
                 "pomega_deg": null,
                 "L": null,
                 "L_deg": null,
-                "ma": 1.862508800928429,
-                "ma_deg": 106.7138935991706,
+                "ma": 1.4311979360152505,
+                "ma_deg": 82.0016013815083,
                 "ea": null,
                 "ea_deg": null,
                 "nu": null,
                 "nu_deg": null,
                 "T": null,
-                "t": null,
                 "mu": null
             },
-            "Transits": []
+            "Transits": [
+                {
+                    "Transit_params": {
+                        "EclipsedBody": "SomeStar",
+                        "T1": 2460002.7023249594,
+                        "T2": 2460002.7098090844,
+                        "TT": 2460002.884990155,
+                        "T3": 2460003.060102359,
+                        "T4": 2460003.06757996,
+                        "T12": 0.007484124973416328,
+                        "T23": 0.35029327450320125,
+                        "T34": 0.007477601058781147,
+                        "T14": 0.3652550005353987,
+                        "b": 0.7490789536738565,
+                        "depth": 8.511232419740806e-05,
+                        "i": 90.19999999982686
+                    }
+                }
+            ]
         }
     },
-    "chi_squared_tt": 0,
-    "chi_squared_rv": 0,
-    "chi_squared_flux": 307.90328332084806,
-    "chi_squared_total": 307.90328332084806,
-    "measurements_tt": 0,
-    "measurements_rv": 0,
-    "measurements_flux": 346,
-    "measurements_total": 346,
-    "pvalue_flux": 0.8620830225045863,
-    "log_norm_term_flux": -4755.523913097876,
-    "log_maxlikelihood_flux": 2223.810314888514,
-    "pvalue_total": 0.8620830225045863
+    "Fit": {
+        "chi_squared_tt": 0.0014200236285549393,
+        "chi_squared_rv": 0,
+        "chi_squared_flux": 0,
+        "chi_squared_total": 0.0014200236285549393,
+        "measurements_tt": 2,
+        "measurements_rv": 0,
+        "measurements_flux": 0,
+        "measurements_total": 2,
+        "pvalue_tt": NaN,
+        "pvalue_rv": 0,
+        "pvalue_flux": 0,
+        "pvalue_total": NaN
+    }
 }

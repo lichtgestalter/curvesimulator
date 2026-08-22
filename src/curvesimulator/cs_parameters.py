@@ -68,10 +68,9 @@ class CurveSimParameters:
         self.transit_precision = eval(config.get("Results", "transit_precision", fallback="1"))
         self.flux_data_directory = config.get("Results", "flux_data_directory", fallback=".")
         self.results_directory = config.get("Results", "results_directory", fallback=".")
-        self.result_file = config.get("Results", "result_file", fallback=None)
-        if self.result_file is not None or self.action in ["lmfit", "mcmc"]:
-            self.find_results_subdirectory()
-            self.copy_config_file()
+        self.result_file = "standard_results.json"
+        self.find_results_subdirectory()
+        self.copy_config_file()
         self.max_interval_extensions = eval(config.get("Results", "max_interval_extensions", fallback="10"))
         default_unit = '{"mass": "m_jup", "radius": "r_jup", "e": "1", "i": "deg", "P": "d", "a": "AU", "Omega": "deg", "omega": "deg", "pomega": "deg", "L": "deg", "ma": "deg", "ea": "deg", "nu": "deg", "T": "s"}'
         dict_str = config.get("Results", "unit", fallback=default_unit)
@@ -83,9 +82,9 @@ class CurveSimParameters:
         self.bins = tuple([eval(x) for x in config.get("Results", "bins", fallback="30").split("#")[0].split(",")])
         self.flux_plots_top = eval(config.get("Results", "flux_plots_top", fallback="1.015"))
         self.flux_plots_bottom = eval(config.get("Results", "flux_plots_bottom", fallback="0.97"))
+        self.free_parameters = eval(config.get("Results", "free_parameters", fallback="None"))  # Gets overwritten when fitting.
 
         # [Fitting]
-        self.free_parameters = 0  # Init. Gets overwritten when fitting.
         self.mcmc_multi_processing = eval(config.get("Fitting", "mcmc_multi_processing", fallback="True"))
         self.flux_file = config.get("Fitting", "flux_file", fallback=None)
         self.sector_params_file = config.get("Fitting", "sector_params_file", fallback=None)
