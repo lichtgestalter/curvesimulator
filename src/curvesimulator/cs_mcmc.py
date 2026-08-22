@@ -860,6 +860,7 @@ class CurveSimMCMC:
 
     def mcmc_results2json(self, results, p):
         """Converts results to JSON and saves it."""
+        CurveSimResults.remove_null_values(results)
         filename = self.results_directory + "mcmc_results.json"
         try:
             with open(filename, "w", encoding="utf8") as file:

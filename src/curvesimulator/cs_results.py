@@ -70,6 +70,31 @@ class CurveSimResults(dict):
         """Calculate the date of an iteration in BJD"""
         return p.epoch + iteration * p.dt / p.day
 
+    @staticmethod
+    def remove_null_values(obj):
+        """Crawls through self's hierarchy of dictionaries and lists and removes
+        every item whose value is None or NaN. Mutates self in place."""
+
+        def is_null(value):
+            if value is None:
+                return True
+            if isinstance(value, float) and math.isnan(value):
+                return True
+            return False
+
+        def clean(o):
+            if isinstance(o, dict):
+                for key in [k for k, v in o.items() if is_null(v)]:
+                    del o[key]
+                for value in o.values():
+                    clean(value)
+            elif isinstance(o, list):
+                o[:] = [item for item in o if not is_null(item)]
+                for item in o:
+                    clean(item)
+
+        clean(obj)
+
     def results2json(self, p):
         """Converts self to JSON and saves it."""
         filename = p.results_directory + p.result_file
@@ -114,44 +139,7 @@ class CurveSimResults(dict):
 
         self["ProgramParameters"] = p_copy.__dict__
 
-        # # diagnostic helper
-        # def _find_unserializable(obj, _path="self", visited=None, max_depth=1000):
-        #     if visited is None:
-        #         visited = set()
-        #     obj_id = id(obj)
-        #     if obj_id in visited or max_depth <= 0:
-        #         return []
-        #     visited.add(obj_id)
-        #     try:
-        #         json.dumps(obj)
-        #         return []
-        #     except Exception:
-        #         # drill down for containers
-        #         _failures = []
-        #         if isinstance(obj, dict):
-        #             for k, v in obj.items():
-        #                 _failures.extend(_find_unserializable(v, f"{_path}[{repr(k)}]", visited, max_depth - 1))
-        #             if not _failures:
-        #                 _failures.append((_path, type(obj).__name__, "dict contains non-serializable contents"))
-        #         elif isinstance(obj, (list, tuple, set)):
-        #             for i, v in enumerate(obj):
-        #                 _failures.extend(_find_unserializable(v, f"{_path}[{i}]", visited, max_depth - 1))
-        #             if not _failures:
-        #                 _failures.append((_path, type(obj).__name__, f"{type(obj).__name__} contains non-serializable contents"))
-        #         else:
-        #             # leaf non-serializable object
-        #             _failures.append((_path, type(obj).__name__, repr(obj)[:200]))
-        #         return _failures
-        #
-        # # check serialization of self
-        # failures = _find_unserializable(self)
-        # if failures:
-        #     # format a concise message with a few examples
-        #     msg_lines = ["Failed to JSON-serialize `self`. Problematic paths (path, type, sample):"]
-        #     for path, tname, sample in failures[:20]:
-        #         msg_lines.append(f" - {path}: {tname} -> {sample}")
-        #     raise RuntimeError("\n".join(msg_lines))
-
+        CurveSimResults.remove_null_values(self)
         self.results2json(p_copy)
         if p.verbose:
             print(self)
