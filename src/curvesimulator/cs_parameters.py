@@ -446,14 +446,10 @@ class CurveSimParameters:
 
 
 class FittingParameter:
-    def __init__(self, p, body_name, body_index, parameter_name, startvalue, lower, upper, sigma):
+    def __init__(self, p, body_name, body_index, parameter_name, startvalue, lower, upper, sigma, indices=None, constants=None, function=None):
         self.body_name = body_name
         self.body_index = body_index
         self.parameter_name = parameter_name
-
-        # self.unit = p.unit[parameter_name]
-        # self.long_parameter_name = parameter_name + "[" + p.unit[parameter_name] + "]"
-        # self.scale = p.scale[parameter_name]
 
         if parameter_name in p.unit:
             self.unit = p.unit[parameter_name]
@@ -468,6 +464,9 @@ class FittingParameter:
         self.lower = lower
         self.upper = upper
         self.sigma = sigma
+        self.indices = indices      # For derived parameters only. Indices of the fitting parameters to be used in the function.
+        self.constants = constants  # For derived parameters only. Constants to be used in the function.
+        self.function = function    # For derived parameters only. A lambda function, using the above indices and constants as arguments.
 
     def initial_values(self, rng, size):
         result = []
@@ -476,3 +475,13 @@ class FittingParameter:
             if self.lower <= sample <= self.upper:
                 result.append(sample)
         return np.array(result)
+
+    def init_derived_param(self, p, body_name, body_index, parameter_name, indices, constants, function):  # derivedparams
+        derived_param = FittingParameter(p, body_name, body_index, parameter_name, None, None, None, None, indices=indices, constants=constants, function=function)
+        return derived_param
+
+    def calc_derived_param(self, p):
+        base_params = []
+        for i in self.indices:
+            base_params.append(p.fitting_parameters[i])
+

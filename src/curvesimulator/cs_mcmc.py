@@ -485,7 +485,7 @@ class CurveSimMCMC:
         return measured_tt
 
     # @stopwatch()
-    def mcmc_histograms(self, steps_done, bins, plot_filename):
+    def mcmc_histograms_bak(self, steps_done, bins, plot_filename):
         plot_filename = self.results_directory + plot_filename
         fig, axes = plt.subplots(self.ndim, figsize=(10, self.ndim * 2))
         fig.text(0.02, 0.99, f"Histograms, {steps_done} steps after burn-in.", ha="left", va="top", fontsize=14, transform=fig.transFigure)
@@ -493,7 +493,7 @@ class CurveSimMCMC:
         if self.ndim == 1:
             axes = [axes]
         for i, (sample, ax, fp, startvalue) in enumerate(zip(self.scaled_samples.T, axes, self.fitting_parameters, startvalues)):
-            densities, bin_edges, _ = ax.hist(sample, bins=bins, density=True, alpha=0.7, color="xkcd:light blue", edgecolor="xkcd:black")
+            fp.densities, fp.bin_edges, _ = ax.hist(sample, bins=bins, density=True, alpha=0.7, color="xkcd:light blue", edgecolor="xkcd:black")
             ax.axvline(fp.hdi_min, color="xkcd:tree green", linestyle="dashed", label="HDI Lower Bound")
             ax.axvline(fp.mean - fp.std, color="xkcd:warm grey", linestyle="dotted", label="Mean - Std")
             ax.axvline(fp.max_likelihood, color="xkcd:tomato", linestyle="solid", label="Max Likelihood")
@@ -514,6 +514,65 @@ class CurveSimMCMC:
         except:
             print(f"{Fore.RED}\nERROR: Saving histogram plot failed.{Style.RESET_ALL}")
         plt.close(fig)
+
+    def mcmc_histograms(self, steps_done, bins, plot_filename):
+        plot_filename = self.results_directory + plot_filename
+        derived_params = 0  # derivedparams
+        fig, axes = plt.subplots(self.ndim + derived_params, figsize=(10, (self.ndim +derived_params) * 2))
+        fig.text(0.02, 0.99, f"Histograms, {steps_done} steps after burn-in.", ha="left", va="top", fontsize=14, transform=fig.transFigure)
+        startvalues = [fp.startvalue * fp.scale for fp in self.fitting_parameters]
+        if self.ndim == 1:
+            axes = [axes]
+        for i, (sample, ax, fp, startvalue) in enumerate(zip(self.scaled_samples.T, axes, self.fitting_parameters, startvalues)):
+            fp.densities, fp.bin_edges, _ = ax.hist(sample, bins=bins, density=True, alpha=0.7, color="xkcd:light blue", edgecolor="xkcd:black")
+            ax.axvline(fp.hdi_min, color="xkcd:tree green", linestyle="dashed", label="HDI Lower Bound")
+            ax.axvline(fp.mean - fp.std, color="xkcd:warm grey", linestyle="dotted", label="Mean - Std")
+            ax.axvline(fp.max_likelihood, color="xkcd:tomato", linestyle="solid", label="Max Likelihood")
+            ax.axvline(fp.mean, color="xkcd:black", linestyle="solid", label="Mean")
+            ax.axvline(fp.hdi_max, color="xkcd:tree green", linestyle="dashed", label="HDI Upper Bound")
+            ax.axvline(fp.mean + fp.std, color="xkcd:warm grey", linestyle="dotted", label="Mean + Std")
+            ax.axvline(fp.median, color="xkcd:nice blue", linestyle="solid", label="Median")
+            ax.axvline(startvalue, color="xkcd:mango", linestyle="solid", label="Startvalue")
+            ax.set_xlabel(fp.long_body_parameter_name)
+            ax.set_ylabel("Density")
+            ax.ticklabel_format(useOffset=False, style="plain", axis="x")  # show x-labels as they are
+            if i == 0:
+                ax.legend(loc="lower left", bbox_to_anchor=(0.5, 1.02), ncol=3, borderaxespad=0.)
+                # ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1.02), ncol=3, borderaxespad=0.)
+        # densities, bin_edges, samples = self.derived_parameter_histogram(0, 1, lambda x, y: x + y/10, bins, axes[-1])
+        plt.tight_layout()
+        try:
+            plt.savefig(plot_filename)
+        except:
+            print(f"{Fore.RED}\nERROR: Saving histogram plot failed.{Style.RESET_ALL}")
+        plt.close(fig)
+
+    def derived_parameter_histogram(self, param_index_x, param_index_y, func, bins, ax=None):
+        """
+        Compute the histogram of a derived parameter z = func(x, y),
+        where x, y are the raw MCMC samples of two fitting parameters
+        (correlations preserved automatically).
+
+        param_index_x, param_index_y : int
+            Column indices into self.scaled_samples for x and y.
+        func : callable
+            e.g. lambda x, y: x + y
+        bins : int or array-like
+            Passed to np.histogram / ax.hist.
+        ax : matplotlib Axes, optional
+            If given, also plot the histogram there.
+        """
+        x = self.scaled_samples[:, param_index_x]
+        y = self.scaled_samples[:, param_index_y]
+        z = func(x, y)
+
+        if ax is not None:
+            densities, bin_edges, _ = ax.hist(z, bins=bins, density=True, alpha=0.7, color="xkcd:light blue", edgecolor="xkcd:black")
+        else:
+            densities, bin_edges = np.histogram(z, bins=bins, density=True)
+
+        return densities, bin_edges, z
+        # Usage: z1_densities, z1_bin_edges, z1_samples = self.derived_parameter_histogram(ix, iy, lambda x, y: x + y, bins)
 
     # @stopwatch()
     def mcmc_corner_plot(self, steps_done, plot_filename, p):
@@ -777,6 +836,8 @@ class CurveSimMCMC:
     def save_mcmc_results(self, p, bodies, steps_done, measured_tt):
         results = {}
         results["CurveSimulator Documentation"] = "https://github.com/lichtgestalter/curvesimulator/wiki"
+
+        # Simulation Parameters Section
         results["Simulation Parameters"] = {}
         results["Simulation Parameters"]["comment"] = getattr(p, "comment", None)
 
@@ -816,11 +877,14 @@ class CurveSimMCMC:
             results["Simulation Parameters"]["param_json"] = bodies.bodies2param_json(measured_tt, p)
             results["measured_tt_list"] = measured_tt.to_dict(orient="list")  # Convert measured_tt DataFrame to a serializable format
 
+        # Bodies Section
         results["Bodies"] = {}
         params = (["body_type", "primary", "mass", "radius", "luminosity", "rv_offset", "rv_jitter"]
                   + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
                   + ["e", "i", "P", "a", "Omega", "Omega_deg", "omega", "omega_deg", "pomega", "pomega_deg"]
                   + ["L", "L_deg", "ma", "ma_deg", "ea", "ea_deg", "nu", "nu_deg", "T"])
+
+        # write parameters into Bodies Section, but only if it's not a fitting parameter
         fitting_param_tuples = [(fp.body_index, fp.parameter_name) for fp in self.fitting_parameters]
         for i, body in enumerate(bodies):
             results["Bodies"][body.name] = {}
@@ -830,14 +894,20 @@ class CurveSimMCMC:
                     if attr is not None:
                         results["Bodies"][body.name][key] = attr
 
+        # Fitting Parameters Section
         fitting_parameters = copy.deepcopy(p.fitting_parameters)
         for fp in fitting_parameters:
             fp.startvalue *= fp.scale
             fp.lower *= fp.scale
             fp.upper *= fp.scale
             fp.sigma *= fp.scale
+            for name in ("densities", "bin_edges"):  # List names of list-attributes here, in order to convert them to something JSON can understand
+                if hasattr(fp, name):
+                    orig = getattr(fp, name)
+                    fp.__dict__[name] = [float(i) for i in orig]
         results["Fitting Parameters"] = {fp.body_parameter_name: fp.__dict__ for fp in fitting_parameters}
 
+        # ProgramParameters Section
         p_copy = copy.deepcopy(p)
         to_remove = [
             "fitting_parameters", "standard_sections", "eclipsers", "eclipsees",
@@ -856,6 +926,7 @@ class CurveSimMCMC:
                 p_copy.__dict__[name] = [float(i) for i in orig]
 
         results["ProgramParameters"] = p_copy.__dict__
+
         self.mcmc_results2json(results, p)
 
     def mcmc_results2json(self, results, p):
