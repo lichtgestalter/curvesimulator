@@ -2,11 +2,11 @@
     "CurveSimulator Documentation": "https://github.com/lichtgestalter/curvesimulator/wiki",
     "Simulation Parameters": {
         "comment": "No comment",
-        "start_realtime": "22.08.26 09:13:27 [DD.MM.YY hh:mm:ss]",
-        "end_realtime": "22.08.26 09:14:02 [DD.MM.YY hh:mm:ss]",
-        "run_time": "00:00:00:35 [dd:hh:mm:ss]",
-        "run_time_per_iteration": "0.035 [s]",
-        "simulations_per_second": "921 [iterations*walkers/runtime]",
+        "start_realtime": "22.08.26 13:10:26 [DD.MM.YY hh:mm:ss]",
+        "end_realtime": "22.08.26 13:10:59 [DD.MM.YY hh:mm:ss]",
+        "run_time": "00:00:00:33 [dd:hh:mm:ss]",
+        "run_time_per_iteration": "0.033 [s]",
+        "simulations_per_second": "963 [iterations*walkers/runtime]",
         "results_directory": "./0000/",
         "epoch": 2460000,
         "default_dt": 5000,
@@ -18,9 +18,9 @@
         "thin_samples": 10,
         "tt_file": "tt.csv",
         "tt_data_points": 2,
-        "mean_delta": 9.092874825000763e-05,
-        "max_delta": 0.00017201295122504234,
-        "param_json": "{\"max_delta\": 0.00017201295122504234, \"mean_delta\": 9.092874825000763e-05, \"SomeStar\": {\"body_type\": \"star\", \"mass\": 1047.5971914594015, \"radius\": 9.73115873104683, \"luminosity\": 3.828e+26, \"limb_darkening_u1\": 0.45, \"limb_darkening_u2\": 0.23, \"mean_intensity\": 0.8116668553772325, \"intensity\": 251754968.1428863}, \"InnerPlanet\": {\"body_type\": \"planet\", \"mass\": 0.009438790266982473, \"radius\": 0.133822001063056, \"luminosity\": 0.0, \"intensity\": 0.0, \"e\": 0.0, \"i\": 89.0, \"a\": 0.09999999999999999, \"Omega\": 0.0, \"omega\": 0.0, \"ma\": 5.871644322380777}, \"OuterPlanet\": {\"body_type\": \"planet\", \"mass\": 0.003146263422327491, \"radius\": 0.08921466737537066, \"luminosity\": 0.0, \"intensity\": 0.0, \"e\": 0.045, \"i\": 90.2, \"a\": 0.9999999999999999, \"Omega\": 0.0, \"omega\": 0.0, \"ma\": 82.0016013815083}}"
+        "mean_delta": 0.00010965066030621529,
+        "max_delta": 0.00016707135364413261,
+        "param_json": "{\"max_delta\": 0.00016707135364413261, \"mean_delta\": 0.00010965066030621529, \"SomeStar\": {\"body_type\": \"star\", \"mass\": 1047.5971914594015, \"radius\": 9.73115873104683, \"luminosity\": 3.828e+26, \"limb_darkening_u1\": 0.45, \"limb_darkening_u2\": 0.23, \"mean_intensity\": 0.8116668553772325, \"intensity\": 251754968.1428863}, \"InnerPlanet\": {\"body_type\": \"planet\", \"mass\": 0.009438790266982473, \"radius\": 0.133822001063056, \"luminosity\": 0.0, \"intensity\": 0.0, \"e\": 0.0, \"i\": 89.0, \"a\": 0.09999999999999999, \"Omega\": 0.0, \"omega\": 0.0, \"ma\": 5.882039306877121}, \"OuterPlanet\": {\"body_type\": \"planet\", \"mass\": 0.003146263422327491, \"radius\": 0.08921466737537066, \"luminosity\": 0.0, \"intensity\": 0.0, \"e\": 0.045, \"i\": 90.2, \"a\": 0.9999999999999999, \"Omega\": 0.0, \"omega\": 0.0, \"ma\": 82.00163712096062}}"
     },
     "measured_tt_list": {
         "eclipser": [
@@ -40,24 +40,20 @@
             0
         ],
         "nearest_sim": [
-            2460002.699172013,
-            2460002.884990155
+            2460002.6988329287,
+            2460002.88494777
         ],
         "delta": [
-            0.00017201295122504234,
-            -9.844545274972916e-06
+            -0.00016707135364413261,
+            -5.222996696829796e-05
         ],
         "step_100": [
-            0.00038394052535295486,
-            -6.635859608650208e-05
+            -0.00016707135364413261,
+            0.00023033982142806053
         ],
         "step_200": [
-            -8.230051025748253e-05,
-            -0.00013700127601623535
-        ],
-        "step_500": [
-            0.00017201295122504234,
-            -9.844545274972916e-06
+            -0.00016707135364413261,
+            -5.222996696829796e-05
         ]
     },
     "Bodies": {
@@ -115,12 +111,12 @@
             "index": 0,
             "body_parameter_name": "InnerPlanet.ma",
             "long_body_parameter_name": "InnerPlanet.ma [deg]",
-            "hdi_min": 5.695427392803406,
-            "hdi_max": 6.0406464803136535,
-            "std": 0.34328626186550026,
-            "mean": 5.877545561838944,
-            "median": 5.876877313518563,
-            "max_likelihood": 5.871644322380777
+            "hdi_min": 5.7099452180822965,
+            "hdi_max": 6.021256567345932,
+            "std": 0.20646914414248338,
+            "mean": 5.8705075024301525,
+            "median": 5.873473839554439,
+            "max_likelihood": 5.882039306877121
         },
         "OuterPlanet.ma": {
             "body_name": "OuterPlanet",
@@ -136,12 +132,12 @@
             "index": 1,
             "body_parameter_name": "OuterPlanet.ma",
             "long_body_parameter_name": "OuterPlanet.ma [deg]",
-            "hdi_min": 81.99747451262928,
-            "hdi_max": 82.00582777259622,
-            "std": 17.267408999232632,
-            "mean": 81.85762562762771,
-            "median": 82.0015289684612,
-            "max_likelihood": 82.0016013815083
+            "hdi_min": 81.99796899016926,
+            "hdi_max": 82.0050912196752,
+            "std": 11.228315177137858,
+            "mean": 81.27642797234027,
+            "median": 82.00150494676446,
+            "max_likelihood": 82.00163712096062
         }
     },
     "ProgramParameters": {

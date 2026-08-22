@@ -199,7 +199,8 @@ class CurveSimMCMC:
             measured_tt = CurveSimResults.get_measured_tt(p)
             residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, time_d, time_s0)
             measured_tt = results.calc_tt_chi_squared(measured_tt, p.free_parameters)  # store chi squared and p-value in results
-            CurveSimMCMC.tt_delta_plot(p, 0, "tt_o_vs_c.png", measured_tt)  # compare observed vs. computed TT
+            if p.action != "mcmc":
+                CurveSimMCMC.tt_delta_plot(p, 0, "tt_o_vs_c.png", measured_tt)  # compare observed vs. computed TT
         else:
             measured_tt = None
         if p.rv_file:
