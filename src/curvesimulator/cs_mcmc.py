@@ -539,7 +539,7 @@ class CurveSimMCMC:
             if i == 0:
                 ax.legend(loc="lower left", bbox_to_anchor=(0.5, 1.02), ncol=3, borderaxespad=0.)
                 # ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1.02), ncol=3, borderaxespad=0.)
-        # densities, bin_edges, samples = self.derived_parameter_histogram(0, 1, lambda x, y: x + y/10, bins, axes[-1])
+        # densities, bin_edges, samples = self.derived_parameter_histogram(0, 1, lambda x, y: x + y/10, bins, axes[-1])   # derivedparams
         plt.tight_layout()
         try:
             plt.savefig(plot_filename)

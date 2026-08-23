@@ -11,20 +11,17 @@ with open(readme_path, "r", encoding="utf-8") as fh:
 
 setup(
     name="curvesimulator",
-    version="0.6.2",
+    version="0.6.2.1",
     packages=find_packages(),
     install_requires=[
         # List your dependencies here
         "colorama",           # prints colored text in console
         "configparser",       # reads config file
         "corner",             # generates corner plot for mcmc results
-        "emcee",              # Markov chain Monte Carlo
-        # "json",              commented out because it is a standard lib
+        "emcee",              # Markov Chain Monte Carlo
         "lightkurve",         # TESS light-curve download/processing
         "lmfit",              # local minimization fits
-        # "matplotlib",       # plots
         "matplotlib==3.10.0",  # plots
-        # "multiprocessing",   commented out because it is a standard lib
         "numpy",              # numerical (vector) operations
         # "numpy>=1.5,<2.3",    example showing how to constrain versions
         "pandas",             # tabular flux / TT / RV data

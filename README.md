@@ -18,19 +18,20 @@ If _CurveSimulator_ could be useful for your next research project feel
 free to reach out to us. Let’s analyze your system together. Help shape the 
 next version of CurveSimulator with your feedback.   
 
-### Fast and easy to use
+
+### Easy to use
 
 Just run five lines of Python code that never need to change.   
 Everything else is controlled through one user-friendly configuration file.   
 The software is continuously developed and improved.   
 
 
-### Robust and Fast Planetary System Parameter Estimation
+### Fast and Robust Planetary System Parameter Estimation
 
 _CurveSimulator_ determines orbital parameters of exoplanet systems using 
-n-Body simulations (rebound package).
+n-body simulations (rebound package).
 
-Markov Chain Monte Carlo (MCMC) sampler build the parameter 
+Markov Chain Monte Carlo (MCMC) samplers build the parameter 
 posteriors and obtain parameter uncertainties (emcee package).
 
 _CurveSimulator_ can process different types of observations: Flux, 
@@ -49,12 +50,13 @@ observed transit times (LMfit package).
 * Plots, e.g. parameter histograms, observed vs. computed data, sampling 
   diagnostics. 
 
+
 #### Performance Example
-* Let's fit 50 parameters using 20000 flux data points and integrate 3 
-  body movements over 7 years.
-* Then 5000 iterations of 100 MCMC Walkers on an average Windows PC take 
+* The task: Fit 50 parameters using 20000 flux data points and integrate the 
+  movements of 3 bodies over 7 years with a time step of 75000 seconds.
+* 5000 iterations of 100 MCMC Walkers on an average Windows PC take 
   under 3 hours.
-* That's 45 simulation runs per second.
+* That corresponds to 45 simulation runs per second.
 
 
 ### Videos of planetary systems
