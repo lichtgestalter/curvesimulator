@@ -818,7 +818,7 @@ class CurveSimMCMC:
 
         results["Simulation Parameters"]["results_directory"] = self.results_directory
         results["Simulation Parameters"]["epoch"] = p.epoch
-        results["Simulation Parameters"]["default_dt"] = p.dt
+        results["Simulation Parameters"]["dt"] = p.dt
         results["Simulation Parameters"]["flux_data_points"] = getattr(p, "iterations", None)
         results["Simulation Parameters"]["walkers"] = self.walkers
         results["Simulation Parameters"]["burn_in_steps"] = self.burn_in

@@ -4,6 +4,7 @@ import configparser
 import json
 import numpy as np
 import os
+from pathlib import PurePath
 import random
 import shutil
 import sys
@@ -49,6 +50,12 @@ class CurveSimParameters:
         self.r_jup, self.m_jup, self.r_nep, self.m_nep, self.r_earth, self.m_earth = r_jup, m_jup, r_nep, m_nep, r_earth, m_earth
         self.hour, self.day, self.year, self.rad2deg = hour, day, year, rad2deg
 
+        # [Results]
+        self.results_directory = config.get("Results", "results_directory", fallback=".")
+        self.results_directory = self.find_results_subdirectory()
+        self.result_file = "standard_results.json"
+        self.result_file = CurveSimParameters.check_filename_and_add_path(self.result_file, "result_file", self.results_directory)
+
         # [Simulation]
         self.action = config.get("Simulation", "action", fallback="None")
         self.jacobi_masses = eval(config.get("Simulation", "jacobi_masses", fallback="True"))
@@ -58,6 +65,7 @@ class CurveSimParameters:
         self.sim_start = eval(config.get("Simulation", "sim_start", fallback="None"))
         self.sim_end = eval(config.get("Simulation", "sim_end", fallback="None"))
         self.sim_flux_file = config.get("Simulation", "sim_flux_file", fallback=None)
+        self.sim_flux_file = CurveSimParameters.check_filename_and_add_path(self.sim_flux_file, "sim_flux_file", self.results_directory)
         self.iterations = self.check_sim_interval()
         self.sim_flux_err = eval(config.get("Simulation", "sim_flux_err", fallback="0.0"))
         self.rv_body = config.get("Simulation", "rv_body", fallback=None)
@@ -67,9 +75,6 @@ class CurveSimParameters:
         self.verbose = eval(config.get("Results", "verbose", fallback="False"))
         self.transit_precision = eval(config.get("Results", "transit_precision", fallback="1"))
         self.flux_data_directory = config.get("Results", "flux_data_directory", fallback=".")
-        self.results_directory = config.get("Results", "results_directory", fallback=".")
-        self.result_file = "standard_results.json"
-        self.find_results_subdirectory()
         self.copy_config_file()
         self.max_interval_extensions = eval(config.get("Results", "max_interval_extensions", fallback="10"))
         default_unit = '{"mass": "m_jup", "radius": "r_jup", "e": "1", "i": "deg", "P": "d", "a": "AU", "Omega": "deg", "omega": "deg", "pomega": "deg", "L": "deg", "ma": "deg", "ea": "deg", "nu": "deg", "T": "s"}'
@@ -114,6 +119,7 @@ class CurveSimParameters:
         self.tt_weight = int(eval(config.get("Fitting", "tt_weight", fallback="1")))
         self.rv_weight = int(eval(config.get("Fitting", "rv_weight", fallback="1")))
         self.backend = config.get("Fitting", "backend", fallback=None)  # e.g. emcee_backend.h5
+        self.backend = CurveSimParameters.check_filename_and_add_path(self.backend, "backend", self.results_directory)
         self.load_backend = eval(config.get("Fitting", "load_backend", fallback="False"))
         self.walkers = int(eval(config.get("Fitting", "walkers", fallback="32")))
         self.steps = int(eval(config.get("Fitting", "steps", fallback="10000")))
@@ -129,6 +135,7 @@ class CurveSimParameters:
 
         # [Video]
         self.video_file = config.get("Video", "video_file", fallback=None)
+        self.video_file = CurveSimParameters.check_filename_and_add_path(self.video_file, "video_file", self.results_directory)
         self.frames = eval(config.get("Video", "frames", fallback="150"))
         self.fps = eval(config.get("Video", "fps", fallback="30"))
         self.clockwise = eval(config.get("Video", "clockwise", fallback="False"))
@@ -180,6 +187,16 @@ class CurveSimParameters:
             print(f"{Fore.RED}\nBody names must be pure ASCII, no leading number, no spaces, no dashes.{Style.RESET_ALL}")
             sys.exit(1)
         return True
+
+    @staticmethod
+    def check_filename_and_add_path(filename, parameter_name, results_directory):
+        if filename is None:
+            return None
+        if PurePath(filename).name != filename:
+            print(f"{Fore.RED}\nERROR: Parameter {parameter_name} has value {filename} but must be a legal filename and must not contain a path.{Style.RESET_ALL}")
+            sys.exit(1)
+        return results_directory + filename
+
 
     def find_mandatory_parameters(self):
         mandatory_list = ["g", "au", "l_sun", "r_sun", "m_sun", "r_jup", "m_jup", "r_nep", "m_nep", "r_earth", "m_earth", "hour", "day", "year", "rad2deg"]  # astronomical_units
@@ -385,6 +402,7 @@ class CurveSimParameters:
             next_subdirectory += 1
         self.results_directory = self.results_directory + f"/{next_subdirectory:04d}/"
         os.makedirs(self.results_directory)
+        return self.results_directory
 
     def copy_config_file(self):
         """Copy the file self.config_file into the directory self.results_directory"""
