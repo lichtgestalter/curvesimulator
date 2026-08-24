@@ -14,12 +14,10 @@ import os
 import sys
 import time
 
-# from curvesimulator.cs_flux_data import csv2df
 from .cs_animation import CurveSimAnimation
 from .cs_parameters import CurveSimParameters
 from .cs_results import CurveSimResults
 from curvesimulator.cs_bodies import CurveSimBodies
-# from curvesimulator.curvesim import CurveSimulator  circular import!
 
 
 def stopwatch():

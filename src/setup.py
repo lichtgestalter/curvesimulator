@@ -11,7 +11,7 @@ with open(readme_path, "r", encoding="utf-8") as fh:
 
 setup(
     name="curvesimulator",
-    version="0.6.3",
+    version="0.6.3.1",
     packages=find_packages(),
     install_requires=[
         # List your dependencies here
@@ -19,13 +19,13 @@ setup(
         "configparser",       # reads config file
         "corner",             # generates corner plot for mcmc results
         "emcee",              # Markov Chain Monte Carlo
-        "lightkurve",         # TESS light-curve download/processing
+        # "lightkurve",         # TESS light-curve download/processing
         "lmfit",              # local minimization fits
         "matplotlib==3.10.0",  # plots
         "numpy",              # numerical (vector) operations
         # "numpy>=1.5,<2.3",    example showing how to constrain versions
         "pandas",             # tabular flux / TT / RV data
-        "rebound",            # N-body integration
+        "rebound>=5.1.1",     # N-body integration
         # "rebound @ https://github.com/hannorein/rebound/archive/refs/tags/5.1.0.tar.gz",  # PyPI sdist is incomplete for Windows/Python 3.13; GitHub release archive includes missing assembly source
         "scipy",              # statistics and optimization helpers
     ],

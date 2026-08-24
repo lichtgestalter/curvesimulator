@@ -6,14 +6,12 @@ import sys
 import time
 import warnings
 
-# from .cs_animation import CurveSimAnimation
 from .cs_bodies import CurveSimBodies
-# from .cs_body import CurveSimBody
 from .cs_parameters import CurveSimParameters
 from .cs_mcmc import CurveSimMCMC, CurveSimLMfit
 from .cs_manual_fit import CurveSimManualFit
 from .cs_results import CurveSimResults
-from .cs_flux_data import CurveSimFluxData
+# from .cs_flux_data import CurveSimFluxData
 
 
 def _lmfit_worker_queue(task_queue, result_queue):
@@ -150,10 +148,10 @@ class CurveSimulator:
             # CurveSimResults.ttv_to_date_plot(p, amplitude=2.08, period=965, x_offset=-449, osc_per=82.834)
             # CurveSimResults.ttv_to_date_plot(p, amplitude=2.0, period=946.5, x_offset=-393, osc_per=82.5438)
             sys.exit(0)
-        elif p.action == "get_tess_data":
-            CurveSimFluxData.get_tess_flux(p)
-        elif p.action == "process_tess_data":
-            CurveSimFluxData.process_tess_flux(p)
+        # elif p.action == "get_tess_data":
+        #     CurveSimFluxData.get_tess_flux(p)
+        # elif p.action == "process_tess_data":
+        #     CurveSimFluxData.process_tess_flux(p)
         else:
             print(f"{Fore.RED}\nERROR: Invalid value for parameter <action> in configuration file {Style.RESET_ALL}")
             sys.exit(1)
