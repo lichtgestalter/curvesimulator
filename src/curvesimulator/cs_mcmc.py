@@ -483,36 +483,6 @@ class CurveSimMCMC:
         return measured_tt
 
     # @stopwatch()
-    def mcmc_histograms_bak(self, steps_done, bins, plot_filename):
-        plot_filename = self.results_directory + plot_filename
-        fig, axes = plt.subplots(self.ndim, figsize=(10, self.ndim * 2))
-        fig.text(0.02, 0.99, f"Histograms, {steps_done} steps after burn-in.", ha="left", va="top", fontsize=14, transform=fig.transFigure)
-        startvalues = [fp.startvalue * fp.scale for fp in self.fitting_parameters]
-        if self.ndim == 1:
-            axes = [axes]
-        for i, (sample, ax, fp, startvalue) in enumerate(zip(self.scaled_samples.T, axes, self.fitting_parameters, startvalues)):
-            fp.densities, fp.bin_edges, _ = ax.hist(sample, bins=bins, density=True, alpha=0.7, color="xkcd:light blue", edgecolor="xkcd:black")
-            ax.axvline(fp.hdi_min, color="xkcd:tree green", linestyle="dashed", label="HDI Lower Bound")
-            ax.axvline(fp.mean - fp.std, color="xkcd:warm grey", linestyle="dotted", label="Mean - Std")
-            ax.axvline(fp.max_likelihood, color="xkcd:tomato", linestyle="solid", label="Max Likelihood")
-            ax.axvline(fp.mean, color="xkcd:black", linestyle="solid", label="Mean")
-            ax.axvline(fp.hdi_max, color="xkcd:tree green", linestyle="dashed", label="HDI Upper Bound")
-            ax.axvline(fp.mean + fp.std, color="xkcd:warm grey", linestyle="dotted", label="Mean + Std")
-            ax.axvline(fp.median, color="xkcd:nice blue", linestyle="solid", label="Median")
-            ax.axvline(startvalue, color="xkcd:mango", linestyle="solid", label="Startvalue")
-            ax.set_xlabel(fp.long_body_parameter_name)
-            ax.set_ylabel("Density")
-            ax.ticklabel_format(useOffset=False, style="plain", axis="x")  # show x-labels as they are
-            if i == 0:
-                ax.legend(loc="lower left", bbox_to_anchor=(0.5, 1.02), ncol=3, borderaxespad=0.)
-                # ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1.02), ncol=3, borderaxespad=0.)
-        plt.tight_layout()
-        try:
-            plt.savefig(plot_filename)
-        except:
-            print(f"{Fore.RED}\nERROR: Saving histogram plot failed.{Style.RESET_ALL}")
-        plt.close(fig)
-
     def mcmc_histograms(self, steps_done, bins, plot_filename):
         plot_filename = self.results_directory + plot_filename
         derived_params = 0  # derivedparams
