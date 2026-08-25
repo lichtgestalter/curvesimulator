@@ -18,6 +18,7 @@ setup(
         "configparser",         # reads config file
         "corner",               # generates corner plot for mcmc results
         "emcee",                # Markov Chain Monte Carlo
+        "h5py",                 # emcee backend
         "lmfit",                # local minimization fits
         "matplotlib",           # plots
         "numpy",                # numerical (vector) operations
