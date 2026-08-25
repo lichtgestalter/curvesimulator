@@ -280,6 +280,7 @@ class CurveSimBodies(list):
                 for c in body.color:
                     if c < 0 or c > 1 or len(body.color) != 3:
                         print(f"{Fore.RED}\nERROR in config file: {body.name} has invalid or missing color value.")
+                        print(f"{Fore.RED}\nMust be exactly 3 values, separated by comma, but {body.color=} .")
                         sys.exit(1)
             # if body.velocity is None:
             #     if body.e < 0:

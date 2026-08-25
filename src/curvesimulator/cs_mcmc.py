@@ -141,7 +141,6 @@ class CurveSimMCMC:
         self.autocorrelation_function_plot_ok = True
         self.acceptance_plot_ok = True
 
-
         if p.backend:
             self.backend = emcee.backends.HDFBackend(p.backend)
             if p.load_backend:
@@ -160,6 +159,7 @@ class CurveSimMCMC:
             self.backend = None
             steps_done, self.loaded_steps = 0, 0
 
+
         if p.mcmc_multi_processing:
             with Pool() as pool:  # enable multi processing
                 self.mcmc_fit(p, bodies, time_s0, time_d, flux_corr, flux_total_err, measured_flux, measured_tt, steps_done, pool)
@@ -171,7 +171,7 @@ class CurveSimMCMC:
         if not p.load_backend:
             self.theta = self.sampler.run_mcmc(self.theta0, self.burn_in, progress=True)
         else:
-            self.theta = self.theta0.copy()
+            self.theta = self.backend.get_last_sample()  # resume from the last walker positions stored in the backend
         for chunk in range(1, self.steps // self.chunk_size + 1):
             self.theta = self.sampler.run_mcmc(self.theta, self.chunk_size, progress=True)
             steps_done += self.chunk_size
@@ -408,7 +408,7 @@ class CurveSimMCMC:
             try:
                 plot_filename = self.results_directory + plot_filename
                 fig, axes = plt.subplots(self.ndim, figsize=(10, self.ndim * 2), sharex=True)
-                fig.text(0.1, 0.99, f"Traces after {steps_done} steps", ha="left", va="top", fontsize=14, transform=fig.transFigure)
+                fig.text(0.1, 0.99, f"Traces, {steps_done} steps after burn-in.", ha="left", va="top", fontsize=14, transform=fig.transFigure)
                 plt.subplots_adjust(top=0.975)
                 if self.ndim == 1:
                     axes = [axes]

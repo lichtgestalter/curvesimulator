@@ -126,6 +126,7 @@
         "flux_weight": 1,
         "tt_weight": 1,
         "rv_weight": 1,
+        "backend": "backend.h5",
         "load_backend": false,
         "walkers": 32,
         "steps": 100000000,
@@ -210,8 +211,8 @@
                 "Omega_deg": 0.0,
                 "omega": 0.0,
                 "omega_deg": 0.0,
-                "ma": 0.06804958706866439,
-                "ma_deg": 3.8989541366424927
+                "ma": 0.063389169889678,
+                "ma_deg": 3.631931901516307
             },
             "Transits": []
         },
@@ -237,22 +238,22 @@
                 "Omega_deg": 0.0,
                 "omega": 0.0,
                 "omega_deg": 0.0,
-                "ma": 1.5626335522700059,
-                "ma_deg": 89.53230747060685
+                "ma": 1.2045065042986411,
+                "ma_deg": 69.01313909236849
             },
             "Transits": []
         }
     },
     "Fit": {
-        "chi_squared_flux": 307.8472184563393,
-        "chi_squared_total": 307.8472184563393,
+        "chi_squared_flux": 308.3133717262681,
+        "chi_squared_total": 308.3133717262681,
         "measurements_tt": 0,
         "measurements_rv": 0,
         "measurements_flux": 346,
         "measurements_total": 346,
-        "pvalue_flux": 0.8625874992886216,
-        "pvalue_total": 0.8625874992886216,
-        "log_norm_term_flux": -4755.505194417559,
-        "log_maxlikelihood_flux": 2223.82898798061
+        "pvalue_flux": 0.858356516561008,
+        "pvalue_total": 0.858356516561008,
+        "log_norm_term_flux": -4755.481113117795,
+        "log_maxlikelihood_flux": 2223.5838706957634
     }
 }

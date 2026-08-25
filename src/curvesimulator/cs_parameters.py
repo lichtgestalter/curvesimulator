@@ -107,19 +107,18 @@ class CurveSimParameters:
         self.ls_chunk_size = int(eval(config.get("Fitting", "ls_chunk_size", fallback="1000")))
         self.ls_steps = int(eval(config.get("Fitting", "ls_steps", fallback="10000")))
         ls_thresholds = config.get("Fitting", "ls_thresholds", fallback=None)
-        if ls_thresholds is not None:
+        if ls_thresholds is None:
+            self.ls_thresholds = (1.0, 0.1, 0.01, 0.001, 0.0001)
+        else:
             self.ls_thresholds = tuple([ast.literal_eval(x) for x in ls_thresholds.split(",")])
             if len(self.ls_thresholds) != 5:
-                print(f"{Fore.RED}\nERROR: Parameter ls_thresholds must have exactly 5 items, but {self.ls_thresholds=}{Style.RESET_ALL}")
+                print(f"{Fore.RED}\nERROR: Parameter ls_thresholds must have exactly 5 items, separated by comma, but {self.ls_thresholds=}{Style.RESET_ALL}")
                 sys.exit(1)
-        else:
-            self.ls_thresholds = (1.0, 0.1, 0.01, 0.001, 0.0001)
         self.ls_max_tt_delta = eval(config.get("Fitting", "ls_max_tt_delta", fallback="1/(24*60*60)"))
         self.flux_weight = int(eval(config.get("Fitting", "flux_weight", fallback="1")))
         self.tt_weight = int(eval(config.get("Fitting", "tt_weight", fallback="1")))
         self.rv_weight = int(eval(config.get("Fitting", "rv_weight", fallback="1")))
         self.backend = config.get("Fitting", "backend", fallback=None)  # e.g. emcee_backend.h5
-        self.backend = CurveSimParameters.check_filename_and_add_path(self.backend, "backend", self.results_directory)
         self.load_backend = eval(config.get("Fitting", "load_backend", fallback="False"))
         self.walkers = int(eval(config.get("Fitting", "walkers", fallback="32")))
         self.steps = int(eval(config.get("Fitting", "steps", fallback="10000")))
