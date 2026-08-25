@@ -26,7 +26,6 @@ setup(
         "rebound>=5.1.1",       # N-body integration
         "scipy",                # statistics and optimization helpers
         "tqdm",                 # emcee progression bar
-        # "matplotlib==3.10.0",   # plots
         # "numpy>=1.5,<2.3",      # example showing how to constrain versions
         # "lightkurve",           # TESS light-curve download/processing
     ],
@@ -38,6 +37,7 @@ setup(
     classifiers=[
         "Programming Language :: Python :: 3.12",
         "Programming Language :: Python :: 3.13",
+        "Programming Language :: Python :: 3.14",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
