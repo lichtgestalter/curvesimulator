@@ -230,7 +230,7 @@ class CurveSimResults(dict):
         n_parameters :   Number of free parameters in the model
         """
         degrees_of_freedom = n_measurements - n_parameters
-        p_value = 1 - stats.chi2.cdf(chi_squared, degrees_of_freedom)  # cumulative distribution function
+        p_value = stats.chi2.sf(chi_squared, degrees_of_freedom)  # survival function = 1 - cumulative distribution function
         return p_value
 
     @staticmethod

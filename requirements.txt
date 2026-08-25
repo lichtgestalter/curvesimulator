@@ -1,0 +1,16 @@
+# To start with a clean slate (get rid of unnecessary packages)
+# Clone repo into new pycharm project
+# If necessary, update requirements.txt from setup.py
+# pip install -r requirements.txt
+
+colorama             # prints colored text in console
+configparser         # reads config file
+corner               # generates corner plot for mcmc results
+emcee                # Markov Chain Monte Carlo
+lmfit                # local minimization fits
+matplotlib           # plots
+numpy                # numerical (vector) operations
+pandas               # tabular flux / TT / RV data
+rebound>=5.1.1       # N-body integration
+scipy                # statistics and optimization helpers
+tqdm                 # emcee progression bar
