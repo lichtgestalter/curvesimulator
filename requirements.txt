@@ -2,6 +2,8 @@
 # Clone repo into new pycharm project
 # If necessary, update requirements.txt from setup.py
 # pip install -r requirements.txt
+# Developers also need these packages:
+    # twine
 
 colorama             # prints colored text in console
 configparser         # reads config file
