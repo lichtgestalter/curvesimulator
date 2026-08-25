@@ -42,6 +42,8 @@
         "day": 86400,
         "year": 31556925.216,
         "rad2deg": 57.29577951308232,
+        "results_directory": "./0000/",
+        "result_file": "./0000/standard_results.json",
         "action": "mcmc",
         "jacobi_masses": true,
         "rebound_warnings": true,
@@ -57,8 +59,6 @@
         "verbose": false,
         "transit_precision": 1,
         "flux_data_directory": ".",
-        "results_directory": "./0000/",
-        "result_file": "standard_results.json",
         "max_interval_extensions": 10,
         "unit": {
             "mass": "m_jup",
@@ -210,8 +210,8 @@
                 "Omega_deg": 0.0,
                 "omega": 0.0,
                 "omega_deg": 0.0,
-                "ma": 0.06636274199782755,
-                "ma_deg": 3.8023050333910953
+                "ma": 0.06804958706866439,
+                "ma_deg": 3.8989541366424927
             },
             "Transits": []
         },
@@ -237,22 +237,22 @@
                 "Omega_deg": 0.0,
                 "omega": 0.0,
                 "omega_deg": 0.0,
-                "ma": 1.9397116092407005,
-                "ma_deg": 111.13728868202128
+                "ma": 1.5626335522700059,
+                "ma_deg": 89.53230747060685
             },
             "Transits": []
         }
     },
     "Fit": {
-        "chi_squared_flux": 307.50626195063535,
-        "chi_squared_total": 307.50626195063535,
+        "chi_squared_flux": 307.8472184563393,
+        "chi_squared_total": 307.8472184563393,
         "measurements_tt": 0,
         "measurements_rv": 0,
         "measurements_flux": 346,
         "measurements_total": 346,
-        "pvalue_flux": 0.865629621662077,
-        "pvalue_total": 0.865629621662077,
-        "log_norm_term_flux": -4754.976213845358,
-        "log_maxlikelihood_flux": 2223.7349759473614
+        "pvalue_flux": 0.8625874992886216,
+        "pvalue_total": 0.8625874992886216,
+        "log_norm_term_flux": -4755.505194417559,
+        "log_maxlikelihood_flux": 2223.82898798061
     }
 }

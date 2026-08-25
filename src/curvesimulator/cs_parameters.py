@@ -197,7 +197,6 @@ class CurveSimParameters:
             sys.exit(1)
         return results_directory + filename
 
-
     def find_mandatory_parameters(self):
         mandatory_list = ["g", "au", "l_sun", "r_sun", "m_sun", "r_jup", "m_jup", "r_nep", "m_nep", "r_earth", "m_earth", "hour", "day", "year", "rad2deg"]  # astronomical_units
         mandatory_list += ["action"]
