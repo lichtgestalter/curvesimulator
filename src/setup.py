@@ -11,7 +11,7 @@ with open(readme_path, "r", encoding="utf-8") as fh:
 
 setup(
     name="curvesimulator",
-    version="0.6.3.2",
+    version="0.6.4",
     packages=find_packages(),
     install_requires=[
         "colorama",             # prints colored text in console
