@@ -2,21 +2,22 @@
 # Clone repo into new pycharm project
 # If necessary, update requirements.txt from setup.py
 # pip install -r requirements.txt
-# Developers also need these packages:
-    # twine
 
 colorama             # prints colored text in console
 configparser         # reads config file
 corner               # generates corner plot for mcmc results
 emcee                # Markov Chain Monte Carlo
+h5py                # emcee backend
 lmfit                # local minimization fits
 matplotlib          # plots
 numpy                # numerical (vector) operations
 pandas               # tabular flux / TT / RV data
-pandas-stubs  # # devs only (helps debugging)
 rebound>=5.1.1       # N-body integration
-#setuptools          # devs only (making the package)
 scipy                # statistics and optimization helpers
-scipy-stubs         # devs only (helps debugging)
 tqdm                 # emcee progression bar
-h5py                # emcee backend
+
+# For developers only:
+build                # making the package
+pandas-stubs  # helps debugging
+scipy-stubs         # helps debugging
+twine                 # making the package

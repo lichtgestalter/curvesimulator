@@ -384,7 +384,6 @@ class CurveSimParameters:
             json.dump(payload, fh, indent=2, ensure_ascii=False)
 
         print(f"CurveSimParameters.save_fitting_parameters: saved {len(data)} entries to {filename}")
-        # exit(88)
 
     def find_results_subdirectory(self):
         """Find the name of the non-existing subdirectory with

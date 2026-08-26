@@ -127,7 +127,6 @@ class CurveSimulator:
             # bodies.save(p, "vorne_", "_hinten")
             # new_body = CurveSimBody.load("vorne_TOI4504d_hinten.bdy")
             # new_body.save("abc__")
-            # exit(1)
             bodies, sim_flux, results = CurveSimMCMC.single_run(p, bodies)
             self.bodies = bodies  # grants access from the executed script by making it an attribute of the CurveSimulator object
             self.sim_flux = sim_flux  # grants access from the executed script by making it an attribute of the CurveSimulator object
