@@ -15,7 +15,7 @@ numpy                # numerical (vector) operations
 pandas               # tabular flux / TT / RV data
 pandas-stubs  # # devs only (helps debugging)
 rebound>=5.1.1       # N-body integration
-setuptools          # devs only (making the package)
+#setuptools          # devs only (making the package)
 scipy                # statistics and optimization helpers
 scipy-stubs         # devs only (helps debugging)
 tqdm                 # emcee progression bar

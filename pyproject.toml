@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "curvesimulator"
+version = "0.6.4.1"
+description = "CurveSimulator is a n-body library for orbital parameter determination and visualization of exoplanet systems."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [
+    { name = "Uli Scheuss" },
+]
+classifiers = [
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "colorama",             # prints colored text in console
+    "configparser",         # reads config file
+    "corner",               # generates corner plot for mcmc results
+    "emcee",                # Markov Chain Monte Carlo
+    "h5py",                 # emcee backend
+    "lmfit",                # local minimization fits
+    "matplotlib",           # plots
+    "numpy",                # numerical (vector) operations
+    "pandas",               # tabular flux / TT / RV data
+    "rebound>=5.1.1",       # N-body integration
+    "scipy",                # statistics and optimization helpers
+    "tqdm",                 # emcee progression bar
+]
+
+[project.urls]
+Homepage = "https://github.com/lichtgestalter/curvesimulator"
+Documentation = "https://github.com/lichtgestalter/curvesimulator/wiki"
+Repository = "https://github.com/lichtgestalter/curvesimulator"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
