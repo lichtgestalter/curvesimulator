@@ -125,6 +125,7 @@ class CurveSimMCMC:
             fp.body_parameter_name = fpn
             fp.long_body_parameter_name = fpnu
         self.param_bounds = [(fp.lower, fp.upper) for fp in self.fitting_parameters]
+        self.param_priors = [(fp.prior_mu, fp.prior_sigma) for fp in self.fitting_parameters]
         self.ndim = len(self.param_references)
         self.theta0 = self.random_initial_values()
         self.args = (self.param_bounds, self.param_references, bodies, time_s0, time_d, flux_corr, flux_total_err, measured_flux, measured_tt, p)
@@ -282,6 +283,16 @@ class CurveSimMCMC:
             if not (lower < val < upper):
                 return -np.inf
         return 0
+
+    @staticmethod
+    def log_prior_new(theta, param_bounds, param_priors):
+        lp = 0.0
+        for val, (lower, upper), (mu, sigma) in zip(theta, param_bounds, param_priors):
+            if not (lower < val < upper):
+                return -np.inf
+            if mu is not None:
+                lp += -0.5 * ((val - mu) / sigma) ** 2 - math.log(sigma * math.sqrt(2 * math.pi))
+        return lp
 
     @staticmethod
     def log_likelihood(theta, param_references, bodies, time_s0, time_d, flux_corr, flux_total_err, measured_flux, measured_tt, p):

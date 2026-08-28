@@ -294,21 +294,24 @@ class CurveSimParameters:
             value = np.radians(value)
         return value
 
-    def read_param_and_bounds(self, config, section, param):
+    def read_param_priors(self, config, section, param):
         # For ease of use of these constants in the config file they are additionally defined here without the prefix "self.".
         g, au, r_sun, m_sun, l_sun = self.g, self.au, self.r_sun, self.m_sun, self.l_sun
         r_jup, m_jup, r_nep, m_nep, r_earth, m_earth = self.r_jup, self.m_jup, self.r_nep, self.m_nep, self.r_earth, self.m_earth
         hour, day, year = self.hour, self.day, self.year
         line = config.get(section, param, fallback=None)
         if line is None:  # parameter not in config file
-            return None, None, None, None
+            return None, None, None, None, None, None
         else:
             items = line.split("#")[0].split(",")  # remove inline comment
-        if len(items) == 4:
+        if len(items) == 4:  # uninformed prior
             value, lower, upper, sigma = items
-            return eval(value), eval(lower), eval(upper), eval(sigma)
-        else:  # parameter in config file but does not have 4 values
-            return None, None, None, None
+            return eval(value), eval(lower), eval(upper), eval(sigma), None, None
+        elif len(items) == 6:  # normal prior
+            value, lower, upper, sigma, prior_mu, prior_sigma = items
+            return eval(value), eval(lower), eval(upper), eval(sigma), eval(prior_mu), eval(prior_sigma)
+        else:  # parameter in config file but does not have 4 or 6 values
+            return None, None, None, None, None, None
 
     def read_fitting_parameters(self, config):
         fitting_parameters, body_index = self.read_fitting_body_parameters(config)
@@ -319,8 +322,11 @@ class CurveSimParameters:
 
     def read_fitting_body_parameters(self, config):
         """Search for body parameters in the config file that are meant to be used as fitting parameters.
-        Fitting parameters have 4 values instead of 1, separated by commas:
-        Initial Value, Lower Bound, Upper Bound, Standard Deviation of the Initial Values of all chains (with mean = Initial Value)."""
+        Fitting parameters have 4 or 6 values instead of 1, separated by commas:
+        1. Initial Value, 2. Lower Bound, 3. Upper Bound, 4. Standard Deviation of the Initial Values of all chains (with mean = Initial Value).
+        Normal/informative custom priors have two extra values:
+        5. mean and 6. standard deviation of an optional Gaussian (normal) prior placed on a fitting parameter
+        i.e., prior domain knowledge about that parameter, independent of the current observation data."""
         body_index = 0
         fitting_parameters = []
         if self.verbose:
@@ -328,13 +334,15 @@ class CurveSimParameters:
         for section in config.sections():
             if section not in self.standard_sections:  # section describes a physical object
                 for parameter_name in ["mass", "radius", "luminosity", "rv_offset", "rv_jitter", "limb_darkening_1", "limb_darkening_2", "e", "i", "a", "P", "Omega", "pomega", "omega", "L", "nu", "ma", "ea", "T"]:
-                    value, lower, upper, sigma = self.read_param_and_bounds(config, section, parameter_name)
+                    value, lower, upper, sigma, prior_mu, prior_sigma = self.read_param_priors(config, section, parameter_name)
                     if value is not None:
                         if self.verbose:
                             print(f"body {body_index}: {parameter_name}")
                         if parameter_name in ["i", "Omega", "omega", "pomega", "ma", "nu", "ea", "L"]:
                             value, lower, upper, sigma = np.radians(value), np.radians(lower), np.radians(upper), np.radians(sigma)
-                        fitting_parameters.append(FittingParameter(self, section, body_index, parameter_name, value, lower, upper, sigma))
+                            if prior_mu is not None:
+                                prior_mu, prior_sigma = np.radians(prior_mu), np.radians(prior_sigma)
+                        fitting_parameters.append(FittingParameter(self, section, body_index, parameter_name, value, lower, upper, sigma, prior_mu, prior_sigma))
                         fitting_parameters[-1].index = len(fitting_parameters) - 1
                 body_index += 1
         self.fitting_body_parameters = len(fitting_parameters)
@@ -461,7 +469,7 @@ class CurveSimParameters:
 
 
 class FittingParameter:
-    def __init__(self, p, body_name, body_index, parameter_name, startvalue, lower, upper, sigma, indices=None, constants=None, function=None):
+    def __init__(self, p, body_name, body_index, parameter_name, startvalue, lower, upper, sigma, prior_mu=None, prior_sigma=None, indices=None, constants=None, function=None):
         self.body_name = body_name
         self.body_index = body_index
         self.parameter_name = parameter_name
@@ -479,6 +487,8 @@ class FittingParameter:
         self.lower = lower
         self.upper = upper
         self.sigma = sigma
+        self.prior_mu = prior_mu
+        self.prior_sigma = prior_sigma
         self.indices = indices      # For derived parameters only. Indices of the fitting parameters to be used in the function.
         self.constants = constants  # For derived parameters only. Constants to be used in the function.
         self.function = function    # For derived parameters only. A lambda function, using the above indices and constants as arguments.

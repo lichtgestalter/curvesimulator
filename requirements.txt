@@ -9,15 +9,16 @@ corner               # generates corner plot for mcmc results
 emcee                # Markov Chain Monte Carlo
 h5py                # emcee backend
 lmfit                # local minimization fits
-matplotlib          # plots
+matplotlib           # plots
 numpy                # numerical (vector) operations
 pandas               # tabular flux / TT / RV data
-rebound>=5.1.1       # N-body integration
+rebound>=5.1.1        # N-body integration
 scipy                # statistics and optimization helpers
 tqdm                 # emcee progression bar
 
 # For developers only:
-build                # making the package
-pandas-stubs  # helps debugging
+build                 # making the package
+pandas-stubs   # helps debugging
+setuptools          # making the package
 scipy-stubs         # helps debugging
 twine                 # making the package
