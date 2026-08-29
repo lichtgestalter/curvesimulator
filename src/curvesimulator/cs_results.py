@@ -1,4 +1,4 @@
-import bisect
+# import bisect
 from colorama import Fore, Style
 import copy
 import json
@@ -508,25 +508,25 @@ class CurveSimResults(dict):
             plot_file=p.results_directory + plot_filename,
         )
 
-    @staticmethod
-    def bin_time_window(time, value, half_window_size):
-        """ time, value: pandas DataSeries or numpy array
-            half_window_size: float
-            returns array with binned values
-            Bins for each data point with time=t all values with time between
-            t - half_window_size and t + half_window_size"""
-        time = time.to_numpy()
-        value = value.to_numpy()
-        mean = np.empty(len(time), dtype=float)
-        for i, t in enumerate(time):
-            left = bisect.bisect_right(time, t - half_window_size)
-            right = bisect.bisect_left(time, t + half_window_size)
-            values_to_bin = value[left:right]
-            mean[i] = values_to_bin.mean() if values_to_bin.size > 0 else np.nan
-        return mean
+    # @staticmethod
+    # def bin_time_window1(time, value, half_window_size):
+    #     """ time, value: pandas DataSeries or numpy array
+    #         half_window_size: float
+    #         returns array with binned values
+    #         Bins for each data point with time=t all values with time between
+    #         t - half_window_size and t + half_window_size"""
+    #     time = time.to_numpy()
+    #     value = value.to_numpy()
+    #     mean = np.empty(len(time), dtype=float)
+    #     for i, t in enumerate(time):
+    #         left = bisect.bisect_right(time, t - half_window_size)
+    #         right = bisect.bisect_left(time, t + half_window_size)
+    #         values_to_bin = value[left:right]
+    #         mean[i] = values_to_bin.mean() if values_to_bin.size > 0 else np.nan
+    #     return mean
 
     @staticmethod
-    def bin_time_window2(time, value, half_window_size):
+    def bin_time_window(time, value, half_window_size):
         """
         Vectorized binning: for each time[i], compute mean of values within
         [time[i] - half_window_size, time[i] + half_window_size].
@@ -576,7 +576,7 @@ class CurveSimResults(dict):
         right = np.max(measured_flux["time"])
         left -= (right - left) * 0.02
         right += (right - left) * 0.02
-        measured_flux["bin_30min"] = CurveSimResults.bin_time_window2(measured_flux["time"], measured_flux["flux_corr"], 30 / (2 * 60 * 24))
+        measured_flux["bin_30min"] = CurveSimResults.bin_time_window(measured_flux["time"], measured_flux["flux_corr"], 30 / (2 * 60 * 24))
         CurveSimResults.plot_this(
             title=f"Flux: observed vs. computed",
             x_label="Time [BJD]",

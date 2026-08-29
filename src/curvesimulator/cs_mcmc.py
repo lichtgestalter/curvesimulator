@@ -285,7 +285,7 @@ class CurveSimMCMC:
         return 0
 
     @staticmethod
-    def log_prior_new(theta, param_bounds, param_priors):
+    def log_prior_custom(theta, param_bounds, param_priors):
         lp = 0.0
         for val, (lower, upper), (mu, sigma) in zip(theta, param_bounds, param_priors):
             if not (lower < val < upper):
