@@ -128,7 +128,8 @@ class CurveSimMCMC:
         self.param_priors = [(fp.prior_mu, fp.prior_sigma) for fp in self.fitting_parameters]
         self.ndim = len(self.param_references)
         self.theta0 = self.random_initial_values()
-        self.args = (self.param_bounds, self.param_references, bodies, time_s0, time_d, flux_corr, flux_total_err, measured_flux, measured_tt, p)
+        self.args = (self.fitting_parameters, self.param_references, bodies, time_s0, time_d, flux_corr, flux_total_err, measured_flux, measured_tt, p)
+        # self.args = (self.param_bounds, self.param_references, bodies, time_s0, time_d, flux_corr, flux_total_err, measured_flux, measured_tt, p)
         self.moves = eval(self.moves)
         self.acceptance_fractions = []
         self.integrated_autocorrelation_time = []
@@ -270,29 +271,45 @@ class CurveSimMCMC:
         return residuals_tt_sum_squared, measured_tt
 
     @staticmethod
-    def log_probability(theta, param_bounds, param_references, bodies, time_s0, time_d, flux_corr, flux_total_err, measured_flux, measured_tt, p):
-        lp = CurveSimMCMC.log_prior(theta, param_bounds)
+    def log_probability(theta, fitting_parameters, param_references, bodies, time_s0, time_d, flux_corr, flux_total_err, measured_flux, measured_tt, p):
+        lp = CurveSimMCMC.log_prior(theta, fitting_parameters)
+        # lp = CurveSimMCMC.log_prior(theta, fitting_parameters)
         if not np.isfinite(lp):
             return -np.inf
         return lp + CurveSimMCMC.log_likelihood(theta, param_references, bodies, time_s0, time_d, flux_corr, flux_total_err, measured_flux, measured_tt, p)
 
     @staticmethod
-    def log_prior(theta, param_bounds):
-        """# If any parameter is outside resonable bounds: return -np.inf"""
-        for val, (lower, upper) in zip(theta, param_bounds):
-            if not (lower < val < upper):
-                return -np.inf
-        return 0
-
-    @staticmethod
-    def log_prior_custom(theta, param_bounds, param_priors):
+    def log_prior(theta, fitting_parameters):
         lp = 0.0
-        for val, (lower, upper), (mu, sigma) in zip(theta, param_bounds, param_priors):
-            if not (lower < val < upper):
+        for val, fp in zip(theta, fitting_parameters):
+            if not (fp.lower < val < fp.upper):
                 return -np.inf
-            if mu is not None:
-                lp += -0.5 * ((val - mu) / sigma) ** 2 - math.log(sigma * math.sqrt(2 * math.pi))
+            if fp.prior_mu is not None:
+                lp += -0.5 * ((val - fp.prior_mu) / fp.prior_sigma) ** 2 - math.log(fp.prior_sigma * math.sqrt(2 * math.pi))
         return lp
+
+    # @staticmethod
+    # def log_probability(theta, param_bounds, param_references, bodies, time_s0, time_d, flux_corr, flux_total_err, measured_flux, measured_tt, p):
+    #     lp = CurveSimMCMC.log_prior(theta, param_bounds)
+    #     if not np.isfinite(lp):
+    #         return -np.inf
+    #     return lp + CurveSimMCMC.log_likelihood(theta, param_references, bodies, time_s0, time_d, flux_corr, flux_total_err, measured_flux, measured_tt, p)
+
+    # @staticmethod
+    # def log_prior(theta, param_bounds):
+    #     """# If any parameter is outside resonable bounds: return -np.inf"""
+    #     for val, (lower, upper) in zip(theta, param_bounds):
+    #         if not (lower < val < upper):
+    #             return -np.inf
+    #     return 0
+
+    # @staticmethod
+    # def log_prior(theta, fitting_parameters):
+    #     """# If any parameter is outside resonable bounds: return -np.inf"""
+    #     for val, fp in zip(theta, fitting_parameters):
+    #         if not (fp.lower < val < fp.upper):
+    #             return -np.inf
+    #     return 0
 
     @staticmethod
     def log_likelihood(theta, param_references, bodies, time_s0, time_d, flux_corr, flux_total_err, measured_flux, measured_tt, p):

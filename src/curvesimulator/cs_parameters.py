@@ -487,11 +487,11 @@ class FittingParameter:
         self.lower = lower
         self.upper = upper
         self.sigma = sigma
-        self.prior_mu = prior_mu
-        self.prior_sigma = prior_sigma
-        self.indices = indices      # For derived parameters only. Indices of the fitting parameters to be used in the function.
-        self.constants = constants  # For derived parameters only. Constants to be used in the function.
-        self.function = function    # For derived parameters only. A lambda function, using the above indices and constants as arguments.
+        self.prior_mu = prior_mu        # mean/expectation of normal prior
+        self.prior_sigma = prior_sigma  # standard deviation of normal prior
+        self.indices = indices          # For derived parameters only. Indices of the fitting parameters to be used in the function.
+        self.constants = constants      # For derived parameters only. Constants to be used in the function.
+        self.function = function        # For derived parameters only. A lambda function, using the above indices and constants as arguments.
 
     def initial_values(self, rng, size):
         result = []
