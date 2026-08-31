@@ -197,7 +197,7 @@ class CurveSimAnimation:
         x = (time_s0 - p.sim_start_s0) / p.day
         ax_rv_curve.plot(x, sim_rv, color="white")
 
-        rv_dot = CurveSimAnimation.animated_dot(ax_rv_curve, p, scope, time_s0, color=(0, 0.7, 0))  # rv curve green dot
+        rv_dot = CurveSimAnimation.animated_dot(ax_rv_curve, p, scope, time_s0, color=(0, 1.0, 0))  # rv curve green dot
         return ax_rv_curve, rv_dot
 
     @staticmethod
