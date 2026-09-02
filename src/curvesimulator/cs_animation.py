@@ -34,10 +34,10 @@ class CurveSimAnimation:
             else:
                 body.image_left = OffsetImage(mpimg.imread(body.image_file_left), zoom=1.0)
                 body.image_right = OffsetImage(mpimg.imread(body.image_file_right), zoom=1.0)
-                body.ab_left = AnnotationBbox(body.image_left, (0.2, 0.2), frameon=False, xycoords='data')
+                body.ab_left = AnnotationBbox(body.image_left, (0.2, 0.2), frameon=False, xycoords="data")
                 body.ab_left.set_animated(True)
                 ax_left.add_artist(body.ab_left)
-                body.ab_right = AnnotationBbox(body.image_right, (-0.5, -0.5), frameon=False, xycoords='data')
+                body.ab_right = AnnotationBbox(body.image_right, (-0.5, -0.5), frameon=False, xycoords="data")
                 body.ab_right.set_animated(True)
                 ax_right.add_artist(body.ab_right)
         self.render(p, bodies, sim_rv, sim_flux, time_s0)
@@ -94,12 +94,12 @@ class CurveSimAnimation:
         scale_bar_height = p.ylim * -0.94
         scale_bar_text_height = p.ylim * -0.97
         scale_bar_text_start_x = (scale_bar_start_x + scale_bar_end_x) / 2
-        ax_left.hlines(y=scale_bar_height, xmin=scale_bar_start_x, xmax=scale_bar_end_x, color='grey', linewidth=1)
-        ax_left.vlines(x=scale_bar_start_x, ymin=scale_bar_height - dy, ymax=scale_bar_height + dy, color='grey', linewidth=1)
-        ax_left.vlines(x=scale_bar_end_x, ymin=scale_bar_height - dy, ymax=scale_bar_height + dy, color='grey', linewidth=1)
+        ax_left.hlines(y=scale_bar_height, xmin=scale_bar_start_x, xmax=scale_bar_end_x, color="xkcd:light grey", linewidth=1)
+        ax_left.vlines(x=scale_bar_start_x, ymin=scale_bar_height - dy, ymax=scale_bar_height + dy, color="xkcd:light grey", linewidth=1)
+        ax_left.vlines(x=scale_bar_end_x, ymin=scale_bar_height - dy, ymax=scale_bar_height + dy, color="xkcd:light grey", linewidth=1)
         scale_bar_number = p.scale_bar_length_left / p.au
         digits = CurveSimAnimation.relevant_digits(scale_bar_number)
-        ax_left.text(scale_bar_text_start_x, scale_bar_text_height, f"{scale_bar_number:.{digits}f} AU", color='grey', fontsize=8, ha='center', va='top')
+        ax_left.text(scale_bar_text_start_x, scale_bar_text_height, f"{scale_bar_number:.{digits}f} AU", color="xkcd:light grey", fontsize=8, ha="center", va="top")
         return ax_left
 
     @staticmethod
@@ -118,18 +118,18 @@ class CurveSimAnimation:
         scale_bar_height = p.ylim * -0.94
         scale_bar_text_height = p.ylim * -0.97
         scale_bar_text_start_x = (scale_bar_start_x + scale_bar_end_x) / 2
-        ax_right.hlines(y=scale_bar_height, xmin=scale_bar_start_x, xmax=scale_bar_end_x, color='grey', linewidth=1)
-        ax_right.vlines(x=scale_bar_start_x, ymin=scale_bar_height - dy, ymax=scale_bar_height + dy, color='grey', linewidth=1)
-        ax_right.vlines(x=scale_bar_end_x, ymin=scale_bar_height - dy, ymax=scale_bar_height + dy, color='grey', linewidth=1)
+        ax_right.hlines(y=scale_bar_height, xmin=scale_bar_start_x, xmax=scale_bar_end_x, color="xkcd:light grey", linewidth=1)
+        ax_right.vlines(x=scale_bar_start_x, ymin=scale_bar_height - dy, ymax=scale_bar_height + dy, color="xkcd:light grey", linewidth=1)
+        ax_right.vlines(x=scale_bar_end_x, ymin=scale_bar_height - dy, ymax=scale_bar_height + dy, color="xkcd:light grey", linewidth=1)
         scale_bar_number = p.scale_bar_length_right / p.au
         digits = CurveSimAnimation.relevant_digits(scale_bar_number)
-        ax_right.text(scale_bar_text_start_x, scale_bar_text_height, f"{scale_bar_number:.{digits}f} AU", color='grey', fontsize=8, ha='center', va='top')
+        ax_right.text(scale_bar_text_start_x, scale_bar_text_height, f"{scale_bar_number:.{digits}f} AU", color="xkcd:light grey", fontsize=8, ha="center", va="top")
         return ax_right
 
     @staticmethod
     def init_curve_plot_x_axis(ax_rv_curve, p, time_s0):
         # rv_curve x-ticks, x-labels
-        ax_rv_curve.tick_params(axis="x", colors="grey")
+        ax_rv_curve.tick_params(axis="x", colors="xkcd:light grey")
         # Use the same relative x-axis as the lightcurve: days since p.sim_start_s0[0]
         x = (time_s0 - p.sim_start_s0) / p.day
         x_listticdelta = CurveSimAnimation.tic_delta(float(x[-1]))
@@ -158,8 +158,8 @@ class CurveSimAnimation:
             CurveSimAnimation.init_curve_plot_x_axis(ax_lightcurve, p, time_s0)
 
         # lightcurve y-ticks, y-labels
-        ax_lightcurve.set_ylabel("Relative Flux", color="grey", fontsize=8)
-        ax_lightcurve.tick_params(axis="y", colors="grey", labelsize=8)
+        ax_lightcurve.set_ylabel("Relative Flux", color="xkcd:light grey", fontsize=8)
+        ax_lightcurve.tick_params(axis="y", colors="xkcd:light grey", labelsize=8)
         minl = sim_flux.min(initial=None)
         maxl = sim_flux.max(initial=None)
         if minl == maxl:
@@ -185,13 +185,13 @@ class CurveSimAnimation:
     def init_rv_curve_plot(sim_rv, time_s0, p, shape, loc, rowspan, colspan):
         ax_rv_curve = plt.subplot2grid(shape=shape, loc=loc, rowspan=rowspan, colspan=colspan)
         ax_rv_curve.set_facecolor("black")  # background color
-        ax_rv_curve.text(0.97, -0.11, "BJD (TDB)", color="grey", fontsize=8, ha="right", va="bottom", transform=ax_rv_curve.transAxes)
+        ax_rv_curve.text(0.97, -0.11, "BJD (TDB)", color="xkcd:light grey", fontsize=8, ha="right", va="bottom", transform=ax_rv_curve.transAxes)
 
         CurveSimAnimation.init_curve_plot_x_axis(ax_rv_curve, p, time_s0)  # rv_curve x-ticks, x-labels
 
         # rv_curve y-ticks, y-labels
-        ax_rv_curve.set_ylabel("Radial Velocity [m/s]", color="grey", labelpad=22, fontsize=8)
-        ax_rv_curve.tick_params(axis="y", colors="grey", labelsize=8)
+        ax_rv_curve.set_ylabel("Radial Velocity [m/s]", color="xkcd:light grey", labelpad=22, fontsize=8)
+        ax_rv_curve.tick_params(axis="y", colors="xkcd:light grey", labelsize=8)
         minl = sim_rv.min(initial=None)
         maxl = sim_rv.max(initial=None)
         if minl == maxl:
@@ -234,14 +234,14 @@ class CurveSimAnimation:
             ax_right = CurveSimAnimation.init_right_plot(p, shape=(6, 2), loc=(0, 1), rowspan=4, colspan=1)
             ax_lightcurve, flux_dot = CurveSimAnimation.init_lightcurve_plot(sim_flux, time_s0, p, shape=(6, 2), loc=(4, 0), rowspan=1, colspan=2)
             ax_rv_curve, rv_dot = CurveSimAnimation.init_rv_curve_plot(sim_rv, time_s0, p, shape=(6, 2), loc=(5, 0), rowspan=1, colspan=2)
-            fig.add_artist(plt.Line2D([0.5, 0.5], [0.4, 0.9], color='xkcd:dark grey', linewidth=1, transform=fig.transFigure))
+            fig.add_artist(plt.Line2D([0.5, 0.5], [0.4, 0.9], color="xkcd:dark grey", linewidth=1, transform=fig.transFigure))
         # no RV plot
         elif p.show_left_plot and p.show_right_plot and p.show_lc_plot and not p.show_rv_plot:
             ax_left = CurveSimAnimation.init_left_plot(p, shape=(5, 2), loc=(0, 0), rowspan=4, colspan=1)
             ax_right = CurveSimAnimation.init_right_plot(p, shape=(5, 2), loc=(0, 1), rowspan=4, colspan=1)
             ax_lightcurve, flux_dot = CurveSimAnimation.init_lightcurve_plot(sim_flux, time_s0, p, shape=(5, 2), loc=(4, 0), rowspan=1, colspan=2)
             ax_rv_curve, rv_dot = None, None
-            fig.add_artist(plt.Line2D([0.5, 0.5], [0.27, 0.9], color='xkcd:dark grey', linewidth=1, transform=fig.transFigure))
+            fig.add_artist(plt.Line2D([0.5, 0.5], [0.27, 0.9], color="xkcd:dark grey", linewidth=1, transform=fig.transFigure))
 
         # no light curve plot
         elif p.show_left_plot and p.show_right_plot and not p.show_lc_plot and p.show_rv_plot:
@@ -249,14 +249,14 @@ class CurveSimAnimation:
             ax_right = CurveSimAnimation.init_right_plot(p, shape=(5, 2), loc=(0, 1), rowspan=4, colspan=1)
             ax_lightcurve, flux_dot = None, None
             ax_rv_curve, rv_dot = CurveSimAnimation.init_rv_curve_plot(sim_rv, time_s0, p, shape=(5, 2), loc=(4, 0), rowspan=1, colspan=2)
-            fig.add_artist(plt.Line2D([0.5, 0.5], [0.27, 0.9], color='xkcd:dark grey', linewidth=1, transform=fig.transFigure))
+            fig.add_artist(plt.Line2D([0.5, 0.5], [0.27, 0.9], color="xkcd:dark grey", linewidth=1, transform=fig.transFigure))
         # no light curve and no RV plot
         elif p.show_left_plot and p.show_right_plot and not p.show_lc_plot and not p.show_rv_plot:
             ax_left = CurveSimAnimation.init_left_plot(p, shape=(4, 2), loc=(0, 0), rowspan=4, colspan=1)
             ax_right = CurveSimAnimation.init_right_plot(p, shape=(4, 2), loc=(0, 1), rowspan=4, colspan=1)
             ax_lightcurve, flux_dot = None, None
             ax_rv_curve, rv_dot = None, None
-            fig.add_artist(plt.Line2D([0.5, 0.5], [0.07, 0.9], color='xkcd:dark grey', linewidth=1, transform=fig.transFigure))
+            fig.add_artist(plt.Line2D([0.5, 0.5], [0.07, 0.9], color="xkcd:dark grey", linewidth=1, transform=fig.transFigure))
 
         # right plot only
         elif not p.show_left_plot and p.show_right_plot and not p.show_lc_plot and not p.show_rv_plot:
@@ -383,13 +383,13 @@ class CurveSimAnimation:
 
         # Add AnnotationBboxes (image mode) or circles (non-image mode).
         for body in bodies:
-            if hasattr(body, 'ab_left') and body.ab_left:
+            if hasattr(body, "ab_left") and body.ab_left:
                 artists.append(body.ab_left)
-            elif hasattr(body, 'circle_left') and p.show_left_plot:
+            elif hasattr(body, "circle_left") and p.show_left_plot:
                 artists.append(body.circle_left)
-            if hasattr(body, 'ab_right') and body.ab_right:
+            if hasattr(body, "ab_right") and body.ab_right:
                 artists.append(body.ab_right)
-            elif hasattr(body, 'circle_right') and p.show_right_plot:
+            elif hasattr(body, "circle_right") and p.show_right_plot:
                 artists.append(body.circle_right)
 
         return artists
@@ -476,7 +476,7 @@ class CurveSimAnimation:
             if proc.returncode != 0:
                 print(f"{Fore.RED}\nERROR: FFmpeg exited with code {proc.returncode} while writing {p.video_file}.{Style.RESET_ALL}")
                 if stderr_output:
-                    print(f"{Fore.RED}FFmpeg output:\n{stderr_output.decode(errors='replace')}{Style.RESET_ALL}")
+                    print(f"{Fore.RED}FFmpeg output:\n{stderr_output.decode(errors="replace")}{Style.RESET_ALL}")
 
         if p.verbose:
             toc = time.perf_counter()
