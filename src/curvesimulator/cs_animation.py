@@ -52,6 +52,18 @@ class CurveSimAnimation:
             sys.exit(1)
 
     @staticmethod
+    def relevant_digits(x, relative_tolerance=1e-4, max_digits=15):
+        """Find the smallest number of decimal places digits such that rounding x
+        to digits decimals reproduces x within rel_tol (relative tolerance).
+        Smaller deviations are treated as floating-point rounding noise."""
+        if x == 0:
+            return 0
+        for digits in range(max_digits + 1):
+            if math.isclose(round(x, digits), x, rel_tol=relative_tolerance):
+                return digits
+        return max_digits
+
+    @staticmethod
     def tic_delta(scope):
         """Returns a distance between two tics on an axis so that the total
         number of tics on that axis is between 5 and 10."""
@@ -85,7 +97,9 @@ class CurveSimAnimation:
         ax_left.hlines(y=scale_bar_height, xmin=scale_bar_start_x, xmax=scale_bar_end_x, color='grey', linewidth=1)
         ax_left.vlines(x=scale_bar_start_x, ymin=scale_bar_height - dy, ymax=scale_bar_height + dy, color='grey', linewidth=1)
         ax_left.vlines(x=scale_bar_end_x, ymin=scale_bar_height - dy, ymax=scale_bar_height + dy, color='grey', linewidth=1)
-        ax_left.text(scale_bar_text_start_x, scale_bar_text_height, f"{p.scale_bar_length_left / p.au:.2f} AU", color='grey', fontsize=8, ha='center', va='top')
+        scale_bar_number = p.scale_bar_length_left / p.au
+        digits = CurveSimAnimation.relevant_digits(scale_bar_number)
+        ax_left.text(scale_bar_text_start_x, scale_bar_text_height, f"{scale_bar_number:.{digits}f} AU", color='grey', fontsize=8, ha='center', va='top')
         return ax_left
 
     @staticmethod
@@ -107,7 +121,9 @@ class CurveSimAnimation:
         ax_right.hlines(y=scale_bar_height, xmin=scale_bar_start_x, xmax=scale_bar_end_x, color='grey', linewidth=1)
         ax_right.vlines(x=scale_bar_start_x, ymin=scale_bar_height - dy, ymax=scale_bar_height + dy, color='grey', linewidth=1)
         ax_right.vlines(x=scale_bar_end_x, ymin=scale_bar_height - dy, ymax=scale_bar_height + dy, color='grey', linewidth=1)
-        ax_right.text(scale_bar_text_start_x, scale_bar_text_height, f"{p.scale_bar_length_right / p.au:.2f} AU", color='grey', fontsize=8, ha='center', va='top')
+        scale_bar_number = p.scale_bar_length_right / p.au
+        digits = CurveSimAnimation.relevant_digits(scale_bar_number)
+        ax_right.text(scale_bar_text_start_x, scale_bar_text_height, f"{scale_bar_number:.{digits}f} AU", color='grey', fontsize=8, ha='center', va='top')
         return ax_right
 
     @staticmethod
