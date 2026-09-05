@@ -2,6 +2,7 @@ import ast
 from colorama import Fore, Style
 import configparser
 import json
+from matplotlib import colors as mcolors
 import numpy as np
 import os
 from pathlib import PurePath
@@ -158,7 +159,7 @@ class CurveSimParameters:
 
         # [VideoPlot]
         self.video_background_color = config.get("VideoPlot", "video_background_color", fallback="black")
-        self.video_text_color = config.get("VideoPlot", "video_text_color", fallback="xkcd:light grey")
+        self.video_text_color = config.get("VideoPlot", "video_text_color", fallback="xkcd:light gray")
         self.separator_line_color = config.get("VideoPlot", "separator_line_color", fallback="xkcd:dark grey")
         self.scale_bar_fontsize = eval(config.get("VideoPlot", "scale_bar_fontsize", fallback="8"))
 
@@ -196,13 +197,17 @@ class CurveSimParameters:
         self.upper_curve_y_label = config.get("VideoPlot", "upper_curve_y_label", fallback="Relative Flux")
         self.upper_curve_y_label_fontsize = eval(config.get("VideoPlot", "upper_curve_y_label_fontsize", fallback="8"))
         self.upper_curve_y_tick_fontsize = eval(config.get("VideoPlot", "upper_curve_y_tick_fontsize", fallback="8"))
-        self.upper_curve_dot_color = (1, 0, 0)
+        # self.upper_curve_dot_color = "xkcd:light gray"
+        color = config.get("VideoPlot", "upper_curve_dot_color", fallback=None)
+        self.upper_curve_dot_color = CurveSimParameters.check_color("upper_curve_dot_color", color)
 
         self.lower_curve_color = config.get("VideoPlot", "lower_curve_color", fallback="white")
         self.lower_curve_y_label = config.get("VideoPlot", "lower_curve_y_label", fallback="Radial Velocity [m/s]")
         self.lower_curve_y_label_fontsize = eval(config.get("VideoPlot", "lower_curve_y_label_fontsize", fallback="8"))
         self.lower_curve_y_tick_fontsize = eval(config.get("VideoPlot", "lower_curve_y_tick_fontsize", fallback="8"))
-        self.lower_curve_dot_color = (0, 1, 0)
+        # self.lower_curve_dot_color = (0, 1, 0)
+        color = config.get("VideoPlot", "lower_curve_dot_color", fallback=None)
+        self.lower_curve_dot_color = CurveSimParameters.check_color("lower_curve_dot_color", color)
 
         # dimensions
         self.figure_width = eval(config.get("VideoPlot", "figure_width", fallback="16"))
@@ -264,13 +269,37 @@ class CurveSimParameters:
                 sys.exit(1)
 
     @staticmethod
-    def check_color_tuple(color_name, color_tuple):
-        if color_tuple is not None:
-            for c in color_tuple:
-                if c < 0 or c > 1 or len(color_tuple) != 3:
-                    print(f"{Fore.RED}\nERROR in config file: {color_name} has invalid or missing color value.")
-                    print(f"{Fore.RED}\nMust be exactly 3 values, each between 0 and 1, separated by comma, but {color_name} = {color_tuple} .")
-                    sys.exit(1)
+    def check_color(name, value):
+
+        def error():
+            print(f"{Fore.RED}Must be a string known to matplotlib or a tuple/list with exactly 3 values, each between 0 and 1, but {name} = {value} .")
+            print(f"{Fore.RED}Tuples must NOT have parentheses. Strings must NOT have quotation marks.")
+            print(f"{Fore.RED}Examples of correct values: {Fore.WHITE}0.3, 0.8, 0.4{Fore.RED} or {Fore.WHITE}green{Fore.RED} or {Fore.WHITE}xkcd:light gray.\n")
+            # return value  # debug
+            sys.exit(1)
+
+        if value is None:
+            return value
+        elif "," in value:
+            items = value.split(",")
+            value = tuple([ast.literal_eval(x) for x in items])
+        elif isinstance(value, str):
+            value = value.replace('"', '').replace("'", "")  # remove ' and "
+            if value in mcolors.get_named_colors_mapping():
+                return value  # color name is accepted by matplotlib
+            else:
+                print(f"{Fore.RED}\nERROR in config file: {name} has an invalid color string.")
+                error()
+                sys.exit(1)
+        if isinstance(value, (list, tuple)):
+            if len(value) == 3 and all(0 <= c <= 1 for c in value):
+                return value  # correct tuple
+            else:
+                print(f"{Fore.RED}\nERROR in config file: {name} has an invalid color tuple or list.")
+                error()
+                sys.exit(1)
+        print(f"{Fore.RED}\nERROR in config file: {name} has an invalid color. It is neither a string or a tuple/list")
+        error()
 
     def check_sim_interval(self):
         """Checks if parameters sim_start and sim_end are well defined.

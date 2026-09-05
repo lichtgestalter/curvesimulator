@@ -1,4 +1,3 @@
-import ast
 from colorama import Fore, Style
 import configparser
 import json
@@ -48,8 +47,7 @@ class CurveSimBodies(list):
                 file = config.get(section, "file", fallback=None)
                 if file is None:
                     color = config.get(section, "color", fallback=None)
-                    if color is not None:
-                        color = tuple([ast.literal_eval(x) for x in color.split(",")])
+                    color = CurveSimParameters.check_color(section, color)
                     kwargs = {
                         "p": p,
                         "primary": config.get(section, "primary", fallback=None),
@@ -278,13 +276,6 @@ class CurveSimBodies(list):
             if body.luminosity > 0 and (body.limb_darkening_u1 is None or body.limb_darkening_u2 is None):  # if body.luminosity > 0 and limb darkening parameters are missing
                 print(f"{Fore.RED}\nERROR in config file: {body.name} has luminosity but invalid limb darkening parameter {body.limb_darkening=}.")
                 sys.exit(1)
-            CurveSimParameters.check_color_tuple(body.name, body.color)
-            # if body.color is not None:
-            #     for c in body.color:
-            #         if c < 0 or c > 1 or len(body.color) != 3:
-            #             print(f"{Fore.RED}\nERROR in config file: {body.name} has invalid or missing color value.")
-            #             print(f"{Fore.RED}\nMust be exactly 3 values, separated by comma, but {body.color=} .")
-            #             sys.exit(1)
             # if body.velocity is None:
             #     if body.e < 0:
             #         print(f"{Fore.RED}\nERROR in config file: {body.name} has invalid or missing eccentricity e.")
