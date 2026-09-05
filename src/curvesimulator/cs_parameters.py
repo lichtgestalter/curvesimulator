@@ -164,8 +164,8 @@ class CurveSimParameters:
 
         self.show_left_plot = eval(config.get("VideoPlot", "show_left_plot", fallback="True"))
         self.show_right_plot = eval(config.get("VideoPlot", "show_right_plot", fallback="True"))
-        self.show_upper_plot = eval(config.get("VideoPlot", "show_upper_plot", fallback="True"))
-        self.show_lower_plot = eval(config.get("VideoPlot", "show_lower_plot", fallback="False"))
+        self.show_upper_curve = eval(config.get("VideoPlot", "show_upper_curve", fallback="True"))
+        self.show_lower_curve = eval(config.get("VideoPlot", "show_lower_curve", fallback="False"))
 
         self.main_title = config.get("VideoPlot", "main_title", fallback="Main Title")
         self.main_title_color = config.get("VideoPlot", "main_title_color", fallback="white")
@@ -263,8 +263,14 @@ class CurveSimParameters:
                 print(f"{Fore.RED}\nERROR: Parameter {attribute} has to be specified in {self.config_file}.{Style.RESET_ALL}")
                 sys.exit(1)
 
-    def check_for_missing_body_parameters(self, body):
-        pass
+    @staticmethod
+    def check_color_tuple(color_name, color_tuple):
+        if color_tuple is not None:
+            for c in color_tuple:
+                if c < 0 or c > 1 or len(color_tuple) != 3:
+                    print(f"{Fore.RED}\nERROR in config file: {color_name} has invalid or missing color value.")
+                    print(f"{Fore.RED}\nMust be exactly 3 values, each between 0 and 1, separated by comma, but {color_name} = {color_tuple} .")
+                    sys.exit(1)
 
     def check_sim_interval(self):
         """Checks if parameters sim_start and sim_end are well defined.

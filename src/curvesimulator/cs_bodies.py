@@ -278,12 +278,13 @@ class CurveSimBodies(list):
             if body.luminosity > 0 and (body.limb_darkening_u1 is None or body.limb_darkening_u2 is None):  # if body.luminosity > 0 and limb darkening parameters are missing
                 print(f"{Fore.RED}\nERROR in config file: {body.name} has luminosity but invalid limb darkening parameter {body.limb_darkening=}.")
                 sys.exit(1)
-            if body.color is not None:
-                for c in body.color:
-                    if c < 0 or c > 1 or len(body.color) != 3:
-                        print(f"{Fore.RED}\nERROR in config file: {body.name} has invalid or missing color value.")
-                        print(f"{Fore.RED}\nMust be exactly 3 values, separated by comma, but {body.color=} .")
-                        sys.exit(1)
+            CurveSimParameters.check_color_tuple(body.name, body.color)
+            # if body.color is not None:
+            #     for c in body.color:
+            #         if c < 0 or c > 1 or len(body.color) != 3:
+            #             print(f"{Fore.RED}\nERROR in config file: {body.name} has invalid or missing color value.")
+            #             print(f"{Fore.RED}\nMust be exactly 3 values, separated by comma, but {body.color=} .")
+            #             sys.exit(1)
             # if body.velocity is None:
             #     if body.e < 0:
             #         print(f"{Fore.RED}\nERROR in config file: {body.name} has invalid or missing eccentricity e.")
@@ -411,7 +412,7 @@ class CurveSimBodies(list):
 
         stars = [body for body in self if body.body_type == "star"]
         sim_flux = CurveSimLightcurve(p.iterations)  # Initialize lightcurve (essentially a np.ndarray)
-        if p.show_lower_plot or p.rv_file:
+        if p.show_lower_curve or p.rv_file:
             sim_rv = np.full(p.iterations, np.nan, dtype=float)
         else:
             sim_rv = None
@@ -431,7 +432,7 @@ class CurveSimBodies(list):
             for body in self:
                 CurveSimBodies.update_position(body, iteration, simulation)
             sim_flux[iteration] = self.total_luminosity(stars, iteration, p)  # Update sim_flux.
-            if p.show_lower_plot or p.rv_file:
+            if p.show_lower_curve or p.rv_file:
                 sim_rv[iteration] = -simulation.particles[p.rv_body].vz
             if p.verbose:
                 CurveSimBodies.progress_bar(iteration, p)
