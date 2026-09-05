@@ -72,6 +72,7 @@ Video generation is very fast: One minute playing time takes only seconds to
 generate.   
 The videos are highly customizable and use very little disk space - only 0.5 
 MB per minute of playing time.   
+You can also directly integrate the videos into your PowerPoint presentation.
 
 
 **[Find Curvesimulator's Documentation here](https://github.com/lichtgestalter/curvesimulator/wiki)**

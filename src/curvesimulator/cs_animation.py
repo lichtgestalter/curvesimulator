@@ -14,13 +14,13 @@ class CurveSimAnimation:
 
     def __init__(self, p, bodies, sim_rv, sim_flux, time_s0):
         CurveSimAnimation.check_ffmpeg()  # is FFmpeg installed?
-        self.fig, ax_right, ax_left, ax_lightcurve, self.rv_dot, self.flux_dot = CurveSimAnimation.init_plot(p, sim_rv, sim_flux, time_s0)  # Adjust constants in section [Plot] of config file to fit your screen.
-        # rv_dot/flux_dot change every frame. Mark them "animated" so the initial full draw
+        self.fig, ax_right, ax_left, ax_lightcurve, self.lower_dot, self.upper_dot = CurveSimAnimation.init_plot(p, sim_rv, sim_flux, time_s0)  # Adjust constants in section [Plot] of config file to fit your screen.
+        # lower_dot/upper_dot change every frame. Mark them "animated" so the initial full draw
         # (used to cache the static background for blitting) does NOT bake them in.
-        if self.rv_dot is not None:
-            self.rv_dot.set_animated(True)
-        if self.flux_dot is not None:
-            self.flux_dot.set_animated(True)
+        if self.lower_dot is not None:
+            self.lower_dot.set_animated(True)
+        if self.upper_dot is not None:
+            self.upper_dot.set_animated(True)
         for body in bodies:  # Circles represent the bodies in the animation. Set their colors and add them to the matplotlib axis.
             if body.image_file_left is None or body.image_file_right is None:
                 body.circle_left.set_color(body.color)
@@ -80,50 +80,70 @@ class CurveSimAnimation:
 
     @staticmethod
     def init_left_plot(p, shape, loc, rowspan, colspan):
+
+        # videotmp
+        # p.video_background_color = "black"
+        # p.video_text_color = "xkcd:light grey"
+        # p.left_title_fontsize = 10
+        # p.left_title_y_coord = 0.9
+        # p.show_left_scale_bar = True
+        # p.scale_bar_fontsize = 8
+
         # left plot (overhead view)
         ax_left = plt.subplot2grid(shape=shape, loc=loc, rowspan=rowspan, colspan=colspan)
         ax_left.set_xlim(-p.xlim, p.xlim)
         ax_left.set_ylim(-p.ylim, p.ylim)
         ax_left.set_aspect("equal")
-        ax_left.set_facecolor("black")  # background color
-        ax_left.set_title(p.left_title, color="xkcd:light grey", fontsize=10, y=0.9)
+        ax_left.set_facecolor(p.video_background_color)  # background color
+        ax_left.set_title(p.left_title, color=p.video_text_color, fontsize=p.left_title_fontsize, y=p.left_title_y_coord)
 
-        scale_bar_end_x = p.xlim * 0.90
-        scale_bar_start_x = scale_bar_end_x - p.scale_bar_length_left / p.scope_left
-        dy = p.ylim * 0.02
-        scale_bar_height = p.ylim * -0.94
-        scale_bar_text_height = p.ylim * -0.97
-        scale_bar_text_start_x = (scale_bar_start_x + scale_bar_end_x) / 2
-        ax_left.hlines(y=scale_bar_height, xmin=scale_bar_start_x, xmax=scale_bar_end_x, color="xkcd:light grey", linewidth=1)
-        ax_left.vlines(x=scale_bar_start_x, ymin=scale_bar_height - dy, ymax=scale_bar_height + dy, color="xkcd:light grey", linewidth=1)
-        ax_left.vlines(x=scale_bar_end_x, ymin=scale_bar_height - dy, ymax=scale_bar_height + dy, color="xkcd:light grey", linewidth=1)
-        scale_bar_number = p.scale_bar_length_left / p.au
-        digits = CurveSimAnimation.relevant_digits(scale_bar_number)
-        ax_left.text(scale_bar_text_start_x, scale_bar_text_height, f"{scale_bar_number:.{digits}f} AU", color="xkcd:light grey", fontsize=8, ha="center", va="top")
+        if p.show_left_scale_bar:
+            scale_bar_end_x = p.xlim * 0.90
+            scale_bar_start_x = scale_bar_end_x - p.scale_bar_length_left / p.scope_left
+            dy = p.ylim * 0.02
+            scale_bar_height = p.ylim * -0.94
+            scale_bar_text_height = p.ylim * -0.97
+            scale_bar_text_start_x = (scale_bar_start_x + scale_bar_end_x) / 2
+            ax_left.hlines(y=scale_bar_height, xmin=scale_bar_start_x, xmax=scale_bar_end_x, color=p.video_text_color, linewidth=1)
+            ax_left.vlines(x=scale_bar_start_x, ymin=scale_bar_height - dy, ymax=scale_bar_height + dy, color=p.video_text_color, linewidth=1)
+            ax_left.vlines(x=scale_bar_end_x, ymin=scale_bar_height - dy, ymax=scale_bar_height + dy, color=p.video_text_color, linewidth=1)
+            scale_bar_number = p.scale_bar_length_left / p.au
+            digits = CurveSimAnimation.relevant_digits(scale_bar_number)
+            ax_left.text(scale_bar_text_start_x, scale_bar_text_height, f"{scale_bar_number:.{digits}f} AU", color=p.video_text_color, fontsize=p.scale_bar_fontsize, ha="center", va="top")
         return ax_left
 
     @staticmethod
     def init_right_plot(p, shape, loc, rowspan, colspan):
+
+        # videotmp
+        # p.video_background_color = "black"
+        # p.video_text_color = "xkcd:light grey"
+        # p.right_title_fontsize = 10
+        # p.right_title_y_coord = 0.9
+        # p.show_right_scale_bar = True
+        # p.scale_bar_fontsize = 8
+
         # right plot (edge-on view)
         ax_right = plt.subplot2grid(shape=shape, loc=loc, rowspan=rowspan, colspan=colspan)
         ax_right.set_xlim(-p.xlim, p.xlim)
         ax_right.set_ylim(-p.ylim, p.ylim)
         ax_right.set_aspect("equal")
-        ax_right.set_facecolor("black")  # background color
-        ax_right.set_title(p.right_title, color="xkcd:light grey", fontsize=10, y=0.9)
+        ax_right.set_facecolor(p.video_background_color)  # background color
+        ax_right.set_title(p.right_title, color=p.video_text_color, fontsize=p.right_title_fontsize, y=p.right_title_y_coord)
 
-        scale_bar_end_x = p.xlim * 0.99
-        scale_bar_start_x = scale_bar_end_x - p.scale_bar_length_right / p.scope_right
-        dy = p.ylim * 0.02
-        scale_bar_height = p.ylim * -0.94
-        scale_bar_text_height = p.ylim * -0.97
-        scale_bar_text_start_x = (scale_bar_start_x + scale_bar_end_x) / 2
-        ax_right.hlines(y=scale_bar_height, xmin=scale_bar_start_x, xmax=scale_bar_end_x, color="xkcd:light grey", linewidth=1)
-        ax_right.vlines(x=scale_bar_start_x, ymin=scale_bar_height - dy, ymax=scale_bar_height + dy, color="xkcd:light grey", linewidth=1)
-        ax_right.vlines(x=scale_bar_end_x, ymin=scale_bar_height - dy, ymax=scale_bar_height + dy, color="xkcd:light grey", linewidth=1)
-        scale_bar_number = p.scale_bar_length_right / p.au
-        digits = CurveSimAnimation.relevant_digits(scale_bar_number)
-        ax_right.text(scale_bar_text_start_x, scale_bar_text_height, f"{scale_bar_number:.{digits}f} AU", color="xkcd:light grey", fontsize=8, ha="center", va="top")
+        if p.show_right_scale_bar:
+            scale_bar_end_x = p.xlim * 0.99
+            scale_bar_start_x = scale_bar_end_x - p.scale_bar_length_right / p.scope_right
+            dy = p.ylim * 0.02
+            scale_bar_height = p.ylim * -0.94
+            scale_bar_text_height = p.ylim * -0.97
+            scale_bar_text_start_x = (scale_bar_start_x + scale_bar_end_x) / 2
+            ax_right.hlines(y=scale_bar_height, xmin=scale_bar_start_x, xmax=scale_bar_end_x, color=p.video_text_color, linewidth=1)
+            ax_right.vlines(x=scale_bar_start_x, ymin=scale_bar_height - dy, ymax=scale_bar_height + dy, color=p.video_text_color, linewidth=1)
+            ax_right.vlines(x=scale_bar_end_x, ymin=scale_bar_height - dy, ymax=scale_bar_height + dy, color=p.video_text_color, linewidth=1)
+            scale_bar_number = p.scale_bar_length_right / p.au
+            digits = CurveSimAnimation.relevant_digits(scale_bar_number)
+            ax_right.text(scale_bar_text_start_x, scale_bar_text_height, f"{scale_bar_number:.{digits}f} AU", color=p.video_text_color, fontsize=p.scale_bar_fontsize, ha="center", va="top")
         return ax_right
 
     @staticmethod
@@ -142,204 +162,234 @@ class CurveSimAnimation:
         ax_rv_curve.set_xlim(float(x[0]), float(x[-1]))
 
     @staticmethod
-    def animated_dot(ax_lightcurve, p, scope, time_s0, color):
-        flux_dot = patches.Ellipse((0, 0), (time_s0[-1] - time_s0[0]) * p.flux_dot_width / p.day, scope * p.flux_dot_height)  # matplotlib patch
-        flux_dot.set(zorder=2)  # Dot in front of lightcurve.
-        flux_dot.set_color(color)
-        ax_lightcurve.add_patch(flux_dot)
-        return flux_dot
+    def animated_dot(ax_curve, p, scope, time_s0, color):
+        upper_dot = patches.Ellipse((0, 0), (time_s0[-1] - time_s0[0]) * p.dot_width / p.day, scope * p.dot_height)  # matplotlib patch
+        upper_dot.set(zorder=2)  # Dot in front of lightcurve.
+        upper_dot.set_color(color)
+        ax_curve.add_patch(upper_dot)
+        return upper_dot
 
     @staticmethod
-    def init_lightcurve_plot(sim_flux, time_s0, p, shape, loc, rowspan, colspan):
-        ax_lightcurve = plt.subplot2grid(shape=shape, loc=loc, rowspan=rowspan, colspan=colspan)
-        ax_lightcurve.set_facecolor("black")  # background color
+    def init_upper_curve_plot(sim_flux, time_s0, p, shape, loc, rowspan, colspan):
 
-        if not p.show_rv_plot:  # no x-tics/-labels when the rv-plot is present below because it uses the same x-tics/-labels
-            CurveSimAnimation.init_curve_plot_x_axis(ax_lightcurve, p, time_s0)
+        # videotmp
+        # p.video_background_color = "black"
+        # p.video_text_color = "xkcd:light grey"
+        # p.upper_curve_color = "white"
+        # p.upper_curve_y_label = "Relative Flux"
+        # p.upper_curve_y_label_fontsize = 8
+        # p.upper_curve_y_tick_fontsize = 8
+        # p.upper_curve_dot_color = (1, 0, 0)
 
-        # lightcurve y-ticks, y-labels
-        ax_lightcurve.set_ylabel("Relative Flux", color="xkcd:light grey", fontsize=8)
-        ax_lightcurve.tick_params(axis="y", colors="xkcd:light grey", labelsize=8)
+        ax_upper_curve = plt.subplot2grid(shape=shape, loc=loc, rowspan=rowspan, colspan=colspan)
+        ax_upper_curve.set_facecolor(p.video_background_color)  # background color
+
+        if not p.show_lower_plot:  # no x-tics/-labels when the rv-plot is present below because it uses the same x-tics/-labels
+            CurveSimAnimation.init_curve_plot_x_axis(ax_upper_curve, p, time_s0)
+
+        # upper curve y-ticks, y-labels
+        ax_upper_curve.set_ylabel(p.upper_curve_y_label, color=p.video_text_color, fontsize=p.upper_curve_y_label_fontsize)
+        ax_upper_curve.tick_params(axis="y", colors=p.video_text_color, labelsize=p.upper_curve_y_tick_fontsize)
         minl = sim_flux.min(initial=None)
         maxl = sim_flux.max(initial=None)
         if minl == maxl:
             minl *= 0.99
         scope = maxl - minl
         buffer = 0.05 * scope
-        ax_lightcurve.set_ylim(minl - buffer, maxl + buffer)
+        ax_upper_curve.set_ylim(minl - buffer, maxl + buffer)
         y_listticdelta = CurveSimAnimation.tic_delta(scope)
         digits = max(0, round(-math.log10(y_listticdelta) + 0.4) - 2)  # The labels get as many decimal places as the intervals between the tics.
         yvalues = [1 - y * y_listticdelta for y in range(round(float((maxl - minl) / y_listticdelta)))]
         ylabels = [f"{round(100 * y, 10):.{digits}f} %" for y in yvalues]
-        ax_lightcurve.set_yticks(yvalues, labels=ylabels)
+        ax_upper_curve.set_yticks(yvalues, labels=ylabels)
 
-        # lightcurve data (white line)
+        # upper curve data (white line)
         x = (time_s0 - p.sim_start_s0) / p.day
-        ax_lightcurve.set_xlim(float(x[0]), float(x[-1]))
-        ax_lightcurve.plot(x, sim_flux, color="white")
+        ax_upper_curve.set_xlim(float(x[0]), float(x[-1]))
+        ax_upper_curve.plot(x, sim_flux, color=p.upper_curve_color)
 
-        flux_dot = CurveSimAnimation.animated_dot(ax_lightcurve, p, scope, time_s0, color=(1, 0, 0))  # lightcurve red dot
-        return ax_lightcurve, flux_dot
+        upper_dot = CurveSimAnimation.animated_dot(ax_upper_curve, p, scope, time_s0, color=p.upper_curve_dot_color)  # lightcurve red dot
+        return ax_upper_curve, upper_dot
 
     @staticmethod
-    def init_rv_curve_plot(sim_rv, time_s0, p, shape, loc, rowspan, colspan):
-        ax_rv_curve = plt.subplot2grid(shape=shape, loc=loc, rowspan=rowspan, colspan=colspan)
-        ax_rv_curve.set_facecolor("black")  # background color
-        ax_rv_curve.text(0.97, -0.11, "BJD (TDB)", color="xkcd:light grey", fontsize=8, ha="right", va="bottom", transform=ax_rv_curve.transAxes)
+    def init_lower_curve_plot(sim_rv, time_s0, p, shape, loc, rowspan, colspan):
 
-        CurveSimAnimation.init_curve_plot_x_axis(ax_rv_curve, p, time_s0)  # rv_curve x-ticks, x-labels
+        # videotmp
+        # p.video_background_color = "black"
+        # p.video_text_color = "xkcd:light grey"
+        # p.lower_curve_color = "white"
+        # p.x_label = "BJD (TDB)"
+        # p.x_label_fontsize = 8
+        # p.x_label_x_coord = 0.97
+        # p.x_label_y_coord = -0.11
+        # p.lower_curve_y_label = "Radial Velocity [m/s]"
+        # p.lower_curve_y_label_fontsize = 8
+        # p.lower_curve_y_tick_fontsize = 8
+        # p.lower_curve_dot_color = (0, 1, 0)
 
-        # rv_curve y-ticks, y-labels
-        ax_rv_curve.set_ylabel("Radial Velocity [m/s]", color="xkcd:light grey", labelpad=22, fontsize=8)
-        ax_rv_curve.tick_params(axis="y", colors="xkcd:light grey", labelsize=8)
+        ax_lower_curve = plt.subplot2grid(shape=shape, loc=loc, rowspan=rowspan, colspan=colspan)
+        ax_lower_curve.set_facecolor(p.video_background_color)  # background color
+        ax_lower_curve.text(p.x_label_x_coord, p.x_label_y_coord, p.x_label, color=p.video_text_color, fontsize=p.x_label_fontsize, ha="right", va="bottom", transform=ax_lower_curve.transAxes)
+
+        CurveSimAnimation.init_curve_plot_x_axis(ax_lower_curve, p, time_s0)  # rv_curve x-ticks, x-labels
+
+        # lower curve y-ticks, y-labels
+        ax_lower_curve.set_ylabel(p.lower_curve_y_label, color=p.video_text_color, labelpad=22, fontsize=p.lower_curve_y_label_fontsize)
+        ax_lower_curve.tick_params(axis="y", colors=p.video_text_color, labelsize=p.lower_curve_y_tick_fontsize)
         minl = sim_rv.min(initial=None)
         maxl = sim_rv.max(initial=None)
         if minl == maxl:
             minl *= 0.99
         scope = maxl - minl
         buffer = 0.05 * scope
-        ax_rv_curve.set_ylim(minl - buffer, maxl + buffer)
+        ax_lower_curve.set_ylim(minl - buffer, maxl + buffer)
         y_listticdelta = CurveSimAnimation.tic_delta(scope)
         digits = max(0, round(-math.log10(y_listticdelta) + 0.4) - 2)  # The labels get as many decimal places as the intervals between the tics.
         if maxl > 0 > minl:
             yvalues = [maxl, 0, minl]
         else:
             yvalues = [maxl, minl]
-        # yvalues = [maxl - y * y_listticdelta for y in range(round(float((maxl - minl) / y_listticdelta)))]
         ylabels = [f"{round(1 * y, 10):.{digits}f}" for y in yvalues]
-        ax_rv_curve.set_yticks(yvalues, labels=ylabels)
+        ax_lower_curve.set_yticks(yvalues, labels=ylabels)
 
-        # rv_curve data (white line) using relative days since p.sim_start_s0[0]
+        # lower curve data (white line) using relative days since p.sim_start_s0[0]
         x = (time_s0 - p.sim_start_s0) / p.day
-        ax_rv_curve.plot(x, sim_rv, color="white")
+        ax_lower_curve.plot(x, sim_rv, color=p.lower_curve_color)
 
-        rv_dot = CurveSimAnimation.animated_dot(ax_rv_curve, p, scope, time_s0, color=(0, 1.0, 0))  # rv curve green dot
-        return ax_rv_curve, rv_dot
+        lower_dot = CurveSimAnimation.animated_dot(ax_lower_curve, p, scope, time_s0, color=p.lower_curve_dot_color)  # rv curve green dot
+        return ax_lower_curve, lower_dot
 
     @staticmethod
     def init_plot(p, sim_rv, sim_flux, time_s0):
-        """Initialize the matplotlib figure containing 3 axis:
+
+        # videotmp
+        # p.video_background_color = "black"
+        # p.main_title_color = "white"
+        # p.main_title_fontsize = 14
+        # p.separator_line_color = "xkcd:dark grey"
+
+        """Initialize the matplotlib figure containing up to 4 axis:
         Top left: overhead view
         Top right: edge-on view
-        Bottom: lightcurve and rv_curve"""
+        Bottom: upper curve (default: lightcurve) and lower curve (default :rv-curve)"""
         fig = plt.figure()
         fig.set_figwidth(p.figure_width)
         fig.set_figheight(p.figure_height)
-        fig.set_facecolor("black")  # background color outside of ax_left and ax_lightcurve
+        fig.set_facecolor(p.video_background_color)  # background color outside of ax_left and ax_lightcurve
         buffer = 0
         fig.subplots_adjust(left=buffer, right=1.0 - buffer, bottom=buffer, top=1 - buffer)  # Positions of the subplots edges, as a fraction of the figure width.
 
-        if p.show_left_plot and p.show_right_plot and p.show_lc_plot and p.show_rv_plot:
+        if p.show_left_plot and p.show_right_plot and p.show_upper_plot and p.show_lower_plot:
             ax_left = CurveSimAnimation.init_left_plot(p, shape=(6, 2), loc=(0, 0), rowspan=4, colspan=1)
             ax_right = CurveSimAnimation.init_right_plot(p, shape=(6, 2), loc=(0, 1), rowspan=4, colspan=1)
-            ax_lightcurve, flux_dot = CurveSimAnimation.init_lightcurve_plot(sim_flux, time_s0, p, shape=(6, 2), loc=(4, 0), rowspan=1, colspan=2)
-            ax_rv_curve, rv_dot = CurveSimAnimation.init_rv_curve_plot(sim_rv, time_s0, p, shape=(6, 2), loc=(5, 0), rowspan=1, colspan=2)
-            fig.add_artist(plt.Line2D([0.5, 0.5], [0.4, 0.9], color="xkcd:dark grey", linewidth=1, transform=fig.transFigure))
+            ax_lightcurve, upper_dot = CurveSimAnimation.init_upper_curve_plot(sim_flux, time_s0, p, shape=(6, 2), loc=(4, 0), rowspan=1, colspan=2)
+            ax_rv_curve, lower_dot = CurveSimAnimation.init_lower_curve_plot(sim_rv, time_s0, p, shape=(6, 2), loc=(5, 0), rowspan=1, colspan=2)
+            fig.add_artist(plt.Line2D([0.5, 0.5], [0.4, 0.9], color=p.separator_line_color, linewidth=1, transform=fig.transFigure))
         # no RV plot
-        elif p.show_left_plot and p.show_right_plot and p.show_lc_plot and not p.show_rv_plot:
+        elif p.show_left_plot and p.show_right_plot and p.show_upper_plot and not p.show_lower_plot:
             ax_left = CurveSimAnimation.init_left_plot(p, shape=(5, 2), loc=(0, 0), rowspan=4, colspan=1)
             ax_right = CurveSimAnimation.init_right_plot(p, shape=(5, 2), loc=(0, 1), rowspan=4, colspan=1)
-            ax_lightcurve, flux_dot = CurveSimAnimation.init_lightcurve_plot(sim_flux, time_s0, p, shape=(5, 2), loc=(4, 0), rowspan=1, colspan=2)
-            ax_rv_curve, rv_dot = None, None
-            fig.add_artist(plt.Line2D([0.5, 0.5], [0.27, 0.9], color="xkcd:dark grey", linewidth=1, transform=fig.transFigure))
+            ax_lightcurve, upper_dot = CurveSimAnimation.init_upper_curve_plot(sim_flux, time_s0, p, shape=(5, 2), loc=(4, 0), rowspan=1, colspan=2)
+            ax_rv_curve, lower_dot = None, None
+            fig.add_artist(plt.Line2D([0.5, 0.5], [0.27, 0.9], color=p.separator_line_color, linewidth=1, transform=fig.transFigure))
 
         # no light curve plot
-        elif p.show_left_plot and p.show_right_plot and not p.show_lc_plot and p.show_rv_plot:
+        elif p.show_left_plot and p.show_right_plot and not p.show_upper_plot and p.show_lower_plot:
             ax_left = CurveSimAnimation.init_left_plot(p, shape=(5, 2), loc=(0, 0), rowspan=4, colspan=1)
             ax_right = CurveSimAnimation.init_right_plot(p, shape=(5, 2), loc=(0, 1), rowspan=4, colspan=1)
-            ax_lightcurve, flux_dot = None, None
-            ax_rv_curve, rv_dot = CurveSimAnimation.init_rv_curve_plot(sim_rv, time_s0, p, shape=(5, 2), loc=(4, 0), rowspan=1, colspan=2)
-            fig.add_artist(plt.Line2D([0.5, 0.5], [0.27, 0.9], color="xkcd:dark grey", linewidth=1, transform=fig.transFigure))
+            ax_lightcurve, upper_dot = None, None
+            ax_rv_curve, lower_dot = CurveSimAnimation.init_lower_curve_plot(sim_rv, time_s0, p, shape=(5, 2), loc=(4, 0), rowspan=1, colspan=2)
+            fig.add_artist(plt.Line2D([0.5, 0.5], [0.27, 0.9], color=p.separator_line_color, linewidth=1, transform=fig.transFigure))
         # no light curve and no RV plot
-        elif p.show_left_plot and p.show_right_plot and not p.show_lc_plot and not p.show_rv_plot:
+        elif p.show_left_plot and p.show_right_plot and not p.show_upper_plot and not p.show_lower_plot:
             ax_left = CurveSimAnimation.init_left_plot(p, shape=(4, 2), loc=(0, 0), rowspan=4, colspan=1)
             ax_right = CurveSimAnimation.init_right_plot(p, shape=(4, 2), loc=(0, 1), rowspan=4, colspan=1)
-            ax_lightcurve, flux_dot = None, None
-            ax_rv_curve, rv_dot = None, None
-            fig.add_artist(plt.Line2D([0.5, 0.5], [0.07, 0.9], color="xkcd:dark grey", linewidth=1, transform=fig.transFigure))
+            ax_lightcurve, upper_dot = None, None
+            ax_rv_curve, lower_dot = None, None
+            fig.add_artist(plt.Line2D([0.5, 0.5], [0.07, 0.9], color=p.separator_line_color, linewidth=1, transform=fig.transFigure))
 
         # right plot only
-        elif not p.show_left_plot and p.show_right_plot and not p.show_lc_plot and not p.show_rv_plot:
+        elif not p.show_left_plot and p.show_right_plot and not p.show_upper_plot and not p.show_lower_plot:
             ax_left = None
             ax_right = CurveSimAnimation.init_right_plot(p, shape=(1, 1), loc=(0, 0), rowspan=1, colspan=1)
-            ax_lightcurve, flux_dot = None, None
-            ax_rv_curve, rv_dot = None, None
+            ax_lightcurve, upper_dot = None, None
+            ax_rv_curve, lower_dot = None, None
         # right plot + light curve
-        elif not p.show_left_plot and p.show_right_plot and p.show_lc_plot and not p.show_rv_plot:
+        elif not p.show_left_plot and p.show_right_plot and p.show_upper_plot and not p.show_lower_plot:
             ax_left = None
             ax_right = CurveSimAnimation.init_right_plot(p, shape=(5, 1), loc=(0, 0), rowspan=4, colspan=1)
-            ax_lightcurve, flux_dot = CurveSimAnimation.init_lightcurve_plot(sim_flux, time_s0, p, shape=(5, 1), loc=(4, 0), rowspan=1, colspan=1)
-            ax_rv_curve, rv_dot = None, None
+            ax_lightcurve, upper_dot = CurveSimAnimation.init_upper_curve_plot(sim_flux, time_s0, p, shape=(5, 1), loc=(4, 0), rowspan=1, colspan=1)
+            ax_rv_curve, lower_dot = None, None
         # right plot + rv curve
-        elif not p.show_left_plot and p.show_right_plot and not p.show_lc_plot and p.show_rv_plot:
+        elif not p.show_left_plot and p.show_right_plot and not p.show_upper_plot and p.show_lower_plot:
             ax_left = None
             ax_right = CurveSimAnimation.init_right_plot(p, shape=(5, 1), loc=(0, 0), rowspan=4, colspan=1)
-            ax_lightcurve, flux_dot = None, None
-            ax_rv_curve, rv_dot = CurveSimAnimation.init_rv_curve_plot(sim_rv, time_s0, p, shape=(5, 1), loc=(4, 0), rowspan=1, colspan=1)
+            ax_lightcurve, upper_dot = None, None
+            ax_rv_curve, lower_dot = CurveSimAnimation.init_lower_curve_plot(sim_rv, time_s0, p, shape=(5, 1), loc=(4, 0), rowspan=1, colspan=1)
         # right plot + light curve + rv curve
-        elif not p.show_left_plot and p.show_right_plot and p.show_lc_plot and p.show_rv_plot:
+        elif not p.show_left_plot and p.show_right_plot and p.show_upper_plot and p.show_lower_plot:
             ax_left = None
             ax_right = CurveSimAnimation.init_right_plot(p, shape=(6, 1), loc=(0, 0), rowspan=4, colspan=1)
-            ax_lightcurve, flux_dot = CurveSimAnimation.init_lightcurve_plot(sim_flux, time_s0, p, shape=(6, 1), loc=(4, 0), rowspan=1, colspan=1)
-            ax_rv_curve, rv_dot = CurveSimAnimation.init_rv_curve_plot(sim_rv, time_s0, p, shape=(6, 1), loc=(5, 0), rowspan=1, colspan=1)
+            ax_lightcurve, upper_dot = CurveSimAnimation.init_upper_curve_plot(sim_flux, time_s0, p, shape=(6, 1), loc=(4, 0), rowspan=1, colspan=1)
+            ax_rv_curve, lower_dot = CurveSimAnimation.init_lower_curve_plot(sim_rv, time_s0, p, shape=(6, 1), loc=(5, 0), rowspan=1, colspan=1)
 
         # left plot only
-        elif p.show_left_plot and not p.show_right_plot and not p.show_lc_plot and not p.show_rv_plot:
+        elif p.show_left_plot and not p.show_right_plot and not p.show_upper_plot and not p.show_lower_plot:
             ax_left = CurveSimAnimation.init_left_plot(p, shape=(1, 1), loc=(0, 0), rowspan=1, colspan=1)
             ax_right = None
-            ax_lightcurve, flux_dot = None, None
-            ax_rv_curve, rv_dot = None, None
+            ax_lightcurve, upper_dot = None, None
+            ax_rv_curve, lower_dot = None, None
         # left plot + light curve
-        elif p.show_left_plot and not p.show_right_plot and p.show_lc_plot and not p.show_rv_plot:
+        elif p.show_left_plot and not p.show_right_plot and p.show_upper_plot and not p.show_lower_plot:
             ax_left = CurveSimAnimation.init_left_plot(p, shape=(5, 1), loc=(0, 0), rowspan=4, colspan=1)
             ax_right = None
-            ax_lightcurve, flux_dot = CurveSimAnimation.init_lightcurve_plot(sim_flux, time_s0, p, shape=(5, 1), loc=(4, 0), rowspan=1, colspan=1)
-            ax_rv_curve, rv_dot = None, None
+            ax_lightcurve, upper_dot = CurveSimAnimation.init_upper_curve_plot(sim_flux, time_s0, p, shape=(5, 1), loc=(4, 0), rowspan=1, colspan=1)
+            ax_rv_curve, lower_dot = None, None
         # left plot + rv curve
-        elif p.show_left_plot and not p.show_right_plot and not p.show_lc_plot and p.show_rv_plot:
+        elif p.show_left_plot and not p.show_right_plot and not p.show_upper_plot and p.show_lower_plot:
             ax_left = CurveSimAnimation.init_left_plot(p, shape=(5, 1), loc=(0, 0), rowspan=4, colspan=1)
             ax_right = None
-            ax_lightcurve, flux_dot = None, None
-            ax_rv_curve, rv_dot = CurveSimAnimation.init_rv_curve_plot(sim_rv, time_s0, p, shape=(5, 1), loc=(4, 0), rowspan=1, colspan=1)
+            ax_lightcurve, upper_dot = None, None
+            ax_rv_curve, lower_dot = CurveSimAnimation.init_lower_curve_plot(sim_rv, time_s0, p, shape=(5, 1), loc=(4, 0), rowspan=1, colspan=1)
         # left plot + light curve + rv curve
-        elif p.show_left_plot and not p.show_right_plot and p.show_lc_plot and p.show_rv_plot:
+        elif p.show_left_plot and not p.show_right_plot and p.show_upper_plot and p.show_lower_plot:
             ax_left = CurveSimAnimation.init_left_plot(p, shape=(6, 1), loc=(0, 0), rowspan=4, colspan=1)
             ax_right = None
-            ax_lightcurve, flux_dot = CurveSimAnimation.init_lightcurve_plot(sim_flux, time_s0, p, shape=(6, 1), loc=(4, 0), rowspan=1, colspan=1)
-            ax_rv_curve, rv_dot = CurveSimAnimation.init_rv_curve_plot(sim_rv, time_s0, p, shape=(6, 1), loc=(5, 0), rowspan=1, colspan=1)
+            ax_lightcurve, upper_dot = CurveSimAnimation.init_upper_curve_plot(sim_flux, time_s0, p, shape=(6, 1), loc=(4, 0), rowspan=1, colspan=1)
+            ax_rv_curve, lower_dot = CurveSimAnimation.init_lower_curve_plot(sim_rv, time_s0, p, shape=(6, 1), loc=(5, 0), rowspan=1, colspan=1)
 
         # light curve only
-        elif not p.show_left_plot and not p.show_right_plot and p.show_lc_plot and not p.show_rv_plot:
+        elif not p.show_left_plot and not p.show_right_plot and p.show_upper_plot and not p.show_lower_plot:
             ax_left = None
             ax_right = None
-            ax_lightcurve, flux_dot = CurveSimAnimation.init_lightcurve_plot(sim_flux, time_s0, p, shape=(1, 1), loc=(0, 0), rowspan=1, colspan=1)
-            ax_rv_curve, rv_dot = None, None
+            ax_lightcurve, upper_dot = CurveSimAnimation.init_upper_curve_plot(sim_flux, time_s0, p, shape=(1, 1), loc=(0, 0), rowspan=1, colspan=1)
+            ax_rv_curve, lower_dot = None, None
         # rv curve only
-        elif not p.show_left_plot and not p.show_right_plot and not p.show_lc_plot and p.show_rv_plot:
+        elif not p.show_left_plot and not p.show_right_plot and not p.show_upper_plot and p.show_lower_plot:
             ax_left = None
             ax_right = None
-            ax_lightcurve, flux_dot = None, None
-            ax_rv_curve, rv_dot = CurveSimAnimation.init_rv_curve_plot(sim_rv, time_s0, p, shape=(1, 1), loc=(0, 0), rowspan=1, colspan=1)
+            ax_lightcurve, upper_dot = None, None
+            ax_rv_curve, lower_dot = CurveSimAnimation.init_lower_curve_plot(sim_rv, time_s0, p, shape=(1, 1), loc=(0, 0), rowspan=1, colspan=1)
         # light curve + rv curve
-        elif not p.show_left_plot and not p.show_right_plot and p.show_lc_plot and p.show_rv_plot:
+        elif not p.show_left_plot and not p.show_right_plot and p.show_upper_plot and p.show_lower_plot:
             ax_left = None
             ax_right = None
-            ax_lightcurve, flux_dot = CurveSimAnimation.init_lightcurve_plot(sim_flux, time_s0, p, shape=(2, 1), loc=(0, 0), rowspan=1, colspan=1)
-            ax_rv_curve, rv_dot = CurveSimAnimation.init_rv_curve_plot(sim_rv, time_s0, p, shape=(2, 1), loc=(1, 0), rowspan=1, colspan=1)
+            ax_lightcurve, upper_dot = CurveSimAnimation.init_upper_curve_plot(sim_flux, time_s0, p, shape=(2, 1), loc=(0, 0), rowspan=1, colspan=1)
+            ax_rv_curve, lower_dot = CurveSimAnimation.init_lower_curve_plot(sim_rv, time_s0, p, shape=(2, 1), loc=(1, 0), rowspan=1, colspan=1)
 
         else:
             print(f"{Fore.RED}\nERROR: No plot was chosen to be displayed in the video.")
-            print("Check the settings of parameters show_left_plot, show_right_plot, show_lc_plot and show_rv_plot.{Style.RESET_ALL}")
+            print("Check the settings of parameters show_left_plot, show_right_plot, show_upper_plot and show_lower_plot.{Style.RESET_ALL}")
             sys.exit(1)
 
         plt.tight_layout()  # Automatically adjust padding horizontally as well as vertically.
-        plt.suptitle(p.main_title, color="white", fontsize=14)
+        plt.suptitle(p.main_title, color=p.main_title_color, fontsize=p.main_title_fontsize)
         fig.text(0.99, 0.99, "lichtgestalter/CurveSimulator", color="xkcd:purpley", fontsize=10, ha="right", va="top", transform=fig.transFigure)
 
-        return fig, ax_right, ax_left, ax_lightcurve, rv_dot, flux_dot
+        return fig, ax_right, ax_left, ax_lightcurve, lower_dot, upper_dot
 
     @staticmethod
-    def next_frame(frame, p, bodies, rv_dot, flux_dot, sim_rv, sim_flux, time_s0):
+    def next_frame(frame, p, bodies, lower_dot, upper_dot, sim_rv, sim_flux, time_s0):
         # p.clockwise = False
         if p.clockwise:
             x_direction = 1
@@ -366,10 +416,10 @@ class CurveSimAnimation:
 
         # Use relative x (days since p.sim_start_s0[0]) for both dots so they align with plotted curves
         x_rel = (time_s0[frame_number] - p.sim_start_s0) / p.day
-        if p.show_lc_plot:
-            flux_dot.center = x_rel, sim_flux[frame_number]
-        if p.show_rv_plot:
-            rv_dot.center = x_rel, sim_rv[frame_number]
+        if p.show_upper_plot:
+            upper_dot.center = x_rel, sim_flux[frame_number]
+        if p.show_lower_plot:
+            lower_dot.center = x_rel, sim_rv[frame_number]
         # if frame > 10:
         #     bodies[0].circle_left.set_color((1.0, 0.2, 0.2))  # Example code for changing circle color during animation
         if frame >= 10 and frame % int(round(p.frames / 10)) == 0:  # Inform user about program"s progress.
@@ -377,9 +427,9 @@ class CurveSimAnimation:
 
         # Collect the artists that changed this frame. render() uses these to blit
         # only the changed regions instead of redrawing the whole figure.
-        artists = [flux_dot] if flux_dot else []
-        if rv_dot:
-            artists.append(rv_dot)
+        artists = [upper_dot] if upper_dot else []
+        if lower_dot:
+            artists.append(lower_dot)
 
         # Add AnnotationBboxes (image mode) or circles (non-image mode).
         for body in bodies:
@@ -444,7 +494,7 @@ class CurveSimAnimation:
 
         try:
             for frame in range(frames):
-                artists = CurveSimAnimation.next_frame(frame, p, bodies, self.rv_dot, self.flux_dot, sim_rv, sim_flux, time_s0)
+                artists = CurveSimAnimation.next_frame(frame, p, bodies, self.lower_dot, self.upper_dot, sim_rv, sim_flux, time_s0)
                 canvas.restore_region(background)
                 # Group by axes and sort by zorder, then draw only the changed artists on top of the cached background.
                 by_axes = {}

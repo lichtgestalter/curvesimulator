@@ -105,6 +105,8 @@ class CurveSimBodies(list):
             # simulation.integrator = "ias15"  # default integrator
             simulation.integrator = "whfast"
             simulation.dt = p.dt
+        if p.integrator is not None:
+            simulation.integrator = p.integrator
         if p.verbose:
             print(f"using Rebound integrator {simulation.integrator}:", end="")
         if star_count == 0:
@@ -409,7 +411,7 @@ class CurveSimBodies(list):
 
         stars = [body for body in self if body.body_type == "star"]
         sim_flux = CurveSimLightcurve(p.iterations)  # Initialize lightcurve (essentially a np.ndarray)
-        if p.show_rv_plot or p.rv_file:
+        if p.show_lower_plot or p.rv_file:
             sim_rv = np.full(p.iterations, np.nan, dtype=float)
         else:
             sim_rv = None
@@ -429,7 +431,7 @@ class CurveSimBodies(list):
             for body in self:
                 CurveSimBodies.update_position(body, iteration, simulation)
             sim_flux[iteration] = self.total_luminosity(stars, iteration, p)  # Update sim_flux.
-            if p.show_rv_plot or p.rv_file:
+            if p.show_lower_plot or p.rv_file:
                 sim_rv[iteration] = -simulation.particles[p.rv_body].vz
             if p.verbose:
                 CurveSimBodies.progress_bar(iteration, p)

@@ -58,6 +58,7 @@ class CurveSimParameters:
 
         # [Simulation]
         self.action = config.get("Simulation", "action", fallback="None")
+        self.integrator = config.get("Simulation", "integrator", fallback=None)
         self.jacobi_masses = eval(config.get("Simulation", "jacobi_masses", fallback="True"))
         self.rebound_warnings = eval(config.get("Simulation", "rebound_warnings", fallback="True"))
         self.dt = eval(config.get("Simulation", "dt", fallback="1000"))
@@ -145,30 +146,69 @@ class CurveSimParameters:
         self.scale_bar_length_left = eval(config.get("VideoScale", "scale_bar_length_left", fallback="au"))
         self.star_scale_left = eval(config.get("VideoScale", "star_scale_left", fallback="1.0"))
         self.planet_scale_left = eval(config.get("VideoScale", "planet_scale_left", fallback="1.0"))
+
         self.scope_right = eval(config.get("VideoScale", "scope_right", fallback="au"))
         self.scale_bar_length_right = eval(config.get("VideoScale", "scale_bar_length_right", fallback="au"))
         self.star_scale_right = eval(config.get("VideoScale", "star_scale_right", fallback="1.0"))
         self.planet_scale_right = eval(config.get("VideoScale", "planet_scale_right", fallback="1.0"))
+
         self.autoscaling = config.get("VideoScale", "autoscaling", fallback="on") == "on"
         self.min_radius = eval(config.get("VideoScale", "min_radius", fallback="0.4")) / 100.0
         self.max_radius = eval(config.get("VideoScale", "max_radius", fallback="2.0")) / 100.0
 
         # [VideoPlot]
+        self.video_background_color = config.get("VideoPlot", "video_background_color", fallback="black")
+        self.video_text_color = config.get("VideoPlot", "video_text_color", fallback="xkcd:light grey")
+        self.separator_line_color = config.get("VideoPlot", "separator_line_color", fallback="xkcd:dark grey")
+        self.scale_bar_fontsize = eval(config.get("VideoPlot", "scale_bar_fontsize", fallback="8"))
+
         self.show_left_plot = eval(config.get("VideoPlot", "show_left_plot", fallback="True"))
         self.show_right_plot = eval(config.get("VideoPlot", "show_right_plot", fallback="True"))
-        self.show_lc_plot = eval(config.get("VideoPlot", "show_lc_plot", fallback="True"))
-        self.show_rv_plot = eval(config.get("VideoPlot", "show_rv_plot", fallback="False"))
+        self.show_upper_plot = eval(config.get("VideoPlot", "show_upper_plot", fallback="True"))
+        self.show_lower_plot = eval(config.get("VideoPlot", "show_lower_plot", fallback="False"))
+
         self.main_title = config.get("VideoPlot", "main_title", fallback="Main Title")
+        self.main_title_color = config.get("VideoPlot", "main_title_color", fallback="white")
+        self.main_title_fontsize = eval(config.get("VideoPlot", "main_title_fontsize", fallback="14"))
+
+        # left plot
         self.left_title = config.get("VideoPlot", "left_title", fallback="View from above")
+        self.left_title_fontsize = eval(config.get("VideoPlot", "left_title_fontsize", fallback="10"))
+        self.left_title_y_coord = eval(config.get("VideoPlot", "left_title_y_coord", fallback="0.9"))
+        self.show_left_scale_bar = eval(config.get("VideoPlot", "show_left_scale_bar", fallback="True"))
+
+        # right plot
         self.right_title = config.get("VideoPlot", "right_title", fallback="View from Earth")
+        self.right_title_fontsize = eval(config.get("VideoPlot", "right_title_fontsize", fallback="10"))
+        self.right_title_y_coord = eval(config.get("VideoPlot", "right_title_y_coord", fallback="0.9"))
+        self.show_right_scale_bar = eval(config.get("VideoPlot", "show_right_scale_bar", fallback="True"))
+
+        # curves
+        self.dot_height = eval(config.get("VideoPlot", "dot_height", fallback="0.077"))
+        self.dot_width = eval(config.get("VideoPlot", "dot_width", fallback="0.005"))
+
+        self.x_label = config.get("VideoPlot", "x_label", fallback="BJD (TDB)")
+        self.x_label_fontsize = eval(config.get("VideoPlot", "x_label_fontsize", fallback="8"))
+        self.x_label_x_coord = eval(config.get("VideoPlot", "x_label_x_coord", fallback="0.97"))
+        self.x_label_y_coord = eval(config.get("VideoPlot", "x_label_y_coord", fallback="-0.11"))
+
+        self.upper_curve_color = config.get("VideoPlot", "upper_curve_color", fallback="white")
+        self.upper_curve_y_label = config.get("VideoPlot", "upper_curve_y_label", fallback="Relative Flux")
+        self.upper_curve_y_label_fontsize = eval(config.get("VideoPlot", "upper_curve_y_label_fontsize", fallback="8"))
+        self.upper_curve_y_tick_fontsize = eval(config.get("VideoPlot", "upper_curve_y_tick_fontsize", fallback="8"))
+        self.upper_curve_dot_color = (1, 0, 0)
+
+        self.lower_curve_color = config.get("VideoPlot", "lower_curve_color", fallback="white")
+        self.lower_curve_y_label = config.get("VideoPlot", "lower_curve_y_label", fallback="Radial Velocity [m/s]")
+        self.lower_curve_y_label_fontsize = eval(config.get("VideoPlot", "lower_curve_y_label_fontsize", fallback="8"))
+        self.lower_curve_y_tick_fontsize = eval(config.get("VideoPlot", "lower_curve_y_tick_fontsize", fallback="8"))
+        self.lower_curve_dot_color = (0, 1, 0)
+
+        # dimensions
         self.figure_width = eval(config.get("VideoPlot", "figure_width", fallback="16"))
         self.figure_height = eval(config.get("VideoPlot", "figure_height", fallback="8"))
         self.xlim = eval(config.get("VideoPlot", "xlim", fallback="1.25"))
         self.ylim = eval(config.get("VideoPlot", "ylim", fallback="1.0"))
-        self.flux_dot_height = eval(config.get("VideoPlot", "flux_dot_height", fallback="0.077"))
-        self.flux_dot_width = eval(config.get("VideoPlot", "flux_dot_width", fallback="0.005"))
-        self.rv_dot_height = eval(config.get("VideoPlot", "rv_dot_height", fallback="0.077"))
-        self.rv_dot_width = eval(config.get("VideoPlot", "rv_dot_width", fallback="0.005"))
 
         if self.action == "single_run" and self.video_file:
             if self.sampling_rate < 1:
