@@ -239,7 +239,7 @@ class CurveSimAnimation:
         digits = max(0, round(-math.log10(y_listticdelta) + 0.4) - 2)  # The labels get as many decimal places as the intervals between the tics.
 
 
-        # individualisieren!
+        # individualisieren!.
         if maxl > 0 > minl:
             yvalues = [maxl, 0, minl]
         else:
