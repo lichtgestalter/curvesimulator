@@ -3,12 +3,16 @@ import math
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 from matplotlib import patches
+from matplotlib.axes import Axes
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 import numpy as np
 import shutil
 import subprocess
 import sys
 import time
+
+from matplotlib.patches import Ellipse
+
 
 class CurveSimAnimation:
 
@@ -79,56 +83,44 @@ class CurveSimAnimation:
             return delta
 
     @staticmethod
-    def init_left_plot(p, shape, loc, rowspan, colspan):  # overhead view
-        ax_left = plt.subplot2grid(shape=shape, loc=loc, rowspan=rowspan, colspan=colspan)
-        ax_left.set_xlim(-p.xlim, p.xlim)
-        ax_left.set_ylim(-p.ylim, p.ylim)
-        ax_left.set_aspect("equal")
-        ax_left.set_facecolor(p.video_background_color)  # background color
-        ax_left.set_title(p.left_title, color=p.video_text_color, fontsize=p.left_title_fontsize, y=p.left_title_y_coord)
-        if p.show_left_scale_bar:
-            scale_bar_end_x = p.xlim * 0.90
-            scale_bar_start_x = scale_bar_end_x - p.scale_bar_length_left / p.scope_left
+    def init_starsystem_plot(colspan, loc, p, rowspan, shape, title, title_fontsize, title_y_coord, show_scale_bar, scale_bar_length, scope):
+        ax = plt.subplot2grid(shape=shape, loc=loc, rowspan=rowspan, colspan=colspan)
+        ax.set_xlim(-p.xlim, p.xlim)
+        ax.set_ylim(-p.ylim, p.ylim)
+        ax.set_aspect("equal")
+        ax.set_facecolor(p.video_background_color)  # background color
+        ax.set_title(title, color=p.video_text_color, fontsize=title_fontsize, y=title_y_coord)
+        if show_scale_bar:
+            scale_bar_end_x = p.xlim * 0.99
+            scale_bar_start_x = scale_bar_end_x - scale_bar_length / scope
             dy = p.ylim * 0.02
             scale_bar_height = p.ylim * -0.94
             scale_bar_text_height = p.ylim * -0.97
             scale_bar_text_start_x = (scale_bar_start_x + scale_bar_end_x) / 2
-            ax_left.hlines(y=scale_bar_height, xmin=scale_bar_start_x, xmax=scale_bar_end_x, color=p.video_text_color, linewidth=1)
-            ax_left.vlines(x=scale_bar_start_x, ymin=scale_bar_height - dy, ymax=scale_bar_height + dy, color=p.video_text_color, linewidth=1)
-            ax_left.vlines(x=scale_bar_end_x, ymin=scale_bar_height - dy, ymax=scale_bar_height + dy, color=p.video_text_color, linewidth=1)
-            scale_bar_number = p.scale_bar_length_left / p.au
+            ax.hlines(y=scale_bar_height, xmin=scale_bar_start_x, xmax=scale_bar_end_x, color=p.video_text_color, linewidth=1)
+            ax.vlines(x=scale_bar_start_x, ymin=scale_bar_height - dy, ymax=scale_bar_height + dy, color=p.video_text_color, linewidth=1)
+            ax.vlines(x=scale_bar_end_x, ymin=scale_bar_height - dy, ymax=scale_bar_height + dy, color=p.video_text_color, linewidth=1)
+            scale_bar_number = scale_bar_length / p.au
             digits = CurveSimAnimation.relevant_digits(scale_bar_number)
-            ax_left.text(scale_bar_text_start_x, scale_bar_text_height, f"{scale_bar_number:.{digits}f} AU", color=p.video_text_color, fontsize=p.scale_bar_fontsize, ha="center", va="top")
+            ax.text(scale_bar_text_start_x, scale_bar_text_height, f"{scale_bar_number:.{digits}f} AU", color=p.video_text_color, fontsize=p.scale_bar_fontsize, ha="center", va="top")
+        return ax
+
+    @staticmethod
+    def init_left_plot(p, shape, loc, rowspan, colspan):  # overhead view
+        ax_left = CurveSimAnimation.init_starsystem_plot(colspan, loc, p, rowspan, shape, p.right_title, p.right_title_fontsize, p.right_title_y_coord, p.show_right_scale_bar, p.scale_bar_length_right, p.scope_right)
         return ax_left
 
     @staticmethod
     def init_right_plot(p, shape, loc, rowspan, colspan):  # edge-on view
-        ax_right = plt.subplot2grid(shape=shape, loc=loc, rowspan=rowspan, colspan=colspan)
-        ax_right.set_xlim(-p.xlim, p.xlim)
-        ax_right.set_ylim(-p.ylim, p.ylim)
-        ax_right.set_aspect("equal")
-        ax_right.set_facecolor(p.video_background_color)  # background color
-        ax_right.set_title(p.right_title, color=p.video_text_color, fontsize=p.right_title_fontsize, y=p.right_title_y_coord)
-        if p.show_right_scale_bar:
-            scale_bar_end_x = p.xlim * 0.99
-            scale_bar_start_x = scale_bar_end_x - p.scale_bar_length_right / p.scope_right
-            dy = p.ylim * 0.02
-            scale_bar_height = p.ylim * -0.94
-            scale_bar_text_height = p.ylim * -0.97
-            scale_bar_text_start_x = (scale_bar_start_x + scale_bar_end_x) / 2
-            ax_right.hlines(y=scale_bar_height, xmin=scale_bar_start_x, xmax=scale_bar_end_x, color=p.video_text_color, linewidth=1)
-            ax_right.vlines(x=scale_bar_start_x, ymin=scale_bar_height - dy, ymax=scale_bar_height + dy, color=p.video_text_color, linewidth=1)
-            ax_right.vlines(x=scale_bar_end_x, ymin=scale_bar_height - dy, ymax=scale_bar_height + dy, color=p.video_text_color, linewidth=1)
-            scale_bar_number = p.scale_bar_length_right / p.au
-            digits = CurveSimAnimation.relevant_digits(scale_bar_number)
-            ax_right.text(scale_bar_text_start_x, scale_bar_text_height, f"{scale_bar_number:.{digits}f} AU", color=p.video_text_color, fontsize=p.scale_bar_fontsize, ha="center", va="top")
+        ax_right = CurveSimAnimation.init_starsystem_plot(colspan, loc, p, rowspan, shape, p.right_title, p.right_title_fontsize, p.right_title_y_coord, p.show_right_scale_bar, p.scale_bar_length_right, p.scope_right)
         return ax_right
 
     @staticmethod
-    def init_curve_plot_x_axis(ax_rv_curve, p, time_s0):
+    def init_curve_plot_x_axis(ax_curve, p, time_s0):
+        ax_curve.text(p.x_label_x_coord, p.x_label_y_coord, p.x_label, color=p.video_text_color, fontsize=p.x_label_fontsize, ha="right", va="bottom", transform=ax_curve.transAxes)
         # rv_curve x-ticks, x-labels
-        ax_rv_curve.tick_params(axis="x", colors="xkcd:light gray")
-        # Use the same relative x-axis as the lightcurve: days since p.sim_start_s0[0]
+        ax_curve.tick_params(axis="x", colors="xkcd:light gray")
+        # Use the same relative x-axis as the upper curve: days since p.sim_start_s0[0]
         x = (time_s0 - p.sim_start_s0) / p.day
         x_listticdelta = CurveSimAnimation.tic_delta(float(x[-1]))
         digits = max(0, round(-math.log10(x_listticdelta) + 0.4))  # The labels get as many decimal places as the intervals between the tics.
@@ -136,8 +128,8 @@ class CurveSimAnimation:
         n_ticks = max(1, int(round(float(x[-1]) / x_listticdelta)))
         xvalues = [i * x_listticdelta for i in range(n_ticks + 1)]
         xlabels = [f"{round(val + p.epoch + p.sim_start_s0 / p.day, 4):.{digits}f}" for val in xvalues]
-        ax_rv_curve.set_xticks(xvalues, labels=xlabels)
-        ax_rv_curve.set_xlim(float(x[0]), float(x[-1]))
+        ax_curve.set_xticks(xvalues, labels=xlabels)
+        ax_curve.set_xlim(float(x[0]), float(x[-1]))
 
     @staticmethod
     def animated_dot(ax_curve, p, scope, time_s0, color):
@@ -148,7 +140,49 @@ class CurveSimAnimation:
         return upper_dot
 
     @staticmethod
+    def init_curve_plot(colspan, loc, p, rowspan, shape, sim_flux, time_s0, curve_y_label, curve_y_label_fontsize, curve_y_tick_fontsize, curve_color, curve_dot_color):
+        ax = plt.subplot2grid(shape=shape, loc=loc, rowspan=rowspan, colspan=colspan)
+        ax.set_facecolor(p.video_background_color)  # background color
+
+        # curve y-ticks, y-labels
+        ax.set_ylabel(curve_y_label, color=p.video_text_color, labelpad=14, fontsize=curve_y_label_fontsize)
+        ax.tick_params(axis="y", colors=p.video_text_color, labelsize=curve_y_tick_fontsize)
+        minl = sim_flux.min(initial=None)
+        maxl = sim_flux.max(initial=None)
+        if minl == maxl:
+            minl *= 0.99
+        scope = maxl - minl
+        buffer = 0.05 * scope
+        ax.set_ylim(minl - buffer, maxl + buffer)
+        y_listticdelta = CurveSimAnimation.tic_delta(scope)
+        digits = max(0, round(-math.log10(y_listticdelta) + 0.4) - 2)  # The labels get as many decimal places as the intervals between the tics.
+        yvalues = [1 - y * y_listticdelta for y in range(round(float((maxl - minl) / y_listticdelta)))]
+        ylabels = [f"{round(100 * y, 10):.{digits}f} %" for y in yvalues]
+        ax.set_yticks(yvalues, labels=ylabels)
+
+        # curve data (white line)
+        x = (time_s0 - p.sim_start_s0) / p.day
+        ax.set_xlim(float(x[0]), float(x[-1]))
+        ax.plot(x, sim_flux, color=curve_color)
+
+        dot = CurveSimAnimation.animated_dot(ax, p, scope, time_s0, color=curve_dot_color)
+        return ax, dot
+
+    @staticmethod
     def init_upper_curve_plot(sim_flux, time_s0, p, shape, loc, rowspan, colspan):
+        ax_upper_curve, upper_dot = CurveSimAnimation.init_curve_plot(colspan, loc, p, rowspan, shape, sim_flux, time_s0, p.upper_curve_y_label, p.upper_curve_y_label_fontsize, p.upper_curve_y_tick_fontsize, p.upper_curve_color, p.upper_curve_dot_color)
+        if not p.show_lower_curve:  # no x-tics/-labels when the lower curve plot is present below because it uses the same x-tics/-labels
+            CurveSimAnimation.init_curve_plot_x_axis(ax_upper_curve, p, time_s0)
+        return ax_upper_curve, upper_dot
+
+    @staticmethod
+    def init_lower_curve_plot(sim_flux, time_s0, p, shape, loc, rowspan, colspan):
+        ax_lower_curve, lower_dot = CurveSimAnimation.init_curve_plot(colspan, loc, p, rowspan, shape, sim_flux, time_s0, p.lower_curve_y_label, p.lower_curve_y_label_fontsize, p.lower_curve_y_tick_fontsize, p.lower_curve_color, p.lower_curve_dot_color)
+        CurveSimAnimation.init_curve_plot_x_axis(ax_lower_curve, p, time_s0)
+        return ax_lower_curve, lower_dot
+
+    @staticmethod
+    def init_upper_curve_plot_old(sim_flux, time_s0, p, shape, loc, rowspan, colspan):
         ax_upper_curve = plt.subplot2grid(shape=shape, loc=loc, rowspan=rowspan, colspan=colspan)
         ax_upper_curve.set_facecolor(p.video_background_color)  # background color
 
@@ -156,7 +190,7 @@ class CurveSimAnimation:
             CurveSimAnimation.init_curve_plot_x_axis(ax_upper_curve, p, time_s0)
 
         # upper curve y-ticks, y-labels
-        ax_upper_curve.set_ylabel(p.upper_curve_y_label, color=p.video_text_color, fontsize=p.upper_curve_y_label_fontsize)
+        ax_upper_curve.set_ylabel(p.upper_curve_y_label, color=p.video_text_color, labelpad=14, fontsize=p.upper_curve_y_label_fontsize)
         ax_upper_curve.tick_params(axis="y", colors=p.video_text_color, labelsize=p.upper_curve_y_tick_fontsize)
         minl = sim_flux.min(initial=None)
         maxl = sim_flux.max(initial=None)
@@ -167,9 +201,14 @@ class CurveSimAnimation:
         ax_upper_curve.set_ylim(minl - buffer, maxl + buffer)
         y_listticdelta = CurveSimAnimation.tic_delta(scope)
         digits = max(0, round(-math.log10(y_listticdelta) + 0.4) - 2)  # The labels get as many decimal places as the intervals between the tics.
+
+
+        # individualisieren!
         yvalues = [1 - y * y_listticdelta for y in range(round(float((maxl - minl) / y_listticdelta)))]
         ylabels = [f"{round(100 * y, 10):.{digits}f} %" for y in yvalues]
         ax_upper_curve.set_yticks(yvalues, labels=ylabels)
+
+
 
         # upper curve data (white line)
         x = (time_s0 - p.sim_start_s0) / p.day
@@ -180,15 +219,14 @@ class CurveSimAnimation:
         return ax_upper_curve, upper_dot
 
     @staticmethod
-    def init_lower_curve_plot(sim_rv, time_s0, p, shape, loc, rowspan, colspan):
+    def init_lower_curve_plot_old(sim_rv, time_s0, p, shape, loc, rowspan, colspan):
         ax_lower_curve = plt.subplot2grid(shape=shape, loc=loc, rowspan=rowspan, colspan=colspan)
         ax_lower_curve.set_facecolor(p.video_background_color)  # background color
-        ax_lower_curve.text(p.x_label_x_coord, p.x_label_y_coord, p.x_label, color=p.video_text_color, fontsize=p.x_label_fontsize, ha="right", va="bottom", transform=ax_lower_curve.transAxes)
 
         CurveSimAnimation.init_curve_plot_x_axis(ax_lower_curve, p, time_s0)  # rv_curve x-ticks, x-labels
 
         # lower curve y-ticks, y-labels
-        ax_lower_curve.set_ylabel(p.lower_curve_y_label, color=p.video_text_color, labelpad=22, fontsize=p.lower_curve_y_label_fontsize)
+        ax_lower_curve.set_ylabel(p.lower_curve_y_label, color=p.video_text_color, labelpad=14, fontsize=p.lower_curve_y_label_fontsize)
         ax_lower_curve.tick_params(axis="y", colors=p.video_text_color, labelsize=p.lower_curve_y_tick_fontsize)
         minl = sim_rv.min(initial=None)
         maxl = sim_rv.max(initial=None)
@@ -199,12 +237,17 @@ class CurveSimAnimation:
         ax_lower_curve.set_ylim(minl - buffer, maxl + buffer)
         y_listticdelta = CurveSimAnimation.tic_delta(scope)
         digits = max(0, round(-math.log10(y_listticdelta) + 0.4) - 2)  # The labels get as many decimal places as the intervals between the tics.
+
+
+        # individualisieren!
         if maxl > 0 > minl:
             yvalues = [maxl, 0, minl]
         else:
             yvalues = [maxl, minl]
         ylabels = [f"{round(1 * y, 10):.{digits}f}" for y in yvalues]
         ax_lower_curve.set_yticks(yvalues, labels=ylabels)
+
+
 
         # lower curve data (white line) using relative days since p.sim_start_s0[0]
         x = (time_s0 - p.sim_start_s0) / p.day

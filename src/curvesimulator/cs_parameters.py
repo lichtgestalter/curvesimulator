@@ -191,23 +191,19 @@ class CurveSimParameters:
         self.x_label = config.get("VideoPlot", "x_label", fallback="BJD (TDB)")
         self.x_label_fontsize = eval(config.get("VideoPlot", "x_label_fontsize", fallback="8"))
         self.x_label_x_coord = eval(config.get("VideoPlot", "x_label_x_coord", fallback="0.97"))
-        self.x_label_y_coord = eval(config.get("VideoPlot", "x_label_y_coord", fallback="-0.11"))
+        self.x_label_y_coord = eval(config.get("VideoPlot", "x_label_y_coord", fallback="-0.06"))
 
         self.upper_curve_color = config.get("VideoPlot", "upper_curve_color", fallback="white")
         self.upper_curve_y_label = config.get("VideoPlot", "upper_curve_y_label", fallback="Relative Flux")
         self.upper_curve_y_label_fontsize = eval(config.get("VideoPlot", "upper_curve_y_label_fontsize", fallback="8"))
         self.upper_curve_y_tick_fontsize = eval(config.get("VideoPlot", "upper_curve_y_tick_fontsize", fallback="8"))
-        # self.upper_curve_dot_color = "xkcd:light gray"
-        color = config.get("VideoPlot", "upper_curve_dot_color", fallback=None)
-        self.upper_curve_dot_color = CurveSimParameters.check_color("upper_curve_dot_color", color)
+        self.upper_curve_dot_color = CurveSimParameters.get_color_parameter(config, "VideoPlot","upper_curve_dot_color")
 
         self.lower_curve_color = config.get("VideoPlot", "lower_curve_color", fallback="white")
         self.lower_curve_y_label = config.get("VideoPlot", "lower_curve_y_label", fallback="Radial Velocity [m/s]")
         self.lower_curve_y_label_fontsize = eval(config.get("VideoPlot", "lower_curve_y_label_fontsize", fallback="8"))
         self.lower_curve_y_tick_fontsize = eval(config.get("VideoPlot", "lower_curve_y_tick_fontsize", fallback="8"))
-        # self.lower_curve_dot_color = (0, 1, 0)
-        color = config.get("VideoPlot", "lower_curve_dot_color", fallback=None)
-        self.lower_curve_dot_color = CurveSimParameters.check_color("lower_curve_dot_color", color)
+        self.lower_curve_dot_color = CurveSimParameters.get_color_parameter(config, "VideoPlot","lower_curve_dot_color")
 
         # dimensions
         self.figure_width = eval(config.get("VideoPlot", "figure_width", fallback="16"))
@@ -269,7 +265,7 @@ class CurveSimParameters:
                 sys.exit(1)
 
     @staticmethod
-    def check_color(name, value):
+    def get_color_parameter(config, section, name):
 
         def error():
             print(f"{Fore.RED}Must be a string known to matplotlib or a tuple/list with exactly 3 values, each between 0 and 1, but {name} = {value} .")
@@ -278,6 +274,7 @@ class CurveSimParameters:
             # return value  # debug
             sys.exit(1)
 
+        value = config.get(section, name, fallback=None)
         if value is None:
             return value
         elif "," in value:
