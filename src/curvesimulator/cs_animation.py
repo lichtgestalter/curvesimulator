@@ -3,15 +3,12 @@ import math
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 from matplotlib import patches
-from matplotlib.axes import Axes
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 import numpy as np
 import shutil
 import subprocess
 import sys
 import time
-
-from matplotlib.patches import Ellipse
 
 
 class CurveSimAnimation:
@@ -140,11 +137,11 @@ class CurveSimAnimation:
         return upper_dot
 
     @staticmethod
-    def init_curve_plot(colspan, loc, p, rowspan, shape, sim_flux, time_s0, curve_y_label, curve_y_label_fontsize, curve_y_tick_fontsize, curve_color, curve_dot_color):
+    def init_curve_plot(colspan, loc, p, rowspan, shape, sim_flux, time_s0, y_label_type, curve_y_label, curve_y_label_fontsize, curve_y_tick_fontsize, curve_color, curve_dot_color):
         ax = plt.subplot2grid(shape=shape, loc=loc, rowspan=rowspan, colspan=colspan)
         ax.set_facecolor(p.video_background_color)  # background color
 
-        # curve y-ticks, y-labels
+        # y-ticks
         ax.set_ylabel(curve_y_label, color=p.video_text_color, labelpad=14, fontsize=curve_y_label_fontsize)
         ax.tick_params(axis="y", colors=p.video_text_color, labelsize=curve_y_tick_fontsize)
         minl = sim_flux.min(initial=None)
@@ -156,8 +153,20 @@ class CurveSimAnimation:
         ax.set_ylim(minl - buffer, maxl + buffer)
         y_listticdelta = CurveSimAnimation.tic_delta(scope)
         digits = max(0, round(-math.log10(y_listticdelta) + 0.4) - 2)  # The labels get as many decimal places as the intervals between the tics.
-        yvalues = [1 - y * y_listticdelta for y in range(round(float((maxl - minl) / y_listticdelta)))]
-        ylabels = [f"{round(100 * y, 10):.{digits}f} %" for y in yvalues]
+
+        # y-labels
+        if y_label_type == "flux":
+            yvalues = [1 - y * y_listticdelta for y in range(round(float((maxl - minl) / y_listticdelta)))]
+            ylabels = [f"{round(100 * y, 10):.{digits}f} %" for y in yvalues]
+        elif y_label_type == "rv":
+            if maxl > 0 > minl:
+                yvalues = [maxl, 0, minl]
+            else:
+                yvalues = [maxl, minl]
+            ylabels = [f"{round(1 * y, 10):.{digits}f}" for y in yvalues]
+        else:
+            print(f"{Fore.RED}\nERROR: Unknown parameter {y_label_type=} in function init_curve_plot.{Style.RESET_ALL}")
+            sys.exit(1)
         ax.set_yticks(yvalues, labels=ylabels)
 
         # curve data (white line)
@@ -170,90 +179,15 @@ class CurveSimAnimation:
 
     @staticmethod
     def init_upper_curve_plot(sim_flux, time_s0, p, shape, loc, rowspan, colspan):
-        ax_upper_curve, upper_dot = CurveSimAnimation.init_curve_plot(colspan, loc, p, rowspan, shape, sim_flux, time_s0, p.upper_curve_y_label, p.upper_curve_y_label_fontsize, p.upper_curve_y_tick_fontsize, p.upper_curve_color, p.upper_curve_dot_color)
+        ax_upper_curve, upper_dot = CurveSimAnimation.init_curve_plot(colspan, loc, p, rowspan, shape, sim_flux, time_s0, "flux", p.upper_curve_y_label, p.upper_curve_y_label_fontsize, p.upper_curve_y_tick_fontsize, p.upper_curve_color, p.upper_curve_dot_color)
         if not p.show_lower_curve:  # no x-tics/-labels when the lower curve plot is present below because it uses the same x-tics/-labels
             CurveSimAnimation.init_curve_plot_x_axis(ax_upper_curve, p, time_s0)
         return ax_upper_curve, upper_dot
 
     @staticmethod
     def init_lower_curve_plot(sim_flux, time_s0, p, shape, loc, rowspan, colspan):
-        ax_lower_curve, lower_dot = CurveSimAnimation.init_curve_plot(colspan, loc, p, rowspan, shape, sim_flux, time_s0, p.lower_curve_y_label, p.lower_curve_y_label_fontsize, p.lower_curve_y_tick_fontsize, p.lower_curve_color, p.lower_curve_dot_color)
+        ax_lower_curve, lower_dot = CurveSimAnimation.init_curve_plot(colspan, loc, p, rowspan, shape, sim_flux, time_s0, "rv", p.lower_curve_y_label, p.lower_curve_y_label_fontsize, p.lower_curve_y_tick_fontsize, p.lower_curve_color, p.lower_curve_dot_color)
         CurveSimAnimation.init_curve_plot_x_axis(ax_lower_curve, p, time_s0)
-        return ax_lower_curve, lower_dot
-
-    @staticmethod
-    def init_upper_curve_plot_old(sim_flux, time_s0, p, shape, loc, rowspan, colspan):
-        ax_upper_curve = plt.subplot2grid(shape=shape, loc=loc, rowspan=rowspan, colspan=colspan)
-        ax_upper_curve.set_facecolor(p.video_background_color)  # background color
-
-        if not p.show_lower_curve:  # no x-tics/-labels when the rv-plot is present below because it uses the same x-tics/-labels
-            CurveSimAnimation.init_curve_plot_x_axis(ax_upper_curve, p, time_s0)
-
-        # upper curve y-ticks, y-labels
-        ax_upper_curve.set_ylabel(p.upper_curve_y_label, color=p.video_text_color, labelpad=14, fontsize=p.upper_curve_y_label_fontsize)
-        ax_upper_curve.tick_params(axis="y", colors=p.video_text_color, labelsize=p.upper_curve_y_tick_fontsize)
-        minl = sim_flux.min(initial=None)
-        maxl = sim_flux.max(initial=None)
-        if minl == maxl:
-            minl *= 0.99
-        scope = maxl - minl
-        buffer = 0.05 * scope
-        ax_upper_curve.set_ylim(minl - buffer, maxl + buffer)
-        y_listticdelta = CurveSimAnimation.tic_delta(scope)
-        digits = max(0, round(-math.log10(y_listticdelta) + 0.4) - 2)  # The labels get as many decimal places as the intervals between the tics.
-
-
-        # individualisieren!
-        yvalues = [1 - y * y_listticdelta for y in range(round(float((maxl - minl) / y_listticdelta)))]
-        ylabels = [f"{round(100 * y, 10):.{digits}f} %" for y in yvalues]
-        ax_upper_curve.set_yticks(yvalues, labels=ylabels)
-
-
-
-        # upper curve data (white line)
-        x = (time_s0 - p.sim_start_s0) / p.day
-        ax_upper_curve.set_xlim(float(x[0]), float(x[-1]))
-        ax_upper_curve.plot(x, sim_flux, color=p.upper_curve_color)
-
-        upper_dot = CurveSimAnimation.animated_dot(ax_upper_curve, p, scope, time_s0, color=p.upper_curve_dot_color)  # lightcurve red dot
-        return ax_upper_curve, upper_dot
-
-    @staticmethod
-    def init_lower_curve_plot_old(sim_rv, time_s0, p, shape, loc, rowspan, colspan):
-        ax_lower_curve = plt.subplot2grid(shape=shape, loc=loc, rowspan=rowspan, colspan=colspan)
-        ax_lower_curve.set_facecolor(p.video_background_color)  # background color
-
-        CurveSimAnimation.init_curve_plot_x_axis(ax_lower_curve, p, time_s0)  # rv_curve x-ticks, x-labels
-
-        # lower curve y-ticks, y-labels
-        ax_lower_curve.set_ylabel(p.lower_curve_y_label, color=p.video_text_color, labelpad=14, fontsize=p.lower_curve_y_label_fontsize)
-        ax_lower_curve.tick_params(axis="y", colors=p.video_text_color, labelsize=p.lower_curve_y_tick_fontsize)
-        minl = sim_rv.min(initial=None)
-        maxl = sim_rv.max(initial=None)
-        if minl == maxl:
-            minl *= 0.99
-        scope = maxl - minl
-        buffer = 0.05 * scope
-        ax_lower_curve.set_ylim(minl - buffer, maxl + buffer)
-        y_listticdelta = CurveSimAnimation.tic_delta(scope)
-        digits = max(0, round(-math.log10(y_listticdelta) + 0.4) - 2)  # The labels get as many decimal places as the intervals between the tics.
-
-
-        # individualisieren!.
-        if maxl > 0 > minl:
-            yvalues = [maxl, 0, minl]
-        else:
-            yvalues = [maxl, minl]
-        ylabels = [f"{round(1 * y, 10):.{digits}f}" for y in yvalues]
-        ax_lower_curve.set_yticks(yvalues, labels=ylabels)
-
-
-
-        # lower curve data (white line) using relative days since p.sim_start_s0[0]
-        x = (time_s0 - p.sim_start_s0) / p.day
-        ax_lower_curve.plot(x, sim_rv, color=p.lower_curve_color)
-
-        lower_dot = CurveSimAnimation.animated_dot(ax_lower_curve, p, scope, time_s0, color=p.lower_curve_dot_color)  # rv curve green dot
         return ax_lower_curve, lower_dot
 
     @staticmethod
@@ -487,11 +421,11 @@ class CurveSimAnimation:
                     by_axes.setdefault(artist.axes, []).append(artist)
                 for ax, arts in by_axes.items():
                     arts.sort(key=lambda a: a.get_zorder())
-                    for a in arts:
+                    for art in arts:
                         if ax is not None:
-                            ax.draw_artist(a)
+                            ax.draw_artist(art)
                         else:
-                            fig.draw_artist(a)
+                            fig.draw_artist(art)
                 canvas.blit(fig.bbox)
                 frame_buf = np.asarray(renderer.buffer_rgba())[:height, :width]
                 try:
