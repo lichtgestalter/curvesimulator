@@ -158,9 +158,9 @@ class CurveSimParameters:
         self.max_radius = eval(config.get("VideoScale", "max_radius", fallback="2.0")) / 100.0
 
         # [VideoPlot]
-        self.video_background_color = config.get("VideoPlot", "video_background_color", fallback="black")
-        self.video_text_color = config.get("VideoPlot", "video_text_color", fallback="xkcd:light gray")
-        self.separator_line_color = config.get("VideoPlot", "separator_line_color", fallback="xkcd:dark grey")
+        self.video_background_color = CurveSimParameters.get_color_parameter(config, "VideoPlot","video_background_color", "xkcd:black")
+        self.video_text_color = CurveSimParameters.get_color_parameter(config, "VideoPlot","video_text_color", "xkcd:light gray")
+        self.separator_line_color = CurveSimParameters.get_color_parameter(config, "VideoPlot","separator_line_color", "xkcd:medium gray")
         self.scale_bar_fontsize = eval(config.get("VideoPlot", "scale_bar_fontsize", fallback="8"))
 
         self.show_left_plot = eval(config.get("VideoPlot", "show_left_plot", fallback="True"))
@@ -169,7 +169,7 @@ class CurveSimParameters:
         self.show_lower_curve = eval(config.get("VideoPlot", "show_lower_curve", fallback="False"))
 
         self.main_title = config.get("VideoPlot", "main_title", fallback="Main Title")
-        self.main_title_color = config.get("VideoPlot", "main_title_color", fallback="white")
+        self.main_title_color = CurveSimParameters.get_color_parameter(config, "VideoPlot","main_title_color", "xkcd:white")
         self.main_title_fontsize = eval(config.get("VideoPlot", "main_title_fontsize", fallback="14"))
 
         # left plot
@@ -193,17 +193,17 @@ class CurveSimParameters:
         self.x_label_x_coord = eval(config.get("VideoPlot", "x_label_x_coord", fallback="0.97"))
         self.x_label_y_coord = eval(config.get("VideoPlot", "x_label_y_coord", fallback="-0.06"))
 
-        self.upper_curve_color = config.get("VideoPlot", "upper_curve_color", fallback="white")
+        self.upper_curve_color = CurveSimParameters.get_color_parameter(config, "VideoPlot","upper_curve_color", "xkcd:white")
         self.upper_curve_y_label = config.get("VideoPlot", "upper_curve_y_label", fallback="Relative Flux")
         self.upper_curve_y_label_fontsize = eval(config.get("VideoPlot", "upper_curve_y_label_fontsize", fallback="8"))
         self.upper_curve_y_tick_fontsize = eval(config.get("VideoPlot", "upper_curve_y_tick_fontsize", fallback="8"))
-        self.upper_curve_dot_color = CurveSimParameters.get_color_parameter(config, "VideoPlot","upper_curve_dot_color")
+        self.upper_curve_dot_color = CurveSimParameters.get_color_parameter(config, "VideoPlot","upper_curve_dot_color", "xkcd:bright red")
 
-        self.lower_curve_color = config.get("VideoPlot", "lower_curve_color", fallback="white")
+        self.lower_curve_color = CurveSimParameters.get_color_parameter(config, "VideoPlot","lower_curve_color", "xkcd:white")
         self.lower_curve_y_label = config.get("VideoPlot", "lower_curve_y_label", fallback="Radial Velocity [m/s]")
         self.lower_curve_y_label_fontsize = eval(config.get("VideoPlot", "lower_curve_y_label_fontsize", fallback="8"))
         self.lower_curve_y_tick_fontsize = eval(config.get("VideoPlot", "lower_curve_y_tick_fontsize", fallback="8"))
-        self.lower_curve_dot_color = CurveSimParameters.get_color_parameter(config, "VideoPlot","lower_curve_dot_color")
+        self.lower_curve_dot_color = CurveSimParameters.get_color_parameter(config, "VideoPlot","lower_curve_dot_color", "xkcd:green apple")
 
         # dimensions
         self.figure_width = eval(config.get("VideoPlot", "figure_width", fallback="16"))
@@ -265,7 +265,7 @@ class CurveSimParameters:
                 sys.exit(1)
 
     @staticmethod
-    def get_color_parameter(config, section, name):
+    def get_color_parameter(config, section, name, fallback):
 
         def error():
             print(f"{Fore.RED}Must be a string known to matplotlib or a tuple/list with exactly 3 values, each between 0 and 1, but {name} = {value} .")
@@ -274,7 +274,7 @@ class CurveSimParameters:
             # return value  # debug
             sys.exit(1)
 
-        value = config.get(section, name, fallback=None)
+        value = config.get(section, name, fallback=fallback)
         if value is None:
             return value
         elif "," in value:

@@ -46,7 +46,7 @@ class CurveSimBodies(list):
             if section not in p.standard_sections and CurveSimParameters.section_name_valid(section):  # section describes a physical object and has a legal name
                 file = config.get(section, "file", fallback=None)
                 if file is None:
-                    color = CurveSimParameters.get_color_parameter(config, section, "color")
+                    color = CurveSimParameters.get_color_parameter(config, section, "color", "xkcd:eggshell")
                     kwargs = {
                         "p": p,
                         "primary": config.get(section, "primary", fallback=None),

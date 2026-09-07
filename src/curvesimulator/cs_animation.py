@@ -65,9 +65,9 @@ class CurveSimAnimation:
         return max_digits
 
     @staticmethod
-    def tic_delta(scope):
-        """Returns a distance between two tics on an axis so that the total
-        number of tics on that axis is between 5 and 10."""
+    def tick_delta(scope):
+        """Returns a distance between two ticks on an axis so that the total
+        number of ticks on that axis is between 5 and 10."""
         if scope <= 0:  # no or constant values
             return 1
         delta = 10 ** np.floor(math.log10(scope))
@@ -119,11 +119,11 @@ class CurveSimAnimation:
         ax_curve.tick_params(axis="x", colors="xkcd:light gray")
         # Use the same relative x-axis as the upper curve: days since p.sim_start_s0[0]
         x = (time_s0 - p.sim_start_s0) / p.day
-        x_listticdelta = CurveSimAnimation.tic_delta(float(x[-1]))
-        digits = max(0, round(-math.log10(x_listticdelta) + 0.4))  # The labels get as many decimal places as the intervals between the tics.
+        x_listtickdelta = CurveSimAnimation.tick_delta(float(x[-1]))
+        digits = max(0, round(-math.log10(x_listtickdelta) + 0.4))  # The labels get as many decimal places as the intervals between the ticks.
         # build tick positions in relative days and corresponding absolute-time labels (BJD)
-        n_ticks = max(1, int(round(float(x[-1]) / x_listticdelta)))
-        xvalues = [i * x_listticdelta for i in range(n_ticks + 1)]
+        n_ticks = max(1, int(round(float(x[-1]) / x_listtickdelta)))
+        xvalues = [i * x_listtickdelta for i in range(n_ticks + 1)]
         xlabels = [f"{round(val + p.epoch + p.sim_start_s0 / p.day, 4):.{digits}f}" for val in xvalues]
         ax_curve.set_xticks(xvalues, labels=xlabels)
         ax_curve.set_xlim(float(x[0]), float(x[-1]))
@@ -151,12 +151,12 @@ class CurveSimAnimation:
         scope = maxl - minl
         buffer = 0.05 * scope
         ax.set_ylim(minl - buffer, maxl + buffer)
-        y_listticdelta = CurveSimAnimation.tic_delta(scope)
-        digits = max(0, round(-math.log10(y_listticdelta) + 0.4) - 2)  # The labels get as many decimal places as the intervals between the tics.
+        y_listtickdelta = CurveSimAnimation.tick_delta(scope)
+        digits = max(0, round(-math.log10(y_listtickdelta) + 0.4) - 2)  # The labels get as many decimal places as the intervals between the ticks.
 
         # y-labels
         if y_label_type == "flux":
-            yvalues = [1 - y * y_listticdelta for y in range(round(float((maxl - minl) / y_listticdelta)))]
+            yvalues = [1 - y * y_listtickdelta for y in range(round(float((maxl - minl) / y_listtickdelta)))]
             ylabels = [f"{round(100 * y, 10):.{digits}f} %" for y in yvalues]
         elif y_label_type == "rv":
             if maxl > 0 > minl:
@@ -180,7 +180,7 @@ class CurveSimAnimation:
     @staticmethod
     def init_upper_curve_plot(sim_flux, time_s0, p, shape, loc, rowspan, colspan):
         ax_upper_curve, upper_dot = CurveSimAnimation.init_curve_plot(colspan, loc, p, rowspan, shape, sim_flux, time_s0, "flux", p.upper_curve_y_label, p.upper_curve_y_label_fontsize, p.upper_curve_y_tick_fontsize, p.upper_curve_color, p.upper_curve_dot_color)
-        if not p.show_lower_curve:  # no x-tics/-labels when the lower curve plot is present below because it uses the same x-tics/-labels
+        if not p.show_lower_curve:  # no x-ticks/-labels when the lower curve plot is present below because it uses the same x-ticks/-labels
             CurveSimAnimation.init_curve_plot_x_axis(ax_upper_curve, p, time_s0)
         return ax_upper_curve, upper_dot
 
