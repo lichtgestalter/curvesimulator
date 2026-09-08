@@ -87,6 +87,9 @@ class CurveSimAnimation:
         ax.set_aspect("equal")
         ax.set_facecolor(p.video_background_color)  # background color
         ax.set_title(title, color=p.video_text_color, fontsize=title_fontsize, y=title_y_coord)
+        for spine in ax.spines.values():
+            spine.set_edgecolor(p.video_background_color)
+        ax.tick_params(axis="both", which="both", colors=p.video_background_color)  # ticks + tick labels
         if show_scale_bar:
             scale_bar_end_x = p.xlim * 0.99
             scale_bar_start_x = scale_bar_end_x - scale_bar_length / scope
@@ -125,7 +128,7 @@ class CurveSimAnimation:
         n_ticks = max(1, int(round(float(x[-1]) / x_listtickdelta)))
         xvalues = [i * x_listtickdelta for i in range(n_ticks + 1)]
         xlabels = [f"{round(val + p.epoch + p.sim_start_s0 / p.day, 4):.{digits}f}" for val in xvalues]
-        ax_curve.set_xticks(xvalues, labels=xlabels)
+        ax_curve.set_xticks(xvalues, labels=xlabels, color=p.video_text_color, fontsize=p.x_ticks_fontsize)
         ax_curve.set_xlim(float(x[0]), float(x[-1]))
 
     @staticmethod
@@ -140,6 +143,10 @@ class CurveSimAnimation:
     def init_curve_plot(colspan, loc, p, rowspan, shape, sim_flux, time_s0, y_label_type, curve_y_label, curve_y_label_fontsize, curve_y_tick_fontsize, curve_color, curve_dot_color):
         ax = plt.subplot2grid(shape=shape, loc=loc, rowspan=rowspan, colspan=colspan)
         ax.set_facecolor(p.video_background_color)  # background color
+
+        for spine in ax.spines.values():
+            spine.set_edgecolor(p.video_background_color)
+        ax.tick_params(axis="both", which="both", colors=p.video_background_color)  # ticks + tick labels
 
         # y-ticks
         ax.set_ylabel(curve_y_label, color=p.video_text_color, labelpad=14, fontsize=curve_y_label_fontsize)

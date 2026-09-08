@@ -187,7 +187,7 @@ class CurveSimParameters:
         # curves
         self.dot_height = eval(config.get("VideoPlot", "dot_height", fallback="0.077"))
         self.dot_width = eval(config.get("VideoPlot", "dot_width", fallback="0.005"))
-
+        self.x_ticks_fontsize = eval(config.get("VideoPlot", "x_ticks_fontsize", fallback="8"))
         self.x_label = config.get("VideoPlot", "x_label", fallback="BJD (TDB)")
         self.x_label_fontsize = eval(config.get("VideoPlot", "x_label_fontsize", fallback="8"))
         self.x_label_x_coord = eval(config.get("VideoPlot", "x_label_x_coord", fallback="0.97"))
