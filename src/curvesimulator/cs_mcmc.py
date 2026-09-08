@@ -288,32 +288,9 @@ class CurveSimMCMC:
                 lp += -0.5 * ((val - fp.prior_mu) / fp.prior_sigma) ** 2 - math.log(fp.prior_sigma * math.sqrt(2 * math.pi))
         return lp
 
-    # @staticmethod
-    # def log_probability(theta, param_bounds, param_references, bodies, time_s0, time_d, flux_corr, flux_total_err, measured_flux, measured_tt, p):
-    #     lp = CurveSimMCMC.log_prior(theta, param_bounds)
-    #     if not np.isfinite(lp):
-    #         return -np.inf
-    #     return lp + CurveSimMCMC.log_likelihood(theta, param_references, bodies, time_s0, time_d, flux_corr, flux_total_err, measured_flux, measured_tt, p)
-
-    # @staticmethod
-    # def log_prior(theta, param_bounds):
-    #     """# If any parameter is outside resonable bounds: return -np.inf"""
-    #     for val, (lower, upper) in zip(theta, param_bounds):
-    #         if not (lower < val < upper):
-    #             return -np.inf
-    #     return 0
-
-    # @staticmethod
-    # def log_prior(theta, fitting_parameters):
-    #     """# If any parameter is outside resonable bounds: return -np.inf"""
-    #     for val, fp in zip(theta, fitting_parameters):
-    #         if not (fp.lower < val < fp.upper):
-    #             return -np.inf
-    #     return 0
-
     @staticmethod
-    def log_likelihood(theta, param_references, bodies, time_s0, time_d, flux_corr, flux_total_err, measured_flux, measured_tt, p):
-        # def log_likelihood(theta, param_references, bodies, time_s0, flux_corr, flux_total_err, measured_tt, tt_err, measured_rv, rv_err, p):
+    def log_likelihood(theta, param_references, bodies, time_s0, time_d, flux_corr, flux_total_err, measured_flux, measured_tt,                              p):
+  # def log_likelihood(theta, param_references, bodies, time_s0,         flux_corr, flux_total_err,                measured_tt, tt_err, measured_rv, rv_err, p):
         """
         theta:
             List containing the current numerical values of the `param_references` (see below).
@@ -328,17 +305,11 @@ class CurveSimMCMC:
         residuals_sum_squared = 0
         log_norm_term_flux = 0
         if p.flux_file:
-            rss, lnt = p.flux_weight * CurveSimMCMC.residuals_flux_sum_squared(theta, param_references, bodies, time_s0, flux_corr, flux_total_err, measured_flux, p)
-            residuals_sum_squared += p.flux_weight * rss
-            log_norm_term_flux += p.flux_weight * lnt
-            # if p.sector_params_file:
-            #     log_norm_term_flux += np.sum(np.log(2 * np.pi * flux_total_err ** 2))  # logarithm of the summed Gaussian normalization term
+            residuals_sum_squared, log_norm_term_flux = p.flux_weight * CurveSimMCMC.residuals_flux_sum_squared(theta, param_references, bodies, time_s0, flux_corr, flux_total_err, measured_flux, p)
         if p.tt_file:
             residuals_sum_squared += p.tt_weight * CurveSimMCMC.residuals_tt_sum_squared(theta, param_references, bodies, time_s0, time_d, measured_tt, p)
-        # if p.rv_file:
-            # residuals_sum_squared += p.rv_weight * CurveSimMCMC.residuals_rv_sum_squared(theta, param_references, bodies, time_s0, time_d, flux_corr, flux_total_err, p)
-            # hier muss so wie beim flux der LogNormalisierungsterm dynamisch mit dem RV-Jitter aus theta berechnet werden statt statisch aus p.rv_jitter
-        # return -0.5 * residuals_sum_squared
+        if p.rv_file:
+            residuals_sum_squared += p.rv_weight * CurveSimMCMC.residuals_rv_sum_squared(theta, param_references, bodies, time_s0, time_d, flux_corr, flux_total_err, p)
         return -0.5 * (residuals_sum_squared + log_norm_term_flux)
 
     @staticmethod
@@ -354,15 +325,31 @@ class CurveSimMCMC:
                 p.jitter_map.loc[sector] = theta[i + 1]
                 i += 2
             _, flux_corr = CurveSimResults.flux_corr(measured_flux, p.offset_map)  # updates measured_flux
-            # _, flux_total_err, _ = CurveSimResults.flux_total_err(measured_flux, p.jitter_map)  # updates measured_flux too
             _, flux_total_err, log_norm_term_flux = CurveSimResults.flux_total_err(measured_flux, p.jitter_map)  # updates measured_flux too
 
         sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # run simulation
-        # residuals_flux = (measured_flux["flux_corr"] - sim_flux) / measured_flux["flux_total_err"]  # residuals are weighted with uncertainty!
         residuals_flux = (flux_corr - sim_flux) / flux_total_err  # residuals are weighted with uncertainty!
         residuals_flux_sum_squared = np.sum(residuals_flux ** 2)
-        # return residuals_flux_sum_squared
         return residuals_flux_sum_squared, log_norm_term_flux
+
+    @staticmethod
+    def residuals_rv_sum_squared(theta, param_references, bodies, time_s0, time_d, measured_rv, p):
+        # berechne wie in residuals_flux_sum_squared() die Residuen und den LogNormTerm, aber dieses Mal fuer die RV-Beobachrungen
+        # hier muss so wie beim flux der LogNormalisierungsterm dynamisch mit dem RV-Jitter aus theta berechnet werden
+        # muss ich ausserdem das fuer alle Messungen geltende p.rv_jitter beruecksichtigen?
+        # sollten p.rv_jitter und p.rv_offset zu fittende Parameter sein?
+        return
+
+    @staticmethod
+    def residuals_tt_sum_squared(theta, param_references, bodies, time_s0, time_d, measured_tt, p):
+        # measured_tt: pandas DataFrame with columns eclipser, tt, tt_err
+        i = 0
+        for body_index, parameter_name in param_references:
+            bodies[body_index].__dict__[parameter_name] = theta[i]  # update all parameters from theta
+            i += 1
+        sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # run simulation
+        residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, time_d, time_s0)
+        return residuals_tt_sum_squared
 
     @staticmethod
     def bodies_from_fitting_params(bodies, fitting_parameters, param_type=None):
@@ -379,17 +366,6 @@ class CurveSimMCMC:
             for fp in fitting_parameters:
                 bodies[fp.body_index].__dict__[fp.parameter_name] = fp.median / fp.scale
         return bodies
-
-    @staticmethod
-    def residuals_tt_sum_squared(theta, param_references, bodies, time_s0, time_d, measured_tt, p):
-        # measured_tt: pandas DataFrame with columns eclipser, tt, tt_err
-        i = 0
-        for body_index, parameter_name in param_references:
-            bodies[body_index].__dict__[parameter_name] = theta[i]  # update all parameters from theta
-            i += 1
-        sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, time_s0)  # run simulation
-        residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, time_d, time_s0)
-        return residuals_tt_sum_squared
 
     @staticmethod
     def hdi_std_mean(data, credible_mass=0.68):
