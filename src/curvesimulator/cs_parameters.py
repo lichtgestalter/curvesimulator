@@ -70,7 +70,7 @@ class CurveSimParameters:
         self.sim_flux_file = CurveSimParameters.check_filename_and_add_path(self.sim_flux_file, "sim_flux_file", self.results_directory)
         self.iterations = self.check_sim_interval()
         self.sim_flux_err = eval(config.get("Simulation", "sim_flux_err", fallback="0.0"))
-        self.rv_body = config.get("Simulation", "rv_body", fallback=None)
+        self.rv_body_name = config.get("Simulation", "rv_body_name", fallback=None)
 
         # [Results]
         self.comment = config.get("Results", "comment", fallback="No comment")
@@ -79,10 +79,10 @@ class CurveSimParameters:
         self.flux_data_directory = config.get("Results", "flux_data_directory", fallback=".")
         self.copy_config_file()
         self.max_interval_extensions = eval(config.get("Results", "max_interval_extensions", fallback="10"))
-        default_unit = '{"mass": "m_jup", "radius": "r_jup", "e": "1", "i": "deg", "P": "d", "a": "AU", "Omega": "deg", "omega": "deg", "pomega": "deg", "L": "deg", "ma": "deg", "ea": "deg", "nu": "deg", "T": "s"}'
+        default_unit = '{"mass": "m_jup", "radius": "r_jup", "e": "1", "i": "deg", "P": "d", "a": "AU", "Omega": "deg", "omega": "deg", "pomega": "deg", "L": "deg", "ma": "deg", "ea": "deg", "nu": "deg", "T": "s", "rv_offset": "m/s", "rv_jitter": "m/s"}'
         dict_str = config.get("Results", "unit", fallback=default_unit)
         self.unit = eval(dict_str)
-        default_scale = '{"mass": 1/m_jup, "radius": 1/r_jup, "e": 1, "i": rad2deg, "P": 1/day, "a": 1/au, "Omega": rad2deg, "omega": rad2deg, "pomega": rad2deg, "L": rad2deg, "ma": rad2deg, "ea": rad2deg, "nu": rad2deg, "T": 1}'
+        default_scale = '{"mass": 1/m_jup, "radius": 1/r_jup, "e": 1, "i": rad2deg, "P": 1/day, "a": 1/au, "Omega": rad2deg, "omega": rad2deg, "pomega": rad2deg, "L": rad2deg, "ma": rad2deg, "ea": rad2deg, "nu": rad2deg, "T": 1, "rv_offset": 1, "rv_jitter": 1}'
         dict_str = config.get("Results", "scale", fallback=default_scale)
         self.scale = eval(dict_str)
         self.tt_padding = eval(config.get("Results", "tt_padding", fallback="0.3"))
@@ -100,6 +100,7 @@ class CurveSimParameters:
         else:
             self.sector_params_fit = eval(config.get("Fitting", "sector_params_fit", fallback="False"))
         self.log_norm_term_flux = 0
+        self.log_norm_term_rv = 0
         self.tt_file = config.get("Fitting", "tt_file", fallback=None)
         self.rv_file = config.get("Fitting", "rv_file", fallback=None)
         self.eclipsers_names = list([x.strip() for x in config.get("Fitting", "eclipsers_names", fallback="None").split("#")[0].split(",")])
@@ -241,7 +242,7 @@ class CurveSimParameters:
         mandatory_list = ["g", "au", "l_sun", "r_sun", "m_sun", "r_jup", "m_jup", "r_nep", "m_nep", "r_earth", "m_earth", "hour", "day", "year", "rad2deg"]  # astronomical_units
         mandatory_list += ["action"]
         if self.rv_file is not None:
-            mandatory_list += ["rv_body"]  #  "rv_offset", "rv_jitter" move to def find_mandatory_body_parameters()
+            mandatory_list += ["rv_body_name"]  #  "rv_offset", "rv_jitter" move to def find_mandatory_body_parameters()
         if self.tt_file is not None:
             mandatory_list += ["eclipsers_names", "eclipsees_names"]
         if self.action in ["mcmc", "lmfit"]:
@@ -300,7 +301,7 @@ class CurveSimParameters:
 
     def check_sim_interval(self):
         """Checks if parameters sim_start and sim_end are well defined.
-           Calculates the indices for time_s0, time_d and sim_flux where the intervals start and end.
+           Calculates the indices for flux_time_s0, flux_time_d and sim_flux where the intervals start and end.
            Calculates the total number of iterations for which body positions and flux will be simulated and stored.
            Creates alternative parameters starts_s0, ends_s0 in seconds instead of days and starting with 0 at epoch.
          """
@@ -347,11 +348,11 @@ class CurveSimParameters:
 
     @staticmethod
     def init_time_arrays(p):
-        time_s0 = np.zeros(p.iterations, dtype=float)
+        flux_time_s0 = np.zeros(p.iterations, dtype=float)
         for i in range(p.iterations):
-            time_s0[i] = p.sim_start_s0 + i * p.dt
-        time_d = time_s0 / p.day + p.epoch
-        return time_s0, time_d
+            flux_time_s0[i] = p.sim_start_s0 + i * p.dt
+        flux_time_d = flux_time_s0 / p.day + p.epoch
+        return flux_time_s0, flux_time_d
 
     def read_param(self, config, section, param, fallback):
         # For ease of use of these constants in the config file they are additionally defined here without the prefix "self.".

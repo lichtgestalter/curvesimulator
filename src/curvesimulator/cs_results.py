@@ -126,7 +126,8 @@ class CurveSimResults(dict):
         to_remove = [
             "fitting_parameters", "standard_sections", "eclipsers", "eclipsees",
             "fitting_parameter_dic",
-            "offset_map", "jitter_map",
+            "offset_map", "jitter_map", "rv_body",
+            # "log_norm_term_flux", "log_norm_term_rv",
         ]
         for name in to_remove:
             if hasattr(p_copy, name):
@@ -169,7 +170,7 @@ class CurveSimResults(dict):
             return -b.vz
 
         body = rebound_sim.particles[body_name]
-        measured_rv["rv_sim"] = [rv_at_t(t, rebound_sim, body) for t in measured_rv["time_s0"]]
+        measured_rv["rv_sim"] = [rv_at_t(t, rebound_sim, body) for t in measured_rv["rv_time_s0"]]
         measured_rv["residual"] = measured_rv["rv_corr"] - measured_rv["rv_sim"]
         return measured_rv
 
@@ -268,35 +269,14 @@ class CurveSimResults(dict):
             CurveSimResults.check_required_columns({"time", "flux", "flux_err"}, df, p.flux_file)
             df["flux_total_err"] = df["flux_err"]
             df["flux_corr"] = df["flux"]
-            # del df["flux_err"]  # remove the original columns to make sure they will not be used anywhere
-            # del df["flux"]
         measured_flux = df[(df["time"] >= p.epoch) & (df["time"] <= p.sim_end)].copy()
-        measured_flux["time_s0"] = (measured_flux["time"] - p.epoch) * p.day
-        time_s0 = np.array(measured_flux["time_s0"], dtype=float)
+        measured_flux["flux_time_s0"] = (measured_flux["time"] - p.epoch) * p.day
+        flux_time_d = np.array(measured_flux["time"], dtype=float)
+        flux_time_s0 = np.array(measured_flux["flux_time_s0"], dtype=float)
         flux_corr = np.array(measured_flux["flux_corr"])
         flux_total_err = np.array(measured_flux["flux_total_err"], dtype=float)
-        p.iterations = len(time_s0)
-        time_d = time_s0 / p.day + p.epoch
-        return time_s0, time_d, flux_corr, flux_total_err, measured_flux
-
-    @staticmethod
-    def get_measured_tt(p):
-        df = pd.read_csv(p.tt_file)
-        CurveSimResults.check_required_columns({"eclipser", "tt", "tt_err", "nr"}, df, p.tt_file)
-        df = df[(df["tt"] >= p.epoch) & (df["tt"] <= p.sim_end)].copy()
-        p.tt_datasize = len(df["tt"])
-        return df
-
-    @staticmethod
-    def get_measured_rv(p):
-        df = pd.read_csv(p.rv_file)
-        CurveSimResults.check_required_columns({"time", "rv", "rv_err"}, df, p.rv_file)
-        df = df[(df["time"] >= p.epoch) & (df["time"] <= p.sim_end)].copy()
-        p.rv_datasize = len(df["time"])
-        df["time_s0"] = (df["time"] - p.epoch) * p.day  # observation times in seconds; starting with 0 at epoch
-        df["rv_corr"] = df["rv"] + p.rv_offset  # rv corrected by the constant shift
-        df["rv_total_err"] = np.sqrt(df["rv_err"] * df["rv_err"] + p.rv_jitter * p.rv_jitter)  # combined RV uncertainty from measurement uncertainty and jitter
-        return df
+        p.iterations = len(flux_time_s0)
+        return flux_time_s0, flux_time_d, flux_corr, flux_total_err, measured_flux
 
     @staticmethod
     def flux_corr(measured_flux, offset_map):
@@ -321,6 +301,53 @@ class CurveSimResults(dict):
         log_norm_term_flux = np.sum(np.log(2 * np.pi * measured_flux["flux_total_err"] ** 2))  # logarithm of the summed Gaussian normalization term
         flux_total_err = np.array(measured_flux["flux_total_err"], dtype=float)
         return measured_flux, flux_total_err, log_norm_term_flux
+
+    @staticmethod
+    def get_measured_rv(p):
+        df = pd.read_csv(p.rv_file)
+        CurveSimResults.check_required_columns({"time", "rv", "rv_err"}, df, p.rv_file)
+        df = df[(df["time"] >= p.epoch) & (df["time"] <= p.sim_end)].copy()
+        df, _ = CurveSimResults.rv_corr(df, p.rv_offset)
+        df, _, p.log_norm_term_rv = CurveSimResults.rv_total_err(df, p.rv_jitter)
+
+        df["rv_time_s0"] = (df["time"] - p.epoch) * p.day  # observation times in seconds; starting with 0 at epoch
+        # df["rv_corr"] = df["rv"] + p.rv_offset  # rv corrected by the constant shift
+        # df["rv_total_err"] = np.sqrt(df["rv_err"] * df["rv_err"] + p.rv_jitter * p.rv_jitter)  # combined RV uncertainty from measurement uncertainty and jitter
+
+        rv_time_d = np.array(df["time"], dtype=float)
+        rv_time_s0 = np.array(df["rv_time_s0"], dtype=float)
+        rv_corr = np.array(df["rv_corr"])
+        rv_total_err = np.array(df["rv_total_err"], dtype=float)
+
+        p.rv_datasize = len(df["time"])
+        return df, rv_time_d, rv_time_s0
+
+    @staticmethod
+    def rv_corr(measured_rv, rv_offset):
+        """
+        Adds or updates column measured_rv["rv_corr"], where
+        rv_corr = rv - offset"""
+        measured_rv["rv_corr"] = measured_rv["rv"] - rv_offset
+        rv_corr = np.array(measured_rv["rv_corr"])
+        return measured_rv, rv_corr
+
+    @staticmethod
+    def rv_total_err(measured_rv, rv_jitter):
+        """
+        Adds or updates column measured_rv["rv_total_err"], where
+        rv_total_err = sqrt(rv_err^2 + jitter^2)"""
+        measured_rv["rv_total_err"] = np.sqrt(measured_rv["rv_err"] ** 2 + rv_jitter ** 2)
+        log_norm_term_rv = np.sum(np.log(2 * np.pi * measured_rv["rv_total_err"] ** 2))  # logarithm of the summed Gaussian normalization term
+        rv_total_err = np.array(measured_rv["rv_total_err"], dtype=float)
+        return measured_rv, rv_total_err, log_norm_term_rv
+
+    @staticmethod
+    def get_measured_tt(p):
+        df = pd.read_csv(p.tt_file)
+        CurveSimResults.check_required_columns({"eclipser", "tt", "tt_err", "nr"}, df, p.tt_file)
+        df = df[(df["tt"] >= p.epoch) & (df["tt"] <= p.sim_end)].copy()
+        p.tt_datasize = len(df["tt"])
+        return df
 
     @staticmethod
     def _to_list(val, default):
@@ -467,12 +494,12 @@ class CurveSimResults(dict):
         )
 
     @staticmethod
-    def sim_rv_plot(p, sim_rv, time_d, plot_filename):
+    def sim_rv_plot(p, sim_rv, rv_time_d, plot_filename):
         CurveSimResults.plot_this(
             title=f"Simulated Radial Velocity",
             x_label="Time [BJD]",
             y_label="RV [m/s]",
-            x_lists=    [time_d],
+            x_lists=    [rv_time_d],
             y_lists=    [sim_rv],
             data_labels=["sim_rv"],
             linestyles= ["-"],
@@ -485,7 +512,7 @@ class CurveSimResults(dict):
         )
 
     @staticmethod
-    def rv_observed_computed_plot(p, sim_rv, time_d, plot_filename, measured_rv):
+    def rv_observed_computed_plot(p, sim_rv, flux_time_d, plot_filename, measured_rv):
         min_t = np.min(measured_rv["time"])
         max_t = np.max(measured_rv["time"])
         min_time = min_t - 0.03 * (max_t - min_t)  # 3% padding to make sure that datapoints at the edges are visible
@@ -494,7 +521,7 @@ class CurveSimResults(dict):
             title=f"Radial Velocity: observed vs. computed",
             x_label="Time [BJD]",
             y_label="RV [m/s]",
-            x_lists=    [time_d,   measured_rv["time"]],
+            x_lists=    [flux_time_d,   measured_rv["time"]],
             y_lists=    [sim_rv,   measured_rv["rv_corr"]],
             data_labels=["computed", "observed"],
             linestyles= ["-",      ""],

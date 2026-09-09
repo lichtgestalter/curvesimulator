@@ -14,10 +14,10 @@ class FittingGUI:
     and a real-time Matplotlib plot.
     Activation of an parameter is handled via a mouse click on the parameter.
     """
-    def __init__(self, root, p, bodies, time_s0, time_d, measured_tt):
+    def __init__(self, root, p, bodies, flux_time_s0, flux_time_d, measured_tt):
         self.bodies = bodies
-        self.time_s0 = time_s0
-        self.time_d = time_d
+        self.flux_time_s0 = flux_time_s0
+        self.flux_time_d = flux_time_d
         self.measured_tt = measured_tt
 
         self.residuals_tt_sum_squared, self.measured_tt = self.run_simulation(p)
@@ -200,8 +200,8 @@ class FittingGUI:
         param_references = [(fp.body_index, fp.parameter_name) for fp in p.fitting_parameters]
         for (body_index, parameter_name), fp in zip(param_references, p.fitting_parameters):
             self.bodies[body_index].__dict__[parameter_name] = fp.startvalue
-        sim_rv, sim_flux, rebound_sim = self.bodies.calc_physics(p, self.time_s0)  # run simulation
-        return CurveSimMCMC.match_transit_times(self.measured_tt, p, rebound_sim, self.time_d, self.time_s0)
+        sim_rv, sim_flux, rebound_sim = self.bodies.calc_physics(p, self.flux_time_s0)  # run simulation
+        return CurveSimMCMC.match_transit_times(self.measured_tt, p, rebound_sim, self.flux_time_d, self.flux_time_s0)
 
     def update_entry_fields(self, p):
         """Update the Tkinter entry variables from the internal data model."""
@@ -284,9 +284,9 @@ class FittingGUI:
     #     self.canvas.draw_idle()
     #
 class CurveSimManualFit:
-    def __init__(self, p, bodies, time_s0, time_d, measured_tt):
+    def __init__(self, p, bodies, flux_time_s0, flux_time_d, measured_tt):
         root = tk.Tk()
-        app = FittingGUI(root, p, bodies, time_s0, time_d, measured_tt)
+        app = FittingGUI(root, p, bodies, flux_time_s0, flux_time_d, measured_tt)
         root.focus_set()  # Give focus to the main window so key presses are immediately captured
         root.mainloop()
 

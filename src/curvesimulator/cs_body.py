@@ -67,27 +67,6 @@ class CurveSimBody:
 
         self.mu = None  # Gravitational Parameter. Depends on the masses of at least 2 bodies.
 
-        # if not primary and startposition is not None and velocity is not None:  # State vectors are already in config file.
-        #     pos = []
-        #     for x in startposition.split(","):
-        #         pos.append(eval(x))
-        #     vel = []
-        #     for x in velocity.split(","):
-        #         vel.append(eval(x))
-        #     if len(pos) != 3:
-        #         print(f"{Fore.RED}\nERROR in config file: invalid or missing start position. {pos=}")
-        #         sys.exit(1)
-        #     if len(vel) != 3:
-        #         print(f"{Fore.RED}\nERROR in config file: invalid or missing initial velocity. {vel=}")
-        #         sys.exit(1)
-        #     self.positions[0] = np.array(pos, dtype=float)  # [m] initial position
-        #     self.velocity = np.array(vel, dtype=float)  # [m/s]
-        # elif primary:
-        #     self.positions[0] = np.array([0.0, 0.0, 0.0], dtype=float)  # [m] initial position
-        #     self.velocity = np.array([0.0, 0.0, 0.0], dtype=float)  # [m/s] initial velocity will be updated after all other state vectors have been calculated.
-        # else:  # State vectors are not in config file. They will be calculated from Kepler orbit parameters later on after all bodies are initialized.
-        #     self.velocity = None
-
         # Used for calculation of eclipsed area in function eclipsed_by.
         self.d, self.h, self.angle, self.eclipsed_area = 0.0, 0.0, 0.0, 0.0
 
@@ -203,187 +182,6 @@ class CurveSimBody:
             return None
         return body
 
-    # noinspection NonAsciiCharacters,PyPep8Naming,PyUnusedLocal
-    # def calc_orbit_angles(self):
-    #     if self.omega is None:
-    #         self.omega = self.pomega - self.Omega
-    #     elif self.pomega is None:
-    #         self.pomega = self.omega + self.Omega
-    #     elif self.Omega is None:
-    #         self.Omega = self.pomega - self.omega
-    #     else:
-    #         error = abs(self.omega - self.pomega + self.Omega)
-    #         if error > 0.00001:
-    #             print(f"{Fore.RED}\nERROR in config file, body {self.name}:")
-    #             print(f"omega, pomega, Omega have been defined in the config file for this body.")
-    #             print("This is redundant and in this case contradictory.")
-    #             print("Remove one of these parameters from the config file or")
-    #             print("make sure that omega - pomega + Omega = 0")
-    #             sys.exit(1)
-    #
-    # def calc_period_or_semi_major_axis(self):
-    #     if self.a is None and self.P is None:
-    #         print(f"{Fore.RED}\nERROR in config file, body {self.name}:")
-    #         print("semi-major axis a or Period P have to be specified in config file.")
-    #         sys.exit(1)
-    #     elif self.P is None:
-    #         self.P = 2 * math.pi * math.sqrt(self.a ** 3 / self.mu)
-    #     elif self.a is None:
-    #         self.a = ((self.mu * self.P ** 2) / (4 * math.pi ** 2)) ** (1/3)
-    #     else:
-    #         relative_error = self.P / (2 * math.pi * math.sqrt(self.a ** 3 / self.mu)) - 1
-    #         if relative_error > 0.001:
-    #             print(f"{Fore.RED}\nERROR in config file, body {self.name}:")
-    #             print(f"a and P have been defined in the config file for this body.")
-    #             print("This is redundant and in this case contradictory.")
-    #             print("Remove one of these parameters from the config file or")
-    #             print("make sure that a and P are compatible with Kepler's third law.")
-    #             sys.exit(1)
-    #
-    # def calc_anomalies(self):
-    #     """[a]: https://web.archive.org/web/20160418175843/https://ccar.colorado.edu/asen5070/handouts/cart2kep2002.pdf
-    #        [b]: https://web.archive.org/web/20170810015111/http://ccar.colorado.edu/asen5070/handouts/kep2cart_2002.doc
-    #        Numbers in comments refer to numbered formulas in [a] and [b]."""
-    #
-    #     a, e, L, pomega = self.a, self.e, self.L, self.pomega  # for readability of formulas
-    #     ma, ea, nu, T, t, mu = self.ma, self.ea, self.nu, self.T, self.t, self.mu  # for readability of formulas
-    #
-    #     if ma is None and L is not None:
-    #         ma = L - pomega
-    #         # print("Variant 1: ma-  pomega+  L+, calc ma")
-    #     if ea is not None:  # ea provided
-    #         nu = 2 * math.atan(math.sqrt((1 + e) / (1 - e)) * math.tan(ea / 2))  # 3b: true anomaly (from eccentric anomaly)
-    #         ma = ea - e * math.sin(ea)  # 2b: Mean anomaly (from eccentric anomaly). Just for completeness.
-    #         # print("Variant 2: ea+, calc nu ma")
-    #     else:  # ea not provided
-    #         if nu is not None:  # nu provided
-    #             ea = 2 * math.atan(math.sqrt((1 - e) / (1 + e)) * math.tan(nu / 2))  # 11a: eccentric anomaly (from true anomaly) [rad]
-    #             ma = ea - e * math.sin(ea)  # 2b: Mean anomaly (from eccentric anomaly). Just for completeness.
-    #             # print("Variant 3: ea-  nu+, calc ea ma")
-    #         else:  # nu, ea not provided
-    #             if ma is not None:  # ma provided
-    #                 ea = CurveSimPhysics.kepler_equation_root(e, ma, ea_guess=ma)  # A good guess is important. With guess=0 the root finder very often does not converge.
-    #                 nu = 2 * math.atan(math.sqrt((1 + e) / (1 - e)) * math.tan(ea / 2))  # 3b: true anomaly (from eccentric anomaly)
-    #                 # print("Variant 4: ea-  nu-  ma+, calc ea nu")
-    #             else:  # nu, ea, ma not provided
-    #                 if T is None:  # T not provided
-    #                     T = 0.0
-    #                     print(f"{self.name}: L, ea, nu, ma, T missing, T set to default value 0.0")
-    #                 n = math.sqrt(mu / a ** 3)  # 1b: Mean angular motion. Not needed in this function. (Except for ma, which is not needed.)
-    #                 ma = n * T  # 1b: Mean anomaly at time of periapsis (from angular motion).
-    #                 ea = CurveSimPhysics.kepler_equation_root(e, ma, ea_guess=ma)  # A good guess is important. With guess=0 the root finder very often does not converge.
-    #                 nu = 2 * math.atan(math.sqrt((1 + e) / (1 - e)) * math.tan(ea / 2))  # 3b: true anomaly (from eccentric anomaly)
-    #                 # print("Variant 5: ea-  nu-  ma-  T+, calc n ma ea nu")
-    #
-    #     n = math.sqrt(mu / a ** 3)  # 12a: mean angular motion
-    #     T = ma / n  # Time of periapsis (from mean anomaly and angular motion). Just for completeness.
-    #
-    #     ma += t * n  # 1b
-    #     ma %= 2 * math.pi
-    #     ea = CurveSimPhysics.kepler_equation_root(e, ma, ea_guess=ma)  # A good guess is important. With guess=0 the root finder very often does not converge.
-    #     nu = 2 * math.atan(math.sqrt((1 + e) / (1 - e)) * math.tan(ea / 2))  # 3b: true anomaly (from eccentric anomaly)
-    #
-    #     self.L, self.ma, self.ea, self.nu, self.T = L, ma, ea, nu, T  # save calculated parameters in body object
-    #
-    # def keplerian_elements_to_state_vector(self):
-    #     """Calculates the state vectors (position and velocity) from Keplerian Orbit Elements.
-    #     Returns also true anomaly, eccentric anomaly, mean anomaly and the time of periapsis.
-    #     [a]: https://web.archive.org/web/20160418175843/https://ccar.colorado.edu/asen5070/handouts/cart2kep2002.pdf
-    #     [b]: https://web.archive.org/web/20170810015111/http://ccar.colorado.edu/asen5070/handouts/kep2cart_2002.doc
-    #     [c]: https://space.stackexchange.com/questions/19322/converting-orbital-elements-to-cartesian-state-vectors/19335#19335
-    #     [d]: https://space.stackexchange.com/questions/55356/how-to-find-eccentric-anomaly-by-mean-anomaly
-    #     [e]: https://github.com/alfonsogonzalez/AWP/blob/main/src/python_tools/numerical_tools.py
-    #     Numbers in comments refer to numbered formulas in [a] and [b].
-    #     Code based on [c]. Added calculation of eccentric anomaly based on the explanations
-    #     in [d] using a stripped down version of [e]."""
-    #
-    #     self.calc_orbit_angles()  # Omega, omega, pomega
-    #     self.calc_period_or_semi_major_axis()  # P, a
-    #     self.calc_anomalies()  # L, ma, ea, nu, T
-    #     P, a, e, i, Omega, omega, pomega, L = self.P, self.a, self.e, self.i, self.Omega, self.omega, self.pomega, self.L  # for readability of formulas
-    #     ma, ea, nu, T, t, mu = self.ma, self.ea, self.nu, self.T, self.t, self.mu  # for readability of formulas
-    #
-    #     r = a * (1 - e * math.cos(ea))  # 4b: radius r
-    #     h = math.sqrt(mu * a * (1 - e ** 2))  # 5b: specific angular momentum h
-    #     x = r * (math.cos(Omega) * math.cos(omega + nu) - math.sin(Omega) * math.sin(omega + nu) * math.cos(i))  # 6b: position component x
-    #     y = r * (math.sin(Omega) * math.cos(omega + nu) + math.cos(Omega) * math.sin(omega + nu) * math.cos(i))  # 6b: position component y
-    #     z = r * (math.sin(i) * math.sin(omega + nu))  # 6b: position component z
-    #     p = a * (1 - e ** 2)  # 7b: Semi-latus rectum. Used in velocity calculation.
-    #     dx = (x * h * e / (r * p)) * math.sin(nu) - (h / r) * (math.cos(Omega) * math.sin(omega + nu) + math.sin(Omega) * math.cos(omega + nu) * math.cos(i))  # 7b: velocity component x
-    #     dy = (y * h * e / (r * p)) * math.sin(nu) - (h / r) * (math.sin(Omega) * math.sin(omega + nu) - math.cos(Omega) * math.cos(omega + nu) * math.cos(i))  # 7b: velocity component y
-    #     dz = (z * h * e / (r * p)) * math.sin(nu) + (h / r) * (math.cos(omega + nu) * math.sin(i))  # 7b: velocity component z
-    #     return np.array([x, y, z]), np.array([dx, dy, dz]), nu, ma, ea, T  # state vectors
-    #
-    # def calc_state_vector(self, p, bodies):
-    #     """Get initial position and velocity of the physical body self."""
-    #     self.mu = CurveSimPhysics.gravitational_parameter(bodies, p.g)  # is the same for all bodies in the system, because they are orbiting a common barycenter
-    #     if self.velocity is None:  # State vectors are not in config file. So they will be calculated from Kepler orbit parameters instead.
-    #         state_vector_function = self.keplerian_elements_to_state_vector
-    #         pos, vel, *_ = state_vector_function()
-    #         self.positions[0] = np.array(pos, dtype=float)  # [m] initial position
-    #         self.velocity = np.array(vel, dtype=float)  # [m/s] initial velocity
-    #         self.velocity /= (1 + (self.mass / bodies[0].mass))  # correction because formulas seem to assume a system where all the mass is in one object at the center
-    #
-    # def state_vector_to_keplerian_elements(self):
-    #     """Given the State Vector (position x, y, z and velocity dx, dy, dz) of an exoplanet, calculate its
-    #         Kepler Orbit Elements (semi-major axis,  eccentricity, inclination, longitude of ascending node,
-    #         argument of periapsis,  true anomaly) with a python function. You may assume that the orbit is
-    #         well defined (no edge case, no hyperbole)"""
-    #
-    #     # Extract position and velocity components
-    #     x, y, z = self.positions[0]
-    #     dx, dy, dz = self.velocity
-    #
-    #     # Calculate specific angular momentum
-    #     h_vec = np.cross([x, y, z], [dx, dy, dz])
-    #     h = np.linalg.norm(h_vec)
-    #
-    #     # Calculate the semi-major axis
-    #     r = np.linalg.norm([x, y, z])
-    #     v = np.linalg.norm([dx, dy, dz])
-    #     mu = self.mu
-    #     a = 1 / (2 / r - v ** 2 / mu)
-    #
-    #     # Calculate the eccentricity vector and its magnitude
-    #     e_vec = (np.cross([dx, dy, dz], h_vec) / mu) - np.array([x, y, z]) / r
-    #     e = np.linalg.norm(e_vec)
-    #
-    #     # Calculate the inclination
-    #     i = np.arccos(h_vec[2] / h)
-    #
-    #     # Calculate the longitude of ascending node
-    #     n_vec = np.cross([0, 0, 1], h_vec)
-    #     n = np.linalg.norm(n_vec)
-    #     if n != 0:
-    #         Omega = np.arccos(n_vec[0] / n)
-    #         if n_vec[1] < 0:
-    #             Omega = 2 * np.pi - Omega
-    #     else:
-    #         Omega = 0
-    #
-    #     # Calculate the argument of periapsis
-    #     if n != 0:
-    #         omega = np.arccos(np.dot(n_vec, e_vec) / (n * e))
-    #         if e_vec[2] < 0:
-    #             omega = 2 * np.pi - omega
-    #     else:
-    #         omega = 0
-    #
-    #     # Calculate the true anomaly
-    #     nu = np.arccos(np.dot(e_vec, [x, y, z]) / (e * r))
-    #     if np.dot([x, y, z], [dx, dy, dz]) < 0:
-    #         nu = 2 * np.pi - nu
-    #
-    #     # Save calculated parameters in body object
-    #     self.a = a
-    #     self.e = e
-    #     self.i = np.degrees(i)
-    #     self.Omega = np.degrees(Omega)
-    #     self.omega = np.degrees(omega)
-    #     self.nu = np.degrees(nu)
-    #
-    #     return a, e, np.degrees(i), np.degrees(Omega), np.degrees(omega), np.degrees(nu)
-
     def full_eclipse(self, other, d):
         if self.radius < other.radius:  # Total eclipse
             area = self.area_2d
@@ -409,15 +207,15 @@ class CurveSimBody:
         relative_radius = (self.radius + self.d - other.h) / (2 * self.radius)  # Relative distance between approximated center C of eclipsed area and center of self
         return area, relative_radius
 
-    def find_tt(self, other, iteration, rebound_sim, p, time_s0, time_d, start_index, end_index, dt):
+    def find_tt(self, other, iteration, rebound_sim, p, flux_time_s0, flux_time_d, start_index, end_index, dt):
         """other eclipses self. Find the exact time of transit (TT).
             iteration should be the last one before TT. """
         eclipser = rebound_sim.particles[other.name]
         eclipsee = rebound_sim.particles[self.name]
-        rebound_sim.integrate(time_s0[iteration])
+        rebound_sim.integrate(flux_time_s0[iteration])
         dx_left = eclipser.x - eclipsee.x
         t_left = rebound_sim.t
-        rebound_sim.integrate(time_s0[iteration + 1])
+        rebound_sim.integrate(flux_time_s0[iteration + 1])
         t_right = rebound_sim.t
         dx_right = eclipser.x - eclipsee.x
         interval_extensions = 0
@@ -439,13 +237,13 @@ class CurveSimBody:
                     print(f"Try again with half the iteration time step parameter <dt>{Style.RESET_ALL}   ", end="")
                     print(f"or choose more plausible start values and more restrictive upper/lower limits for the body parameters{Style.RESET_ALL}  ", end="")
                     print(f"Consider moving the time intervals a bit.{Style.RESET_ALL}   ", end="")
-                    print(f"{iteration=}  {time_d[iteration]=} {interval_extensions=}")
+                    print(f"{iteration=}  {flux_time_d[iteration]=} {interval_extensions=}")
                 return -1, -1, -1, False
             if iteration - interval_extensions <= start_index or iteration + interval_extensions >= end_index:
                 if p.verbose:
                     print(f"{Fore.YELLOW}\nWARNING in function find_tt: Possible TT at the edge of a time interval.")
                     print(f"Consider moving the time intervals a bit.{Style.RESET_ALL}   ", end="")
-                    print(f"{iteration=}  {time_d[iteration]=}")
+                    print(f"{iteration=}  {flux_time_d[iteration]=}")
                 return -1, -1, -1, False
         if dx_left * dx_right < 0 and eclipser.z >= eclipsee.z:  # sign of dx changed and eclipser in front of eclipsee
             while t_right - t_left > p.transit_precision:  # bisect until desired precision reached
@@ -476,54 +274,10 @@ class CurveSimBody:
                 print(f"Try again with half the iteration time step parameter <dt>{Style.RESET_ALL}   ", end="")
                 print(f"or choose more plausible start values and more restrictive upper/lower limits for the body parameters{Style.RESET_ALL}  ", end="")
                 print(f"Consider moving the time intervals a bit.{Style.RESET_ALL}   ", end="")
-                print(f"{iteration=}  {time_d[iteration]=} {interval_extensions=}")
+                print(f"{iteration=}  {flux_time_d[iteration]=} {interval_extensions=}")
             return -1, -1, -1, False, -1
 
-    # def find_t1234_old(self, other, iteration, rebound_sim, time_s0, start_index, end_index, p, transittimetype):
-    #     """other eclipses self. Find where ingress starts (T1) or egress ends (T4)."""
-    #     eclipser = rebound_sim.particles[other.name]
-    #     eclipsee = rebound_sim.particles[self.name]
-    #     if transittimetype in ["T1", "T4"]:
-    #         d_max = self.radius + other.radius
-    #     else:
-    #         d_max = abs(self.radius - other.radius)
-    #     iteration_delta = 0
-    #     d = -1
-    #     step = -1 if transittimetype in ["T1", "T2"] else 1
-    #     # T1/T2: go backwards from iteration (this should be the one right _after_ TT) to find the iteration before the eclipse starts
-    #     # T3/T4: go forward from iteration (this should be the one right _before_ TT) to find the iteration after the eclipse ends
-    #     while d < d_max:
-    #         if iteration + iteration_delta >= end_index or iteration + iteration_delta < start_index:
-    #             return None  # incomplete transit at start or end of current simulation interval
-    #         iteration_delta += step
-    #         d = CurveSimPhysics.distance_2d(other, self, iteration + iteration_delta)
-    #     rebound_sim.integrate((time_s0[iteration + iteration_delta]))
-    #     d_old = CurveSimPhysics.distance_2d_particle(eclipser, eclipsee)
-    #     t_old = rebound_sim.t
-    #     rebound_sim.integrate(time_s0[iteration])
-    #     t_new = rebound_sim.t
-    #     d_new = CurveSimPhysics.distance_2d_particle(eclipser, eclipsee)
-    #     if transittimetype not in ["T1", "T2"]:
-    #         t_new, t_old = t_old, t_new
-    #     if d_old > d_max > d_new:  # T1 or T2  or T3 or T4 lies between t_old and t_new
-    #         while t_new - t_old > 1e-1:  # bisect until desired precision reached
-    #             rebound_sim.integrate((t_new + t_old) / 2)
-    #             in_eclipse = CurveSimPhysics.distance_2d_particle(eclipser, eclipsee) < d_max
-    #             if transittimetype in ["T1", "T2"]:
-    #                 if in_eclipse: # T1 or T2 lies between t_old and (t_new + t_old) / 2
-    #                     t_new = rebound_sim.t
-    #                 else:
-    #                     t_old = rebound_sim.t
-    #             else:
-    #                 if in_eclipse: # T3 or T4 lies between t_new and (t_new + t_old) / 2
-    #                     t_old = rebound_sim.t
-    #                 else:
-    #                     t_new = rebound_sim.t
-    #         return rebound_sim.t / p.day + p.epoch
-    #     else:  # grazing transit (or rebound inaccuracy?)
-    #         return None
-
-    def find_t1234(self, other, tt_s0, iteration, rebound_sim, time_s0, start_index, end_index, p, transittimetype):
+    def find_t1234(self, other, tt_s0, iteration, rebound_sim, flux_time_s0, start_index, end_index, p, transittimetype):
         """other eclipses self. Find where ingress starts (T1) or egress ends (T4)."""
         eclipser = rebound_sim.particles[other.name]
         eclipsee = rebound_sim.particles[self.name]
@@ -541,7 +295,7 @@ class CurveSimBody:
                 return None  # incomplete transit at start or end of current simulation interval
             iteration_delta += step
             d = CurveSimPhysics.distance_2d_body(other, self, iteration + iteration_delta)
-        rebound_sim.integrate((time_s0[iteration + iteration_delta]))
+        rebound_sim.integrate((flux_time_s0[iteration + iteration_delta]))
         d_old = CurveSimPhysics.distance_2d_particle(eclipser, eclipsee)
         t_old = rebound_sim.t
         rebound_sim.integrate(tt_s0)
@@ -567,24 +321,6 @@ class CurveSimBody:
             return None
         else:
             return rebound_sim.t / p.day + p.epoch
-
-    # def eclipsed_by(self, other, iteration, p):
-    #     """Returns area, relative_radius
-    #     area: Area of self which is eclipsed by other.
-    #     relative_radius: The distance of the approximated center of the eclipsed area from the center of self as a percentage of self.radius (used for limb darkening)."""
-    #     # if other.positions[iteration][0] < self.positions[iteration][0]:  # Is other nearer to viewpoint than self? (i.e. its position has a smaller x-coordinate)
-    #     if other.positions[iteration][2] > self.positions[iteration][2]:  # Is other nearer to viewpoint than self? (i.e. its position has a larger z-coordinate)
-    #         d = CurveSimPhysics.distance_2d_body(other, self, iteration)
-    #         if d < self.radius + other.radius:  # Does other eclipse self?
-    #             if d <= abs(self.radius - other.radius):  # Annular (i.e. ring) eclipse or total eclipse
-    #                 area, relative_radius = self.full_eclipse(other, d)
-    #             else:  # Partial eclipse
-    #                 area, relative_radius = self.partial_eclipse(other, d)
-    #             return area, relative_radius
-    #         else:  # No eclipse because, seen from viewer, the bodies are not close enough to each other
-    #             return None, None
-    #     else:  # other cannot eclipse self, because self is nearer to viewer than other
-    #         return None, None
 
     def eclipsed_by(self, other, iteration, p):
         """Returns area, relative_radius

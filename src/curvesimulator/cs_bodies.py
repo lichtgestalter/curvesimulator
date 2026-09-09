@@ -83,7 +83,7 @@ class CurveSimBodies(list):
                     body = CurveSimBody.load(file, p, ".")
                 self.append(body)
         self.check_body_parameters()
-        p.rv_offset, p.rv_jitter = self.get_rv_offset_and_jitter(p)
+        p.rv_body, p.rv_offset, p.rv_jitter = self.get_rv_offset_and_jitter(p)
         p.init_eclipsers_eclipsees(self)
         if p.action == "single_run":
             self.generate_patches(p)
@@ -248,11 +248,11 @@ class CurveSimBodies(list):
         return None
 
     def get_rv_offset_and_jitter(self, p):
-        rv_body = self.get_body_from_name(p.rv_body)
+        rv_body = self.get_body_from_name(p.rv_body_name)
         if rv_body is None:
-            return None, None
+            return None, None, None
         else:
-            return rv_body.rv_offset, rv_body.rv_jitter
+            return rv_body, rv_body.rv_offset, rv_body.rv_jitter
 
     def check_body_parameters(self):
         """Checking parameters of physical bodies in the config file"""
@@ -275,13 +275,6 @@ class CurveSimBodies(list):
             if body.luminosity > 0 and (body.limb_darkening_u1 is None or body.limb_darkening_u2 is None):  # if body.luminosity > 0 and limb darkening parameters are missing
                 print(f"{Fore.RED}\nERROR in config file: {body.name} has luminosity but invalid limb darkening parameter {body.limb_darkening=}.")
                 sys.exit(1)
-            # if body.velocity is None:
-            #     if body.e < 0:
-            #         print(f"{Fore.RED}\nERROR in config file: {body.name} has invalid or missing eccentricity e.")
-            #         sys.exit(1)
-            #     if body.i < -1000:
-            #         print(f"{Fore.RED}\nERROR in config file: {body.name} has invalid or missing inclination i.")
-            #         sys.exit(1)
             if body.a is not None and body.P is not None:
                 print(f"{Fore.RED}\nERROR in config file: Period P and semi-major axis a have been specified for {body.name}.")
                 print(f"{Fore.RED}Remove one parameter from the config file.")
@@ -305,16 +298,6 @@ class CurveSimBodies(list):
         for body in self:
             body.save(directory, prefix, suffix)
 
-    # def calc_primary_body_initial_velocity(self):
-    #     """Calculates the initial velocity of the primary body in the star system
-    #         from the masses and initial velocities of all other bodies.
-    #         The calculation is based on the principles of conservation of momentum
-    #         and the center of mass motion"""
-    #     assert 0 == self[0].velocity[0] == self[0].velocity[1] == self[0].velocity[2]
-    #     for body in self[1:]:
-    #         self[0].velocity += body.velocity * body.mass
-    #     self[0].velocity /= - self[0].mass
-
     def total_luminosity(self, stars, iteration, p):
         """Add luminosity of all stars in the system while checking for eclipses.
         Does not yet work correctly for eclipsed eclipses (three or more bodies in line of sight at the same time)."""
@@ -330,70 +313,22 @@ class CurveSimBodies(list):
                         # results["Bodies"][body.name]["Transits"][-1]["impacts_and_depths"][-1].depth = absolute_depth  # this depth is caused by this particular body eclipsing this particular star
         return luminosity
 
-    # @staticmethod
-    # def distance_and_direction(body1, body2, iteration, p):
-    #     # Calculate distance and direction between 2 bodies:
-    #     distance_xyz = body2.positions[iteration - 1] - body1.positions[iteration - 1]
-    #     distance = math.sqrt(np.dot(distance_xyz, distance_xyz))
-    #     force_total = p.g * body1.mass * body2.mass / distance ** 2  # Use law of gravitation to calculate force acting on body.
-    #     x, y, z = distance_xyz[0], distance_xyz[1], distance_xyz[2]
-    #     polar_angle = math.acos(z / distance)
-    #     azimuth_angle = math.atan2(y, x)
-    #     return force_total, azimuth_angle, polar_angle
-    #
-    # @staticmethod
-    # def update_force(azimuth_angle, force, force_total, polar_angle):
-    #     # Compute the force of attraction in each direction:
-    #     force[0] += math.sin(polar_angle) * math.cos(azimuth_angle) * force_total
-    #     force[1] += math.sin(polar_angle) * math.sin(azimuth_angle) * force_total
-    #     force[2] += math.cos(polar_angle) * force_total
-    #
-    # @staticmethod
-    # def update_velocity(body1, iteration, force, p):
-    #     """https://en.wikipedia.org/wiki/Verlet_integration
-    #     https://www.lancaster.ac.uk/staff/drummonn/PHYS281/gravity/"""
-    #     if iteration == 1:
-    #         body1.acceleration = force / body1.mass
-    #     acceleration = force / body1.mass
-    #     body1.velocity += (acceleration + body1.acceleration) * 0.5 * p.dt
-    #     body1.acceleration = acceleration
-    #     return acceleration
-
-    # @staticmethod
-    # def update_velocity_euler(body1, force, p):
-    #     acceleration = force / body1.mass
-    #     body1.velocity += acceleration * p.dt
-    #     return acceleration
-
-    # @staticmethod
-    # def update_position(body1, iteration, acceleration, p):
-    #     """https://en.wikipedia.org/wiki/Verlet_integration
-    #     https://www.lancaster.ac.uk/staff/drummonn/PHYS281/gravity/
-    #     Verlet integration avoids the numerical problems of the Euler method."""
-    #     movement = body1.velocity * p.dt + acceleration * (p.dt ** 2 * 0.5)
-    #     body1.positions[iteration] = body1.positions[iteration - 1] + movement
-
     @staticmethod
     def update_position(body, iteration, rebound_sim):
         particle = rebound_sim.particles[body.name]
         body.positions[iteration] = np.array([particle.x, particle.y, particle.z])
 
-    # @staticmethod
-    # def update_position_euler(body1, iteration, acceleration, p):
-    #     movement = body1.velocity * p.dt - 0.5 * acceleration * p.dt ** 2
-    #     body1.positions[iteration] = body1.positions[iteration - 1] + movement
-
     @staticmethod
-    def progress_bar(iteration, p):
-        if p.iterations > 5:  # prevent DIV/0 in next line
-            if iteration % int(round(p.iterations / 10)) == 0:  # Inform user about program"s progress.
-                print(f"{round(iteration / p.iterations * 10) * 10:3d}% ", end="")
+    def progress_bar(iteration, iterations, p):
+        if iterations > 5:  # prevent DIV/0 in next line
+            if iteration % int(round(iterations / 10)) == 0:  # Inform user about program"s progress.
+                print(f"{round(iteration / iterations * 10) * 10:3d}% ", end="")
                 # print(self.energy(iteration, p))
 
     def calc_positions_eclipses_luminosity(self, p, time_s0):
         """Calculate distances, forces, accelerations, velocities of the bodies for each iteration.
         The resulting body positions and the lightcurve are stored for later use in the animation."""
-
+        iterations = len(time_s0)
         if p.myintegration:  # debug
             simulation = MyIntegration(p)
             self.init_myintegration(simulation)
@@ -401,31 +336,29 @@ class CurveSimBodies(list):
             simulation = CurveSimBodies.init_rebound(self, p)
 
         stars = [body for body in self if body.body_type == "star"]
-        sim_flux = CurveSimLightcurve(p.iterations)  # Initialize lightcurve (essentially a np.ndarray)
+        sim_flux = CurveSimLightcurve(iterations)  # Initialize lightcurve (essentially a np.ndarray)
         if p.show_lower_curve or p.rv_file:
-            sim_rv = np.full(p.iterations, np.nan, dtype=float)
+            sim_rv = np.full(iterations, np.nan, dtype=float)
         else:
             sim_rv = None
         if not p.myintegration:
             initial_sim_state = CurveSimRebound(simulation)
 
-        for iteration in range(p.iterations):
+        for iteration in range(iterations):
             if p.myintegration:
                 if iteration == 0:
                     E0 = simulation.total_energy()
                 E = simulation.total_energy()
                 rel_error = (E - E0) / abs(E0)
-                # if iteration % (p.iterations // 10) == 0:
-                #     print(f"Energy drift: {rel_error:.2e}")
 
             simulation.integrate(time_s0[iteration])
             for body in self:
                 CurveSimBodies.update_position(body, iteration, simulation)
             sim_flux[iteration] = self.total_luminosity(stars, iteration, p)  # Update sim_flux.
             if p.show_lower_curve or p.rv_file:
-                sim_rv[iteration] = -simulation.particles[p.rv_body].vz
+                sim_rv[iteration] = -simulation.particles[p.rv_body_name].vz
             if p.verbose:
-                CurveSimBodies.progress_bar(iteration, p)
+                CurveSimBodies.progress_bar(iteration, iterations, p)
         if not p.myintegration:
             new_sim_state = CurveSimRebound(simulation)
             energy_change = initial_sim_state.sim_check_deltas(new_sim_state)
@@ -437,16 +370,17 @@ class CurveSimBodies(list):
         return sim_rv, sim_flux, self, simulation, energy_change
 
     def calc_physics(self, p, time_s0):
+        iterations = len(time_s0)
         """Calculate body positions and the resulting lightcurve."""
         if p.verbose:
             if p.video_file and p.flux_file is None:
                 print(f"Generating {p.frames} frames for a {p.frames / p.fps:.0f} seconds long video.")
-            print(f"Calculating {p.iterations:,} iterations ", end="")
+            print(f"Calculating {iterations:,} iterations ", end="")
             tic = time.perf_counter()
         sim_rv, sim_flux, bodies, rebound_sim, energy_change = self.calc_positions_eclipses_luminosity(p, time_s0)
         if p.verbose:
             toc = time.perf_counter()
-            print(f" {toc - tic:7.3f} seconds  ({p.iterations / (toc - tic):.0f} iterations/second)")
+            print(f" {toc - tic:7.3f} seconds  ({iterations / (toc - tic):.0f} iterations/second)")
             print(f"Log10 of the relative change of energy during simulation: {energy_change:.0f}")
             if energy_change > -6:
                 print(f"{Fore.YELLOW}The energy must not change significantly! Consider using a smaller time step (dt).{Style.RESET_ALL}")
@@ -476,25 +410,12 @@ class CurveSimBodies(list):
                 body.circle_right = matplotlib.patches.Circle((0, 0), radius=body.radius * extrascale_right / p.scope_right)  # Matplotlib patch for right view
                 body.circle_left = matplotlib.patches.Circle((0, 0), radius=body.radius * extrascale_left / p.scope_left)  # Matplotlib patch for left view
 
-    # def energy(self, iteration, p):
-    #     """Calculates the total energy in the system. This should be constant."""
-    #     kinetic_energy = 0
-    #     potential_energy = 0
-    #     for i, body1 in enumerate(self):
-    #         velocity_magnitude = np.linalg.norm(body1.velocity)
-    #         kinetic_energy += 0.5 * body1.mass * velocity_magnitude ** 2
-    #         for j, body2 in enumerate(self):
-    #             if i < j:
-    #                 distance = np.linalg.norm(body2.positions[iteration - 1] - body1.positions[iteration - 1])
-    #                 if distance > 0:
-    #                     potential_energy += body1.mass * body2.mass / distance
-    #     return kinetic_energy - p.g * potential_energy
-
-    def find_transits(self, rebound_sim, p, time_s0, time_d):
+    def find_transits(self, rebound_sim, p, flux_time_s0, flux_time_d):
         print()
+        iterations = len(flux_time_s0)
         rebound_sim.dt = p.dt
         results = CurveSimResults(self)
-        for i in range(p.iterations):
+        for i in range(iterations):
             for eclipser in p.eclipsers:
                 for eclipsee in p.eclipsees:
                     eclipser_before_eclipsee = eclipser.positions[i][2] > eclipsee.positions[i][2]
@@ -506,13 +427,13 @@ class CurveSimBodies(list):
                             results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["TT"] = i * p.dt / p.day + p.epoch
                             # print(f"myintegration transit at {i * p.dt / p.day + p.epoch:.2f}")
                         else:
-                            tt, impact, depth, close_enough, inclination = eclipsee.find_tt(eclipser, i - 1, rebound_sim, p, time_s0, time_d, 0, p.iterations, p.dt)
+                            tt, impact, depth, close_enough, inclination = eclipsee.find_tt(eclipser, i - 1, rebound_sim, p, flux_time_s0, flux_time_d, 0, p.iterations, p.dt)
                             if close_enough:  # eclipser and eclipsee are close enough at actual TT
                                 tt_s0 = rebound_sim.t
-                                t1 = eclipsee.find_t1234(eclipser, tt_s0, i, rebound_sim, time_s0, 0, p.iterations, p, transittimetype="T1")
-                                t2 = eclipsee.find_t1234(eclipser, tt_s0, i, rebound_sim, time_s0, 0, p.iterations, p, transittimetype="T2")
-                                t3 = eclipsee.find_t1234(eclipser, tt_s0, i - 1, rebound_sim, time_s0, 0, p.iterations, p, transittimetype="T3")
-                                t4 = eclipsee.find_t1234(eclipser, tt_s0, i - 1, rebound_sim, time_s0, 0, p.iterations, p, transittimetype="T4")
+                                t1 = eclipsee.find_t1234(eclipser, tt_s0, i, rebound_sim, flux_time_s0, 0, iterations, p, transittimetype="T1")
+                                t2 = eclipsee.find_t1234(eclipser, tt_s0, i, rebound_sim, flux_time_s0, 0, iterations, p, transittimetype="T2")
+                                t3 = eclipsee.find_t1234(eclipser, tt_s0, i - 1, rebound_sim, flux_time_s0, 0, iterations, p, transittimetype="T3")
+                                t4 = eclipsee.find_t1234(eclipser, tt_s0, i - 1, rebound_sim, flux_time_s0, 0, iterations, p, transittimetype="T4")
                                 t12, t23, t34, t14 = CurveSimPhysics.calc_transit_intervals(t1, t2, t3, t4)
                                 results["Bodies"][eclipser.name]["Transits"].append(Transit(eclipsee))
                                 results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["EclipsedBody"] = eclipsee.name
@@ -531,10 +452,11 @@ class CurveSimBodies(list):
         return results
 
     @staticmethod
-    def find_tts(rebound_sim, p, time_s0, time_d):
+    def find_tts(rebound_sim, p, flux_time_s0, flux_time_d):
+        iterations = len(flux_time_s0)
         tts = []
         rebound_sim.dt = p.dt
-        for i in range(0, p.iterations):
+        for i in range(0, iterations):
             for eclipser in p.eclipsers:
                 for eclipsee in p.eclipsees:
                     eclipser_before_eclipsee = eclipser.positions[i][2] > eclipsee.positions[i][2]
@@ -543,7 +465,7 @@ class CurveSimBodies(list):
                         if p.myintegration:  # debug
                             tts.append([eclipser.name, eclipsee.name, i * p.dt / p.day + p.epoch])
                         else:
-                            tt, b, depth, close_enough, inclination = eclipsee.find_tt(eclipser, i - 1, rebound_sim, p, time_s0, time_d, 0, p.iterations, p.dt)
+                            tt, b, depth, close_enough, inclination = eclipsee.find_tt(eclipser, i - 1, rebound_sim, p, flux_time_s0, flux_time_d, 0, iterations, p.dt)
                             if close_enough:
                                 tts.append([eclipser.name, eclipsee.name, tt])
         # maybe add this: convert tts into a pandas Dataframe with columns eclipser, eclipsee, tt
