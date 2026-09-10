@@ -83,7 +83,8 @@ class CurveSimBodies(list):
                     body = CurveSimBody.load(file, p, ".")
                 self.append(body)
         self.check_body_parameters()
-        p.rv_body, p.rv_offset, p.rv_jitter = self.get_rv_offset_and_jitter(p)
+        p.rv_body, _, _ = self.get_rv_offset_and_jitter(p)
+        # p.rv_body, p.rv_offset, p.rv_jitter = self.get_rv_offset_and_jitter(p)
         p.init_eclipsers_eclipsees(self)
         if p.action == "single_run":
             self.generate_patches(p)

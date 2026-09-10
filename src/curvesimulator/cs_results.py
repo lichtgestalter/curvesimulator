@@ -200,6 +200,7 @@ class CurveSimResults(dict):
 
     def calc_rv_log_maxlikelihood(self, measured_rv):
         self["Fit"]["log_norm_term_rv"] = np.log(2 * np.pi * measured_rv["rv_total_err"] ** 2).sum()  # logarithm of the summed Gaussian normalization term
+        print(f"calc_rv_log_maxlikelihood {self["Fit"]["log_norm_term_rv"]}")  # debug log_norm_term_rv
         self["Fit"]["log_maxlikelihood_rv"] = -0.5 * (self["Fit"]["chi_squared_rv"] + self["Fit"]["log_norm_term_rv"])
 
     def calc_flux_log_maxlikelihood(self, measured_flux):
@@ -311,9 +312,9 @@ class CurveSimResults(dict):
         df = pd.read_csv(p.rv_file)
         CurveSimResults.check_required_columns({"time", "rv", "rv_err"}, df, p.rv_file)
         df = df[(df["time"] >= p.epoch) & (df["time"] <= p.sim_end)].copy()
-        df, _ = CurveSimResults.rv_corr(df, p.rv_offset)
-        df, _, p.log_norm_term_rv = CurveSimResults.rv_total_err(df, p.rv_jitter)
-
+        df, _ = CurveSimResults.rv_corr(df, p.rv_body.rv_offset)
+        df, _, p.log_norm_term_rv = CurveSimResults.rv_total_err(df, p.rv_body.rv_jitter)
+        print(f"get_measured_rv {p.log_norm_term_rv}")  # debug log_norm_term_rv
         df["rv_time_s0"] = (df["time"] - p.epoch) * p.day  # observation times in seconds; starting with 0 at epoch
         # df["rv_corr"] = df["rv"] + p.rv_offset  # rv corrected by the constant shift
         # df["rv_total_err"] = np.sqrt(df["rv_err"] * df["rv_err"] + p.rv_jitter * p.rv_jitter)  # combined RV uncertainty from measurement uncertainty and jitter
@@ -726,6 +727,8 @@ class CurveSimResults(dict):
         plt.hlines(measured_rv["rv_total_err"].mean(), left, right, colors="xkcd:warm grey", linewidth=1, linestyles="--")
         plt.hlines(-measured_rv["rv_total_err"].mean(), left, right, colors="xkcd:warm grey", linewidth=1, linestyles="--")
         plt.savefig(plot_file)
+        plt.close()
+
 
     @staticmethod
     def flux_residuals_all_plots_time(p, plot_filename, measured_flux, measured_tt):
@@ -813,26 +816,3 @@ class CurveSimResults(dict):
         plt.hlines(0, x[0][0], x[0][-1], colors="xkcd:black", linewidth=1)
         plt.savefig(plot_file)
         plt.close()
-
-
-def try_colors_in_plot():
-    plot_filename1 = "color_test.png"
-    distance = 10
-    n_lines = 100
-    fig, ax = plt.subplots(figsize=(10, 6))
-    colors = ["xkcd:royal blue", "xkcd:red", "xkcd:black", "xkcd:frog green", "xkcd:piss yellow", "xkcd:purply blue", "xkcd:sepia", "xkcd:wine", "xkcd:ocean", "xkcd:shit green", "xkcd:forest", "xkcd:pale violet", "xkcd:robin's egg", "xkcd:pinkish purple", "xkcd:azure", "xkcd:hot pink", "xkcd:mango", "xkcd:baby pink", "xkcd:fluorescent green", "xkcd:medium grey"]
-    linestyles = ["solid", "dashed", "dashdot", "dotted"]
-    for i in range(n_lines):
-        color = colors[i % len(colors)]
-        linestyle = linestyles[(i // len(colors)) % len(linestyles)]
-        x = i * distance
-        ax.plot([x, x], [-1, 1], color=color, linestyle=linestyle, linewidth=1)
-    ax.set_xlabel("test")
-    ax.set_title(f"test")
-    ax.legend(loc="upper left")
-    plt.tight_layout()
-    plt.savefig(plot_filename1)
-
-
-# if __name__ == "__main__":
-#     try_colors_in_plot()
