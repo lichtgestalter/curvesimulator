@@ -208,6 +208,10 @@ class CurveSimMCMC:
             measured_rv = CurveSimResults.calc_rv_residuals(measured_rv, p.rv_body_name, rebound_sim)  # compare observed vs. computed RV
             measured_rv = results.calc_rv_chi_squared(measured_rv, p.free_parameters)  # store chi squared and p-value in results
             sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, rv_time_s0)  # Calculate all body positions and the resulting flux and rv
+
+            results.calc_rv_chi_squared(measured_rv, p.free_parameters)  # store chi squared and p-value in results
+            results.calc_rv_log_maxlikelihood(measured_rv)  # store -log(L) in results
+
             CurveSimResults.sim_rv_plot(p, sim_rv, rv_time_d, "rv_computed")  # plot computed RV
             CurveSimResults.rv_observed_computed_plot(p, sim_rv, rv_time_d, "rv_o_vs_c", measured_rv)  # plot computed and observed RV
             CurveSimResults.rv_residuals_plot(p, "rv_residuals", measured_rv)  # plot RV residuals

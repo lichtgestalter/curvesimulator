@@ -198,6 +198,10 @@ class CurveSimResults(dict):
             self["Fit"]["pvalue_flux"] = CurveSimResults.chi_squared_pvalue(self["Fit"]["chi_squared_flux"], self["Fit"]["measurements_flux"], free_parameters)
         return measured_flux
 
+    def calc_rv_log_maxlikelihood(self, measured_rv):
+        self["Fit"]["log_norm_term_rv"] = np.log(2 * np.pi * measured_rv["rv_total_err"] ** 2).sum()  # logarithm of the summed Gaussian normalization term
+        self["Fit"]["log_maxlikelihood_rv"] = -0.5 * (self["Fit"]["chi_squared_rv"] + self["Fit"]["log_norm_term_rv"])
+
     def calc_flux_log_maxlikelihood(self, measured_flux):
         self["Fit"]["log_norm_term_flux"] = np.log(2 * np.pi * measured_flux["flux_total_err"] ** 2).sum()  # logarithm of the summed Gaussian normalization term
         self["Fit"]["log_maxlikelihood_flux"] = -0.5 * (self["Fit"]["chi_squared_flux"] + self["Fit"]["log_norm_term_flux"])
