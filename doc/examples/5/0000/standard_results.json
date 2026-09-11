@@ -55,6 +55,7 @@
         "sim_end_s0": 336959.9999919534,
         "iterations": 346,
         "sim_flux_err": 0.0,
+        "rv_body_name": "SomeStar",
         "comment": "No comment",
         "verbose": false,
         "transit_precision": 1,
@@ -74,7 +75,9 @@
             "ma": "deg",
             "ea": "deg",
             "nu": "deg",
-            "T": "s"
+            "T": "s",
+            "rv_offset": "m/s",
+            "rv_jitter": "m/s"
         },
         "scale": {
             "mass": 5.268358041405712e-28,
@@ -90,7 +93,9 @@
             "ma": 57.29577951308232,
             "ea": 57.29577951308232,
             "nu": 57.29577951308232,
-            "T": 1
+            "T": 1,
+            "rv_offset": 1,
+            "rv_jitter": 1
         },
         "tt_padding": 0.3,
         "bins": [
@@ -99,12 +104,14 @@
         ],
         "flux_plots_top": 1.01,
         "flux_plots_bottom": 0.975,
-        "free_parameters": 10,
+        "free_parameters": 12,
         "mcmc_multi_processing": true,
         "flux_file": "flux.csv",
         "sector_params_file": "sector_params.csv",
         "sector_params_fit": true,
         "log_norm_term_flux": -4778.334374534921,
+        "log_norm_term_rv": -14.156683563850446,
+        "rv_file": "rv.csv",
         "eclipsers_names": [
             "None"
         ],
@@ -126,15 +133,14 @@
         "flux_weight": 1,
         "tt_weight": 1,
         "rv_weight": 1,
-        "backend": "backend.h5",
         "load_backend": false,
         "walkers": 32,
         "steps": 100000000,
-        "moves": "(emcee.moves.StretchMove()     , 0.6), (emcee.moves.DEMove       (), 0.4)",
-        "burn_in": 150,
-        "chunk_size": 100,
+        "moves": "(emcee.moves.StretchMove(), 0.6), (emcee.moves.DEMove(), 0.4)",
+        "burn_in": 60,
+        "chunk_size": 50,
         "thin_samples": 1,
-        "fitting_body_parameters": 2,
+        "fitting_body_parameters": 4,
         "frames": 150,
         "fps": 30,
         "clockwise": false,
@@ -150,22 +156,48 @@
         "autoscaling": true,
         "min_radius": 0.004,
         "max_radius": 0.02,
+        "video_background_color": "xkcd:black",
+        "video_text_color": "xkcd:light gray",
+        "separator_line_color": "xkcd:medium gray",
+        "scale_bar_fontsize": 8,
         "show_left_plot": true,
         "show_right_plot": true,
         "show_upper_curve": true,
         "show_lower_curve": false,
         "main_title": "Main Title",
+        "main_title_color": "xkcd:white",
+        "main_title_fontsize": 14,
         "left_title": "View from above",
+        "left_title_fontsize": 10,
+        "left_title_y_coord": 0.9,
+        "show_left_scale_bar": true,
         "right_title": "View from Earth",
+        "right_title_fontsize": 10,
+        "right_title_y_coord": 0.9,
+        "show_right_scale_bar": true,
+        "dot_height": 0.077,
+        "dot_width": 0.005,
+        "x_ticks_fontsize": 8,
+        "x_label": "BJD (TDB)",
+        "x_label_fontsize": 8,
+        "x_label_x_coord": 0.97,
+        "x_label_y_coord": -0.06,
+        "upper_curve_color": "xkcd:white",
+        "upper_curve_y_label": "Relative Flux",
+        "upper_curve_y_label_fontsize": 8,
+        "upper_curve_y_tick_fontsize": 8,
+        "upper_curve_dot_color": "xkcd:bright red",
+        "lower_curve_color": "xkcd:white",
+        "lower_curve_y_label": "Radial Velocity [m/s]",
+        "lower_curve_y_label_fontsize": 8,
+        "lower_curve_y_tick_fontsize": 8,
+        "lower_curve_dot_color": "xkcd:green apple",
         "figure_width": 16,
         "figure_height": 8,
         "xlim": 1.25,
         "ylim": 1.0,
-        "upper_dot_height": 0.077,
-        "dot_width": 0.005,
-        "lower_dot_height": 0.077,
-        "lower_dot_width": 0.005,
         "myintegration": false,
+        "rv_datasize": 7,
         "jacobi_coordinates": true
     },
     "Bodies": {
@@ -173,15 +205,13 @@
             "BodyParameters": {
                 "name": "SomeStar",
                 "body_type": "star",
-                "color": [
-                    0.99,
-                    0.99,
-                    0.99
-                ],
+                "color": "xkcd:eggshell",
                 "mass": 1.98847e+30,
                 "radius": 695700000.0,
                 "area_2d": 1.520526100532553e+18,
                 "luminosity": 3.828e+26,
+                "rv_offset": 99.87496866215386,
+                "rv_jitter": 0.14355344088420213,
                 "limb_darkening_u1": 0.45,
                 "limb_darkening_u2": 0.23,
                 "mean_intensity": 0.8116668553772325,
@@ -193,11 +223,7 @@
             "BodyParameters": {
                 "name": "InnerPlanet",
                 "body_type": "planet",
-                "color": [
-                    0.9,
-                    0.9,
-                    0.1
-                ],
+                "color": "xkcd:eggshell",
                 "mass": 1.7916e+25,
                 "radius": 9567202.5,
                 "area_2d": 287554259697596.9,
@@ -211,8 +237,8 @@
                 "Omega_deg": 0.0,
                 "omega": 0.0,
                 "omega_deg": 0.0,
-                "ma": 0.063389169889678,
-                "ma_deg": 3.631931901516307
+                "ma": 0.0708982132299729,
+                "ma_deg": 4.062168393096024
             },
             "Transits": []
         },
@@ -220,11 +246,7 @@
             "BodyParameters": {
                 "name": "OuterPlanet",
                 "body_type": "planet",
-                "color": [
-                    0.3,
-                    0.5,
-                    0.99
-                ],
+                "color": "xkcd:eggshell",
                 "mass": 5.972e+24,
                 "radius": 6378135.0,
                 "area_2d": 127801893198931.94,
@@ -238,22 +260,25 @@
                 "Omega_deg": 0.0,
                 "omega": 0.0,
                 "omega_deg": 0.0,
-                "ma": 1.2045065042986411,
-                "ma_deg": 69.01313909236849
+                "ma": 1.3216993598586435,
+                "ma_deg": 75.72779510504289
             },
             "Transits": []
         }
     },
     "Fit": {
-        "chi_squared_flux": 308.3133717262681,
-        "chi_squared_total": 308.3133717262681,
+        "chi_squared_rv": 8.658191476255851,
+        "chi_squared_flux": 308.2798712216612,
+        "chi_squared_total": 316.9380626979171,
         "measurements_tt": 0,
-        "measurements_rv": 0,
+        "measurements_rv": 7,
         "measurements_flux": 346,
-        "measurements_total": 346,
-        "pvalue_flux": 0.858356516561008,
-        "pvalue_total": 0.858356516561008,
-        "log_norm_term_flux": -4755.481113117795,
-        "log_maxlikelihood_flux": 2223.5838706957634
+        "measurements_total": 353,
+        "pvalue_flux": 0.8403581936290763,
+        "pvalue_total": 0.8207701903064366,
+        "log_norm_term_rv": -14.156683563850446,
+        "log_maxlikelihood_rv": 2.7492460437972976,
+        "log_norm_term_flux": -4755.161211607574,
+        "log_maxlikelihood_flux": 2223.4406701929565
     }
 }

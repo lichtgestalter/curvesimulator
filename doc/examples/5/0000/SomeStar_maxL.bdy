@@ -1,14 +1,14 @@
 name = 'SomeStar'
 body_type = 'star'
 primary = None
-color = (0.99, 0.99, 0.99)
+color = 'xkcd:eggshell'
 image_file_left = None
 image_file_right = None
 mass = 1.98847e+30
 radius = 695700000.0
 luminosity = 3.828e+26
-rv_offset = None
-rv_jitter = None
+rv_offset = np.float64(99.87496866215386)
+rv_jitter = np.float64(0.14355344088420213)
 limb_darkening_u1 = 0.45
 limb_darkening_u2 = 0.23
 mean_intensity = np.float64(0.8116668553772325)

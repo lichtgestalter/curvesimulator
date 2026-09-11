@@ -1,7 +1,7 @@
 name = 'OuterPlanet'
 body_type = 'planet'
 primary = None
-color = (0.3, 0.5, 0.99)
+color = 'xkcd:eggshell'
 image_file_left = None
 image_file_right = None
 mass = 5.972e+24
@@ -26,7 +26,7 @@ pomega = None
 pomega_deg = None
 L = None
 L_deg = None
-ma = np.float64(1.2045065042986411)
+ma = np.float64(1.3216993598586435)
 ma_deg = 82.0
 ea = None
 ea_deg = None

@@ -107,7 +107,7 @@ class CurveSimAnimation:
 
     @staticmethod
     def init_left_plot(p, shape, loc, rowspan, colspan):  # overhead view
-        ax_left = CurveSimAnimation.init_starsystem_plot(colspan, loc, p, rowspan, shape, p.right_title, p.right_title_fontsize, p.right_title_y_coord, p.show_right_scale_bar, p.scale_bar_length_right, p.scope_right)
+        ax_left = CurveSimAnimation.init_starsystem_plot(colspan, loc, p, rowspan, shape, p.left_title, p.left_title_fontsize, p.left_title_y_coord, p.show_left_scale_bar, p.scale_bar_length_left, p.scope_left)
         return ax_left
 
     @staticmethod

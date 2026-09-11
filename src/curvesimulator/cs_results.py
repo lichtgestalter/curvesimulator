@@ -200,7 +200,6 @@ class CurveSimResults(dict):
 
     def calc_rv_log_maxlikelihood(self, measured_rv):
         self["Fit"]["log_norm_term_rv"] = np.log(2 * np.pi * measured_rv["rv_total_err"] ** 2).sum()  # logarithm of the summed Gaussian normalization term
-        print(f"calc_rv_log_maxlikelihood {self["Fit"]["log_norm_term_rv"]}")  # debug log_norm_term_rv
         self["Fit"]["log_maxlikelihood_rv"] = -0.5 * (self["Fit"]["chi_squared_rv"] + self["Fit"]["log_norm_term_rv"])
 
     def calc_flux_log_maxlikelihood(self, measured_flux):
@@ -314,7 +313,6 @@ class CurveSimResults(dict):
         df = df[(df["time"] >= p.epoch) & (df["time"] <= p.sim_end)].copy()
         df, _ = CurveSimResults.rv_corr(df, p.rv_body.rv_offset)
         df, _, p.log_norm_term_rv = CurveSimResults.rv_total_err(df, p.rv_body.rv_jitter)
-        print(f"get_measured_rv {p.log_norm_term_rv}")  # debug log_norm_term_rv
         df["rv_time_s0"] = (df["time"] - p.epoch) * p.day  # observation times in seconds; starting with 0 at epoch
         # df["rv_corr"] = df["rv"] + p.rv_offset  # rv corrected by the constant shift
         # df["rv_total_err"] = np.sqrt(df["rv_err"] * df["rv_err"] + p.rv_jitter * p.rv_jitter)  # combined RV uncertainty from measurement uncertainty and jitter

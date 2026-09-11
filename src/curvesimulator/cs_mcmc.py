@@ -136,8 +136,8 @@ class CurveSimMCMC:
         self.start_real_time = time.strftime("%d.%m.%y %H:%M:%S")
         self.start_timestamp = time.perf_counter()
         self.max_likelihood_avg_residual_in_std = []
-        self.mean_avg_residual_in_std = []
-        self.median_avg_residual_in_std = []
+        self.flux_mean_avg_residual_in_std = []
+        self.flux_median_avg_residual_in_std = []
         self.trace_plot_ok = True
         self.corner_plot_ok = True
         self.autocorrelation_function_plot_ok = True
@@ -362,7 +362,6 @@ class CurveSimMCMC:
         residuals_rv = (rv_corr - sim_rv) / rv_total_err  # residuals are weighted with uncertainty
         residuals_rv_sum_squared = np.sum(residuals_rv ** 2)
 
-        print(f"residuals_rv_sum_squared {log_norm_term_rv}")  # debug log_norm_term_rv
         return residuals_rv_sum_squared, log_norm_term_rv
 
     @staticmethod
@@ -697,8 +696,8 @@ class CurveSimMCMC:
         fig, ax = plt.subplots(figsize=(10, 6))
         ax.plot(steps, self.max_likelihood_avg_residual_in_std, label="Max Likelihood Parameters", marker="o", markersize=2, color="xkcd:tomato")
         if p.flux_file:
-            ax.plot(steps, self.median_avg_residual_in_std, label="Median Parameters", marker="o", markersize=2, color="xkcd:nice blue")
-            ax.plot(steps, self.mean_avg_residual_in_std, label="Mean Parameters", marker="o", markersize=2, color="xkcd:black")
+            ax.plot(steps, self.flux_median_avg_residual_in_std, label="Median Parameters", marker="o", markersize=2, color="xkcd:nice blue")
+            ax.plot(steps, self.flux_mean_avg_residual_in_std, label="Mean Parameters", marker="o", markersize=2, color="xkcd:black")
         ax.set_xlabel("Steps after burn-in")
         ax.ticklabel_format(useOffset=False, style="plain", axis="y")  # show y-labels as they are
         ax.set_title(f"Average Residual [Standard Deviations] after {steps_done} steps")
@@ -835,61 +834,41 @@ class CurveSimMCMC:
         results["CurveSimulator Documentation"] = "https://github.com/lichtgestalter/curvesimulator/wiki"
 
         # Simulation Parameters Section
-        results["Simulation Parameters"] = {}
-        results["Simulation Parameters"]["comment"] = getattr(p, "comment", None)
-
-        results["Simulation Parameters"]["start_realtime"] = self.start_real_time + " [DD.MM.YY hh:mm:ss]"
-        results["Simulation Parameters"]["end_realtime"] = time.strftime("%d.%m.%y %H:%M:%S") + " [DD.MM.YY hh:mm:ss]"
+        results["MCMC Performance"] = {}
+        results["MCMC Performance"]["start_realtime"] = self.start_real_time + " [DD.MM.YY hh:mm:ss]"
+        results["MCMC Performance"]["end_realtime"] = time.strftime("%d.%m.%y %H:%M:%S") + " [DD.MM.YY hh:mm:ss]"
         runtime = time.perf_counter() - self.start_timestamp
-        results["Simulation Parameters"]["run_time"] = CurveSimMCMC.seconds2readable(runtime)
-        results["Simulation Parameters"]["run_time_per_iteration"] = f"{runtime / (self.burn_in + steps_done):.3f} [s]"
-        results["Simulation Parameters"]["simulations_per_second"] = f"{(self.burn_in + steps_done) * self.walkers / runtime:.0f} [iterations*walkers/runtime]"
-
-        results["Simulation Parameters"]["results_directory"] = self.results_directory
-        results["Simulation Parameters"]["epoch"] = p.epoch
-        results["Simulation Parameters"]["dt"] = p.dt
-        results["Simulation Parameters"]["flux_data_points"] = getattr(p, "iterations", None)
-        results["Simulation Parameters"]["walkers"] = self.walkers
-        results["Simulation Parameters"]["burn_in_steps"] = self.burn_in
-        results["Simulation Parameters"]["steps_after_burn_in"] = int(steps_done)
-        results["Simulation Parameters"]["moves"] = p.moves
-        results["Simulation Parameters"]["thin_samples"] = self.thin_samples
+        results["MCMC Performance"]["run_time"] = CurveSimMCMC.seconds2readable(runtime)
+        results["MCMC Performance"]["run_time_per_iteration"] = f"{runtime / (self.burn_in + steps_done):.3f} [s]"
+        results["MCMC Performance"]["simulations_per_second"] = f"{(self.burn_in + steps_done) * self.walkers / runtime:.0f} [iterations*walkers/runtime]"
+        results["MCMC Performance"]["steps_after_burn_in"] = int(steps_done)
 
         if p.flux_file:
-            results["Simulation Parameters"]["flux_file"] = p.flux_file
-            results["Simulation Parameters"]["mean_avg_residual_in_std"] = self.mean_avg_residual_in_std[-1]
-            results["Simulation Parameters"]["median_avg_residual_in_std"] = self.median_avg_residual_in_std[-1]
-        if p.tt_file:
-            results["Simulation Parameters"]["tt_file"] = p.tt_file
-            results["Simulation Parameters"]["tt_data_points"] = p.tt_datasize
-        # if p.rv_file:
-            # results["Simulation Parameters"]["rv_file"] = p.rv_file
-
-        # results["Simulation Parameters"]["max_log_prob"] = self.max_log_prob  # contradicts my own calculations, commented out for now
-        # results["Simulation Parameters"]["max_likelihood_avg_residual_in_std"] = self.max_likelihood_avg_residual_in_std[-1]  # commented out for now, I don't trust my calculation
+            results["MCMC Performance"]["flux_mean_avg_residual_in_std"] = self.flux_mean_avg_residual_in_std[-1]
+            results["MCMC Performance"]["flux_median_avg_residual_in_std"] = self.flux_median_avg_residual_in_std[-1]
 
         if p.tt_file:
-            results["Simulation Parameters"]["mean_delta"] = float(np.mean(np.abs(measured_tt["delta"])))
-            results["Simulation Parameters"]["max_delta"] = float(np.max(np.abs(measured_tt["delta"])))
-            results["Simulation Parameters"]["param_json"] = bodies.bodies2param_json(measured_tt, p)
+            results["MCMC Performance"]["tt_mean_delta"] = float(np.mean(np.abs(measured_tt["delta"])))
+            results["MCMC Performance"]["tt_max_delta"] = float(np.max(np.abs(measured_tt["delta"])))
+            results["MCMC Performance"]["tt_param_json"] = bodies.bodies2param_json(measured_tt, p)
             results["measured_tt_list"] = measured_tt.to_dict(orient="list")  # Convert measured_tt DataFrame to a serializable format
 
         # Bodies Section
-        results["Bodies"] = {}
-        params = (["body_type", "primary", "mass", "radius", "luminosity", "rv_offset", "rv_jitter"]
-                  + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
-                  + ["e", "i", "P", "a", "Omega", "Omega_deg", "omega", "omega_deg", "pomega", "pomega_deg"]
-                  + ["L", "L_deg", "ma", "ma_deg", "ea", "ea_deg", "nu", "nu_deg", "T"])
-
-        # write parameters into Bodies Section, but only if it's not a fitting parameter
-        fitting_param_tuples = [(fp.body_index, fp.parameter_name) for fp in self.fitting_parameters]
-        for i, body in enumerate(bodies):
-            results["Bodies"][body.name] = {}
-            for key in params:
-                if (i, key) not in fitting_param_tuples and (i, key.split("_deg")[0]) not in fitting_param_tuples:
-                    attr = getattr(body, key)
-                    if attr is not None:
-                        results["Bodies"][body.name][key] = attr
+        # results["Bodies"] = {}
+        # params = (["body_type", "primary", "mass", "radius", "luminosity", "rv_offset", "rv_jitter"]
+        #           + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
+        #           + ["e", "i", "P", "a", "Omega", "Omega_deg", "omega", "omega_deg", "pomega", "pomega_deg"]
+        #           + ["L", "L_deg", "ma", "ma_deg", "ea", "ea_deg", "nu", "nu_deg", "T"])
+        #
+        # # write parameters into Bodies Section, but only if it's not a fitting parameter
+        # fitting_param_tuples = [(fp.body_index, fp.parameter_name) for fp in self.fitting_parameters]
+        # for i, body in enumerate(bodies):
+        #     results["Bodies"][body.name] = {}
+        #     for key in params:
+        #         if (i, key) not in fitting_param_tuples and (i, key.split("_deg")[0]) not in fitting_param_tuples:
+        #             attr = getattr(body, key)
+        #             if attr is not None:
+        #                 results["Bodies"][body.name][key] = attr
 
         # Fitting Parameters Section
         fitting_parameters = copy.deepcopy(p.fitting_parameters)
@@ -905,25 +884,25 @@ class CurveSimMCMC:
         results["Fitting Parameters"] = {fp.body_parameter_name: fp.__dict__ for fp in fitting_parameters}
 
         # ProgramParameters Section
-        p_copy = copy.deepcopy(p)
-        to_remove = [
-            "fitting_parameters", "standard_sections", "eclipsers", "eclipsees",
-            "tt_file", "iterations", "walkers", "moves", "burn_in",
-            "thin_samples", "comment", "epoch", "results_directory",
-            "offset_map", "jitter_map", "rv_body",
-            # "log_norm_term_flux", "log_norm_term_rv",
-            "fitting_parameter_dic",
-        ]
-        for name in to_remove:
-            if hasattr(p_copy, name):
-                delattr(p_copy, name)
-
-        for name in ("dummy1", "dummy2"):  # List names of list-attributes here, in order to convert them to something JSON can understand
-            if hasattr(p_copy, name):
-                orig = getattr(p_copy, name)
-                p_copy.__dict__[name] = [float(i) for i in orig]
-
-        results["ProgramParameters"] = p_copy.__dict__
+        # p_copy = copy.deepcopy(p)
+        # to_remove = [
+        #     "fitting_parameters", "standard_sections", "eclipsers", "eclipsees",
+        #     "tt_file", "iterations", "walkers", "moves", "burn_in",
+        #     "thin_samples", "comment", "epoch", "results_directory",
+        #     "offset_map", "jitter_map", "rv_body",
+        #     # "log_norm_term_flux", "log_norm_term_rv",
+        #     "fitting_parameter_dic",
+        # ]
+        # for name in to_remove:
+        #     if hasattr(p_copy, name):
+        #         delattr(p_copy, name)
+        #
+        # for name in ("dummy1", "dummy2"):  # List names of list-attributes here, in order to convert them to something JSON can understand
+        #     if hasattr(p_copy, name):
+        #         orig = getattr(p_copy, name)
+        #         p_copy.__dict__[name] = [float(i) for i in orig]
+        #
+        # results["ProgramParameters"] = p_copy.__dict__
 
         self.mcmc_results2json(results, p)
 
@@ -969,8 +948,8 @@ class CurveSimMCMC:
             median_residuals_flux_sum_squared, _ = CurveSimMCMC.residuals_flux_sum_squared(self.median_params, self.param_references, bodies, flux_time_s0, flux_corr, flux_total_err, measured_flux, p)
             mean_residuals_flux_sum_squared, _ = CurveSimMCMC.residuals_flux_sum_squared(self.mean_params, self.param_references, bodies, flux_time_s0, flux_corr, flux_total_err, measured_flux, p)
             flux_data_points = getattr(p, "iterations", 0)
-            self.mean_avg_residual_in_std.append(math.sqrt(mean_residuals_flux_sum_squared / flux_data_points))
-            self.median_avg_residual_in_std.append(math.sqrt(median_residuals_flux_sum_squared / flux_data_points))
+            self.flux_mean_avg_residual_in_std.append(math.sqrt(mean_residuals_flux_sum_squared / flux_data_points))
+            self.flux_median_avg_residual_in_std.append(math.sqrt(median_residuals_flux_sum_squared / flux_data_points))
         # self.average_residual_in_std_plot(p, steps_done, "avg_residual.png")
 
         bodies = CurveSimMCMC.bodies_from_fitting_params(bodies, self.fitting_parameters[:p.fitting_body_parameters], param_type="max_likelihood")
@@ -1084,24 +1063,24 @@ class CurveSimLMfit:
     def save_lmfit_results(self, p):
         results = {}
         results["CurveSimulator Documentation"] = "https://github.com/lichtgestalter/curvesimulator/wiki"
-        results["Simulation Parameters"] = {}
-        results["Simulation Parameters"]["comment"] = getattr(p, "comment", None)
+        results["LMfit Performance"] = {}
+        results["LMfit Performance"]["comment"] = getattr(p, "comment", None)
 
-        results["Simulation Parameters"]["start_realtime"] = self.start_real_time + " [DD.MM.YY hh:mm:ss]"
-        results["Simulation Parameters"]["end_realtime"] = time.strftime("%d.%m.%y %H:%M:%S") + " [DD.MM.YY hh:mm:ss]"
+        results["LMfit Performance"]["start_realtime"] = self.start_real_time + " [DD.MM.YY hh:mm:ss]"
+        results["LMfit Performance"]["end_realtime"] = time.strftime("%d.%m.%y %H:%M:%S") + " [DD.MM.YY hh:mm:ss]"
         runtime = time.perf_counter() - self.start_timestamp
-        results["Simulation Parameters"]["run_time"] = CurveSimMCMC.seconds2readable(runtime)
+        results["LMfit Performance"]["run_time"] = CurveSimMCMC.seconds2readable(runtime)
 
-        results["Simulation Parameters"]["results_directory"] = self.results_directory
+        results["LMfit Performance"]["results_directory"] = self.results_directory
 
         if p.flux_file:
-            results["Simulation Parameters"]["flux_file"] = p.flux_file
-            results["Simulation Parameters"]["mean_avg_residual_in_std"] = self.mean_avg_residual_in_std[-1]
-            results["Simulation Parameters"]["median_avg_residual_in_std"] = self.median_avg_residual_in_std[-1]
+            results["LMfit Performance"]["flux_file"] = p.flux_file
+            results["LMfit Performance"]["mean_avg_residual_in_std"] = self.flux_mean_avg_residual_in_std[-1]
+            results["LMfit Performance"]["median_avg_residual_in_std"] = self.flux_median_avg_residual_in_std[-1]
         if p.tt_file:
-            results["Simulation Parameters"]["tt_file"] = p.tt_file
-            results["Simulation Parameters"]["tt_data_points"] = p.tt_datasize
-            # results["Simulation Parameters"]["rv_file"] = p.rv_file
+            results["LMfit Performance"]["tt_file"] = p.tt_file
+            results["LMfit Performance"]["tt_data_points"] = p.tt_datasize
+            # results["LMfit Performance"]["rv_file"] = p.rv_file
 
         result_copy = copy.deepcopy(self.result)
         result_copy.last_internal_values = list(result_copy.last_internal_values)
@@ -1141,19 +1120,19 @@ class CurveSimLMfit:
     def save_intermediate_lmfit_results(p, bodies, measured_tt):
         results = {}
         results["CurveSimulator Documentation"] = "https://github.com/lichtgestalter/curvesimulator/wiki"
-        results["Simulation Parameters"] = {}
-        results["Simulation Parameters"]["comment"] = getattr(p, "comment", None)
-        results["Simulation Parameters"]["end_realtime"] = time.strftime("%d.%m.%y %H:%M:%S") + " [DD.MM.YY hh:mm:ss]"
+        results["LMfit Performance"] = {}
+        results["LMfit Performance"]["comment"] = getattr(p, "comment", None)
+        results["LMfit Performance"]["end_realtime"] = time.strftime("%d.%m.%y %H:%M:%S") + " [DD.MM.YY hh:mm:ss]"
 
         if p.flux_file:
-            results["Simulation Parameters"]["flux_file"] = p.flux_file
+            results["LMfit Performance"]["flux_file"] = p.flux_file
         if p.tt_file:
-            results["Simulation Parameters"]["tt_file"] = p.tt_file
-            results["Simulation Parameters"]["tt_data_points"] = p.tt_datasize
-            # results["Simulation Parameters"]["rv_file"] = p.rv_file
+            results["LMfit Performance"]["tt_file"] = p.tt_file
+            results["LMfit Performance"]["tt_data_points"] = p.tt_datasize
+            # results["LMfit Performance"]["rv_file"] = p.rv_file
         # if p.tt_file:
-        #     results["Simulation Parameters"]["tt_measured"] = list(p.best_tt_df["tt"])
-        #     results["Simulation Parameters"]["tt_best_sim"] = list(p.best_tt_df["nearest_sim"])
+        #     results["LMfit Performance"]["tt_measured"] = list(p.best_tt_df["tt"])
+        #     results["LMfit Performance"]["tt_best_sim"] = list(p.best_tt_df["nearest_sim"])
 
         results["Bodies"] = {}
         params = (["body_type", "primary", "mass", "radius", "luminosity", "rv_offset", "rv_jitter"]

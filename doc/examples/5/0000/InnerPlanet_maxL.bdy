@@ -1,7 +1,7 @@
 name = 'InnerPlanet'
 body_type = 'planet'
 primary = None
-color = (0.9, 0.9, 0.1)
+color = 'xkcd:eggshell'
 image_file_left = None
 image_file_right = None
 mass = 1.7916e+25
@@ -26,7 +26,7 @@ pomega = None
 pomega_deg = None
 L = None
 L_deg = None
-ma = np.float64(0.063389169889678)
+ma = np.float64(0.0708982132299729)
 ma_deg = 6.000000000000001
 ea = None
 ea_deg = None
