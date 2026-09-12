@@ -411,9 +411,9 @@ class CurveSimBodies(list):
                 body.circle_right = matplotlib.patches.Circle((0, 0), radius=body.radius * extrascale_right / p.scope_right)  # Matplotlib patch for right view
                 body.circle_left = matplotlib.patches.Circle((0, 0), radius=body.radius * extrascale_left / p.scope_left)  # Matplotlib patch for left view
 
-    def find_transits(self, rebound_sim, p, flux_time_s0, flux_time_d):
+    def find_transits(self, rebound_sim, p, o):
         print()
-        iterations = len(flux_time_s0)
+        iterations = len(o.flux.number_of_observations)
         rebound_sim.dt = p.dt
         results = CurveSimResults(self)
         for i in range(iterations):
@@ -428,13 +428,13 @@ class CurveSimBodies(list):
                             results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["TT"] = i * p.dt / p.day + p.epoch
                             # print(f"myintegration transit at {i * p.dt / p.day + p.epoch:.2f}")
                         else:
-                            tt, impact, depth, close_enough, inclination = eclipsee.find_tt(eclipser, i - 1, rebound_sim, p, flux_time_s0, flux_time_d, 0, p.iterations)
+                            tt, impact, depth, close_enough, inclination = eclipsee.find_tt(eclipser, i - 1, rebound_sim, p, o, 0, p.iterations)
                             if close_enough:  # eclipser and eclipsee are close enough at actual TT
                                 tt_s0 = rebound_sim.t
-                                t1 = eclipsee.find_t1234(eclipser, tt_s0, i, rebound_sim, flux_time_s0, 0, iterations, p, transittimetype="T1")
-                                t2 = eclipsee.find_t1234(eclipser, tt_s0, i, rebound_sim, flux_time_s0, 0, iterations, p, transittimetype="T2")
-                                t3 = eclipsee.find_t1234(eclipser, tt_s0, i - 1, rebound_sim, flux_time_s0, 0, iterations, p, transittimetype="T3")
-                                t4 = eclipsee.find_t1234(eclipser, tt_s0, i - 1, rebound_sim, flux_time_s0, 0, iterations, p, transittimetype="T4")
+                                t1 = eclipsee.find_t1234(eclipser, tt_s0, i, rebound_sim, o, 0, iterations, p, transittimetype="T1")
+                                t2 = eclipsee.find_t1234(eclipser, tt_s0, i, rebound_sim, o, 0, iterations, p, transittimetype="T2")
+                                t3 = eclipsee.find_t1234(eclipser, tt_s0, i - 1, rebound_sim, o, 0, iterations, p, transittimetype="T3")
+                                t4 = eclipsee.find_t1234(eclipser, tt_s0, i - 1, rebound_sim, o, 0, iterations, p, transittimetype="T4")
                                 t12, t23, t34, t14 = CurveSimPhysics.calc_transit_intervals(t1, t2, t3, t4)
                                 results["Bodies"][eclipser.name]["Transits"].append(Transit(eclipsee))
                                 results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["EclipsedBody"] = eclipsee.name
@@ -453,8 +453,8 @@ class CurveSimBodies(list):
         return results
 
     @staticmethod
-    def find_tts(rebound_sim, p, flux_time_s0, flux_time_d):
-        iterations = len(flux_time_s0)
+    def find_tts(rebound_sim, p, o):
+        iterations = o.flux.number_of_observations  # probably o.simflux for action single_run -> if else statement?
         tts = []
         rebound_sim.dt = p.dt
         for i in range(0, iterations):
@@ -466,7 +466,7 @@ class CurveSimBodies(list):
                         if p.myintegration:  # debug
                             tts.append([eclipser.name, eclipsee.name, i * p.dt / p.day + p.epoch])
                         else:
-                            tt, b, depth, close_enough, inclination = eclipsee.find_tt(eclipser, i - 1, rebound_sim, p, flux_time_s0, flux_time_d, 0, iterations)
+                            tt, b, depth, close_enough, inclination = eclipsee.find_tt(eclipser, i - 1, rebound_sim, p, o, 0, iterations)
                             if close_enough:
                                 tts.append([eclipser.name, eclipsee.name, tt])
         # maybe add this: convert tts into a pandas Dataframe with columns eclipser, eclipsee, tt

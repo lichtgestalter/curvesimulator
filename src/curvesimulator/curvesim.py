@@ -102,7 +102,8 @@ class CurveSimulator:
             if p.rv_file:
                 measured_rv, rv_time_d, rv_time_s0 = CurveSimResults.get_measured_rv(p)
             for body in bodies:  # HACK because length of body.positions is initialized with the correct value for simulation, NOT measurements
-                body.positions = np.ndarray((len(flux_time_s0), 3), dtype=float)
+                body.positions = np.ndarray((o.number_of_observations, 3), dtype=float)
+                # body.positions = np.ndarray((len(flux_time_s0), 3), dtype=float)
             p.init_fitting_parameter_dic()
             print(f"Fitting {p.free_parameters} parameters.")
 
@@ -124,7 +125,7 @@ class CurveSimulator:
                 sys.exit(0)
 
             if p.action == "mcmc":
-                mcmc = CurveSimMCMC(p, bodies, o, flux_time_s0, flux_time_d, flux_corr, flux_total_err, measured_flux, measured_rv, measured_tt)
+                mcmc = CurveSimMCMC(p, bodies, o, measured_flux, measured_rv, measured_tt)
                 self.sampler = mcmc.sampler  # mcmc object
                 self.theta = mcmc.theta  # current state of mcmc chains. By saving sampler and theta it is possible to continue the mcmc later on.
             else:
