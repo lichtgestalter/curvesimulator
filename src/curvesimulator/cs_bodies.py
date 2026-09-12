@@ -428,7 +428,7 @@ class CurveSimBodies(list):
                             results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["TT"] = i * p.dt / p.day + p.epoch
                             # print(f"myintegration transit at {i * p.dt / p.day + p.epoch:.2f}")
                         else:
-                            tt, impact, depth, close_enough, inclination = eclipsee.find_tt(eclipser, i - 1, rebound_sim, p, flux_time_s0, flux_time_d, 0, p.iterations, p.dt)
+                            tt, impact, depth, close_enough, inclination = eclipsee.find_tt(eclipser, i - 1, rebound_sim, p, flux_time_s0, flux_time_d, 0, p.iterations)
                             if close_enough:  # eclipser and eclipsee are close enough at actual TT
                                 tt_s0 = rebound_sim.t
                                 t1 = eclipsee.find_t1234(eclipser, tt_s0, i, rebound_sim, flux_time_s0, 0, iterations, p, transittimetype="T1")
@@ -466,7 +466,7 @@ class CurveSimBodies(list):
                         if p.myintegration:  # debug
                             tts.append([eclipser.name, eclipsee.name, i * p.dt / p.day + p.epoch])
                         else:
-                            tt, b, depth, close_enough, inclination = eclipsee.find_tt(eclipser, i - 1, rebound_sim, p, flux_time_s0, flux_time_d, 0, iterations, p.dt)
+                            tt, b, depth, close_enough, inclination = eclipsee.find_tt(eclipser, i - 1, rebound_sim, p, flux_time_s0, flux_time_d, 0, iterations)
                             if close_enough:
                                 tts.append([eclipser.name, eclipsee.name, tt])
         # maybe add this: convert tts into a pandas Dataframe with columns eclipser, eclipsee, tt

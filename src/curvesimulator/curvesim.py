@@ -11,7 +11,7 @@ from .cs_parameters import CurveSimParameters
 from .cs_mcmc import CurveSimMCMC, CurveSimLMfit
 from .cs_manual_fit import CurveSimManualFit
 from .cs_results import CurveSimResults
-# from .cs_flux_data import CurveSimFluxData
+from .cs_observations import CurveSimObservations
 
 
 def _lmfit_worker_queue(task_queue, result_queue):
@@ -79,22 +79,25 @@ class CurveSimulator:
         p = CurveSimParameters(config_file)  # Read program parameters from config file.
         mandatory_parameters = p.find_mandatory_parameters()
         p.check_for_missing_parameters(mandatory_parameters)
+        bodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
+        o = CurveSimObservations(p)
         if not p.rebound_warnings:
             warnings.filterwarnings("ignore", module="rebound")
-        bodies, measured_flux, measured_rv, measured_tt = (None,) * 4
-        self.parameters = p  # grants access from the executed script by making it an attribute of the CurveSimulator object
-        self.bodies = bodies  # grants access from the executed script by making it an attribute of the CurveSimulator object
+        measured_flux, measured_rv, measured_tt = (None,) * 3
+        self.parameters, self.bodies, self.observations = p, bodies, o  # grants access from the executed script by making it an attribute of the CurveSimulator object
         if p.verbose:
             print(p)
+
         if p.action in ["lmfit", "guifit", "mcmc"]:
             if _is_multiprocessing_child_import():
                 return
-            bodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
+            # bodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
             flux_corr, flux_total_err, flux_time_s0, flux_time_d, tt_s0, tt_d = (None,) * 6
             if p.flux_file:
                 flux_time_s0, flux_time_d, flux_corr, flux_total_err, measured_flux = CurveSimResults.get_measured_flux(p)
             elif p.tt_file:
-                flux_time_s0, flux_time_d = CurveSimParameters.init_time_arrays(p)  # s0 in seconds, starting at 0. d in BJD.
+                flux_time_s0, flux_time_d = o.simflux.time_s0, o.simflux.time_d  # s0 in seconds, starting at 0. d in BJD.
+                # flux_time_s0, flux_time_d = CurveSimObservations.init_time_arrays(p)  # s0 in seconds, starting at 0. d in BJD.
                 measured_tt = CurveSimResults.get_measured_tt(p)
             if p.rv_file:
                 measured_rv, rv_time_d, rv_time_s0 = CurveSimResults.get_measured_rv(p)
@@ -102,11 +105,13 @@ class CurveSimulator:
                 body.positions = np.ndarray((len(flux_time_s0), 3), dtype=float)
             p.init_fitting_parameter_dic()
             print(f"Fitting {p.free_parameters} parameters.")
+
             if p.action == "guifit":
                 p.enrich_fitting_params(bodies)
                 self.guifit = CurveSimManualFit(p, bodies, flux_time_s0, flux_time_d, measured_tt)
                 self.guifit.save_lmfit_results(p)
                 sys.exit(0)
+
             elif p.action == "lmfit":
                 num_workers = max(1, os.cpu_count() - 1)  # number of parallel lmfit runs (multiprocessing). Leave one CPU availabe for other programs
                 run_counter = 0
@@ -117,22 +122,18 @@ class CurveSimulator:
                     run_counter += p.ls_chunk_size
                     print(f"{num_workers=}, {p.ls_chunk_size=}, {run_counter=}, {p.ls_steps=}")
                 sys.exit(0)
+
             if p.action == "mcmc":
-                mcmc = CurveSimMCMC(p, bodies, flux_time_s0, flux_time_d, flux_corr, flux_total_err, measured_flux, measured_rv, measured_tt)
+                mcmc = CurveSimMCMC(p, bodies, o, flux_time_s0, flux_time_d, flux_corr, flux_total_err, measured_flux, measured_rv, measured_tt)
                 self.sampler = mcmc.sampler  # mcmc object
                 self.theta = mcmc.theta  # current state of mcmc chains. By saving sampler and theta it is possible to continue the mcmc later on.
             else:
                 print(f"{Fore.RED}\nERROR: Invalid value for parameter <action> in configuration file {Style.RESET_ALL}")
                 sys.exit(1)
+
         elif p.action == "single_run":
-            bodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
-            # bodies.save(p, "vorne_", "_hinten")
-            # new_body = CurveSimBody.load("vorne_TOI4504d_hinten.bdy")
-            # new_body.save("abc__")
-            bodies, sim_flux, results = CurveSimMCMC.single_run(p, bodies)
-            self.bodies = bodies  # grants access from the executed script by making it an attribute of the CurveSimulator object
-            self.sim_flux = sim_flux  # grants access from the executed script by making it an attribute of the CurveSimulator object
-            self.results = results  # grants access from the executed script by making it an attribute of the CurveSimulator object
+            self.bodies, self.sim_flux, self.results = CurveSimMCMC.single_run(p, bodies=bodies, o=o)
+
         elif p.action == "results_only":
             # flux_time_s0, flux_time_d = CurveSimParameters.init_time_arrays(p)  # s0 in seconds, starting at 0. d in BJD.
             # bodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation

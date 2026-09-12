@@ -15,7 +15,7 @@ import sys
 import time
 
 from .cs_animation import CurveSimAnimation
-from .cs_parameters import CurveSimParameters
+from .cs_observations import CurveSimObservations
 from .cs_results import CurveSimResults
 from curvesimulator.cs_bodies import CurveSimBodies
 
@@ -93,7 +93,7 @@ def append_line_locked(filename, line, wait=0.1):
 
 class CurveSimMCMC:
 
-    def __init__(self, p, bodies, flux_time_s0, flux_time_d, flux_corr, flux_total_err, measured_flux, measured_rv, measured_tt, dummy_object=False):
+    def __init__(self, p, bodies, o, flux_time_s0, flux_time_d, flux_corr, flux_total_err, measured_flux, measured_rv, measured_tt, dummy_object=False):
         self.results_directory = p.results_directory
         if dummy_object:
             return
@@ -164,11 +164,11 @@ class CurveSimMCMC:
 
         if p.mcmc_multi_processing:
             with Pool() as pool:  # enable multi processing
-                self.mcmc_fit(p, bodies, flux_time_s0, flux_time_d, flux_corr, flux_total_err, measured_flux, measured_tt, steps_done, pool)
+                self.mcmc_fit(p, bodies, o, flux_time_s0, flux_time_d, flux_corr, flux_total_err, measured_flux, measured_tt, steps_done, pool)
         else:
-            self.mcmc_fit(p, bodies, flux_time_s0, flux_time_d, flux_corr, flux_total_err, measured_flux, measured_tt, steps_done)
+            self.mcmc_fit(p, bodies, o, flux_time_s0, flux_time_d, flux_corr, flux_total_err, measured_flux, measured_tt, steps_done)
 
-    def mcmc_fit(self, p, bodies, flux_time_s0, flux_time_d, flux_corr, flux_total_err, measured_flux, measured_tt, steps_done, pool=None):
+    def mcmc_fit(self, p, bodies, o, flux_time_s0, flux_time_d, flux_corr, flux_total_err, measured_flux, measured_tt, steps_done, pool=None):
         self.sampler = emcee.EnsembleSampler(p.walkers, self.ndim, CurveSimMCMC.log_probability, pool=pool, moves=self.moves, args=self.args, backend=self.backend)
         if not p.load_backend:
             self.theta = self.sampler.run_mcmc(self.theta0, self.burn_in, progress=True)
@@ -177,15 +177,17 @@ class CurveSimMCMC:
         for chunk in range(1, self.steps // self.chunk_size + 1):
             self.theta = self.sampler.run_mcmc(self.theta, self.chunk_size, progress=True)
             steps_done += self.chunk_size
-            self.mcmc_results(p, bodies, steps_done, flux_time_s0, flux_time_d, measured_tt, flux_corr, flux_total_err, measured_flux, chunk)
+            self.mcmc_results(p, bodies, o, steps_done, flux_time_s0, flux_time_d, measured_tt, flux_corr, flux_total_err, measured_flux, chunk)
 
     def __repr__(self):
         return f"CurveSimMCMC with {self.walkers} walkers."
 
     @staticmethod
-    def single_run(p, bodies=None, flux_time_s0=None, flux_time_d=None, measured_flux=None):
-        if flux_time_s0 is None and flux_time_d is None:
-            flux_time_s0, flux_time_d = CurveSimParameters.init_time_arrays(p)  # s0 in seconds, starting at 0. d in BJD.
+    def single_run(p, bodies=None, o=None, flux_time_s0=None, flux_time_d=None, measured_flux=None):
+        if p.action == "single_run":
+            # flux_time_s0, flux_time_d = CurveSimObservations.init_time_arrays(p)  # s0 in seconds, starting at 0. d in BJD.
+            flux_time_s0, flux_time_d = o.simflux.time_s0, o.simflux.time_d  # s0 in seconds, starting at 0. d in BJD.
+
         sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, flux_time_s0)  # Calculate all body positions and the resulting flux and rv
         if p.sim_flux_file and not p.flux_file:  # save simulated flux (regular spaced with p.dt, because no flux observations were made available)
             sim_flux.save_sim_flux_with_synthetic_timeline(p, flux_time_d)
@@ -921,7 +923,7 @@ class CurveSimMCMC:
             print(f"{Fore.YELLOW}Printed Results to console because saving failed.{Style.RESET_ALL}")
 
     @stopwatch()
-    def mcmc_results(self, p, bodies, steps_done, flux_time_s0, flux_time_d, measured_tt, flux_corr, flux_total_err, measured_flux, chunk):
+    def mcmc_results(self, p, bodies, o, steps_done, flux_time_s0, flux_time_d, measured_tt, flux_corr, flux_total_err, measured_flux, chunk):
         flat_thin_samples = self.sampler.get_chain(discard=self.burn_in, thin=self.thin_samples, flat=True)
         # discard the initial self.burn_in steps from each chain to ensure only samples that represent the equilibrium distribution are analyzed.
         # thin=10: keep only every 10th sample from the chain to reduce autocorrelation in the chains and the size of the resulting arrays.
@@ -955,7 +957,7 @@ class CurveSimMCMC:
         bodies = CurveSimMCMC.bodies_from_fitting_params(bodies, self.fitting_parameters[:p.fitting_body_parameters], param_type="max_likelihood")
         bodies.save(directory=p.results_directory, prefix="", suffix="_maxL")
         # CurveSimParameters.save_fitting_parameters(self.fitting_parameters, directory=p.results_directory, prefix="", suffix="_maxL")
-        CurveSimMCMC.single_run(p, bodies, flux_time_s0, flux_time_d, measured_flux)  # creates o vs. c, chi^2 and residuals plots. measured_flux enthaelt bereits die aktualisierten flux_corr und flux_total_err
+        CurveSimMCMC.single_run(p, bodies, o, flux_time_s0, flux_time_d, measured_flux)  # creates o vs. c, chi^2 and residuals plots. measured_flux enthaelt bereits die aktualisierten flux_corr und flux_total_err
 
         self.integrated_autocorrelation_time.append(list(self.sampler.get_autocorr_time(tol=0)))
         self.integrated_autocorrelation_time_plot(steps_done, "int_autocorr_time.png", "steps_per_i_ac_time.png")
@@ -1005,14 +1007,12 @@ class CurveSimLMfit:
         for (body_index, parameter_name), (lower, upper) in zip(self.param_references, self.param_bounds):
             self.params.add(bodies[body_index].name + "_" + parameter_name, value=bodies[body_index].__dict__[parameter_name], min=lower, max=upper)
 
-        # if p.flux_file:  debug_lmfit_flux
-        #     Hier Parameter in args anpassen:
-        #     self.result = lmfit.minimize(CurveSimLMfit.lmfit_residual_flux, self.params, method=p.lmfit_method, args=(self.param_references, bodies, flux_time_s0, flux_time_d, measured_tt, p))
         if p.tt_file:
             self.result = lmfit.minimize(CurveSimLMfit.lmfit_residual_tt, self.params, method=p.lmfit_method, args=(self.param_references, bodies, flux_time_s0, flux_time_d, measured_tt, p))
         # self.result = lmfit.minimize(CurveSimLMfit.lmfit_residual_tt, self.params, method="powell", args=(self.param_references, bodies, flux_time_s0, flux_time_d, measured_tt, p))
         # self.result = lmfit.minimize(CurveSimLMfit.lmfit_residual_tt, self.params, method="brute", args=(self.param_references, bodies, flux_time_s0, flux_time_d, measured_tt, p))
         # self.result = lmfit.minimize(CurveSimLMfit.lmfit_residual_tt, self.params, method="nelder", args=(self.param_references, bodies, flux_time_s0, flux_time_d, measured_tt, p))
+
         # ***** METHODS ******
         # best?                                     powell: Powell’s method
         # fine                                      nelder: Nelder-Mead simplex
@@ -1037,19 +1037,6 @@ class CurveSimLMfit:
         # does not even find minimum for 3 params   shgo	SimplicialHomologyGlobalOptimization
         # does not even find minimum for 3 params   slsqp	SequentialLinearSquaresProgramming
         # does not find minimum + needs more residual than params  leastsq: Levenberg-Marquardt (default, for least-squares problems)
-
-    # debug_lmfit_flux
-    # @staticmethod
-    # def lmfit_residual_flux(params, param_references, bodies, flux_time_s0, flux_time_d, measured_tt, p):
-    #     # NEU!!!   BAUSTELLE!!!
-    #     for body_index, parameter_name in param_references:
-    #         bodies[body_index].__dict__[parameter_name] = params[bodies[body_index].name + "_" + parameter_name].value  # update all parameters from params
-    #     sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, flux_time_s0)  # run simulation
-    #     residuals_flux_sum_squared = CurveSimMCMC.residuals_flux_sum_squared(params, param_references, bodies, flux_time_s0, sim_flux, flux_total_err, p)
-    #     return residuals_flux_sum_squared
-    #     # Die folgenden 2 Zeilen sind hier nur zur Uebersicht, welche Parameter die Funktionen brauchen:
-    #     # def residuals_flux_sum_squared(theta, param_references, bodies, flux_time_s0, flux_corr, flux_total_err, p):
-    #     # def residuals_tt_sum_squared  (theta, param_references, bodies, flux_time_s0, flux_time_d, measured_tt, p):
 
     @staticmethod
     def lmfit_residual_tt(params, param_references, bodies, flux_time_s0, flux_time_d, measured_tt, p):

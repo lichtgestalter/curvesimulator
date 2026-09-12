@@ -9,6 +9,7 @@ _EXPORTS = {
 	# "csv2df": (".cs_flux_data", "csv2df"),
 	"CurveSimLightcurve": (".cs_lightcurve", "CurveSimLightcurve"),
 	"CurveSimMCMC": (".cs_mcmc", "CurveSimMCMC"),
+	"CurveSimObservations": (".cs_observations", "CurveSimObservations"),
 	"CurveSimParameters": (".cs_parameters", "CurveSimParameters"),
 	"FittingParameter": (".cs_parameters", "FittingParameter"),
 	"CurveSimPhysics": (".cs_physics", "CurveSimPhysics"),

@@ -207,7 +207,7 @@ class CurveSimBody:
         relative_radius = (self.radius + self.d - other.h) / (2 * self.radius)  # Relative distance between approximated center C of eclipsed area and center of self
         return area, relative_radius
 
-    def find_tt(self, other, iteration, rebound_sim, p, flux_time_s0, flux_time_d, start_index, end_index, dt):
+    def find_tt(self, other, iteration, rebound_sim, p, flux_time_s0, flux_time_d, start_index, end_index):
         """other eclipses self. Find the exact time of transit (TT).
             iteration should be the last one before TT. """
         eclipser = rebound_sim.particles[other.name]
@@ -220,8 +220,8 @@ class CurveSimBody:
         dx_right = eclipser.x - eclipsee.x
         interval_extensions = 0
         while dx_left * dx_right >= 0:  # dx per definition 0 at TT. If dx_left and dx_right have the same sign due to numeric instability in rebound, enlarge the search interval.
-            t_left -= dt
-            t_right += dt
+            t_left -= p.dt
+            t_right += p.dt
             rebound_sim.integrate(t_left)
             dx_left = eclipser.x - eclipsee.x
             t_left = rebound_sim.t
@@ -238,13 +238,13 @@ class CurveSimBody:
                     print(f"or choose more plausible start values and more restrictive upper/lower limits for the body parameters{Style.RESET_ALL}  ", end="")
                     print(f"Consider moving the time intervals a bit.{Style.RESET_ALL}   ", end="")
                     print(f"{iteration=}  {flux_time_d[iteration]=} {interval_extensions=}")
-                return -1, -1, -1, False
+                return -1, -1, -1, False, -1
             if iteration - interval_extensions <= start_index or iteration + interval_extensions >= end_index:
                 if p.verbose:
                     print(f"{Fore.YELLOW}\nWARNING in function find_tt: Possible TT at the edge of a time interval.")
                     print(f"Consider moving the time intervals a bit.{Style.RESET_ALL}   ", end="")
                     print(f"{iteration=}  {flux_time_d[iteration]=}")
-                return -1, -1, -1, False
+                return -1, -1, -1, False, -1
         if dx_left * dx_right < 0 and eclipser.z >= eclipsee.z:  # sign of dx changed and eclipser in front of eclipsee
             while t_right - t_left > p.transit_precision:  # bisect until desired precision reached
                 t_middle = (t_right + t_left) / 2

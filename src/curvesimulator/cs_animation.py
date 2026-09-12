@@ -91,7 +91,7 @@ class CurveSimAnimation:
             spine.set_edgecolor(p.video_background_color)
         ax.tick_params(axis="both", which="both", colors=p.video_background_color)  # ticks + tick labels
         if show_scale_bar:
-            scale_bar_end_x = p.xlim * 0.99
+            scale_bar_end_x = p.xlim * p.scale_bar_end_x
             scale_bar_start_x = scale_bar_end_x - scale_bar_length / scope
             dy = p.ylim * 0.02
             scale_bar_height = p.ylim * -0.94

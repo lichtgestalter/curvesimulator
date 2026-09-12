@@ -1,4 +1,3 @@
-# import bisect
 from colorama import Fore, Style
 import copy
 import json
@@ -11,125 +10,7 @@ import re
 import scipy.stats as stats
 import sys
 
-class CurveSimObservations:
-    def __init__(self, p):
-        if p.flux_file:
-            self.flux = FluxObservations(p)
-        else:
-            self.flux = None
-
-        if p.rv_file:
-            self.rv = RVObservations(p)
-        else:
-            self.flux = None
-
-        if p.tt_file:
-            self.tt = TTObservations(p)
-        else:
-            self.tt = None
-
-        self.simflux = FluxSimulation()
-        self.simrv = RVSimulation()
-
-    @staticmethod
-    def check_required_columns(required_columns, df, file):
-        missing_columns = required_columns - set(df.columns)
-        if missing_columns:
-            print(f"{Fore.RED}\nERROR: Missing required columns in {file}: {missing_columns}{Style.RESET_ALL}")
-            sys.exit(1)
-
-
-class FluxSimulation:
-    def __init__(self):
-        self.time_s0 = None
-        self.time_d = None
-
-
-class RVSimulation:
-    def __init__(self):
-        self.time_s0 = None
-        self.time_d = None
-
-
-class FluxObservations:
-    def __init__(self, p):  # replaces get_measured_flux
-        df = pd.read_csv(p.flux_file)
-        offset_map, jitter_map = None, None
-        self.corrected, self.total_error, self.log_norm_term = None, None, None
-
-        if p.sector_params_file:  # parameters offset and jitter for each observed sector exist
-            CurveSimObservations.check_required_columns({"time", "flux", "flux_err", "sector"}, df, p.flux_file)
-            offset_map, jitter_map, _ = CurveSimResults.get_sector_params(p)
-            self.sector = df["sector"].to_numpy(dtype=float)
-        else:
-            CurveSimObservations.check_required_columns({"time", "flux", "flux_err"}, df, p.flux_file)
-
-        df = df[(df["time"] >= p.epoch) & (df["time"] <= p.sim_end)].copy()
-        self.number_of_observations = len(df["time"])
-        self.time_d = df["time"].to_numpy(dtype=float)
-        self.time_s0 = (self.time_d - p.epoch) * p.day
-        self.observed = df["flux"].to_numpy(dtype=float)
-        self.calc_corrected(p.sector_params_file, offset_map)
-        self.error = df["flux_err"].to_numpy(dtype=float)
-        self.calc_total_error(p.sector_params_file, jitter_map)
-        self.calc_log_norm_term()
-        p.iterations = self.number_of_observations  # legacy, can soon be deleted
-
-    def calc_corrected(self, sector_params_file, offset_map):
-        if sector_params_file:  # parameters offset and jitter for each observed sector exist
-            offset = pd.Series(self.sector).map(offset_map).to_numpy(dtype=float)
-        else:
-            offset = 0
-        self.corrected = self.observed - offset
-
-    def calc_total_error(self, sector_params_file, jitter_map):
-        if sector_params_file:  # parameters offset and jitter for each observed sector exist
-            jitter = pd.Series(self.sector).map(jitter_map).to_numpy(dtype=float)
-        else:
-            jitter = 0
-        self.total_error = np.sqrt(self.error ** 2 + jitter ** 2)
-
-    def calc_log_norm_term(self):
-        self.log_norm_term = np.sum(np.log(2 * np.pi * self.total_error ** 2))  # logarithm of the summed Gaussian normalization term
-
-
-class RVObservations:
-    def __init__(self, p):  # replaces get_measured_rv
-        df = pd.read_csv(p.rv_file)
-        self.corrected, self.total_error, self.log_norm_term = None, None, None
-        CurveSimObservations.check_required_columns({"time", "rv", "rv_err"}, df, p.rv_file)
-        df = df[(df["time"] >= p.epoch) & (df["time"] <= p.sim_end)].copy()
-
-        self.number_of_observations = len(df["time"])
-        self.time_d = df["time"].to_numpy(dtype=float)
-        self.time_s0 = (self.time_d - p.epoch) * p.day
-
-        self.observed = df["rv"].to_numpy(dtype=float)
-        self.calc_corrected(p.rv_body.rv_offset)
-        self.error = df["rv_err"].to_numpy(dtype=float)
-        self.calc_total_error(p.rv_body.rv_jitter)
-        self.calc_log_norm_term()
-
-        p.rv_datasize = self.number_of_observations  # legacy, can soon be deleted
-
-    def calc_corrected(self, rv_offset):
-        self.corrected = self.observed - rv_offset
-
-    def calc_total_error(self, rv_jitter):
-        self.total_error = np.sqrt(self.error ** 2 + rv_jitter ** 2)
-
-    def calc_log_norm_term(self):
-        self.log_norm_term = np.sum(np.log(2 * np.pi * self.total_error ** 2))  # logarithm of the summed Gaussian normalization term
-
-
-class TTObservations:
-    def __init__(self, p):  # replaces get_measured_rv
-        df = pd.read_csv(p.rv_file)
-        CurveSimObservations.check_required_columns({"eclipser", "tt", "tt_err", "nr"}, df, p.tt_file)
-        self.measured_tt = df[(df["tt"] >= p.epoch) & (df["tt"] <= p.sim_end)].copy()
-        self.number_of_observations = len(df["tt"])
-        p.tt_datasize = self.number_of_observations  # legacy, can soon be deleted
-
+from .cs_observations import CurveSimObservations
 
 class Transit(dict):
     def __init__(self, eclipsed_body):
@@ -359,16 +240,9 @@ class CurveSimResults(dict):
         return p_value
 
     @staticmethod
-    def check_required_columns(required_columns, df, file):
-        missing_columns = required_columns - set(df.columns)
-        if missing_columns:
-            print(f"{Fore.RED}\nERROR: Missing required columns in {file}: {missing_columns}{Style.RESET_ALL}")
-            sys.exit(1)
-
-    @staticmethod
     def get_sector_params(p):
         sector_params = pd.read_csv(p.sector_params_file)
-        CurveSimResults.check_required_columns({"sector", "offset", "offset_low", "offset_up", "offset_spread", "jitter", "jitter_low", "jitter_high", "jitter_spread"}, sector_params, p.sector_params_file)
+        CurveSimObservations.check_required_columns({"sector", "offset", "offset_low", "offset_up", "offset_spread", "jitter", "jitter_low", "jitter_high", "jitter_spread"}, sector_params, p.sector_params_file)
         offset_map = sector_params.set_index("sector")["offset"]
         jitter_map = sector_params.set_index("sector")["jitter"]
         p.offset_map = offset_map
@@ -385,12 +259,12 @@ class CurveSimResults(dict):
     def get_measured_flux(p):
         df = pd.read_csv(p.flux_file)
         if p.sector_params_file:  # parameters offset and jitter for each observed sector exist
-            CurveSimResults.check_required_columns({"time", "flux", "flux_err", "sector"}, df, p.flux_file)
-            offset_map, jitter_map, _ = CurveSimResults.get_sector_params(p)
+            CurveSimObservations.check_required_columns({"time", "flux", "flux_err", "sector"}, df, p.flux_file)
+            offset_map, jitter_map, _ = CurveSimObservations.get_sector_params(p)
             df, _ = CurveSimResults.flux_corr(df, offset_map)
             df, _, p.log_norm_term_flux = CurveSimResults.flux_total_err(df, jitter_map)
         else:
-            CurveSimResults.check_required_columns({"time", "flux", "flux_err"}, df, p.flux_file)
+            CurveSimObservations.check_required_columns({"time", "flux", "flux_err"}, df, p.flux_file)
             df["flux_total_err"] = df["flux_err"]
             df["flux_corr"] = df["flux"]
         measured_flux = df[(df["time"] >= p.epoch) & (df["time"] <= p.sim_end)].copy()
@@ -429,7 +303,7 @@ class CurveSimResults(dict):
     @staticmethod
     def get_measured_rv(p):
         df = pd.read_csv(p.rv_file)
-        CurveSimResults.check_required_columns({"time", "rv", "rv_err"}, df, p.rv_file)
+        CurveSimObservations.check_required_columns({"time", "rv", "rv_err"}, df, p.rv_file)
         df = df[(df["time"] >= p.epoch) & (df["time"] <= p.sim_end)].copy()
         df, _ = CurveSimResults.rv_corr(df, p.rv_body.rv_offset)
         df, _, p.log_norm_term_rv = CurveSimResults.rv_total_err(df, p.rv_body.rv_jitter)
@@ -467,7 +341,7 @@ class CurveSimResults(dict):
     @staticmethod
     def get_measured_tt(p):
         df = pd.read_csv(p.tt_file)
-        CurveSimResults.check_required_columns({"eclipser", "tt", "tt_err", "nr"}, df, p.tt_file)
+        CurveSimObservations.check_required_columns({"eclipser", "tt", "tt_err", "nr"}, df, p.tt_file)
         df = df[(df["tt"] >= p.epoch) & (df["tt"] <= p.sim_end)].copy()
         p.tt_datasize = len(df["tt"])
         return df

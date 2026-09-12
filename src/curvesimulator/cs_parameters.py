@@ -11,7 +11,7 @@ import shutil
 import sys
 import time
 
-from .cs_results import CurveSimResults
+from .cs_observations import CurveSimObservations
 
 class CurveSimParameters:
 
@@ -163,6 +163,7 @@ class CurveSimParameters:
         self.video_text_color = CurveSimParameters.get_color_parameter(config, "VideoPlot","video_text_color", "xkcd:light gray")
         self.separator_line_color = CurveSimParameters.get_color_parameter(config, "VideoPlot","separator_line_color", "xkcd:medium gray")
         self.scale_bar_fontsize = eval(config.get("VideoPlot", "scale_bar_fontsize", fallback="8"))
+        self.scale_bar_end_x = eval(config.get("VideoPlot", "scale_bar_end_x", fallback="0.95"))
 
         self.show_left_plot = eval(config.get("VideoPlot", "show_left_plot", fallback="True"))
         self.show_right_plot = eval(config.get("VideoPlot", "show_right_plot", fallback="True"))
@@ -423,7 +424,7 @@ class CurveSimParameters:
         return fitting_parameters, body_index
 
     def read_fitting_sector_parameters(self, fitting_parameters, body_index):
-        _, _, sector_params = CurveSimResults.get_sector_params(self)
+        _, _, sector_params = CurveSimObservations.get_sector_params(self)
         for row in sector_params.itertuples(index=False):
             fitting_parameters.append(FittingParameter(self, "SectorParams", body_index, f"offset_{row.sector}", row.offset, row.offset_low, row.offset_up, row.offset_spread))
             fitting_parameters[-1].index = len(fitting_parameters) - 1
