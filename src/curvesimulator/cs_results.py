@@ -164,18 +164,6 @@ class CurveSimResults(dict):
         return results
 
     @staticmethod
-    def calc_rv_residuals(measured_rv, body_name, rebound_sim):
-
-        def rv_at_t(t, sim, b):
-            sim.integrate(t)
-            return -b.vz
-
-        body = rebound_sim.particles[body_name]
-        measured_rv["rv_sim"] = [rv_at_t(t, rebound_sim, body) for t in measured_rv["rv_time_s0"]]
-        measured_rv["residual"] = measured_rv["rv_corr"] - measured_rv["rv_sim"]
-        return measured_rv
-
-    @staticmethod
     def calc_flux_residuals(measured_flux, sim_flux):
         measured_flux["flux_sim"] = sim_flux
         measured_flux["residual"] = measured_flux["flux_corr"] - measured_flux["flux_sim"]
@@ -491,14 +479,14 @@ class CurveSimResults(dict):
         )
 
     @staticmethod
-    def sim_rv_plot(p, sim_rv, rv_time_d, plot_filename):
+    def sim_rv_plot(p, o, plot_filename):
         CurveSimResults.plot_this(
             title=f"Simulated Radial Velocity",
             x_label="Time [BJD]",
             y_label="RV [m/s]",
-            x_lists=    [rv_time_d],
-            y_lists=    [sim_rv],
-            data_labels=["sim_rv"],
+            x_lists=    [o.sim.time_d],
+            y_lists=    [o.sim.simrv],
+            data_labels=["sim rv"],
             linestyles= ["-"],
             markersizes=[0],
             colors=     ["xkcd:black"],
@@ -509,22 +497,22 @@ class CurveSimResults(dict):
         )
 
     @staticmethod
-    def rv_observed_computed_plot(p, sim_rv, flux_time_d, plot_filename, measured_rv):
-        min_t = np.min(measured_rv["time"])
-        max_t = np.max(measured_rv["time"])
+    def rv_observed_computed_plot(p, o, plot_filename):
+        min_t = np.min(o.rv.time_d)
+        max_t = np.max(o.rv.time_d)
         min_time = min_t - 0.03 * (max_t - min_t)  # 3% padding to make sure that datapoints at the edges are visible
         max_time = max_t + 0.03 * (max_t - min_t)
         CurveSimResults.plot_this(
             title=f"Radial Velocity: observed vs. computed",
             x_label="Time [BJD]",
             y_label="RV [m/s]",
-            x_lists=    [flux_time_d,   measured_rv["time"]],
-            y_lists=    [sim_rv,   measured_rv["rv_corr"]],
-            data_labels=["computed", "observed"],
-            linestyles= ["-",      ""],
-            markersizes=[0,        3],
+            x_lists=    [o.sim.time_d,  o.rv.time_d],
+            y_lists=    [o.sim.simrv,   o.rv.corrected],
+            data_labels=["computed",    "observed"],
+            linestyles= ["-",           ""],
+            markersizes=[0,             3],
             colors=     ["xkcd:black",  "xkcd:nice blue"],
-            linewidths= [1,        0],
+            linewidths= [1,             0],
             grid=False,
             legend=True,
             left=min_time,
@@ -681,12 +669,12 @@ class CurveSimResults(dict):
         )
 
     @staticmethod
-    def rv_residuals_plot(p, plot_filename, measured_rv):
+    def rv_residuals_plot(p, plot_filename, o):
         title = f"Radial Velocity: Residuals (observed minus computed)"
         x_label = "Time [BJD]"
         y_label = "RV [m/s]"
-        x = [measured_rv["time"]]
-        y = [measured_rv["residual"]]
+        x = [o.rv.time_d]
+        y = [o.rv.observed - o.rv.simulated]
         data_labels = ["residual"]
         linestyles = [""]
         markers = ["o"]
@@ -711,13 +699,13 @@ class CurveSimResults(dict):
         plt.xlim(left=left, right=right)
         # plt.ylim(bottom=bottom, top=top)
 
-        for time, residual, error in zip(x, y, measured_rv["rv_total_err"]):
+        for time, residual, error in zip(x, y, o.rv.total_error):
             plt.vlines(time, residual - error, residual + error, colors="xkcd:black", linewidth=1)
 
         plt.plot(x[0], y[0], marker=markers[0], markersize=markersizes[0], linestyle=linestyles[0], label=data_labels[0], color=colors[0], linewidth=linewidths[0])
         plt.hlines(0, left, right, colors="xkcd:black", linewidth=1)
-        plt.hlines(measured_rv["rv_total_err"].mean(), left, right, colors="xkcd:warm grey", linewidth=1, linestyles="--")
-        plt.hlines(-measured_rv["rv_total_err"].mean(), left, right, colors="xkcd:warm grey", linewidth=1, linestyles="--")
+        plt.hlines(o.rv.total_error.mean(), left, right, colors="xkcd:warm grey", linewidth=1, linestyles="--")
+        plt.hlines(-o.rv.total_error.mean(), left, right, colors="xkcd:warm grey", linewidth=1, linestyles="--")
         plt.savefig(plot_file)
         plt.close()
 

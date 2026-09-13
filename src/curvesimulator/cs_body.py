@@ -212,10 +212,10 @@ class CurveSimBody:
             iteration should be the last one before TT. """
         eclipser = rebound_sim.particles[other.name]
         eclipsee = rebound_sim.particles[self.name]
-        rebound_sim.integrate(flux_time_s0[iteration])
+        rebound_sim.integrate(o.sim.time_s0[iteration])
         dx_left = eclipser.x - eclipsee.x
         t_left = rebound_sim.t
-        rebound_sim.integrate(flux_time_s0[iteration + 1])
+        rebound_sim.integrate(o.sim.time_s0[iteration + 1])
         t_right = rebound_sim.t
         dx_right = eclipser.x - eclipsee.x
         interval_extensions = 0
@@ -237,13 +237,13 @@ class CurveSimBody:
                     print(f"Try again with half the iteration time step parameter <dt>{Style.RESET_ALL}   ", end="")
                     print(f"or choose more plausible start values and more restrictive upper/lower limits for the body parameters{Style.RESET_ALL}  ", end="")
                     print(f"Consider moving the time intervals a bit.{Style.RESET_ALL}   ", end="")
-                    print(f"{iteration=}  {flux_time_d[iteration]=} {interval_extensions=}")
+                    print(f"{iteration=}  {o.sim.time_d[iteration]=} {interval_extensions=}")
                 return -1, -1, -1, False, -1
             if iteration - interval_extensions <= start_index or iteration + interval_extensions >= end_index:
                 if p.verbose:
                     print(f"{Fore.YELLOW}\nWARNING in function find_tt: Possible TT at the edge of a time interval.")
                     print(f"Consider moving the time intervals a bit.{Style.RESET_ALL}   ", end="")
-                    print(f"{iteration=}  {flux_time_d[iteration]=}")
+                    print(f"{iteration=}  {o.sim.time_d[iteration]=}")
                 return -1, -1, -1, False, -1
         if dx_left * dx_right < 0 and eclipser.z >= eclipsee.z:  # sign of dx changed and eclipser in front of eclipsee
             while t_right - t_left > p.transit_precision:  # bisect until desired precision reached
@@ -274,10 +274,10 @@ class CurveSimBody:
                 print(f"Try again with half the iteration time step parameter <dt>{Style.RESET_ALL}   ", end="")
                 print(f"or choose more plausible start values and more restrictive upper/lower limits for the body parameters{Style.RESET_ALL}  ", end="")
                 print(f"Consider moving the time intervals a bit.{Style.RESET_ALL}   ", end="")
-                print(f"{iteration=}  {flux_time_d[iteration]=} {interval_extensions=}")
+                print(f"{iteration=}  {o.sim.time_d[iteration]=} {interval_extensions=}")
             return -1, -1, -1, False, -1
 
-    def find_t1234(self, other, tt_s0, iteration, rebound_sim, flux_time_s0, start_index, end_index, p, transittimetype):
+    def find_t1234(self, other, tt_s0, iteration, rebound_sim, o, start_index, end_index, p, transittimetype):
         """other eclipses self. Find where ingress starts (T1) or egress ends (T4)."""
         eclipser = rebound_sim.particles[other.name]
         eclipsee = rebound_sim.particles[self.name]
@@ -295,7 +295,7 @@ class CurveSimBody:
                 return None  # incomplete transit at start or end of current simulation interval
             iteration_delta += step
             d = CurveSimPhysics.distance_2d_body(other, self, iteration + iteration_delta)
-        rebound_sim.integrate((flux_time_s0[iteration + iteration_delta]))
+        rebound_sim.integrate((o.sim.time_s0[iteration + iteration_delta]))
         d_old = CurveSimPhysics.distance_2d_particle(eclipser, eclipsee)
         t_old = rebound_sim.t
         rebound_sim.integrate(tt_s0)
@@ -322,7 +322,7 @@ class CurveSimBody:
         else:
             return rebound_sim.t / p.day + p.epoch
 
-    def eclipsed_by(self, other, iteration, p):
+    def eclipsed_by(self, other, iteration):
         """Returns area, relative_radius
         area: Area of self which is eclipsed by other.
         relative_radius: The distance of the approximated center of the eclipsed area from the center of self as a percentage of self.radius (used for limb darkening)."""

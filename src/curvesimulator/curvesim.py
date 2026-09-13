@@ -96,13 +96,13 @@ class CurveSimulator:
             if p.flux_file:
                 flux_time_s0, flux_time_d, flux_corr, flux_total_err, measured_flux = CurveSimResults.get_measured_flux(p)
             elif p.tt_file:
-                flux_time_s0, flux_time_d = o.simflux.time_s0, o.simflux.time_d  # s0 in seconds, starting at 0. d in BJD.
+                flux_time_s0, flux_time_d = o.sim.time_s0, o.sim.time_d  # s0 in seconds, starting at 0. d in BJD.
                 # flux_time_s0, flux_time_d = CurveSimObservations.init_time_arrays(p)  # s0 in seconds, starting at 0. d in BJD.
                 measured_tt = CurveSimResults.get_measured_tt(p)
             if p.rv_file:
                 measured_rv, rv_time_d, rv_time_s0 = CurveSimResults.get_measured_rv(p)
             for body in bodies:  # HACK because length of body.positions is initialized with the correct value for simulation, NOT measurements
-                body.positions = np.ndarray((o.number_of_observations, 3), dtype=float)
+                body.positions = np.ndarray((o.observation_count, 3), dtype=float)
                 # body.positions = np.ndarray((len(flux_time_s0), 3), dtype=float)
             p.init_fitting_parameter_dic()
             print(f"Fitting {p.free_parameters} parameters.")
@@ -133,7 +133,7 @@ class CurveSimulator:
                 sys.exit(1)
 
         elif p.action == "single_run":
-            self.bodies, self.sim_flux, self.results = CurveSimMCMC.single_run(p, bodies=bodies, o=o)
+            self.bodies, self.observations, self.results = CurveSimMCMC.single_run(p, bodies=bodies, o=o)
 
         elif p.action == "results_only":
             # flux_time_s0, flux_time_d = CurveSimParameters.init_time_arrays(p)  # s0 in seconds, starting at 0. d in BJD.

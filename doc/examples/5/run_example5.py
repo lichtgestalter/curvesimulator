@@ -7,5 +7,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-weiter ex5 starten und fehler wegmachen

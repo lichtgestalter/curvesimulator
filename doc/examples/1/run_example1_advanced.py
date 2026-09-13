@@ -7,8 +7,8 @@ def main():
     print("\n\n")
     print(cs.parameters)
     print(cs.bodies)
+    print(cs.observations)
     print(cs.results)
-    print(cs.sim_flux)
 
 
 if __name__ == "__main__":

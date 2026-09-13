@@ -307,7 +307,7 @@ class CurveSimBodies(list):
             luminosity += star.luminosity
             for body in self:
                 if body != star:  # an object cannot eclipse itself :)
-                    eclipsed_area, relative_radius = star.eclipsed_by(body, iteration, p)
+                    eclipsed_area, relative_radius = star.eclipsed_by(body, iteration)
                     if eclipsed_area is not None:
                         absolute_depth = star.intensity * eclipsed_area * CurveSimPhysics.limbdarkening(relative_radius, star.limb_darkening_u1, star.limb_darkening_u2) / star.mean_intensity
                         luminosity -= absolute_depth
@@ -337,7 +337,8 @@ class CurveSimBodies(list):
             simulation = CurveSimBodies.init_rebound(self, p)
 
         stars = [body for body in self if body.body_type == "star"]
-        sim_flux = CurveSimLightcurve(iterations)  # Initialize lightcurve (essentially a np.ndarray)
+        sim_flux = np.zeros(iterations)
+        # sim_flux = CurveSimLightcurve(iterations)  # Initialize lightcurve (essentially a np.ndarray)
         if p.show_lower_curve or p.rv_file:
             sim_rv = np.full(iterations, np.nan, dtype=float)
         else:
@@ -413,7 +414,7 @@ class CurveSimBodies(list):
 
     def find_transits(self, rebound_sim, p, o):
         print()
-        iterations = len(o.flux.number_of_observations)
+        iterations = o.sim.observation_count
         rebound_sim.dt = p.dt
         results = CurveSimResults(self)
         for i in range(iterations):
@@ -454,7 +455,7 @@ class CurveSimBodies(list):
 
     @staticmethod
     def find_tts(rebound_sim, p, o):
-        iterations = o.flux.number_of_observations  # probably o.simflux for action single_run -> if else statement?
+        iterations = o.sim.observation_count
         tts = []
         rebound_sim.dt = p.dt
         for i in range(0, iterations):

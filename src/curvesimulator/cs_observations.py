@@ -5,19 +5,20 @@ import sys
 
 class CurveSimObservations:
     def __init__(self, p):
+        self.sim = Simulation(p)
         self.flux = FluxObservations(p)
         self.rv = RVObservations(p)
         self.tt = TTObservations(p)
 
-        self.simflux = FluxSimulation(p)
-        self.simrv = RVSimulation()
-
-        self.time_d = np.sort(np.concatenate([self.flux.time_d, self.rv.time_d]))
+        self.time_d = np.sort(np.concatenate([self.flux.time_d, self.rv.time_d]))  # chronologically ordered array with all flux and rv observation times
         self.time_s0 = np.sort(np.concatenate([self.flux.time_s0, self.rv.time_s0]))
         if len(self.time_s0) == 0:
-            self.time_d = self.simflux.time_d
-            self.time_s0 = self.simflux.time_s0
-        self.number_of_observations = len(self.time_s0)
+            self.time_d = self.sim.time_d
+            self.time_s0 = self.sim.time_s0
+        self.observation_count = len(self.time_s0)
+
+    def __repr__(self):
+        return f"CurveSimObservations: flux+rv {self.observation_count}, flux {self.flux.observation_count}, rv {self.rv.observation_count}, tt {self.tt.observation_count}, sim {self.sim.observation_count}"
 
     @staticmethod
     def check_required_columns(required_columns, df, file):
@@ -46,7 +47,7 @@ class CurveSimObservations:
         return flux_time_s0, flux_time_d
 
 
-class FluxSimulation:
+class Simulation:
     def __init__(self, p):
         self.sim_start_s0 = (p.sim_start - p.epoch) * p.day  # convert BJD to seconds and start at zero
         self.sim_end_s0 = (p.sim_end - p.epoch) * p.day
@@ -56,13 +57,17 @@ class FluxSimulation:
         for i in range(self.iterations):
             self.time_s0[i] = self.sim_start_s0 + i * p.dt
         self.time_d = self.time_s0 / p.day + p.epoch
-        self.observation = np.empty(self.iterations)
+        self.simflux = np.empty(self.iterations)
+        self.simrv = np.empty(self.iterations)
+        self.observation_count = len(self.time_s0)
 
-
-class RVSimulation:
-    def __init__(self):
-        self.time_d = np.empty(0)
-        self.time_s0 = np.empty(0)
+    def save_sim_flux(self, p):
+        noisy_flux = self.simflux + np.random.normal(0, p.sim_flux_err, self.simflux.shape)
+        flux_err = np.full(self.simflux.shape, p.sim_flux_err)
+        data = np.column_stack((self.time_d, noisy_flux, flux_err))
+        np.savetxt(p.sim_flux_file, data, delimiter=",", header="time,flux,flux_err", comments="")
+        if p.verbose:
+            print(f"Saved simulated flux to {p.sim_flux_file} including white noise with standard deviation {p.sim_flux_err}")
 
 
 class FluxObservations:
@@ -80,7 +85,7 @@ class FluxObservations:
                 CurveSimObservations.check_required_columns({"time", "flux", "flux_err"}, df, p.flux_file)
 
             df = df[(df["time"] >= p.epoch) & (df["time"] <= p.sim_end)].copy()
-            self.number_of_observations = len(df["time"])
+            self.observation_count = len(df["time"])
             self.time_d = df["time"].to_numpy(dtype=float)
             self.time_s0 = (self.time_d - p.epoch) * p.day
             self.observed = df["flux"].to_numpy(dtype=float)
@@ -88,12 +93,14 @@ class FluxObservations:
             self.error = df["flux_err"].to_numpy(dtype=float)
             self.calc_total_error(p.sector_params_file, jitter_map)
             self.calc_log_norm_term()
+            self.simulated = None
+
         else:
             self.time_d = np.empty(0)
             self.time_s0 = np.empty(0)
-            self.number_of_observations = 0
+            self.observation_count = 0
 
-        # p.iterations = self.number_of_observations  # legacy, can soon be deleted
+        # p.iterations = self.observation_count  # legacy, can soon be deleted
 
     def calc_corrected(self, sector_params_file, offset_map):
         if sector_params_file:  # parameters offset and jitter for each observed sector exist
@@ -121,7 +128,7 @@ class RVObservations:
             CurveSimObservations.check_required_columns({"time", "rv", "rv_err"}, df, p.rv_file)
             df = df[(df["time"] >= p.epoch) & (df["time"] <= p.sim_end)].copy()
 
-            self.number_of_observations = len(df["time"])
+            self.observation_count = len(df["time"])
             self.time_d = df["time"].to_numpy(dtype=float)
             self.time_s0 = (self.time_d - p.epoch) * p.day
 
@@ -130,13 +137,15 @@ class RVObservations:
             self.error = df["rv_err"].to_numpy(dtype=float)
             self.calc_total_error(p.rv_body.rv_jitter)
             self.calc_log_norm_term()
+            self.simulated = None
+            self.residuals = None
 
         else:
             self.time_d = np.empty(0)
             self.time_s0 = np.empty(0)
-            self.number_of_observations = 0
+            self.observation_count = 0
 
-        p.rv_datasize = self.number_of_observations  # legacy, can soon be deleted
+        p.rv_datasize = self.observation_count  # legacy, can soon be deleted
 
     def calc_corrected(self, rv_offset):
         self.corrected = self.observed - rv_offset
@@ -147,6 +156,16 @@ class RVObservations:
     def calc_log_norm_term(self):
         self.log_norm_term = np.sum(np.log(2 * np.pi * self.total_error ** 2))  # logarithm of the summed Gaussian normalization term
 
+    def calc_residuals(self, p, rebound_sim):
+
+        def rv_at_t(t, sim, b):
+            sim.integrate(t)
+            return -b.vz
+
+        body = rebound_sim.particles[p.rv_body_name]
+        self.simulated = [rv_at_t(t, rebound_sim, body) for t in self.time_s0]
+        self.residuals = self.corrected - self.simulated
+
 
 class TTObservations:
     def __init__(self, p):  # replaces get_measured_rv
@@ -154,7 +173,7 @@ class TTObservations:
             df = pd.read_csv(p.tt_file)
             CurveSimObservations.check_required_columns({"eclipser", "tt", "tt_err", "nr"}, df, p.tt_file)
             self.measured_tt = df[(df["tt"] >= p.epoch) & (df["tt"] <= p.sim_end)].copy()
-            self.number_of_observations = len(df["tt"])
+            self.observation_count = len(df["tt"])
         else:
-            self.number_of_observations = 0
-        p.tt_datasize = self.number_of_observations  # legacy, can soon be deleted
+            self.observation_count = 0
+        p.tt_datasize = self.observation_count  # legacy, can soon be deleted

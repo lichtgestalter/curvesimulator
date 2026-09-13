@@ -13,9 +13,9 @@ import time
 
 class CurveSimAnimation:
 
-    def __init__(self, p, bodies, sim_rv, sim_flux, flux_time_s0):
+    def __init__(self, p, bodies, o):
         CurveSimAnimation.check_ffmpeg()  # is FFmpeg installed?
-        self.fig, ax_right, ax_left, ax_lightcurve, self.lower_dot, self.upper_dot = CurveSimAnimation.init_plot(p, sim_rv, sim_flux, flux_time_s0)  # Adjust constants in section [Plot] of config file to fit your screen.
+        self.fig, ax_right, ax_left, ax_lightcurve, self.lower_dot, self.upper_dot = CurveSimAnimation.init_plot(p, o)  # Adjust constants in section [Plot] of config file to fit your screen.
         # lower_dot/upper_dot change every frame. Mark them "animated" so the initial full draw
         # (used to cache the static background for blitting) does NOT bake them in.
         if self.lower_dot is not None:
@@ -41,7 +41,7 @@ class CurveSimAnimation:
                 body.ab_right = AnnotationBbox(body.image_right, (-0.5, -0.5), frameon=False, xycoords="data")
                 body.ab_right.set_animated(True)
                 ax_right.add_artist(body.ab_right)
-        self.render(p, bodies, sim_rv, sim_flux, flux_time_s0)
+        self.render(p, bodies, o)
 
     @staticmethod
     def check_ffmpeg():
@@ -198,7 +198,8 @@ class CurveSimAnimation:
         return ax_lower_curve, lower_dot
 
     @staticmethod
-    def init_plot(p, sim_rv, sim_flux, flux_time_s0):
+    def init_plot(p, o):
+        sim_rv, sim_flux, flux_time_s0 = o.sim.simrv, o.sim.simflux, o.sim.time_s0
         """Initialize the matplotlib figure containing up to 4 axis:
         Top left: overhead view
         Top right: edge-on view
@@ -368,7 +369,7 @@ class CurveSimAnimation:
 
         return artists
 
-    def render(self, p, bodies, sim_rv, sim_flux, flux_time_s0):
+    def render(self, p, bodies, o):
         """Calls next_frame() for each frame and saves the video.
 
         Note: matplotlib's animation.Animation.save() hard-codes blit=False for every frame
@@ -379,6 +380,7 @@ class CurveSimAnimation:
         the whole figure every frame) we drive the rendering manually here and pipe the raw
         pixel data straight into FFmpeg, instead of going through FuncAnimation/anim.save().
         """
+        sim_rv, sim_flux, flux_time_s0 = o.sim.simrv, o.sim.simflux, o.sim.time_s0
         frames = int(len(sim_flux) // p.sampling_rate)
         if p.verbose:
             print(f"Animating {p.frames:8d} frames:     ", end="")
