@@ -169,14 +169,13 @@ class CurveSimResults(dict):
         measured_flux["residual"] = measured_flux["flux_corr"] - measured_flux["flux_sim"]
         return measured_flux
 
-    def calc_rv_chi_squared(self, measured_rv, free_parameters):
-        measured_rv["chi_squared"] = measured_rv["residual"] / measured_rv["rv_total_err"]
-        measured_rv["chi_squared"] = measured_rv["chi_squared"] * measured_rv["chi_squared"]
-        self["Fit"]["chi_squared_rv"] = measured_rv["chi_squared"].sum()
-        self["Fit"]["measurements_rv"] = measured_rv.shape[0]
-        if free_parameters is not None:
-            self["Fit"]["pvalue_rv"] = CurveSimResults.chi_squared_pvalue(self["Fit"]["chi_squared_rv"], self["Fit"]["measurements_rv"], free_parameters)
-        return measured_rv
+    # def calc_rv_chi_squared(self, o, free_parameters):
+    #     o.rv.chi_squared = o.rv.residuals / o.rv.total_error
+    #     o.rv.chi_squared = o.rv.chi_squared * o.rv.chi_squared
+    #     self["Fit"]["chi_squared_rv"] = o.rv.chi_squared.sum()
+    #     self["Fit"]["measurements_rv"] = o.rv.observation_count
+    #     if free_parameters is not None:
+    #         self["Fit"]["pvalue_rv"] = CurveSimResults.chi_squared_pvalue(self["Fit"]["chi_squared_rv"], self["Fit"]["measurements_rv"], free_parameters)
 
     def calc_flux_chi_squared(self, measured_flux, free_parameters):
         measured_flux["chi_squared"] = measured_flux["residual"] / measured_flux["flux_total_err"]
@@ -187,9 +186,9 @@ class CurveSimResults(dict):
             self["Fit"]["pvalue_flux"] = CurveSimResults.chi_squared_pvalue(self["Fit"]["chi_squared_flux"], self["Fit"]["measurements_flux"], free_parameters)
         return measured_flux
 
-    def calc_rv_log_maxlikelihood(self, measured_rv):
-        self["Fit"]["log_norm_term_rv"] = np.log(2 * np.pi * measured_rv["rv_total_err"] ** 2).sum()  # logarithm of the summed Gaussian normalization term
-        self["Fit"]["log_maxlikelihood_rv"] = -0.5 * (self["Fit"]["chi_squared_rv"] + self["Fit"]["log_norm_term_rv"])
+    # def calc_rv_log_maxlikelihood(self, o):
+    #     self["Fit"]["log_norm_term_rv"] = o.rv.log_norm_term
+    #     self["Fit"]["log_maxlikelihood_rv"] = -0.5 * (self["Fit"]["chi_squared_rv"] + self["Fit"]["log_norm_term_rv"])
 
     def calc_flux_log_maxlikelihood(self, measured_flux):
         self["Fit"]["log_norm_term_flux"] = np.log(2 * np.pi * measured_flux["flux_total_err"] ** 2).sum()  # logarithm of the summed Gaussian normalization term
@@ -669,12 +668,12 @@ class CurveSimResults(dict):
         )
 
     @staticmethod
-    def rv_residuals_plot(p, plot_filename, o):
+    def rv_residuals_plot(p, o, plot_filename):
         title = f"Radial Velocity: Residuals (observed minus computed)"
         x_label = "Time [BJD]"
         y_label = "RV [m/s]"
         x = [o.rv.time_d]
-        y = [o.rv.observed - o.rv.simulated]
+        y = [o.rv.residuals]
         data_labels = ["residual"]
         linestyles = [""]
         markers = ["o"]

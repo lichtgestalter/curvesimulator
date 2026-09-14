@@ -205,18 +205,26 @@ class CurveSimMCMC:
         else:
             measured_tt = None
         if p.rv_file:
-            o.rv.calc_residuals(p, rebound_sim)  # compare observed vs. computed RV
-            results.calc_rv_chi_squared(o, p.free_parameters)  # store chi squared and p-value in results
+            o.rv.calc_computed(p, rebound_sim)
+            o.rv.calc_residuals()
+            results["Fit"]["chi_squared_rv"] = o.rv.calc_chi_squared()
+            results["Fit"]["measurements_rv"] = o.rv.observation_count
+            results["Fit"]["pvalue_flux"] = o.rv.calc_p_value(p.free_parameters)
             # measured_rv, rv_time_d, rv_time_s0 = CurveSimResults.get_measured_rv(p)
             # measured_rv = CurveSimResults.calc_rv_residuals(measured_rv, p.rv_body_name, rebound_sim)  # compare observed vs. computed RV
             # measured_rv = results.calc_rv_chi_squared(measured_rv, p.free_parameters)  # store chi squared and p-value in results
             # results.calc_rv_chi_squared(measured_rv, p.free_parameters)  # store chi squared and p-value in results
-            results.calc_rv_log_maxlikelihood(o)  # store -log(L) in results
-            o.rv.simulated, o.flux.simulated, _ = bodies.calc_physics(p, o.rv.time_s0)  # Calculate all body positions and the resulting flux and rv
 
+            # results.calc_rv_log_maxlikelihood(o)  # store -log(L) in results
+            results["Fit"]["log_norm_term_rv"] = o.rv.log_norm_term
+            results["Fit"]["log_maxlikelihood_rv"] = o.rv.calc_log_maxlikelihood()
+
+            # o.rv.simulated, o.flux.simulated, _ = bodies.calc_physics(p, o.rv.time_s0)  # Calculate all body positions and the resulting flux and rv
+            o.rv.update(p)  # update rv observations with new rv offset and jitter from theta
+            # o.rv.calc_total_error(p.rv_body.rv_jitter)
             CurveSimResults.sim_rv_plot(p, o, "rv_computed")  # plot computed RV
             CurveSimResults.rv_observed_computed_plot(p, o, "rv_o_vs_c")  # plot computed and observed RV
-            CurveSimResults.rv_residuals_plot(p, "rv_residuals")  # plot RV residuals
+            CurveSimResults.rv_residuals_plot(p, o, "rv_residuals")  # plot RV residuals
         if p.flux_file:
             if measured_flux is None:
                 flux_time_s0, _, _, _, measured_flux = CurveSimResults.get_measured_flux(p)
@@ -352,10 +360,11 @@ class CurveSimMCMC:
             bodies[body_index].__dict__[parameter_name] = theta[i]  # update body parameters from theta
             i += 1
 
-        # update rv observations with new rv offset and jitter from theta
-        o.rv.calc_corrected(p.rv_body.rv_offset)
-        o.rv.calc_total_error(p.rv_body.rv_jitter)
-        o.rv.calc_log_norm_term()
+        o.rv.update(p)  # update rv observations with new rv offset and jitter from theta
+        # o.rv.calc_corrected(p.rv_body.rv_offset)
+        # o.rv.calc_total_error(p.rv_body.rv_jitter)
+        # o.rv.calc_log_norm_term()
+
         sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, o.rv.time_s0)  # run simulation
         residuals_rv = (o.rv.corrected - sim_rv) / o.rv.total_error  # residuals are weighted with uncertainty
         residuals_rv_sum_squared = np.sum(residuals_rv ** 2)

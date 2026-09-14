@@ -1,6 +1,7 @@
 from colorama import Fore, Style
 import numpy as np
 import pandas as pd
+import scipy.stats as stats
 import sys
 
 class CurveSimObservations:
@@ -70,8 +71,50 @@ class Simulation:
             print(f"Saved simulated flux to {p.sim_flux_file} including white noise with standard deviation {p.sim_flux_err}")
 
 
-class FluxObservations:
+class ObservationTypes:
+
+    def __init__(self):
+        self.corrected, self.total_error, self.log_norm_term, self.computed = (None,) * 4
+        self.residuals, self.chi_squared, self.p_value, self.observation_count = (None,) * 4
+        self.time_dm, self.time_s0, self.log_maxlikelihood = (None,) * 3
+
+    def calc_log_norm_term(self):
+        self.log_norm_term = np.sum(np.log(2 * np.pi * self.total_error ** 2))  # logarithm of the summed Gaussian normalization term
+        return self.log_norm_term
+
+    def calc_residuals(self):
+        self.residuals = self.corrected - self.computed
+        return self.residuals
+
+    def calc_chi_squared(self):
+        x = self.residuals / self.total_error
+        x = x * x
+        self.chi_squared = x.sum()
+        return self.chi_squared
+
+    def calc_p_value(self, free_parameters):
+        """
+        Calculate the p-value for a chi-squared test.
+        This is the probability of observing a chi-squared value >= your observed value.
+        chi_square :     The chi-squared test statistic
+        n_measurements : Number of measurements/observations
+        n_parameters :   Number of free parameters in the model
+        """
+        if free_parameters is None:
+            return None
+        else:
+            degrees_of_freedom = self.observation_count - free_parameters
+            self.p_value = stats.chi2.sf(self.chi_squared, degrees_of_freedom)  # survival function = 1 - cumulative distribution function
+            return self.p_value
+
+    def calc_log_maxlikelihood(self):
+        self.log_maxlikelihood = -0.5 * (self.chi_squared + self.log_norm_term)
+        return self.log_maxlikelihood
+
+
+class FluxObservations(ObservationTypes):
     def __init__(self, p):  # replaces get_measured_flux
+        super().__init__()
         if p.flux_file:
             df = pd.read_csv(p.flux_file)
             offset_map, jitter_map = None, None
@@ -93,12 +136,11 @@ class FluxObservations:
             self.error = df["flux_err"].to_numpy(dtype=float)
             self.calc_total_error(p.sector_params_file, jitter_map)
             self.calc_log_norm_term()
-            self.simulated = None
 
-        else:
-            self.time_d = np.empty(0)
-            self.time_s0 = np.empty(0)
-            self.observation_count = 0
+        # else:
+        #     self.time_d = np.empty(0)
+        #     self.time_s0 = np.empty(0)
+        #     self.observation_count = 0
 
         # p.iterations = self.observation_count  # legacy, can soon be deleted
 
@@ -116,12 +158,13 @@ class FluxObservations:
             jitter = 0
         self.total_error = np.sqrt(self.error ** 2 + jitter ** 2)
 
-    def calc_log_norm_term(self):
-        self.log_norm_term = np.sum(np.log(2 * np.pi * self.total_error ** 2))  # logarithm of the summed Gaussian normalization term
+    # def calc_log_norm_term(self):
+    #     self.log_norm_term = np.sum(np.log(2 * np.pi * self.total_error ** 2))  # logarithm of the summed Gaussian normalization term
 
 
-class RVObservations:
+class RVObservations(ObservationTypes):
     def __init__(self, p):  # replaces get_measured_rv
+        super().__init__()
         if p.rv_file:
             df = pd.read_csv(p.rv_file)
             self.corrected, self.total_error, self.log_norm_term = None, None, None
@@ -137,34 +180,70 @@ class RVObservations:
             self.error = df["rv_err"].to_numpy(dtype=float)
             self.calc_total_error(p.rv_body.rv_jitter)
             self.calc_log_norm_term()
-            self.simulated = None
-            self.residuals = None
-
-        else:
-            self.time_d = np.empty(0)
-            self.time_s0 = np.empty(0)
-            self.observation_count = 0
+            # self.computed = None
+            # self.residuals = None
+            # self.chi_squared = None
+            # self.p_value = None
+        #
+        # else:
+        #     self.time_d = np.empty(0)
+        #     self.time_s0 = np.empty(0)
+        #     self.observation_count = 0
 
         p.rv_datasize = self.observation_count  # legacy, can soon be deleted
 
-    def calc_corrected(self, rv_offset):
-        self.corrected = self.observed - rv_offset
+    def calc_corrected(self, offset):
+        self.corrected = self.observed - offset
+        return self.corrected
 
-    def calc_total_error(self, rv_jitter):
-        self.total_error = np.sqrt(self.error ** 2 + rv_jitter ** 2)
+    def calc_total_error(self, jitter):
+        self.total_error = np.sqrt(self.error ** 2 + jitter ** 2)
+        return self.total_error
 
-    def calc_log_norm_term(self):
-        self.log_norm_term = np.sum(np.log(2 * np.pi * self.total_error ** 2))  # logarithm of the summed Gaussian normalization term
+    # def calc_log_norm_term(self):
+    #     self.log_norm_term = np.sum(np.log(2 * np.pi * self.total_error ** 2))  # logarithm of the summed Gaussian normalization term
+    #     return self.log_norm_term
 
-    def calc_residuals(self, p, rebound_sim):
+    def calc_computed(self, p, rebound_sim):
 
-        def rv_at_t(t, sim, b):
+        def rv_at_t(t, sim, body):
             sim.integrate(t)
-            return -b.vz
+            return -body.vz
 
         body = rebound_sim.particles[p.rv_body_name]
-        self.simulated = [rv_at_t(t, rebound_sim, body) for t in self.time_s0]
-        self.residuals = self.corrected - self.simulated
+        self.computed = [rv_at_t(t, rebound_sim, body) for t in self.time_s0]
+        return self.computed
+
+    def update(self, p):
+        # update rv observations with new rv offset and jitter
+        self.calc_corrected(p.rv_body.rv_offset)
+        self.calc_total_error(p.rv_body.rv_jitter)
+        self.calc_log_norm_term()
+
+    # def calc_residuals(self):
+    #     self.residuals = self.corrected - self.computed
+    #     return self.residuals
+    #
+    # def calc_chi_squared(self):
+    #     x = self.residuals / self.total_error
+    #     x = x * x
+    #     self.chi_squared = x.sum()
+    #     return self.chi_squared
+    #
+    # def calc_p_value(self, free_parameters):
+    #     """
+    #     Calculate the p-value for a chi-squared test.
+    #     This is the probability of observing a chi-squared value >= your observed value.
+    #     chi_square :     The chi-squared test statistic
+    #     n_measurements : Number of measurements/observations
+    #     n_parameters :   Number of free parameters in the model
+    #     """
+    #     if free_parameters is None:
+    #         return None
+    #     else:
+    #         degrees_of_freedom = self.observation_count - free_parameters
+    #         self.p_value = stats.chi2.sf(self.chi_squared, degrees_of_freedom)  # survival function = 1 - cumulative distribution function
+    #         return self.p_value
 
 
 class TTObservations:
