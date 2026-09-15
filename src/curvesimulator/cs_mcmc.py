@@ -127,6 +127,9 @@ class CurveSimMCMC:
         self.param_priors = [(fp.prior_mu, fp.prior_sigma) for fp in self.fitting_parameters]
         self.ndim = len(self.param_references)
         self.theta0 = self.random_initial_values()
+        # hier schon init_rebound???
+        # dafuer init_rebound in calc_positions_eclipses_luminosity nur callen, wenn es noch nicht vorher geschah?
+        # Nein, ich versuche es erstmal mit init_rebound in log_likelihood
         self.args = (self.fitting_parameters, self.param_references, bodies, o, measured_flux, measured_tt, p)
         # self.args = (self.param_bounds, self.param_references, bodies, flux_time_s0, flux_time_d, flux_corr, flux_total_err, measured_flux, measured_tt, p)
         self.moves = eval(self.moves)
@@ -205,11 +208,10 @@ class CurveSimMCMC:
         else:
             measured_tt = None
         if p.rv_file:
-            o.rv.calc_computed(p, rebound_sim)
-            o.rv.calc_residuals()
+            o.rv.update(p, rebound_sim)  # update with new rv offset and jitter from theta
             results["Fit"]["chi_squared_rv"] = o.rv.calc_chi_squared()
             results["Fit"]["measurements_rv"] = o.rv.observation_count
-            results["Fit"]["pvalue_flux"] = o.rv.calc_p_value(p.free_parameters)
+            results["Fit"]["pvalue_rv"] = o.rv.calc_p_value(p.free_parameters)
             # measured_rv, rv_time_d, rv_time_s0 = CurveSimResults.get_measured_rv(p)
             # measured_rv = CurveSimResults.calc_rv_residuals(measured_rv, p.rv_body_name, rebound_sim)  # compare observed vs. computed RV
             # measured_rv = results.calc_rv_chi_squared(measured_rv, p.free_parameters)  # store chi squared and p-value in results
@@ -220,7 +222,6 @@ class CurveSimMCMC:
             results["Fit"]["log_maxlikelihood_rv"] = o.rv.calc_log_maxlikelihood()
 
             # o.rv.simulated, o.flux.simulated, _ = bodies.calc_physics(p, o.rv.time_s0)  # Calculate all body positions and the resulting flux and rv
-            o.rv.update(p)  # update rv observations with new rv offset and jitter from theta
             # o.rv.calc_total_error(p.rv_body.rv_jitter)
             CurveSimResults.sim_rv_plot(p, o, "rv_computed")  # plot computed RV
             CurveSimResults.rv_observed_computed_plot(p, o, "rv_o_vs_c")  # plot computed and observed RV
@@ -315,13 +316,15 @@ class CurveSimMCMC:
             List containing the names of the parameters to be fitted.
             For example: ["Tmin_pri", "P_days", "incl_deg", "R1a", "R2R1"]
         """
+        rebound_sim = CurveSimBodies.init_rebound(bodies, p)
+        ?????
         residuals_sum_squared, log_norm_term = 0, 0
         if p.flux_file:
             residuals_sum_squared, log_norm_term = p.flux_weight * CurveSimMCMC.residuals_flux_sum_squared(theta, param_references, bodies, o, measured_flux, p)
         if p.tt_file:
             residuals_sum_squared += p.tt_weight * CurveSimMCMC.residuals_tt_sum_squared(theta, param_references, bodies, o, measured_tt, p)
         if p.rv_file:
-            rss, lntr = p.rv_weight * CurveSimMCMC.residuals_rv_sum_squared(theta, param_references, bodies, o, p)
+            rss, lntr = p.rv_weight * CurveSimMCMC.residuals_rv_sum_squared(theta, param_references, bodies, o, p, rebound_sim)
             residuals_sum_squared += rss
             log_norm_term += lntr
         return -0.5 * (residuals_sum_squared + log_norm_term)
@@ -350,7 +353,7 @@ class CurveSimMCMC:
         return residuals_flux_sum_squared, log_norm_term_flux
 
     @staticmethod
-    def residuals_rv_sum_squared(theta, param_references, bodies, o, p):
+    def residuals_rv_sum_squared(theta, param_references, bodies, o, p, rebound_sim):
         """Similar to function residuals_flux_sum_squared().
            Calculate residuals_rv_sum_squared and log_norm_term_rv."""
 
@@ -360,16 +363,25 @@ class CurveSimMCMC:
             bodies[body_index].__dict__[parameter_name] = theta[i]  # update body parameters from theta
             i += 1
 
-        o.rv.update(p)  # update rv observations with new rv offset and jitter from theta
+        o.rv.update(p, rebound_sim)  # update rv observations with new rv offset and jitter from theta
+
         # o.rv.calc_corrected(p.rv_body.rv_offset)
         # o.rv.calc_total_error(p.rv_body.rv_jitter)
         # o.rv.calc_log_norm_term()
+        # o.rv.calc_computed(p, rebound_sim)          # from bodies
+        # o.rv.calc_residuals()                       # corrected - computed
 
-        sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, o.rv.time_s0)  # run simulation
-        residuals_rv = (o.rv.corrected - sim_rv) / o.rv.total_error  # residuals are weighted with uncertainty
-        residuals_rv_sum_squared = np.sum(residuals_rv ** 2)
+        # def calc_chi_squared(self):
+        #     x = self.residuals / self.total_error
+        #     x = x * x
+        #     self.chi_squared = x.sum()
+        #     return self.chi_squared
 
-        return residuals_rv_sum_squared, o.rv.log_norm_term
+        # sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, o.rv.time_s0)  # run simulation
+        # residuals_rv = (o.rv.corrected - sim_rv) / o.rv.total_error  # residuals are weighted with uncertainty
+        # residuals_rv_sum_squared = np.sum(residuals_rv ** 2)
+
+        return o.rv.chi_squared, o.rv.log_norm_term
 
     @staticmethod
     def residuals_tt_sum_squared(theta, param_references, bodies, flux_time_s0, flux_time_d, measured_tt, p):

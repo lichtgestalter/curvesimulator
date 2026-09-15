@@ -214,11 +214,14 @@ class RVObservations(ObservationTypes):
         self.computed = [rv_at_t(t, rebound_sim, body) for t in self.time_s0]
         return self.computed
 
-    def update(self, p):
+    def update(self, p, rebound_sim):
         # update rv observations with new rv offset and jitter
-        self.calc_corrected(p.rv_body.rv_offset)
-        self.calc_total_error(p.rv_body.rv_jitter)
-        self.calc_log_norm_term()
+        self.calc_corrected(p.rv_body.rv_offset)    # observed - offset
+        self.calc_total_error(p.rv_body.rv_jitter)  # sqrt(error^2 + jitter^2)
+        self.calc_log_norm_term()                   # from total_error
+        self.calc_computed(p, rebound_sim)          # from bodies
+        self.calc_residuals()                       # corrected - computed
+        self.calc_chi_squared()                     # from residuals and total_error
 
     # def calc_residuals(self):
     #     self.residuals = self.corrected - self.computed
