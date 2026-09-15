@@ -316,26 +316,30 @@ class CurveSimMCMC:
             List containing the names of the parameters to be fitted.
             For example: ["Tmin_pri", "P_days", "incl_deg", "R1a", "R2R1"]
         """
-        rebound_sim = CurveSimBodies.init_rebound(bodies, p)
-        ?????
+        # rebound_sim = CurveSimBodies.init_rebound(bodies, p)
         residuals_sum_squared, log_norm_term = 0, 0
         if p.flux_file:
             residuals_sum_squared, log_norm_term = p.flux_weight * CurveSimMCMC.residuals_flux_sum_squared(theta, param_references, bodies, o, measured_flux, p)
         if p.tt_file:
             residuals_sum_squared += p.tt_weight * CurveSimMCMC.residuals_tt_sum_squared(theta, param_references, bodies, o, measured_tt, p)
         if p.rv_file:
-            rss, lntr = p.rv_weight * CurveSimMCMC.residuals_rv_sum_squared(theta, param_references, bodies, o, p, rebound_sim)
+            rss, lntr = p.rv_weight * CurveSimMCMC.residuals_rv_sum_squared(theta, param_references, bodies, o, p)
             residuals_sum_squared += rss
             log_norm_term += lntr
         return -0.5 * (residuals_sum_squared + log_norm_term)
 
     @staticmethod
-    def residuals_flux_sum_squared(theta, param_references, bodies, o, measured_flux, p):
-        # update body parameters from theta
+    def update_bodies_from_theta(bodies, p, param_references, theta) -> int:
         i = 0
         for body_index, parameter_name in param_references[:p.fitting_body_parameters]:
             bodies[body_index].__dict__[parameter_name] = theta[i]
             i += 1
+        return i
+
+    @staticmethod
+    def residuals_flux_sum_squared(theta, param_references, bodies, o, measured_flux, p):
+        # update body parameters from theta
+        i = CurveSimMCMC.update_bodies_from_theta(bodies, p, param_references, theta)
 
         # update measured_flux with new sector offsets and jitters from theta
         log_norm_term_flux = p.log_norm_term_flux
@@ -353,16 +357,18 @@ class CurveSimMCMC:
         return residuals_flux_sum_squared, log_norm_term_flux
 
     @staticmethod
-    def residuals_rv_sum_squared(theta, param_references, bodies, o, p, rebound_sim):
+    def residuals_rv_sum_squared(theta, param_references, bodies, o, p):
         """Similar to function residuals_flux_sum_squared().
            Calculate residuals_rv_sum_squared and log_norm_term_rv."""
 
         # update body parameters from theta
-        i = 0
-        for body_index, parameter_name in param_references[:p.fitting_body_parameters]:
-            bodies[body_index].__dict__[parameter_name] = theta[i]  # update body parameters from theta
-            i += 1
+        # i = 0
+        # for body_index, parameter_name in param_references[:p.fitting_body_parameters]:
+        #     bodies[body_index].__dict__[parameter_name] = theta[i]  # update body parameters from theta
+        #     i += 1
+        CurveSimMCMC.update_bodies_from_theta(bodies, p, param_references, theta)
 
+        rebound_sim = CurveSimBodies.init_rebound(bodies, p)
         o.rv.update(p, rebound_sim)  # update rv observations with new rv offset and jitter from theta
 
         # o.rv.calc_corrected(p.rv_body.rv_offset)
@@ -386,10 +392,11 @@ class CurveSimMCMC:
     @staticmethod
     def residuals_tt_sum_squared(theta, param_references, bodies, flux_time_s0, flux_time_d, measured_tt, p):
         # measured_tt: pandas DataFrame with columns eclipser, tt, tt_err
-        i = 0
-        for body_index, parameter_name in param_references:
-            bodies[body_index].__dict__[parameter_name] = theta[i]  # update all parameters from theta
-            i += 1
+        # i = 0
+        # for body_index, parameter_name in param_references:
+        #     bodies[body_index].__dict__[parameter_name] = theta[i]  # update all parameters from theta
+        #     i += 1
+        CurveSimMCMC.update_bodies_from_theta(bodies, p, param_references, theta)
         sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, flux_time_s0)  # run simulation
         residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, flux_time_d, flux_time_s0)
         return residuals_tt_sum_squared
