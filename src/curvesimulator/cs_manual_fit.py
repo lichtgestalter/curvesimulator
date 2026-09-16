@@ -14,13 +14,13 @@ class FittingGUI:
     and a real-time Matplotlib plot.
     Activation of an parameter is handled via a mouse click on the parameter.
     """
-    def __init__(self, root, p, bodies, flux_time_s0, flux_time_d, measured_tt):
+    def __init__(self, root, p, bodies, o):
         self.bodies = bodies
-        self.flux_time_s0 = flux_time_s0
-        self.flux_time_d = flux_time_d
-        self.measured_tt = measured_tt
+        self.flux_time_s0 = o.flux.time_s0
+        self.flux_time_d = o.flux.time_d
+        self.measured_tt = o.tt.measured_tt
 
-        self.residuals_tt_sum_squared, self.measured_tt = self.run_simulation(p)
+        self.residuals_tt_sum_squared, self.measured_tt = self.run_simulation(p, o)
 
         self.root = root
         self.root.title("CurveSimulator Manual Fitter")
@@ -38,7 +38,7 @@ class FittingGUI:
         self._initialize_grid_weights()
         self._initialize_parameter_data(p)
         self._create_widgets(p)
-        self._setup_bindings(p)
+        self._setup_bindings(p, o)
 
         self.update_plot(self.measured_tt)  # Initial plot
         self.activate_parameter(self.active_parameter_index)  # Initial highlighting
@@ -146,11 +146,11 @@ class FittingGUI:
         self.canvas_widget = self.canvas.get_tk_widget()
         self.canvas_widget.grid(row=0, column=0, sticky="nsew")
 
-    def _setup_bindings(self, p):
+    def _setup_bindings(self, p, o):
         """Bind some keys to the root window, passing "p" to the handler."""
         for key in ["<Up>", "<Down>", "<Left>", "<Right>"]:
-        # for key in ["<Up>", "<Down>", "<Left>", "<Right>", "<Escape>"]:
-            self.root.bind(key, lambda event, p=p: self.handle_key(p, event))
+            # for key in ["<Up>", "<Down>", "<Left>", "<Right>", "<Escape>"]:
+            self.root.bind(key, lambda event, p=p: self.handle_key(p, o, event))
 
     @staticmethod
     def _get_format(number):
@@ -171,7 +171,7 @@ class FittingGUI:
         self.parameter_frames[self.active_parameter_index]["style"] = "Active.TFrame"
         self.root.focus_set()  # Crucially, set focus back to the root window so arrow key bindings work
 
-    def handle_key(self, p, event):
+    def handle_key(self, p, o, event):
         """Processes arrow key presses to modify the active parameter's value or delta."""
         if self.active_parameter_index is None:
             return
@@ -190,18 +190,18 @@ class FittingGUI:
         #     parameter["delta"] = 1.0
         self.update_entry_fields(p)
         self.update_fitting_parameters(p)
-        self.residuals_tt_sum_squared, self.measured_tt = self.run_simulation(p)
+        self.residuals_tt_sum_squared, self.measured_tt = self.run_simulation(p, o)
         max_delta = max(np.abs(self.measured_tt["delta"]))
         mean_delta = np.mean(np.abs(self.measured_tt["delta"]))
         print(f"\n{max_delta=:2.4f}   {mean_delta=:2.4f}    [days] ")
         self.update_plot(self.measured_tt)
 
-    def run_simulation(self, p):
+    def run_simulation(self, p, o):
         param_references = [(fp.body_index, fp.parameter_name) for fp in p.fitting_parameters]
         for (body_index, parameter_name), fp in zip(param_references, p.fitting_parameters):
             self.bodies[body_index].__dict__[parameter_name] = fp.startvalue
         sim_rv, sim_flux, rebound_sim = self.bodies.calc_physics(p, self.flux_time_s0)  # run simulation
-        return CurveSimMCMC.match_transit_times(self.measured_tt, p, rebound_sim, self.flux_time_d, self.flux_time_s0)
+        return CurveSimMCMC.match_transit_times(p, rebound_sim, o)
 
     def update_entry_fields(self, p):
         """Update the Tkinter entry variables from the internal data model."""
@@ -249,8 +249,6 @@ class FittingGUI:
 
         self.canvas.draw_idle()
 
-
-
     # def update_plot(self):
     #     """Update the Matplotlib plot with the new coordinates (Parameter1.value, Parameter2.value)."""
     #     x_val = self.parameters[0]["value"]  # Parameter 1 value
@@ -284,9 +282,9 @@ class FittingGUI:
     #     self.canvas.draw_idle()
     #
 class CurveSimManualFit:
-    def __init__(self, p, bodies, flux_time_s0, flux_time_d, measured_tt):
+    def __init__(self, p, bodies, o):
         root = tk.Tk()
-        app = FittingGUI(root, p, bodies, flux_time_s0, flux_time_d, measured_tt)
+        app = FittingGUI(root, p, bodies, o)
         root.focus_set()  # Give focus to the main window so key presses are immediately captured
         root.mainloop()
 

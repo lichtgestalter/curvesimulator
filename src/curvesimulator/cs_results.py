@@ -1,4 +1,4 @@
-from colorama import Fore, Style
+# from colorama import Fore, Style
 import copy
 import json
 import math
@@ -8,7 +8,7 @@ import pandas as pd
 import os
 import re
 import scipy.stats as stats
-import sys
+# import sys
 
 from .cs_observations import CurveSimObservations
 
@@ -163,11 +163,10 @@ class CurveSimResults(dict):
         results.update(data)
         return results
 
-    @staticmethod
-    def calc_flux_residuals(measured_flux, sim_flux):
-        measured_flux["flux_sim"] = sim_flux
-        measured_flux["residual"] = measured_flux["flux_corr"] - measured_flux["flux_sim"]
-        return measured_flux
+    # @staticmethod
+    # def calc_flux_residuals(o):
+    #     measured_flux["residual"] = measured_flux["flux_corr"] - measured_flux["flux_sim"]
+    #     return measured_flux
 
     # def calc_rv_chi_squared(self, o, free_parameters):
     #     o.rv.chi_squared = o.rv.residuals / o.rv.total_error
@@ -232,8 +231,6 @@ class CurveSimResults(dict):
         CurveSimObservations.check_required_columns({"sector", "offset", "offset_low", "offset_up", "offset_spread", "jitter", "jitter_low", "jitter_high", "jitter_spread"}, sector_params, p.sector_params_file)
         offset_map = sector_params.set_index("sector")["offset"]
         jitter_map = sector_params.set_index("sector")["jitter"]
-        p.offset_map = offset_map
-        p.jitter_map = jitter_map
         # How to change the offset_value for sector s: offset_map.loc[s] = 4.2
         return offset_map, jitter_map, sector_params
 
@@ -286,44 +283,6 @@ class CurveSimResults(dict):
         log_norm_term_flux = np.sum(np.log(2 * np.pi * measured_flux["flux_total_err"] ** 2))  # logarithm of the summed Gaussian normalization term
         flux_total_err = np.array(measured_flux["flux_total_err"], dtype=float)
         return measured_flux, flux_total_err, log_norm_term_flux
-
-    @staticmethod
-    def get_measured_rv(p):
-        df = pd.read_csv(p.rv_file)
-        CurveSimObservations.check_required_columns({"time", "rv", "rv_err"}, df, p.rv_file)
-        df = df[(df["time"] >= p.epoch) & (df["time"] <= p.sim_end)].copy()
-        df, _ = CurveSimResults.rv_corr(df, p.rv_body.rv_offset)
-        df, _, p.log_norm_term_rv = CurveSimResults.rv_total_err(df, p.rv_body.rv_jitter)
-        df["rv_time_s0"] = (df["time"] - p.epoch) * p.day  # observation times in seconds; starting with 0 at epoch
-        # df["rv_corr"] = df["rv"] + p.rv_offset  # rv corrected by the constant shift
-        # df["rv_total_err"] = np.sqrt(df["rv_err"] * df["rv_err"] + p.rv_jitter * p.rv_jitter)  # combined RV uncertainty from measurement uncertainty and jitter
-
-        rv_time_d = np.array(df["time"], dtype=float)
-        rv_time_s0 = np.array(df["rv_time_s0"], dtype=float)
-        rv_corr = np.array(df["rv_corr"])
-        rv_total_err = np.array(df["rv_total_err"], dtype=float)
-
-        p.rv_datasize = len(df["time"])
-        return df, rv_time_d, rv_time_s0
-
-    @staticmethod
-    def rv_corr(measured_rv, rv_offset):
-        """
-        Adds or updates column measured_rv["rv_corr"], where
-        rv_corr = rv - offset"""
-        measured_rv["rv_corr"] = measured_rv["rv"] - rv_offset
-        rv_corr = np.array(measured_rv["rv_corr"])
-        return measured_rv, rv_corr
-
-    @staticmethod
-    def rv_total_err(measured_rv, rv_jitter):
-        """
-        Adds or updates column measured_rv["rv_total_err"], where
-        rv_total_err = sqrt(rv_err^2 + jitter^2)"""
-        measured_rv["rv_total_err"] = np.sqrt(measured_rv["rv_err"] ** 2 + rv_jitter ** 2)
-        log_norm_term_rv = np.sum(np.log(2 * np.pi * measured_rv["rv_total_err"] ** 2))  # logarithm of the summed Gaussian normalization term
-        rv_total_err = np.array(measured_rv["rv_total_err"], dtype=float)
-        return measured_rv, rv_total_err, log_norm_term_rv
 
     @staticmethod
     def get_measured_tt(p):
@@ -581,24 +540,24 @@ class CurveSimResults(dict):
         return means
 
     @staticmethod
-    def flux_observed_computed_plots_time(p, plot_filename, measured_flux, measured_tt):
-        measured_flux["gt"] = measured_flux["time"].diff().gt(0).astype(int)
-        left = np.min(measured_flux["time"])
-        right = np.max(measured_flux["time"])
+    def flux_observed_computed_plots_time(p, plot_filename, o):
+        # measured_flux["gt"] = measured_flux["time"].diff().gt(0).astype(int)
+        left = np.min(o.flux.time_d)
+        right = np.max(o.flux.time_d)
         left -= (right - left) * 0.02
         right += (right - left) * 0.02
-        measured_flux["bin_30min"] = CurveSimResults.bin_time_window(measured_flux["time"], measured_flux["flux_corr"], 30 / (2 * 60 * 24))
+        bin_30min = CurveSimResults.bin_time_window(o.flux.time_d, o.flux.corrected, 30 / (2 * 60 * 24))
         CurveSimResults.plot_this(
             title=f"Flux: observed vs. computed",
             x_label="Time [BJD]",
             y_label="Normalized Flux",
-            x_lists=    [measured_flux["time"], measured_flux["time"]],
-            y_lists=    [measured_flux["flux_corr"], measured_flux["flux_sim"]],
-            data_labels=["observed",            "computed"],
-            linestyles= ["",                    ""],
-            markersizes=[1,                     1],
-            colors=     ["xkcd:nice blue",                 "xkcd:black"],
-            # linewidths= [1,                     0],
+            x_lists=    [o.flux.time_d,    o.flux.time_d],
+            y_lists=    [o.flux.corrected, o.flux.computed],
+            data_labels=["observed",       "computed"],
+            linestyles= ["",               ""],
+            markersizes=[1,                1],
+            colors=     ["xkcd:nice blue", "xkcd:black"],
+            # linewidths= [1,                0],
             grid=False,
             legend=True,
             left=left,
@@ -607,21 +566,21 @@ class CurveSimResults(dict):
             # bottom=p.flux_plots_bottom,
             plot_file=p.results_directory + plot_filename,
         )
-        if measured_tt is not None:
+        if o.tt.measured_tt is not None:
             directory = p.results_directory + "flux_per_transit/"
             os.makedirs(directory)
-            for transit in measured_tt.itertuples(index=False):
+            for transit in o.tt.measured_tt.itertuples(index=False):
                 CurveSimResults.plot_this(
                     title=f"{transit.eclipser} Transit nr. {transit.nr}: observed vs. computed flux",
                     x_label="Time [BJD]",
                     y_label="Normalized Flux",
-                    x_lists=    [measured_flux["time"], measured_flux["time"],      measured_flux["time"]],
-                    y_lists=    [measured_flux["flux_corr"], measured_flux["bin_30min"], measured_flux["flux_sim"]],
-                    data_labels=["observed",            "obs. 30 min",              "computed"],
-                    linestyles= ["",                    "-",                        ""],
-                    markersizes=[1,                     0,                          1],
-                    colors=     ["xkcd:nice blue",      "xkcd:nice blue",           "xkcd:black"],
-                    # linewidths= [1,                     0],
+                    x_lists=    [o.flux.time_d,    o.flux.time_d,    o.flux.time_d],
+                    y_lists=    [o.flux.corrected, bin_30min,        o.flux.computed],
+                    data_labels=["observed",       "obs. 30 min",    "computed"],
+                    linestyles= ["",               "-",              ""],
+                    markersizes=[1,                0,                1],
+                    colors=     ["xkcd:nice blue", "xkcd:nice blue", "xkcd:black"],
+                    # linewidths= [1,                0],
                     grid=False,
                     legend=True,
                     left=transit.tt - p.tt_padding,
@@ -707,7 +666,6 @@ class CurveSimResults(dict):
         plt.hlines(-o.rv.total_error.mean(), left, right, colors="xkcd:warm grey", linewidth=1, linestyles="--")
         plt.savefig(plot_file)
         plt.close()
-
 
     @staticmethod
     def flux_residuals_all_plots_time(p, plot_filename, measured_flux, measured_tt):

@@ -113,7 +113,7 @@ class CurveSimBody:
         """Loads a body from `../bodies/<filename>.bdy`,
         assembles the constructor args in the original __init__ order,
         calls CurveSimBody(*args)"""
-        path = directory +"/" + filename + ".bdy"
+        path = directory + "/" + filename + ".bdy"
         data = {}
         try:
             with open(path, "r", encoding="utf-8") as f:
@@ -141,7 +141,6 @@ class CurveSimBody:
                 missing.append(param)
         if missing:
             print(f"{Fore.YELLOW}\nWARNING: Missing parameters in {filename + ".bdy"}: {missing} {Style.RESET_ALL}")
-
 
         # Build args in the same order as __init__ signature:
         args = [

@@ -13,6 +13,7 @@ import time
 
 from .cs_observations import CurveSimObservations
 
+
 class CurveSimParameters:
 
     def __init__(self, config_file):
@@ -159,9 +160,9 @@ class CurveSimParameters:
         self.max_radius = eval(config.get("VideoScale", "max_radius", fallback="2.0")) / 100.0
 
         # [VideoPlot]
-        self.video_background_color = CurveSimParameters.get_color_parameter(config, "VideoPlot","video_background_color", "xkcd:black")
-        self.video_text_color = CurveSimParameters.get_color_parameter(config, "VideoPlot","video_text_color", "xkcd:light gray")
-        self.separator_line_color = CurveSimParameters.get_color_parameter(config, "VideoPlot","separator_line_color", "xkcd:medium gray")
+        self.video_background_color = CurveSimParameters.get_color_parameter(config, "VideoPlot", "video_background_color", "xkcd:black")
+        self.video_text_color = CurveSimParameters.get_color_parameter(config, "VideoPlot", "video_text_color", "xkcd:light gray")
+        self.separator_line_color = CurveSimParameters.get_color_parameter(config, "VideoPlot", "separator_line_color", "xkcd:medium gray")
         self.scale_bar_fontsize = eval(config.get("VideoPlot", "scale_bar_fontsize", fallback="8"))
         self.scale_bar_end_x = eval(config.get("VideoPlot", "scale_bar_end_x", fallback="0.95"))
 
@@ -171,7 +172,7 @@ class CurveSimParameters:
         self.show_lower_curve = eval(config.get("VideoPlot", "show_lower_curve", fallback="False"))
 
         self.main_title = config.get("VideoPlot", "main_title", fallback="Main Title")
-        self.main_title_color = CurveSimParameters.get_color_parameter(config, "VideoPlot","main_title_color", "xkcd:white")
+        self.main_title_color = CurveSimParameters.get_color_parameter(config, "VideoPlot", "main_title_color", "xkcd:white")
         self.main_title_fontsize = eval(config.get("VideoPlot", "main_title_fontsize", fallback="14"))
 
         # left plot
@@ -195,17 +196,17 @@ class CurveSimParameters:
         self.x_label_x_coord = eval(config.get("VideoPlot", "x_label_x_coord", fallback="0.97"))
         self.x_label_y_coord = eval(config.get("VideoPlot", "x_label_y_coord", fallback="-0.06"))
 
-        self.upper_curve_color = CurveSimParameters.get_color_parameter(config, "VideoPlot","upper_curve_color", "xkcd:white")
+        self.upper_curve_color = CurveSimParameters.get_color_parameter(config, "VideoPlot", "upper_curve_color", "xkcd:white")
         self.upper_curve_y_label = config.get("VideoPlot", "upper_curve_y_label", fallback="Relative Flux")
         self.upper_curve_y_label_fontsize = eval(config.get("VideoPlot", "upper_curve_y_label_fontsize", fallback="8"))
         self.upper_curve_y_tick_fontsize = eval(config.get("VideoPlot", "upper_curve_y_tick_fontsize", fallback="8"))
-        self.upper_curve_dot_color = CurveSimParameters.get_color_parameter(config, "VideoPlot","upper_curve_dot_color", "xkcd:bright red")
+        self.upper_curve_dot_color = CurveSimParameters.get_color_parameter(config, "VideoPlot", "upper_curve_dot_color", "xkcd:bright red")
 
-        self.lower_curve_color = CurveSimParameters.get_color_parameter(config, "VideoPlot","lower_curve_color", "xkcd:white")
+        self.lower_curve_color = CurveSimParameters.get_color_parameter(config, "VideoPlot", "lower_curve_color", "xkcd:white")
         self.lower_curve_y_label = config.get("VideoPlot", "lower_curve_y_label", fallback="Radial Velocity [m/s]")
         self.lower_curve_y_label_fontsize = eval(config.get("VideoPlot", "lower_curve_y_label_fontsize", fallback="8"))
         self.lower_curve_y_tick_fontsize = eval(config.get("VideoPlot", "lower_curve_y_tick_fontsize", fallback="8"))
-        self.lower_curve_dot_color = CurveSimParameters.get_color_parameter(config, "VideoPlot","lower_curve_dot_color", "xkcd:green apple")
+        self.lower_curve_dot_color = CurveSimParameters.get_color_parameter(config, "VideoPlot", "lower_curve_dot_color", "xkcd:green apple")
 
         # dimensions
         self.figure_width = eval(config.get("VideoPlot", "figure_width", fallback="16"))
@@ -243,7 +244,7 @@ class CurveSimParameters:
         mandatory_list = ["g", "au", "l_sun", "r_sun", "m_sun", "r_jup", "m_jup", "r_nep", "m_nep", "r_earth", "m_earth", "hour", "day", "year", "rad2deg"]  # astronomical_units
         mandatory_list += ["action"]
         if self.rv_file is not None:
-            mandatory_list += ["rv_body_name"]  #  "rv_offset", "rv_jitter" move to def find_mandatory_body_parameters()
+            mandatory_list += ["rv_body_name"]  # "rv_offset", "rv_jitter" move to def find_mandatory_body_parameters()
         if self.tt_file is not None:
             mandatory_list += ["eclipsers_names", "eclipsees_names"]
         if self.action in ["mcmc", "lmfit"]:
@@ -561,11 +562,11 @@ class FittingParameter:
         self.lower = lower
         self.upper = upper
         self.sigma = sigma
-        self.prior_mu = prior_mu        # mean/expectation of normal prior
+        self.prior_mu = prior_mu  # mean/expectation of normal prior
         self.prior_sigma = prior_sigma  # standard deviation of normal prior
-        self.indices = indices          # For derived parameters only. Indices of the fitting parameters to be used in the function.
-        self.constants = constants      # For derived parameters only. Constants to be used in the function.
-        self.function = function        # For derived parameters only. A lambda function, using the above indices and constants as arguments.
+        self.indices = indices  # For derived parameters only. Indices of the fitting parameters to be used in the function.
+        self.constants = constants  # For derived parameters only. Constants to be used in the function.
+        self.function = function  # For derived parameters only. A lambda function, using the above indices and constants as arguments.
 
     def initial_values(self, rng, size):
         result = []
@@ -575,7 +576,8 @@ class FittingParameter:
                 result.append(sample)
         return np.array(result)
 
-    def init_derived_param(self, p, body_name, body_index, parameter_name, indices, constants, function):  # derivedparams
+    @staticmethod
+    def init_derived_param(p, body_name, body_index, parameter_name, indices, constants, function):  # derivedparams
         derived_param = FittingParameter(p, body_name, body_index, parameter_name, None, None, None, None, indices=indices, constants=constants, function=function)
         return derived_param
 
@@ -583,4 +585,3 @@ class FittingParameter:
         base_params = []
         for i in self.indices:
             base_params.append(p.fitting_parameters[i])
-

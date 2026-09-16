@@ -11,7 +11,7 @@ import sys
 import time
 
 from curvesimulator.cs_body import CurveSimBody
-from curvesimulator.cs_lightcurve import CurveSimLightcurve
+# from curvesimulator.cs_lightcurve import CurveSimLightcurve
 from curvesimulator.cs_parameters import CurveSimParameters
 from curvesimulator.cs_physics import CurveSimPhysics
 from curvesimulator.cs_rebound import CurveSimRebound
@@ -646,11 +646,11 @@ class MyIntegration:
         vy = sum(p.m * p.vy for p in plist) / m_tot
         vz = sum(p.m * p.vz for p in plist) / m_tot
         for p in plist:
-            p.x -= rx;
-            p.y -= ry;
+            p.x -= rx
+            p.y -= ry
             p.z -= rz
-            p.vx -= vx;
-            p.vy -= vy;
+            p.vx -= vx
+            p.vy -= vy
             p.vz -= vz
 
     def compute_accelerations(self):
