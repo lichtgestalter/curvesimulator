@@ -218,22 +218,20 @@ class CurveSimMCMC:
             CurveSimResults.rv_observed_computed_plot(p, o, "rv_o_vs_c")  # plot computed and observed RV
             CurveSimResults.rv_residuals_plot(p, o, "rv_residuals")  # plot RV residuals
         if p.flux_file:
-            # if measured_flux is None:
-            #     flux_time_s0, _, _, _, measured_flux = CurveSimResults.get_measured_flux(p)
-            for body in bodies:  # HACK because length of body.positions is initialized with the correct value for simulation, NOT measurements
-                body.positions = np.ndarray((len(flux_time_s0), 3), dtype=float)
-            _, o.flux.observed, _ = bodies.calc_physics(p, o.flux.time_s0)  # run simulation
-            o.flux.calc_residuals()  # compare observed vs. computed flux
+            o.flux.update(bodies, p)
             if p.sim_flux_file:
                 CurveSimResults.save_sim_flux_with_observation_timeline(p, o)  # save simulated flux (for same time values as flux observations)
-            results.calc_flux_chi_squared(o, p.free_parameters)  # store chi squared and p-value in results
-            results.calc_flux_log_maxlikelihood(o)  # store -log(L) in results
+            results["Fit"]["chi_squared_flux"] = o.flux.calc_chi_squared()
+            results["Fit"]["measurements_flux"] = o.flux.observation_count
+            results["Fit"]["pvalue_flux"] = o.flux.calc_p_value(p.free_parameters)
+            results["Fit"]["log_norm_term_flux"] = o.flux.log_norm_term
+            results["Fit"]["log_maxlikelihood_flux"] = o.flux.calc_log_maxlikelihood()
             CurveSimResults.flux_observed_computed_plots_time(p, "flux_o_vs_c_x=time", o)  # plot computed and observed flux
             CurveSimResults.flux_observed_computed_plot_data(p, "flux_o_vs_c_x=data", o)  # plot computed and observed flux
             CurveSimResults.flux_chi_squared_plot_data(p, "flux_chi2_x=data", o)  # plot flux chi squared per datapoint
             CurveSimResults.flux_residuals_all_plots_time(p, "flux_residuals_x=time", o)  # plot Flux residuals
             CurveSimResults.flux_residuals_plot_data(p, "flux_residuals_x=data", o)  # plot Flux residuals
-            # plot something
+
         if p.tt_file or p.rv_file or p.flux_file:
             results.calc_total_chi_squared(p.free_parameters)
         if p.result_file:
@@ -278,11 +276,11 @@ class CurveSimMCMC:
         return residuals_tt_sum_squared, o.tt.measured_tt
 
     @staticmethod
-    def log_probability(theta, fitting_parameters, param_references, bodies, o, measured_flux, measured_tt, p):
+    def log_probability(theta, fitting_parameters, param_references, bodies, o, p):
         lp = CurveSimMCMC.log_prior(theta, fitting_parameters)
         if not np.isfinite(lp):
             return -np.inf
-        return lp + CurveSimMCMC.log_likelihood(theta, param_references, bodies, o, measured_flux, measured_tt, p)
+        return lp + CurveSimMCMC.log_likelihood(theta, param_references, bodies, o, p)
 
     @staticmethod
     def log_prior(theta, fitting_parameters):
@@ -295,7 +293,7 @@ class CurveSimMCMC:
         return lp
 
     @staticmethod
-    def log_likelihood(theta, param_references, bodies, o, measured_flux, measured_tt, p):
+    def log_likelihood(theta, param_references, bodies, o, p):
         """
         theta:
             List containing the current numerical values of the `param_references` (see below).
@@ -328,31 +326,22 @@ class CurveSimMCMC:
         return i
 
     @staticmethod
+    def update_sector_params_from_theta(i: int, o, theta):
+        for sector in o.flux.offset_map.index:
+            o.flux.offset_map.loc[sector] = theta[i]
+            o.flux.jitter_map.loc[sector] = theta[i + 1]
+            i += 2
+
+    @staticmethod
     def residuals_flux_sum_squared(theta, param_references, bodies, o, p):
         i = CurveSimMCMC.update_bodies_from_theta(bodies, p, param_references, theta)
-
-        # update measured_flux with new sector offsets and jitters from theta
-        log_norm_term_flux = p.log_norm_term_flux
         if p.sector_params_fit:
-            for sector in o.flux.offset_map.index:
-                o.flux.offset_map.loc[sector] = theta[i]
-                o.flux.jitter_map.loc[sector] = theta[i + 1]
-                i += 2
-
-            # rebound_sim = CurveSimBodies.init_rebound(bodies, p)
-            # o.flux.update(p)  # update rv observations with new rv offset and jitter from theta
-
-            measured_flux, o.flux.corrected = CurveSimResults.flux_corr(measured_flux, o.flux.offset_map)  # updates measured_flux with new sector offsets from theta
-            measured_flux, o.flux.total_error, log_norm_term_flux = CurveSimResults.flux_total_err(measured_flux, o.flux.jitter_map)  # updates measured_flux with new sector jitter from theta
-
-        sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, o.flux.time_s0)  # run simulation
-        residuals_flux = (o.flux.corrected - sim_flux) / o.flux.total_error  # residuals are weighted with uncertainty
-        residuals_flux_sum_squared = np.sum(residuals_flux ** 2)
-        return residuals_flux_sum_squared, log_norm_term_flux
+            CurveSimMCMC.update_sector_params_from_theta(i, o, theta)
+        o.flux.update(bodies, p)  # update flux observations with new offset and jitter, then calc computed and residuals.
+        return o.flux.chi_squared, o.flux.log_norm_term
 
     @staticmethod
     def residuals_flux_sum_squared_bak(theta, param_references, bodies, o, measured_flux, p):
-        # update body parameters from theta
         i = CurveSimMCMC.update_bodies_from_theta(bodies, p, param_references, theta)
 
         # update measured_flux with new sector offsets and jitters from theta
@@ -374,7 +363,7 @@ class CurveSimMCMC:
     def residuals_rv_sum_squared(theta, param_references, bodies, o, p):
         CurveSimMCMC.update_bodies_from_theta(bodies, p, param_references, theta)
         rebound_sim = CurveSimBodies.init_rebound(bodies, p)
-        o.rv.update(p, rebound_sim)  # update rv observations with new rv offset and jitter from theta
+        o.rv.update(p, rebound_sim)  # update rv observations with new rv offset and jitter, then calc computed and residuals.
         return o.rv.chi_squared, o.rv.log_norm_term
 
     @staticmethod

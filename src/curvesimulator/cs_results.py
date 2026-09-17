@@ -591,18 +591,18 @@ class CurveSimResults(dict):
                 )
 
     @staticmethod
-    def flux_observed_computed_plot_data(p, plot_filename, measured_flux):
+    def flux_observed_computed_plot_data(p, plot_filename, o):
         CurveSimResults.plot_this(
             title=f"Flux: observed vs. computed",
             x_label="Datapoints",
             y_label="Normalized Flux",
-            x_lists=    [[x for x in range(measured_flux.shape[0])],     [x for x in range(measured_flux.shape[0])]],
-            y_lists=    [measured_flux["flux_corr"],                          measured_flux["flux_sim"]],
-            data_labels=["observed",                                     "computed"],
-            linestyles= ["",                                             ""],
-            markersizes=[1,                                              1],
-            colors=     ["xkcd:nice blue",                                          "xkcd:black"],
-            # linewidths= [1,                                              0],
+            x_lists=    [[x for x in range(o.flux.observation_count)],     [x for x in range(o.flux.observation_count)]],
+            y_lists=    [o.flux.corrected,                                 o.flux.computed],
+            data_labels=["observed",                                       "computed"],
+            linestyles= ["",                                               ""],
+            markersizes=[1,                                                1],
+            colors=     ["xkcd:nice blue",                                 "xkcd:black"],
+            # linewidths= [1,                                                0],
             grid=False,
             legend=True,
             plot_file=p.results_directory + plot_filename,

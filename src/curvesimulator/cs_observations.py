@@ -150,15 +150,20 @@ class FluxObservations(ObservationTypes):
             jitter = 0
         self.total_error = np.sqrt(self.error ** 2 + jitter ** 2)
 
-    def update(self, p, rebound_sim):
+    def calc_computed(self, bodies, p):
+        _, self.computed, _ = bodies.calc_physics(p, self.time_s0)  # run simulation
+        return self.computed
+
+    def update(self, bodies, p):
         # update flux observations with new rv offset and jitter, then calc computed and residuals.
         if p.sector_params_file:
             self.calc_corrected(p.sector_params_file)    # observed - offset
             self.calc_total_error(p.sector_params_file)  # sqrt(error^2 + jitter^2)
-            self.calc_log_norm_term()                   # from total_error
-        hier weiter self.calc_computed(p, rebound_sim)          # from bodies
-        self.calc_residuals()                       # corrected - computed
-        self.calc_chi_squared()                     # from residuals and total_error
+            self.calc_log_norm_term()                    # from total_error
+        self.calc_computed(bodies, p)                    # from bodies
+        self.calc_residuals()                            # corrected - computed
+        self.calc_chi_squared()                          # from residuals and total_error
+
 
 class RVObservations(ObservationTypes):
     def __init__(self, p):
@@ -214,5 +219,6 @@ class TTObservations:
             self.measured_tt = df[(df["tt"] >= p.epoch) & (df["tt"] <= p.sim_end)].copy()
             self.observation_count = len(df["tt"])
         else:
+            self.measured_tt = None
             self.observation_count = 0
         p.tt_datasize = self.observation_count  # legacy, can soon be deleted
