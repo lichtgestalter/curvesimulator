@@ -163,51 +163,11 @@ class CurveSimResults(dict):
         results.update(data)
         return results
 
-    # @staticmethod
-    # def calc_flux_residuals(o):
-    #     measured_flux["residual"] = measured_flux["flux_corr"] - measured_flux["flux_sim"]
-    #     return measured_flux
-
-    # def calc_rv_chi_squared(self, o, free_parameters):
-    #     o.rv.chi_squared = o.rv.residuals / o.rv.total_error
-    #     o.rv.chi_squared = o.rv.chi_squared * o.rv.chi_squared
-    #     self["Fit"]["chi_squared_rv"] = o.rv.chi_squared.sum()
-    #     self["Fit"]["measurements_rv"] = o.rv.observation_count
-    #     if free_parameters is not None:
-    #         self["Fit"]["pvalue_rv"] = CurveSimResults.chi_squared_pvalue(self["Fit"]["chi_squared_rv"], self["Fit"]["measurements_rv"], free_parameters)
-
-    def calc_flux_chi_squared(self, measured_flux, free_parameters):
-        measured_flux["chi_squared"] = measured_flux["residual"] / measured_flux["flux_total_err"]
-        measured_flux["chi_squared"] = measured_flux["chi_squared"] * measured_flux["chi_squared"]
-        self["Fit"]["chi_squared_flux"] = measured_flux["chi_squared"].sum()
-        self["Fit"]["measurements_flux"] = measured_flux.shape[0]
-        if free_parameters is not None:
-            self["Fit"]["pvalue_flux"] = CurveSimResults.chi_squared_pvalue(self["Fit"]["chi_squared_flux"], self["Fit"]["measurements_flux"], free_parameters)
-        return measured_flux
-
-    # def calc_rv_log_maxlikelihood(self, o):
-    #     self["Fit"]["log_norm_term_rv"] = o.rv.log_norm_term
-    #     self["Fit"]["log_maxlikelihood_rv"] = -0.5 * (self["Fit"]["chi_squared_rv"] + self["Fit"]["log_norm_term_rv"])
-
-    def calc_flux_log_maxlikelihood(self, measured_flux):
-        self["Fit"]["log_norm_term_flux"] = np.log(2 * np.pi * measured_flux["flux_total_err"] ** 2).sum()  # logarithm of the summed Gaussian normalization term
-        self["Fit"]["log_maxlikelihood_flux"] = -0.5 * (self["Fit"]["chi_squared_flux"] + self["Fit"]["log_norm_term_flux"])
-
-    def calc_tt_chi_squared(self, measured_tt, free_parameters):
-        measured_tt["chi_squared"] = measured_tt["delta"] / measured_tt["tt_err"]
-        measured_tt["chi_squared"] = measured_tt["chi_squared"] * measured_tt["chi_squared"]
-        self["Fit"]["chi_squared_tt"] = measured_tt["chi_squared"].sum()
-        self["Fit"]["measurements_tt"] = measured_tt.shape[0]
-        if free_parameters is not None:
-            self["Fit"]["pvalue_tt"] = CurveSimResults.chi_squared_pvalue(self["Fit"]["chi_squared_tt"], self["Fit"]["measurements_tt"], free_parameters)
-        return measured_tt
-
     def calc_total_chi_squared(self, free_parameters):
         rv = 0 if self["Fit"]["chi_squared_rv"] is None else self["Fit"]["chi_squared_rv"]
         fl = 0 if self["Fit"]["chi_squared_flux"] is None else self["Fit"]["chi_squared_flux"]
         tt = 0 if self["Fit"]["chi_squared_tt"] is None else self["Fit"]["chi_squared_tt"]
         self["Fit"]["chi_squared_total"] = rv + fl + tt
-        # self["Fit"]["chi_squared_total"] = self["Fit"]["chi_squared_rv"] + self["Fit"]["chi_squared_flux"] + self["Fit"]["chi_squared_tt"]
         self["Fit"]["measurements_total"] = self["Fit"]["measurements_rv"] + self["Fit"]["measurements_flux"] + self["Fit"]["measurements_tt"]
         if free_parameters is not None:
             self["Fit"]["pvalue_total"] = CurveSimResults.chi_squared_pvalue(self["Fit"]["chi_squared_total"], self["Fit"]["measurements_total"], free_parameters)
@@ -235,54 +195,10 @@ class CurveSimResults(dict):
         return offset_map, jitter_map, sector_params
 
     @staticmethod
-    def save_sim_flux_with_observation_timeline(p, measured_flux):
-        df = pd.DataFrame({"time": measured_flux["time"], "flux": measured_flux["flux_sim"]})
+    def save_sim_flux_with_observation_timeline(p, o):
+        df = pd.DataFrame({"time": o.flux.time_d, "flux": o.flux.computed})
+        # df = pd.DataFrame({"time": o.flux.time_d, "flux": o.sim.simflux})
         df.to_csv(p.sim_flux_file, index=False)
-
-    @staticmethod
-    def get_measured_flux(p):
-        df = pd.read_csv(p.flux_file)
-        if p.sector_params_file:  # parameters offset and jitter for each observed sector exist
-            CurveSimObservations.check_required_columns({"time", "flux", "flux_err", "sector"}, df, p.flux_file)
-            offset_map, jitter_map, _ = CurveSimObservations.get_sector_params(p)
-            df, _ = CurveSimResults.flux_corr(df, offset_map)
-            df, _, p.log_norm_term_flux = CurveSimResults.flux_total_err(df, jitter_map)
-        else:
-            CurveSimObservations.check_required_columns({"time", "flux", "flux_err"}, df, p.flux_file)
-            df["flux_total_err"] = df["flux_err"]
-            df["flux_corr"] = df["flux"]
-        measured_flux = df[(df["time"] >= p.epoch) & (df["time"] <= p.sim_end)].copy()
-        measured_flux["flux_time_s0"] = (measured_flux["time"] - p.epoch) * p.day
-        flux_time_d = np.array(measured_flux["time"], dtype=float)
-        flux_time_s0 = np.array(measured_flux["flux_time_s0"], dtype=float)
-        flux_corr = np.array(measured_flux["flux_corr"])
-        flux_total_err = np.array(measured_flux["flux_total_err"], dtype=float)
-        p.iterations = len(flux_time_s0)
-        return flux_time_s0, flux_time_d, flux_corr, flux_total_err, measured_flux
-
-    @staticmethod
-    def flux_corr(measured_flux, offset_map):
-        """
-        Adds or updates column measured_flux["flux_corr"], where
-        flux_corr = flux - offset
-        with offset matched to measured_flux via the "sector" column. """
-        offset = measured_flux["sector"].map(offset_map)
-        # measured_flux["flux_corr"] = measured_flux["flux"] + offset
-        measured_flux["flux_corr"] = measured_flux["flux"] - offset
-        flux_corr = np.array(measured_flux["flux_corr"])
-        return measured_flux, flux_corr
-
-    @staticmethod
-    def flux_total_err(measured_flux, jitter_map):
-        """
-        Adds or updates column measured_flux["flux_total_err"], where
-        flux_total_err = sqrt(flux_err^2 + jitter^2)
-        with jitter matched to measured_flux via the "sector" column. """
-        jitter = measured_flux["sector"].map(jitter_map)
-        measured_flux["flux_total_err"] = np.sqrt(measured_flux["flux_err"] ** 2 + jitter ** 2)
-        log_norm_term_flux = np.sum(np.log(2 * np.pi * measured_flux["flux_total_err"] ** 2))  # logarithm of the summed Gaussian normalization term
-        flux_total_err = np.array(measured_flux["flux_total_err"], dtype=float)
-        return measured_flux, flux_total_err, log_norm_term_flux
 
     @staticmethod
     def get_measured_tt(p):
@@ -410,10 +326,9 @@ class CurveSimResults(dict):
         return parameter_list
 
     @staticmethod
-    def ttv_to_date_plot(p, amplitude, period, x_offset, osc_per):
-        measured_tt = CurveSimResults.get_measured_tt(p)  # reads from p.tt_file
-        tt_tess = np.array(measured_tt["tt"][:13], dtype=float)
-        transit_numbers = np.array(measured_tt["nr"][:13], dtype=float)
+    def ttv_to_date_plot_TOI4504_specific(p, o, amplitude, period, x_offset, osc_per):
+        tt_tess = np.array(o.tt.measured_tt["tt"][:13], dtype=float)
+        transit_numbers = np.array(o.tt.measured_tt["nr"][:13], dtype=float)
         ttv_to_date = [tt - tt_tess[0] - n * osc_per for n, tt in zip(transit_numbers, tt_tess)]
 
         x4sine = np.linspace(tt_tess[0], tt_tess[-1], 300)
@@ -437,7 +352,7 @@ class CurveSimResults(dict):
         )
 
     @staticmethod
-    def sim_rv_plot(p, o, plot_filename):
+    def sim_rv_plot(p, plot_filename, o):
         CurveSimResults.plot_this(
             title=f"Simulated Radial Velocity",
             x_label="Time [BJD]",
@@ -455,7 +370,7 @@ class CurveSimResults(dict):
         )
 
     @staticmethod
-    def rv_observed_computed_plot(p, o, plot_filename):
+    def rv_observed_computed_plot(p, plot_filename, o):
         min_t = np.min(o.rv.time_d)
         max_t = np.max(o.rv.time_d)
         min_time = min_t - 0.03 * (max_t - min_t)  # 3% padding to make sure that datapoints at the edges are visible
@@ -541,7 +456,6 @@ class CurveSimResults(dict):
 
     @staticmethod
     def flux_observed_computed_plots_time(p, plot_filename, o):
-        # measured_flux["gt"] = measured_flux["time"].diff().gt(0).astype(int)
         left = np.min(o.flux.time_d)
         right = np.max(o.flux.time_d)
         left -= (right - left) * 0.02
@@ -609,13 +523,13 @@ class CurveSimResults(dict):
         )
 
     @staticmethod
-    def flux_chi_squared_plot_data(p, plot_filename, measured_flux):
+    def flux_chi_squared_plot_data(p, plot_filename, o):
         CurveSimResults.plot_this(
             title=f"Flux: Chi Squared per data point",
             x_label="Datapoints",
             y_label="Chi Squared",
-            x_lists=    [[x for x in range(measured_flux.shape[0])]],
-            y_lists=    [measured_flux["chi_squared"]],
+            x_lists=    [[x for x in range(o.flux.observation_count)]],
+            y_lists=    [o.flux.chi_squared_vector],
             data_labels=["chi_squared"],
             linestyles= [""],
             markersizes=[1],
@@ -627,7 +541,7 @@ class CurveSimResults(dict):
         )
 
     @staticmethod
-    def rv_residuals_plot(p, o, plot_filename):
+    def rv_residuals_plot(p, plot_filename, o):
         title = f"Radial Velocity: Residuals (observed minus computed)"
         x_label = "Time [BJD]"
         y_label = "RV [m/s]"
@@ -668,26 +582,26 @@ class CurveSimResults(dict):
         plt.close()
 
     @staticmethod
-    def flux_residuals_all_plots_time(p, plot_filename, measured_flux, measured_tt):
-        CurveSimResults.flux_residuals_plot_time(p, plot_filename, measured_flux)
-        if measured_tt is not None:
+    def flux_residuals_all_plots_time(p, plot_filename, o):
+        CurveSimResults.flux_residuals_plot_time(p, plot_filename, o)
+        if o.tt.measured_tt is not None:
             subdirectory = "fluxresiduals_per_transit/"
             os.makedirs(p.results_directory + subdirectory)
-            for transit in measured_tt.itertuples(index=False):
+            for transit in o.tt.measured_tt.itertuples(index=False):
                 title = f"{transit.eclipser} Transit nr. {transit.nr}: flux residuals"
                 left = transit.tt - p.tt_padding
                 right = transit.tt + p.tt_padding
                 plot_file = f"{transit.eclipser}_{transit.nr}_{plot_filename}"
-                CurveSimResults.flux_residuals_plot_time(p, plot_file, measured_flux, left=left, right=right, title=title, subdirectory=subdirectory)
+                CurveSimResults.flux_residuals_plot_time(p, plot_file, o, left=left, right=right, title=title, subdirectory=subdirectory)
 
     @staticmethod
-    def flux_residuals_plot_time(p, plot_filename, measured_flux, left=None, right=None, title=None, subdirectory=""):
+    def flux_residuals_plot_time(p, plot_filename, o, left=None, right=None, title=None, subdirectory=""):
         if title is None:
             title = f"Flux Residuals (observed minus computed)"
         x_label = "Time [BJD]"
         y_label = "Normalized Flux"
-        x = [measured_flux["time"]]
-        y = [measured_flux["residual"]]
+        x = [o.flux.time_d]
+        y = [o.flux.residuals]
         data_labels = ["residual"]
         linestyles = [""]
         markers = ["o"]
@@ -713,19 +627,19 @@ class CurveSimResults(dict):
         plt.ticklabel_format(useOffset=False, style="plain", axis="x")   # show x-labels as they are
         plt.xlim(left=left, right=right)
         # plt.ylim(bottom=bottom, top=top)
-        plt.vlines(measured_flux["time"], measured_flux["residual"] - measured_flux["flux_total_err"], measured_flux["residual"] + measured_flux["flux_total_err"], colors="xkcd:black", linewidth=1)
+        plt.vlines(o.flux.time_d, o.flux.residuals - o.flux.total_error, o.flux.residuals + o.flux.total_error, colors="xkcd:black", linewidth=1)
         plt.plot(x[0], y[0], marker=markers[0], markersize=markersizes[0], linestyle=linestyles[0], label=data_labels[0], color=colors[0], linewidth=linewidths[0])
         plt.hlines(0, left, right, colors="xkcd:black", linewidth=1)
         plt.savefig(plot_file)
         plt.close()
 
     @staticmethod
-    def flux_residuals_plot_data(p, plot_filename, measured_flux):
+    def flux_residuals_plot_data(p, plot_filename, o):
         title = f"Flux Residuals (observed minus computed)"
         x_label = "Datapoints"
         y_label = "Normalized Flux"
-        x = [[x for x in range(measured_flux.shape[0])]]
-        y = [measured_flux["residual"]]
+        x = [[x for x in range(o.flux.observation_count)]]
+        y = [o.flux.residuals]
         data_labels = ["residual"]
         linestyles = [""]
         markers = ["o"]
@@ -741,14 +655,8 @@ class CurveSimResults(dict):
         # plt.legend()
         # plt.grid(True)
         plt.ticklabel_format(useOffset=False, style="plain", axis="x")   # show x-labels as they are
-
-        # for time, residual, jitter in zip(x, y, measured_flux["flux_total_err"]):
-        #     plt.vlines(time, residual - jitter, residual + jitter, colors="xkcd:black", linewidth=1)
-        # for time, residual, jitter in zip(x, y, measured_flux["flux_total_err"]):
-        #     plt.vlines(time, residual - jitter, residual + jitter, colors="xkcd:black", linewidth=1)
-        # plt.vlines(measured_flux["time"], measured_flux["residual"] - measured_flux["flux_total_err"], measured_flux["residual"] + measured_flux["flux_total_err"], colors="xkcd:black", linewidth=1)
-        plt.vlines(range(len(measured_flux["time"])), measured_flux["residual"] - measured_flux["flux_total_err"], measured_flux["residual"] + measured_flux["flux_total_err"], colors="xkcd:black", linewidth=1)
-
+        plt.vlines(x[0], o.flux.residuals - o.flux.total_error, o.flux.residuals + o.flux.total_error, colors="xkcd:black", linewidth=1)
+        # plt.vlines(o.flux.time_d, o.flux.residuals - o.flux.total_error, o.flux.residuals + o.flux.total_error, colors="xkcd:black", linewidth=1)
         plt.plot(x[0], y[0], marker=markers[0], markersize=markersizes[0], linestyle=linestyles[0], label=data_labels[0], color=colors[0], linewidth=linewidths[0])
         plt.hlines(0, x[0][0], x[0][-1], colors="xkcd:black", linewidth=1)
         plt.savefig(plot_file)

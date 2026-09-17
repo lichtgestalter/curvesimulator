@@ -55,7 +55,7 @@ class CurveSimParameters:
         # [Results]
         self.results_directory = config.get("Results", "results_directory", fallback=".")
         self.results_directory = self.find_results_subdirectory()
-        self.result_file = "standard_results.json"
+        self.result_file = "results_single_run.json"
         self.result_file = CurveSimParameters.check_filename_and_add_path(self.result_file, "result_file", self.results_directory)
 
         # [Simulation]

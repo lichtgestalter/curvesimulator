@@ -215,18 +215,6 @@ class FittingGUI:
         for parameter, fp in zip(self.parameters, p.fitting_parameters):
             fp.startvalue = parameter["value"] / fp.scale
 
-    # def update_plot(self, measured_tt):
-    #     abs_min = abs(min(measured_tt["delta"].min(), 0))
-    #     abs_max = abs(max(measured_tt["delta"].max(), 0))
-    #     ylim = (-max(abs_min, abs_max), max(abs_min, abs_max))
-    #
-    #     for ax, eclipser in zip(self.axes, self.unique_eclipsers):
-    #         df = measured_tt[measured_tt["eclipser"] == eclipser]
-    #         ax.plot(df["tt"], df["delta"], marker="o", linestyle="-", color="blue", alpha=0.7)
-    #         ax.set_ylim(ylim)
-    #
-    #     self.canvas.draw_idle()  # Redraw the canvas
-
     def update_plot(self, measured_tt):
         colors = ["blue", "black", "gray", "lightgrey"]
         if not hasattr(self, "plot_lines"):
@@ -249,38 +237,6 @@ class FittingGUI:
 
         self.canvas.draw_idle()
 
-    # def update_plot(self):
-    #     """Update the Matplotlib plot with the new coordinates (Parameter1.value, Parameter2.value)."""
-    #     x_val = self.parameters[0]["value"]  # Parameter 1 value
-    #     y_val = self.parameters[1]["value"]  # Parameter 2 value
-    #
-    #     self.scatter.set_data([x_val], [y_val])  # Update scatter plot data
-    #
-    #     # Adjust plot limits dynamically (10% padding based on current values)
-    #     # Consider a base range to prevent initial plot from being too small
-    #     base_range = 10
-    #     all_values = [a["value"] for a in self.parameters]
-    #
-    #     # Calculate overall min/max value across all self.number_of_params parameters
-    #     min_v = min(all_values)
-    #     max_v = max(all_values)
-    #
-    #     # Determine plot limits based on the overall range plus padding
-    #     padding = (max_v - min_v) * 0.1
-    #     if padding < base_range:
-    #         padding = base_range
-    #
-    #     x_min = min_v - padding
-    #     x_max = max_v + padding
-    #     y_min = min_v - padding
-    #     y_max = max_v + padding
-    #
-    #     self.ax.set_xlim(x_min, x_max)
-    #     self.ax.set_ylim(y_min, y_max)
-    #
-    #     # Redraw the canvas
-    #     self.canvas.draw_idle()
-    #
 class CurveSimManualFit:
     def __init__(self, p, bodies, o):
         root = tk.Tk()

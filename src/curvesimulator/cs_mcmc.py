@@ -127,11 +127,7 @@ class CurveSimMCMC:
         self.param_priors = [(fp.prior_mu, fp.prior_sigma) for fp in self.fitting_parameters]
         self.ndim = len(self.param_references)
         self.theta0 = self.random_initial_values()
-        # hier schon init_rebound???
-        # dafuer init_rebound in calc_positions_eclipses_luminosity nur callen, wenn es noch nicht vorher geschah?
-        # Nein, ich versuche es erstmal mit init_rebound in log_likelihood
         self.args = (self.fitting_parameters, self.param_references, bodies, o, p)
-        # self.args = (self.param_bounds, self.param_references, bodies, flux_time_s0, flux_time_d, flux_corr, flux_total_err, measured_flux, measured_tt, p)
         self.moves = eval(self.moves)
         self.acceptance_fractions = []
         self.integrated_autocorrelation_time = []
@@ -201,10 +197,10 @@ class CurveSimMCMC:
             CurveSimAnimation(p, bodies, o)  # Create a video
         if p.tt_file:
             # measured_tt = CurveSimResults.get_measured_tt(p)
-            residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(p, rebound_sim, o)
-            measured_tt = results.calc_tt_chi_squared(measured_tt, p.free_parameters)  # store chi squared and p-value in results
+            residuals_tt_sum_squared, o.tt.measured_tt = CurveSimMCMC.match_transit_times(p, rebound_sim, o)
+            o.tt.calc_tt_chi_squared(results, p.free_parameters)  # store chi squared and p-value in results
             if p.action != "mcmc":
-                CurveSimMCMC.tt_delta_plot(p, 0, "tt_o_vs_c.png", measured_tt)  # compare observed vs. computed TT
+                CurveSimMCMC.tt_delta_plot(p, 0, "tt_o_vs_c.png", o.tt.measured_tt)  # compare observed vs. computed TT
         else:
             measured_tt = None
         if p.rv_file:
@@ -214,9 +210,9 @@ class CurveSimMCMC:
             results["Fit"]["pvalue_rv"] = o.rv.calc_p_value(p.free_parameters)
             results["Fit"]["log_norm_term_rv"] = o.rv.log_norm_term
             results["Fit"]["log_maxlikelihood_rv"] = o.rv.calc_log_maxlikelihood()
-            CurveSimResults.sim_rv_plot(p, o, "rv_computed")  # plot computed RV
-            CurveSimResults.rv_observed_computed_plot(p, o, "rv_o_vs_c")  # plot computed and observed RV
-            CurveSimResults.rv_residuals_plot(p, o, "rv_residuals")  # plot RV residuals
+            CurveSimResults.sim_rv_plot(p, "rv_computed", o)  # plot computed RV
+            CurveSimResults.rv_observed_computed_plot(p, "rv_o_vs_c", o)  # plot computed and observed RV
+            CurveSimResults.rv_residuals_plot(p, "rv_residuals", o)  # plot RV residuals
         if p.flux_file:
             o.flux.update(bodies, p)
             if p.sim_flux_file:
@@ -339,25 +335,6 @@ class CurveSimMCMC:
             CurveSimMCMC.update_sector_params_from_theta(i, o, theta)
         o.flux.update(bodies, p)  # update flux observations with new offset and jitter, then calc computed and residuals.
         return o.flux.chi_squared, o.flux.log_norm_term
-
-    @staticmethod
-    def residuals_flux_sum_squared_bak(theta, param_references, bodies, o, measured_flux, p):
-        i = CurveSimMCMC.update_bodies_from_theta(bodies, p, param_references, theta)
-
-        # update measured_flux with new sector offsets and jitters from theta
-        log_norm_term_flux = p.log_norm_term_flux
-        if p.sector_params_fit:
-            for sector in o.flux.offset_map.index:
-                o.flux.offset_map.loc[sector] = theta[i]
-                o.flux.jitter_map.loc[sector] = theta[i + 1]
-                i += 2
-            measured_flux, o.flux.corrected = CurveSimResults.flux_corr(measured_flux, o.flux.offset_map)  # updates measured_flux with new sector offsets from theta
-            measured_flux, o.flux.total_error, log_norm_term_flux = CurveSimResults.flux_total_err(measured_flux, o.flux.jitter_map)  # updates measured_flux with new sector jitter from theta
-
-        sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, o.flux.time_s0)  # run simulation
-        residuals_flux = (o.flux.corrected - sim_flux) / o.flux.total_error  # residuals are weighted with uncertainty
-        residuals_flux_sum_squared = np.sum(residuals_flux ** 2)
-        return residuals_flux_sum_squared, log_norm_term_flux
 
     @staticmethod
     def residuals_rv_sum_squared(theta, param_references, bodies, o, p):
@@ -912,7 +889,7 @@ class CurveSimMCMC:
     def mcmc_results2json(self, results, p):
         """Converts results to JSON and saves it."""
         CurveSimResults.remove_null_values(results)
-        filename = self.results_directory + "mcmc_results.json"
+        filename = self.results_directory + "results_mcmc.json"
         try:
             with open(filename, "w", encoding="utf8") as file:
                 json.dump(results, file, indent=4, ensure_ascii=False)
@@ -940,10 +917,10 @@ class CurveSimMCMC:
 
         if p.tt_file:
             max_likelihood_bodies = self.get_max_likelihood_bodies(bodies)
-            measured_tt = self.max_likelihood_tt(max_likelihood_bodies, p, o)
-            measured_tt = CurveSimMCMC.add_new_best_delta(measured_tt, steps_done)
-            CurveSimMCMC.tt_delta_plot(p, steps_done, "tt_delta.png", measured_tt)
-            self.tt_multi_delta_plot(steps_done, "tt_multi_delta.png", measured_tt)
+            o.tt.measured_tt = self.max_likelihood_tt(max_likelihood_bodies, p, o)
+            o.tt.measured_tt = CurveSimMCMC.add_new_best_delta(o.tt.measured_tt, steps_done)
+            CurveSimMCMC.tt_delta_plot(p, steps_done, "tt_delta.png", o.tt.measured_tt)
+            self.tt_multi_delta_plot(steps_done, "tt_multi_delta.png", o.tt.measured_tt)
         # self.calc_maxlikelihood_avg_residual_in_std(p)
         self.high_density_intervals()
 
@@ -957,8 +934,7 @@ class CurveSimMCMC:
 
         bodies = CurveSimMCMC.bodies_from_fitting_params(bodies, self.fitting_parameters[:p.fitting_body_parameters], param_type="max_likelihood")
         bodies.save(directory=p.results_directory, prefix="", suffix="_maxL")
-        # CurveSimParameters.save_fitting_parameters(self.fitting_parameters, directory=p.results_directory, prefix="", suffix="_maxL")
-        CurveSimMCMC.single_run(p, bodies, o)  # creates o vs. c, chi^2 and residuals plots. measured_flux enthaelt bereits die aktualisierten flux_corr und flux_total_err
+        CurveSimMCMC.single_run(p, bodies, o)  # creates o vs. c, chi^2 and residuals plots.
 
         self.integrated_autocorrelation_time.append(list(self.sampler.get_autocorr_time(tol=0)))
         self.integrated_autocorrelation_time_plot(steps_done, "int_autocorr_time.png", "steps_per_i_ac_time.png")
@@ -968,7 +944,7 @@ class CurveSimMCMC:
         for bins in self.bins:
             self.mcmc_histograms(steps_done, bins, f"histograms_{bins}.png")
 
-        self.save_mcmc_results(p, bodies, steps_done, measured_tt)
+        self.save_mcmc_results(p, bodies, steps_done, o.tt.measured_tt)
         if chunk % 5 == 0:
             self.trace_plots(steps_done, "traces.png")
         if chunk % 10 == 0:
@@ -1152,7 +1128,6 @@ class CurveSimLMfit:
         results["Fitting Parameters"] = {fp.body_parameter_name: fp.__dict__ for fp in fitting_parameters}
 
         results["measured_tt_list"] = measured_tt.to_dict(orient="list")  # Convert measured_tt DataFrame to a serializable format
-        # results["measured_tt_records"] = measured_tt.to_dict(orient="records")  # Convert measured_tt DataFrame to a serializable format
 
         p_copy = copy.deepcopy(p)
         del p_copy.fitting_parameters

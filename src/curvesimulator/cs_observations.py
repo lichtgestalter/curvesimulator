@@ -86,8 +86,8 @@ class ObservationTypes:
 
     def calc_chi_squared(self):
         x = self.residuals / self.total_error
-        x = x * x
-        self.chi_squared = x.sum()
+        self.chi_squared_vector = x * x
+        self.chi_squared = self.chi_squared_vector.sum()
         return self.chi_squared
 
     def calc_p_value(self, free_parameters):
@@ -111,7 +111,7 @@ class ObservationTypes:
 
 
 class FluxObservations(ObservationTypes):
-    def __init__(self, p):  # replaces get_measured_flux
+    def __init__(self, p):
         super().__init__()
         self.offset_map, self.jitter_map = (None,) * 2
 
@@ -212,7 +212,7 @@ class RVObservations(ObservationTypes):
 
 
 class TTObservations:
-    def __init__(self, p):  # replaces get_measured_tt
+    def __init__(self, p):
         if p.tt_file:
             df = pd.read_csv(p.tt_file)
             CurveSimObservations.check_required_columns({"eclipser", "tt", "tt_err", "nr"}, df, p.tt_file)
@@ -222,3 +222,12 @@ class TTObservations:
             self.measured_tt = None
             self.observation_count = 0
         p.tt_datasize = self.observation_count  # legacy, can soon be deleted
+
+    def calc_tt_chi_squared(self, results, free_parameters):
+        self.measured_tt["chi_squared"] = self.measured_tt["delta"] / self.measured_tt["tt_err"]
+        self.measured_tt["chi_squared"] = self.measured_tt["chi_squared"] * self.measured_tt["chi_squared"]
+        results["Fit"]["chi_squared_tt"] = self.measured_tt["chi_squared"].sum()
+        results["Fit"]["measurements_tt"] = self.measured_tt.shape[0]
+        if free_parameters is not None:
+            results["Fit"]["pvalue_tt"] = results.chi_squared_pvalue(results["Fit"]["chi_squared_tt"], results["Fit"]["measurements_tt"], free_parameters)
+

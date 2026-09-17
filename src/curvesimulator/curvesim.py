@@ -10,7 +10,7 @@ from .cs_bodies import CurveSimBodies
 from .cs_parameters import CurveSimParameters
 from .cs_mcmc import CurveSimMCMC, CurveSimLMfit
 from .cs_manual_fit import CurveSimManualFit
-# from .cs_results import CurveSimResults
+from .cs_results import CurveSimResults
 from .cs_observations import CurveSimObservations
 
 
@@ -83,7 +83,6 @@ class CurveSimulator:
         o = CurveSimObservations(p)
         if not p.rebound_warnings:
             warnings.filterwarnings("ignore", module="rebound")
-        # measured_flux, measured_tt = None, None
         self.parameters, self.bodies, self.observations = p, bodies, o  # grants access from the executed script by making it an attribute of the CurveSimulator object
         if p.verbose:
             print(p)
@@ -91,13 +90,6 @@ class CurveSimulator:
         if p.action in ["lmfit", "guifit", "mcmc"]:
             if _is_multiprocessing_child_import():
                 return
-            # bodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
-            # flux_corr, flux_total_err, flux_time_s0, flux_time_d, tt_s0, tt_d = (None,) * 6
-            # if p.flux_file:
-            #     flux_time_s0, flux_time_d, flux_corr, flux_total_err, measured_flux = CurveSimResults.get_measured_flux(p)
-            # if p.tt_file:
-                # flux_time_s0, flux_time_d = o.sim.time_s0, o.sim.time_d  # s0 in seconds, starting at 0. d in BJD.
-                # measured_tt = CurveSimResults.get_measured_tt(p)
             for body in bodies:  # HACK because length of body.positions is initialized with the correct value for simulation, NOT measurements
                 body.positions = np.ndarray((o.observation_count, 3), dtype=float)
             p.init_fitting_parameter_dic()
@@ -132,20 +124,15 @@ class CurveSimulator:
             self.bodies, self.observations, self.results = CurveSimMCMC.single_run(p, bodies=bodies, o=o)
 
         elif p.action == "results_only":
-            # flux_time_s0, flux_time_d = CurveSimParameters.init_time_arrays(p)  # s0 in seconds, starting at 0. d in BJD.
-            # bodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
-
-            # p.eclipsers = ["TOI4504c"]
-            # p.eclipsees = ["TOI4504"]
-
-            # results = CurveSimResults.load_results(p.result_file)
-            # tt_sim = results.get_transit_data("TOI4504c", "TOI4504", "TT")
-            # print(tt_sim)
-
-            # CurveSimResults.ttv_to_date_plot(p, amplitude=2.1, period=965, x_offset=-340, osc_per=82.97213)
-            # CurveSimResults.ttv_to_date_plot(p, amplitude=2.1, period=965, x_offset=-450, osc_per=82.83)
-            # CurveSimResults.ttv_to_date_plot(p, amplitude=2.08, period=965, x_offset=-449, osc_per=82.834)
-            # CurveSimResults.ttv_to_date_plot(p, amplitude=2.0, period=946.5, x_offset=-393, osc_per=82.5438)
+            p.eclipsers = ["TOI4504c"]
+            p.eclipsees = ["TOI4504"]
+            results = CurveSimResults.load_results(p.result_file)
+            tt_sim = results.get_transit_data("TOI4504c", "TOI4504", "TT")
+            print(tt_sim)
+            CurveSimResults.ttv_to_date_plot_TOI4504_specific(p, o, amplitude=2.1, period=965, x_offset=-340, osc_per=82.97213)
+            CurveSimResults.ttv_to_date_plot_TOI4504_specific(p, o, amplitude=2.1, period=965, x_offset=-450, osc_per=82.83)
+            CurveSimResults.ttv_to_date_plot_TOI4504_specific(p, o, amplitude=2.08, period=965, x_offset=-449, osc_per=82.834)
+            CurveSimResults.ttv_to_date_plot_TOI4504_specific(p, o, amplitude=2.0, period=946.5, x_offset=-393, osc_per=82.5438)
             sys.exit(0)
         # elif p.action == "get_tess_data":
         #     CurveSimFluxData.get_tess_flux(p)
