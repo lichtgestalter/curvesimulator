@@ -1,4 +1,3 @@
-# from colorama import Fore, Style
 import copy
 import json
 import math
@@ -8,9 +7,6 @@ import pandas as pd
 import os
 import re
 import scipy.stats as stats
-# import sys
-
-from .cs_observations import CurveSimObservations
 
 class Transit(dict):
     def __init__(self, eclipsed_body):
@@ -128,7 +124,6 @@ class CurveSimResults(dict):
             "fitting_parameters", "standard_sections", "eclipsers", "eclipsees",
             "fitting_parameter_dic",
             "offset_map", "jitter_map", "rv_body",
-            # "log_norm_term_flux", "log_norm_term_rv",
         ]
         for name in to_remove:
             if hasattr(p_copy, name):
@@ -163,14 +158,14 @@ class CurveSimResults(dict):
         results.update(data)
         return results
 
-    def calc_total_chi_squared(self, free_parameters):
-        rv = 0 if self["Fit"]["chi_squared_rv"] is None else self["Fit"]["chi_squared_rv"]
-        fl = 0 if self["Fit"]["chi_squared_flux"] is None else self["Fit"]["chi_squared_flux"]
-        tt = 0 if self["Fit"]["chi_squared_tt"] is None else self["Fit"]["chi_squared_tt"]
-        self["Fit"]["chi_squared_total"] = rv + fl + tt
-        self["Fit"]["measurements_total"] = self["Fit"]["measurements_rv"] + self["Fit"]["measurements_flux"] + self["Fit"]["measurements_tt"]
-        if free_parameters is not None:
-            self["Fit"]["pvalue_total"] = CurveSimResults.chi_squared_pvalue(self["Fit"]["chi_squared_total"], self["Fit"]["measurements_total"], free_parameters)
+    # def calc_total_chi_squared(self, free_parameters):
+    #     rv = 0 if self["Fit"]["chi_squared_rv"] is None else self["Fit"]["chi_squared_rv"]
+    #     fl = 0 if self["Fit"]["chi_squared_flux"] is None else self["Fit"]["chi_squared_flux"]
+    #     tt = 0 if self["Fit"]["chi_squared_tt"] is None else self["Fit"]["chi_squared_tt"]
+    #     self["Fit"]["chi_squared_total"] = rv + fl + tt
+    #     self["Fit"]["measurements_total"] = self["Fit"]["measurements_rv"] + self["Fit"]["measurements_flux"] + self["Fit"]["measurements_tt"]
+    #     if free_parameters is not None:
+    #         self["Fit"]["pvalue_total"] = CurveSimResults.chi_squared_pvalue(self["Fit"]["chi_squared_total"], self["Fit"]["measurements_total"], free_parameters)
 
     @staticmethod
     def chi_squared_pvalue(chi_squared, n_measurements, n_parameters):
@@ -185,28 +180,28 @@ class CurveSimResults(dict):
         p_value = stats.chi2.sf(chi_squared, degrees_of_freedom)  # survival function = 1 - cumulative distribution function
         return p_value
 
-    @staticmethod
-    def get_sector_params(p):
-        sector_params = pd.read_csv(p.sector_params_file)
-        CurveSimObservations.check_required_columns({"sector", "offset", "offset_low", "offset_up", "offset_spread", "jitter", "jitter_low", "jitter_high", "jitter_spread"}, sector_params, p.sector_params_file)
-        offset_map = sector_params.set_index("sector")["offset"]
-        jitter_map = sector_params.set_index("sector")["jitter"]
-        # How to change the offset_value for sector s: offset_map.loc[s] = 4.2
-        return offset_map, jitter_map, sector_params
+    # @staticmethod
+    # def get_sector_params(p):
+    #     sector_params = pd.read_csv(p.sector_params_file)
+    #     CurveSimObservations.check_required_columns({"sector", "offset", "offset_low", "offset_up", "offset_spread", "jitter", "jitter_low", "jitter_high", "jitter_spread"}, sector_params, p.sector_params_file)
+    #     offset_map = sector_params.set_index("sector")["offset"]
+    #     jitter_map = sector_params.set_index("sector")["jitter"]
+    #     # How to change the offset_value for sector s: offset_map.loc[s] = 4.2
+    #     return offset_map, jitter_map, sector_params
 
     @staticmethod
     def save_sim_flux_with_observation_timeline(p, o):
         df = pd.DataFrame({"time": o.flux.time_d, "flux": o.flux.computed})
         # df = pd.DataFrame({"time": o.flux.time_d, "flux": o.sim.simflux})
-        df.to_csv(p.sim_flux_file, index=False)
+        df.to_csv(p.computed_flux_file, index=False)
 
-    @staticmethod
-    def get_measured_tt(p):
-        df = pd.read_csv(p.tt_file)
-        CurveSimObservations.check_required_columns({"eclipser", "tt", "tt_err", "nr"}, df, p.tt_file)
-        df = df[(df["tt"] >= p.epoch) & (df["tt"] <= p.sim_end)].copy()
-        p.tt_datasize = len(df["tt"])
-        return df
+    # @staticmethod
+    # def get_measured_tt(p):
+    #     df = pd.read_csv(p.tt_file)
+    #     CurveSimObservations.check_required_columns({"eclipser", "tt", "tt_err", "nr"}, df, p.tt_file)
+    #     df = df[(df["tt"] >= p.epoch) & (df["tt"] <= p.sim_end)].copy()
+    #     p.tt_datasize = len(df["tt"])
+    #     return df
 
     @staticmethod
     def _to_list(val, default):
@@ -223,6 +218,64 @@ class CurveSimResults(dict):
         if len(lst) == n:
             return lst
         raise ValueError(f"{name} must have length 1 or {n}")
+
+    @staticmethod
+    def bin_time_window(time, value, half_window_size):
+        """
+        Vectorized binning: for each time[i], compute mean of values within
+        [time[i] - half_window_size, time[i] + half_window_size].
+
+        Returns a numpy array of length len(time) with NaN where no points fall in window.
+
+        Ensure `half_window_size` is in the same units as `time` (e.g. days).
+        """
+        time_arr = np.asarray(time)
+        val_arr = np.asarray(value, dtype=float)
+
+        if time_arr.size == 0:
+            return np.array([], dtype=float)
+
+        # sort by time for fast search
+        order = np.argsort(time_arr)
+        sorted_time = time_arr[order]
+        sorted_val = val_arr[order]
+
+        # mask NaNs in values: contribute 0 to sum and 0 to count
+        valid_mask = ~np.isnan(sorted_val)
+        vals_for_sum = np.where(valid_mask, sorted_val, 0.0)
+
+        # cumulative sums for sums and counts (prepend zero for easy range subtraction)
+        cumsum_vals = np.concatenate(([0.0], np.cumsum(vals_for_sum)))
+        cumsum_counts = np.concatenate(([0], np.cumsum(valid_mask.astype(int))))
+
+        # compute left/right indices for each original time (use original times so result keeps input order)
+        left = np.searchsorted(sorted_time, time_arr - half_window_size, side="left")
+        right = np.searchsorted(sorted_time, time_arr + half_window_size, side="right")
+
+        # window sums and counts
+        window_sums = cumsum_vals[right] - cumsum_vals[left]
+        window_counts = cumsum_counts[right] - cumsum_counts[left]
+
+        # compute means, set NaN where count == 0
+        means = np.full(len(time_arr), np.nan, dtype=float)
+        nonzero = window_counts > 0
+        means[nonzero] = window_sums[nonzero] / window_counts[nonzero]
+
+        return means
+
+    @staticmethod
+    def rv_plots(p, o):
+        CurveSimResults.sim_rv_plot(p, "rv_computed", o)  # plot computed RV
+        CurveSimResults.rv_observed_computed_plot(p, "rv_o_vs_c", o)  # plot computed and observed RV
+        CurveSimResults.rv_residuals_plot(p, "rv_residuals", o)  # plot RV residuals
+
+    @staticmethod
+    def flux_plots(p, o):
+        CurveSimResults.flux_observed_computed_plots_time(p, "flux_o_vs_c_x=time", o)  # plot computed and observed flux
+        CurveSimResults.flux_observed_computed_plot_data(p, "flux_o_vs_c_x=data", o)  # plot computed and observed flux
+        CurveSimResults.flux_chi_squared_plot_data(p, "flux_chi2_x=data", o)  # plot flux chi squared per datapoint
+        CurveSimResults.flux_residuals_all_plots_time(p, "flux_residuals_x=time", o)  # plot Flux residuals
+        CurveSimResults.flux_residuals_plot_data(p, "flux_residuals_x=data", o)  # plot Flux residuals
 
     @staticmethod
     def plot_this(
@@ -285,10 +338,6 @@ class CurveSimResults(dict):
         for x, data, data_label, marker, msize, ls, col, lw in zip(
                 x_iter, y_lists, data_labels, markers_per_curve, markersizes_per_curve, linestyles_per_curve, colors_per_curve, linewidths_per_curve):
             plt.plot(x, data, marker=marker, markersize=msize, linestyle=ls, label=data_label, color=col, linewidth=lw)
-        # for x, data, data_label in zip(x_iter, y_lists, data_labels):
-        #     plt.plot(x, data, marker=marker, markersize=markersize, linestyle=linestyle, label=data_label)
-        # for data, data_label in zip(y_lists, data_labels):
-        #     plt.plot(x, data, marker=marker, markersize=markersize, linestyle=linestyle, label=data_label)
 
         if legend:
             plt.legend()
@@ -392,67 +441,6 @@ class CurveSimResults(dict):
             right=max_time,
             plot_file=p.results_directory + plot_filename,
         )
-
-    # @staticmethod
-    # def bin_time_window1(time, value, half_window_size):
-    #     """ time, value: pandas DataSeries or numpy array
-    #         half_window_size: float
-    #         returns array with binned values
-    #         Bins for each data point with time=t all values with time between
-    #         t - half_window_size and t + half_window_size"""
-    #     time = time.to_numpy()
-    #     value = value.to_numpy()
-    #     mean = np.empty(len(time), dtype=float)
-    #     for i, t in enumerate(time):
-    #         left = bisect.bisect_right(time, t - half_window_size)
-    #         right = bisect.bisect_left(time, t + half_window_size)
-    #         values_to_bin = value[left:right]
-    #         mean[i] = values_to_bin.mean() if values_to_bin.size > 0 else np.nan
-    #     return mean
-
-    @staticmethod
-    def bin_time_window(time, value, half_window_size):
-        """
-        Vectorized binning: for each time[i], compute mean of values within
-        [time[i] - half_window_size, time[i] + half_window_size].
-
-        Returns a numpy array of length len(time) with NaN where no points fall in window.
-
-        Ensure `half_window_size` is in the same units as `time` (e.g. days).
-        """
-        time_arr = np.asarray(time)
-        val_arr = np.asarray(value, dtype=float)
-
-        if time_arr.size == 0:
-            return np.array([], dtype=float)
-
-        # sort by time for fast search
-        order = np.argsort(time_arr)
-        sorted_time = time_arr[order]
-        sorted_val = val_arr[order]
-
-        # mask NaNs in values: contribute 0 to sum and 0 to count
-        valid_mask = ~np.isnan(sorted_val)
-        vals_for_sum = np.where(valid_mask, sorted_val, 0.0)
-
-        # cumulative sums for sums and counts (prepend zero for easy range subtraction)
-        cumsum_vals = np.concatenate(([0.0], np.cumsum(vals_for_sum)))
-        cumsum_counts = np.concatenate(([0], np.cumsum(valid_mask.astype(int))))
-
-        # compute left/right indices for each original time (use original times so result keeps input order)
-        left = np.searchsorted(sorted_time, time_arr - half_window_size, side="left")
-        right = np.searchsorted(sorted_time, time_arr + half_window_size, side="right")
-
-        # window sums and counts
-        window_sums = cumsum_vals[right] - cumsum_vals[left]
-        window_counts = cumsum_counts[right] - cumsum_counts[left]
-
-        # compute means, set NaN where count == 0
-        means = np.full(len(time_arr), np.nan, dtype=float)
-        nonzero = window_counts > 0
-        means[nonzero] = window_sums[nonzero] / window_counts[nonzero]
-
-        return means
 
     @staticmethod
     def flux_observed_computed_plots_time(p, plot_filename, o):

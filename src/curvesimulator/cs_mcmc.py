@@ -181,55 +181,28 @@ class CurveSimMCMC:
         return f"CurveSimMCMC with {self.walkers} walkers."
 
     @staticmethod
-    def single_run(p, bodies=None, o=None):
-        if p.action == "single_run":
-            flux_time_s0, flux_time_d = o.sim.time_s0, o.sim.time_d  # s0 in seconds, starting at 0. d in BJD.
-        else:
-            flux_time_s0, flux_time_d = o.flux.time_s0, o.flux.time_d  # s0 in seconds, starting at 0. d in BJD.
+    def single_run(p, bodies, o):
         o.sim.simrv, o.sim.simflux, rebound_sim = bodies.calc_physics(p, o.sim.time_s0)  # Calculate all body positions and the resulting flux and rv
-        if p.sim_flux_file and not p.flux_file:  # save simulated flux (regular spaced with p.dt, because no flux observations were made available)
+        if p.sim_flux_file:  # save simulated flux, regular spaced with p.dt
             o.sim.save_sim_flux(p)
         results = bodies.find_transits(rebound_sim, p, o)
-        results["Fit"]["chi_squared_tt"], results["Fit"]["chi_squared_rv"], results["Fit"]["chi_squared_flux"], results["Fit"]["chi_squared_total"] = None, None, None, None
-        results["Fit"]["measurements_tt"], results["Fit"]["measurements_rv"], results["Fit"]["measurements_flux"], results["Fit"]["measurements_total"] = 0, 0, 0, 0
-        results["Fit"]["pvalue_tt"], results["Fit"]["pvalue_rv"], results["Fit"]["pvalue_flux"], results["Fit"]["pvalue_total"] = None, None, None, None
         if p.video_file and p.action == "single_run":
             CurveSimAnimation(p, bodies, o)  # Create a video
         if p.tt_file:
-            # measured_tt = CurveSimResults.get_measured_tt(p)
-            residuals_tt_sum_squared, o.tt.measured_tt = CurveSimMCMC.match_transit_times(p, rebound_sim, o)
-            o.tt.calc_tt_chi_squared(results, p.free_parameters)  # store chi squared and p-value in results
+            _, o.tt.measured_tt = CurveSimMCMC.match_transit_times(p, rebound_sim, o)
+            o.tt.update(results, p)  # store chi squared and p-value and more in results and in o.tt as attributes
             if p.action != "mcmc":
                 CurveSimMCMC.tt_delta_plot(p, 0, "tt_o_vs_c.png", o.tt.measured_tt)  # compare observed vs. computed TT
-        else:
-            measured_tt = None
         if p.rv_file:
             o.rv.update(p, rebound_sim)  # update with new rv offset and jitter from theta
-            results["Fit"]["chi_squared_rv"] = o.rv.calc_chi_squared()
-            results["Fit"]["measurements_rv"] = o.rv.observation_count
-            results["Fit"]["pvalue_rv"] = o.rv.calc_p_value(p.free_parameters)
-            results["Fit"]["log_norm_term_rv"] = o.rv.log_norm_term
-            results["Fit"]["log_maxlikelihood_rv"] = o.rv.calc_log_maxlikelihood()
-            CurveSimResults.sim_rv_plot(p, "rv_computed", o)  # plot computed RV
-            CurveSimResults.rv_observed_computed_plot(p, "rv_o_vs_c", o)  # plot computed and observed RV
-            CurveSimResults.rv_residuals_plot(p, "rv_residuals", o)  # plot RV residuals
+            results.rv_plots(p, o)
         if p.flux_file:
             o.flux.update(bodies, p)
-            if p.sim_flux_file:
+            if p.computed_flux_file:
                 CurveSimResults.save_sim_flux_with_observation_timeline(p, o)  # save simulated flux (for same time values as flux observations)
-            results["Fit"]["chi_squared_flux"] = o.flux.calc_chi_squared()
-            results["Fit"]["measurements_flux"] = o.flux.observation_count
-            results["Fit"]["pvalue_flux"] = o.flux.calc_p_value(p.free_parameters)
-            results["Fit"]["log_norm_term_flux"] = o.flux.log_norm_term
-            results["Fit"]["log_maxlikelihood_flux"] = o.flux.calc_log_maxlikelihood()
-            CurveSimResults.flux_observed_computed_plots_time(p, "flux_o_vs_c_x=time", o)  # plot computed and observed flux
-            CurveSimResults.flux_observed_computed_plot_data(p, "flux_o_vs_c_x=data", o)  # plot computed and observed flux
-            CurveSimResults.flux_chi_squared_plot_data(p, "flux_chi2_x=data", o)  # plot flux chi squared per datapoint
-            CurveSimResults.flux_residuals_all_plots_time(p, "flux_residuals_x=time", o)  # plot Flux residuals
-            CurveSimResults.flux_residuals_plot_data(p, "flux_residuals_x=data", o)  # plot Flux residuals
-
-        if p.tt_file or p.rv_file or p.flux_file:
-            results.calc_total_chi_squared(p.free_parameters)
+            results.flux_plots(p, o)
+        o.update(p)
+        o.observations_to_results(results)
         if p.result_file:
             results.save_results(p)
         # self.sim_flux = sim_flux
@@ -240,9 +213,9 @@ class CurveSimMCMC:
             p.eclipsees = ["TOI4504"]
             # results.plot_parameter("TOI4504c", "TOI4504", "T14", flux_time_d[0], flux_time_d[-1],
             #                         filename=f"TOI4504c_i={bodies[2].i*p.rad2deg:.2f}_T14.png")
-            results.plot_parameter("TOI4504d", "TOI4504", "T14", flux_time_d[0], flux_time_d[-1],
+            results.plot_parameter("TOI4504d", "TOI4504", "T14", o.flux.time_d[0], o.flux.time_d[-1],
                                    filename=f"TOI4504d_i={bodies[1].i * p.rad2deg:.2f}_T14.png")
-            results.plot_parameter("TOI4504d", "TOI4504", "depth", flux_time_d[0], flux_time_d[-1],
+            results.plot_parameter("TOI4504d", "TOI4504", "depth", o.flux.time_d[0], o.flux.time_d[-1],
                                    filename=f"TOI4504d_i={bodies[1].i * p.rad2deg:.2f}_depth.png")
 
             # measured_tt = CurveSimMCMC.get_measured_tt(p)
@@ -345,11 +318,6 @@ class CurveSimMCMC:
 
     @staticmethod
     def residuals_tt_sum_squared(theta, param_references, bodies, o, p):
-        # measured_tt: pandas DataFrame with columns eclipser, tt, tt_err
-        # i = 0
-        # for body_index, parameter_name in param_references:
-        #     bodies[body_index].__dict__[parameter_name] = theta[i]  # update all parameters from theta
-        #     i += 1
         CurveSimMCMC.update_bodies_from_theta(bodies, p, param_references, theta)
         sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, o.flux.time_s0)  # run simulation
         residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(p, rebound_sim, o)
@@ -689,7 +657,7 @@ class CurveSimMCMC:
             print(f"{Fore.RED}\nERROR: Saving Average Residual plot failed.{Style.RESET_ALL}")
         plt.close(fig)
 
-    def calc_maxlikelihood_avg_residual_in_std(self, p):
+    def calc_maxlikelihood_avg_residual_in_std(self, p, o):
         """
          Estimates the average (over all observations) residual in units of standard deviations.
          Converts the maximum log-likelihood into an RootMeanSquare-like per-datum misfit."""
@@ -701,13 +669,7 @@ class CurveSimMCMC:
         if p.tt_file:
             tt = getattr(p, "tt_datasize", 0)
 
-        # # return -0.5 * residuals_sum_squared
-        # return  x = -0.5 * (residuals_sum_squared + log_norm_term_flux)
-
-        # -2 * x = residuals_sum_squared + log_norm_term_flux
-        # residuals_sum_squared = -2 * x - log_norm_term_flux
-
-        maxlikelihood_avg_residual_in_std = math.sqrt((-2 * self.max_log_prob - p.log_norm_term_flux) / (flux + rv + tt))  # convert log_prob to chi^2 by subtracting the logarithm of the summed Gaussian normalization term
+        maxlikelihood_avg_residual_in_std = math.sqrt((-2 * self.max_log_prob - o.flux.log_norm_term) / (flux + rv + tt))  # convert log_prob to chi^2 by subtracting the logarithm of the summed Gaussian normalization term
         self.max_likelihood_avg_residual_in_std.append(maxlikelihood_avg_residual_in_std)
 
     # @stopwatch()

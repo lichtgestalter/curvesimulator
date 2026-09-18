@@ -10,16 +10,17 @@ class CurveSimObservations:
         self.flux = FluxObservations(p)
         self.rv = RVObservations(p)
         self.tt = TTObservations(p)
-
-        self.time_d = np.sort(np.concatenate([self.flux.time_d, self.rv.time_d]))  # chronologically ordered array with all flux and rv observation times
-        self.time_s0 = np.sort(np.concatenate([self.flux.time_s0, self.rv.time_s0]))
-        if len(self.time_s0) == 0:
-            self.time_d = self.sim.time_d
-            self.time_s0 = self.sim.time_s0
-        self.observation_count = len(self.time_s0)
+        self.rvflux = RVFluxObservations(self)
+        # self.time_d = np.sort(np.concatenate([self.flux.time_d, self.rv.time_d]))  # chronologically ordered array with all flux and rv observation times
+        # self.time_s0 = np.sort(np.concatenate([self.flux.time_s0, self.rv.time_s0]))
+        # if len(self.time_s0) == 0:
+        #     self.time_d = self.sim.time_d
+        #     self.time_s0 = self.sim.time_s0
+        # self.observation_count = len(self.time_s0)
 
     def __repr__(self):
-        return f"CurveSimObservations: flux+rv {self.observation_count}, flux {self.flux.observation_count}, rv {self.rv.observation_count}, tt {self.tt.observation_count}, sim {self.sim.observation_count}"
+        return (f"CurveSimObservations: flux {self.flux.observation_count}, rv {self.rv.observation_count}, "
+                f"tt {self.tt.observation_count}, sim {self.sim.observation_count}, flux+rv {self.rvflux.observation_count}")
 
     @staticmethod
     def check_required_columns(required_columns, df, file):
@@ -45,7 +46,55 @@ class CurveSimObservations:
         flux_time_d = flux_time_s0 / p.day + p.epoch
         return flux_time_s0, flux_time_d
 
+    def calc_p_value(self, free_parameters):
+        """
+        Calculate the p-value for a chi-squared test.
+        This is the probability of observing a chi-squared value >= your observed value.
+        chi_square :     The chi-squared test statistic
+        n_measurements : Number of measurements/observations
+        n_parameters :   Number of free parameters in the model
+        """
+        if free_parameters is None:
+            return None
+        else:
+            degrees_of_freedom = self.tt.observation_count + self.rv.observation_count + self.flux.observation_count - free_parameters
+            self.p_value = stats.chi2.sf(self.chi_squared, degrees_of_freedom)  # survival function = 1 - cumulative distribution function
+            return self.p_value
 
+    def update(self, p):
+        self.observation_count = self.tt.observation_count + self.rv.observation_count + self.flux.observation_count
+        self.log_norm_term = self.tt.log_norm_term + self.rv.log_norm_term + self.flux.log_norm_term
+        self.chi_squared = self.tt.chi_squared + self.rv.chi_squared + self.flux.chi_squared
+        self.log_maxlikelihood = self.tt.log_maxlikelihood + self.rv.log_maxlikelihood + self.flux.log_maxlikelihood
+        self.calc_p_value(p.free_parameters)
+
+    def observations_to_results(self, results):
+        results["Fit"]["measurements_tt"] = self.tt.observation_count
+        results["Fit"]["measurements_rv"] = self.rv.observation_count
+        results["Fit"]["measurements_flux"] = self.flux.observation_count
+        results["Fit"]["measurements_total"] = self.observation_count
+
+        results["Fit"]["log_norm_term_tt"] = self.tt.log_norm_term
+        results["Fit"]["log_norm_term_rv"] = self.rv.log_norm_term
+        results["Fit"]["log_norm_term_flux"] = self.flux.log_norm_term
+        results["Fit"]["log_norm_term_total"] = self.log_norm_term
+
+        results["Fit"]["chi_squared_tt"] = self.tt.chi_squared
+        results["Fit"]["chi_squared_rv"] = self.rv.chi_squared
+        results["Fit"]["chi_squared_flux"] = self.flux.chi_squared
+        results["Fit"]["chi_squared_total"] = self.chi_squared
+
+        results["Fit"]["pvalue_tt"] = self.tt.p_value
+        results["Fit"]["pvalue_rv"] = self.rv.p_value
+        results["Fit"]["pvalue_flux"] = self.flux.p_value
+        results["Fit"]["pvalue_total"] = self.p_value
+
+        results["Fit"]["log_maxlikelihood_tt"] = self.tt.log_maxlikelihood
+        results["Fit"]["log_maxlikelihood_rv"] = self.rv.log_maxlikelihood
+        results["Fit"]["log_maxlikelihood_flux"] = self.flux.log_maxlikelihood
+        results["Fit"]["log_maxlikelihood_total"] = self.log_maxlikelihood
+
+    
 class Simulation:
     def __init__(self, p):
         self.sim_start_s0 = (p.sim_start - p.epoch) * p.day  # convert BJD to seconds and start at zero
@@ -69,12 +118,22 @@ class Simulation:
             print(f"Saved simulated flux to {p.sim_flux_file} including white noise with standard deviation {p.sim_flux_err}")
 
 
-class ObservationTypes:
+class RVFluxObservations:
+    def __init__(self, o):
+        self.time_d = np.sort(np.concatenate([o.flux.time_d, o.rv.time_d]))  # chronologically ordered array with all flux and rv observation times
+        self.time_s0 = np.sort(np.concatenate([o.flux.time_s0, o.rv.time_s0]))
+        if len(self.time_s0) == 0:
+            self.time_d = o.sim.time_d
+            self.time_s0 = o.sim.time_s0
+        self.observation_count = len(self.time_s0)
+
+
+class ObservationType:
 
     def __init__(self):
-        self.corrected, self.total_error, self.log_norm_term, self.computed = (None,) * 4
-        self.residuals, self.chi_squared, self.p_value, self.observation_count = (None,) * 4
-        self.time_d, self.time_s0, self.log_maxlikelihood = (None,) * 3
+        self.corrected, self.total_error, self.computed = (None,) * 3
+        self.residuals, self.time_d, self.time_s0, self.p_value = (None,) * 4
+        self.chi_squared, self.log_norm_term, self.observation_count, self.log_maxlikelihood = (0,) * 4
 
     def calc_log_norm_term(self):
         self.log_norm_term = np.sum(np.log(2 * np.pi * self.total_error ** 2))  # logarithm of the summed Gaussian normalization term
@@ -110,62 +169,7 @@ class ObservationTypes:
         return self.log_maxlikelihood
 
 
-class FluxObservations(ObservationTypes):
-    def __init__(self, p):
-        super().__init__()
-        self.offset_map, self.jitter_map = (None,) * 2
-
-        if p.flux_file:
-            df = pd.read_csv(p.flux_file)
-            self.corrected, self.total_error, self.log_norm_term = None, None, None
-
-            if p.sector_params_file:  # parameters offset and jitter for each observed sector exist
-                CurveSimObservations.check_required_columns({"time", "flux", "flux_err", "sector"}, df, p.flux_file)
-                self.offset_map, self.jitter_map, _ = CurveSimObservations.get_sector_params(p)
-                self.sector = df["sector"].to_numpy(dtype=float)
-            else:
-                CurveSimObservations.check_required_columns({"time", "flux", "flux_err"}, df, p.flux_file)
-
-            df = df[(df["time"] >= p.epoch) & (df["time"] <= p.sim_end)].copy()
-            self.observation_count = len(df["time"])
-            self.time_d = df["time"].to_numpy(dtype=float)
-            self.time_s0 = (self.time_d - p.epoch) * p.day
-            self.observed = df["flux"].to_numpy(dtype=float)
-            self.calc_corrected(p.sector_params_file)
-            self.error = df["flux_err"].to_numpy(dtype=float)
-            self.calc_total_error(p.sector_params_file)
-            self.calc_log_norm_term()
-
-    def calc_corrected(self, sector_params_file):
-        if sector_params_file:  # parameters offset and jitter for each observed sector exist
-            offset = pd.Series(self.sector).map(self.offset_map).to_numpy(dtype=float)
-        else:
-            offset = 0
-        self.corrected = self.observed - offset
-
-    def calc_total_error(self, sector_params_file):
-        if sector_params_file:  # parameters offset and jitter for each observed sector exist
-            jitter = pd.Series(self.sector).map(self.jitter_map).to_numpy(dtype=float)
-        else:
-            jitter = 0
-        self.total_error = np.sqrt(self.error ** 2 + jitter ** 2)
-
-    def calc_computed(self, bodies, p):
-        _, self.computed, _ = bodies.calc_physics(p, self.time_s0)  # run simulation
-        return self.computed
-
-    def update(self, bodies, p):
-        # update flux observations with new rv offset and jitter, then calc computed and residuals.
-        if p.sector_params_file:
-            self.calc_corrected(p.sector_params_file)    # observed - offset
-            self.calc_total_error(p.sector_params_file)  # sqrt(error^2 + jitter^2)
-            self.calc_log_norm_term()                    # from total_error
-        self.calc_computed(bodies, p)                    # from bodies
-        self.calc_residuals()                            # corrected - computed
-        self.calc_chi_squared()                          # from residuals and total_error
-
-
-class RVObservations(ObservationTypes):
+class RVObservations(ObservationType):
     def __init__(self, p):
         super().__init__()
         if p.rv_file:
@@ -209,10 +213,73 @@ class RVObservations(ObservationTypes):
         self.calc_computed(p, rebound_sim)          # from bodies
         self.calc_residuals()                       # corrected - computed
         self.calc_chi_squared()                     # from residuals and total_error
+        self.calc_p_value(p.free_parameters)        # from free_parameters and observation_count
+        self.calc_log_maxlikelihood()               # from chi_squared and log_norm_term
 
 
-class TTObservations:
+class FluxObservations(ObservationType):
     def __init__(self, p):
+        super().__init__()
+        self.offset_map, self.jitter_map = (None,) * 2
+
+        if p.flux_file:
+            df = pd.read_csv(p.flux_file)
+            self.corrected, self.total_error, self.log_norm_term = None, None, None
+
+            if p.sector_params_file:  # parameters offset and jitter for each observed sector exist
+                CurveSimObservations.check_required_columns({"time", "flux", "flux_err", "sector"}, df, p.flux_file)
+                self.offset_map, self.jitter_map, _ = CurveSimObservations.get_sector_params(p)
+                self.sector = df["sector"].to_numpy(dtype=float)
+            else:
+                CurveSimObservations.check_required_columns({"time", "flux", "flux_err"}, df, p.flux_file)
+
+            df = df[(df["time"] >= p.epoch) & (df["time"] <= p.sim_end)].copy()
+            self.observation_count = len(df["time"])
+            self.time_d = df["time"].to_numpy(dtype=float)
+            self.time_s0 = (self.time_d - p.epoch) * p.day
+            self.observed = df["flux"].to_numpy(dtype=float)
+            self.calc_corrected(p.sector_params_file)
+            self.error = df["flux_err"].to_numpy(dtype=float)
+            self.calc_total_error(p.sector_params_file)
+            self.calc_log_norm_term()
+
+    def calc_corrected(self, sector_params_file):
+        if sector_params_file:  # parameters offset and jitter for each observed sector exist
+            offset = pd.Series(self.sector).map(self.offset_map).to_numpy(dtype=float)
+        else:
+            offset = 0
+        self.corrected = self.observed - offset
+        return self.corrected
+
+    def calc_total_error(self, sector_params_file):
+        if sector_params_file:  # parameters offset and jitter for each observed sector exist
+            jitter = pd.Series(self.sector).map(self.jitter_map).to_numpy(dtype=float)
+        else:
+            jitter = 0
+        self.total_error = np.sqrt(self.error ** 2 + jitter ** 2)
+        return self.total_error
+
+    def calc_computed(self, bodies, p):
+        _, self.computed, _ = bodies.calc_physics(p, self.time_s0)  # run simulation
+        return self.computed
+
+    def update(self, bodies, p):
+        # update flux observations with new rv offset and jitter, then calc computed and residuals.
+        if p.sector_params_file:
+            self.calc_corrected(p.sector_params_file)    # observed - offset
+            self.calc_total_error(p.sector_params_file)  # sqrt(error^2 + jitter^2)
+            self.calc_log_norm_term()                    # from total_error
+        self.calc_computed(bodies, p)                    # from bodies
+        self.calc_residuals()                            # corrected - computed
+        self.calc_chi_squared()                          # from residuals and total_error
+        self.calc_p_value(p.free_parameters)             # from free_parameters and observation_count
+        self.calc_log_maxlikelihood()                    # from chi_squared and log_norm_term
+
+
+class TTObservations(ObservationType):
+    def __init__(self, p):
+        self.chi_squared, self.observation_count, self.log_maxlikelihood = (0,) * 3
+
         if p.tt_file:
             df = pd.read_csv(p.tt_file)
             CurveSimObservations.check_required_columns({"eclipser", "tt", "tt_err", "nr"}, df, p.tt_file)
@@ -223,11 +290,30 @@ class TTObservations:
             self.observation_count = 0
         p.tt_datasize = self.observation_count  # legacy, can soon be deleted
 
-    def calc_tt_chi_squared(self, results, free_parameters):
-        self.measured_tt["chi_squared"] = self.measured_tt["delta"] / self.measured_tt["tt_err"]
-        self.measured_tt["chi_squared"] = self.measured_tt["chi_squared"] * self.measured_tt["chi_squared"]
-        results["Fit"]["chi_squared_tt"] = self.measured_tt["chi_squared"].sum()
-        results["Fit"]["measurements_tt"] = self.measured_tt.shape[0]
-        if free_parameters is not None:
-            results["Fit"]["pvalue_tt"] = results.chi_squared_pvalue(results["Fit"]["chi_squared_tt"], results["Fit"]["measurements_tt"], free_parameters)
+    # def calc_tt_chi_squared(self, results):
+    #     self.measured_tt["chi_squared"] = self.measured_tt["delta"] / self.measured_tt["tt_err"]
+    #     self.measured_tt["chi_squared"] = self.measured_tt["chi_squared"] * self.measured_tt["chi_squared"]
+    #     results["Fit"]["chi_squared_tt"] = self.measured_tt["chi_squared"].sum()
+    #     results["Fit"]["measurements_tt"] = self.measured_tt.shape[0]
+    #     self.chi_squared = results["Fit"]["chi_squared_tt"]
+    #     return self.chi_squared
 
+    def calc_total_error(self):
+        self.total_error = self.measured_tt["tt_err"].to_numpy(dtype=float)
+        return self.total_error
+
+    def calc_residuals(self):
+        self.residuals = self.measured_tt["delta"].to_numpy(dtype=float)
+        return self.residuals
+
+    def update(self, results, p):
+        self.observation_count = self.measured_tt.shape[0]
+        self.calc_total_error()                             # convert measured_tt["tt_err"]
+        self.calc_log_norm_term()                           # from total_error
+        self.calc_residuals()                               # convert self.measured_tt["delta"]
+        self.calc_chi_squared()                             # from residuals and total_error
+        # self.calc_tt_chi_squared(results)  # from residuals and total_error
+        self.calc_p_value(p.free_parameters)                # from free_parameters and observation_count
+        self.calc_log_maxlikelihood()                       # from chi_squared and log_norm_term
+        # results["Fit"]["log_norm_term_tt"] = self.log_norm_term
+        # results["Fit"]["log_maxlikelihood_tt"] = self.log_maxlikelihood

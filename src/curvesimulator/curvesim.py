@@ -121,7 +121,7 @@ class CurveSimulator:
                 sys.exit(1)
 
         elif p.action == "single_run":
-            self.bodies, self.observations, self.results = CurveSimMCMC.single_run(p, bodies=bodies, o=o)
+            self.bodies, self.observations, self.results = CurveSimMCMC.single_run(p, bodies, o)
 
         elif p.action == "results_only":
             p.eclipsers = ["TOI4504c"]

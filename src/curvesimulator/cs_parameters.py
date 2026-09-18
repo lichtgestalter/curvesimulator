@@ -69,6 +69,8 @@ class CurveSimParameters:
         self.sim_end = eval(config.get("Simulation", "sim_end", fallback="None"))
         self.sim_flux_file = config.get("Simulation", "sim_flux_file", fallback=None)
         self.sim_flux_file = CurveSimParameters.check_filename_and_add_path(self.sim_flux_file, "sim_flux_file", self.results_directory)
+        self.computed_flux_file = config.get("Simulation", "computed_flux_file", fallback=None)
+        self.computed_flux_file = CurveSimParameters.check_filename_and_add_path(self.computed_flux_file, "computed_flux_file", self.results_directory)
         self.iterations = self.check_sim_interval()
         self.sim_flux_err = eval(config.get("Simulation", "sim_flux_err", fallback="0.0"))
         self.rv_body_name = config.get("Simulation", "rv_body_name", fallback=None)
@@ -100,8 +102,8 @@ class CurveSimParameters:
             self.sector_params_fit = False
         else:
             self.sector_params_fit = eval(config.get("Fitting", "sector_params_fit", fallback="False"))
-        self.log_norm_term_flux = 0
-        self.log_norm_term_rv = 0
+        # self.log_norm_term_flux = 0
+        # self.log_norm_term_rv = 0
         self.tt_file = config.get("Fitting", "tt_file", fallback=None)
         self.rv_file = config.get("Fitting", "rv_file", fallback=None)
         self.eclipsers_names = list([x.strip() for x in config.get("Fitting", "eclipsers_names", fallback="None").split("#")[0].split(",")])
