@@ -11,7 +11,7 @@ from .cs_parameters import CurveSimParameters
 from .cs_mcmc import CurveSimMCMC, CurveSimLMfit
 from .cs_manual_fit import CurveSimManualFit
 from .cs_results import CurveSimResults
-from .cs_observations import CurveSimObservations
+from .cs_observations import TotalObservations
 
 
 def _lmfit_worker_queue(task_queue, result_queue):
@@ -80,7 +80,7 @@ class CurveSimulator:
         mandatory_parameters = p.find_mandatory_parameters()
         p.check_for_missing_parameters(mandatory_parameters)
         bodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
-        o = CurveSimObservations(p)
+        o = TotalObservations(p)
         if not p.rebound_warnings:
             warnings.filterwarnings("ignore", module="rebound")
         self.parameters, self.bodies, self.observations = p, bodies, o  # grants access from the executed script by making it an attribute of the CurveSimulator object
@@ -90,8 +90,8 @@ class CurveSimulator:
         if p.action in ["lmfit", "guifit", "mcmc"]:
             if _is_multiprocessing_child_import():
                 return
-            for body in bodies:  # HACK because length of body.positions is initialized with the correct value for simulation, NOT measurements
-                body.positions = np.ndarray((o.observation_count, 3), dtype=float)
+            for body in bodies:
+                body.positions = np.ndarray((o.rv.observation_count + o.flux.observation_count, 3), dtype=float)
             p.init_fitting_parameter_dic()
             print(f"Fitting {p.free_parameters} parameters.")
 

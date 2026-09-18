@@ -11,7 +11,7 @@ import shutil
 import sys
 import time
 
-from .cs_observations import CurveSimObservations
+from .cs_observations import TotalObservations
 
 
 class CurveSimParameters:
@@ -427,7 +427,7 @@ class CurveSimParameters:
         return fitting_parameters, body_index
 
     def read_fitting_sector_parameters(self, fitting_parameters, body_index):
-        _, _, sector_params = CurveSimObservations.get_sector_params(self)
+        _, _, sector_params = TotalObservations.get_sector_params(self)
         for row in sector_params.itertuples(index=False):
             fitting_parameters.append(FittingParameter(self, "SectorParams", body_index, f"offset_{row.sector}", row.offset, row.offset_low, row.offset_up, row.offset_spread))
             fitting_parameters[-1].index = len(fitting_parameters) - 1
