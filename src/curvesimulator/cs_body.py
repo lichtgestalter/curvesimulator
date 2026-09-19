@@ -206,9 +206,10 @@ class CurveSimBody:
         relative_radius = (self.radius + self.d - other.h) / (2 * self.radius)  # Relative distance between approximated center C of eclipsed area and center of self
         return area, relative_radius
 
-    def find_tt(self, other, iteration, rebound_sim, p, o, start_index, end_index):
+    def find_tt(self, other, iteration, rebound_sim, p, o, start_index):
         """other eclipses self. Find the exact time of transit (TT).
             iteration should be the last one before TT. """
+        end_index = o.sim.observation_count
         eclipser = rebound_sim.particles[other.name]
         eclipsee = rebound_sim.particles[self.name]
         rebound_sim.integrate(o.sim.time_s0[iteration])

@@ -190,7 +190,7 @@ class CurveSimMCMC:
             CurveSimAnimation(p, bodies, o)  # Create a video
         if p.tt_file:
             _, o.tt.measured_tt = CurveSimMCMC.match_transit_times(p, rebound_sim, o)
-            o.tt.update(results, p)  # store chi squared and p-value and more in results and in o.tt as attributes
+            o.tt.update(p)  # store chi squared and p-value and more in results and in o.tt as attributes
             if p.action != "mcmc":
                 CurveSimMCMC.tt_delta_plot(p, 0, "tt_o_vs_c.png", o.tt.measured_tt)  # compare observed vs. computed TT
         if p.rv_file:
@@ -713,7 +713,6 @@ class CurveSimMCMC:
     # @stopwatch()
     def tt_multi_delta_plot(self, steps_done, plot_filename, measured_tt):
         plot_filename = self.results_directory + plot_filename
-        # plot_filename = self.results_directory + str(steps_done) + plot_filename
         unique_eclipsers = measured_tt["eclipser"].unique()
         n_eclipsers = len(unique_eclipsers)
         fig, axes = plt.subplots(n_eclipsers, figsize=(10, 4 * n_eclipsers), sharex=True)
@@ -795,23 +794,6 @@ class CurveSimMCMC:
             mcmc_results["MCMC Performance"]["tt_param_json"] = bodies.bodies2param_json(measured_tt, p)
             mcmc_results["measured_tt_list"] = measured_tt.to_dict(orient="list")  # Convert measured_tt DataFrame to a serializable format
 
-        # Bodies Section
-        # mcmc_results["Bodies"] = {}
-        # params = (["body_type", "primary", "mass", "radius", "luminosity", "rv_offset", "rv_jitter"]
-        #           + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
-        #           + ["e", "i", "P", "a", "Omega", "Omega_deg", "omega", "omega_deg", "pomega", "pomega_deg"]
-        #           + ["L", "L_deg", "ma", "ma_deg", "ea", "ea_deg", "nu", "nu_deg", "T"])
-        #
-        # # write parameters into Bodies Section, but only if it's not a fitting parameter
-        # fitting_param_tuples = [(fp.body_index, fp.parameter_name) for fp in self.fitting_parameters]
-        # for i, body in enumerate(bodies):
-        #     mcmc_results["Bodies"][body.name] = {}
-        #     for key in params:
-        #         if (i, key) not in fitting_param_tuples and (i, key.split("_deg")[0]) not in fitting_param_tuples:
-        #             attr = getattr(body, key)
-        #             if attr is not None:
-        #                 mcmc_results["Bodies"][body.name][key] = attr
-
         # Fitting Parameters Section
         fitting_parameters = copy.deepcopy(p.fitting_parameters)
         for fp in fitting_parameters:
@@ -824,27 +806,6 @@ class CurveSimMCMC:
                     orig = getattr(fp, name)
                     fp.__dict__[name] = [float(i) for i in orig]
         mcmc_results["Fitting Parameters"] = {fp.body_parameter_name: fp.__dict__ for fp in fitting_parameters}
-
-        # ProgramParameters Section
-        # p_copy = copy.deepcopy(p)
-        # to_remove = [
-        #     "fitting_parameters", "standard_sections", "eclipsers", "eclipsees",
-        #     "tt_file", "iterations", "walkers", "moves", "burn_in",
-        #     "thin_samples", "comment", "epoch", "results_directory",
-        #     "offset_map", "jitter_map", "rv_body",
-        #     # "log_norm_term_flux", "log_norm_term_rv",
-        #     "fitting_parameter_dic",
-        # ]
-        # for name in to_remove:
-        #     if hasattr(p_copy, name):
-        #         delattr(p_copy, name)
-        #
-        # for name in ("dummy1", "dummy2"):  # List names of list-attributes here, in order to convert them to something JSON can understand
-        #     if hasattr(p_copy, name):
-        #         orig = getattr(p_copy, name)
-        #         p_copy.__dict__[name] = [float(i) for i in orig]
-        #
-        # mcmc_results["ProgramParameters"] = p_copy.__dict__
 
         self.mcmc_results2json(mcmc_results, p)
 
@@ -1005,8 +966,7 @@ class CurveSimLMfit:
             results["LMfit Performance"]["median_avg_residual_in_std"] = self.flux_median_avg_residual_in_std[-1]
         if p.tt_file:
             results["LMfit Performance"]["tt_file"] = p.tt_file
-            results["LMfit Performance"]["tt_data_points"] = p.tt_datasize
-            # results["LMfit Performance"]["rv_file"] = p.rv_file
+            # results["LMfit Performance"]["tt_data_points"] = p.tt_datasize
 
         result_copy = copy.deepcopy(self.result)
         result_copy.last_internal_values = list(result_copy.last_internal_values)
@@ -1054,7 +1014,7 @@ class CurveSimLMfit:
             results["LMfit Performance"]["flux_file"] = p.flux_file
         if p.tt_file:
             results["LMfit Performance"]["tt_file"] = p.tt_file
-            results["LMfit Performance"]["tt_data_points"] = p.tt_datasize
+            # results["LMfit Performance"]["tt_data_points"] = p.tt_datasize
             # results["LMfit Performance"]["rv_file"] = p.rv_file
         # if p.tt_file:
         #     results["LMfit Performance"]["tt_measured"] = list(p.best_tt_df["tt"])
@@ -1102,7 +1062,7 @@ class CurveSimLMfit:
         del p_copy.moves
         del p_copy.burn_in
         del p_copy.thin_samples
-        del p_copy.tt_datasize
+        # del p_copy.tt_datasize
         del p_copy.comment
         del p_copy.epoch
         del p_copy.results_directory

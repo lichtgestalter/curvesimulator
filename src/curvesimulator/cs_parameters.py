@@ -313,12 +313,12 @@ class CurveSimParameters:
             print(f"{Fore.RED}\nERROR in configuration file: At least one of the parameters sim_start and sim_end is missing.{Style.RESET_ALL}")
             sys.exit(1)
         if self.sim_start > self.sim_end:
-            print(f"{Fore.RED}\nERROR in configuration file: sim_start is after sim_end.{Style.RESET_ALL}")
+            print(f"{Fore.RED}\nERROR in configuration file: sim_start > sim_end.{Style.RESET_ALL}")
             sys.exit(1)
         self.sim_start_s0 = (self.sim_start - self.epoch) * self.day  # convert BJD to seconds and start at zero
         self.sim_end_s0 = (self.sim_end - self.epoch) * self.day  # convert BJD to seconds and start at zero
-        iterations = int((self.sim_end_s0 - self.sim_start_s0) / self.dt) + 1  # number of iterations
-        return iterations
+        sim_iterations = int((self.sim_end_s0 - self.sim_start_s0) / self.dt) + 1  # number of iterations
+        return sim_iterations
 
     @staticmethod
     def find_and_check_config_file(config_file):
@@ -350,13 +350,13 @@ class CurveSimParameters:
         #         print(f"{Fore.RED}Section {section} missing in config file.{Style.RESET_ALL}")
         #         sys.exit(1)
 
-    @staticmethod
-    def init_time_arrays(p):
-        flux_time_s0 = np.zeros(p.iterations, dtype=float)
-        for i in range(p.iterations):
-            flux_time_s0[i] = p.sim_start_s0 + i * p.dt
-        flux_time_d = flux_time_s0 / p.day + p.epoch
-        return flux_time_s0, flux_time_d
+    # @staticmethod
+    # def init_time_arrays(p):
+    #     flux_time_s0 = np.zeros(p.iterations, dtype=float)
+    #     for i in range(p.iterations):
+    #         flux_time_s0[i] = p.sim_start_s0 + i * p.dt
+    #     flux_time_d = flux_time_s0 / p.day + p.epoch
+    #     return flux_time_s0, flux_time_d
 
     def read_param(self, config, section, param, fallback):
         # For ease of use of these constants in the config file they are additionally defined here without the prefix "self.".
@@ -378,7 +378,7 @@ class CurveSimParameters:
         hour, day, year = self.hour, self.day, self.year
         line = config.get(section, param, fallback=None)
         if line is None:  # parameter not in config file
-            return None, None, None, None, None, None
+            return (None,) * 6
         else:
             items = line.split("#")[0].split(",")  # remove inline comment
         if len(items) == 4:  # uninformed prior
@@ -388,7 +388,7 @@ class CurveSimParameters:
             value, lower, upper, sigma, prior_mu, prior_sigma = items
             return eval(value), eval(lower), eval(upper), eval(sigma), eval(prior_mu), eval(prior_sigma)
         else:  # parameter in config file but does not have 4 or 6 values
-            return None, None, None, None, None, None
+            return (None,) * 6
 
     def read_fitting_parameters(self, config):
         fitting_parameters, body_index = self.read_fitting_body_parameters(config)

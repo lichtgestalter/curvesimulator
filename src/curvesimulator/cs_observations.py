@@ -27,16 +27,6 @@ class Simulation:
             print(f"Saved simulated flux to {p.sim_flux_file} including white noise with standard deviation {p.sim_flux_err}")
 
 
-class RVFluxObservations:
-    def __init__(self, o):
-        self.time_d = np.sort(np.concatenate([o.flux.time_d, o.rv.time_d]))  # chronologically ordered array with all flux and rv observation times
-        self.time_s0 = np.sort(np.concatenate([o.flux.time_s0, o.rv.time_s0]))
-        if len(self.time_s0) == 0:
-            self.time_d = o.sim.time_d
-            self.time_s0 = o.sim.time_s0
-        self.observation_count = len(self.time_s0)
-
-
 class ObservationType:
     def __init__(self):
         self.corrected, self.total_error, self.computed = (None,) * 3
@@ -106,29 +96,6 @@ class TotalObservations(ObservationType):
         # How to change the offset_value for sector s: offset_map.loc[s] = 4.2
         return offset_map, jitter_map, sector_params
 
-    @staticmethod
-    def init_time_arrays(p):  # replace asap with FluxSimulation()
-        flux_time_s0 = np.zeros(p.iterations, dtype=float)
-        for i in range(p.iterations):
-            flux_time_s0[i] = p.sim_start_s0 + i * p.dt
-        flux_time_d = flux_time_s0 / p.day + p.epoch
-        return flux_time_s0, flux_time_d
-
-    # def calc_p_value(self, free_parameters):
-    #     """
-    #     Calculate the p-value for a chi-squared test.
-    #     This is the probability of observing a chi-squared value >= your observed value.
-    #     chi_square :     The chi-squared test statistic
-    #     n_measurements : Number of measurements/observations
-    #     n_parameters :   Number of free parameters in the model
-    #     """
-    #     if free_parameters is None:
-    #         return None
-    #     else:
-    #         degrees_of_freedom = self.tt.observation_count + self.rv.observation_count + self.flux.observation_count - free_parameters
-    #         self.p_value = stats.chi2.sf(self.chi_squared, degrees_of_freedom)  # survival function = 1 - cumulative distribution function
-    #         return self.p_value
-
     def update(self, p):
         self.observation_count = self.tt.observation_count + self.rv.observation_count + self.flux.observation_count
         self.log_norm_term = self.tt.log_norm_term + self.rv.log_norm_term + self.flux.log_norm_term
@@ -179,7 +146,9 @@ class RVObservations(ObservationType):
             self.error = df["rv_err"].to_numpy(dtype=float)
             self.calc_total_error(p.rv_body.rv_jitter)
             self.calc_log_norm_term()
-        # p.rv_datasize = self.observation_count  # legacy, can soon be deleted
+
+    def __repr__(self):
+        return f"RVObservations: {self.observation_count} observations"
 
     def calc_corrected(self, offset):
         self.corrected = self.observed - offset
@@ -237,6 +206,9 @@ class FluxObservations(ObservationType):
             self.calc_total_error(p.sector_params_file)
             self.calc_log_norm_term()
 
+    def __repr__(self):
+        return f"FluxObservations: {self.observation_count} observations"
+
     def calc_corrected(self, sector_params_file):
         if sector_params_file:  # parameters offset and jitter for each observed sector exist
             offset = pd.Series(self.sector).map(self.offset_map).to_numpy(dtype=float)
@@ -282,15 +254,10 @@ class TTObservations(ObservationType):
         else:
             self.measured_tt = None
             self.observation_count = 0
-        p.tt_datasize = self.observation_count  # legacy, can soon be deleted
+        # p.tt_datasize = self.observation_count  # legacy, can soon be deleted
 
-    # def calc_tt_chi_squared(self, results):
-    #     self.measured_tt["chi_squared"] = self.measured_tt["delta"] / self.measured_tt["tt_err"]
-    #     self.measured_tt["chi_squared"] = self.measured_tt["chi_squared"] * self.measured_tt["chi_squared"]
-    #     results["Fit"]["chi_squared_tt"] = self.measured_tt["chi_squared"].sum()
-    #     results["Fit"]["measurements_tt"] = self.measured_tt.shape[0]
-    #     self.chi_squared = results["Fit"]["chi_squared_tt"]
-    #     return self.chi_squared
+    def __repr__(self):
+        return f"TTObservations: {self.observation_count} observations"
 
     def calc_total_error(self):
         self.total_error = self.measured_tt["tt_err"].to_numpy(dtype=float)
@@ -300,14 +267,30 @@ class TTObservations(ObservationType):
         self.residuals = self.measured_tt["delta"].to_numpy(dtype=float)
         return self.residuals
 
-    def update(self, results, p):
+    def update(self, p):
         self.observation_count = self.measured_tt.shape[0]
         self.calc_total_error()                             # convert measured_tt["tt_err"]
         self.calc_log_norm_term()                           # from total_error
         self.calc_residuals()                               # convert self.measured_tt["delta"]
         self.calc_chi_squared()                             # from residuals and total_error
-        # self.calc_tt_chi_squared(results)  # from residuals and total_error
         self.calc_p_value(p.free_parameters)                # from free_parameters and observation_count
         self.calc_log_maxlikelihood()                       # from chi_squared and log_norm_term
-        # results["Fit"]["log_norm_term_tt"] = self.log_norm_term
-        # results["Fit"]["log_maxlikelihood_tt"] = self.log_maxlikelihood
+
+
+class RVFluxObservations(ObservationType):
+    def __init__(self, o):
+        super().__init__()
+        if o.rv.observation_count > 0 and o.flux.observation_count > 0 :
+            self.time_d = np.sort(np.concatenate([o.flux.time_d, o.rv.time_d]))  # chronologically ordered array with all flux and rv observation times
+            self.time_s0 = np.sort(np.concatenate([o.flux.time_s0, o.rv.time_s0]))
+            if len(self.time_s0) == 0:
+                self.time_d = o.sim.time_d
+                self.time_s0 = o.sim.time_s0
+            self.observation_count = len(self.time_s0)
+            self.rv_observation_count = len(o.rv.time_s0)
+            self.flux_observation_count = len(o.flux.time_s0)
+
+    def __repr__(self):
+        return f"RVFluxObservations: {self.observation_count} observations ({self.rv_observation_count} rv and {self.flux_observation_count} flux"
+
+
