@@ -334,7 +334,7 @@ class CurveSimBodies(list):
             simulation = MyIntegration(p)
             self.init_myintegration(simulation)
         else:
-            simulation = CurveSimBodies.init_rebound(self, p)
+            simulation = self.init_rebound(p)
 
         stars = [body for body in self if body.body_type == "star"]
         sim_flux = np.zeros(iterations)

@@ -272,7 +272,7 @@ class FluxObservations(ObservationType):
 
 class TTObservations(ObservationType):
     def __init__(self, p):
-        self.chi_squared, self.observation_count, self.log_maxlikelihood = (0,) * 3
+        super().__init__()
 
         if p.tt_file:
             df = pd.read_csv(p.tt_file)

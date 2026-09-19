@@ -312,7 +312,7 @@ class CurveSimMCMC:
     @staticmethod
     def residuals_rv_sum_squared(theta, param_references, bodies, o, p):
         CurveSimMCMC.update_bodies_from_theta(bodies, p, param_references, theta)
-        rebound_sim = CurveSimBodies.init_rebound(bodies, p)
+        rebound_sim = bodies.init_rebound(p)
         o.rv.update(p, rebound_sim)  # update rv observations with new rv offset and jitter, then calc computed and residuals.
         return o.rv.chi_squared, o.rv.log_norm_term
 
@@ -772,31 +772,31 @@ class CurveSimMCMC:
         return f"{days:02d}:{hours:02d}:{minutes:02d}:{secs:02.0f} [dd:hh:mm:ss]"
 
     def save_mcmc_results(self, p, bodies, steps_done, measured_tt):
-        results = {}
-        results["CurveSimulator Documentation"] = "https://github.com/lichtgestalter/curvesimulator/wiki"
+        mcmc_results = {}
+        mcmc_results["CurveSimulator Documentation"] = "https://github.com/lichtgestalter/curvesimulator/wiki"
 
         # Simulation Parameters Section
-        results["MCMC Performance"] = {}
-        results["MCMC Performance"]["start_realtime"] = self.start_real_time + " [DD.MM.YY hh:mm:ss]"
-        results["MCMC Performance"]["end_realtime"] = time.strftime("%d.%m.%y %H:%M:%S") + " [DD.MM.YY hh:mm:ss]"
+        mcmc_results["MCMC Performance"] = {}
+        mcmc_results["MCMC Performance"]["start_realtime"] = self.start_real_time + " [DD.MM.YY hh:mm:ss]"
+        mcmc_results["MCMC Performance"]["end_realtime"] = time.strftime("%d.%m.%y %H:%M:%S") + " [DD.MM.YY hh:mm:ss]"
         runtime = time.perf_counter() - self.start_timestamp
-        results["MCMC Performance"]["run_time"] = CurveSimMCMC.seconds2readable(runtime)
-        results["MCMC Performance"]["run_time_per_iteration"] = f"{runtime / (self.burn_in + steps_done):.3f} [s]"
-        results["MCMC Performance"]["simulations_per_second"] = f"{(self.burn_in + steps_done) * self.walkers / runtime:.0f} [iterations*walkers/runtime]"
-        results["MCMC Performance"]["steps_after_burn_in"] = int(steps_done)
+        mcmc_results["MCMC Performance"]["run_time"] = CurveSimMCMC.seconds2readable(runtime)
+        mcmc_results["MCMC Performance"]["run_time_per_iteration"] = f"{runtime / (self.burn_in + steps_done):.3f} [s]"
+        mcmc_results["MCMC Performance"]["simulations_per_second"] = f"{(self.burn_in + steps_done) * self.walkers / runtime:.0f} [iterations*walkers/runtime]"
+        mcmc_results["MCMC Performance"]["steps_after_burn_in"] = int(steps_done)
 
         if p.flux_file:
-            results["MCMC Performance"]["flux_mean_avg_residual_in_std"] = self.flux_mean_avg_residual_in_std[-1]
-            results["MCMC Performance"]["flux_median_avg_residual_in_std"] = self.flux_median_avg_residual_in_std[-1]
+            mcmc_results["MCMC Performance"]["flux_mean_avg_residual_in_std"] = self.flux_mean_avg_residual_in_std[-1]
+            mcmc_results["MCMC Performance"]["flux_median_avg_residual_in_std"] = self.flux_median_avg_residual_in_std[-1]
 
         if p.tt_file:
-            results["MCMC Performance"]["tt_mean_delta"] = float(np.mean(np.abs(measured_tt["delta"])))
-            results["MCMC Performance"]["tt_max_delta"] = float(np.max(np.abs(measured_tt["delta"])))
-            results["MCMC Performance"]["tt_param_json"] = bodies.bodies2param_json(measured_tt, p)
-            results["measured_tt_list"] = measured_tt.to_dict(orient="list")  # Convert measured_tt DataFrame to a serializable format
+            mcmc_results["MCMC Performance"]["tt_mean_delta"] = float(np.mean(np.abs(measured_tt["delta"])))
+            mcmc_results["MCMC Performance"]["tt_max_delta"] = float(np.max(np.abs(measured_tt["delta"])))
+            mcmc_results["MCMC Performance"]["tt_param_json"] = bodies.bodies2param_json(measured_tt, p)
+            mcmc_results["measured_tt_list"] = measured_tt.to_dict(orient="list")  # Convert measured_tt DataFrame to a serializable format
 
         # Bodies Section
-        # results["Bodies"] = {}
+        # mcmc_results["Bodies"] = {}
         # params = (["body_type", "primary", "mass", "radius", "luminosity", "rv_offset", "rv_jitter"]
         #           + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
         #           + ["e", "i", "P", "a", "Omega", "Omega_deg", "omega", "omega_deg", "pomega", "pomega_deg"]
@@ -805,12 +805,12 @@ class CurveSimMCMC:
         # # write parameters into Bodies Section, but only if it's not a fitting parameter
         # fitting_param_tuples = [(fp.body_index, fp.parameter_name) for fp in self.fitting_parameters]
         # for i, body in enumerate(bodies):
-        #     results["Bodies"][body.name] = {}
+        #     mcmc_results["Bodies"][body.name] = {}
         #     for key in params:
         #         if (i, key) not in fitting_param_tuples and (i, key.split("_deg")[0]) not in fitting_param_tuples:
         #             attr = getattr(body, key)
         #             if attr is not None:
-        #                 results["Bodies"][body.name][key] = attr
+        #                 mcmc_results["Bodies"][body.name][key] = attr
 
         # Fitting Parameters Section
         fitting_parameters = copy.deepcopy(p.fitting_parameters)
@@ -823,7 +823,7 @@ class CurveSimMCMC:
                 if hasattr(fp, name):
                     orig = getattr(fp, name)
                     fp.__dict__[name] = [float(i) for i in orig]
-        results["Fitting Parameters"] = {fp.body_parameter_name: fp.__dict__ for fp in fitting_parameters}
+        mcmc_results["Fitting Parameters"] = {fp.body_parameter_name: fp.__dict__ for fp in fitting_parameters}
 
         # ProgramParameters Section
         # p_copy = copy.deepcopy(p)
@@ -844,22 +844,22 @@ class CurveSimMCMC:
         #         orig = getattr(p_copy, name)
         #         p_copy.__dict__[name] = [float(i) for i in orig]
         #
-        # results["ProgramParameters"] = p_copy.__dict__
+        # mcmc_results["ProgramParameters"] = p_copy.__dict__
 
-        self.mcmc_results2json(results, p)
+        self.mcmc_results2json(mcmc_results, p)
 
-    def mcmc_results2json(self, results, p):
+    def mcmc_results2json(self, mcmc_results, p):
         """Converts results to JSON and saves it."""
-        CurveSimResults.remove_null_values(results)
+        CurveSimResults.remove_null_values(mcmc_results)
         filename = self.results_directory + "results_mcmc.json"
         try:
             with open(filename, "w", encoding="utf8") as file:
-                json.dump(results, file, indent=4, ensure_ascii=False)
+                json.dump(mcmc_results, file, indent=4, ensure_ascii=False)
             if p.verbose:
                 print(f" Saved MCMC results to {filename}")
         except:
             print(f"{Fore.RED}\nERROR: Saving MCMC Results JSON failed.{Style.RESET_ALL}")
-            print(results)
+            print(mcmc_results)
             print(f"{Fore.YELLOW}Printed Results to console because saving failed.{Style.RESET_ALL}")
 
     @stopwatch()

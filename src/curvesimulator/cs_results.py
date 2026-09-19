@@ -67,8 +67,7 @@ class CurveSimResults(dict):
         """Calculate the date of an iteration in BJD"""
         return p.epoch + iteration * p.dt / p.day
 
-    @staticmethod
-    def remove_null_values(obj):
+    def remove_null_values(self):
         """Crawls through self's hierarchy of dictionaries and lists and removes
         every item whose value is None or NaN. Mutates self in place."""
 
@@ -90,7 +89,7 @@ class CurveSimResults(dict):
                 for item in o:
                     clean(item)
 
-        clean(obj)
+        clean(self)
 
     def results2json(self, p):
         """Converts self to JSON and saves it."""
@@ -136,7 +135,7 @@ class CurveSimResults(dict):
 
         self["ProgramParameters"] = p_copy.__dict__
 
-        CurveSimResults.remove_null_values(self)
+        self.remove_null_values()
         self.results2json(p_copy)
         if p.verbose:
             print(self)
