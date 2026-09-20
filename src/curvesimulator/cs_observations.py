@@ -29,9 +29,10 @@ class Simulation:
 
 class ObservationType:
     def __init__(self):
-        self.corrected, self.total_error, self.computed = (None,) * 3
-        self.residuals, self.time_d, self.time_s0, self.p_value = (None,) * 4
-        self.chi_squared, self.log_norm_term, self.observation_count, self.log_maxlikelihood = (0,) * 4
+        if type(self) is not ObservationType:
+            self.corrected, self.total_error, self.computed = (None,) * 3
+            self.residuals, self.time_d, self.time_s0, self.p_value = (None,) * 4
+            self.chi_squared, self.log_norm_term, self.observation_count, self.log_maxlikelihood = (0,) * 4
 
     def calc_log_norm_term(self):
         self.log_norm_term = np.sum(np.log(2 * np.pi * self.total_error ** 2))  # logarithm of the summed Gaussian normalization term

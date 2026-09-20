@@ -238,6 +238,8 @@ class CurveSimMCMC:
                 nearest_sim_tt.append(closest_tt[2])
             else:
                 nearest_sim_tt.append(0)  # No match found
+        # if nearest_sim_tt[1] > 0:
+        #     print(nearest_sim_tt)
         o.tt.measured_tt["nearest_sim"] = nearest_sim_tt  # add 2 columns to data frame
         o.tt.measured_tt["delta"] = o.tt.measured_tt["nearest_sim"] - o.tt.measured_tt["tt"]
         residuals_tt = o.tt.measured_tt["delta"] / o.tt.measured_tt["tt_err"]  # residuals are weighted with uncertainty!
@@ -943,7 +945,7 @@ class CurveSimLMfit:
         # measured_tt: pandas DataFrame with columns eclipser, tt, tt_err
         for body_index, parameter_name in param_references:
             bodies[body_index].__dict__[parameter_name] = params[bodies[body_index].name + "_" + parameter_name].value  # update all parameters from params
-        sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, o.flux.time_s0)  # run simulation
+        _, o.sim.simflux, rebound_sim = bodies.calc_physics(p, o.sim.time_s0)  # run simulation
         residuals_tt_sum_squared, _ = CurveSimMCMC.match_transit_times(p, rebound_sim, o)
         return residuals_tt_sum_squared
 
