@@ -18,6 +18,9 @@ class Simulation:
         self.simrv = np.empty(self.iterations)
         self.observation_count = len(self.time_s0)
 
+    def __repr__(self):
+        return f"Simulated Flux: {self.observation_count} observations"
+
     def save_sim_flux(self, p):
         noisy_flux = self.simflux + np.random.normal(0, p.sim_flux_err, self.simflux.shape)
         flux_err = np.full(self.simflux.shape, p.sim_flux_err)

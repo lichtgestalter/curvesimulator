@@ -321,7 +321,7 @@ class CurveSimMCMC:
     @staticmethod
     def residuals_tt_sum_squared(theta, param_references, bodies, o, p):
         CurveSimMCMC.update_bodies_from_theta(bodies, p, param_references, theta)
-        sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, o.flux.time_s0)  # run simulation
+        sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, o.sim.time_s0)  # run simulation
         residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(p, rebound_sim, o)
         return residuals_tt_sum_squared
 
@@ -448,7 +448,7 @@ class CurveSimMCMC:
         return bodies
 
     def max_likelihood_tt(self, max_likelihood_bodies, p, o):
-        sim_rv, sim_flux, rebound_sim = max_likelihood_bodies.calc_physics(p, o.flux.time_s0)  # run simulation
+        sim_rv, sim_flux, rebound_sim = max_likelihood_bodies.calc_physics(p, o.sim.time_s0)  # run simulation
         _, measured_tt = CurveSimMCMC.match_transit_times(p, rebound_sim, o)
         return measured_tt
 
