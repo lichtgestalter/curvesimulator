@@ -91,7 +91,10 @@ class CurveSimulator:
             if _is_multiprocessing_child_import():
                 return
             for body in bodies:
-                body.positions = np.ndarray((max(o.sim.observation_count, o.rv.observation_count + o.flux.observation_count, 3)), dtype=float)
+                body.positions = np.ndarray((max(o.sim.observation_count, o.rv.observation_count + o.flux.observation_count), 3), dtype=float)
+                # n = max(o.sim.observation_count, o.rv.observation_count + o.flux.observation_count)
+                # body.positions = np.ndarray((n, 3), dtype=float)
+
             p.init_fitting_parameter_dic()
             print(f"Fitting {p.free_parameters} parameters.")
 
