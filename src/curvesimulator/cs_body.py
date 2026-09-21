@@ -30,6 +30,8 @@ class CurveSimBody:
         self.color = color  # (R, G, B)  each between 0 and 1
         self.image_file_left = image_file_left
         self.image_file_right = image_file_right
+        self.positions = None
+
         self.mass = mass  # [kg]
         self.radius = radius  # [m]
         self.area_2d = math.pi * radius ** 2  # [m**2]
@@ -39,8 +41,6 @@ class CurveSimBody:
         self.limb_darkening_u1, self.limb_darkening_u2 = CurveSimPhysics.get_limbdarkening_parameters(limb_darkening_1, limb_darkening_2, limb_darkening_parameter_type)
         self.mean_intensity = CurveSimPhysics.calc_mean_intensity(self.limb_darkening_u1, self.limb_darkening_u2)
         self.intensity = luminosity / self.area_2d  # luminosity per (apparent) area [W/m**2]
-        self.positions = np.ndarray((p.iterations, 3), dtype=float)
-
         self.e = e  # [1] eccentricity
         self.i = i  # [rad] inclination
         self.i_deg = None if i is None else math.degrees(i)  # [deg] inclination
@@ -66,7 +66,6 @@ class CurveSimBody:
         self.T = T  # [s] Time of periapsis
 
         self.mu = None  # Gravitational Parameter. Depends on the masses of at least 2 bodies.
-
         # Used for calculation of eclipsed area in function eclipsed_by.
         self.d, self.h, self.angle, self.eclipsed_area = 0.0, 0.0, 0.0, 0.0
 

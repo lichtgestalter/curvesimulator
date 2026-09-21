@@ -27,13 +27,12 @@ class CurveSimBodies(list):
         """Initialize instances of physical bodies.
         Read program parameters and properties of the bodies from config file.
         Initialize the circles in the animation (matplotlib patches)"""
-        # For ease of use of these constants in the config file are additionally defined here without the prefix "p.".
         super().__init__()  # Call the superclass initializer
         try:
+            # For ease of use of these constants in the config file are additionally defined here without the prefix "p.".
             g, au, r_sun, m_sun, l_sun = p.g, p.au, p.r_sun, p.m_sun, p.l_sun
             r_jup, m_jup, r_nep, m_nep, r_earth, m_earth = p.r_jup, p.m_jup, p.r_nep, p.m_nep, p.r_earth, p.m_earth
             hour, day, year = p.hour, p.day, p.year
-
         except AttributeError:
             print(f"{Fore.YELLOW}\nWARNING: Section <Astronomical Constants> in the configuration file is incomplete.")
             print(f"See https://github.com/lichtgestalter/curvesimulator/wiki.{Style.RESET_ALL}")
@@ -373,6 +372,10 @@ class CurveSimBodies(list):
 
     def calc_physics(self, p, time_s0):
         iterations = len(time_s0)
+
+        for body in self:
+            body.positions = np.ndarray((iterations, 3), dtype=float)
+
         """Calculate body positions and the resulting lightcurve."""
         if p.verbose:
             if p.video_file and p.flux_file is None:
