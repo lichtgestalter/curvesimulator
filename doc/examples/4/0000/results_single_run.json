@@ -43,7 +43,7 @@
         "year": 31556925.216,
         "rad2deg": 57.29577951308232,
         "results_directory": "./0000/",
-        "result_file": "./0000/standard_results.json",
+        "result_file": "./0000/results_single_run.json",
         "action": "mcmc",
         "jacobi_masses": true,
         "rebound_warnings": true,
@@ -74,7 +74,9 @@
             "ma": "deg",
             "ea": "deg",
             "nu": "deg",
-            "T": "s"
+            "T": "s",
+            "rv_offset": "m/s",
+            "rv_jitter": "m/s"
         },
         "scale": {
             "mass": 5.268358041405712e-28,
@@ -90,7 +92,9 @@
             "ma": 57.29577951308232,
             "ea": 57.29577951308232,
             "nu": 57.29577951308232,
-            "T": 1
+            "T": 1,
+            "rv_offset": 1,
+            "rv_jitter": 1
         },
         "tt_padding": 0.3,
         "bins": [
@@ -102,7 +106,6 @@
         "free_parameters": 2,
         "mcmc_multi_processing": true,
         "sector_params_fit": false,
-        "log_norm_term_flux": 0,
         "tt_file": "tt.csv",
         "eclipsers_names": [
             "InnerPlanet",
@@ -149,22 +152,47 @@
         "autoscaling": true,
         "min_radius": 0.004,
         "max_radius": 0.02,
+        "video_background_color": "xkcd:black",
+        "video_text_color": "xkcd:light gray",
+        "separator_line_color": "xkcd:medium gray",
+        "scale_bar_fontsize": 8,
+        "scale_bar_end_x": 0.95,
         "show_left_plot": true,
         "show_right_plot": true,
         "show_upper_curve": true,
         "show_lower_curve": false,
         "main_title": "Main Title",
+        "main_title_color": "xkcd:white",
+        "main_title_fontsize": 14,
         "left_title": "View from above",
+        "left_title_fontsize": 10,
+        "left_title_y_coord": 0.9,
+        "show_left_scale_bar": true,
         "right_title": "View from Earth",
+        "right_title_fontsize": 10,
+        "right_title_y_coord": 0.9,
+        "show_right_scale_bar": true,
+        "dot_height": 0.077,
+        "dot_width": 0.005,
+        "x_ticks_fontsize": 8,
+        "x_label": "BJD (TDB)",
+        "x_label_fontsize": 8,
+        "x_label_x_coord": 0.97,
+        "x_label_y_coord": -0.06,
+        "upper_curve_color": "xkcd:white",
+        "upper_curve_y_label": "Relative Flux",
+        "upper_curve_y_label_fontsize": 8,
+        "upper_curve_y_tick_fontsize": 8,
+        "upper_curve_dot_color": "xkcd:bright red",
+        "lower_curve_color": "xkcd:white",
+        "lower_curve_y_label": "Radial Velocity [m/s]",
+        "lower_curve_y_label_fontsize": 8,
+        "lower_curve_y_tick_fontsize": 8,
+        "lower_curve_dot_color": "xkcd:green apple",
         "figure_width": 16,
         "figure_height": 8,
         "xlim": 1.25,
         "ylim": 1.0,
-        "upper_dot_height": 0.077,
-        "dot_width": 0.005,
-        "lower_dot_height": 0.077,
-        "lower_dot_width": 0.005,
-        "tt_datasize": 2,
         "myintegration": false,
         "jacobi_coordinates": true
     },
@@ -211,25 +239,25 @@
                 "Omega_deg": 0.0,
                 "omega": 0.0,
                 "omega_deg": 0.0,
-                "ma": 0.10506247747115924,
-                "ma_deg": 6.019636544285719
+                "ma": 0.10504694570887887,
+                "ma_deg": 6.018746639858653
             },
             "Transits": [
                 {
                     "Transit_params": {
                         "EclipsedBody": "SomeStar",
-                        "T1": 2460002.613868125,
-                        "T2": 2460002.616418894,
-                        "TT": 2460002.694424834,
-                        "T3": 2460002.7724313717,
-                        "T4": 2460002.7749676476,
-                        "T12": 0.002550769131630659,
-                        "T23": 0.1560124778188765,
-                        "T34": 0.002536275889724493,
-                        "T14": 0.16109952284023166,
-                        "b": 0.3752828627450304,
-                        "depth": 0.00022504622032746841,
-                        "i": 89.00000000617479
+                        "T1": 2460002.6138980305,
+                        "T2": 2460002.6164373127,
+                        "TT": 2460002.694453091,
+                        "T3": 2460002.7724589156,
+                        "T4": 2460002.774994646,
+                        "T12": 0.002539282198995352,
+                        "T23": 0.1560216029174626,
+                        "T34": 0.0025357306003570557,
+                        "T14": 0.161096615716815,
+                        "b": 0.37528286214779494,
+                        "depth": 0.00022504622035471553,
+                        "i": 89.0000000061748
                     }
                 }
             ]
@@ -256,24 +284,24 @@
                 "Omega_deg": 0.0,
                 "omega": 0.0,
                 "omega_deg": 0.0,
-                "ma": 1.4311982502604843,
-                "ma_deg": 82.00161938643393
+                "ma": 1.4311979547187446,
+                "ma_deg": 82.00160245313957
             },
             "Transits": [
                 {
                     "Transit_params": {
                         "EclipsedBody": "SomeStar",
-                        "T1": 2460002.702307722,
-                        "T2": 2460002.709791393,
-                        "TT": 2460002.8849760266,
-                        "T3": 2460003.060084917,
-                        "T4": 2460003.067562977,
-                        "T12": 0.007483670953661203,
-                        "T23": 0.35029352409765124,
-                        "T34": 0.007478059735149145,
-                        "T14": 0.3652552547864616,
-                        "b": 0.7490789572571799,
-                        "depth": 8.511232394345871e-05,
+                        "T1": 2460002.7023249594,
+                        "T2": 2460002.7098090844,
+                        "TT": 2460002.884990155,
+                        "T3": 2460003.060102359,
+                        "T4": 2460003.06757996,
+                        "T12": 0.007484124973416328,
+                        "T23": 0.35029327450320125,
+                        "T34": 0.007477601058781147,
+                        "T14": 0.3652550005353987,
+                        "b": 0.7490789552380132,
+                        "depth": 8.511232408655662e-05,
                         "i": 90.19999999982598
                     }
                 }
@@ -281,11 +309,21 @@
         }
     },
     "Fit": {
-        "chi_squared_tt": 0.9979462863720797,
-        "chi_squared_total": 0.9979462863720797,
         "measurements_tt": 2,
         "measurements_rv": 0,
         "measurements_flux": 0,
-        "measurements_total": 2
+        "measurements_total": 2,
+        "log_norm_term_tt": -18.58556736724631,
+        "log_norm_term_rv": 0,
+        "log_norm_term_flux": 0,
+        "log_norm_term_total": -18.58556736724631,
+        "chi_squared_tt": 0.9856115034488595,
+        "chi_squared_rv": 0,
+        "chi_squared_flux": 0,
+        "chi_squared_total": 0.9856115034488595,
+        "log_maxlikelihood_tt": 8.799977931898725,
+        "log_maxlikelihood_rv": 0,
+        "log_maxlikelihood_flux": 0,
+        "log_maxlikelihood_total": 8.799977931898725
     }
 }

@@ -43,7 +43,7 @@
         "year": 31556925.216,
         "rad2deg": 57.29577951308232,
         "results_directory": "./0000/",
-        "result_file": "./0000/standard_results.json",
+        "result_file": "./0000/results_single_run.json",
         "action": "single_run",
         "jacobi_masses": true,
         "rebound_warnings": true,
@@ -105,8 +105,6 @@
         "flux_plots_bottom": 0.97,
         "mcmc_multi_processing": true,
         "sector_params_fit": false,
-        "log_norm_term_flux": 0,
-        "log_norm_term_rv": 0,
         "eclipsers_names": [
             "SomePlanet"
         ],
@@ -156,6 +154,7 @@
         "video_text_color": "xkcd:light gray",
         "separator_line_color": "xkcd:medium gray",
         "scale_bar_fontsize": 8,
+        "scale_bar_end_x": 0.95,
         "show_left_plot": true,
         "show_right_plot": true,
         "show_upper_curve": true,
@@ -325,6 +324,18 @@
         "measurements_tt": 0,
         "measurements_rv": 0,
         "measurements_flux": 0,
-        "measurements_total": 0
+        "measurements_total": 0,
+        "log_norm_term_tt": 0,
+        "log_norm_term_rv": 0,
+        "log_norm_term_flux": 0,
+        "log_norm_term_total": 0,
+        "chi_squared_tt": 0,
+        "chi_squared_rv": 0,
+        "chi_squared_flux": 0,
+        "chi_squared_total": 0,
+        "log_maxlikelihood_tt": 0,
+        "log_maxlikelihood_rv": 0,
+        "log_maxlikelihood_flux": 0,
+        "log_maxlikelihood_total": 0
     }
 }
