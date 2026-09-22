@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "curvesimulator"
-version = "0.6.6"
+version = "0.6.7.1"
 description = "CurveSimulator is a n-body library for orbital parameter determination and visualization of exoplanet systems."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -21,7 +21,7 @@ classifiers = [
 dependencies = [
     "colorama",             # prints colored text in console
     "configparser",         # reads config file
-    "corner",               # generates corner plot for mcmc results
+    "corner",               # corner plot for mcmc result
     "emcee",                # Markov Chain Monte Carlo
     "h5py",                 # emcee backend
     "lmfit",                # local minimization fits

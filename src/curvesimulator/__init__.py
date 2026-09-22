@@ -7,7 +7,6 @@ _EXPORTS = {
 	"CurveSimBody": (".cs_body", "CurveSimBody"),
 	# "CurveSimFluxData": (".cs_flux_data", "CurveSimFluxData"),
 	# "csv2df": (".cs_flux_data", "csv2df"),
-	# "CurveSimLightcurve": (".cs_lightcurve", "CurveSimLightcurve"),
 	"CurveSimMCMC": (".cs_mcmc", "CurveSimMCMC"),
 	"CurveSimObservations": (".cs_observations", "CurveSimObservations"),
 	"CurveSimParameters": (".cs_parameters", "CurveSimParameters"),
@@ -29,7 +28,7 @@ def __getattr__(name):
 	globals()[name] = value
 	return value
 
-# Old version:
+# Old simple version:
 # # __init__.py
 # from .curvesim import CurveSimulator
 # from .cs_animation import CurveSimAnimation
