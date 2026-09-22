@@ -191,16 +191,16 @@ class FluxObservations(ObservationType):
 
         if p.flux_file:
             df = pd.read_csv(p.flux_file)
-            self.corrected, self.total_error, self.log_norm_term = None, None, None
+            # self.corrected, self.total_error, self.log_norm_term = None, None, None
+
+            TotalObservations.check_required_columns({"time", "flux", "flux_err"}, df, p.flux_file)
+            df = df[(df["time"] >= p.epoch) & (df["time"] <= p.sim_end)].copy()
 
             if p.sector_params_file:  # parameters offset and jitter for each observed sector exist
-                TotalObservations.check_required_columns({"time", "flux", "flux_err", "sector"}, df, p.flux_file)
+                TotalObservations.check_required_columns({"sector"}, df, p.flux_file)
                 self.offset_map, self.jitter_map, _ = TotalObservations.get_sector_params(p)
                 self.sector = df["sector"].to_numpy(dtype=float)
-            else:
-                TotalObservations.check_required_columns({"time", "flux", "flux_err"}, df, p.flux_file)
 
-            df = df[(df["time"] >= p.epoch) & (df["time"] <= p.sim_end)].copy()
             self.observation_count = len(df["time"])
             self.time_d = df["time"].to_numpy(dtype=float)
             self.time_s0 = (self.time_d - p.epoch) * p.day
