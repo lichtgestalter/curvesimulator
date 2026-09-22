@@ -78,7 +78,7 @@ class TotalObservations(ObservationType):
         self.flux = FluxObservations(p)
         self.rv = RVObservations(p)
         self.tt = TTObservations(p)
-        self.rvflux = RVFluxObservations(self)
+        # self.rvflux = RVFluxObservations(self)
 
     def __repr__(self):
         return (f"CurveSimObservations: flux {self.flux.observation_count}, rv {self.rv.observation_count}, "

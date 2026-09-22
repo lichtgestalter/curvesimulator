@@ -1,6 +1,6 @@
 # This file is for developers only
-import cProfile
-import pstats
+# import cProfile
+# import pstats
 from curvesimulator import CurveSimulator
 
 def main():
@@ -10,10 +10,10 @@ def main():
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/T200/TOI-4504_T200.ini")
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/Trifon_22.03.26/Trifon_22.03.26.ini")
 
-    curvesimulation = CurveSimulator(config_file="../doc/examples/4/config4.ini")
-
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/Trifon_2026.07.15/trifon_mcmc.ini")
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/Trifon_2026.07.15/trifon_single_run.ini")
+
+    curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/SolarSystem/SolarSystem1.ini")
 
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/configurations/TOI4504/jacobimassesFalse/TOI-4504_V004.ini")
 
@@ -25,10 +25,9 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-    with cProfile.Profile() as pr:
-        main()
-    stats = pstats.Stats(pr)
-    stats.sort_stats(pstats.SortKey.TIME)
-    stats.print_stats()
-    stats.dump_stats(filename='profiling.prof')
+    # with cProfile.Profile() as pr:
+    #     main()
+    # stats = pstats.Stats(pr)
+    # stats.sort_stats(pstats.SortKey.TIME)
+    # stats.print_stats()
+    # stats.dump_stats(filename='profiling.prof')
