@@ -13,9 +13,10 @@ def main():
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/Trifon_2026.07.15/trifon_mcmc.ini")
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/Trifon_2026.07.15/trifon_single_run.ini")
 
-    curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/SolarSystem/Inner_Planets_2026.ini")
-    # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/SolarSystem/Earth_Transit_2026.ini")
-    curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/SolarSystem/All_Planets_2026-35.ini")
+    # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/SolarSystem/Inner_Planets_2026.ini")
+    curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/SolarSystem/Earth_Transit_2026.ini")
+    curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/SolarSystem/Earth_Transit_2027.ini")
+    # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/SolarSystem/All_Planets_2026-35.ini")
 
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/configurations/TOI4504/jacobimassesFalse/TOI-4504_V004.ini")
 
