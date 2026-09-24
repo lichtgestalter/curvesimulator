@@ -413,11 +413,19 @@ class CurveSimParameters:
                 for parameter_name in ["mass", "radius", "luminosity", "rv_offset", "rv_jitter", "limb_darkening_1", "limb_darkening_2", "e", "i", "a", "P", "Omega", "pomega", "omega", "L", "nu", "ma", "ea", "T"]:
                     value, lower, upper, sigma, prior_mu, prior_sigma = self.read_param_priors(config, section, parameter_name)
                     if value is not None:
+                        if not lower <= value <= upper:
+                            print(f"{Fore.RED}\nERROR: Body {section}, Parameter {parameter_name}: startvalue not inside lower and upper bound.{Style.RESET_ALL}")
+                            sys.exit(1)
+                        if sigma > (upper - lower) * 5:
+                            print(f"{Fore.YELLOW}\nWARNING: Body {section}, Parameter {parameter_name}: startvalue spread very large compared to lower and upper bound interval size.{Style.RESET_ALL}")
                         if self.verbose:
                             print(f"body {body_index}: {parameter_name}")
                         if parameter_name in ["i", "Omega", "omega", "pomega", "ma", "nu", "ea", "L"]:
                             value, lower, upper, sigma = np.radians(value), np.radians(lower), np.radians(upper), np.radians(sigma)
                             if prior_mu is not None:
+                                if not lower <= prior_mu <= upper:
+                                    print(f"{Fore.RED}\nERROR: Body {section}, Parameter {parameter_name}: normal prior mean not inside lower and upper bound.{Style.RESET_ALL}")
+                                    sys.exit(1)
                                 prior_mu, prior_sigma = np.radians(prior_mu), np.radians(prior_sigma)
                         fitting_parameters.append(FittingParameter(self, section, body_index, parameter_name, value, lower, upper, sigma, prior_mu, prior_sigma))
                         fitting_parameters[-1].index = len(fitting_parameters) - 1
