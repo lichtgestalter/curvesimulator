@@ -8,6 +8,7 @@ import json
 import lmfit
 import math
 import matplotlib.pyplot as plt
+from matplotlib.ticker import FuncFormatter
 from multiprocessing import Pool
 import numpy as np
 import os
@@ -32,6 +33,7 @@ def stopwatch():
         return wrapper
 
     return decorator
+
 
 def append_line_locked(filename, line, wait=0.1):
     """
@@ -89,6 +91,7 @@ def append_line_locked(filename, line, wait=0.1):
                     return
             except Exception:
                 raise
+
 
 class CurveSimMCMC:
 
@@ -158,7 +161,6 @@ class CurveSimMCMC:
             print("Running without backend.")
             self.backend = None
             steps_done, self.loaded_steps = 0, 0
-
 
         if p.mcmc_multi_processing:
             with Pool() as pool:  # enable multi processing
@@ -380,22 +382,35 @@ class CurveSimMCMC:
         for _ in self.sector_parameter_names:
             self.scales.append(1)
 
+    # @staticmethod
+    # def sci_label(x, _):
+    #     if x == 0:
+    #         return "0"
+    #     exp = int(np.floor(np.log10(abs(x))))
+    #     mantissa = x / 10**exp
+    #     mantissa = int(round(mantissa)) if abs(mantissa - round(mantissa)) < 1e-9 else round(mantissa, 2)
+    #     return f"{mantissa}e{exp}"
+
     # @stopwatch()
     def trace_plots(self, steps_done, plot_filename):
         if self.trace_plot_ok:
             try:
                 plot_filename = self.results_directory + plot_filename
                 fig, axes = plt.subplots(self.ndim, figsize=(10, self.ndim * 2), sharex=True)
-                fig.text(0.1, 0.99, f"Traces, {steps_done} steps after burn-in.", ha="left", va="top", fontsize=14, transform=fig.transFigure)
-                plt.subplots_adjust(top=0.975)
+                y_position1 = min(0.998, 0.99 + self.ndim / 7500)
+                y_position2 = min(0.985, y_position1 - 1 / (7 * self.ndim))
+                fig.text(0.1, y_position1, f"Traces, {steps_done} steps after burn-in.", ha="left", va="top", fontsize=14, transform=fig.transFigure)
+                plt.subplots_adjust(top=y_position2)
                 if self.ndim == 1:
                     axes = [axes]
                 chains = np.moveaxis(self.sampler.get_chain(flat=False, thin=self.thin_samples_plot), -1, 0)
+
                 for i, (chain, ax, name, scale) in enumerate(zip(chains, axes, self.long_body_parameter_names + self.sector_parameter_names, self.scales)):
                     nsteps = chain.shape[0]
                     x = np.arange(1, nsteps + 1) * self.thin_samples_plot  # 1*thin, 2*thin, ...
                     ax.plot(x, chain * scale, color="xkcd:black", alpha=0.05)
                     ax.set_ylabel(name)
+                    # ax.yaxis.set_major_formatter(FuncFormatter(CurveSimMCMC.sci_label))
                     ax.axvline(self.burn_in, color="xkcd:tomato", linestyle="solid", label="burn-in")
                     ax.tick_params(labelbottom=True)  # Show x-tick labels for all
                     if i == len(axes) - 1:
@@ -408,7 +423,6 @@ class CurveSimMCMC:
             except:
                 print(f"{Fore.RED}\nERROR: Trace Plot failed.{Style.RESET_ALL}")
                 self.trace_plot_ok = False
-
 
     def max_likelihood_parameters(self, flat_thin_samples):
         log_prob_samples = self.sampler.get_log_prob(flat=True, discard=self.burn_in, thin=self.thin_samples)
@@ -464,8 +478,9 @@ class CurveSimMCMC:
     def mcmc_histograms(self, steps_done, bins, plot_filename):
         plot_filename = self.results_directory + plot_filename
         derived_params = 0  # derivedparams
-        fig, axes = plt.subplots(self.ndim + derived_params, figsize=(10, (self.ndim +derived_params) * 2))
-        fig.text(0.02, 0.99, f"Histograms, {steps_done} steps after burn-in.", ha="left", va="top", fontsize=14, transform=fig.transFigure)
+        fig, axes = plt.subplots(self.ndim + derived_params, figsize=(10, (self.ndim + derived_params) * 2))
+        y_position = min(0.998, 0.99 + (self.ndim + derived_params) / 7500)
+        fig.text(0.02, y_position, f"Histograms, {steps_done} steps after burn-in.", ha="left", va="top", fontsize=14, transform=fig.transFigure)
         startvalues = [fp.startvalue * fp.scale for fp in self.fitting_parameters]
         if self.ndim == 1:
             axes = [axes]
@@ -540,8 +555,8 @@ class CurveSimMCMC:
                         print(f"{Fore.RED}\nERROR: Saving corner plot failed.{Style.RESET_ALL}")
                     plt.close(fig)
             except:
-                    print(f"{Fore.RED}\nERROR: Corner plot failed.{Style.RESET_ALL}")
-                    self.corner_plot_ok = False
+                print(f"{Fore.RED}\nERROR: Corner plot failed.{Style.RESET_ALL}")
+                self.corner_plot_ok = False
 
     # @stopwatch()
     def autocorrelation_function_plot(self, steps_done, plot_filename):
@@ -552,8 +567,10 @@ class CurveSimMCMC:
                 nsteps = samples.shape[0]
                 nwalkers = samples.shape[1]
                 fig, axes = plt.subplots(self.ndim, figsize=(10, self.ndim * 2), sharex=True)
-                fig.text(0.1, 0.99, f"Autocorrelation after {steps_done} steps", ha="left", va="top", fontsize=14, transform=fig.transFigure)
-                plt.subplots_adjust(top=0.975)
+                y_position1 = min(0.998, 0.99 + self.ndim / 7500)
+                y_position2 = min(0.985, y_position1 - 1 / (7 * self.ndim))
+                fig.text(0.1, y_position1, f"Autocorrelation after {steps_done} steps", ha="left", va="top", fontsize=14, transform=fig.transFigure)
+                plt.subplots_adjust(top=y_position2)
                 if self.ndim == 1:
                     axes = [axes]
                 x = np.arange(1, nsteps + 1) * self.thin_samples_plot
@@ -578,43 +595,98 @@ class CurveSimMCMC:
                 self.autocorrelation_function_plot_ok = False
 
     # @stopwatch()
+    # def integrated_autocorrelation_time_plot(self, steps_done, plot_filename1, plot_filename2):
+    #     plot_filename1 = self.results_directory + plot_filename1
+    #     plot_filename2 = self.results_directory + plot_filename2
+    #     integrated_autocorrelation_time = np.array(self.integrated_autocorrelation_time).T
+    #     steps = [step for step in range(self.chunk_size + self.loaded_steps, steps_done + 1, self.chunk_size)]
+    #     fig, ax = plt.subplots(figsize=(10, 6))
+    #     colors = ["xkcd:royal blue", "xkcd:red", "xkcd:black", "xkcd:frog green", "xkcd:piss yellow", "xkcd:purply blue", "xkcd:sepia", "xkcd:wine", "xkcd:ocean", "xkcd:rust", "xkcd:forest", "xkcd:pale violet", "xkcd:robin's egg", "xkcd:pinkish purple", "xkcd:azure", "xkcd:hot pink", "xkcd:mango", "xkcd:baby pink", "xkcd:fluorescent green", "xkcd:medium grey"]
+    #     linestyles = ["solid", "dashed", "dashdot", "dotted"]
+    #     for i, (autocorr_times, fpn) in enumerate(zip(integrated_autocorrelation_time, self.long_body_parameter_names + self.sector_parameter_names)):
+    #         color = colors[i % len(colors)]
+    #         linestyle = linestyles[(i // len(colors)) % len(linestyles)]
+    #         ax.plot(steps, autocorr_times, label=fpn, color=color, linestyle=linestyle)
+    #     ax.set_xlabel("Steps after burn-in")
+    #     ax.set_title(f"Integrated Autocorrelation Time per Dimension after {steps_done} steps")
+    #     ax.legend(loc="upper left")
+    #     plt.tight_layout()
+    #     try:
+    #         plt.savefig(plot_filename1)
+    #     except:
+    #         print(f"{Fore.RED}\nERROR: Saving Integrated Autocorrelation Time plot failed.{Style.RESET_ALL}")
+    #     plt.close(fig)
+    #
+    #     steps_done_div_integrated_autocorrelation_time = steps / integrated_autocorrelation_time
+    #     fig, ax = plt.subplots(figsize=(10, 6))
+    #     for i, (autocorr_times, fpn) in enumerate(zip(steps_done_div_integrated_autocorrelation_time, self.long_body_parameter_names + self.sector_parameter_names)):
+    #         color = colors[i % len(colors)]
+    #         linestyle = linestyles[(i // len(colors)) % len(linestyles)]
+    #         ax.plot(steps, autocorr_times, label=fpn, color=color, linestyle=linestyle)
+    #     ax.set_xlabel("Steps after burn-in")
+    #     ax.set_title(f"Steps divided by Integrated Autocorrelation Time per Dimension after {steps_done} steps")
+    #     ax.legend(loc="upper left")
+    #     plt.tight_layout()
+    #     try:
+    #         plt.savefig(plot_filename2)
+    #     except:
+    #         print(f"{Fore.RED}\nERROR: Saving Steps divided by Integrated Autocorrelation Time plot failed.{Style.RESET_ALL}")
+    #     plt.close(fig)
+
+    @staticmethod
+    def _plot_with_bottom_legend(x, y_data, labels, colors, linestyles, xlabel, title, plot_filename):
+        fig, ax = plt.subplots(figsize=(10, 6))
+        for i, (y, label) in enumerate(zip(y_data, labels)):
+            color = colors[i % len(colors)]
+            linestyle = linestyles[(i // len(colors)) % len(linestyles)]
+            ax.plot(x, y, label=label, color=color, linestyle=linestyle)
+
+        ax.set_xlabel(xlabel)
+        ax.set_title(title)
+
+        n_labels = len(labels)
+        ncol = max(1, math.ceil(math.sqrt(n_labels)))
+        ax.legend(
+            loc="upper center",
+            bbox_to_anchor=(0.5, -0.12),  # below axis
+            ncol=ncol,
+            fontsize="small",
+            frameon=False,
+            handlelength=1.5,
+            columnspacing=1.0,
+        )
+
+        fig.subplots_adjust(bottom=0.05 + 0.03 * math.ceil(n_labels / ncol))  # reserve extra space below for the legend
+
+        try:
+            plt.savefig(plot_filename, bbox_inches="tight")  # prevents cutting off the legend
+        except Exception:
+            print(f"{Fore.RED}\nERROR: Saving plot '{plot_filename}' failed.{Style.RESET_ALL}")
+        plt.close(fig)
+
     def integrated_autocorrelation_time_plot(self, steps_done, plot_filename1, plot_filename2):
         plot_filename1 = self.results_directory + plot_filename1
         plot_filename2 = self.results_directory + plot_filename2
         integrated_autocorrelation_time = np.array(self.integrated_autocorrelation_time).T
         steps = [step for step in range(self.chunk_size + self.loaded_steps, steps_done + 1, self.chunk_size)]
-        fig, ax = plt.subplots(figsize=(10, 6))
-        colors = ["xkcd:royal blue", "xkcd:red", "xkcd:black", "xkcd:frog green", "xkcd:piss yellow", "xkcd:purply blue", "xkcd:sepia", "xkcd:wine", "xkcd:ocean", "xkcd:rust", "xkcd:forest", "xkcd:pale violet", "xkcd:robin's egg", "xkcd:pinkish purple", "xkcd:azure", "xkcd:hot pink", "xkcd:mango", "xkcd:baby pink", "xkcd:fluorescent green", "xkcd:medium grey"]
+
+        colors = ["xkcd:royal blue", "xkcd:red", "xkcd:black", "xkcd:frog green", "xkcd:piss yellow",
+                  "xkcd:purply blue", "xkcd:sepia", "xkcd:wine", "xkcd:ocean", "xkcd:rust",
+                  "xkcd:forest", "xkcd:pale violet", "xkcd:robin's egg", "xkcd:pinkish purple", "xkcd:azure",
+                  "xkcd:hot pink", "xkcd:mango", "xkcd:baby pink", "xkcd:fluorescent green", "xkcd:medium grey"]
         linestyles = ["solid", "dashed", "dashdot", "dotted"]
-        for i, (autocorr_times, fpn) in enumerate(zip(integrated_autocorrelation_time, self.long_body_parameter_names + self.sector_parameter_names)):
-            color = colors[i % len(colors)]
-            linestyle = linestyles[(i // len(colors)) % len(linestyles)]
-            ax.plot(steps, autocorr_times, label=fpn, color=color, linestyle=linestyle)
-        ax.set_xlabel("Steps after burn-in")
-        ax.set_title(f"Integrated Autocorrelation Time per Dimension after {steps_done} steps")
-        ax.legend(loc="upper left")
-        plt.tight_layout()
-        try:
-            plt.savefig(plot_filename1)
-        except:
-            print(f"{Fore.RED}\nERROR: Saving Integrated Autocorrelation Time plot failed.{Style.RESET_ALL}")
-        plt.close(fig)
+        labels = self.long_body_parameter_names + self.sector_parameter_names
+
+        self._plot_with_bottom_legend(steps, integrated_autocorrelation_time, labels, colors, linestyles,
+                                      xlabel="Steps after burn-in",
+                                      title=f"Integrated Autocorrelation Time per Dimension after {steps_done} steps",
+                                      plot_filename=plot_filename1)
 
         steps_done_div_integrated_autocorrelation_time = steps / integrated_autocorrelation_time
-        fig, ax = plt.subplots(figsize=(10, 6))
-        for i, (autocorr_times, fpn) in enumerate(zip(steps_done_div_integrated_autocorrelation_time, self.long_body_parameter_names + self.sector_parameter_names)):
-            color = colors[i % len(colors)]
-            linestyle = linestyles[(i // len(colors)) % len(linestyles)]
-            ax.plot(steps, autocorr_times, label=fpn, color=color, linestyle=linestyle)
-        ax.set_xlabel("Steps after burn-in")
-        ax.set_title(f"Steps divided by Integrated Autocorrelation Time per Dimension after {steps_done} steps")
-        ax.legend(loc="upper left")
-        plt.tight_layout()
-        try:
-            plt.savefig(plot_filename2)
-        except:
-            print(f"{Fore.RED}\nERROR: Saving Steps divided by Integrated Autocorrelation Time plot failed.{Style.RESET_ALL}")
-        plt.close(fig)
+        self._plot_with_bottom_legend(steps, steps_done_div_integrated_autocorrelation_time, labels, colors, linestyles,
+                                      xlabel="Steps after burn-in",
+                                      title=f"Steps divided by Integrated Autocorrelation Time per Dimension after {steps_done} steps",
+                                      plot_filename=plot_filename2)
 
     # @stopwatch()
     def acceptance_fraction_plot(self, steps_done, plot_filename):
