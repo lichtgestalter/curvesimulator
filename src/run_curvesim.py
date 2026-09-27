@@ -12,6 +12,7 @@ def main():
 
     curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/WASP-94/WASP-94.ini")
 
+
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/Trifon_2026.07.15/trifon_mcmc.ini")
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/Trifon_2026.07.15/trifon_single_run.ini")
 
