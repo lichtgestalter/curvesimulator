@@ -147,11 +147,16 @@ class CurveSimParameters:
         self.sampling_rate = self.iterations / self.frames
 
         # [VideoScale]
+        self.offset_x_left = eval(config.get("VideoScale", "offset_x_left", fallback="0"))
+        self.offset_y_left = eval(config.get("VideoScale", "offset_y_left", fallback="0"))
+        self.scope_left = eval(config.get("VideoScale", "scope_left", fallback="au"))
         self.scope_left = eval(config.get("VideoScale", "scope_left", fallback="au"))
         self.scale_bar_length_left = eval(config.get("VideoScale", "scale_bar_length_left", fallback="au"))
         self.star_scale_left = eval(config.get("VideoScale", "star_scale_left", fallback="1.0"))
         self.planet_scale_left = eval(config.get("VideoScale", "planet_scale_left", fallback="1.0"))
 
+        self.offset_x_right = eval(config.get("VideoScale", "offset_x_right", fallback="0"))
+        self.offset_y_right = eval(config.get("VideoScale", "offset_y_right", fallback="0"))
         self.scope_right = eval(config.get("VideoScale", "scope_right", fallback="au"))
         self.scale_bar_length_right = eval(config.get("VideoScale", "scale_bar_length_right", fallback="au"))
         self.star_scale_right = eval(config.get("VideoScale", "star_scale_right", fallback="1.0"))

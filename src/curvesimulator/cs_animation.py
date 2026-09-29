@@ -41,6 +41,10 @@ class CurveSimAnimation:
                 body.ab_right = AnnotationBbox(body.image_right, (-0.5, -0.5), frameon=False, xycoords="data")
                 body.ab_right.set_animated(True)
                 ax_right.add_artist(body.ab_right)
+            body.positions_left = body.positions.copy()
+            body.positions_right = body.positions.copy()
+            body.positions_left -= np.array([p.offset_x_left, 0, -p.offset_y_left])     # left view:  projection (x,y,z) -> (x,-z)
+            body.positions_right -= np.array([p.offset_x_right, p.offset_y_right, 0])  # right view: projection (x,y,z) -> (x,y)
         self.render(p, bodies, o)
 
     @staticmethod
@@ -326,18 +330,19 @@ class CurveSimAnimation:
         The other parameters are given to this function via the parameter fargs of FuncAnimation."""
         for body in bodies:  # left view: projection (x,y,z) -> (x,-z), order = y (y-axis points to viewer)
             if body.image_file_left is None or body.image_file_right is None:
-                body.circle_left.set(zorder=body.positions[frame_number][1])
-                body.circle_left.center = x_direction * body.positions[frame_number][0] / p.scope_left, -body.positions[frame_number][2] / p.scope_left
+                body.circle_left.set(zorder=body.positions_left[frame_number][1])
+                body.circle_left.center = x_direction * body.positions_left[frame_number][0] / p.scope_left, -body.positions_left[frame_number][2] / p.scope_left
             else:
-                body.ab_left.set_zorder(body.positions[frame_number][1])
-                body.ab_left.xybox = (x_direction * body.positions[frame_number][0] / p.scope_left, -body.positions[frame_number][2] / p.scope_left)
+                body.ab_left.set_zorder(body.positions_left[frame_number][1])
+                body.ab_left.xybox = (x_direction * body.positions_left[frame_number][0] / p.scope_left, -body.positions_left[frame_number][2] / p.scope_left)
+
         for body in bodies:  # right view: projection (x,y,z) -> (x,y), order = z (z-axis points to viewer)
             if body.image_file_left is None or body.image_file_right is None:
-                body.circle_right.set(zorder=body.positions[frame_number][2])
-                body.circle_right.center = x_direction * body.positions[frame_number][0] / p.scope_right, body.positions[frame_number][1] / p.scope_right
+                body.circle_right.set(zorder=body.positions_right[frame_number][2])
+                body.circle_right.center = x_direction * body.positions_right[frame_number][0] / p.scope_right, body.positions_right[frame_number][1] / p.scope_right
             else:
-                body.ab_right.set_zorder(body.positions[frame_number][2])
-                body.ab_right.xybox = (x_direction * body.positions[frame_number][0] / p.scope_right, body.positions[frame_number][1] / p.scope_right)
+                body.ab_right.set_zorder(body.positions_right[frame_number][2])
+                body.ab_right.xybox = (x_direction * body.positions_right[frame_number][0] / p.scope_right, body.positions_right[frame_number][1] / p.scope_right)
 
         # Use relative x (days since p.sim_start_s0[0]) for both dots so they align with plotted curves
         x_rel = (flux_time_s0[frame_number] - p.sim_start_s0) / p.day
