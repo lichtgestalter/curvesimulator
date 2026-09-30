@@ -17,7 +17,8 @@ def main():
 
     # WASP-94
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/WASP-94/WASP-94_1_B_Period.ini")
-    curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/WASP-94/WASP-94_Ab_Transit.ini")
+    # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/WASP-94/WASP-94_Ab_Transit_Initial.ini")
+    curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/WASP-94/WASP-94_Ab_Transit_Present.ini")
 
     # Solar System
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/SolarSystem/Inner_Planets_2026.ini")

@@ -162,7 +162,7 @@ class CurveSimParameters:
         self.star_scale_right = eval(config.get("VideoScale", "star_scale_right", fallback="1.0"))
         self.planet_scale_right = eval(config.get("VideoScale", "planet_scale_right", fallback="1.0"))
 
-        self.autoscaling = config.get("VideoScale", "autoscaling", fallback="on") == "on"
+        self.autoscaling = config.get("VideoScale", "autoscaling", fallback="True")
         self.min_radius = eval(config.get("VideoScale", "min_radius", fallback="0.4")) / 100.0
         self.max_radius = eval(config.get("VideoScale", "max_radius", fallback="2.0")) / 100.0
 
@@ -176,7 +176,7 @@ class CurveSimParameters:
         self.show_left_plot = eval(config.get("VideoPlot", "show_left_plot", fallback="True"))
         self.show_right_plot = eval(config.get("VideoPlot", "show_right_plot", fallback="True"))
         self.show_upper_curve = eval(config.get("VideoPlot", "show_upper_curve", fallback="True"))
-        self.show_lower_curve = eval(config.get("VideoPlot", "show_lower_curve", fallback="False"))
+        self.show_lower_curve = eval(config.get("VideoPlot", "show_lower_curve", fallback="True"))
 
         self.main_title = config.get("VideoPlot", "main_title", fallback="Main Title")
         self.main_title_color = CurveSimParameters.get_color_parameter(config, "VideoPlot", "main_title_color", "xkcd:white")
@@ -195,8 +195,10 @@ class CurveSimParameters:
         self.show_right_scale_bar = eval(config.get("VideoPlot", "show_right_scale_bar", fallback="True"))
 
         # curves
-        self.dot_height = eval(config.get("VideoPlot", "dot_height", fallback="0.077"))
-        self.dot_width = eval(config.get("VideoPlot", "dot_width", fallback="0.005"))
+        self.dot_height = eval(config.get("VideoPlot", "dot_height", fallback="1/17"))
+        if self.show_lower_curve != self.show_upper_curve:
+            self.dot_height *= 0.75  # adjust dot_height if only one curve is shown
+        self.dot_width = eval(config.get("VideoPlot", "dot_width", fallback="1/290"))
         self.x_ticks_fontsize = eval(config.get("VideoPlot", "x_ticks_fontsize", fallback="8"))
         self.x_label = config.get("VideoPlot", "x_label", fallback="BJD (TDB)")
         self.x_label_fontsize = eval(config.get("VideoPlot", "x_label_fontsize", fallback="8"))

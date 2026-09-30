@@ -42,13 +42,11 @@ class CurveSimAnimation:
                 body.ab_right.set_animated(True)
                 ax_right.add_artist(body.ab_right)
 
-            body.positions_left = body.positions.copy()
-            body.positions_right = body.positions.copy()
+            body.positions_left = body.positions - np.array([p.offset_x_left, 0, -p.offset_y_left])    # left view:  projection (x,y,z) -> (x,-z)
+            body.positions_right = body.positions - np.array([p.offset_x_right, p.offset_y_right, 0])  # right view: projection (x,y,z) -> (x,y)
             if not p.clockwise:
                 body.positions_left *= np.array([-1, 1, 1])
                 body.positions_right *= np.array([-1, 1, 1])
-            body.positions_left -= np.array([p.offset_x_left, 0, -p.offset_y_left])    # left view:  projection (x,y,z) -> (x,-z)
-            body.positions_right -= np.array([p.offset_x_right, p.offset_y_right, 0])  # right view: projection (x,y,z) -> (x,y)
         self.render(p, bodies, o)
 
     @staticmethod
@@ -323,11 +321,6 @@ class CurveSimAnimation:
 
     @staticmethod
     def next_frame(frame, p, bodies, lower_dot, upper_dot, sim_rv, sim_flux, flux_time_s0):
-        # if p.clockwise:
-        #     x_direction = 1
-        # else:
-        #     x_direction = -1
-        x_direction = 1  # hopefully soon deleted
         frame_number = int(frame * p.sampling_rate)
         """Update patches. Send new circle positions to animation function.
         First parameter comes from iterator frames (a parameter of FuncAnimation).
@@ -335,38 +328,18 @@ class CurveSimAnimation:
         for body in bodies:  # left view: projection (x,y,z) -> (x,-z), order = y (y-axis points to viewer)
             if body.image_file_left is None or body.image_file_right is None:
                 body.circle_left.set(zorder=body.positions_left[frame_number][1])
-                body.circle_left.center = x_direction * body.positions_left[frame_number][0] / p.scope_left, -body.positions_left[frame_number][2] / p.scope_left
+                body.circle_left.center = body.positions_left[frame_number][0] / p.scope_left, -body.positions_left[frame_number][2] / p.scope_left
             else:
                 body.ab_left.set_zorder(body.positions_left[frame_number][1])
-                body.ab_left.xybox = (x_direction * body.positions_left[frame_number][0] / p.scope_left, -body.positions_left[frame_number][2] / p.scope_left)
+                body.ab_left.xybox = (body.positions_left[frame_number][0] / p.scope_left, -body.positions_left[frame_number][2] / p.scope_left)
 
         for body in bodies:  # right view: projection (x,y,z) -> (x,y), order = z (z-axis points to viewer)
             if body.image_file_left is None or body.image_file_right is None:
                 body.circle_right.set(zorder=body.positions_right[frame_number][2])
-                body.circle_right.center = x_direction * body.positions_right[frame_number][0] / p.scope_right, body.positions_right[frame_number][1] / p.scope_right
+                body.circle_right.center = body.positions_right[frame_number][0] / p.scope_right, body.positions_right[frame_number][1] / p.scope_right
             else:
                 body.ab_right.set_zorder(body.positions_right[frame_number][2])
-                body.ab_right.xybox = (x_direction * body.positions_right[frame_number][0] / p.scope_right, body.positions_right[frame_number][1] / p.scope_right)
-
-        # if frame == 1:  # debug
-        #     print(f"")
-        #     print(f"{p.clockwise=}")
-        #     print(f"{p.scope_left/p.au=}")
-        #     print(f"{p.offset_x_left/p.au=}")
-        #     print(f"{p.offset_y_left/p.au=}")
-        #     print(f"")
-        #     print(f"{x_direction=}")
-        #     print(f"{bodies[0].positions_left[frame_number][0]=}")
-        #     print(f"{bodies[0].positions_left[frame_number][0]/p.au=}")
-        #     print(f"{bodies[0].circle_left.center=}")
-        #     print(f"")
-        #     print(f"{p.scope_right/p.au=}")
-        #     print(f"{p.offset_x_right/p.au=}")
-        #     print(f"{p.offset_y_right/p.au=}")
-        #     print(f"")
-        #     print(f"{bodies[0].positions_right[frame_number][0]=}")
-        #     print(f"{bodies[0].positions_right[frame_number][0]/p.au=}")
-        #     print(f"{bodies[0].circle_right.center=}")
+                body.ab_right.xybox = (body.positions_right[frame_number][0] / p.scope_right, body.positions_right[frame_number][1] / p.scope_right)
 
         # Use relative x (days since p.sim_start_s0[0]) for both dots so they align with plotted curves
         x_rel = (flux_time_s0[frame_number] - p.sim_start_s0) / p.day
