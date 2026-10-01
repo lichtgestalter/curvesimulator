@@ -263,7 +263,10 @@ class CurveSimBody:
             else:
                 depth = 0
             # print(f"{tt:12.6f};{eclipsee.vz:8.2f}")
-            inclination = eclipser.inc * p.rad2deg
+            try:
+                inclination = eclipser.inc * p.rad2deg
+            except ValueError:
+                inclination = None
             return tt, impact, depth, close_enough, inclination
         else:
             if p.verbose:

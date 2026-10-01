@@ -106,8 +106,14 @@ class CurveSimParameters:
         # self.log_norm_term_rv = 0
         self.tt_file = config.get("Fitting", "tt_file", fallback=None)
         self.rv_file = config.get("Fitting", "rv_file", fallback=None)
-        self.eclipsers_names = list([x.strip() for x in config.get("Fitting", "eclipsers_names", fallback="None").split("#")[0].split(",")])
-        self.eclipsees_names = list([x for x in config.get("Fitting", "eclipsees_names", fallback="None").split("#")[0].split(",")])
+
+        # self.eclipsers_names = list([x.strip() for x in config.get("Fitting", "eclipsers_names", fallback="None").split("#")[0].split(",")])
+        raw = config.get("Fitting", "eclipsers_names", fallback="None").split("#")[0]
+        self.eclipsers_names = [x.strip() for x in raw.split(",")]
+        # self.eclipsees_names = list([x for x in config.get("Fitting", "eclipsees_names", fallback="None").split("#")[0].split(",")])
+        raw = config.get("Fitting", "eclipsees_names", fallback="None").split("#")[0]
+        self.eclipsees_names = [x.strip() for x in raw.split(",")]
+
         self.best_residuals_tt_sum_squared = 1e99
         self.lmfit_method = config.get("Fitting", "lmfit_method", fallback="powell")
         self.ls_chunk_size = int(eval(config.get("Fitting", "ls_chunk_size", fallback="1000")))
@@ -162,7 +168,7 @@ class CurveSimParameters:
         self.star_scale_right = eval(config.get("VideoScale", "star_scale_right", fallback="1.0"))
         self.planet_scale_right = eval(config.get("VideoScale", "planet_scale_right", fallback="1.0"))
 
-        self.autoscaling = config.get("VideoScale", "autoscaling", fallback="True")
+        self.autoscaling = eval(config.get("VideoScale", "autoscaling", fallback="True"))
         self.min_radius = eval(config.get("VideoScale", "min_radius", fallback="0.4")) / 100.0
         self.max_radius = eval(config.get("VideoScale", "max_radius", fallback="2.0")) / 100.0
 
@@ -365,7 +371,21 @@ class CurveSimParameters:
     #     flux_time_d = flux_time_s0 / p.day + p.epoch
     #     return flux_time_s0, flux_time_d
 
-    def read_param(self, config, section, param, fallback):
+    def read_param(self, config, section, param, fallback, evaluate=True, forced_type=None):
+        # For ease of use of these constants in the config file they are additionally defined here without the prefix "self.".
+        g, au, r_sun, m_sun, l_sun = self.g, self.au, self.r_sun, self.m_sun, self.l_sun
+        r_jup, m_jup, r_nep, m_nep, r_earth, m_earth = self.r_jup, self.m_jup, self.r_nep, self.m_nep, self.r_earth, self.m_earth
+        hour, day, year = self.hour, self.day, self.year
+        value = config.get(section, param, fallback=fallback)
+        if value is None:
+            return None
+        if evaluate:
+            value = eval(value)
+        hier weiter type check
+
+        return value
+
+    def read_body_param(self, config, section, param, fallback):
         # For ease of use of these constants in the config file they are additionally defined here without the prefix "self.".
         g, au, r_sun, m_sun, l_sun = self.g, self.au, self.r_sun, self.m_sun, self.l_sun
         r_jup, m_jup, r_nep, m_nep, r_earth, m_earth = self.r_jup, self.m_jup, self.r_nep, self.m_nep, self.r_earth, self.m_earth
