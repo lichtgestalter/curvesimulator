@@ -33,27 +33,44 @@ class CurveSimParameters:
 
         # [Astronomical Constants]
         # For ease of use of these constants in the config file they are additionally defined here without the prefix "self.".
-        g = eval(config.get("Astronomical Constants", "g", fallback="None"))
-        au = eval(config.get("Astronomical Constants", "au", fallback="None"))
-        r_sun = eval(config.get("Astronomical Constants", "r_sun", fallback="None"))
-        m_sun = eval(config.get("Astronomical Constants", "m_sun", fallback="None"))
-        l_sun = eval(config.get("Astronomical Constants", "l_sun", fallback="None"))
-        r_jup = eval(config.get("Astronomical Constants", "r_jup", fallback="None"))
-        m_jup = eval(config.get("Astronomical Constants", "m_jup", fallback="None"))
-        r_nep = eval(config.get("Astronomical Constants", "r_nep", fallback="None"))
-        m_nep = eval(config.get("Astronomical Constants", "m_nep", fallback="None"))
-        r_earth = eval(config.get("Astronomical Constants", "r_earth", fallback="None"))
-        m_earth = eval(config.get("Astronomical Constants", "m_earth", fallback="None"))
-        hour = eval(config.get("Astronomical Constants", "hour", fallback="None"))
-        day = eval(config.get("Astronomical Constants", "day", fallback="None"))
-        year = eval(config.get("Astronomical Constants", "year", fallback="None"))
-        rad2deg = eval(config.get("Astronomical Constants", "rad2deg", fallback="None"))
+        # g = eval(config.get("Astronomical Constants", "g", fallback="None"))
+        g = self.read_param(config, "Astronomical Constants", "g", "None", evaluate=True, forced_type=float, lower=0, upper=None)
+        au = self.read_param(config, "Astronomical Constants", "au", "None", evaluate=True, forced_type=float, lower=0, upper=None)
+        r_sun = self.read_param(config, "Astronomical Constants", "r_sun", "None", evaluate=True, forced_type=float, lower=0, upper=None)
+        m_sun = self.read_param(config, "Astronomical Constants", "m_sun", "None", evaluate=True, forced_type=float, lower=0, upper=None)
+        l_sun = self.read_param(config, "Astronomical Constants", "l_sun", "None", evaluate=True, forced_type=float, lower=0, upper=None)
+        r_jup = self.read_param(config, "Astronomical Constants", "r_jup", "None", evaluate=True, forced_type=float, lower=0, upper=None)
+        m_jup = self.read_param(config, "Astronomical Constants", "m_jup", "None", evaluate=True, forced_type=float, lower=0, upper=None)
+        r_nep = self.read_param(config, "Astronomical Constants", "r_nep", "None", evaluate=True, forced_type=float, lower=0, upper=None)
+        m_nep = self.read_param(config, "Astronomical Constants", "m_nep", "None", evaluate=True, forced_type=float, lower=0, upper=None)
+        r_earth = self.read_param(config, "Astronomical Constants", "r_earth", "None", evaluate=True, forced_type=float, lower=0, upper=None)
+        m_earth = self.read_param(config, "Astronomical Constants", "m_earth", "None", evaluate=True, forced_type=float, lower=0, upper=None)
+        hour = self.read_param(config, "Astronomical Constants", "hour", "None", evaluate=True, forced_type=int, lower=0, upper=None)
+        day = self.read_param(config, "Astronomical Constants", "day", "None", evaluate=True, forced_type=int, lower=0, upper=None)
+        year = self.read_param(config, "Astronomical Constants", "year", "None", evaluate=True, forced_type=float, lower=0, upper=None)
+        rad2deg = self.read_param(config, "Astronomical Constants", "rad2deg", "None", evaluate=True, forced_type=float, lower=0, upper=None)
+
+        # au = eval(config.get("Astronomical Constants", "au", fallback="None"))
+        # r_sun = eval(config.get("Astronomical Constants", "r_sun", fallback="None"))
+        # m_sun = eval(config.get("Astronomical Constants", "m_sun", fallback="None"))
+        # l_sun = eval(config.get("Astronomical Constants", "l_sun", fallback="None"))
+        # r_jup = eval(config.get("Astronomical Constants", "r_jup", fallback="None"))
+        # m_jup = eval(config.get("Astronomical Constants", "m_jup", fallback="None"))
+        # r_nep = eval(config.get("Astronomical Constants", "r_nep", fallback="None"))
+        # m_nep = eval(config.get("Astronomical Constants", "m_nep", fallback="None"))
+        # r_earth = eval(config.get("Astronomical Constants", "r_earth", fallback="None"))
+        # m_earth = eval(config.get("Astronomical Constants", "m_earth", fallback="None"))
+        # hour = eval(config.get("Astronomical Constants", "hour", fallback="None"))
+        # day = eval(config.get("Astronomical Constants", "day", fallback="None"))
+        # year = eval(config.get("Astronomical Constants", "year", fallback="None"))
+        # rad2deg = eval(config.get("Astronomical Constants", "rad2deg", fallback="None"))
         self.g, self.au, self.r_sun, self.m_sun, self.l_sun = g, au, r_sun, m_sun, l_sun,
         self.r_jup, self.m_jup, self.r_nep, self.m_nep, self.r_earth, self.m_earth = r_jup, m_jup, r_nep, m_nep, r_earth, m_earth
         self.hour, self.day, self.year, self.rad2deg = hour, day, year, rad2deg
 
         # [Results]
-        self.results_directory = config.get("Results", "results_directory", fallback=".")
+        self.results_directory = self.read_param(config, "Results", "results_directory", ".", evaluate=False, forced_type=str, lower=None, upper=None)
+        # self.results_directory = config.get("Results", "results_directory", fallback=".")
         self.results_directory = self.find_results_subdirectory()
         self.result_file = "results_single_run.json"
         self.result_file = CurveSimParameters.check_filename_and_add_path(self.result_file, "result_file", self.results_directory)
@@ -371,18 +388,46 @@ class CurveSimParameters:
     #     flux_time_d = flux_time_s0 / p.day + p.epoch
     #     return flux_time_s0, flux_time_d
 
-    def read_param(self, config, section, param, fallback, evaluate=True, forced_type=None):
-        # For ease of use of these constants in the config file they are additionally defined here without the prefix "self.".
-        g, au, r_sun, m_sun, l_sun = self.g, self.au, self.r_sun, self.m_sun, self.l_sun
-        r_jup, m_jup, r_nep, m_nep, r_earth, m_earth = self.r_jup, self.m_jup, self.r_nep, self.m_nep, self.r_earth, self.m_earth
-        hour, day, year = self.hour, self.day, self.year
+    def read_param(self, config, section, param, fallback, evaluate=True, forced_type=None, lower=None, upper=None):
         value = config.get(section, param, fallback=fallback)
+        # if value is None:
+        #     return None
+        if evaluate:
+            if section != "Astronomical Constants":
+                # For ease of use of these constants in the config file they are additionally defined here without the prefix "self.".
+                g, au, r_sun, m_sun, l_sun = self.g, self.au, self.r_sun, self.m_sun, self.l_sun
+                r_jup, m_jup, r_nep, m_nep, r_earth, m_earth = self.r_jup, self.m_jup, self.r_nep, self.m_nep, self.r_earth, self.m_earth
+                hour, day, year = self.hour, self.day, self.year
+        try:
+            value = eval(value)
+        except NameError, ValueError:
+            print(f"{Fore.RED}\nERROR in Configuration: Parameter {param} in section {section} has value {value}, which cannot be evaluated. {Style.RESET_ALL}")
+            if forced_type is not None:
+                print(f"{Fore.RED}Must have type {forced_type.__name__}. {Style.RESET_ALL}")
+            sys.exit(1)
         if value is None:
             return None
-        if evaluate:
-            value = eval(value)
-        hier weiter type check
-
+        if forced_type in (bool, str, int):
+            if not isinstance(value, forced_type):
+                print(f"{Fore.RED}\nERROR in Configuration: Parameter {param} in section {section} must have type {forced_type.__name__}. {Style.RESET_ALL}")
+                sys.exit(1)
+        if forced_type == float:
+            if not isinstance(value, (int, float)) or isinstance(value, bool):
+                print(f"{Fore.RED}\nERROR in Configuration: Parameter {param} in section {section} must be a number. {Style.RESET_ALL}")
+                sys.exit(1)
+        if lower is not None:
+            if upper is not None:
+                ok = lower <= value <= upper
+            else:
+                ok = lower <= value
+        else:
+            if upper is not None:
+                ok = value <= upper
+            else:
+                ok = True
+        if not ok:
+            print(f"{Fore.RED}\nERROR in Configuration: Parameter {param} in section {section} has value {value}, which is out of bounds. {lower=}, {upper=}. {Style.RESET_ALL}")
+            sys.exit(1)
         return value
 
     def read_body_param(self, config, section, param, fallback):
