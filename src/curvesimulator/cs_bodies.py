@@ -32,7 +32,7 @@ class CurveSimBodies(list):
             # For ease of use of these constants in the config file are additionally defined here without the prefix "p.".
             g, au, r_sun, m_sun, l_sun = p.g, p.au, p.r_sun, p.m_sun, p.l_sun
             r_jup, m_jup, r_nep, m_nep, r_earth, m_earth = p.r_jup, p.m_jup, p.r_nep, p.m_nep, p.r_earth, p.m_earth
-            hour, day, year = p.hour, p.day, p.year
+            hour, day, year, rad2deg = p.hour, p.day, p.year, p.rad2deg
         except AttributeError:
             print(f"{Fore.YELLOW}\nWARNING: Section <Astronomical Constants> in the configuration file is incomplete.")
             print(f"See https://github.com/lichtgestalter/curvesimulator/wiki.{Style.RESET_ALL}")

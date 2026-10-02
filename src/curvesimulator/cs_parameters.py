@@ -104,49 +104,66 @@ class CurveSimParameters:
         # self.rv_body_name = config.get("Simulation", "rv_body_name", fallback=None)
 
         # [Results]
-        self.comment = config.get("Results", "comment", fallback="No comment")
-        self.verbose = eval(config.get("Results", "verbose", fallback="False"))
-        self.transit_precision = eval(config.get("Results", "transit_precision", fallback="1"))
-        self.flux_data_directory = config.get("Results", "flux_data_directory", fallback=".")
-        self.copy_config_file()
-        self.max_interval_extensions = eval(config.get("Results", "max_interval_extensions", fallback="10"))
+        self.comment = self.read_param(config, "Results", "comment", "No comment", evaluate=False, forced_type=str, lower=None, upper=None)
+        # self.comment = config.get("Results", "comment", fallback="No comment")
+        self.verbose = self.read_param(config, "Results", "verbose", "False", evaluate=True, forced_type=bool, lower=None, upper=None)
+        # self.verbose = eval(config.get("Results", "verbose", fallback="False"))
+        self.transit_precision = self.read_param(config, "Results", "transit_precision", "1", evaluate=True, forced_type=float, lower=0, upper=None)
+        # self.transit_precision = eval(config.get("Results", "transit_precision", fallback="1"))
+        self.flux_data_directory = self.read_param(config, "Results", "flux_data_directory", ".", evaluate=False, forced_type=str, lower=None, upper=None)
+        # self.flux_data_directory = config.get("Results", "flux_data_directory", fallback=".")
+        self.max_interval_extensions = self.read_param(config, "Results", "max_interval_extensions", "10", evaluate=True, forced_type=int, lower=0, upper=None)
+        # self.max_interval_extensions = eval(config.get("Results", "max_interval_extensions", fallback="10"))
         default_unit = '{"mass": "m_jup", "radius": "r_jup", "e": "1", "i": "deg", "P": "d", "a": "AU", "Omega": "deg", "omega": "deg", "pomega": "deg", "L": "deg", "ma": "deg", "ea": "deg", "nu": "deg", "T": "s", "rv_offset": "m/s", "rv_jitter": "m/s"}'
-        dict_str = config.get("Results", "unit", fallback=default_unit)
-        self.unit = eval(dict_str)
+        self.unit = self.read_param(config, "Results", "unit", default_unit, evaluate=True, forced_type=dict, lower=None, upper=None)
+        # dict_str = config.get("Results", "unit", fallback=default_unit)
+        # self.unit = eval(dict_str)
         default_scale = '{"mass": 1/m_jup, "radius": 1/r_jup, "e": 1, "i": rad2deg, "P": 1/day, "a": 1/au, "Omega": rad2deg, "omega": rad2deg, "pomega": rad2deg, "L": rad2deg, "ma": rad2deg, "ea": rad2deg, "nu": rad2deg, "T": 1, "rv_offset": 1, "rv_jitter": 1}'
-        dict_str = config.get("Results", "scale", fallback=default_scale)
-        self.scale = eval(dict_str)
-        self.tt_padding = eval(config.get("Results", "tt_padding", fallback="0.3"))
+        self.scale = self.read_param(config, "Results", "scale", default_scale, evaluate=True, forced_type=dict, lower=None, upper=None)
+        # dict_str = config.get("Results", "scale", fallback=default_scale)
+        # self.scale = eval(dict_str)
+        self.tt_padding = self.read_param(config, "Results", "tt_padding", "0.3", evaluate=True, forced_type=float, lower=0, upper=None)
+        # self.tt_padding = eval(config.get("Results", "tt_padding", fallback="0.3"))
         self.bins = tuple([eval(x) for x in config.get("Results", "bins", fallback="30").split("#")[0].split(",")])
-        self.flux_plots_top = eval(config.get("Results", "flux_plots_top", fallback="1.015"))
-        self.flux_plots_bottom = eval(config.get("Results", "flux_plots_bottom", fallback="0.97"))
-        self.free_parameters = eval(config.get("Results", "free_parameters", fallback="None"))  # Gets overwritten when fitting.
+        self.flux_plots_top = self.read_param(config, "Results", "flux_plots_top", "1.015", evaluate=True, forced_type=float, lower=0, upper=None)
+        # self.flux_plots_top = eval(config.get("Results", "flux_plots_top", fallback="1.015"))
+        self.flux_plots_bottom = self.read_param(config, "Results", "flux_plots_bottom", "0.97", evaluate=True, forced_type=float, lower=0, upper=None)
+        # self.flux_plots_bottom = eval(config.get("Results", "flux_plots_bottom", fallback="0.97"))
+        self.free_parameters = self.read_param(config, "Results", "free_parameters", "None", evaluate=True, forced_type=int, lower=0, upper=None)  # Gets overwritten when fitting.
+        # self.free_parameters = eval(config.get("Results", "free_parameters", fallback="None"))  # Gets overwritten when fitting.
 
         # [Fitting]
-        self.mcmc_multi_processing = eval(config.get("Fitting", "mcmc_multi_processing", fallback="True"))
-        self.flux_file = config.get("Fitting", "flux_file", fallback=None)
-        self.sector_params_file = config.get("Fitting", "sector_params_file", fallback=None)
+        self.mcmc_multi_processing = self.read_param(config, "Fitting", "mcmc_multi_processing", "True", evaluate=True, forced_type=bool, lower=None, upper=None)
+        # self.mcmc_multi_processing = eval(config.get("Fitting", "mcmc_multi_processing", fallback="True"))
+        self.flux_file = self.read_param(config, "Fitting", "flux_file", None, evaluate=False, forced_type=str, lower=None, upper=None)
+        # self.flux_file = config.get("Fitting", "flux_file", fallback=None)
+        self.sector_params_file = self.read_param(config, "Fitting", "sector_params_file", None, evaluate=False, forced_type=str, lower=None, upper=None)
+        # self.sector_params_file = config.get("Fitting", "sector_params_file", fallback=None)
         if self.sector_params_file is None:
             self.sector_params_fit = False
         else:
-            self.sector_params_fit = eval(config.get("Fitting", "sector_params_fit", fallback="False"))
-        # self.log_norm_term_flux = 0
-        # self.log_norm_term_rv = 0
-        self.tt_file = config.get("Fitting", "tt_file", fallback=None)
-        self.rv_file = config.get("Fitting", "rv_file", fallback=None)
+            self.sector_params_fit = self.read_param(config, "Fitting", "sector_params_fit", "False", evaluate=True, forced_type=bool, lower=None, upper=None)
+            # self.sector_params_fit = eval(config.get("Fitting", "sector_params_fit", fallback="False"))
+        self.tt_file = self.read_param(config, "Fitting", "tt_file", None, evaluate=False, forced_type=str, lower=None, upper=None)
+        # self.tt_file = config.get("Fitting", "tt_file", fallback=None)
+        self.rv_file = self.read_param(config, "Fitting", "rv_file", None, evaluate=False, forced_type=str, lower=None, upper=None)
+        # self.rv_file = config.get("Fitting", "rv_file", fallback=None)
 
-        # self.eclipsers_names = list([x.strip() for x in config.get("Fitting", "eclipsers_names", fallback="None").split("#")[0].split(",")])
         raw = config.get("Fitting", "eclipsers_names", fallback="None").split("#")[0]
         self.eclipsers_names = [x.strip() for x in raw.split(",")]
-        # self.eclipsees_names = list([x for x in config.get("Fitting", "eclipsees_names", fallback="None").split("#")[0].split(",")])
         raw = config.get("Fitting", "eclipsees_names", fallback="None").split("#")[0]
         self.eclipsees_names = [x.strip() for x in raw.split(",")]
 
         self.best_residuals_tt_sum_squared = 1e99
+        hier weiter
         self.lmfit_method = config.get("Fitting", "lmfit_method", fallback="powell")
+        # self.lmfit_method = config.get("Fitting", "lmfit_method", fallback="powell")
         self.ls_chunk_size = int(eval(config.get("Fitting", "ls_chunk_size", fallback="1000")))
+        # self.ls_chunk_size = int(eval(config.get("Fitting", "ls_chunk_size", fallback="1000")))
         self.ls_steps = int(eval(config.get("Fitting", "ls_steps", fallback="10000")))
+        # self.ls_steps = int(eval(config.get("Fitting", "ls_steps", fallback="10000")))
         ls_thresholds = config.get("Fitting", "ls_thresholds", fallback=None)
+        # ls_thresholds = config.get("Fitting", "ls_thresholds", fallback=None)
         if ls_thresholds is None:
             self.ls_thresholds = (1.0, 0.1, 0.01, 0.001, 0.0001)
         else:
@@ -155,19 +172,31 @@ class CurveSimParameters:
                 print(f"{Fore.RED}\nERROR: Parameter ls_thresholds must have exactly 5 items, separated by comma, but {self.ls_thresholds=}{Style.RESET_ALL}")
                 sys.exit(1)
         self.ls_max_tt_delta = eval(config.get("Fitting", "ls_max_tt_delta", fallback="1/(24*60*60)"))
+        # self.ls_max_tt_delta = eval(config.get("Fitting", "ls_max_tt_delta", fallback="1/(24*60*60)"))
         self.flux_weight = int(eval(config.get("Fitting", "flux_weight", fallback="1")))
+        # self.flux_weight = int(eval(config.get("Fitting", "flux_weight", fallback="1")))
         self.tt_weight = int(eval(config.get("Fitting", "tt_weight", fallback="1")))
+        # self.tt_weight = int(eval(config.get("Fitting", "tt_weight", fallback="1")))
         self.rv_weight = int(eval(config.get("Fitting", "rv_weight", fallback="1")))
+        # self.rv_weight = int(eval(config.get("Fitting", "rv_weight", fallback="1")))
         self.backend = config.get("Fitting", "backend", fallback=None)  # e.g. emcee_backend.h5
+        # self.backend = config.get("Fitting", "backend", fallback=None)  # e.g. emcee_backend.h5
         self.load_backend = eval(config.get("Fitting", "load_backend", fallback="False"))
+        # self.load_backend = eval(config.get("Fitting", "load_backend", fallback="False"))
         self.walkers = int(eval(config.get("Fitting", "walkers", fallback="32")))
+        # self.walkers = int(eval(config.get("Fitting", "walkers", fallback="32")))
         self.steps = int(eval(config.get("Fitting", "steps", fallback="10000")))
+        # self.steps = int(eval(config.get("Fitting", "steps", fallback="10000")))
         self.moves = config.get("Fitting", "moves", fallback="(emcee.moves.StretchMove(a=2.0))")
+        # self.moves = config.get("Fitting", "moves", fallback="(emcee.moves.StretchMove(a=2.0))")
         self.burn_in = int(eval(config.get("Fitting", "burn_in", fallback="500")))
+        # self.burn_in = int(eval(config.get("Fitting", "burn_in", fallback="500")))
         if self.burn_in < 1:
             self.burn_in = 1
         self.chunk_size = int(eval(config.get("Fitting", "chunk_size", fallback="500")))
+        # self.chunk_size = int(eval(config.get("Fitting", "chunk_size", fallback="500")))
         self.thin_samples = int(eval(config.get("Fitting", "thin_samples", fallback="10")))
+        # self.thin_samples = int(eval(config.get("Fitting", "thin_samples", fallback="10")))
         self.fitting_body_parameters = None  # Number of fitting parameters that are body params. Used to handle body params and other (e.g. sector) params differently.
         if self.action in ["lmfit", "guifit", "mcmc"]:
             self.fitting_parameters = self.read_fitting_parameters(config)
@@ -257,11 +286,12 @@ class CurveSimParameters:
         self.xlim = eval(config.get("VideoPlot", "xlim", fallback="1.25"))
         self.ylim = eval(config.get("VideoPlot", "ylim", fallback="1.0"))
 
+        self.copy_config_file()
         if self.action == "single_run" and self.video_file:
             if self.sampling_rate < 1:
                 print(f"{Fore.YELLOW}\nWARNING: This simulation calculates only {self.iterations} iterations for {self.frames} video frames.{Style.RESET_ALL}")
                 print(f"{Fore.YELLOW}         Because of this undersampling, the video will be using the same iteration for consecutive frames.{Style.RESET_ALL}")
-                print(f"{Fore.YELLOW}         Decrease the number of frames or decrease dt (the real time difference between simulation iterations).{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}         Decrease <frames> or decrease <dt>.{Style.RESET_ALL}")
 
     def __repr__(self):
         return f"CurveSimParameters from {self.config_file}"
@@ -408,7 +438,7 @@ class CurveSimParameters:
                 # For ease of use of these constants in the config file they are additionally defined here without the prefix "self.".
                 g, au, r_sun, m_sun, l_sun = self.g, self.au, self.r_sun, self.m_sun, self.l_sun
                 r_jup, m_jup, r_nep, m_nep, r_earth, m_earth = self.r_jup, self.m_jup, self.r_nep, self.m_nep, self.r_earth, self.m_earth
-                hour, day, year = self.hour, self.day, self.year
+                hour, day, year, rad2deg = self.hour, self.day, self.year, self.rad2deg
             try:
                 value = eval(value)
             except NameError, ValueError:
@@ -418,7 +448,7 @@ class CurveSimParameters:
                 sys.exit(1)
         if value is None:
             return None
-        if forced_type in (bool, str, int):
+        if forced_type in (bool, str, int, dict, tuple, list):
             if not isinstance(value, forced_type):
                 print(f"{Fore.RED}\nERROR in Configuration: Parameter {param} in section {section} must have type {forced_type.__name__}. {Style.RESET_ALL}")
                 sys.exit(1)
@@ -445,7 +475,7 @@ class CurveSimParameters:
         # For ease of use of these constants in the config file they are additionally defined here without the prefix "self.".
         g, au, r_sun, m_sun, l_sun = self.g, self.au, self.r_sun, self.m_sun, self.l_sun
         r_jup, m_jup, r_nep, m_nep, r_earth, m_earth = self.r_jup, self.m_jup, self.r_nep, self.m_nep, self.r_earth, self.m_earth
-        hour, day, year = self.hour, self.day, self.year
+        hour, day, year, rad2deg = self.hour, self.day, self.year, self.rad2deg
         line = config.get(section, param, fallback=fallback)
         if line is None:
             return None
@@ -458,7 +488,7 @@ class CurveSimParameters:
         # For ease of use of these constants in the config file they are additionally defined here without the prefix "self.".
         g, au, r_sun, m_sun, l_sun = self.g, self.au, self.r_sun, self.m_sun, self.l_sun
         r_jup, m_jup, r_nep, m_nep, r_earth, m_earth = self.r_jup, self.m_jup, self.r_nep, self.m_nep, self.r_earth, self.m_earth
-        hour, day, year = self.hour, self.day, self.year
+        hour, day, year, rad2deg = self.hour, self.day, self.year, self.rad2deg
         line = config.get(section, param, fallback=None)
         if line is None:  # parameter not in config file
             return (None,) * 6
@@ -678,3 +708,8 @@ class FittingParameter:
         base_params = []
         for i in self.indices:
             base_params.append(p.fitting_parameters[i])
+
+
+# default_unit =  '{"mass": "m_jup", "radius": "r_jup", "e": "1", "i": "deg", "P": "d", "a": "AU", "Omega": "deg", "omega": "deg", "pomega": "deg", "L": "deg", "ma": "deg", "ea": "deg", "nu": "deg", "T": "s", "rv_offset": "m/s", "rv_jitter": "m/s"}'
+# default_scale = '{"mass": 1/m_jup, "radius": 1/r_jup, "e": 1, "i": rad2deg, "P": 1/day, "a": 1/au, "Omega": rad2deg}'
+# default_scale = '{"omega": rad2deg, "pomega": rad2deg, "L": rad2deg, "ma": rad2deg, "ea": rad2deg, "nu": rad2deg, "T": 1, "rv_offset": 1, "rv_jitter": 1}'
