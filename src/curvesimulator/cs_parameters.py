@@ -33,7 +33,6 @@ class CurveSimParameters:
 
         # [Astronomical Constants]
         # For ease of use of these constants in the config file they are additionally defined here without the prefix "self.".
-        # g = eval(config.get("Astronomical Constants", "g", fallback="None"))
         g = self.read_param(config, "Astronomical Constants", "g", "None", evaluate=True, forced_type=float, lower=0, upper=None)
         au = self.read_param(config, "Astronomical Constants", "au", "None", evaluate=True, forced_type=float, lower=0, upper=None)
         r_sun = self.read_param(config, "Astronomical Constants", "r_sun", "None", evaluate=True, forced_type=float, lower=0, upper=None)
@@ -49,7 +48,7 @@ class CurveSimParameters:
         day = self.read_param(config, "Astronomical Constants", "day", "None", evaluate=True, forced_type=int, lower=0, upper=None)
         year = self.read_param(config, "Astronomical Constants", "year", "None", evaluate=True, forced_type=float, lower=0, upper=None)
         rad2deg = self.read_param(config, "Astronomical Constants", "rad2deg", "None", evaluate=True, forced_type=float, lower=0, upper=None)
-
+        # g = eval(config.get("Astronomical Constants", "g", fallback="None"))
         # au = eval(config.get("Astronomical Constants", "au", fallback="None"))
         # r_sun = eval(config.get("Astronomical Constants", "r_sun", fallback="None"))
         # m_sun = eval(config.get("Astronomical Constants", "m_sun", fallback="None"))
@@ -76,21 +75,33 @@ class CurveSimParameters:
         self.result_file = CurveSimParameters.check_filename_and_add_path(self.result_file, "result_file", self.results_directory)
 
         # [Simulation]
-        self.action = config.get("Simulation", "action", fallback="None")
-        self.integrator = config.get("Simulation", "integrator", fallback=None)
-        self.jacobi_masses = eval(config.get("Simulation", "jacobi_masses", fallback="True"))
-        self.rebound_warnings = eval(config.get("Simulation", "rebound_warnings", fallback="True"))
-        self.dt = eval(config.get("Simulation", "dt", fallback="1000"))
-        self.epoch = eval(config.get("Simulation", "epoch", fallback="0.0"))
-        self.sim_start = eval(config.get("Simulation", "sim_start", fallback="None"))
-        self.sim_end = eval(config.get("Simulation", "sim_end", fallback="None"))
-        self.sim_flux_file = config.get("Simulation", "sim_flux_file", fallback=None)
+        self.action = self.read_param(config, "Simulation", "action", None, evaluate=False, forced_type=str, lower=None, upper=None)
+        # self.action = config.get("Simulation", "action", fallback="None")
+        self.integrator = self.read_param(config, "Simulation", "integrator", None, evaluate=False, forced_type=str, lower=None, upper=None)
+        # self.integrator = config.get("Simulation", "integrator", fallback=None)
+        self.jacobi_masses = self.read_param(config, "Simulation", "jacobi_masses", "True", evaluate=True, forced_type=bool, lower=None, upper=None)
+        # self.jacobi_masses = eval(config.get("Simulation", "jacobi_masses", fallback="True"))
+        self.rebound_warnings = self.read_param(config, "Simulation", "rebound_warnings", "True", evaluate=True, forced_type=bool, lower=None, upper=None)
+        # self.rebound_warnings = eval(config.get("Simulation", "rebound_warnings", fallback="True"))
+        self.dt = self.read_param(config, "Simulation", "dt", "1000", evaluate=True, forced_type=int, lower=0, upper=None)
+        # self.dt = eval(config.get("Simulation", "dt", fallback="1000"))
+        self.epoch = self.read_param(config, "Simulation", "epoch", "0.0", evaluate=True, forced_type=float, lower=None, upper=None)
+        # self.epoch = eval(config.get("Simulation", "epoch", fallback="0.0"))
+        self.sim_start = self.read_param(config, "Simulation", "sim_start", "None", evaluate=True, forced_type=float, lower=0, upper=None)
+        # self.sim_start = eval(config.get("Simulation", "sim_start", fallback="None"))
+        self.sim_end = self.read_param(config, "Simulation", "sim_end", "None", evaluate=True, forced_type=float, lower=self.sim_start, upper=None)
+        # self.sim_end = eval(config.get("Simulation", "sim_end", fallback="None"))
+        self.sim_flux_file = self.read_param(config, "Simulation", "sim_flux_file", None, evaluate=False, forced_type=str, lower=None, upper=None)
+        # self.sim_flux_file = config.get("Simulation", "sim_flux_file", fallback=None)
         self.sim_flux_file = CurveSimParameters.check_filename_and_add_path(self.sim_flux_file, "sim_flux_file", self.results_directory)
-        self.computed_flux_file = config.get("Simulation", "computed_flux_file", fallback=None)
+        self.computed_flux_file = self.read_param(config, "Simulation", "computed_flux_file", None, evaluate=False, forced_type=str, lower=None, upper=None)
+        # self.computed_flux_file = config.get("Simulation", "computed_flux_file", fallback=None)
         self.computed_flux_file = CurveSimParameters.check_filename_and_add_path(self.computed_flux_file, "computed_flux_file", self.results_directory)
         self.iterations = self.check_sim_interval()
-        self.sim_flux_err = eval(config.get("Simulation", "sim_flux_err", fallback="0.0"))
-        self.rv_body_name = config.get("Simulation", "rv_body_name", fallback=None)
+        self.sim_flux_err = self.read_param(config, "Simulation", "sim_flux_err", "0.0", evaluate=True, forced_type=float, lower=0, upper=None)
+        # self.sim_flux_err = eval(config.get("Simulation", "sim_flux_err", fallback="0.0"))
+        self.rv_body_name = self.read_param(config, "Simulation", "rv_body_name", None, evaluate=False, forced_type=str, lower=None, upper=None)
+        # self.rv_body_name = config.get("Simulation", "rv_body_name", fallback=None)
 
         # [Results]
         self.comment = config.get("Results", "comment", fallback="No comment")
@@ -398,13 +409,13 @@ class CurveSimParameters:
                 g, au, r_sun, m_sun, l_sun = self.g, self.au, self.r_sun, self.m_sun, self.l_sun
                 r_jup, m_jup, r_nep, m_nep, r_earth, m_earth = self.r_jup, self.m_jup, self.r_nep, self.m_nep, self.r_earth, self.m_earth
                 hour, day, year = self.hour, self.day, self.year
-        try:
-            value = eval(value)
-        except NameError, ValueError:
-            print(f"{Fore.RED}\nERROR in Configuration: Parameter {param} in section {section} has value {value}, which cannot be evaluated. {Style.RESET_ALL}")
-            if forced_type is not None:
-                print(f"{Fore.RED}Must have type {forced_type.__name__}. {Style.RESET_ALL}")
-            sys.exit(1)
+            try:
+                value = eval(value)
+            except NameError, ValueError:
+                print(f"{Fore.RED}\nERROR in Configuration: Parameter {param} in section {section} has value {value}, which cannot be evaluated. {Style.RESET_ALL}")
+                if forced_type is not None:
+                    print(f"{Fore.RED}Must have type {forced_type.__name__}. {Style.RESET_ALL}")
+                sys.exit(1)
         if value is None:
             return None
         if forced_type in (bool, str, int):
