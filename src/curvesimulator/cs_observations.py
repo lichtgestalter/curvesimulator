@@ -81,8 +81,7 @@ class TotalObservations(ObservationType):
         # self.rvflux = RVFluxObservations(self)
 
     def __repr__(self):
-        return (f"CurveSimObservations: flux {self.flux.observation_count}, rv {self.rv.observation_count}, "
-                f"tt {self.tt.observation_count}, sim {self.sim.observation_count}, flux+rv {self.rvflux.observation_count}")
+        return f"CurveSimObservations: flux {self.flux.observation_count}, rv {self.rv.observation_count}, tt {self.tt.observation_count}, sim {self.sim.observation_count}"
 
     @staticmethod
     def check_required_columns(required_columns, df, file):

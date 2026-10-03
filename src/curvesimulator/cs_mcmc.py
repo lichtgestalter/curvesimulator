@@ -281,11 +281,11 @@ class CurveSimMCMC:
         # rebound_sim = CurveSimBodies.init_rebound(bodies, p)
         residuals_sum_squared, log_norm_term = 0, 0
         if p.flux_file:
-            residuals_sum_squared, log_norm_term = p.flux_weight * CurveSimMCMC.residuals_flux_sum_squared(theta, param_references, bodies, o, p)
+            residuals_sum_squared, log_norm_term = CurveSimMCMC.residuals_flux_sum_squared(theta, param_references, bodies, o, p)
         if p.tt_file:
-            residuals_sum_squared += p.tt_weight * CurveSimMCMC.residuals_tt_sum_squared(theta, param_references, bodies, o, p)
+            residuals_sum_squared += CurveSimMCMC.residuals_tt_sum_squared(theta, param_references, bodies, o, p)
         if p.rv_file:
-            rss, lntr = p.rv_weight * CurveSimMCMC.residuals_rv_sum_squared(theta, param_references, bodies, o, p)
+            rss, lntr = CurveSimMCMC.residuals_rv_sum_squared(theta, param_references, bodies, o, p)
             residuals_sum_squared += rss
             log_norm_term += lntr
         return -0.5 * (residuals_sum_squared + log_norm_term)
@@ -1021,145 +1021,6 @@ class CurveSimLMfit:
         residuals_tt_sum_squared, _ = CurveSimMCMC.match_transit_times(p, rebound_sim, o)
         return residuals_tt_sum_squared
 
-    def save_lmfit_results(self, p):
-        results = {}
-        results["CurveSimulator Documentation"] = "https://github.com/lichtgestalter/curvesimulator/wiki"
-        results["LMfit Performance"] = {}
-        results["LMfit Performance"]["comment"] = getattr(p, "comment", None)
-
-        results["LMfit Performance"]["start_realtime"] = self.start_real_time + " [DD.MM.YY hh:mm:ss]"
-        results["LMfit Performance"]["end_realtime"] = time.strftime("%d.%m.%y %H:%M:%S") + " [DD.MM.YY hh:mm:ss]"
-        runtime = time.perf_counter() - self.start_timestamp
-        results["LMfit Performance"]["run_time"] = CurveSimMCMC.seconds2readable(runtime)
-
-        results["LMfit Performance"]["results_directory"] = self.results_directory
-
-        if p.flux_file:
-            results["LMfit Performance"]["flux_file"] = p.flux_file
-            results["LMfit Performance"]["mean_avg_residual_in_std"] = self.flux_mean_avg_residual_in_std[-1]
-            results["LMfit Performance"]["median_avg_residual_in_std"] = self.flux_median_avg_residual_in_std[-1]
-        if p.tt_file:
-            results["LMfit Performance"]["tt_file"] = p.tt_file
-            # results["LMfit Performance"]["tt_data_points"] = p.tt_datasize
-
-        result_copy = copy.deepcopy(self.result)
-        result_copy.last_internal_values = list(result_copy.last_internal_values)
-        result_copy.residual = list(result_copy.residual)
-        result_copy.x = list(result_copy.x)
-        result_copy.params = json.loads(result_copy.params.dumps())
-
-        # results["LMfitParameters"] = find_ndarrays(result_copy.__dict__)
-
-        self.lmfit_results2json(results, p)
-
-    @staticmethod
-    def check_for_fit_improvement(residual):
-        try:
-            with open("residual.tmp", "r", encoding="utf8") as file:
-                best_residual = float(file.read().strip())
-        except (FileNotFoundError, ValueError):
-            best_residual = float("inf")
-        improvement = residual < best_residual
-        if improvement:
-            with open("residual.tmp", "w", encoding="utf8") as file:
-                file.write(str(residual))
-        return improvement
-
-    @staticmethod
-    def get_iteration_from_file():
-        try:
-            with open("iteration.tmp", "r", encoding="utf8") as file:
-                iteration = int(file.read().strip())
-        except (FileNotFoundError, ValueError):
-            iteration = 0
-        with open("iteration.tmp", "w", encoding="utf8") as file:
-            file.write(str(iteration + 1))
-        return iteration
-
-    @staticmethod
-    def save_intermediate_lmfit_results(p, bodies, measured_tt):
-        results = {}
-        results["CurveSimulator Documentation"] = "https://github.com/lichtgestalter/curvesimulator/wiki"
-        results["LMfit Performance"] = {}
-        results["LMfit Performance"]["comment"] = getattr(p, "comment", None)
-        results["LMfit Performance"]["end_realtime"] = time.strftime("%d.%m.%y %H:%M:%S") + " [DD.MM.YY hh:mm:ss]"
-
-        if p.flux_file:
-            results["LMfit Performance"]["flux_file"] = p.flux_file
-        if p.tt_file:
-            results["LMfit Performance"]["tt_file"] = p.tt_file
-            # results["LMfit Performance"]["tt_data_points"] = p.tt_datasize
-            # results["LMfit Performance"]["rv_file"] = p.rv_file
-        # if p.tt_file:
-        #     results["LMfit Performance"]["tt_measured"] = list(p.best_tt_df["tt"])
-        #     results["LMfit Performance"]["tt_best_sim"] = list(p.best_tt_df["nearest_sim"])
-
-        results["Bodies"] = {}
-        params = (["body_type", "primary", "mass", "radius", "luminosity", "rv_offset", "rv_jitter"]
-                  + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
-                  + ["e", "i", "P", "a", "Omega", "omega", "pomega"]
-                  + ["L", "ma", "ea", "ea_deg", "nu", "T"])
-
-        for i, body in enumerate(bodies):
-            results["Bodies"][body.name] = {}
-            for key in params:
-                attr = getattr(body, key)
-                if attr is not None:
-                    if key in p.scale:
-                        scale = p.scale[key]
-                    else:
-                        scale = 1
-                    results["Bodies"][body.name][key] = attr * scale
-
-        fitting_parameters = copy.deepcopy(p.fitting_parameters)
-        for fp in fitting_parameters:
-            fp.startvalue *= fp.scale
-            fp.lower *= fp.scale
-            fp.upper *= fp.scale
-            fp.last_value = bodies[fp.body_index].__dict__[fp.parameter_name]
-            fp.last_value *= fp.scale
-            # width = 25 - len(fp.body_parameter_name)
-            # print(f"{fp.body_parameter_name}:{fp.last_value:{width}.5f}")
-
-        results["Fitting Parameters"] = {fp.body_parameter_name: fp.__dict__ for fp in fitting_parameters}
-
-        results["measured_tt_list"] = measured_tt.to_dict(orient="list")  # Convert measured_tt DataFrame to a serializable format
-
-        p_copy = copy.deepcopy(p)
-        del p_copy.fitting_parameters
-        del p_copy.standard_sections
-        del p_copy.eclipsers
-        del p_copy.eclipsees
-        del p_copy.tt_file
-        del p_copy.iterations
-        del p_copy.walkers
-        del p_copy.moves
-        del p_copy.burn_in
-        del p_copy.thin_samples
-        # del p_copy.tt_datasize
-        del p_copy.comment
-        del p_copy.epoch
-        del p_copy.results_directory
-        del p_copy.sim_start_s0
-        del p_copy.sim_start
-        del p_copy.sim_end_s0
-        del p_copy.sim_end
-        results["ProgramParameters"] = p_copy.__dict__
-
-        filename = p.results_directory + f"/lmfit_results.tmp.json"
-        with open(filename, "w", encoding="utf8") as file:
-            json.dump(results, file, indent=4, ensure_ascii=False)
-        if p.verbose:
-            print(f" Saved intermediate LMfit results to {filename}")
-
-    def lmfit_results2json(self, results, p):
-        """Converts results to JSON and saves it."""
-        filename = self.results_directory + f"/lmfit_results.json"
-        with open(filename, "w", encoding="utf8") as file:
-            json.dump(results, file, indent=4, ensure_ascii=False)
-        if p.verbose:
-            print(f" Saved LMfit results to {filename}")
-
     def save_best_fit(self, p, bodies, measured_tt):
         max_delta = float(np.max(np.abs(measured_tt["delta"])))
         mean_delta = float(np.mean(np.abs(measured_tt["delta"])))
@@ -1184,21 +1045,160 @@ class CurveSimLMfit:
         runtime = CurveSimMCMC.seconds2readable(time.perf_counter() - self.start_timestamp)
         print(f"{color}Runtime: {runtime}   max_delta: {max_delta:7.4f} days  mean_delta: {mean_delta:7.4f} days{Style.RESET_ALL}    ", end="")
 
+    # def save_lmfit_results(self, p):
+    #     results = {}
+    #     results["CurveSimulator Documentation"] = "https://github.com/lichtgestalter/curvesimulator/wiki"
+    #     results["LMfit Performance"] = {}
+    #     results["LMfit Performance"]["comment"] = getattr(p, "comment", None)
+    #
+    #     results["LMfit Performance"]["start_realtime"] = self.start_real_time + " [DD.MM.YY hh:mm:ss]"
+    #     results["LMfit Performance"]["end_realtime"] = time.strftime("%d.%m.%y %H:%M:%S") + " [DD.MM.YY hh:mm:ss]"
+    #     runtime = time.perf_counter() - self.start_timestamp
+    #     results["LMfit Performance"]["run_time"] = CurveSimMCMC.seconds2readable(runtime)
+    #
+    #     results["LMfit Performance"]["results_directory"] = self.results_directory
+    #
+    #     if p.flux_file:
+    #         results["LMfit Performance"]["flux_file"] = p.flux_file
+    #         results["LMfit Performance"]["mean_avg_residual_in_std"] = self.flux_mean_avg_residual_in_std[-1]
+    #         results["LMfit Performance"]["median_avg_residual_in_std"] = self.flux_median_avg_residual_in_std[-1]
+    #     if p.tt_file:
+    #         results["LMfit Performance"]["tt_file"] = p.tt_file
+    #         # results["LMfit Performance"]["tt_data_points"] = p.tt_datasize
+    #
+    #     result_copy = copy.deepcopy(self.result)
+    #     result_copy.last_internal_values = list(result_copy.last_internal_values)
+    #     result_copy.residual = list(result_copy.residual)
+    #     result_copy.x = list(result_copy.x)
+    #     result_copy.params = json.loads(result_copy.params.dumps())
+    #
+    #     # results["LMfitParameters"] = find_ndarrays(result_copy.__dict__)
+    #
+    #     self.lmfit_results2json(results, p)
+    #
+    # @staticmethod
+    # def check_for_fit_improvement(residual):
+    #     try:
+    #         with open("residual.tmp", "r", encoding="utf8") as file:
+    #             best_residual = float(file.read().strip())
+    #     except (FileNotFoundError, ValueError):
+    #         best_residual = float("inf")
+    #     improvement = residual < best_residual
+    #     if improvement:
+    #         with open("residual.tmp", "w", encoding="utf8") as file:
+    #             file.write(str(residual))
+    #     return improvement
+    #
+    # @staticmethod
+    # def get_iteration_from_file():
+    #     try:
+    #         with open("iteration.tmp", "r", encoding="utf8") as file:
+    #             iteration = int(file.read().strip())
+    #     except (FileNotFoundError, ValueError):
+    #         iteration = 0
+    #     with open("iteration.tmp", "w", encoding="utf8") as file:
+    #         file.write(str(iteration + 1))
+    #     return iteration
+    #
+    # @staticmethod
+    # def save_intermediate_lmfit_results(p, bodies, measured_tt):
+    #     results = {}
+    #     results["CurveSimulator Documentation"] = "https://github.com/lichtgestalter/curvesimulator/wiki"
+    #     results["LMfit Performance"] = {}
+    #     results["LMfit Performance"]["comment"] = getattr(p, "comment", None)
+    #     results["LMfit Performance"]["end_realtime"] = time.strftime("%d.%m.%y %H:%M:%S") + " [DD.MM.YY hh:mm:ss]"
+    #
+    #     if p.flux_file:
+    #         results["LMfit Performance"]["flux_file"] = p.flux_file
+    #     if p.tt_file:
+    #         results["LMfit Performance"]["tt_file"] = p.tt_file
+    #         # results["LMfit Performance"]["tt_data_points"] = p.tt_datasize
+    #         # results["LMfit Performance"]["rv_file"] = p.rv_file
+    #     # if p.tt_file:
+    #     #     results["LMfit Performance"]["tt_measured"] = list(p.best_tt_df["tt"])
+    #     #     results["LMfit Performance"]["tt_best_sim"] = list(p.best_tt_df["nearest_sim"])
+    #
+    #     results["Bodies"] = {}
+    #     params = (["body_type", "primary", "mass", "radius", "luminosity", "rv_offset", "rv_jitter"]
+    #               + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
+    #               + ["e", "i", "P", "a", "Omega", "omega", "pomega"]
+    #               + ["L", "ma", "ea", "ea_deg", "nu", "T"])
+    #
+    #     for i, body in enumerate(bodies):
+    #         results["Bodies"][body.name] = {}
+    #         for key in params:
+    #             attr = getattr(body, key)
+    #             if attr is not None:
+    #                 if key in p.scale:
+    #                     scale = p.scale[key]
+    #                 else:
+    #                     scale = 1
+    #                 results["Bodies"][body.name][key] = attr * scale
+    #
+    #     fitting_parameters = copy.deepcopy(p.fitting_parameters)
+    #     for fp in fitting_parameters:
+    #         fp.startvalue *= fp.scale
+    #         fp.lower *= fp.scale
+    #         fp.upper *= fp.scale
+    #         fp.last_value = bodies[fp.body_index].__dict__[fp.parameter_name]
+    #         fp.last_value *= fp.scale
+    #         # width = 25 - len(fp.body_parameter_name)
+    #         # print(f"{fp.body_parameter_name}:{fp.last_value:{width}.5f}")
+    #
+    #     results["Fitting Parameters"] = {fp.body_parameter_name: fp.__dict__ for fp in fitting_parameters}
+    #
+    #     results["measured_tt_list"] = measured_tt.to_dict(orient="list")  # Convert measured_tt DataFrame to a serializable format
+    #
+    #     p_copy = copy.deepcopy(p)
+    #     del p_copy.fitting_parameters
+    #     del p_copy.standard_sections
+    #     del p_copy.eclipsers
+    #     del p_copy.eclipsees
+    #     del p_copy.tt_file
+    #     del p_copy.iterations
+    #     del p_copy.walkers
+    #     del p_copy.moves
+    #     del p_copy.burn_in
+    #     del p_copy.thin_samples
+    #     # del p_copy.tt_datasize
+    #     del p_copy.comment
+    #     del p_copy.epoch
+    #     del p_copy.results_directory
+    #     del p_copy.sim_start_s0
+    #     del p_copy.sim_start
+    #     del p_copy.sim_end_s0
+    #     del p_copy.sim_end
+    #     results["ProgramParameters"] = p_copy.__dict__
+    #
+    #     filename = p.results_directory + f"/lmfit_results.tmp.json"
+    #     with open(filename, "w", encoding="utf8") as file:
+    #         json.dump(results, file, indent=4, ensure_ascii=False)
+    #     if p.verbose:
+    #         print(f" Saved intermediate LMfit results to {filename}")
+    #
+    # def lmfit_results2json(self, results, p):
+    #     """Converts results to JSON and saves it."""
+    #     filename = self.results_directory + f"/lmfit_results.json"
+    #     with open(filename, "w", encoding="utf8") as file:
+    #         json.dump(results, file, indent=4, ensure_ascii=False)
+    #     if p.verbose:
+    #         print(f" Saved LMfit results to {filename}")
 
-def find_ndarrays(obj, path="root"):
-    if isinstance(obj, np.ndarray):
-        print(f"{path}: numpy.ndarray, shape={obj.shape}, dtype={obj.dtype}")
-        return obj.tolist()
-    elif isinstance(obj, dict):
-        for k, v in obj.items():
-            obj[k] = find_ndarrays(v, f"{path}[{repr(k)}]")
-        return obj
-    elif isinstance(obj, list):
-        for i, v in enumerate(obj):
-            obj[i] = find_ndarrays(v, f"{path}[{i}]")
-        return obj
-    elif hasattr(obj, "__dict__"):
-        obj.__dict__ = find_ndarrays(obj.__dict__, f"{path}.__dict__")
-        return obj
-    else:
-        return obj
+
+# def find_ndarrays(obj, path="root"):
+#     if isinstance(obj, np.ndarray):
+#         print(f"{path}: numpy.ndarray, shape={obj.shape}, dtype={obj.dtype}")
+#         return obj.tolist()
+#     elif isinstance(obj, dict):
+#         for k, v in obj.items():
+#             obj[k] = find_ndarrays(v, f"{path}[{repr(k)}]")
+#         return obj
+#     elif isinstance(obj, list):
+#         for i, v in enumerate(obj):
+#             obj[i] = find_ndarrays(v, f"{path}[{i}]")
+#         return obj
+#     elif hasattr(obj, "__dict__"):
+#         obj.__dict__ = find_ndarrays(obj.__dict__, f"{path}.__dict__")
+#         return obj
+#     else:
+#         return obj
