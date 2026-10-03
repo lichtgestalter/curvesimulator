@@ -273,7 +273,7 @@ class CurveSimBodies(list):
                 print(f"{Fore.RED}\nERROR in config file: {body.name} has invalid luminosity {body.luminosity=}.")
                 sys.exit(1)
             if body.luminosity > 0 and (body.limb_darkening_u1 is None or body.limb_darkening_u2 is None):  # if body.luminosity > 0 and limb darkening parameters are missing
-                print(f"{Fore.RED}\nERROR in config file: {body.name} has luminosity but invalid limb darkening parameter {body.limb_darkening=}.")
+                print(f"{Fore.RED}\nERROR in config file: {body.name} has luminosity but invalid limb darkening parameters.")
                 sys.exit(1)
             if body.a is not None and body.P is not None:
                 print(f"{Fore.RED}\nERROR in config file: Period P and semi-major axis a have been specified for {body.name}.")

@@ -1155,7 +1155,6 @@ class CurveSimLMfit:
     #     del p_copy.eclipsers
     #     del p_copy.eclipsees
     #     del p_copy.tt_file
-    #     del p_copy.iterations
     #     del p_copy.walkers
     #     del p_copy.moves
     #     del p_copy.burn_in
@@ -1164,9 +1163,7 @@ class CurveSimLMfit:
     #     del p_copy.comment
     #     del p_copy.epoch
     #     del p_copy.results_directory
-    #     del p_copy.sim_start_s0
     #     del p_copy.sim_start
-    #     del p_copy.sim_end_s0
     #     del p_copy.sim_end
     #     results["ProgramParameters"] = p_copy.__dict__
     #

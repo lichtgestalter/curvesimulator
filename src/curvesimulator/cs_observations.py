@@ -18,6 +18,13 @@ class Simulation:
         self.simrv = np.empty(self.iterations)
         self.observation_count = len(self.time_s0)
 
+        self.sampling_rate = self.iterations / p.frames
+        if p.action == "single_run" and p.video_file:
+            if self.sampling_rate < 1:
+                print(f"{Fore.YELLOW}\nWARNING: This simulation calculates only {self.iterations} iterations for {p.frames} video frames.{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}         Because of this undersampling, the video will be using the same iteration for consecutive frames.{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}         Decrease <frames> or decrease <dt>.{Style.RESET_ALL}")
+
     def __repr__(self):
         return f"Simulated Flux: {self.observation_count} observations"
 

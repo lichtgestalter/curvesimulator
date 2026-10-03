@@ -71,7 +71,6 @@ class CurveSimParameters:
         self.sim_flux_file = CurveSimParameters.check_filename_and_add_path(self.sim_flux_file, "sim_flux_file", self.results_directory)
         self.computed_flux_file = self.read_param(config, "Simulation", "computed_flux_file", None, evaluate=False, forced_type=str, lower=None, upper=None)
         self.computed_flux_file = CurveSimParameters.check_filename_and_add_path(self.computed_flux_file, "computed_flux_file", self.results_directory)
-        self.iterations = self.check_sim_interval()
         self.sim_flux_err = self.read_param(config, "Simulation", "sim_flux_err", "0.0", evaluate=True, forced_type=float, lower=0, upper=None)
         # self.sim_flux_err = eval(config.get("Simulation", "sim_flux_err", fallback="0.0"))
         self.rv_body_name = self.read_param(config, "Simulation", "rv_body_name", None, evaluate=False, forced_type=str, lower=None, upper=None)
@@ -176,7 +175,6 @@ class CurveSimParameters:
         # self.fps = eval(config.get("Video", "fps", fallback="25"))
         self.clockwise = self.read_param(config, "Video", "clockwise", "False", evaluate=True, forced_type=bool, lower=None, upper=None)
         # self.clockwise = eval(config.get("Video", "clockwise", fallback="False"))
-        self.sampling_rate = self.iterations / self.frames
 
         # [VideoScale]
         self.offset_x_left = self.read_param(config, "VideoScale", "offset_x_left", "0", evaluate=True, forced_type=float, lower=None, upper=None)
@@ -302,12 +300,9 @@ class CurveSimParameters:
         self.ylim = self.read_param(config, "VideoPlot", "xlim", "1.0", evaluate=True, forced_type=float, lower=0, upper=None)
         # self.ylim = eval(config.get("VideoPlot", "ylim", fallback="1.0"))
 
+        self.eclipsers, self.eclipsees = (None,) * 2
+
         self.copy_config_file()
-        if self.action == "single_run" and self.video_file:
-            if self.sampling_rate < 1:
-                print(f"{Fore.YELLOW}\nWARNING: This simulation calculates only {self.iterations} iterations for {self.frames} video frames.{Style.RESET_ALL}")
-                print(f"{Fore.YELLOW}         Because of this undersampling, the video will be using the same iteration for consecutive frames.{Style.RESET_ALL}")
-                print(f"{Fore.YELLOW}         Decrease <frames> or decrease <dt>.{Style.RESET_ALL}")
 
     def __repr__(self):
         return f"CurveSimParameters from {self.config_file}"
@@ -436,14 +431,6 @@ class CurveSimParameters:
         #     if section not in config.sections() and section != "Debug":
         #         print(f"{Fore.RED}Section {section} missing in config file.{Style.RESET_ALL}")
         #         sys.exit(1)
-
-    # @staticmethod
-    # def init_time_arrays(p):
-    #     flux_time_s0 = np.zeros(p.iterations, dtype=float)
-    #     for i in range(p.iterations):
-    #         flux_time_s0[i] = p.sim_start_s0 + i * p.dt
-    #     flux_time_d = flux_time_s0 / p.day + p.epoch
-    #     return flux_time_s0, flux_time_d
 
     def read_param(self, config, section, param, fallback, evaluate=True, forced_type=None, lower=None, upper=None):
         value = config.get(section, param, fallback=fallback)
@@ -636,6 +623,10 @@ class CurveSimParameters:
                 eclipsers.append(body)
             if body.name in self.eclipsees_names:
                 eclipsees.append(body)
+                if any([body.luminosity == 0, body.limb_darkening_u1 is None, body.limb_darkening_u2 is None]):
+                    print(f"{Fore.RED}\nERROR: Eclipsees must have luminosity > 0 and limb darkening parameters.{Style.RESET_ALL}")
+                    print(f"{Fore.RED}\n{body.name} has {body.luminosity=}, {body.limb_darkening_u1=}, {body.limb_darkening_u2=}.{Style.RESET_ALL}")
+                    sys.exit(1)
         self.eclipsers, self.eclipsees = eclipsers, eclipsees
 
     def randomize_startvalues_uniform(self):
