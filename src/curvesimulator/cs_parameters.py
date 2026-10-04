@@ -77,6 +77,7 @@ class CurveSimParameters:
         section = "Results"
         self.comment = self.read_param(config, section, "comment", "No comment", evaluate=False, forced_type=str, lower=None, upper=None)
         self.verbose = self.read_param(config, section, "verbose", "False", evaluate=True, forced_type=bool, lower=None, upper=None)
+        self.print_initial_body_states = self.read_param(config, section, "print_initial_body_states", "False", evaluate=True, forced_type=bool, lower=None, upper=None)
         self.transit_precision = self.read_param(config, section, "transit_precision", "1", evaluate=True, forced_type=float, lower=0, upper=None)
         self.flux_data_directory = self.read_param(config, section, "flux_data_directory", ".", evaluate=False, forced_type=str, lower=None, upper=None)
         self.max_interval_extensions = self.read_param(config, section, "max_interval_extensions", "10", evaluate=True, forced_type=int, lower=0, upper=None)

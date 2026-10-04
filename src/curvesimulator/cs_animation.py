@@ -146,7 +146,7 @@ class CurveSimAnimation:
         return upper_dot
 
     @staticmethod
-    def init_curve_plot(colspan, loc, p, rowspan, shape, o, y_label_type, curve_y_label, curve_y_label_fontsize, curve_y_tick_fontsize, curve_color, curve_dot_color):
+    def init_curve_plot(colspan, loc, p, rowspan, shape, o, y_data, y_label_type, curve_y_label, curve_y_label_fontsize, curve_y_tick_fontsize, curve_color, curve_dot_color):
         ax = plt.subplot2grid(shape=shape, loc=loc, rowspan=rowspan, colspan=colspan)
         ax.set_facecolor(p.video_background_color)  # background color
 
@@ -157,8 +157,8 @@ class CurveSimAnimation:
         # y-ticks
         ax.set_ylabel(curve_y_label, color=p.video_text_color, labelpad=14, fontsize=curve_y_label_fontsize)
         ax.tick_params(axis="y", colors=p.video_text_color, labelsize=curve_y_tick_fontsize)
-        minl = o.sim.simflux.min(initial=None)
-        maxl = o.sim.simflux.max(initial=None)
+        minl = y_data.min(initial=None)
+        maxl = y_data.max(initial=None)
         if minl == maxl:
             minl *= 0.99
         scope = maxl - minl
@@ -185,21 +185,21 @@ class CurveSimAnimation:
         # curve data (white line)
         x = (o.sim.time_s0 - o.sim.sim_start_s0) / p.day
         ax.set_xlim(float(x[0]), float(x[-1]))
-        ax.plot(x, o.sim.simflux, color=curve_color)
+        ax.plot(x, y_data, color=curve_color)
 
         dot = CurveSimAnimation.animated_dot(ax, p, scope, o, color=curve_dot_color)
         return ax, dot
 
     @staticmethod
     def init_upper_curve_plot(o, p, shape, loc, rowspan, colspan):
-        ax_upper_curve, upper_dot = CurveSimAnimation.init_curve_plot(colspan, loc, p, rowspan, shape, o, "flux", p.upper_curve_y_label, p.upper_curve_y_label_fontsize, p.upper_curve_y_tick_fontsize, p.upper_curve_color, p.upper_curve_dot_color)
+        ax_upper_curve, upper_dot = CurveSimAnimation.init_curve_plot(colspan, loc, p, rowspan, shape, o, o.sim.simflux, "flux", p.upper_curve_y_label, p.upper_curve_y_label_fontsize, p.upper_curve_y_tick_fontsize, p.upper_curve_color, p.upper_curve_dot_color)
         if not p.show_lower_curve:  # no x-ticks/-labels when the lower curve plot is present below because it uses the same x-ticks/-labels
             CurveSimAnimation.init_curve_plot_x_axis(ax_upper_curve, p, o)
         return ax_upper_curve, upper_dot
 
     @staticmethod
     def init_lower_curve_plot(o, p, shape, loc, rowspan, colspan):
-        ax_lower_curve, lower_dot = CurveSimAnimation.init_curve_plot(colspan, loc, p, rowspan, shape, o, "rv", p.lower_curve_y_label, p.lower_curve_y_label_fontsize, p.lower_curve_y_tick_fontsize, p.lower_curve_color, p.lower_curve_dot_color)
+        ax_lower_curve, lower_dot = CurveSimAnimation.init_curve_plot(colspan, loc, p, rowspan, shape, o, o.sim.simrv, "rv", p.lower_curve_y_label, p.lower_curve_y_label_fontsize, p.lower_curve_y_tick_fontsize, p.lower_curve_color, p.lower_curve_dot_color)
         CurveSimAnimation.init_curve_plot_x_axis(ax_lower_curve, p, o)
         return ax_lower_curve, lower_dot
 

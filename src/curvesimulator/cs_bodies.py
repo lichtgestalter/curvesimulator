@@ -23,7 +23,7 @@ class CurveSimBodies(list):
 
     # noinspection PyUnusedLocal
     def __init__(self, p):
-        p.myintegration = False  # if True, instead of Rebound, use a simple adhoc integration provided in this code
+        # p.myintegration = False  # if True, instead of Rebound, use a simple adhoc integration provided in this code
         """Initialize instances of physical bodies.
         Read program parameters and properties of the bodies from config file.
         Initialize the circles in the animation (matplotlib patches)"""
@@ -194,52 +194,20 @@ class CurveSimBodies(list):
         return com
 
     @staticmethod
-    def print_simulation_particles(p, simulation):
-        print("\n--- Simulation Particles ---")
+    def print_simulation_particles(p, simulation, message=""):
+        print(message)
         for i, particle in enumerate(simulation.particles):
-            print(f"\n\nParticle {i}:")
-            print(f"  m [m_jup] = {particle.m / p.m_jup:.3f}")
-            print(f"  r [r_jup] = {particle.r / p.r_jup:.3f}")
-            print(f"  position  = (x: {particle.x:,.0f}  y: {particle.y:,.0f}  z: {particle.z:,.0f})".replace(",", " "))
-            print(f"  velocity  = (x: {particle.vx:,.0f}  y: {particle.vy:,.0f}  z: {particle.vz:,.0f})".replace(",", " "))
+            print(f"\nParticle {i} {particle.name:15}: m[m_jup]={particle.m / p.m_jup:<10.4f}  r[r_jup]={particle.r / p.r_jup:<10.4f}  ", end="")
+            print(f"xyz[au]={particle.x/p.au:<10.4f}  {particle.y/p.au:10.4f}  {particle.z/p.au:10.4f}  ", end="")
+            print(f"velocity[m/s]={particle.vx:<6.0f}  {particle.vy:6.0f}  {particle.vz:6.0f}")
             try:
-                orbit = particle.orbit()
-                print(f"\nOrbital elements (relative to primary (Jacobi is default))")
-                print(f"  P [d]     = {orbit.P / (60 * 60 * 24):.3f}")
-                print(f"  a [AU]    = {orbit.a / p.au:.3f}")
-                print(f"  e         = {orbit.e:.3f}")
-                print(f"  i         = {math.degrees(orbit.inc):.1f}")
-                print(f"  Omega     = {math.degrees(orbit.Omega):.1f}")
-                print(f"  omega     = {math.degrees(orbit.omega):.1f}")
-                print(f"  ma        = {math.degrees(orbit.M):.1f}")
+                orbit = particle.orbit()  # Orbital elements relative to the primary, which was either explicitly given in init_rebound() or is the Center of Mass of the inner bodies (Jacobi coordinates)
+                # orbit = particle.orbit(primary=simulation.particles[0])  # Alternative 1: Define a primary here. Not necessarily the same as in init_rebound().
+                # orbit = particle.orbit(primary=CurveSimBodies.get_com_particle(simulation, range(i)))  # Alternative 2: Manually computed COM-primary. Results are in Jacobi Coordinates."
+                print(f"                            P[d]={orbit.P / p.day:<14.4f}  a[au]={orbit.a / p.au:<13.4f}  e={orbit.e:<19.4f}  i={math.degrees(orbit.inc):<10.4f}  Omega[°]={math.degrees(orbit.Omega):<10.4f}  omega[°]={math.degrees(orbit.omega):<10.4f}  ma[°]={math.degrees(orbit.M):<10.4f}")
             except Exception:
-                print("  (No orbital elements available)")
-            try:
-                primary = CurveSimBodies.get_com_particle(simulation, range(i))
-                orbit = particle.orbit(primary=primary)
-                print(f"\nOrbital elements (relative to manually computed COM-primary)")
-                print(f"  P [d]     = {orbit.P / (60 * 60 * 24):.3f}")
-                print(f"  a [AU]    = {orbit.a / p.au:.3f}")
-                print(f"  e         = {orbit.e:.3f}")
-                print(f"  i         = {math.degrees(orbit.inc):.1f}")
-                print(f"  Omega     = {math.degrees(orbit.Omega):.1f}")
-                print(f"  omega     = {math.degrees(orbit.omega):.1f}")
-                print(f"  ma        = {math.degrees(orbit.M):.1f}")
-            except Exception:
-                print("  (No orbital elements available)")
-            try:
-                primary = CurveSimBodies.get_com_particle(simulation, range(i))
-                orbit = particle.orbit(primary=simulation.particles[0])
-                print(f"\nOrbital elements (relative to star)")
-                print(f"  P [d]     = {orbit.P / (60 * 60 * 24):.3f}")
-                print(f"  a [AU]    = {orbit.a / p.au:.3f}")
-                print(f"  e         = {orbit.e:.3f}")
-                print(f"  i         = {math.degrees(orbit.inc):.1f}")
-                print(f"  Omega     = {math.degrees(orbit.Omega):.1f}")
-                print(f"  omega     = {math.degrees(orbit.omega):.1f}")
-                print(f"  ma        = {math.degrees(orbit.M):.1f}")
-            except Exception:
-                print("  (No orbital elements available)")
+                pass
+
 
     def get_body_from_name(self, bodyname):
         for body in self:
@@ -329,11 +297,16 @@ class CurveSimBodies(list):
         """Calculate distances, forces, accelerations, velocities of the bodies for each iteration.
         The resulting body positions and the lightcurve are stored for later use in the animation."""
         iterations = len(time_s0)
-        if p.myintegration:  # debug
-            simulation = MyIntegration(p)
-            self.init_myintegration(simulation)
-        else:
-            simulation = self.init_rebound(p)
+        # if p.myintegration:  # debug
+        #     simulation = MyIntegration(p)
+        #     self.init_myintegration(simulation)
+        # else:
+        simulation = self.init_rebound(p)
+        if p.print_initial_body_states:
+            self.print_simulation_particles(p, simulation, message="\n\n### Simulation Particles directly after initialization: ###")
+            print("\nExited after succesful print of initial body parameters.")
+            print("Set parameter print_initial_body_states = False in order to run the full simulation instead.\n")
+            sys.exit(0)
 
         stars = [body for body in self if body.body_type == "star"]
         sim_flux = np.zeros(iterations)
@@ -342,17 +315,21 @@ class CurveSimBodies(list):
             sim_rv = np.full(iterations, np.nan, dtype=float)
         else:
             sim_rv = None
-        if not p.myintegration:
-            initial_sim_state = CurveSimRebound(simulation)
+        # if not p.myintegration:
+        initial_sim_state = CurveSimRebound(simulation)
 
         for iteration in range(iterations):
-            if p.myintegration:
-                if iteration == 0:
-                    E0 = simulation.total_energy()
-                E = simulation.total_energy()
-                rel_error = (E - E0) / abs(E0)
+            # if p.myintegration:
+            #     if iteration == 0:
+            #         E0 = simulation.total_energy()
+            #     E = simulation.total_energy()
+            #     rel_error = (E - E0) / abs(E0)
 
             simulation.integrate(time_s0[iteration])
+            # if iteration == 0:
+            #     self.print_simulation_particles(p, simulation, message="\n\n### Simulation Particles at sim_start hack debug: ###")
+            # if iteration == iterations-1:
+            #     self.print_simulation_particles(p, simulation, message="\n\n### Simulation Particles at sim_end hack debug: ###")
             for body in self:
                 CurveSimBodies.update_position(body, iteration, simulation)
             sim_flux[iteration] = self.total_luminosity(stars, iteration, p)  # Update sim_flux.
@@ -360,11 +337,11 @@ class CurveSimBodies(list):
                 sim_rv[iteration] = -simulation.particles[p.rv_body_name].vz
             if p.verbose:
                 CurveSimBodies.progress_bar(iteration, iterations, p)
-        if not p.myintegration:
-            new_sim_state = CurveSimRebound(simulation)
-            energy_change = initial_sim_state.sim_check_deltas(new_sim_state)
-        else:
-            energy_change = None
+        # if not p.myintegration:
+        new_sim_state = CurveSimRebound(simulation)
+        energy_change = initial_sim_state.sim_check_deltas(new_sim_state)
+        # else:
+        #     energy_change = None
 
         lightcurve_max = float(sim_flux.max(initial=None))
         sim_flux /= lightcurve_max  # Normalize flux.
@@ -426,34 +403,34 @@ class CurveSimBodies(list):
                     eclipser_before_eclipsee = eclipser.positions[i][2] > eclipsee.positions[i][2]
                     transit_between_iterations = (eclipser.positions[i][0] - eclipsee.positions[i][0]) * (eclipser.positions[i - 1][0] - eclipsee.positions[i - 1][0]) <= 0  # transit between i-1 and i?
                     if eclipser_before_eclipsee and transit_between_iterations:
-                        if p.myintegration:  # debug
+                        # if p.myintegration:  # debug
+                        #     results["Bodies"][eclipser.name]["Transits"].append(Transit(eclipsee))
+                        #     results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["EclipsedBody"] = eclipsee.name
+                        #     results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["TT"] = i * p.dt / p.day + p.epoch
+                        #     print(f"myintegration transit at {i * p.dt / p.day + p.epoch:.2f}")
+                        # else:
+                        tt, impact, depth, close_enough, inclination = eclipsee.find_tt(eclipser, i - 1, rebound_sim, p, o, 0)
+                        if close_enough:  # eclipser and eclipsee are close enough at actual TT
+                            tt_s0 = rebound_sim.t
+                            t1 = eclipsee.find_t1234(eclipser, tt_s0, i, rebound_sim, o, 0, iterations, p, transittimetype="T1")
+                            t2 = eclipsee.find_t1234(eclipser, tt_s0, i, rebound_sim, o, 0, iterations, p, transittimetype="T2")
+                            t3 = eclipsee.find_t1234(eclipser, tt_s0, i - 1, rebound_sim, o, 0, iterations, p, transittimetype="T3")
+                            t4 = eclipsee.find_t1234(eclipser, tt_s0, i - 1, rebound_sim, o, 0, iterations, p, transittimetype="T4")
+                            t12, t23, t34, t14 = CurveSimPhysics.calc_transit_intervals(t1, t2, t3, t4)
                             results["Bodies"][eclipser.name]["Transits"].append(Transit(eclipsee))
                             results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["EclipsedBody"] = eclipsee.name
-                            results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["TT"] = i * p.dt / p.day + p.epoch
-                            # print(f"myintegration transit at {i * p.dt / p.day + p.epoch:.2f}")
-                        else:
-                            tt, impact, depth, close_enough, inclination = eclipsee.find_tt(eclipser, i - 1, rebound_sim, p, o, 0)
-                            if close_enough:  # eclipser and eclipsee are close enough at actual TT
-                                tt_s0 = rebound_sim.t
-                                t1 = eclipsee.find_t1234(eclipser, tt_s0, i, rebound_sim, o, 0, iterations, p, transittimetype="T1")
-                                t2 = eclipsee.find_t1234(eclipser, tt_s0, i, rebound_sim, o, 0, iterations, p, transittimetype="T2")
-                                t3 = eclipsee.find_t1234(eclipser, tt_s0, i - 1, rebound_sim, o, 0, iterations, p, transittimetype="T3")
-                                t4 = eclipsee.find_t1234(eclipser, tt_s0, i - 1, rebound_sim, o, 0, iterations, p, transittimetype="T4")
-                                t12, t23, t34, t14 = CurveSimPhysics.calc_transit_intervals(t1, t2, t3, t4)
-                                results["Bodies"][eclipser.name]["Transits"].append(Transit(eclipsee))
-                                results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["EclipsedBody"] = eclipsee.name
-                                results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T1"] = t1
-                                results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T2"] = t2
-                                results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["TT"] = tt
-                                results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T3"] = t3
-                                results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T4"] = t4
-                                results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T12"] = t12
-                                results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T23"] = t23
-                                results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T34"] = t34
-                                results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T14"] = t14
-                                results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["b"] = impact
-                                results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["depth"] = depth
-                                results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["i"] = inclination
+                            results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T1"] = t1
+                            results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T2"] = t2
+                            results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["TT"] = tt
+                            results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T3"] = t3
+                            results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T4"] = t4
+                            results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T12"] = t12
+                            results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T23"] = t23
+                            results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T34"] = t34
+                            results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["T14"] = t14
+                            results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["b"] = impact
+                            results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["depth"] = depth
+                            results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["i"] = inclination
         return results
 
     @staticmethod
@@ -467,12 +444,12 @@ class CurveSimBodies(list):
                     eclipser_before_eclipsee = eclipser.positions[i][2] > eclipsee.positions[i][2]
                     transit_between_iterations = (eclipser.positions[i][0] - eclipsee.positions[i][0]) * (eclipser.positions[i - 1][0] - eclipsee.positions[i - 1][0]) <= 0  # transit between i-1 and i?
                     if eclipser_before_eclipsee and transit_between_iterations:
-                        if p.myintegration:  # debug
-                            tts.append([eclipser.name, eclipsee.name, i * p.dt / p.day + p.epoch])
-                        else:
-                            tt, b, depth, close_enough, inclination = eclipsee.find_tt(eclipser, i - 1, rebound_sim, p, o, 0)
-                            if close_enough:
-                                tts.append([eclipser.name, eclipsee.name, tt])
+                        # if p.myintegration:  # debug
+                        #     tts.append([eclipser.name, eclipsee.name, i * p.dt / p.day + p.epoch])
+                        # else:
+                        tt, b, depth, close_enough, inclination = eclipsee.find_tt(eclipser, i - 1, rebound_sim, p, o, 0)
+                        if close_enough:
+                            tts.append([eclipser.name, eclipsee.name, tt])
         return tts
 
     def bodies2param_json(self, measured_tt, p):
