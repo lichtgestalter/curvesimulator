@@ -302,11 +302,6 @@ class CurveSimBodies(list):
         #     self.init_myintegration(simulation)
         # else:
         simulation = self.init_rebound(p)
-        if p.print_initial_body_states:
-            self.print_simulation_particles(p, simulation, message="\n\n### Simulation Particles directly after initialization: ###")
-            print("\nExited after succesful print of initial body parameters.")
-            print("Set parameter print_initial_body_states = False in order to run the full simulation instead.\n")
-            sys.exit(0)
 
         stars = [body for body in self if body.body_type == "star"]
         sim_flux = np.zeros(iterations)
@@ -318,6 +313,14 @@ class CurveSimBodies(list):
         # if not p.myintegration:
         initial_sim_state = CurveSimRebound(simulation)
 
+        if p.print_initial_body_states:
+            self.print_simulation_particles(p, simulation, message="\n\n######## Simulation particles at epoch: ########")
+            simulation.integrate(time_s0[0])
+            self.print_simulation_particles(p, simulation, message="\n\n######## Simulation particles at sim_start: ########")
+            print("\nExited after succesful print of initial body parameters.")
+            print("Set parameter print_initial_body_states = False in order to run the full simulation instead.\n")
+            sys.exit(0)
+
         for iteration in range(iterations):
             # if p.myintegration:
             #     if iteration == 0:
@@ -326,10 +329,6 @@ class CurveSimBodies(list):
             #     rel_error = (E - E0) / abs(E0)
 
             simulation.integrate(time_s0[iteration])
-            # if iteration == 0:
-            #     self.print_simulation_particles(p, simulation, message="\n\n### Simulation Particles at sim_start hack debug: ###")
-            # if iteration == iterations-1:
-            #     self.print_simulation_particles(p, simulation, message="\n\n### Simulation Particles at sim_end hack debug: ###")
             for body in self:
                 CurveSimBodies.update_position(body, iteration, simulation)
             sim_flux[iteration] = self.total_luminosity(stars, iteration, p)  # Update sim_flux.

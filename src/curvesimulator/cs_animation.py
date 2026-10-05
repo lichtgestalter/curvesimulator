@@ -41,9 +41,14 @@ class CurveSimAnimation:
                 body.ab_right = AnnotationBbox(body.image_right, (-0.5, -0.5), frameon=False, xycoords="data")
                 body.ab_right.set_animated(True)
                 ax_right.add_artist(body.ab_right)
-
-            body.positions_left = body.positions - np.array([p.offset_x_left, 0, -p.offset_y_left])    # left view:  projection (x,y,z) -> (x,-z)
-            body.positions_right = body.positions - np.array([p.offset_x_right, p.offset_y_right, 0])  # right view: projection (x,y,z) -> (x,y)
+            if p.clockwise:
+                offset_x_left = p.offset_x_left
+                offset_x_right = p.offset_x_right
+            else:
+                offset_x_left = -p.offset_x_left
+                offset_x_right = -p.offset_x_right
+            body.positions_left = body.positions - np.array([offset_x_left, 0, -p.offset_y_left])    # left view:  projection (x,y,z) -> (x,-z)
+            body.positions_right = body.positions - np.array([offset_x_right, p.offset_y_right, 0])  # right view: projection (x,y,z) -> (x,y)
             if not p.clockwise:
                 body.positions_left *= np.array([-1, 1, 1])
                 body.positions_right *= np.array([-1, 1, 1])
