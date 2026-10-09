@@ -121,7 +121,7 @@ class CurveSimResults(dict):
         p_copy = copy.deepcopy(p)
         to_remove = [
             "fitting_parameters", "standard_sections", "eclipsers", "eclipsees",
-            "fitting_parameter_dic",
+            "fitting_parameter_dic", "update_from_theta_function",
             "offset_map", "jitter_map", "rv_body",
         ]
         for name in to_remove:

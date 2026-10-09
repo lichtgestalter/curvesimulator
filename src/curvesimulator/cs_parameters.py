@@ -13,7 +13,6 @@ import time
 
 from .cs_observations import TotalObservations
 
-
 class CurveSimParameters:
 
     def __init__(self, config_file):
@@ -215,6 +214,7 @@ class CurveSimParameters:
         self.ylim = self.read_param(config, section, "xlim", "1.0", evaluate=True, forced_type=float, lower=0, upper=None)
 
         self.eclipsers, self.eclipsees = (None,) * 2
+        self.e_omega_to_u_v_conversion = False
 
         self.copy_config_file()
 
@@ -438,6 +438,7 @@ class CurveSimParameters:
             print(f"Running MCMC with these fitting parameters:")
         for section in config.sections():
             if section not in self.standard_sections:  # section describes a physical object
+                parameter_names_in_use = []
                 for parameter_name in ["mass", "radius", "luminosity", "rv_offset", "rv_jitter", "limb_darkening_1", "limb_darkening_2", "e", "i", "a", "P", "Omega", "pomega", "omega", "L", "nu", "ma", "ea", "T"]:
                     value, lower, upper, sigma, prior_mu, prior_sigma = self.read_param_priors(config, section, parameter_name)
                     if value is not None:
@@ -457,10 +458,69 @@ class CurveSimParameters:
                                     sys.exit(1)
                         fitting_parameters.append(FittingParameter(self, section, body_index, parameter_name, value, lower, upper, sigma, prior_mu, prior_sigma))
                         fitting_parameters[-1].index = len(fitting_parameters) - 1
+                        parameter_names_in_use.append(parameter_name)
+                if "e" in parameter_names_in_use and "omega" in parameter_names_in_use:
+                    self.convert_fitting_parameters_e_omega_to_u_v(section, fitting_parameters)
+                    self.e_omega_to_u_v_conversion = True
+                    print("converting fitting parameters e, omega -> to u, v")
                 body_index += 1
         self.fitting_body_parameters = len(fitting_parameters)
-        # print(f"Fitting {len(fitting_parameters)} parameters.")
         return fitting_parameters, body_index
+
+    @staticmethod
+    def e_omega_to_u_v(e, omega):
+        if e is None or omega is None:
+            return None, None
+        u = np.sqrt(e)*np.sin(omega)
+        v = np.sqrt(e)*np.cos(omega)
+        return u, v
+
+    @staticmethod
+    def propagate_sigma(e, omega, sigma_e, sigma_omega):
+        """First-order error propagation for e_omega_to_u_v.
+        Evaluate each sigma at the point it is centered on."""
+        if sigma_e is None or sigma_omega is None:
+            return None, None
+        sin_o, cos_o = np.sin(omega), np.cos(omega)
+        sqrt_e = np.sqrt(e)
+        sigma_u = np.hypot(sin_o / (2 * sqrt_e) * sigma_e, sqrt_e * cos_o * sigma_omega)
+        sigma_v = np.hypot(cos_o / (2 * sqrt_e) * sigma_e, sqrt_e * sin_o * sigma_omega)
+        return sigma_u, sigma_v
+
+    @staticmethod
+    def convert_e_omega_to_u_v(fp_e, fp_o):
+        fp_e.parameter_name, fp_o.parameter_name = "u", "v"
+        fp_e.long_parameter_name, fp_o.long_parameter_name = "u[1]", "v[1]"
+        fp_e.scale, fp_o.scale = 1, 1
+
+        start_u, start_v = CurveSimParameters.e_omega_to_u_v(fp_e.startvalue, fp_o.startvalue)
+        mu_u, mu_v = CurveSimParameters.e_omega_to_u_v(fp_e.prior_mu, fp_o.prior_mu)
+        sigma_u, sigma_v = CurveSimParameters.propagate_sigma(fp_e.startvalue, fp_o.startvalue, fp_e.sigma, fp_o.sigma)
+        prior_sigma_u, prior_sigma_v = CurveSimParameters.propagate_sigma(fp_e.prior_mu, fp_o.prior_mu, fp_e.prior_sigma, fp_o.prior_sigma)
+        r = np.sqrt(fp_e.upper)  # Bounds: u, v lie in a disc of radius sqrt(e_upper), so use its bounding box
+
+        fp_e.startvalue, fp_o.startvalue = start_u, start_v
+        fp_e.prior_mu, fp_o.prior_mu = mu_u, mu_v
+        fp_e.sigma, fp_o.sigma = sigma_u, sigma_v
+        fp_e.prior_sigma, fp_o.prior_sigma = prior_sigma_u, prior_sigma_v
+        fp_e.lower, fp_o.lower = -r, -r
+        fp_e.upper, fp_o.upper = r, r
+
+    def convert_fitting_parameters_e_omega_to_u_v(self, section, fitting_parameters):
+        # waere wohl gut, wenn ich e_index und omega_index als Attribute des Bodies oder der Fittingparams oder p speichern koennte,
+        # damit spaeter leicht darauf zugegriffen werden kann.
+        # static???
+        print(section)
+        e_index, omega_index, fp_e, fp_o = (None,) * 4
+        for i, fp in enumerate(fitting_parameters):
+            print(fp.__dict__)
+            if fp.body_name == section and fp.parameter_name == "e":
+                e_index = i
+                fp_e = fitting_parameters[e_index]
+            if fp.body_name == section and fp.parameter_name == "omega":
+                omega_index = i
+                fp_o = fitting_parameters[omega_index]
+        CurveSimParameters.convert_e_omega_to_u_v(fp_e, fp_o)
 
     def read_fitting_sector_parameters(self, fitting_parameters, body_index):
         _, _, sector_params = TotalObservations.get_sector_params(self)

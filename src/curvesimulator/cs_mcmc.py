@@ -8,7 +8,7 @@ import json
 import lmfit
 import math
 import matplotlib.pyplot as plt
-from matplotlib.ticker import FuncFormatter
+# from matplotlib.ticker import FuncFormatter
 from multiprocessing import Pool
 import numpy as np
 import os
@@ -118,6 +118,10 @@ class CurveSimMCMC:
         self.unit = p.unit
         self.scale = p.scale
         self.steps = p.steps
+        if p.e_omega_to_u_v_conversion:
+            p.update_from_theta_function = CurveSimMCMC.update_bodies_from_theta_with_uv_conversion
+        else:
+            p.update_from_theta_function = CurveSimMCMC.update_bodies_from_theta
         self.credible_mass = 0.68
         self.param_references = [(fp.body_index, fp.parameter_name) for fp in self.fitting_parameters]  # list of names of fitting parameters. Needed so these parameters can be updated inside log_likelihood().
         self.body_parameter_names = [f"{bodies[fp.body_index].name}.{fp.parameter_name}" for fp in self.fitting_parameters[:p.fitting_body_parameters]]
@@ -291,7 +295,7 @@ class CurveSimMCMC:
         return -0.5 * (residuals_sum_squared + log_norm_term)
 
     @staticmethod
-    def update_bodies_from_theta(bodies, p, param_references, theta) -> int:
+    def update_bodies_from_theta(bodies, p, param_references, theta):
         i = 0
         for body_index, parameter_name in param_references[:p.fitting_body_parameters]:
             bodies[body_index].__dict__[parameter_name] = theta[i]
@@ -299,7 +303,16 @@ class CurveSimMCMC:
         return i
 
     @staticmethod
-    def update_sector_params_from_theta(i: int, o, theta):
+    def update_bodies_from_theta_with_uv_conversion(bodies, p, param_references, theta):
+        i = 0
+        for body_index, parameter_name in param_references[:p.fitting_body_parameters]:
+            bodies[body_index].__dict__[parameter_name] = theta[i]
+            i += 1
+        return i
+
+    @staticmethod
+    def update_sector_params_from_theta(first_sector_param_index, o, theta):
+        i = first_sector_param_index
         for sector in o.flux.offset_map.index:
             o.flux.offset_map.loc[sector] = theta[i]
             o.flux.jitter_map.loc[sector] = theta[i + 1]
@@ -307,22 +320,24 @@ class CurveSimMCMC:
 
     @staticmethod
     def residuals_flux_sum_squared(theta, param_references, bodies, o, p):
-        i = CurveSimMCMC.update_bodies_from_theta(bodies, p, param_references, theta)
+        first_sector_param_index = p.update_from_theta_function(bodies, p, param_references, theta)
+        # first_sector_param_index = CurveSimMCMC.update_bodies_from_theta(bodies, p, param_references, theta)
         if p.sector_params_fit:
-            CurveSimMCMC.update_sector_params_from_theta(i, o, theta)
+            CurveSimMCMC.update_sector_params_from_theta(first_sector_param_index, o, theta)
         o.flux.update(bodies, p)  # update flux observations with new offset and jitter, then calc computed and residuals.
         return o.flux.chi_squared, o.flux.log_norm_term
 
     @staticmethod
     def residuals_rv_sum_squared(theta, param_references, bodies, o, p):
-        CurveSimMCMC.update_bodies_from_theta(bodies, p, param_references, theta)
+        p.update_from_theta_function(bodies, p, param_references, theta)
+        # CurveSimMCMC.update_bodies_from_theta(bodies, p, param_references, theta)
         rebound_sim = bodies.init_rebound(p)
         o.rv.update(p, rebound_sim)  # update rv observations with new rv offset and jitter, then calc computed and residuals.
         return o.rv.chi_squared, o.rv.log_norm_term
 
     @staticmethod
     def residuals_tt_sum_squared(theta, param_references, bodies, o, p):
-        CurveSimMCMC.update_bodies_from_theta(bodies, p, param_references, theta)
+        p.update_from_theta_function(bodies, p, param_references, theta)
         sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, o.sim.time_s0)  # run simulation
         residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(p, rebound_sim, o)
         return residuals_tt_sum_squared
