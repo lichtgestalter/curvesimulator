@@ -120,7 +120,7 @@ class CurveSimResults(dict):
     def save_results(self, p):
         p_copy = copy.deepcopy(p)
         to_remove = [
-            "fitting_parameters", "standard_sections", "eclipsers", "eclipsees",
+            "fitting_parameters", "fitting_parameters_plus", "standard_sections", "eclipsers", "eclipsees",
             "fitting_parameter_dic", "update_from_theta_function",
             "offset_map", "jitter_map", "rv_body",
         ]

@@ -107,21 +107,33 @@ class CurveSimMCMC:
             os.remove("residual.tmp")
         if os.path.exists("iteration.tmp"):
             os.remove("iteration.tmp")
-        self.fitting_parameters = p.fitting_parameters
         self.thin_samples_plot = max(p.thin_samples, 10)  # avoid unnecessary memory usage for some plots
         self.credible_mass = 0.68
-        self.param_references = [(fp.body_index, fp.parameter_name) for fp in self.fitting_parameters]  # list of names of fitting parameters. Needed so these parameters can be updated inside log_likelihood().
-        self.body_parameter_names = [f"{bodies[fp.body_index].name}.{fp.parameter_name}" for fp in self.fitting_parameters[:p.fitting_body_parameters]]
-        self.sector_parameter_names = [f"{fp.parameter_name}" for fp in self.fitting_parameters[p.fitting_body_parameters:]]
+
+        self.param_references = [(fp.body_index, fp.parameter_name) for fp in p.fitting_parameters]  # list of names of fitting parameters. Needed so these parameters can be updated inside log_likelihood().
+        self.body_parameter_names = [f"{bodies[fp.body_index].name}.{fp.parameter_name}" for fp in p.fitting_parameters[:p.fitting_body_parameters]]
+        self.sector_parameter_names = [f"{fp.parameter_name}" for fp in p.fitting_parameters[p.fitting_body_parameters:]]
         self.long_body_parameter_names = [fpn + " [" + p.unit[fpn.split(".")[-1]] + "]" for fpn in self.body_parameter_names]
         for fp, fpn, fpnu in zip(p.fitting_parameters, self.body_parameter_names + self.sector_parameter_names, self.long_body_parameter_names + self.sector_parameter_names):
             fp.body_parameter_name = fpn
             fp.long_body_parameter_name = fpnu
-        self.param_bounds = [(fp.lower, fp.upper) for fp in self.fitting_parameters]
-        self.param_priors = [(fp.prior_mu, fp.prior_sigma) for fp in self.fitting_parameters]
+        # self.param_bounds = [(fp.lower, fp.upper) for fp in p.fitting_parameters]
+        # self.param_priors = [(fp.prior_mu, fp.prior_sigma) for fp in p.fitting_parameters]
         self.ndim = len(self.param_references)
+
+        # repeat, but ..._plus contains also the derived fitting parameters
+        self.param_references_plus = [(fp.body_index, fp.parameter_name) for fp in p.fitting_parameters_plus]  # list of names of fitting parameters. Needed so these parameters can be updated inside log_likelihood().
+        fp_without_sector_params = p.fitting_parameters_plus[:p.fitting_body_parameters] + p.fitting_parameters_plus[-p.derived_params:]
+        self.body_parameter_names_plus = [f"{bodies[fp.body_index].name}.{fp.parameter_name}" for fp in fp_without_sector_params]
+        # self.body_parameter_names_plus = [f"{bodies[fp.body_index].name}.{fp.parameter_name}" for fp in (p.fitting_parameters[:p.fitting_body_parameters] + p.fitting_parameters[-p.derived_params:])]
+        self.long_body_parameter_names_plus = [fpn + " [" + p.unit[fpn.split(".")[-1]] + "]" for fpn in self.body_parameter_names_plus]
+        for fp, fpn, fpnu in zip(p.fitting_parameters_plus[-p.derived_params:], self.body_parameter_names_plus[-p.derived_params:], self.long_body_parameter_names_plus[-p.derived_params]):
+            fp.body_parameter_name = fpn
+            fp.long_body_parameter_name = fpnu
+        self.ndim_plus = len(self.param_references_plus)
+
         self.theta0 = self.random_initial_values(p)
-        self.args = (self.fitting_parameters, self.param_references, bodies, o, p)
+        self.args = (p.fitting_parameters, self.param_references, bodies, o, p)
         self.moves = eval(p.moves)
         self.acceptance_fractions = []
         self.integrated_autocorrelation_time = []
@@ -369,7 +381,7 @@ class CurveSimMCMC:
     def random_initial_values(self, p):
         """return randomized initial values of the fitting parameters"""
         rng = np.random.default_rng()  # init random number generator
-        initial_values = [fp.initial_values(rng, p.walkers) for fp in self.fitting_parameters]
+        initial_values = [fp.initial_values(rng, p.walkers) for fp in p.fitting_parameters]
         theta0 = np.array(initial_values)
         return theta0.T
 
@@ -446,11 +458,11 @@ class CurveSimMCMC:
     def save_max_likelihood_bodies(self):
         pass
 
-    def high_density_intervals(self):
+    def high_density_intervals(self, p):
         # Calculate HDI and other mcmc results.
         self.mean_params = []
         self.median_params = []
-        for i, fp in enumerate(self.fitting_parameters):
+        for i, fp in enumerate(p.fitting_parameters):
             hdi_min, hdi_max, std, mean, median = CurveSimMCMC.hdi_std_mean(self.scaled_samples[:, i], self.credible_mass)
             fp.hdi_min = hdi_min
             fp.hdi_max = hdi_max
@@ -482,16 +494,16 @@ class CurveSimMCMC:
         return measured_tt
 
     # @stopwatch()
-    def mcmc_histograms(self, steps_done, bins, plot_filename):
+    def mcmc_histograms(self, steps_done, bins, plot_filename, p):
         plot_filename = self.results_directory + plot_filename
         derived_params = 0  # derivedparams
         fig, axes = plt.subplots(self.ndim + derived_params, figsize=(10, (self.ndim + derived_params) * 2))
         y_position = min(0.998, 0.99 + (self.ndim + derived_params) / 7500)
         fig.text(0.02, y_position, f"Histograms, {steps_done} steps after burn-in.", ha="left", va="top", fontsize=14, transform=fig.transFigure)
-        startvalues = [fp.startvalue * fp.scale for fp in self.fitting_parameters]
+        startvalues = [fp.startvalue * fp.scale for fp in p.fitting_parameters]
         if self.ndim == 1:
             axes = [axes]
-        for i, (sample, ax, fp, startvalue) in enumerate(zip(self.scaled_samples.T, axes, self.fitting_parameters, startvalues)):
+        for i, (sample, ax, fp, startvalue) in enumerate(zip(self.scaled_samples.T, axes, p.fitting_parameters, startvalues)):
             fp.densities, fp.bin_edges, _ = ax.hist(sample, bins=bins, density=True, alpha=0.7, color="xkcd:light blue", edgecolor="xkcd:black")
             ax.axvline(fp.hdi_min, color="xkcd:tree green", linestyle="dashed", label="HDI Lower Bound")
             ax.axvline(fp.mean - fp.std, color="xkcd:warm grey", linestyle="dotted", label="Mean - Std")
@@ -867,14 +879,14 @@ class CurveSimMCMC:
     @stopwatch()
     def mcmc_results(self, p, bodies, o, steps_done, chunk):
         print(f"{steps_done} steps done.  ")
-        flat_thin_samples = self.make_flat_thin_samples(p)
+        flat_thin_samples = self.make_flat_thin_samples(p)  # includes derived params
         self.acceptance_fractions.append(self.sampler.acceptance_fraction)
         if chunk % 5 == 0:
             self.acceptance_fraction_plot(steps_done, "acceptance.png", p)
         self.scale_samples(flat_thin_samples, p)
         self.max_likelihood_parameters(flat_thin_samples, p)
         # self.save_max_likelihood_bodies()
-
+        hier weiter
         if p.tt_file:
             max_likelihood_bodies = self.get_max_likelihood_bodies(bodies)
             o.tt.measured_tt = self.max_likelihood_tt(max_likelihood_bodies, p, o)
@@ -882,7 +894,7 @@ class CurveSimMCMC:
             CurveSimMCMC.tt_delta_plot(p, steps_done, "tt_delta.png", o.tt.measured_tt)
             self.tt_multi_delta_plot(steps_done, "tt_multi_delta.png", o.tt.measured_tt)
         # self.calc_maxlikelihood_avg_residual_in_std(p)
-        self.high_density_intervals()
+        self.high_density_intervals(p)
 
         if p.flux_file:
             median_residuals_flux_sum_squared, _ = CurveSimMCMC.residuals_flux_sum_squared(self.median_params, self.param_references, bodies, o, p)
@@ -892,7 +904,7 @@ class CurveSimMCMC:
             self.flux_median_avg_residual_in_std.append(math.sqrt(median_residuals_flux_sum_squared / flux_data_points))
         # self.average_residual_in_std_plot(p, steps_done, "avg_residual.png")
 
-        bodies = CurveSimMCMC.bodies_from_fitting_params(bodies, self.fitting_parameters[:p.fitting_body_parameters], param_type="max_likelihood")
+        bodies = CurveSimMCMC.bodies_from_fitting_params(bodies, p.fitting_parameters[:p.fitting_body_parameters], param_type="max_likelihood")
         bodies.save(directory=p.results_directory, prefix="", suffix="_maxL")
         CurveSimMCMC.single_run(p, bodies, o)  # creates o vs. c, chi^2 and residuals plots.
 
@@ -902,7 +914,7 @@ class CurveSimMCMC:
             self.autocorrelation_function_plot(steps_done, "autocorrelation.png", p)
 
         for bins in p.bins:
-            self.mcmc_histograms(steps_done, bins, f"histograms_{bins}.png")
+            self.mcmc_histograms(steps_done, bins, f"histograms_{bins}.png", p)
 
         self.save_mcmc_results(p, bodies, steps_done, o.tt.measured_tt)
         if chunk % 5 == 0:
@@ -924,15 +936,15 @@ class CurveSimLMfit:
         if os.path.exists("iteration.tmp"):
             os.remove("iteration.tmp")
         self.results_directory = p.results_directory
-        self.fitting_parameters = p.fitting_parameters
-        self.param_references = [(fp.body_index, fp.parameter_name) for fp in self.fitting_parameters]  # list of names of fitting parameters. Needed so these parameters can be updated inside log_likelihood().
-        self.body_parameter_names = [f"{bodies[fp.body_index].name}.{fp.parameter_name}" for fp in self.fitting_parameters]
-        p.index_from_bodyparamname = {bpn: fp.index for bpn, fp in zip(self.body_parameter_names, self.fitting_parameters)}
+        p.fitting_parameters = p.fitting_parameters
+        self.param_references = [(fp.body_index, fp.parameter_name) for fp in p.fitting_parameters]  # list of names of fitting parameters. Needed so these parameters can be updated inside log_likelihood().
+        self.body_parameter_names = [f"{bodies[fp.body_index].name}.{fp.parameter_name}" for fp in p.fitting_parameters]
+        p.index_from_bodyparamname = {bpn: fp.index for bpn, fp in zip(self.body_parameter_names, p.fitting_parameters)}
         self.long_body_parameter_names = [fpn + " [" + p.unit[fpn.split(".")[-1]] + "]" for fpn in self.body_parameter_names]
         for fp, fpn, fpnu in zip(p.fitting_parameters, self.body_parameter_names, self.long_body_parameter_names):
             fp.body_parameter_name = fpn
             fp.long_body_parameter_name = fpnu
-        self.param_bounds = [(fp.lower, fp.upper) for fp in self.fitting_parameters]
+        self.param_bounds = [(fp.lower, fp.upper) for fp in p.fitting_parameters]
         self.args = (self.param_references, bodies, o, p)
         self.start_real_time = time.strftime("%d.%m.%y %H:%M:%S")
         self.start_timestamp = time.perf_counter()

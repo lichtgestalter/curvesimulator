@@ -1,6 +1,7 @@
 import ast
 from colorama import Fore, Style
 import configparser
+import copy
 import json
 from matplotlib import colors as mcolors
 import numpy as np
@@ -129,7 +130,8 @@ class CurveSimParameters:
         self.fitting_body_parameters = None  # Number of fitting parameters that are body params. Used to handle body params and other (e.g. sector) params differently.
         if self.action in ["lmfit", "guifit", "mcmc"]:
             self.e_omega_to_u_v_conversion_list = []
-            self.fitting_parameters = self.read_fitting_parameters(config)
+            self.fitting_parameters, self.fitting_parameters_plus = self.read_fitting_parameters(config)
+            self.derived_params = len(self.fitting_parameters_plus) - len(self.fitting_parameters)
 
         section = "Video"
         self.video_file = self.read_param(config, section, "video_file", None, evaluate=False, forced_type=str, lower=None, upper=None)
@@ -418,11 +420,12 @@ class CurveSimParameters:
             return (None,) * 6
 
     def read_fitting_parameters(self, config):
-        fitting_parameters, body_index = self.read_fitting_body_parameters(config)
+        fitting_parameters, derived_fitting_parameters, body_index = self.read_fitting_body_parameters(config)
         if self.sector_params_fit:  # append sector params to fitting_parameters
             fitting_parameters = self.read_fitting_sector_parameters(fitting_parameters, body_index)
         self.free_parameters = len(fitting_parameters)
-        return fitting_parameters
+        fitting_parameters_plus = fitting_parameters + derived_fitting_parameters
+        return fitting_parameters, fitting_parameters_plus
 
     def read_fitting_body_parameters(self, config):
         """Search for body parameters in the config file that are meant to be used as fitting parameters.
@@ -433,6 +436,7 @@ class CurveSimParameters:
         i.e., prior domain knowledge about that parameter, independent of the current observation data."""
         body_index = 0
         fitting_parameters = []
+        derived_fitting_parameters = []
         if self.verbose:
             print(f"Running MCMC with these fitting parameters:")
         for section in config.sections():
@@ -459,12 +463,12 @@ class CurveSimParameters:
                         fitting_parameters[-1].index = len(fitting_parameters) - 1
                         parameter_names_in_use.append(parameter_name)
                 if "e" in parameter_names_in_use and "omega" in parameter_names_in_use:
-                    self.convert_fitting_parameters_e_omega_to_u_v(body_index, section, fitting_parameters)
-                    print(f"{section}: converting fitting parameters e, omega -> to u, v")
-                    print(self.e_omega_to_u_v_conversion_list)
+                    self.convert_fitting_parameters_e_omega_to_u_v(body_index, section, fitting_parameters, derived_fitting_parameters)
+                    # print(f"{section}: converting fitting parameters e, omega -> to u, v")
+                    # print(self.e_omega_to_u_v_conversion_list)
                 body_index += 1
         self.fitting_body_parameters = len(fitting_parameters)
-        return fitting_parameters, body_index
+        return fitting_parameters, derived_fitting_parameters, body_index
 
     @staticmethod
     def e_omega_to_u_v(e, omega):
@@ -510,21 +514,21 @@ class CurveSimParameters:
         fp_e.lower, fp_o.lower = -r, -r
         fp_e.upper, fp_o.upper = r, r
 
-    def convert_fitting_parameters_e_omega_to_u_v(self, body_index, section, fitting_parameters):
-        print(section)
+    def convert_fitting_parameters_e_omega_to_u_v(self, body_index, section, fitting_parameters, derived_fitting_parameters):
         e_index, omega_index, fp_e, fp_o = (None,) * 4
         for i, fp in enumerate(fitting_parameters):
-            print(fp.__dict__)
             if fp.body_name == section and fp.parameter_name == "e":
                 e_index = i
                 fp_e = fitting_parameters[e_index]
             if fp.body_name == section and fp.parameter_name == "omega":
                 omega_index = i
                 fp_o = fitting_parameters[omega_index]
+        derived_fitting_parameters += [copy.deepcopy(fp_e), copy.deepcopy(fp_o)]
         CurveSimParameters.convert_e_omega_to_u_v(fp_e, fp_o)
         self.e_omega_to_u_v_conversion_list.append((body_index, e_index, omega_index))  # used to recalculate e and omega from u and v
 
     def read_fitting_sector_parameters(self, fitting_parameters, body_index):
+        """All sector parameters belong to a fictional extra body with index body_index"""
         _, _, sector_params = TotalObservations.get_sector_params(self)
         for row in sector_params.itertuples(index=False):
             fitting_parameters.append(FittingParameter(self, "SectorParams", body_index, f"offset_{row.sector}", row.offset, row.offset_low, row.offset_up, row.offset_spread))
@@ -648,7 +652,7 @@ class CurveSimParameters:
 
 
 class FittingParameter:
-    def __init__(self, p, body_name, body_index, parameter_name, startvalue, lower, upper, sigma, prior_mu=None, prior_sigma=None, indices=None, constants=None, function=None):
+    def __init__(self, p, body_name, body_index, parameter_name, startvalue, lower, upper, sigma, prior_mu=None, prior_sigma=None):  # , indices=None, constants=None, function=None):
         self.body_name = body_name
         self.body_index = body_index
         self.parameter_name = parameter_name
@@ -668,9 +672,9 @@ class FittingParameter:
         self.sigma = sigma
         self.prior_mu = prior_mu  # mean/expectation of normal prior
         self.prior_sigma = prior_sigma  # standard deviation of normal prior
-        self.indices = indices  # For derived parameters only. Indices of the fitting parameters to be used in the function.
-        self.constants = constants  # For derived parameters only. Constants to be used in the function.
-        self.function = function  # For derived parameters only. A lambda function, using the above indices and constants as arguments.
+        # self.indices = indices  # For derived parameters only. Indices of the fitting parameters to be used in the function.
+        # self.constants = constants  # For derived parameters only. Constants to be used in the function.
+        # self.function = function  # For derived parameters only. A lambda function, using the above indices and constants as arguments.
 
     def initial_values(self, rng, size):
         result = []
@@ -679,13 +683,3 @@ class FittingParameter:
             if self.lower <= sample <= self.upper:
                 result.append(sample)
         return np.array(result)
-
-    @staticmethod
-    def init_derived_param(p, body_name, body_index, parameter_name, indices, constants, function):  # derivedparams
-        derived_param = FittingParameter(p, body_name, body_index, parameter_name, None, None, None, None, indices=indices, constants=constants, function=function)
-        return derived_param
-
-    def calc_derived_param(self, p):
-        base_params = []
-        for i in self.indices:
-            base_params.append(p.fitting_parameters[i])
