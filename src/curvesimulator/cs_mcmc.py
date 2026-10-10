@@ -108,34 +108,21 @@ class CurveSimMCMC:
         if os.path.exists("iteration.tmp"):
             os.remove("iteration.tmp")
         self.fitting_parameters = p.fitting_parameters
-        self.moves = p.moves
-        self.walkers = p.walkers
-        self.thin_samples = p.thin_samples
         self.thin_samples_plot = max(p.thin_samples, 10)  # avoid unnecessary memory usage for some plots
-        self.burn_in = p.burn_in
-        self.chunk_size = p.chunk_size
-        self.bins = p.bins
-        self.unit = p.unit
-        self.scale = p.scale
-        self.steps = p.steps
-        if p.e_omega_to_u_v_conversion:
-            p.update_from_theta_function = CurveSimMCMC.update_bodies_from_theta_with_uv_conversion
-        else:
-            p.update_from_theta_function = CurveSimMCMC.update_bodies_from_theta
         self.credible_mass = 0.68
         self.param_references = [(fp.body_index, fp.parameter_name) for fp in self.fitting_parameters]  # list of names of fitting parameters. Needed so these parameters can be updated inside log_likelihood().
         self.body_parameter_names = [f"{bodies[fp.body_index].name}.{fp.parameter_name}" for fp in self.fitting_parameters[:p.fitting_body_parameters]]
         self.sector_parameter_names = [f"{fp.parameter_name}" for fp in self.fitting_parameters[p.fitting_body_parameters:]]
-        self.long_body_parameter_names = [fpn + " [" + self.unit[fpn.split(".")[-1]] + "]" for fpn in self.body_parameter_names]
+        self.long_body_parameter_names = [fpn + " [" + p.unit[fpn.split(".")[-1]] + "]" for fpn in self.body_parameter_names]
         for fp, fpn, fpnu in zip(p.fitting_parameters, self.body_parameter_names + self.sector_parameter_names, self.long_body_parameter_names + self.sector_parameter_names):
             fp.body_parameter_name = fpn
             fp.long_body_parameter_name = fpnu
         self.param_bounds = [(fp.lower, fp.upper) for fp in self.fitting_parameters]
         self.param_priors = [(fp.prior_mu, fp.prior_sigma) for fp in self.fitting_parameters]
         self.ndim = len(self.param_references)
-        self.theta0 = self.random_initial_values()
+        self.theta0 = self.random_initial_values(p)
         self.args = (self.fitting_parameters, self.param_references, bodies, o, p)
-        self.moves = eval(self.moves)
+        self.moves = eval(p.moves)
         self.acceptance_fractions = []
         self.integrated_autocorrelation_time = []
         self.start_real_time = time.strftime("%d.%m.%y %H:%M:%S")
@@ -152,7 +139,7 @@ class CurveSimMCMC:
             self.backend = emcee.backends.HDFBackend(p.backend)
             if p.load_backend:
                 print(f"Loading backend from {p.backend}. Contains {self.backend.iteration} iterations.")
-                steps_done = self.backend.iteration - self.burn_in
+                steps_done = self.backend.iteration - p.burn_in
                 self.loaded_steps = steps_done
                 if steps_done < 0:
                     print(f"{Fore.RED}\nERROR: Backend contains less iterations than burn-in. Uncomment load_backend in the config file to start from scratch.{Style.RESET_ALL}")
@@ -175,16 +162,16 @@ class CurveSimMCMC:
     def mcmc_fit(self, p, bodies, o, steps_done, pool=None):
         self.sampler = emcee.EnsembleSampler(p.walkers, self.ndim, CurveSimMCMC.log_probability, pool=pool, moves=self.moves, args=self.args, backend=self.backend)
         if not p.load_backend:
-            self.theta = self.sampler.run_mcmc(self.theta0, self.burn_in, progress=True)
+            self.theta = self.sampler.run_mcmc(self.theta0, p.burn_in, progress=True)
         else:
             self.theta = self.backend.get_last_sample()  # resume from the last walker positions stored in the backend
-        for chunk in range(1, self.steps // self.chunk_size + 1):
-            self.theta = self.sampler.run_mcmc(self.theta, self.chunk_size, progress=True)
-            steps_done += self.chunk_size
+        for chunk in range(1, p.steps // p.chunk_size + 1):
+            self.theta = self.sampler.run_mcmc(self.theta, p.chunk_size, progress=True)
+            steps_done += p.chunk_size
             self.mcmc_results(p, bodies, o, steps_done, chunk)
 
     def __repr__(self):
-        return f"CurveSimMCMC with {self.walkers} walkers."
+        return f"CurveSimMCMC object"
 
     @staticmethod
     def single_run(p, bodies, o):
@@ -244,8 +231,6 @@ class CurveSimMCMC:
                 nearest_sim_tt.append(closest_tt[2])
             else:
                 nearest_sim_tt.append(0)  # No match found
-        # if nearest_sim_tt[1] > 0:
-        #     print(nearest_sim_tt)
         o.tt.measured_tt["nearest_sim"] = nearest_sim_tt  # add 2 columns to data frame
         o.tt.measured_tt["delta"] = o.tt.measured_tt["nearest_sim"] - o.tt.measured_tt["tt"]
         residuals_tt = o.tt.measured_tt["delta"] / o.tt.measured_tt["tt_err"]  # residuals are weighted with uncertainty!
@@ -295,19 +280,22 @@ class CurveSimMCMC:
         return -0.5 * (residuals_sum_squared + log_norm_term)
 
     @staticmethod
+    def u_v_to_e_omega(u, v):
+        if u is None or v is None:
+            return None, None
+        e = u**2 + v**2
+        omega = np.arctan2(u, v)  # u = sqrt(e)*sin(omega), v = sqrt(e)*cos(omega)
+        return e, omega
+
+    @staticmethod
     def update_bodies_from_theta(bodies, p, param_references, theta):
         i = 0
         for body_index, parameter_name in param_references[:p.fitting_body_parameters]:
             bodies[body_index].__dict__[parameter_name] = theta[i]
             i += 1
-        return i
-
-    @staticmethod
-    def update_bodies_from_theta_with_uv_conversion(bodies, p, param_references, theta):
-        i = 0
-        for body_index, parameter_name in param_references[:p.fitting_body_parameters]:
-            bodies[body_index].__dict__[parameter_name] = theta[i]
-            i += 1
+        for u_v_pair in p.e_omega_to_u_v_conversion_list:
+            body_index, e_index, omega_index = u_v_pair
+            bodies[body_index].e, bodies[body_index].omega = CurveSimMCMC.u_v_to_e_omega(theta[e_index], theta[omega_index])
         return i
 
     @staticmethod
@@ -320,8 +308,7 @@ class CurveSimMCMC:
 
     @staticmethod
     def residuals_flux_sum_squared(theta, param_references, bodies, o, p):
-        first_sector_param_index = p.update_from_theta_function(bodies, p, param_references, theta)
-        # first_sector_param_index = CurveSimMCMC.update_bodies_from_theta(bodies, p, param_references, theta)
+        first_sector_param_index = CurveSimMCMC.update_bodies_from_theta(bodies, p, param_references, theta)
         if p.sector_params_fit:
             CurveSimMCMC.update_sector_params_from_theta(first_sector_param_index, o, theta)
         o.flux.update(bodies, p)  # update flux observations with new offset and jitter, then calc computed and residuals.
@@ -329,15 +316,14 @@ class CurveSimMCMC:
 
     @staticmethod
     def residuals_rv_sum_squared(theta, param_references, bodies, o, p):
-        p.update_from_theta_function(bodies, p, param_references, theta)
-        # CurveSimMCMC.update_bodies_from_theta(bodies, p, param_references, theta)
+        CurveSimMCMC.update_bodies_from_theta(bodies, p, param_references, theta)
         rebound_sim = bodies.init_rebound(p)
         o.rv.update(p, rebound_sim)  # update rv observations with new rv offset and jitter, then calc computed and residuals.
         return o.rv.chi_squared, o.rv.log_norm_term
 
     @staticmethod
     def residuals_tt_sum_squared(theta, param_references, bodies, o, p):
-        p.update_from_theta_function(bodies, p, param_references, theta)
+        CurveSimMCMC.update_bodies_from_theta(bodies, p, param_references, theta)
         sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, o.sim.time_s0)  # run simulation
         residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(p, rebound_sim, o)
         return residuals_tt_sum_squared
@@ -380,34 +366,40 @@ class CurveSimMCMC:
         median = np.median(data)
         return hdi_min, hdi_max, std, mean, median
 
-    def random_initial_values(self):
+    def random_initial_values(self, p):
         """return randomized initial values of the fitting parameters"""
         rng = np.random.default_rng()  # init random number generator
-        initial_values = [fp.initial_values(rng, self.walkers) for fp in self.fitting_parameters]
+        initial_values = [fp.initial_values(rng, p.walkers) for fp in self.fitting_parameters]
         theta0 = np.array(initial_values)
         return theta0.T
 
-    def scale_samples(self, flat_thin_samples):
+    def make_flat_thin_samples(self, p):
+        """Discard the first p.burn_in steps of each chain (to keep only samples from the equilibrium
+            distribution), keep every p.thin_samples-th sample (to reduce autocorrelation and array size),
+            and flatten all chains into one 2D array.
+            Append the derived parameters e and omega for each pair in p.e_omega_to_u_v_conversion_list.
+            Returns an array of shape (n_samples, n_parameters + 2 * n_pairs); the derived columns are
+            ordered e1, omega1, e2, omega2, ..."""
+        flat_thin_samples = self.sampler.get_chain(discard=p.burn_in, thin=p.thin_samples, flat=True)
+        derived_columns = []
+        for u_v_pair in p.e_omega_to_u_v_conversion_list:
+            _, e_index, omega_index = u_v_pair
+            e, omega = CurveSimMCMC.u_v_to_e_omega(flat_thin_samples[:, e_index], flat_thin_samples[:, omega_index])
+            derived_columns.extend([e, omega])  # collect every pair, not just the last one
+        return np.column_stack([flat_thin_samples] + derived_columns)
+
+    def scale_samples(self, flat_thin_samples, p):
         self.scaled_samples = np.copy(flat_thin_samples)
         self.scales = []
         for fpn, ss in zip(self.body_parameter_names, self.scaled_samples.T):
             param = fpn.split(".")[-1]
-            ss *= self.scale[param]
-            self.scales.append(self.scale[param])
+            ss *= p.scale[param]
+            self.scales.append(p.scale[param])
         for _ in self.sector_parameter_names:
             self.scales.append(1)
 
-    # @staticmethod
-    # def sci_label(x, _):
-    #     if x == 0:
-    #         return "0"
-    #     exp = int(np.floor(np.log10(abs(x))))
-    #     mantissa = x / 10**exp
-    #     mantissa = int(round(mantissa)) if abs(mantissa - round(mantissa)) < 1e-9 else round(mantissa, 2)
-    #     return f"{mantissa}e{exp}"
-
     # @stopwatch()
-    def trace_plots(self, steps_done, plot_filename):
+    def trace_plots(self, steps_done, plot_filename, p):
         if self.trace_plot_ok:
             try:
                 plot_filename = self.results_directory + plot_filename
@@ -426,7 +418,7 @@ class CurveSimMCMC:
                     ax.plot(x, chain * scale, color="xkcd:black", alpha=0.05)
                     ax.set_ylabel(name)
                     # ax.yaxis.set_major_formatter(FuncFormatter(CurveSimMCMC.sci_label))
-                    ax.axvline(self.burn_in, color="xkcd:tomato", linestyle="solid", label="burn-in")
+                    ax.axvline(p.burn_in, color="xkcd:tomato", linestyle="solid", label="burn-in")
                     ax.tick_params(labelbottom=True)  # Show x-tick labels for all
                     if i == len(axes) - 1:
                         ax.set_xlabel("Steps including burn-in (red line)")  # Only last subplot
@@ -439,8 +431,8 @@ class CurveSimMCMC:
                 print(f"{Fore.RED}\nERROR: Trace Plot failed.{Style.RESET_ALL}")
                 self.trace_plot_ok = False
 
-    def max_likelihood_parameters(self, flat_thin_samples):
-        log_prob_samples = self.sampler.get_log_prob(flat=True, discard=self.burn_in, thin=self.thin_samples)
+    def max_likelihood_parameters(self, flat_thin_samples, p):
+        log_prob_samples = self.sampler.get_log_prob(flat=True, discard=p.burn_in, thin=p.thin_samples)
         if len(log_prob_samples):
             max_likelihood_idx = np.argmax(log_prob_samples)
             self.max_likelihood_params_scaled = self.scaled_samples[max_likelihood_idx]
@@ -514,7 +506,6 @@ class CurveSimMCMC:
             ax.ticklabel_format(useOffset=False, style="plain", axis="x")  # show x-labels as they are
             if i == 0:
                 ax.legend(loc="lower left", bbox_to_anchor=(0.5, 1.02), ncol=3, borderaxespad=0.)
-                # ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1.02), ncol=3, borderaxespad=0.)
         # densities, bin_edges, samples = self.derived_parameter_histogram(0, 1, lambda x, y: x + y/10, bins, axes[-1])   # derivedparams
         plt.tight_layout()
         try:
@@ -574,7 +565,7 @@ class CurveSimMCMC:
                 self.corner_plot_ok = False
 
     # @stopwatch()
-    def autocorrelation_function_plot(self, steps_done, plot_filename):
+    def autocorrelation_function_plot(self, steps_done, plot_filename, p):
         if self.autocorrelation_function_plot_ok:
             try:
                 plot_filename = self.results_directory + plot_filename
@@ -596,7 +587,7 @@ class CurveSimMCMC:
                         ac = np.asarray(emcee.autocorr.function_1d(chain_1d))  # ensure numpy array to avoid `array.pyi` type issue
                         ax.plot(x, ac, alpha=0.2, color="xkcd:royal blue")
                     ax.set_ylabel(param_name)
-                    ax.axvline(self.burn_in, color="xkcd:tomato", linestyle="solid", label="burn-in")
+                    ax.axvline(p.burn_in, color="xkcd:tomato", linestyle="solid", label="burn-in")
                     ax.tick_params(labelbottom=True)  # Show x-tick labels for all
                     if dim == self.ndim - 1:
                         ax.set_xlabel("Steps including burn-in (red line)")  # Only last subplot
@@ -608,45 +599,6 @@ class CurveSimMCMC:
             except:
                 print(f"{Fore.RED}\nERROR: Autocorrelation plot failed.{Style.RESET_ALL}")
                 self.autocorrelation_function_plot_ok = False
-
-    # @stopwatch()
-    # def integrated_autocorrelation_time_plot(self, steps_done, plot_filename1, plot_filename2):
-    #     plot_filename1 = self.results_directory + plot_filename1
-    #     plot_filename2 = self.results_directory + plot_filename2
-    #     integrated_autocorrelation_time = np.array(self.integrated_autocorrelation_time).T
-    #     steps = [step for step in range(self.chunk_size + self.loaded_steps, steps_done + 1, self.chunk_size)]
-    #     fig, ax = plt.subplots(figsize=(10, 6))
-    #     colors = ["xkcd:royal blue", "xkcd:red", "xkcd:black", "xkcd:frog green", "xkcd:piss yellow", "xkcd:purply blue", "xkcd:sepia", "xkcd:wine", "xkcd:ocean", "xkcd:rust", "xkcd:forest", "xkcd:pale violet", "xkcd:robin's egg", "xkcd:pinkish purple", "xkcd:azure", "xkcd:hot pink", "xkcd:mango", "xkcd:baby pink", "xkcd:fluorescent green", "xkcd:medium grey"]
-    #     linestyles = ["solid", "dashed", "dashdot", "dotted"]
-    #     for i, (autocorr_times, fpn) in enumerate(zip(integrated_autocorrelation_time, self.long_body_parameter_names + self.sector_parameter_names)):
-    #         color = colors[i % len(colors)]
-    #         linestyle = linestyles[(i // len(colors)) % len(linestyles)]
-    #         ax.plot(steps, autocorr_times, label=fpn, color=color, linestyle=linestyle)
-    #     ax.set_xlabel("Steps after burn-in")
-    #     ax.set_title(f"Integrated Autocorrelation Time per Dimension after {steps_done} steps")
-    #     ax.legend(loc="upper left")
-    #     plt.tight_layout()
-    #     try:
-    #         plt.savefig(plot_filename1)
-    #     except:
-    #         print(f"{Fore.RED}\nERROR: Saving Integrated Autocorrelation Time plot failed.{Style.RESET_ALL}")
-    #     plt.close(fig)
-    #
-    #     steps_done_div_integrated_autocorrelation_time = steps / integrated_autocorrelation_time
-    #     fig, ax = plt.subplots(figsize=(10, 6))
-    #     for i, (autocorr_times, fpn) in enumerate(zip(steps_done_div_integrated_autocorrelation_time, self.long_body_parameter_names + self.sector_parameter_names)):
-    #         color = colors[i % len(colors)]
-    #         linestyle = linestyles[(i // len(colors)) % len(linestyles)]
-    #         ax.plot(steps, autocorr_times, label=fpn, color=color, linestyle=linestyle)
-    #     ax.set_xlabel("Steps after burn-in")
-    #     ax.set_title(f"Steps divided by Integrated Autocorrelation Time per Dimension after {steps_done} steps")
-    #     ax.legend(loc="upper left")
-    #     plt.tight_layout()
-    #     try:
-    #         plt.savefig(plot_filename2)
-    #     except:
-    #         print(f"{Fore.RED}\nERROR: Saving Steps divided by Integrated Autocorrelation Time plot failed.{Style.RESET_ALL}")
-    #     plt.close(fig)
 
     @staticmethod
     def _plot_with_bottom_legend(x, y_data, labels, colors, linestyles, xlabel, title, plot_filename):
@@ -679,11 +631,11 @@ class CurveSimMCMC:
             print(f"{Fore.RED}\nERROR: Saving plot '{plot_filename}' failed.{Style.RESET_ALL}")
         plt.close(fig)
 
-    def integrated_autocorrelation_time_plot(self, steps_done, plot_filename1, plot_filename2):
+    def integrated_autocorrelation_time_plot(self, steps_done, plot_filename1, plot_filename2, p):
         plot_filename1 = self.results_directory + plot_filename1
         plot_filename2 = self.results_directory + plot_filename2
         integrated_autocorrelation_time = np.array(self.integrated_autocorrelation_time).T
-        steps = [step for step in range(self.chunk_size + self.loaded_steps, steps_done + 1, self.chunk_size)]
+        steps = [step for step in range(p.chunk_size + self.loaded_steps, steps_done + 1, p.chunk_size)]
 
         colors = ["xkcd:royal blue", "xkcd:red", "xkcd:black", "xkcd:frog green", "xkcd:piss yellow",
                   "xkcd:purply blue", "xkcd:sepia", "xkcd:wine", "xkcd:ocean", "xkcd:rust",
@@ -704,12 +656,12 @@ class CurveSimMCMC:
                                       plot_filename=plot_filename2)
 
     # @stopwatch()
-    def acceptance_fraction_plot(self, steps_done, plot_filename):
+    def acceptance_fraction_plot(self, steps_done, plot_filename, p):
         if self.acceptance_plot_ok:
             try:
                 plot_filename = self.results_directory + plot_filename
                 acceptance_fractions_array = np.stack(self.acceptance_fractions, axis=0).T  # shape: (num_lines, 32)
-                steps = [step for step in range(self.chunk_size + self.loaded_steps, steps_done + 1, self.chunk_size)]
+                steps = [step for step in range(p.chunk_size + self.loaded_steps, steps_done + 1, p.chunk_size)]
                 fig, ax = plt.subplots(figsize=(10, 6))
                 for i in range(acceptance_fractions_array.shape[0]):
                     ax.plot(steps, acceptance_fractions_array[i], label=f"Line {i + 1}", color="xkcd:tree green", alpha=0.15)
@@ -729,7 +681,7 @@ class CurveSimMCMC:
     # @stopwatch()
     def average_residual_in_std_plot(self, p, steps_done, plot_filename):
         plot_filename = self.results_directory + plot_filename
-        steps = [step for step in range(self.chunk_size + self.loaded_steps, steps_done + 1, self.chunk_size)]
+        steps = [step for step in range(p.chunk_size + self.loaded_steps, steps_done + 1, p.chunk_size)]
         fig, ax = plt.subplots(figsize=(10, 6))
         ax.plot(steps, self.max_likelihood_avg_residual_in_std, label="Max Likelihood Parameters", marker="o", markersize=2, color="xkcd:tomato")
         if p.flux_file:
@@ -869,8 +821,8 @@ class CurveSimMCMC:
         mcmc_results["MCMC Performance"]["end_realtime"] = time.strftime("%d.%m.%y %H:%M:%S") + " [DD.MM.YY hh:mm:ss]"
         runtime = time.perf_counter() - self.start_timestamp
         mcmc_results["MCMC Performance"]["run_time"] = CurveSimMCMC.seconds2readable(runtime)
-        mcmc_results["MCMC Performance"]["run_time_per_iteration"] = f"{runtime / (self.burn_in + steps_done):.3f} [s]"
-        mcmc_results["MCMC Performance"]["simulations_per_second"] = f"{(self.burn_in + steps_done) * self.walkers / runtime:.0f} [iterations*walkers/runtime]"
+        mcmc_results["MCMC Performance"]["run_time_per_iteration"] = f"{runtime / (p.burn_in + steps_done):.3f} [s]"
+        mcmc_results["MCMC Performance"]["simulations_per_second"] = f"{(p.burn_in + steps_done) * p.walkers / runtime:.0f} [iterations*walkers/runtime]"
         mcmc_results["MCMC Performance"]["steps_after_burn_in"] = int(steps_done)
 
         if p.flux_file:
@@ -914,17 +866,13 @@ class CurveSimMCMC:
 
     @stopwatch()
     def mcmc_results(self, p, bodies, o, steps_done, chunk):
-        flat_thin_samples = self.sampler.get_chain(discard=self.burn_in, thin=self.thin_samples, flat=True)
-        # discard the initial self.burn_in steps from each chain to ensure only samples that represent the equilibrium distribution are analyzed.
-        # thin=10: keep only every 10th sample from the chain to reduce autocorrelation in the chains and the size of the resulting arrays.
-        # flat=True: return all chains in a single, two-dimensional array (shape: (n_samples, n_parameters))
         print(f"{steps_done} steps done.  ")
-
+        flat_thin_samples = self.make_flat_thin_samples(p)
         self.acceptance_fractions.append(self.sampler.acceptance_fraction)
         if chunk % 5 == 0:
-            self.acceptance_fraction_plot(steps_done, "acceptance.png")
-        self.scale_samples(flat_thin_samples)
-        self.max_likelihood_parameters(flat_thin_samples)
+            self.acceptance_fraction_plot(steps_done, "acceptance.png", p)
+        self.scale_samples(flat_thin_samples, p)
+        self.max_likelihood_parameters(flat_thin_samples, p)
         # self.save_max_likelihood_bodies()
 
         if p.tt_file:
@@ -949,19 +897,19 @@ class CurveSimMCMC:
         CurveSimMCMC.single_run(p, bodies, o)  # creates o vs. c, chi^2 and residuals plots.
 
         self.integrated_autocorrelation_time.append(list(self.sampler.get_autocorr_time(tol=0)))
-        self.integrated_autocorrelation_time_plot(steps_done, "int_autocorr_time.png", "steps_per_i_ac_time.png")
+        self.integrated_autocorrelation_time_plot(steps_done, "int_autocorr_time.png", "steps_per_i_ac_time.png", p)
         if chunk % 10 == 0:
-            self.autocorrelation_function_plot(steps_done, "autocorrelation.png")
+            self.autocorrelation_function_plot(steps_done, "autocorrelation.png", p)
 
-        for bins in self.bins:
+        for bins in p.bins:
             self.mcmc_histograms(steps_done, bins, f"histograms_{bins}.png")
 
         self.save_mcmc_results(p, bodies, steps_done, o.tt.measured_tt)
         if chunk % 5 == 0:
-            self.trace_plots(steps_done, "traces.png")
+            self.trace_plots(steps_done, "traces.png", p)
         if chunk % 10 == 0:
-            flat_thin_samples = self.sampler.get_chain(discard=self.burn_in, thin=self.thin_samples_plot, flat=True)
-            self.scale_samples(flat_thin_samples)
+            flat_thin_samples = self.sampler.get_chain(discard=p.burn_in, thin=self.thin_samples_plot, flat=True)
+            self.scale_samples(flat_thin_samples, p)
             self.mcmc_corner_plot(steps_done, "corner.png", p)
 
 
@@ -977,12 +925,10 @@ class CurveSimLMfit:
             os.remove("iteration.tmp")
         self.results_directory = p.results_directory
         self.fitting_parameters = p.fitting_parameters
-        self.unit = p.unit
-        self.scale = p.scale
         self.param_references = [(fp.body_index, fp.parameter_name) for fp in self.fitting_parameters]  # list of names of fitting parameters. Needed so these parameters can be updated inside log_likelihood().
         self.body_parameter_names = [f"{bodies[fp.body_index].name}.{fp.parameter_name}" for fp in self.fitting_parameters]
         p.index_from_bodyparamname = {bpn: fp.index for bpn, fp in zip(self.body_parameter_names, self.fitting_parameters)}
-        self.long_body_parameter_names = [fpn + " [" + self.unit[fpn.split(".")[-1]] + "]" for fpn in self.body_parameter_names]
+        self.long_body_parameter_names = [fpn + " [" + p.unit[fpn.split(".")[-1]] + "]" for fpn in self.body_parameter_names]
         for fp, fpn, fpnu in zip(p.fitting_parameters, self.body_parameter_names, self.long_body_parameter_names):
             fp.body_parameter_name = fpn
             fp.long_body_parameter_name = fpnu

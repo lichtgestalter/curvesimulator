@@ -80,9 +80,9 @@ class CurveSimParameters:
         self.transit_precision = self.read_param(config, section, "transit_precision", "1", evaluate=True, forced_type=float, lower=0, upper=None)
         self.flux_data_directory = self.read_param(config, section, "flux_data_directory", ".", evaluate=False, forced_type=str, lower=None, upper=None)
         self.max_interval_extensions = self.read_param(config, section, "max_interval_extensions", "10", evaluate=True, forced_type=int, lower=0, upper=None)
-        default_unit = '{"mass": "m_jup", "radius": "r_jup", "e": "1", "i": "deg", "P": "d", "a": "AU", "Omega": "deg", "omega": "deg", "pomega": "deg", "L": "deg", "ma": "deg", "ea": "deg", "nu": "deg", "T": "s", "rv_offset": "m/s", "rv_jitter": "m/s"}'
+        default_unit = '{"mass": "m_jup", "radius": "r_jup", "e": "1", "i": "deg", "P": "d", "a": "AU", "Omega": "deg", "omega": "deg", "pomega": "deg", "L": "deg", "ma": "deg", "ea": "deg", "nu": "deg", "T": "s", "rv_offset": "m/s", "rv_jitter": "m/s", "u": "1", "v": "1"}'
         self.unit = self.read_param(config, section, "unit", default_unit, evaluate=True, forced_type=dict, lower=None, upper=None)
-        default_scale = '{"mass": 1/m_jup, "radius": 1/r_jup, "e": 1, "i": rad2deg, "P": 1/day, "a": 1/au, "Omega": rad2deg, "omega": rad2deg, "pomega": rad2deg, "L": rad2deg, "ma": rad2deg, "ea": rad2deg, "nu": rad2deg, "T": 1, "rv_offset": 1, "rv_jitter": 1}'
+        default_scale = '{"mass": 1/m_jup, "radius": 1/r_jup, "e": 1, "i": rad2deg, "P": 1/day, "a": 1/au, "Omega": rad2deg, "omega": rad2deg, "pomega": rad2deg, "L": rad2deg, "ma": rad2deg, "ea": rad2deg, "nu": rad2deg, "T": 1, "rv_offset": 1, "rv_jitter": 1, "u": 1, "v": 1}'
         self.scale = self.read_param(config, section, "scale", default_scale, evaluate=True, forced_type=dict, lower=None, upper=None)
         self.tt_padding = self.read_param(config, section, "tt_padding", "0.3", evaluate=True, forced_type=float, lower=0, upper=None)
         self.bins = tuple([eval(x) for x in config.get(section, "bins", fallback="60").split("#")[0].split(",")])
@@ -128,6 +128,7 @@ class CurveSimParameters:
         self.thin_samples = int(self.read_param(config, section, "thin_samples", "1", evaluate=True, forced_type=float, lower=1, upper=None))
         self.fitting_body_parameters = None  # Number of fitting parameters that are body params. Used to handle body params and other (e.g. sector) params differently.
         if self.action in ["lmfit", "guifit", "mcmc"]:
+            self.e_omega_to_u_v_conversion_list = []
             self.fitting_parameters = self.read_fitting_parameters(config)
 
         section = "Video"
@@ -214,8 +215,6 @@ class CurveSimParameters:
         self.ylim = self.read_param(config, section, "xlim", "1.0", evaluate=True, forced_type=float, lower=0, upper=None)
 
         self.eclipsers, self.eclipsees = (None,) * 2
-        self.e_omega_to_u_v_conversion = False
-
         self.copy_config_file()
 
     def __repr__(self):
@@ -460,9 +459,9 @@ class CurveSimParameters:
                         fitting_parameters[-1].index = len(fitting_parameters) - 1
                         parameter_names_in_use.append(parameter_name)
                 if "e" in parameter_names_in_use and "omega" in parameter_names_in_use:
-                    self.convert_fitting_parameters_e_omega_to_u_v(section, fitting_parameters)
-                    self.e_omega_to_u_v_conversion = True
-                    print("converting fitting parameters e, omega -> to u, v")
+                    self.convert_fitting_parameters_e_omega_to_u_v(body_index, section, fitting_parameters)
+                    print(f"{section}: converting fitting parameters e, omega -> to u, v")
+                    print(self.e_omega_to_u_v_conversion_list)
                 body_index += 1
         self.fitting_body_parameters = len(fitting_parameters)
         return fitting_parameters, body_index
@@ -478,11 +477,16 @@ class CurveSimParameters:
     @staticmethod
     def propagate_sigma(e, omega, sigma_e, sigma_omega):
         """First-order error propagation for e_omega_to_u_v.
-        Evaluate each sigma at the point it is centered on."""
+
+        The linearization fails when e is not much larger than sigma_e
+        (d sqrt(e) / de diverges at e = 0), so e is replaced by
+        max(e, sigma_e) inside the square root. This keeps the result finite,
+        of order sqrt(sigma_e) at e = 0.
+        """
         if sigma_e is None or sigma_omega is None:
             return None, None
         sin_o, cos_o = np.sin(omega), np.cos(omega)
-        sqrt_e = np.sqrt(e)
+        sqrt_e = np.sqrt(max(e, sigma_e))
         sigma_u = np.hypot(sin_o / (2 * sqrt_e) * sigma_e, sqrt_e * cos_o * sigma_omega)
         sigma_v = np.hypot(cos_o / (2 * sqrt_e) * sigma_e, sqrt_e * sin_o * sigma_omega)
         return sigma_u, sigma_v
@@ -506,10 +510,7 @@ class CurveSimParameters:
         fp_e.lower, fp_o.lower = -r, -r
         fp_e.upper, fp_o.upper = r, r
 
-    def convert_fitting_parameters_e_omega_to_u_v(self, section, fitting_parameters):
-        # waere wohl gut, wenn ich e_index und omega_index als Attribute des Bodies oder der Fittingparams oder p speichern koennte,
-        # damit spaeter leicht darauf zugegriffen werden kann.
-        # static???
+    def convert_fitting_parameters_e_omega_to_u_v(self, body_index, section, fitting_parameters):
         print(section)
         e_index, omega_index, fp_e, fp_o = (None,) * 4
         for i, fp in enumerate(fitting_parameters):
@@ -521,6 +522,7 @@ class CurveSimParameters:
                 omega_index = i
                 fp_o = fitting_parameters[omega_index]
         CurveSimParameters.convert_e_omega_to_u_v(fp_e, fp_o)
+        self.e_omega_to_u_v_conversion_list.append((body_index, e_index, omega_index))  # used to recalculate e and omega from u and v
 
     def read_fitting_sector_parameters(self, fitting_parameters, body_index):
         _, _, sector_params = TotalObservations.get_sector_params(self)
