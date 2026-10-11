@@ -644,11 +644,43 @@ class CurveSimParameters:
 
     def enrich_fitting_params(self, bodies):
         """Add attributes body_parameter_name and long_body_parameter_name to each FittingParameter"""
-        self.body_parameter_names = [f"{bodies[fp.body_index].name}.{fp.parameter_name}" for fp in self.fitting_parameters]
-        self.long_body_parameter_names = [fpn + " [" + self.unit[fpn.split(".")[-1]] + "]" for fpn in self.body_parameter_names]
-        for fp, fpn, fpnu in zip(self.fitting_parameters, self.body_parameter_names, self.long_body_parameter_names):
+        # self.body_parameter_names = [f"{bodies[fp.body_index].name}.{fp.parameter_name}" for fp in self.fitting_parameters]
+        # self.long_body_parameter_names = [fpn + " [" + self.unit[fpn.split(".")[-1]] + "]" for fpn in self.body_parameter_names]
+        # for fp, fpn, fpnu in zip(self.fitting_parameters, self.body_parameter_names, self.long_body_parameter_names):
+        #     fp.body_parameter_name = fpn
+        #     fp.long_body_parameter_name = fpnu
+
+        # ab hier aus Kopie von mcmc init
+        self.param_references = [(fp.body_index, fp.parameter_name) for fp in self.fitting_parameters]  # list of names of fitting parameters. Needed so these parameters can be updated inside log_likelihood().
+
+        self.parameter_names = [f"{bodies[fp.body_index].name}.{fp.parameter_name}" for fp in self.fitting_parameters_plus]
+        self.body_parameter_names = self.parameter_names[:self.fitting_body_parameters]
+        self.sector_parameter_names = self.parameter_names[self.fitting_body_parameters:-self.derived_params]
+        self.derived_parameter_names = self.parameter_names[-self.derived_params:]
+        self.long_parameter_names = [fpn + " [" + self.unit[fpn.split(".")[-1]] + "]" for fpn in self.parameter_names]
+
+        for fp, fpn, fpnu in zip(self.fitting_parameters, self.parameter_names, self.long_parameter_names):
             fp.body_parameter_name = fpn
             fp.long_body_parameter_name = fpnu
+        self.ndim = len(self.param_references)
+
+        # # self.derived_param_references = [(fp.body_index, fp.parameter_name) for fp in p.fitting_parameters_plus[-p.derived_params:]]
+        # self.derived_long_parameter_names = [fpn + " [" + self.unit[fpn.split(".")[-1]] + "]" for fpn in self.derived_parameter_names]
+        #
+        # # self.param_references_plus          = self.param_references          + self.derived_param_references
+        # # self.body_parameter_names_plus      = self.body_parameter_names      + self.derived_parameter_names
+        # # self.long_body_parameter_names_plus = self.long_body_parameter_names + self.derived_long_parameter_names
+        #
+        # for fp, fpn, fpnu in zip(self.fitting_parameters_plus[-self.derived_params:], self.derived_parameter_names, self.derived_long_parameter_names):
+        #     fp.body_parameter_name = fpn
+        #     fp.long_body_parameter_name = fpnu
+
+    def random_initial_values(self):
+        """return randomized initial values of the fitting parameters"""
+        rng = np.random.default_rng()  # init random number generator
+        initial_values = [fp.initial_values(rng, self.walkers) for fp in self.fitting_parameters]
+        theta0 = np.array(initial_values)
+        return theta0.T
 
 
 class FittingParameter:

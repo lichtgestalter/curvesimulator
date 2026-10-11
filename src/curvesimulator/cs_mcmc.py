@@ -94,7 +94,6 @@ def append_line_locked(filename, line, wait=0.1):
 
 
 class CurveSimMCMC:
-
     def __init__(self, p, bodies, o, dummy_object=False):
         self.results_directory = p.results_directory
         if dummy_object:
@@ -110,30 +109,30 @@ class CurveSimMCMC:
         self.thin_samples_plot = max(p.thin_samples, 10)  # avoid unnecessary memory usage for some plots
         self.credible_mass = 0.68
 
-        self.param_references = [(fp.body_index, fp.parameter_name) for fp in p.fitting_parameters]  # list of names of fitting parameters. Needed so these parameters can be updated inside log_likelihood().
-        self.body_parameter_names = [f"{bodies[fp.body_index].name}.{fp.parameter_name}" for fp in p.fitting_parameters[:p.fitting_body_parameters]]
-        self.sector_parameter_names = [f"{fp.parameter_name}" for fp in p.fitting_parameters[p.fitting_body_parameters:]]
-        self.long_body_parameter_names = [fpn + " [" + p.unit[fpn.split(".")[-1]] + "]" for fpn in self.body_parameter_names]
-        for fp, fpn, fpnu in zip(p.fitting_parameters, self.body_parameter_names + self.sector_parameter_names, self.long_body_parameter_names + self.sector_parameter_names):
-            fp.body_parameter_name = fpn
-            fp.long_body_parameter_name = fpnu
-        # self.param_bounds = [(fp.lower, fp.upper) for fp in p.fitting_parameters]
-        # self.param_priors = [(fp.prior_mu, fp.prior_sigma) for fp in p.fitting_parameters]
-        self.ndim = len(self.param_references)
+        p.enrich_fitting_params(bodies)
+        # self.param_references = [(fp.body_index, fp.parameter_name) for fp in p.fitting_parameters]  # list of names of fitting parameters. Needed so these parameters can be updated inside log_likelihood().
+        # self.body_parameter_names = [f"{bodies[fp.body_index].name}.{fp.parameter_name}" for fp in p.fitting_parameters[:p.fitting_body_parameters]]
+        # self.sector_parameter_names = [f"{fp.parameter_name}" for fp in p.fitting_parameters[p.fitting_body_parameters:]]
+        # self.long_body_parameter_names = [fpn + " [" + p.unit[fpn.split(".")[-1]] + "]" for fpn in self.body_parameter_names]
+        # for fp, fpn, fpnu in zip(p.fitting_parameters, self.body_parameter_names + self.sector_parameter_names, self.long_body_parameter_names + self.sector_parameter_names):
+        #     fp.body_parameter_name = fpn
+        #     fp.long_body_parameter_name = fpnu
+        # self.ndim = len(self.param_references)
+        #
+        # # self.derived_param_references = [(fp.body_index, fp.parameter_name) for fp in p.fitting_parameters_plus[-p.derived_params:]]
+        # self.derived_parameter_names = [f"{bodies[fp.body_index].name}.{fp.parameter_name}" for fp in p.fitting_parameters_plus[-p.derived_params:]]
+        # self.derived_long_parameter_names = [fpn + " [" + p.unit[fpn.split(".")[-1]] + "]" for fpn in self.derived_parameter_names]
+        #
+        # # self.param_references_plus          = self.param_references          + self.derived_param_references
+        # # self.body_parameter_names_plus      = self.body_parameter_names      + self.derived_parameter_names
+        # # self.long_body_parameter_names_plus = self.long_body_parameter_names + self.derived_long_parameter_names
+        #
+        # for fp, fpn, fpnu in zip(p.fitting_parameters_plus[-p.derived_params:], self.derived_parameter_names, self.derived_long_parameter_names):
+        #     fp.body_parameter_name = fpn
+        #     fp.long_body_parameter_name = fpnu
 
-        # repeat, but ..._plus contains also the derived fitting parameters
-        self.param_references_plus = [(fp.body_index, fp.parameter_name) for fp in p.fitting_parameters_plus]  # list of names of fitting parameters. Needed so these parameters can be updated inside log_likelihood().
-        fp_without_sector_params = p.fitting_parameters_plus[:p.fitting_body_parameters] + p.fitting_parameters_plus[-p.derived_params:]
-        self.body_parameter_names_plus = [f"{bodies[fp.body_index].name}.{fp.parameter_name}" for fp in fp_without_sector_params]
-        # self.body_parameter_names_plus = [f"{bodies[fp.body_index].name}.{fp.parameter_name}" for fp in (p.fitting_parameters[:p.fitting_body_parameters] + p.fitting_parameters[-p.derived_params:])]
-        self.long_body_parameter_names_plus = [fpn + " [" + p.unit[fpn.split(".")[-1]] + "]" for fpn in self.body_parameter_names_plus]
-        for fp, fpn, fpnu in zip(p.fitting_parameters_plus[-p.derived_params:], self.body_parameter_names_plus[-p.derived_params:], self.long_body_parameter_names_plus[-p.derived_params]):
-            fp.body_parameter_name = fpn
-            fp.long_body_parameter_name = fpnu
-        self.ndim_plus = len(self.param_references_plus)
-
-        self.theta0 = self.random_initial_values(p)
-        self.args = (p.fitting_parameters, self.param_references, bodies, o, p)
+        self.theta0 = p.random_initial_values()
+        self.args = (p.fitting_parameters, p.param_references, bodies, o, p)
         self.moves = eval(p.moves)
         self.acceptance_fractions = []
         self.integrated_autocorrelation_time = []
@@ -158,7 +157,7 @@ class CurveSimMCMC:
                     sys.exit(1)
             else:
                 print("Ignoring and resetting backend.")
-                self.backend.reset(p.walkers, self.ndim)  # clear/reset the backend in case the file already exists
+                self.backend.reset(p.walkers, p.ndim)  # clear/reset the backend in case the file already exists
                 steps_done, self.loaded_steps = 0, 0
         else:
             print("Running without backend.")
@@ -172,7 +171,7 @@ class CurveSimMCMC:
             self.mcmc_fit(p, bodies, o, steps_done)
 
     def mcmc_fit(self, p, bodies, o, steps_done, pool=None):
-        self.sampler = emcee.EnsembleSampler(p.walkers, self.ndim, CurveSimMCMC.log_probability, pool=pool, moves=self.moves, args=self.args, backend=self.backend)
+        self.sampler = emcee.EnsembleSampler(p.walkers, p.ndim, CurveSimMCMC.log_probability, pool=pool, moves=self.moves, args=self.args, backend=self.backend)
         if not p.load_backend:
             self.theta = self.sampler.run_mcmc(self.theta0, p.burn_in, progress=True)
         else:
@@ -378,13 +377,6 @@ class CurveSimMCMC:
         median = np.median(data)
         return hdi_min, hdi_max, std, mean, median
 
-    def random_initial_values(self, p):
-        """return randomized initial values of the fitting parameters"""
-        rng = np.random.default_rng()  # init random number generator
-        initial_values = [fp.initial_values(rng, p.walkers) for fp in p.fitting_parameters]
-        theta0 = np.array(initial_values)
-        return theta0.T
-
     def make_flat_thin_samples(self, p):
         """Discard the first p.burn_in steps of each chain (to keep only samples from the equilibrium
             distribution), keep every p.thin_samples-th sample (to reduce autocorrelation and array size),
@@ -397,34 +389,36 @@ class CurveSimMCMC:
         for u_v_pair in p.e_omega_to_u_v_conversion_list:
             _, e_index, omega_index = u_v_pair
             e, omega = CurveSimMCMC.u_v_to_e_omega(flat_thin_samples[:, e_index], flat_thin_samples[:, omega_index])
+
             derived_columns.extend([e, omega])  # collect every pair, not just the last one
         return np.column_stack([flat_thin_samples] + derived_columns)
 
     def scale_samples(self, flat_thin_samples, p):
         self.scaled_samples = np.copy(flat_thin_samples)
         self.scales = []
-        for fpn, ss in zip(self.body_parameter_names, self.scaled_samples.T):
+        for fpn, ss in zip(p.parameter_names, self.scaled_samples.T):
             param = fpn.split(".")[-1]
-            ss *= p.scale[param]
-            self.scales.append(p.scale[param])
-        for _ in self.sector_parameter_names:
-            self.scales.append(1)
+            if "offset_" in param or "jitter_" in param:
+                self.scales.append(1)
+            else:
+                ss *= p.scale[param]
+                self.scales.append(p.scale[param])
 
     # @stopwatch()
     def trace_plots(self, steps_done, plot_filename, p):
         if self.trace_plot_ok:
             try:
                 plot_filename = self.results_directory + plot_filename
-                fig, axes = plt.subplots(self.ndim, figsize=(10, self.ndim * 2), sharex=True)
-                y_position1 = min(0.998, 0.99 + self.ndim / 7500)
-                y_position2 = min(0.985, y_position1 - 1 / (7 * self.ndim))
+                fig, axes = plt.subplots(p.ndim, figsize=(10, p.ndim * 2), sharex=True)
+                y_position1 = min(0.998, 0.99 + p.ndim / 7500)
+                y_position2 = min(0.985, y_position1 - 1 / (7 * p.ndim))
                 fig.text(0.1, y_position1, f"Traces, {steps_done} steps after burn-in.", ha="left", va="top", fontsize=14, transform=fig.transFigure)
                 plt.subplots_adjust(top=y_position2)
-                if self.ndim == 1:
+                if p.ndim == 1:
                     axes = [axes]
                 chains = np.moveaxis(self.sampler.get_chain(flat=False, thin=self.thin_samples_plot), -1, 0)
 
-                for i, (chain, ax, name, scale) in enumerate(zip(chains, axes, self.long_body_parameter_names + self.sector_parameter_names, self.scales)):
+                for i, (chain, ax, name, scale) in enumerate(zip(chains, axes, p.long_parameter_names, self.scales)):
                     nsteps = chain.shape[0]
                     x = np.arange(1, nsteps + 1) * self.thin_samples_plot  # 1*thin, 2*thin, ...
                     ax.plot(x, chain * scale, color="xkcd:black", alpha=0.05)
@@ -462,7 +456,7 @@ class CurveSimMCMC:
         # Calculate HDI and other mcmc results.
         self.mean_params = []
         self.median_params = []
-        for i, fp in enumerate(p.fitting_parameters):
+        for i, fp in enumerate(p.fitting_parameters_plus):
             hdi_min, hdi_max, std, mean, median = CurveSimMCMC.hdi_std_mean(self.scaled_samples[:, i], self.credible_mass)
             fp.hdi_min = hdi_min
             fp.hdi_max = hdi_max
@@ -473,14 +467,15 @@ class CurveSimMCMC:
             self.mean_params.append(mean)
             self.median_params.append(median)
 
-    def get_max_likelihood_bodies(self, bodies):
+    def get_max_likelihood_bodies(self, bodies, p):
         i = 0
-        for body_index, parameter_name in self.param_references:
+        for body_index, parameter_name in p.param_references:
             bodies[body_index].__dict__[parameter_name] = self.max_likelihood_params[i]  # update all parameters from theta
             i += 1
         return bodies
 
-    def max_likelihood_tt(self, max_likelihood_bodies, p, o):
+    @staticmethod
+    def max_likelihood_tt(max_likelihood_bodies, p, o):
         sim_rv, sim_flux, rebound_sim = max_likelihood_bodies.calc_physics(p, o.sim.time_s0)  # run simulation
         _, measured_tt = CurveSimMCMC.match_transit_times(p, rebound_sim, o)
         return measured_tt
@@ -496,14 +491,13 @@ class CurveSimMCMC:
     # @stopwatch()
     def mcmc_histograms(self, steps_done, bins, plot_filename, p):
         plot_filename = self.results_directory + plot_filename
-        derived_params = 0  # derivedparams
-        fig, axes = plt.subplots(self.ndim + derived_params, figsize=(10, (self.ndim + derived_params) * 2))
-        y_position = min(0.998, 0.99 + (self.ndim + derived_params) / 7500)
+        fig, axes = plt.subplots(p.ndim + p.derived_params, figsize=(10, (p.ndim + p.derived_params) * 2))
+        y_position = min(0.998, 0.99 + (p.ndim + p.derived_params) / 7500)
         fig.text(0.02, y_position, f"Histograms, {steps_done} steps after burn-in.", ha="left", va="top", fontsize=14, transform=fig.transFigure)
-        startvalues = [fp.startvalue * fp.scale for fp in p.fitting_parameters]
-        if self.ndim == 1:
+        startvalues = [fp.startvalue * fp.scale for fp in p.fitting_parameters_plus]
+        if p.ndim == 1:
             axes = [axes]
-        for i, (sample, ax, fp, startvalue) in enumerate(zip(self.scaled_samples.T, axes, p.fitting_parameters, startvalues)):
+        for i, (sample, ax, fp, startvalue) in enumerate(zip(self.scaled_samples.T, axes, p.fitting_parameters_plus, startvalues)):
             fp.densities, fp.bin_edges, _ = ax.hist(sample, bins=bins, density=True, alpha=0.7, color="xkcd:light blue", edgecolor="xkcd:black")
             ax.axvline(fp.hdi_min, color="xkcd:tree green", linestyle="dashed", label="HDI Lower Bound")
             ax.axvline(fp.mean - fp.std, color="xkcd:warm grey", linestyle="dotted", label="Mean - Std")
@@ -558,10 +552,10 @@ class CurveSimMCMC:
         if self.corner_plot_ok:
             try:
                 plot_filename = self.results_directory + plot_filename
-                if self.ndim > 1:
+                if p.ndim > 1:
                     fig = corner.corner(
                         self.scaled_samples[:, :p.fitting_body_parameters],
-                        labels=self.long_body_parameter_names,
+                        labels=p.long_body_parameter_names,
                         truths=self.max_likelihood_params_scaled[:p.fitting_body_parameters],
                         title_fmt=".4f",
                         quiet=True
@@ -584,15 +578,15 @@ class CurveSimMCMC:
                 samples = self.sampler.get_chain(discard=0, flat=False, thin=self.thin_samples_plot)  # shape: (steps, walkers, ndim)
                 nsteps = samples.shape[0]
                 nwalkers = samples.shape[1]
-                fig, axes = plt.subplots(self.ndim, figsize=(10, self.ndim * 2), sharex=True)
-                y_position1 = min(0.998, 0.99 + self.ndim / 7500)
-                y_position2 = min(0.985, y_position1 - 1 / (7 * self.ndim))
+                fig, axes = plt.subplots(p.ndim, figsize=(10, p.ndim * 2), sharex=True)
+                y_position1 = min(0.998, 0.99 + p.ndim / 7500)
+                y_position2 = min(0.985, y_position1 - 1 / (7 * p.ndim))
                 fig.text(0.1, y_position1, f"Autocorrelation after {steps_done} steps", ha="left", va="top", fontsize=14, transform=fig.transFigure)
                 plt.subplots_adjust(top=y_position2)
-                if self.ndim == 1:
+                if p.ndim == 1:
                     axes = [axes]
                 x = np.arange(1, nsteps + 1) * self.thin_samples_plot
-                for dim, param_name in enumerate(self.long_body_parameter_names + self.sector_parameter_names):
+                for dim, param_name in enumerate(p.long_body_parameter_names + p.sector_parameter_names):
                     ax = axes[dim]
                     for walker in range(nwalkers):
                         chain_1d = samples[:, walker, dim]
@@ -601,7 +595,7 @@ class CurveSimMCMC:
                     ax.set_ylabel(param_name)
                     ax.axvline(p.burn_in, color="xkcd:tomato", linestyle="solid", label="burn-in")
                     ax.tick_params(labelbottom=True)  # Show x-tick labels for all
-                    if dim == self.ndim - 1:
+                    if dim == p.ndim - 1:
                         ax.set_xlabel("Steps including burn-in (red line)")  # Only last subplot
                 try:
                     plt.savefig(plot_filename)
@@ -654,7 +648,7 @@ class CurveSimMCMC:
                   "xkcd:forest", "xkcd:pale violet", "xkcd:robin's egg", "xkcd:pinkish purple", "xkcd:azure",
                   "xkcd:hot pink", "xkcd:mango", "xkcd:baby pink", "xkcd:fluorescent green", "xkcd:medium grey"]
         linestyles = ["solid", "dashed", "dashdot", "dotted"]
-        labels = self.long_body_parameter_names + self.sector_parameter_names
+        labels = p.long_body_parameter_names + p.sector_parameter_names
 
         self._plot_with_bottom_legend(steps, integrated_autocorrelation_time, labels, colors, linestyles,
                                       xlabel="Steps after burn-in",
@@ -848,7 +842,7 @@ class CurveSimMCMC:
             mcmc_results["measured_tt_list"] = measured_tt.to_dict(orient="list")  # Convert measured_tt DataFrame to a serializable format
 
         # Fitting Parameters Section
-        fitting_parameters = copy.deepcopy(p.fitting_parameters)
+        fitting_parameters = copy.deepcopy(p.fitting_parameters_plus)
         for fp in fitting_parameters:
             fp.startvalue *= fp.scale
             fp.lower *= fp.scale
@@ -886,10 +880,9 @@ class CurveSimMCMC:
         self.scale_samples(flat_thin_samples, p)
         self.max_likelihood_parameters(flat_thin_samples, p)
         # self.save_max_likelihood_bodies()
-        hier weiter
         if p.tt_file:
-            max_likelihood_bodies = self.get_max_likelihood_bodies(bodies)
-            o.tt.measured_tt = self.max_likelihood_tt(max_likelihood_bodies, p, o)
+            max_likelihood_bodies = self.get_max_likelihood_bodies(bodies, p)
+            o.tt.measured_tt = CurveSimMCMC.max_likelihood_tt(max_likelihood_bodies, p, o)
             o.tt.measured_tt = CurveSimMCMC.add_new_best_delta(o.tt.measured_tt, steps_done)
             CurveSimMCMC.tt_delta_plot(p, steps_done, "tt_delta.png", o.tt.measured_tt)
             self.tt_multi_delta_plot(steps_done, "tt_multi_delta.png", o.tt.measured_tt)
@@ -897,11 +890,10 @@ class CurveSimMCMC:
         self.high_density_intervals(p)
 
         if p.flux_file:
-            median_residuals_flux_sum_squared, _ = CurveSimMCMC.residuals_flux_sum_squared(self.median_params, self.param_references, bodies, o, p)
-            mean_residuals_flux_sum_squared, _ = CurveSimMCMC.residuals_flux_sum_squared(self.mean_params, self.param_references, bodies, o, p)
-            flux_data_points = getattr(p, "iterations", 0)
-            self.flux_mean_avg_residual_in_std.append(math.sqrt(mean_residuals_flux_sum_squared / flux_data_points))
-            self.flux_median_avg_residual_in_std.append(math.sqrt(median_residuals_flux_sum_squared / flux_data_points))
+            median_residuals_flux_sum_squared, _ = CurveSimMCMC.residuals_flux_sum_squared(self.median_params, p.param_references, bodies, o, p)
+            mean_residuals_flux_sum_squared, _ = CurveSimMCMC.residuals_flux_sum_squared(self.mean_params, p.param_references, bodies, o, p)
+            self.flux_mean_avg_residual_in_std.append(math.sqrt(mean_residuals_flux_sum_squared / o.sim.iterations))  # obsolete? use chi_square instead?
+            self.flux_median_avg_residual_in_std.append(math.sqrt(median_residuals_flux_sum_squared / o.sim.iterations))
         # self.average_residual_in_std_plot(p, steps_done, "avg_residual.png")
 
         bodies = CurveSimMCMC.bodies_from_fitting_params(bodies, p.fitting_parameters[:p.fitting_body_parameters], param_type="max_likelihood")
@@ -936,7 +928,6 @@ class CurveSimLMfit:
         if os.path.exists("iteration.tmp"):
             os.remove("iteration.tmp")
         self.results_directory = p.results_directory
-        p.fitting_parameters = p.fitting_parameters
         self.param_references = [(fp.body_index, fp.parameter_name) for fp in p.fitting_parameters]  # list of names of fitting parameters. Needed so these parameters can be updated inside log_likelihood().
         self.body_parameter_names = [f"{bodies[fp.body_index].name}.{fp.parameter_name}" for fp in p.fitting_parameters]
         p.index_from_bodyparamname = {bpn: fp.index for bpn, fp in zip(self.body_parameter_names, p.fitting_parameters)}

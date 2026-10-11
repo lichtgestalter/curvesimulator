@@ -293,9 +293,9 @@ class CurveSimBody:
         # T1/T2: go backwards from iteration (this should be the one right _after_ TT) to find the iteration before the eclipse starts
         # T3/T4: go forward from iteration (this should be the one right _before_ TT) to find the iteration after the eclipse ends
         while d < d_event:
+            iteration_delta += step
             if iteration + iteration_delta >= end_index or iteration + iteration_delta < start_index:
                 return None  # incomplete transit at start or end of current simulation interval
-            iteration_delta += step
             d = CurveSimPhysics.distance_2d_body(other, self, iteration + iteration_delta)
         rebound_sim.integrate((o.sim.time_s0[iteration + iteration_delta]))
         d_old = CurveSimPhysics.distance_2d_particle(eclipser, eclipsee)
