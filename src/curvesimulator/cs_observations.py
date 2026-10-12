@@ -64,7 +64,7 @@ class ObservationType:
         This is the probability of observing a chi-squared value >= your observed value.
         chi_square :     The chi-squared test statistic
         n_measurements : Number of measurements/observations
-        n_parameters :   Number of free parameters in the model
+        n_params :   Number of free params in the model
         """
         if free_parameters is None:
             return None
@@ -202,7 +202,7 @@ class FluxObservations(ObservationType):
             TotalObservations.check_required_columns({"time", "flux", "flux_err"}, df, p.flux_file)
             df = df[(df["time"] >= p.epoch) & (df["time"] <= p.sim_end)].copy()
 
-            if p.sector_params_file:  # parameters offset and jitter for each observed sector exist
+            if p.sector_params_file:  # params offset and jitter for each observed sector exist
                 TotalObservations.check_required_columns({"sector"}, df, p.flux_file)
                 self.offset_map, self.jitter_map, _ = TotalObservations.get_sector_params(p)
                 self.sector = df["sector"].to_numpy(dtype=float)
@@ -220,7 +220,7 @@ class FluxObservations(ObservationType):
         return f"FluxObservations: {self.observation_count} observations"
 
     def calc_corrected(self, sector_params_file):
-        if sector_params_file:  # parameters offset and jitter for each observed sector exist
+        if sector_params_file:  # params offset and jitter for each observed sector exist
             offset = pd.Series(self.sector).map(self.offset_map).to_numpy(dtype=float)
         else:
             offset = 0
@@ -228,7 +228,7 @@ class FluxObservations(ObservationType):
         return self.corrected
 
     def calc_total_error(self, sector_params_file):
-        if sector_params_file:  # parameters offset and jitter for each observed sector exist
+        if sector_params_file:  # params offset and jitter for each observed sector exist
             jitter = pd.Series(self.sector).map(self.jitter_map).to_numpy(dtype=float)
         else:
             jitter = 0

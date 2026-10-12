@@ -120,8 +120,8 @@ class CurveSimResults(dict):
     def save_results(self, p):
         p_copy = copy.deepcopy(p)
         to_remove = [
-            "fitting_parameters", "fitting_parameters_plus", "standard_sections", "eclipsers", "eclipsees",
-            "fitting_parameter_dic", "update_from_theta_function",
+            "fitting_params", "fitting_params_plus", "standard_sections", "eclipsers", "eclipsees",
+            "fitting_param_dic", "update_from_theta_function",
             "offset_map", "jitter_map", "rv_body",
         ]
         for name in to_remove:
@@ -167,15 +167,15 @@ class CurveSimResults(dict):
     #         self["Fit"]["pvalue_total"] = CurveSimResults.chi_squared_pvalue(self["Fit"]["chi_squared_total"], self["Fit"]["measurements_total"], free_parameters)
 
     @staticmethod
-    def chi_squared_pvalue(chi_squared, n_measurements, n_parameters):
+    def chi_squared_pvalue(chi_squared, n_measurements, n_params):
         """
         Calculate the p-value for a chi-squared test.
         This is the probability of observing a chi-squared value >= your observed value.
         chi_square :     The chi-squared test statistic
         n_measurements : Number of measurements/observations
-        n_parameters :   Number of free parameters in the model
+        n_params :   Number of free params in the model
         """
-        degrees_of_freedom = n_measurements - n_parameters
+        degrees_of_freedom = n_measurements - n_params
         p_value = stats.chi2.sf(chi_squared, degrees_of_freedom)  # survival function = 1 - cumulative distribution function
         return p_value
 
@@ -348,18 +348,18 @@ class CurveSimResults(dict):
             plt.show()
         plt.close()
 
-    def plot_parameter(self, eclipser, eclipsee, parameter, start, end, filename="", title=None):
+    def plot_param(self, eclipser, eclipsee, param, start, end, filename="", title=None):
         if not title:
             title = f"{os.path.splitext(os.path.basename(filename))[0]}, {self["ProgramParameters"]["comment"]} (dt={self["ProgramParameters"]["dt"]})"
         transit_times = self.get_transit_data(eclipser, eclipsee, "TT")
-        parameter_list = self.get_transit_data(eclipser, eclipsee, parameter)
+        param_list = self.get_transit_data(eclipser, eclipsee, param)
         CurveSimResults.plot_this(
             x_lists=transit_times,
-            y_lists=[parameter_list],
+            y_lists=[param_list],
             data_labels=[eclipser],
             title=title,
             x_label="Transit Times [BJD]",
-            y_label=parameter,
+            y_label=param,
             linestyles="-",
             markersizes=4,
             grid=True,
@@ -368,10 +368,10 @@ class CurveSimResults(dict):
             plot_file=filename,
         )
 
-    def get_transit_data(self, eclipser, eclipsee, parameter):
+    def get_transit_data(self, eclipser, eclipsee, param):
         transits = self["Bodies"][eclipser]["Transits"]
-        parameter_list = [transit["Transit_params"][parameter] for transit in transits if transit["Transit_params"]["EclipsedBody"] == eclipsee]
-        return parameter_list
+        param_list = [transit["Transit_params"][param] for transit in transits if transit["Transit_params"]["EclipsedBody"] == eclipsee]
+        return param_list
 
     @staticmethod
     def ttv_to_date_plot_TOI4504_specific(p, o, amplitude, period, x_offset, osc_per):

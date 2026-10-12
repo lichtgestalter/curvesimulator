@@ -38,7 +38,7 @@ class CurveSimBody:
         self.luminosity = luminosity  # [W]
         self.rv_offset = rv_offset  # [m/s]
         self.rv_jitter = rv_jitter  # [m/s]
-        self.limb_darkening_u1, self.limb_darkening_u2 = CurveSimPhysics.get_limbdarkening_parameters(limb_darkening_1, limb_darkening_2, limb_darkening_parameter_type)
+        self.limb_darkening_u1, self.limb_darkening_u2 = CurveSimPhysics.get_limbdarkening_params(limb_darkening_1, limb_darkening_2, limb_darkening_parameter_type)
         self.mean_intensity = CurveSimPhysics.calc_mean_intensity(self.limb_darkening_u1, self.limb_darkening_u2)
         self.intensity = luminosity / self.area_2d  # luminosity per (apparent) area [W/m**2]
         self.e = e  # [1] eccentricity
@@ -139,7 +139,7 @@ class CurveSimBody:
                 data[param] = None
                 missing.append(param)
         if missing:
-            print(f"{Fore.YELLOW}\nWARNING: Missing parameters in {filename + ".bdy"}: {missing} {Style.RESET_ALL}")
+            print(f"{Fore.YELLOW}\nWARNING: Missing params in {filename + ".bdy"}: {missing} {Style.RESET_ALL}")
 
         # Build args in the same order as __init__ signature:
         args = [
@@ -231,10 +231,10 @@ class CurveSimBody:
             if interval_extensions > p.max_interval_extensions:
                 if p.verbose:
                     print(f"{Fore.YELLOW}\nWARNING in function find_tt: Maximum acceptable interval extension exceeded.")
-                    print(f"This is due to a too large iteration time step parameter <dt>{Style.RESET_ALL}   ", end="")
+                    print(f"This is due to a too large iteration time step param <dt>{Style.RESET_ALL}   ", end="")
                     print(f"or due to an unstable star system.{Style.RESET_ALL}   ", end="")
-                    print(f"Try again with half the iteration time step parameter <dt>{Style.RESET_ALL}   ", end="")
-                    print(f"or choose more plausible start values and more restrictive upper/lower limits for the body parameters{Style.RESET_ALL}  ", end="")
+                    print(f"Try again with half the iteration time step param <dt>{Style.RESET_ALL}   ", end="")
+                    print(f"or choose more plausible start values and more restrictive upper/lower limits for the body params{Style.RESET_ALL}  ", end="")
                     print(f"Consider moving the time intervals a bit.{Style.RESET_ALL}   ", end="")
                     print(f"{iteration=}  {o.sim.time_d[iteration]=} {interval_extensions=}")
                 return -1, -1, -1, False, -1
@@ -271,10 +271,10 @@ class CurveSimBody:
         else:
             if p.verbose:
                 print(f"{Fore.YELLOW}\nWARNING in function find_tt: Eclipser not in front of eclipsee at expected TT.")
-                print(f"This is due to a too large iteration time step parameter <dt>{Style.RESET_ALL}   ", end="")
+                print(f"This is due to a too large iteration time step param <dt>{Style.RESET_ALL}   ", end="")
                 print(f"or due to an unstable star system.{Style.RESET_ALL}   ", end="")
-                print(f"Try again with half the iteration time step parameter <dt>{Style.RESET_ALL}   ", end="")
-                print(f"or choose more plausible start values and more restrictive upper/lower limits for the body parameters{Style.RESET_ALL}  ", end="")
+                print(f"Try again with half the iteration time step param <dt>{Style.RESET_ALL}   ", end="")
+                print(f"or choose more plausible start values and more restrictive upper/lower limits for the body params{Style.RESET_ALL}  ", end="")
                 print(f"Consider moving the time intervals a bit.{Style.RESET_ALL}   ", end="")
                 print(f"{iteration=}  {o.sim.time_d[iteration]=} {interval_extensions=}")
             return -1, -1, -1, False, -1

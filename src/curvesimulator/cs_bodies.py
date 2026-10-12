@@ -25,7 +25,7 @@ class CurveSimBodies(list):
     def __init__(self, p):
         # p.myintegration = False  # if True, instead of Rebound, use a simple adhoc integration provided in this code
         """Initialize instances of physical bodies.
-        Read program parameters and properties of the bodies from config file.
+        Read program params and properties of the bodies from config file.
         Initialize the circles in the animation (matplotlib patches)"""
         super().__init__()  # Call the superclass initializer
         try:
@@ -45,7 +45,7 @@ class CurveSimBodies(list):
             if section not in p.standard_sections and CurveSimParameters.section_name_valid(section):  # section describes a physical object and has a legal name
                 file = config.get(section, "file", fallback=None)
                 if file is None:
-                    color = CurveSimParameters.get_color_parameter(config, section, "color", "xkcd:eggshell")
+                    color = CurveSimParameters.get_color_param(config, section, "color", "xkcd:eggshell")
                     kwargs = {
                         "p": p,
                         "primary": config.get(section, "primary", fallback=None),
@@ -81,7 +81,7 @@ class CurveSimBodies(list):
                 else:
                     body = CurveSimBody.load(file, p, ".")
                 self.append(body)
-        self.check_body_parameters()
+        self.check_body_params()
         p.rv_body, _, _ = self.get_rv_offset_and_jitter(p)
         # p.rv_body, p.rv_offset, p.rv_jitter = self.get_rv_offset_and_jitter(p)
         p.init_eclipsers_eclipsees(self)
@@ -153,7 +153,7 @@ class CurveSimBodies(list):
                 kwargs["l"] = body.L
             if not p.jacobi_coordinates:
                 primary = simulation.particles[body.primary]
-                # primary = CurveSimBodies.get_com_particle(simulation, range(i))  # Setting no primary has the same result as setting the primary as the center of mass of all up to now defined bodies: parameters are in Jacobi coordinates
+                # primary = CurveSimBodies.get_com_particle(simulation, range(i))  # Setting no primary has the same result as setting the primary as the center of mass of all up to now defined bodies: params are in Jacobi coordinates
                 kwargs["primary"] = primary
             simulation.add(**kwargs)
         simulation.move_to_com()  # move origin to center of mass before integrating -> better numerical stability
@@ -222,8 +222,8 @@ class CurveSimBodies(list):
         else:
             return rv_body, rv_body.rv_offset, rv_body.rv_jitter
 
-    def check_body_parameters(self):
-        """Checking parameters of physical bodies in the config file"""
+    def check_body_params(self):
+        """Checking params of physical bodies in the config file"""
         if len(self) == 0:
             print(f"{Fore.RED}\nERROR in config file: No physical bodies have been specified.")
             sys.exit(1)
@@ -240,12 +240,12 @@ class CurveSimBodies(list):
             if body.luminosity < 0:
                 print(f"{Fore.RED}\nERROR in config file: {body.name} has invalid luminosity {body.luminosity=}.")
                 sys.exit(1)
-            if body.luminosity > 0 and (body.limb_darkening_u1 is None or body.limb_darkening_u2 is None):  # if body.luminosity > 0 and limb darkening parameters are missing
-                print(f"{Fore.RED}\nERROR in config file: {body.name} has luminosity but invalid limb darkening parameters.")
+            if body.luminosity > 0 and (body.limb_darkening_u1 is None or body.limb_darkening_u2 is None):  # if body.luminosity > 0 and limb darkening params are missing
+                print(f"{Fore.RED}\nERROR in config file: {body.name} has luminosity but invalid limb darkening params.")
                 sys.exit(1)
             if body.a is not None and body.P is not None:
                 print(f"{Fore.RED}\nERROR in config file: Period P and semi-major axis a have been specified for {body.name}.")
-                print(f"{Fore.RED}Remove one parameter from the config file.")
+                print(f"{Fore.RED}Remove one param from the config file.")
                 sys.exit(1)
             if body.a is not None and body.a <= 0:
                 print(f"{Fore.RED}\nERROR in config file: {body.name} has invalid semi-major axis a.")
@@ -317,8 +317,8 @@ class CurveSimBodies(list):
             self.print_simulation_particles(p, simulation, message="\n\n######## Simulation particles at epoch: ########")
             simulation.integrate(time_s0[0])
             self.print_simulation_particles(p, simulation, message="\n\n######## Simulation particles at sim_start: ########")
-            print("\nExited after succesful print of initial body parameters.")
-            print("Set parameter print_initial_body_states = False in order to run the full simulation instead.\n")
+            print("\nExited after succesful print of initial body params.")
+            print("Set param print_initial_body_states = False in order to run the full simulation instead.\n")
             sys.exit(0)
 
         for iteration in range(iterations):

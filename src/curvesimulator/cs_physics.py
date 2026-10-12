@@ -33,13 +33,13 @@ class CurveSimPhysics:
     #     raise RuntimeError("Newton\'s root solver did not converge.")
     #
     # @staticmethod
-    # def gravitational_parameter(bodies, g):
-    #     """Calculate the gravitational parameter of masses orbiting a common barycenter
-    #     https://en.wikipedia.org/wiki/Standard_gravitational_parameter"""
+    # def gravitational_param(bodies, g):
+    #     """Calculate the gravitational param of masses orbiting a common barycenter
+    #     https://en.wikipedia.org/wiki/Standard_gravitational_param"""
     #     mass = 0.0
     #     for body in bodies:
     #         mass += body.mass
-    #     # print(f"Gravitational parameter {g * mass:.3f}")
+    #     # print(f"Gravitational param {g * mass:.3f}")
     #     return g * mass
 
     @staticmethod
@@ -61,23 +61,23 @@ class CurveSimPhysics:
         return math.sqrt((dx ** 2 + dy ** 2))
 
     @staticmethod
-    def get_limbdarkening_parameters(parameter_1, parameter_2, parameter_type):
-        """converts limb darkening parameters to quadratic law parameters u1,u2 if necessary"""
-        if parameter_type == "u":
-            return parameter_1, parameter_2
-        if parameter_type == "a":
-            u1 = parameter_1 + 2 * parameter_2
-            u2 = -parameter_2
+    def get_limbdarkening_params(param_1, param_2, param_type):
+        """converts limb darkening params to quadratic law params u1,u2 if necessary"""
+        if param_type == "u":
+            return param_1, param_2
+        if param_type == "a":
+            u1 = param_1 + 2 * param_2
+            u2 = -param_2
             return u1, u2
-        if parameter_type == "q":
-            u1 = 2 * math.sqrt(parameter_1) * parameter_2
-            u2 = np.sqrt(parameter_1) * (1 - 2 * parameter_2)
+        if param_type == "q":
+            u1 = 2 * math.sqrt(param_1) * param_2
+            u2 = np.sqrt(param_1) * (1 - 2 * param_2)
             return u1, u2
-        if parameter_type is None:
+        if param_type is None:
             return None, None
         print(f"{Fore.RED}\nERROR in config file: limb_darkening_parameter_type must be a or u or q.")
         print(f"                      limb_darkening must be [a0,a1,a2] or [u1,u2] or [q1,q2] correspondingly.")
-        print(f"                      But config file contains: limb_darkening_parameter_type = {parameter_type}{Style.RESET_ALL}")
+        print(f"                      But config file contains: limb_darkening_parameter_type = {param_type}{Style.RESET_ALL}")
         sys.exit(1)
 
     @staticmethod
@@ -88,7 +88,7 @@ class CurveSimPhysics:
     @staticmethod
     def calc_mean_intensity(limb_darkening_u1, limb_darkening_u2):
         """Calculates the ratio of the mean intensity to the central intensity of a star based on
-        the given quadratic law parameters for limb darkening by integrating the intensity over the stellar disk"""
+        the given quadratic law params for limb darkening by integrating the intensity over the stellar disk"""
         if limb_darkening_u1 is None or limb_darkening_u2 is None:
             return None
         mu_values = np.linspace(0, 1, 1000)
@@ -106,7 +106,7 @@ class CurveSimPhysics:
 
         Parameters:
         relative_radius (float): The normalized radial coordinate (0 <= x <= 1).
-        limb_darkening_parameters: list of coefficients for the limb darkening model.
+        limb_darkening_params: list of coefficients for the limb darkening model.
 
         Returns:
         float: intensity relative to the intensity at the midlle of the star at the given relative radius.

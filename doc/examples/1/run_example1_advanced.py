@@ -5,7 +5,7 @@ from curvesimulator import CurveSimulator
 def main():
     cs = CurveSimulator("config1.ini")
     print("\n\n")
-    print(cs.parameters)
+    print(cs.params)
     print(cs.bodies)
     print(cs.observations)
     print(cs.results)

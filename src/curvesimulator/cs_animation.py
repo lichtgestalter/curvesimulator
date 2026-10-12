@@ -181,7 +181,7 @@ class CurveSimAnimation:
                 yvalues = [maxl, minl]
             ylabels = [f"{round(1 * y, 10):.{digits}f}" for y in yvalues]
         else:
-            print(f"{Fore.RED}\nERROR: Unknown parameter {y_label_type=} in function init_curve_plot.{Style.RESET_ALL}")
+            print(f"{Fore.RED}\nERROR: Unknown param {y_label_type=} in function init_curve_plot.{Style.RESET_ALL}")
             sys.exit(1)
         ax.set_yticks(yvalues, labels=ylabels)
 
@@ -314,7 +314,7 @@ class CurveSimAnimation:
             ax_rv_curve, lower_dot = CurveSimAnimation.init_lower_curve_plot(o, p, shape=(2, 1), loc=(1, 0), rowspan=1, colspan=1)
         else:
             print(f"{Fore.RED}\nERROR: No plot was chosen to be displayed in the video.")
-            print("Check the settings of parameters show_left_plot, show_right_plot, show_upper_curve and show_lower_curve.{Style.RESET_ALL}")
+            print("Check the settings of params show_left_plot, show_right_plot, show_upper_curve and show_lower_curve.{Style.RESET_ALL}")
             sys.exit(1)
         plt.tight_layout()  # Automatically adjust padding horizontally as well as vertically.
         plt.suptitle(p.main_title, color=p.main_title_color, fontsize=p.main_title_fontsize)
@@ -325,8 +325,8 @@ class CurveSimAnimation:
     def next_frame(frame, p, bodies, lower_dot, upper_dot, o):
         frame_number = int(frame * o.sim.sampling_rate)
         """Update patches. Send new circle positions to animation function.
-        First parameter comes from iterator frames (a parameter of FuncAnimation).
-        The other parameters are given to this function via the parameter fargs of FuncAnimation."""
+        First param comes from iterator frames (a param of FuncAnimation).
+        The other params are given to this function via the param fargs of FuncAnimation."""
         for body in bodies:  # left view: projection (x,y,z) -> (x,-z), order = y (y-axis points to viewer)
             if body.image_file_left is None or body.image_file_right is None:
                 body.circle_left.set(zorder=body.positions_left[frame_number][1])

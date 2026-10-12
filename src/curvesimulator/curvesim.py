@@ -1,6 +1,6 @@
 from colorama import Fore, Style
 from multiprocessing import Process, JoinableQueue, current_process, parent_process
-import numpy as np
+# import numpy as np
 import os
 import sys
 import time
@@ -76,14 +76,14 @@ def _is_multiprocessing_child_import():
 
 class CurveSimulator:
     def __init__(self, config_file=""):
-        p = CurveSimParameters(config_file)  # Read program parameters from config file.
-        mandatory_parameters = p.find_mandatory_parameters()
-        p.check_for_missing_parameters(mandatory_parameters)
+        p = CurveSimParameters(config_file)  # Read program params from config file.
+        mandatory_params = p.find_mandatory_params()
+        p.check_for_missing_params(mandatory_params)
         bodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
         o = TotalObservations(p)
         if not p.rebound_warnings:
             warnings.filterwarnings("ignore", module="rebound")
-        self.parameters, self.bodies, self.observations = p, bodies, o  # grants access from the executed script by making it an attribute of the CurveSimulator object
+        self.params, self.bodies, self.observations = p, bodies, o  # grants access from the executed script by making it an attribute of the CurveSimulator object
         if p.verbose:
             print(p)
 
@@ -91,11 +91,12 @@ class CurveSimulator:
             if _is_multiprocessing_child_import():
                 return
 
-            p.init_fitting_parameter_dic()
-            print(f"Fitting {p.free_parameters} parameters.")
+            p.init_fitting_param_dic()
+            print(f"Fitting {p.free_parameters} params.")
+            p.enrich_fitting_params()
 
             if p.action == "guifit":
-                p.enrich_fitting_params(bodies)
+                p.enrich_fitting_params()
                 self.guifit = CurveSimManualFit(p, bodies, o)
                 self.guifit.save_lmfit_results(p)
                 sys.exit(0)
@@ -116,7 +117,7 @@ class CurveSimulator:
                 self.sampler = mcmc.sampler  # mcmc object
                 self.theta = mcmc.theta  # current state of mcmc chains. By saving sampler and theta it is possible to continue the mcmc later on.
             else:
-                print(f"{Fore.RED}\nERROR: Invalid value for parameter <action> in configuration file {Style.RESET_ALL}")
+                print(f"{Fore.RED}\nERROR: Invalid value for param <action> in configuration file {Style.RESET_ALL}")
                 sys.exit(1)
 
         elif p.action == "single_run":
@@ -138,7 +139,7 @@ class CurveSimulator:
         # elif p.action == "process_tess_data":
         #     CurveSimFluxData.process_tess_flux(p)
         else:
-            print(f"{Fore.RED}\nERROR: Invalid value for parameter <action> in configuration file {Style.RESET_ALL}")
+            print(f"{Fore.RED}\nERROR: Invalid value for param <action> in configuration file {Style.RESET_ALL}")
             sys.exit(1)
 
     def __repr__(self):
