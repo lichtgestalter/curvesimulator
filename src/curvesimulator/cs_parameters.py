@@ -20,7 +20,7 @@ class CurveSimParameters:
     def __init__(self, config_file):
         """Read program params and properties of the physical bodies from config file."""
         self.body_param_names = None
-        self.body_param_scale_names = None
+        self.body_param_unit_names = None
         self.PARAMS = (["body_type", "primary", "mass", "radius", "luminosity", "rv_offset", "rv_jitter"]
                        + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
                        + ["e", "i", "P", "a", "Omega", "omega", "pomega"]
@@ -506,7 +506,7 @@ class CurveSimParameters:
     @staticmethod
     def convert_e_omega_to_u_v(fp_e, fp_o):
         fp_e.param_name, fp_o.param_name = "u", "v"
-        fp_e.param_scale_name, fp_o.param_scale_name = "u[1]", "v[1]"
+        fp_e.param_unit_name, fp_o.param_unit_name = "u[1]", "v[1]"
         fp_e.scale, fp_o.scale = 1, 1
 
         start_u, start_v = CurveSimParameters.e_omega_to_u_v(fp_e.startvalue, fp_o.startvalue)
@@ -561,7 +561,7 @@ class CurveSimParameters:
                 "body_index": fp.body_index,
                 "param_name": fp.param_name,
                 "unit": fp.unit,
-                "param_scale_name": fp.param_scale_name,
+                "param_unit_name": fp.param_unit_name,
                 "scale": fp.scale,
                 "startvalue": fp.startvalue,
                 "lower": fp.lower,
@@ -654,14 +654,14 @@ class CurveSimParameters:
         self.fitting_param_dic = {(fp.body_index, fp.param_name): fp.index for fp in self.fitting_params}
 
     def enrich_fitting_params(self):
-        """Add attributes body_param_name and body_param_scale_name to each FittingParameter."""
+        """Add attributes body_param_name and body_param_unit_name to each FittingParameter."""
         self.body_param_names = []
-        self.body_param_scale_names = []
+        self.body_param_unit_names = []
         for i, fp in enumerate(self.fitting_params_plus):
             fp.body_param_name = f"{fp.body_name}.{fp.param_name}"
-            fp.body_param_scale_name = f"{fp.body_name}.{fp.param_scale_name}"
+            fp.body_param_unit_name = f"{fp.body_name}.{fp.param_unit_name}"
             self.body_param_names.append(fp.body_param_name)
-            self.body_param_scale_names.append(fp.body_param_scale_name)
+            self.body_param_unit_names.append(fp.body_param_unit_name)
         self.param_references = [(fp.body_index, fp.param_name) for fp in self.fitting_params]  # list of names of fitting params. Needed so these params can be updated inside log_likelihood().
 
     def random_initial_values(self):
@@ -680,11 +680,11 @@ class FittingParameter:
 
         if param_name in p.unit:
             self.unit = p.unit[param_name]
-            self.param_scale_name = f"{param_name}[{self.unit}]"
+            self.param_unit_name = f"{param_name}[{self.unit}]"
             self.scale = p.scale[param_name]
         else:  # e.g. sector params like "offset_42", "jitter_42"
             self.unit = "1"
-            self.param_scale_name = param_name
+            self.param_unit_name = param_name
             self.scale = 1.0
 
         self.startvalue = startvalue

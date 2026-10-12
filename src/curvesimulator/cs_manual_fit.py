@@ -90,7 +90,7 @@ class FittingGUI:
             frame.grid_columnconfigure(0, weight=1)
             frame.grid_columnconfigure(1, weight=2)
             # A. Title Label (Row 0)
-            title_label = ttk.Label(frame, text=fp.body_param_scale_name, font=("Inter", 10, "bold"))
+            title_label = ttk.Label(frame, text=fp.body_param_unit_name, font=("Inter", 10, "bold"))
             title_label.grid(row=0, column=0, columnspan=2, sticky="w", pady=(0, 5))
             # B. Value Entry (Row 1)
             value_label = ttk.Label(frame, text="Value:", font=("Inter", 9))

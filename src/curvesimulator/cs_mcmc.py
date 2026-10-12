@@ -395,7 +395,7 @@ class CurveSimMCMC:
                     axes = [axes]
                 chains = np.moveaxis(self.sampler.get_chain(flat=False, thin=self.thin_samples_plot), -1, 0)
 
-                for i, (chain, ax, name, scale) in enumerate(zip(chains, axes, p.body_param_scale_names, self.scales)):
+                for i, (chain, ax, name, scale) in enumerate(zip(chains, axes, p.body_param_unit_names, self.scales)):
                     nsteps = chain.shape[0]
                     x = np.arange(1, nsteps + 1) * self.thin_samples_plot  # 1*thin, 2*thin, ...
                     ax.plot(x, chain * scale, color="xkcd:black", alpha=0.05)
@@ -484,7 +484,7 @@ class CurveSimMCMC:
             ax.axvline(fp.mean + fp.std, color="xkcd:warm grey", linestyle="dotted", label="Mean + Std")
             ax.axvline(fp.median, color="xkcd:nice blue", linestyle="solid", label="Median")
             ax.axvline(startvalue, color="xkcd:mango", linestyle="solid", label="Startvalue")
-            ax.set_xlabel(fp.body_param_scale_name)
+            ax.set_xlabel(fp.body_param_unit_name)
             ax.set_ylabel("Density")
             ax.ticklabel_format(useOffset=False, style="plain", axis="x")  # show x-labels as they are
             if i == 0:
@@ -532,7 +532,7 @@ class CurveSimMCMC:
                 if p.fparams_count > 1:
                     fig = corner.corner(
                         self.scaled_samples[:, :p.body_fparams_count],
-                        labels=p.body_param_scale_names,
+                        labels=p.body_param_unit_names,
                         truths=self.max_likelihood_params_scaled[:p.body_fparams_count],
                         title_fmt=".4f",
                         quiet=True
@@ -563,7 +563,7 @@ class CurveSimMCMC:
                 if p.fparams_count == 1:
                     axes = [axes]
                 x = np.arange(1, nsteps + 1) * self.thin_samples_plot
-                for dim, param_name in enumerate(p.body_param_scale_names[:p.fparams_count]):
+                for dim, param_name in enumerate(p.body_param_unit_names[:p.fparams_count]):
                     ax = axes[dim]
                     for walker in range(nwalkers):
                         chain_1d = samples[:, walker, dim]
@@ -625,7 +625,7 @@ class CurveSimMCMC:
                   "xkcd:forest", "xkcd:pale violet", "xkcd:robin's egg", "xkcd:pinkish purple", "xkcd:azure",
                   "xkcd:hot pink", "xkcd:mango", "xkcd:baby pink", "xkcd:fluorescent green", "xkcd:medium grey"]
         linestyles = ["solid", "dashed", "dashdot", "dotted"]
-        labels = p.body_param_scale_names  #+ p.sector_param_names
+        labels = p.body_param_unit_names  #+ p.sector_param_names
 
         self._plot_with_bottom_legend(steps, integrated_autocorrelation_time, labels, colors, linestyles,
                                       xlabel="Steps after burn-in",
@@ -908,10 +908,10 @@ class CurveSimLMfit:
         self.param_references = [(fp.body_index, fp.param_name) for fp in p.fitting_params]  # list of names of fitting params. Needed so these params can be updated inside log_likelihood().
         self.body_param_names = [f"{bodies[fp.body_index].name}.{fp.param_name}" for fp in p.fitting_params]
         p.index_from_bodyparamname = {bpn: fp.index for bpn, fp in zip(self.body_param_names, p.fitting_params)}
-        self.body_param_scale_names = [fpn + " [" + p.unit[fpn.split(".")[-1]] + "]" for fpn in self.body_param_names]
-        for fp, fpn, fpnu in zip(p.fitting_params, self.body_param_names, self.body_param_scale_names):
+        self.body_param_unit_names = [fpn + " [" + p.unit[fpn.split(".")[-1]] + "]" for fpn in self.body_param_names]
+        for fp, fpn, fpnu in zip(p.fitting_params, self.body_param_names, self.body_param_unit_names):
             fp.body_param_name = fpn
-            fp.body_param_scale_name = fpnu
+            fp.body_param_unit_name = fpnu
         self.param_bounds = [(fp.lower, fp.upper) for fp in p.fitting_params]
         self.args = (self.param_references, bodies, o, p)
         self.start_real_time = time.strftime("%d.%m.%y %H:%M:%S")
