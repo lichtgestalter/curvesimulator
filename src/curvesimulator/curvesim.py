@@ -91,12 +91,11 @@ class CurveSimulator:
             if _is_multiprocessing_child_import():
                 return
 
-            p.init_fitting_param_dic()
-            print(f"Fitting {p.free_parameters} params.")
+            # p.init_fitting_param_dic()
             p.enrich_fitting_params()
+            print(f"Fitting {p.free_parameters} params.")
 
             if p.action == "guifit":
-                p.enrich_fitting_params()
                 self.guifit = CurveSimManualFit(p, bodies, o)
                 self.guifit.save_lmfit_results(p)
                 sys.exit(0)

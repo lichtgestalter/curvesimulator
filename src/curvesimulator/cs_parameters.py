@@ -650,11 +650,12 @@ class CurveSimParameters:
     def get_fitting_param(self, body_index, param_name):
         return self.fitting_params[self.fitting_param_dic[(body_index, param_name)]]
 
-    def init_fitting_param_dic(self):
-        self.fitting_param_dic = {(fp.body_index, fp.param_name): fp.index for fp in self.fitting_params}
+    # def init_fitting_param_dic(self):
+    #     self.fitting_param_dic = {(fp.body_index, fp.param_name): fp.index for fp in self.fitting_params}
 
     def enrich_fitting_params(self):
-        """Add attributes body_param_name and body_param_unit_name to each FittingParameter."""
+        """Add several attributes to each FittingParameter."""
+        self.fitting_param_dic = {(fp.body_index, fp.param_name): fp.index for fp in self.fitting_params}
         self.body_param_names = []
         self.body_param_unit_names = []
         for i, fp in enumerate(self.fitting_params_plus):
