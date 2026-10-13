@@ -907,14 +907,7 @@ class CurveSimLMfit:
             os.remove("residual.tmp")
         if os.path.exists("iteration.tmp"):
             os.remove("iteration.tmp")
-        # self.results_directory = p.results_directory
-        # self.param_references = [(fp.body_index, fp.param_name) for fp in p.fitting_params]  # list of names of fitting params. Needed so these params can be updated inside log_likelihood().
-        # self.body_param_names = [f"{bodies[fp.body_index].name}.{fp.param_name}" for fp in p.fitting_params]
         p.index_from_bodyparamname = {bpn: fp.index for bpn, fp in zip(p.body_param_names, p.fitting_params)}
-        # self.body_param_unit_names = [fpn + " [" + p.unit[fpn.split(".")[-1]] + "]" for fpn in p.body_param_names]
-        # for fp, fpn, fpnu in zip(p.fitting_params, self.body_param_names, self.body_param_unit_names):
-        #     fp.body_param_name = fpn
-        #     fp.body_param_unit_name = fpnu
         self.param_bounds = [(fp.lower, fp.upper) for fp in p.fitting_params]
         self.args = (p.param_references, bodies, o, p)
         self.start_real_time = time.strftime("%d.%m.%y %H:%M:%S")
