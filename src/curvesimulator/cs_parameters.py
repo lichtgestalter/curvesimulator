@@ -128,8 +128,8 @@ class CurveSimParameters:
         self.burn_in = int(self.read_param(config, section, "burn_in", "1000", evaluate=True, forced_type=float, lower=1, upper=None))
         self.chunk_size = int(self.read_param(config, section, "chunk_size", "500", evaluate=True, forced_type=float, lower=1, upper=None))
         self.thin_samples = int(self.read_param(config, section, "thin_samples", "1", evaluate=True, forced_type=float, lower=1, upper=None))
+        self.convert_e_omega_2_u_v = self.read_param(config, section, "convert_e_omega_2_u_v", "True", evaluate=True, forced_type=bool, lower=None, upper=None)
         self.body_fparams_count = 0  # Number of fitting params that are body params. Used to handle body params and other (e.g. sector) params differently.
-        # if self.action in ["lmfit", "guifit", "mcmc"]:
         self.e_omega_to_u_v_conversion_list = []
         self.param_references = []
         self.body_fparams_count = 0
@@ -469,7 +469,7 @@ class CurveSimParameters:
                         fitting_params.append(FittingParameter(self, section, body_index, param_name, value, lower, upper, sigma, prior_mu, prior_sigma))
                         fitting_params[-1].index = len(fitting_params) - 1
                         param_names_in_use.append(param_name)
-                if "e" in param_names_in_use and "omega" in param_names_in_use:
+                if self.convert_e_omega_2_u_v and "e" in param_names_in_use and "omega" in param_names_in_use:
                     self.convert_fitting_params_e_omega_to_u_v(body_index, section, fitting_params, derived_params)
                     # print(f"{section}: converting fitting params e, omega -> to u, v")
                     # print(self.e_omega_to_u_v_conversion_list)

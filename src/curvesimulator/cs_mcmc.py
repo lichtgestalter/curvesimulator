@@ -109,7 +109,8 @@ class CurveSimMCMC:
         self.thin_samples_plot = max(p.thin_samples, 10)  # avoid unnecessary memory usage for some plots
         self.credible_mass = 0.68
         self.theta0 = p.random_initial_values()
-        self.args = (p.fitting_params, p.param_references, bodies, o, p)  # theta, fitting_params, param_references, bodies, o, p
+        self.args = (bodies, o, p)  # theta, fitting_params, param_references, bodies, o, p
+        # self.args = (p.fitting_params, p.param_references, bodies, o, p)  # theta, fitting_params, param_references, bodies, o, p
         self.moves = eval(p.moves)
         self.acceptance_fractions = []
         self.integrated_autocorrelation_time = []
@@ -226,11 +227,11 @@ class CurveSimMCMC:
         return residuals_tt_sum_squared, o.tt.measured_tt
 
     @staticmethod
-    def log_probability(theta, fitting_params, param_references, bodies, o, p):
-        lp = CurveSimMCMC.log_prior(theta, fitting_params)
+    def log_probability(theta, bodies, o, p):
+        lp = CurveSimMCMC.log_prior(theta, p.fitting_params)
         if not np.isfinite(lp):
             return -np.inf
-        return lp + CurveSimMCMC.log_likelihood(theta, param_references, bodies, o, p)
+        return lp + CurveSimMCMC.log_likelihood(theta, bodies, o, p)
 
     @staticmethod
     def log_prior(theta, fitting_params):
@@ -243,7 +244,7 @@ class CurveSimMCMC:
         return lp
 
     @staticmethod
-    def log_likelihood(theta, param_references, bodies, o, p):
+    def log_likelihood(theta, bodies, o, p):
         """
         theta:
             List containing the current numerical values of the `param_references` (see below).
@@ -258,11 +259,11 @@ class CurveSimMCMC:
         # rebound_sim = CurveSimBodies.init_rebound(bodies, p)
         residuals_sum_squared, log_norm_term = 0, 0
         if p.flux_file:
-            residuals_sum_squared, log_norm_term = CurveSimMCMC.residuals_flux_sum_squared(theta, param_references, bodies, o, p)
+            residuals_sum_squared, log_norm_term = CurveSimMCMC.residuals_flux_sum_squared(theta, bodies, o, p)
         if p.tt_file:
-            residuals_sum_squared += CurveSimMCMC.residuals_tt_sum_squared(theta, param_references, bodies, o, p)
+            residuals_sum_squared += CurveSimMCMC.residuals_tt_sum_squared(theta, bodies, o, p)
         if p.rv_file:
-            rss, lntr = CurveSimMCMC.residuals_rv_sum_squared(theta, param_references, bodies, o, p)
+            rss, lntr = CurveSimMCMC.residuals_rv_sum_squared(theta, bodies, o, p)
             residuals_sum_squared += rss
             log_norm_term += lntr
         return -0.5 * (residuals_sum_squared + log_norm_term)
@@ -276,9 +277,9 @@ class CurveSimMCMC:
         return e, omega
 
     @staticmethod
-    def update_bodies_from_theta(bodies, p, param_references, theta):
+    def update_bodies_from_theta(bodies, p, theta):
         i = 0
-        for body_index, param_name in param_references[:p.body_fparams_count]:
+        for body_index, param_name in p.param_references[:p.body_fparams_count]:
             bodies[body_index].__dict__[param_name] = theta[i]
             i += 1
         for u_v_pair in p.e_omega_to_u_v_conversion_list:
@@ -295,23 +296,23 @@ class CurveSimMCMC:
             i += 2
 
     @staticmethod
-    def residuals_flux_sum_squared(theta, param_references, bodies, o, p):
-        first_sector_param_index = CurveSimMCMC.update_bodies_from_theta(bodies, p, param_references, theta)
+    def residuals_flux_sum_squared(theta, bodies, o, p):
+        first_sector_param_index = CurveSimMCMC.update_bodies_from_theta(bodies, p, theta)
         if p.sector_params_fit:
             CurveSimMCMC.update_sector_params_from_theta(first_sector_param_index, o, theta)
         o.flux.update(bodies, p)  # update flux observations with new offset and jitter, then calc computed and residuals.
         return o.flux.chi_squared, o.flux.log_norm_term
 
     @staticmethod
-    def residuals_rv_sum_squared(theta, param_references, bodies, o, p):
-        CurveSimMCMC.update_bodies_from_theta(bodies, p, param_references, theta)
+    def residuals_rv_sum_squared(theta, bodies, o, p):
+        CurveSimMCMC.update_bodies_from_theta(bodies, p, theta)
         rebound_sim = bodies.init_rebound(p)
         o.rv.update(p, rebound_sim)  # update rv observations with new rv offset and jitter, then calc computed and residuals.
         return o.rv.chi_squared, o.rv.log_norm_term
 
     @staticmethod
-    def residuals_tt_sum_squared(theta, param_references, bodies, o, p):
-        CurveSimMCMC.update_bodies_from_theta(bodies, p, param_references, theta)
+    def residuals_tt_sum_squared(theta, bodies, o, p):
+        CurveSimMCMC.update_bodies_from_theta(bodies, p, theta)
         sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, o.sim.time_s0)  # run simulation
         residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(p, rebound_sim, o)
         return residuals_tt_sum_squared
@@ -867,8 +868,8 @@ class CurveSimMCMC:
         self.high_density_intervals(p)
 
         if p.flux_file:
-            median_residuals_flux_sum_squared, _ = CurveSimMCMC.residuals_flux_sum_squared(self.median_params, p.param_references, bodies, o, p)
-            mean_residuals_flux_sum_squared, _ = CurveSimMCMC.residuals_flux_sum_squared(self.mean_params, p.param_references, bodies, o, p)
+            median_residuals_flux_sum_squared, _ = CurveSimMCMC.residuals_flux_sum_squared(self.median_params, bodies, o, p)
+            mean_residuals_flux_sum_squared, _ = CurveSimMCMC.residuals_flux_sum_squared(self.mean_params, bodies, o, p)
             self.flux_mean_avg_residual_in_std.append(math.sqrt(mean_residuals_flux_sum_squared / o.sim.iterations))  # obsolete? use chi_square instead?
             self.flux_median_avg_residual_in_std.append(math.sqrt(median_residuals_flux_sum_squared / o.sim.iterations))
         # self.average_residual_in_std_plot(p, steps_done, "avg_residual.png")
