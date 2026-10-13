@@ -621,7 +621,7 @@ class CurveSimMCMC:
         steps = [step for step in range(p.chunk_size + self.loaded_steps, steps_done + 1, p.chunk_size)]
 
         colors = ["xkcd:royal blue", "xkcd:red", "xkcd:black", "xkcd:frog green", "xkcd:piss yellow",
-                  "xkcd:purply blue", "xkcd:sepia", "xkcd:wine", "xkcd:ocean", "xkcd:rust",
+                  "xkcd:purply blue", "xkcd:sepia", "xkcd:wine", "xkcd:ocean", "xkcd:light grey",
                   "xkcd:forest", "xkcd:pale violet", "xkcd:robin's egg", "xkcd:pinkish purple", "xkcd:azure",
                   "xkcd:hot pink", "xkcd:mango", "xkcd:baby pink", "xkcd:fluorescent green", "xkcd:medium grey"]
         linestyles = ["solid", "dashed", "dashdot", "dotted"]
