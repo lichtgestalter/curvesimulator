@@ -395,7 +395,7 @@ class CurveSimBodies(list):
         print()
         iterations = o.sim.observation_count
         rebound_sim.dt = p.dt
-        results = CurveSimResults(self)
+        results = CurveSimResults(self, p=p)
         for i in range(iterations):
             for eclipser in p.eclipsers:
                 for eclipsee in p.eclipsees:

@@ -19,7 +19,7 @@ class Transit(dict):
 
 
 class CurveSimResults(dict):
-    def __init__(self, bodies, empty=False):
+    def __init__(self, bodies, p, empty=False):
         super().__init__()
         if empty:
             return
@@ -34,23 +34,13 @@ class CurveSimResults(dict):
             for key in body.__dict__.keys():
                 if key not in exclude:
                     self["Bodies"][body.name]["BodyParameters"][key] = getattr(body, key)
-            if body.Omega is not None:
-                self["Bodies"][body.name]["BodyParameters"]["Omega_deg"] = body.Omega * (180 / math.pi)
-            if body.omega is not None:
-                self["Bodies"][body.name]["BodyParameters"]["omega_deg"] = body.omega * (180 / math.pi)
-            if body.pomega is not None:
-                self["Bodies"][body.name]["BodyParameters"]["pomega_deg"] = body.pomega * (180 / math.pi)
-            if body.L is not None:
-                self["Bodies"][body.name]["BodyParameters"]["L_deg"] = body.L * (180 / math.pi)
-            if body.ma is not None:
-                self["Bodies"][body.name]["BodyParameters"]["ma_deg"] = body.ma * (180 / math.pi)
-            if body.ea is not None:
-                self["Bodies"][body.name]["BodyParameters"]["ea_deg"] = body.ea * (180 / math.pi)
-            if body.nu is not None:
-                self["Bodies"][body.name]["BodyParameters"]["nu_deg"] = body.nu * (180 / math.pi)
-            # for key in list(body.__dict__.keys()):  # uncomment to prevent null-values in result file
-            #     if body.__dict__[key] is None:
-            #         del body.__dict__[key]
+
+            for param, unit in p.unit.items():
+                value = getattr(body, param, None)
+                scale = p.scale[param]
+                if value is not None and scale != 1:
+                    self["Bodies"][body.name]["BodyParameters"][f"{param}_{unit}"] = value * scale
+
         self["Fit"] = {}
 
     def __repr__(self):
@@ -142,7 +132,7 @@ class CurveSimResults(dict):
 
     @staticmethod
     def load_results(resultfilename):
-        """Load JSON results from `resultfilename` into and return a CurveSimResults object."""
+        """Load JSON results from `resultfilename` and return a CurveSimResults object."""
         if not os.path.exists(resultfilename):
             raise FileNotFoundError(resultfilename)
         try:
@@ -152,7 +142,7 @@ class CurveSimResults(dict):
             raise RuntimeError(f"Failed to read or parse {resultfilename}: {e}")
         if not isinstance(data, dict):
             raise ValueError(f"Invalid results file {resultfilename}: top-level JSON must be an object")
-        results = CurveSimResults(None, empty=True)
+        results = CurveSimResults(None, p=None, empty=True)
         results.clear()
         results.update(data)
         return results

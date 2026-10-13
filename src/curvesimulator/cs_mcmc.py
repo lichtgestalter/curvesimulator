@@ -8,7 +8,6 @@ import json
 import lmfit
 import math
 import matplotlib.pyplot as plt
-# from matplotlib.ticker import FuncFormatter
 from multiprocessing import Pool
 import numpy as np
 import os
@@ -621,12 +620,15 @@ class CurveSimMCMC:
         integrated_autocorrelation_time = np.array(self.integrated_autocorrelation_time).T
         steps = [step for step in range(p.chunk_size + self.loaded_steps, steps_done + 1, p.chunk_size)]
 
-        colors = ["xkcd:royal blue", "xkcd:red", "xkcd:black", "xkcd:frog green", "xkcd:piss yellow",
-                  "xkcd:purply blue", "xkcd:sepia", "xkcd:wine", "xkcd:ocean", "xkcd:light grey",
-                  "xkcd:forest", "xkcd:pale violet", "xkcd:robin's egg", "xkcd:pinkish purple", "xkcd:azure",
-                  "xkcd:hot pink", "xkcd:mango", "xkcd:baby pink", "xkcd:fluorescent green", "xkcd:medium grey"]
+        # colors = ["xkcd:royal blue", "xkcd:red", "xkcd:black", "xkcd:frog green", "xkcd:piss yellow",
+        #           "xkcd:purply blue", "xkcd:sepia", "xkcd:wine", "xkcd:ocean", "xkcd:light grey",
+        #           "xkcd:forest", "xkcd:pale violet", "xkcd:robin's egg", "xkcd:pinkish purple", "xkcd:azure",
+        #           "xkcd:hot pink", "xkcd:mango", "xkcd:baby pink", "xkcd:fluorescent green", "xkcd:medium grey"]
+        colors = [c for i, c in enumerate(plt.get_cmap("tab20").colors) if i % 2 == 0]  # darker colors in tab20
+        colors += [c for i, c in enumerate(plt.get_cmap("tab20").colors) if i % 2 == 1]  # lighter colors in tab20
+
         linestyles = ["solid", "dashed", "dashdot", "dotted"]
-        labels = p.body_param_unit_names  #+ p.sector_param_names
+        labels = p.body_param_unit_names
 
         self._plot_with_bottom_legend(steps, integrated_autocorrelation_time, labels, colors, linestyles,
                                       xlabel="Steps after burn-in",
@@ -905,26 +907,26 @@ class CurveSimLMfit:
             os.remove("residual.tmp")
         if os.path.exists("iteration.tmp"):
             os.remove("iteration.tmp")
-        self.results_directory = p.results_directory
-        self.param_references = [(fp.body_index, fp.param_name) for fp in p.fitting_params]  # list of names of fitting params. Needed so these params can be updated inside log_likelihood().
-        self.body_param_names = [f"{bodies[fp.body_index].name}.{fp.param_name}" for fp in p.fitting_params]
-        p.index_from_bodyparamname = {bpn: fp.index for bpn, fp in zip(self.body_param_names, p.fitting_params)}
-        self.body_param_unit_names = [fpn + " [" + p.unit[fpn.split(".")[-1]] + "]" for fpn in self.body_param_names]
-        for fp, fpn, fpnu in zip(p.fitting_params, self.body_param_names, self.body_param_unit_names):
-            fp.body_param_name = fpn
-            fp.body_param_unit_name = fpnu
+        # self.results_directory = p.results_directory
+        # self.param_references = [(fp.body_index, fp.param_name) for fp in p.fitting_params]  # list of names of fitting params. Needed so these params can be updated inside log_likelihood().
+        # self.body_param_names = [f"{bodies[fp.body_index].name}.{fp.param_name}" for fp in p.fitting_params]
+        p.index_from_bodyparamname = {bpn: fp.index for bpn, fp in zip(p.body_param_names, p.fitting_params)}
+        # self.body_param_unit_names = [fpn + " [" + p.unit[fpn.split(".")[-1]] + "]" for fpn in p.body_param_names]
+        # for fp, fpn, fpnu in zip(p.fitting_params, self.body_param_names, self.body_param_unit_names):
+        #     fp.body_param_name = fpn
+        #     fp.body_param_unit_name = fpnu
         self.param_bounds = [(fp.lower, fp.upper) for fp in p.fitting_params]
-        self.args = (self.param_references, bodies, o, p)
+        self.args = (p.param_references, bodies, o, p)
         self.start_real_time = time.strftime("%d.%m.%y %H:%M:%S")
         self.start_timestamp = time.perf_counter()
-        for (body_index, param_name), fp in zip(self.param_references, p.fitting_params):  # update bodies from fitting params (in case of changed fitting param start values)
+        for (body_index, param_name), fp in zip(p.param_references, p.fitting_params):  # update bodies from fitting params (in case of changed fitting param start values)
             setattr(bodies[body_index], param_name, fp.startvalue)
         self.params = lmfit.Parameters()
-        for (body_index, param_name), (lower, upper) in zip(self.param_references, self.param_bounds):
+        for (body_index, param_name), (lower, upper) in zip(p.param_references, self.param_bounds):
             self.params.add(bodies[body_index].name + "_" + param_name, value=bodies[body_index].__dict__[param_name], min=lower, max=upper)
 
         if p.tt_file:
-            self.result = lmfit.minimize(CurveSimLMfit.lmfit_residual_tt, self.params, method=p.lmfit_method, args=(self.param_references, bodies, o, p))
+            self.result = lmfit.minimize(CurveSimLMfit.lmfit_residual_tt, self.params, method=p.lmfit_method, args=(p.param_references, bodies, o, p))
         # self.result = lmfit.minimize(CurveSimLMfit.lmfit_residual_tt, self.params, method="powell", args=(self.param_references, bodies, flux_time_s0, flux_time_d, measured_tt, p))
         # self.result = lmfit.minimize(CurveSimLMfit.lmfit_residual_tt, self.params, method="brute", args=(self.param_references, bodies, flux_time_s0, flux_time_d, measured_tt, p))
         # self.result = lmfit.minimize(CurveSimLMfit.lmfit_residual_tt, self.params, method="nelder", args=(self.param_references, bodies, flux_time_s0, flux_time_d, measured_tt, p))
