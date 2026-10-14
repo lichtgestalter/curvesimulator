@@ -15,7 +15,7 @@ class CurveSimAnimation:
 
     def __init__(self, p, bodies, o):
         CurveSimAnimation.check_ffmpeg()  # is FFmpeg installed?
-        self.fig, ax_right, ax_left, ax_lightcurve, self.lower_dot, self.upper_dot = CurveSimAnimation.init_plot(p, o)  # Adjust constants in section [Plot] of config file to fit your screen.
+        self.fig, ax_right, ax_left, ax_lightcurve, self.lower_dot, self.upper_dot = CurveSimAnimation.init_plot(o, p)  # Adjust constants in section [Plot] of config file to fit your screen.
         # lower_dot/upper_dot change every frame. Mark them "animated" so the initial full draw
         # (used to cache the static background for blitting) does NOT bake them in.
         if self.lower_dot is not None:
@@ -125,7 +125,7 @@ class CurveSimAnimation:
         return ax_right
 
     @staticmethod
-    def init_curve_plot_x_axis(ax_curve, p, o):
+    def init_curve_plot_x_axis(ax_curve, o, p):
         ax_curve.text(p.x_label_x_coord, p.x_label_y_coord, p.x_label, color=p.video_text_color, fontsize=p.x_label_fontsize, ha="right", va="bottom", transform=ax_curve.transAxes)
         # rv_curve x-ticks, x-labels
         ax_curve.tick_params(axis="x", colors="xkcd:light gray")
@@ -197,17 +197,17 @@ class CurveSimAnimation:
     def init_upper_curve_plot(o, p, shape, loc, rowspan, colspan):
         ax_upper_curve, upper_dot = CurveSimAnimation.init_curve_plot(colspan, loc, p, rowspan, shape, o, o.sim.simflux, "flux", p.upper_curve_y_label, p.upper_curve_y_label_fontsize, p.upper_curve_y_tick_fontsize, p.upper_curve_color, p.upper_curve_dot_color)
         if not p.show_lower_curve:  # no x-ticks/-labels when the lower curve plot is present below because it uses the same x-ticks/-labels
-            CurveSimAnimation.init_curve_plot_x_axis(ax_upper_curve, p, o)
+            CurveSimAnimation.init_curve_plot_x_axis(ax_upper_curve, o, p)
         return ax_upper_curve, upper_dot
 
     @staticmethod
     def init_lower_curve_plot(o, p, shape, loc, rowspan, colspan):
         ax_lower_curve, lower_dot = CurveSimAnimation.init_curve_plot(colspan, loc, p, rowspan, shape, o, o.sim.simrv, "rv", p.lower_curve_y_label, p.lower_curve_y_label_fontsize, p.lower_curve_y_tick_fontsize, p.lower_curve_color, p.lower_curve_dot_color)
-        CurveSimAnimation.init_curve_plot_x_axis(ax_lower_curve, p, o)
+        CurveSimAnimation.init_curve_plot_x_axis(ax_lower_curve, o, p)
         return ax_lower_curve, lower_dot
 
     @staticmethod
-    def init_plot(p, o):
+    def init_plot(o, p):
         """Initialize the matplotlib figure containing up to 4 axis:
         Top left: overhead view
         Top right: edge-on view

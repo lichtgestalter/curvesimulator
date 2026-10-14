@@ -109,15 +109,20 @@ class CurveSimMCMC:
         self.credible_mass = 0.68
         self.theta0 = p.random_initial_values()
         self.args = (bodies, o, p)  # theta, fitting_params, param_references, bodies, o, p
-        # self.args = (p.fitting_params, p.param_references, bodies, o, p)  # theta, fitting_params, param_references, bodies, o, p
         self.moves = eval(p.moves)
         self.acceptance_fractions = []
         self.integrated_autocorrelation_time = []
         self.start_real_time = time.strftime("%d.%m.%y %H:%M:%S")
         self.start_timestamp = time.perf_counter()
-        self.max_likelihood_avg_residual_in_std = []
-        self.flux_mean_avg_residual_in_std = []
-        self.flux_median_avg_residual_in_std = []
+
+        # self.max_likelihood_avg_residual_in_std = []
+        self.debug_max_likelihood_idx = []
+
+
+        self.reduced_chi_squared_over_time = []
+        self.reduced_chi_squared_over_time_flux = []
+        self.reduced_chi_squared_over_time_rv = []
+        self.reduced_chi_squared_over_time_tt = []
         self.trace_plot_ok = True
         self.corner_plot_ok = True
         self.autocorrelation_function_plot_ok = True
@@ -163,10 +168,10 @@ class CurveSimMCMC:
 
     @staticmethod
     def single_run(p, bodies, o):
-        o.sim.simrv, o.sim.simflux, rebound_sim = bodies.calc_physics(p, o.sim.time_s0)  # Calculate all body positions and the resulting flux and rv
+        o.sim.simrv, o.sim.simflux, rebound_sim = bodies.calc_physics(o.sim.time_s0, p)  # Calculate all body positions and the resulting flux and rv
         if p.sim_flux_file:  # save simulated flux, regular spaced with p.dt
             o.sim.save_sim_flux(p)
-        results = bodies.find_transits(rebound_sim, p, o)
+        results = bodies.find_transits(rebound_sim, o, p)
         if p.video_file and p.action == "single_run":
             CurveSimAnimation(p, bodies, o)  # Create a video
         if p.tt_file:
@@ -176,12 +181,12 @@ class CurveSimMCMC:
                 CurveSimMCMC.tt_delta_plot(p, 0, "tt_o_vs_c.png", o.tt.measured_tt)  # compare observed vs. computed TT
         if p.rv_file:
             o.rv.update(p, rebound_sim)  # update with new rv offset and jitter from theta
-            results.rv_plots(p, o)
+            results.rv_plots(o, p)
         if p.flux_file:
             o.flux.update(bodies, p)
             if p.computed_flux_file:
-                CurveSimResults.save_sim_flux_with_observation_timeline(p, o)  # save simulated flux (for same time values as flux observations)
-            results.flux_plots(p, o)
+                CurveSimResults.save_sim_flux_with_observation_timeline(o, p)  # save simulated flux (for same time values as flux observations)
+            results.flux_plots(o, p)
         o.update(p)
         o.observations_to_results(results)
         if p.result_file:
@@ -208,7 +213,7 @@ class CurveSimMCMC:
 
     @staticmethod
     def match_transit_times(p, rebound_sim, o):
-        sim_tt = CurveSimBodies.find_tts(rebound_sim, p, o)  # sim_tt is a list of tuples (eclipser, eclipsee, tt)
+        sim_tt = CurveSimBodies.find_tts(rebound_sim, o, p)  # sim_tt is a list of tuples (eclipser, eclipsee, tt)
         nearest_sim_tt = []
         for idx, row in o.tt.measured_tt.iterrows():
             eclipser = row["eclipser"]
@@ -312,24 +317,30 @@ class CurveSimMCMC:
     @staticmethod
     def residuals_tt_sum_squared(theta, bodies, o, p):
         CurveSimMCMC.update_bodies_from_theta(bodies, p, theta)
-        sim_rv, sim_flux, rebound_sim = bodies.calc_physics(p, o.sim.time_s0)  # run simulation
+        sim_rv, sim_flux, rebound_sim = bodies.calc_physics(o.sim.time_s0, p)  # run simulation
         residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(p, rebound_sim, o)
         return residuals_tt_sum_squared
 
     @staticmethod
     def bodies_from_fitting_params(bodies, fitting_params, param_type=None):
-        if param_type == "startvalue":
-            for fp in fitting_params:
-                bodies[fp.body_index].__dict__[fp.param_name] = fp.startvalue
-        elif param_type == "max_likelihood":
-            for fp in fitting_params:
-                bodies[fp.body_index].__dict__[fp.param_name] = fp.max_likelihood / fp.scale
-        elif param_type == "mean":
-            for fp in fitting_params:
-                bodies[fp.body_index].__dict__[fp.param_name] = fp.mean / fp.scale
-        elif param_type == "median":
-            for fp in fitting_params:
-                bodies[fp.body_index].__dict__[fp.param_name] = fp.median / fp.scale
+        # if param_type == "startvalue":
+        #     for fp in fitting_params:
+        #         bodies[fp.body_index].__dict__[fp.param_name] = fp.startvalue
+        # elif param_type == "max_likelihood":
+        #     for fp in fitting_params:
+        #         bodies[fp.body_index].__dict__[fp.param_name] = fp.max_likelihood_scaled / fp.scale
+        # elif param_type == "mean":
+        #     for fp in fitting_params:
+        #         bodies[fp.body_index].__dict__[fp.param_name] = fp.mean / fp.scale
+        # elif param_type == "median":
+        #     for fp in fitting_params:
+        #         bodies[fp.body_index].__dict__[fp.param_name] = fp.median / fp.scale
+        scaled = param_type != "startvalue"
+        for fp in fitting_params:
+            value = getattr(fp, param_type)
+            if scaled:
+                value /= fp.scale
+            setattr(bodies[fp.body_index], fp.param_name, value)
         return bodies
 
     @staticmethod
@@ -418,6 +429,13 @@ class CurveSimMCMC:
         log_prob_samples = self.sampler.get_log_prob(flat=True, discard=p.burn_in, thin=p.thin_samples)
         if len(log_prob_samples):
             max_likelihood_idx = np.argmax(log_prob_samples)
+
+            self.debug_max_likelihood_idx.append(max_likelihood_idx)
+            print(f"{len(self.debug_max_likelihood_idx)}:  ", end="")
+            for index in self.debug_max_likelihood_idx:
+                print(f"{index}:{log_prob_samples[index]:.3f}, ", end="")
+            print()
+
             self.max_likelihood_params_scaled = self.scaled_samples[max_likelihood_idx]
             self.max_likelihood_params = flat_thin_samples[max_likelihood_idx]
             self.max_log_prob = log_prob_samples[max_likelihood_idx]
@@ -425,9 +443,6 @@ class CurveSimMCMC:
             self.max_likelihood_params_scaled = None
             self.max_likelihood_params = None
             self.max_log_prob = None
-
-    def save_max_likelihood_bodies(self):
-        pass
 
     def high_density_intervals(self, p):
         # Calculate HDI and other mcmc results.
@@ -440,9 +455,9 @@ class CurveSimMCMC:
             fp.std = std
             fp.mean = mean
             fp.median = median
-            fp.max_likelihood = self.max_likelihood_params_scaled[i]
-            self.mean_params.append(mean)
-            self.median_params.append(median)
+            fp.max_likelihood_scaled = self.max_likelihood_params_scaled[i]
+            # self.mean_params.append(mean)
+            # self.median_params.append(median)
 
     def get_max_likelihood_bodies(self, bodies, p):
         i = 0
@@ -452,8 +467,8 @@ class CurveSimMCMC:
         return bodies
 
     @staticmethod
-    def max_likelihood_tt(max_likelihood_bodies, p, o):
-        sim_rv, sim_flux, rebound_sim = max_likelihood_bodies.calc_physics(p, o.sim.time_s0)  # run simulation
+    def max_likelihood_tt(max_likelihood_bodies, o, p):
+        sim_rv, sim_flux, rebound_sim = max_likelihood_bodies.calc_physics(o.sim.time_s0, p)  # run simulation
         _, measured_tt = CurveSimMCMC.match_transit_times(p, rebound_sim, o)
         return measured_tt
 
@@ -478,7 +493,7 @@ class CurveSimMCMC:
             fp.densities, fp.bin_edges, _ = ax.hist(sample, bins=bins, density=True, alpha=0.7, color="xkcd:light blue", edgecolor="xkcd:black")
             ax.axvline(fp.hdi_min, color="xkcd:tree green", linestyle="dashed", label="HDI Lower Bound")
             ax.axvline(fp.mean - fp.std, color="xkcd:warm grey", linestyle="dotted", label="Mean - Std")
-            ax.axvline(fp.max_likelihood, color="xkcd:tomato", linestyle="solid", label="Max Likelihood")
+            ax.axvline(fp.max_likelihood_scaled, color="xkcd:tomato", linestyle="solid", label="Max Likelihood")
             ax.axvline(fp.mean, color="xkcd:black", linestyle="solid", label="Mean")
             ax.axvline(fp.hdi_max, color="xkcd:tree green", linestyle="dashed", label="HDI Upper Bound")
             ax.axvline(fp.mean + fp.std, color="xkcd:warm grey", linestyle="dotted", label="Mean + Std")
@@ -496,33 +511,6 @@ class CurveSimMCMC:
         except:
             print(f"{Fore.RED}\nERROR: Saving histogram plot failed.{Style.RESET_ALL}")
         plt.close(fig)
-
-    def derived_param_histogram(self, param_index_x, param_index_y, func, bins, ax=None):
-        """
-        Compute the histogram of a derived param z = func(x, y),
-        where x, y are the raw MCMC samples of two fitting params
-        (correlations preserved automatically).
-
-        param_index_x, param_index_y : int
-            Column indices into self.scaled_samples for x and y.
-        func : callable
-            e.g. lambda x, y: x + y
-        bins : int or array-like
-            Passed to np.histogram / ax.hist.
-        ax : matplotlib Axes, optional
-            If given, also plot the histogram there.
-        """
-        x = self.scaled_samples[:, param_index_x]
-        y = self.scaled_samples[:, param_index_y]
-        z = func(x, y)
-
-        if ax is not None:
-            densities, bin_edges, _ = ax.hist(z, bins=bins, density=True, alpha=0.7, color="xkcd:light blue", edgecolor="xkcd:black")
-        else:
-            densities, bin_edges = np.histogram(z, bins=bins, density=True)
-
-        return densities, bin_edges, z
-        # Usage: z1_densities, z1_bin_edges, z1_samples = self.derived_param_histogram(ix, iy, lambda x, y: x + y, bins)
 
     # @stopwatch()
     def mcmc_corner_plot(self, steps_done, plot_filename, p):
@@ -664,40 +652,31 @@ class CurveSimMCMC:
                 print(f"{Fore.RED}\nERROR: Acceptance plot failed.{Style.RESET_ALL}")
                 self.acceptance_plot_ok = False
 
+    def update_reduced_chi_squared_over_time_lists(self, o):
+        self.reduced_chi_squared_over_time.append(o.reduced_chi_squared)
+        self.reduced_chi_squared_over_time_flux.append(o.flux.reduced_chi_squared)
+        self.reduced_chi_squared_over_time_rv.append(o.rv.reduced_chi_squared)
+        self.reduced_chi_squared_over_time_tt.append(o.tt.reduced_chi_squared)
+
     # @stopwatch()
-    def average_residual_in_std_plot(self, p, steps_done, plot_filename):
+    def reduced_chi_squared_over_time_plot(self, o, p, steps_done, plot_filename):
         plot_filename = self.results_directory + plot_filename
         steps = [step for step in range(p.chunk_size + self.loaded_steps, steps_done + 1, p.chunk_size)]
         fig, ax = plt.subplots(figsize=(10, 6))
-        ax.plot(steps, self.max_likelihood_avg_residual_in_std, label="Max Likelihood Parameters", marker="o", markersize=2, color="xkcd:tomato")
-        if p.flux_file:
-            ax.plot(steps, self.flux_median_avg_residual_in_std, label="Median Parameters", marker="o", markersize=2, color="xkcd:nice blue")
-            ax.plot(steps, self.flux_mean_avg_residual_in_std, label="Mean Parameters", marker="o", markersize=2, color="xkcd:black")
+        ax.plot(steps, self.reduced_chi_squared_over_time, label="Total", marker="o", markersize=2, color="xkcd:black")
+        ax.plot(steps, self.reduced_chi_squared_over_time_flux, label="Flux", marker="o", markersize=2, color="xkcd:tomato")
+        ax.plot(steps, self.reduced_chi_squared_over_time_rv, label="RV", marker="o", markersize=2, color="xkcd:nice blue")
+        ax.plot(steps, self.reduced_chi_squared_over_time_tt, label="Transit Times", marker="o", markersize=2, color="xkcd:frog green")
         ax.set_xlabel("Steps after burn-in")
         ax.ticklabel_format(useOffset=False, style="plain", axis="y")  # show y-labels as they are
-        ax.set_title(f"Average Residual [Standard Deviations] after {steps_done} steps")
-        ax.legend(loc="upper left")
+        ax.set_title(f"Reduced Chi^2: development during {steps_done} steps of fitting")
+        ax.legend(loc="upper right")
         plt.tight_layout()
         try:
             plt.savefig(plot_filename)
         except:
-            print(f"{Fore.RED}\nERROR: Saving Average Residual plot failed.{Style.RESET_ALL}")
+            print(f"{Fore.RED}\nERROR: Saving Chi^2 over time plot failed.{Style.RESET_ALL}")
         plt.close(fig)
-
-    def calc_maxlikelihood_avg_residual_in_std(self, p, o):
-        """
-         Estimates the average (over all observations) residual in units of standard deviations.
-         Converts the maximum log-likelihood into an RootMeanSquare-like per-datum misfit."""
-        flux, rv, tt = 0, 0, 0
-        if p.flux_file:
-            flux = getattr(p, "iterations", 0)
-        if p.rv_file:
-            rv = getattr(p, "rv_datasize", 0)
-        if p.tt_file:
-            tt = getattr(p, "tt_datasize", 0)
-
-        maxlikelihood_avg_residual_in_std = math.sqrt((-2 * self.max_log_prob - o.flux.log_norm_term) / (flux + rv + tt))  # convert log_prob to chi^2 by subtracting the logarithm of the summed Gaussian normalization term
-        self.max_likelihood_avg_residual_in_std.append(maxlikelihood_avg_residual_in_std)
 
     # @stopwatch()
     @staticmethod
@@ -811,10 +790,6 @@ class CurveSimMCMC:
         mcmc_results["MCMC Performance"]["simulations_per_second"] = f"{(p.burn_in + steps_done) * p.walkers / runtime:.0f} [iterations*walkers/runtime]"
         mcmc_results["MCMC Performance"]["steps_after_burn_in"] = int(steps_done)
 
-        if p.flux_file:
-            mcmc_results["MCMC Performance"]["flux_mean_avg_residual_in_std"] = self.flux_mean_avg_residual_in_std[-1]
-            mcmc_results["MCMC Performance"]["flux_median_avg_residual_in_std"] = self.flux_median_avg_residual_in_std[-1]
-
         if p.tt_file:
             mcmc_results["MCMC Performance"]["tt_mean_delta"] = float(np.mean(np.abs(measured_tt["delta"])))
             mcmc_results["MCMC Performance"]["tt_max_delta"] = float(np.max(np.abs(measured_tt["delta"])))
@@ -862,36 +837,38 @@ class CurveSimMCMC:
         # self.save_max_likelihood_bodies()
         if p.tt_file:
             max_likelihood_bodies = self.get_max_likelihood_bodies(bodies, p)
-            o.tt.measured_tt = CurveSimMCMC.max_likelihood_tt(max_likelihood_bodies, p, o)
+            o.tt.measured_tt = CurveSimMCMC.max_likelihood_tt(max_likelihood_bodies, o, p)
             o.tt.measured_tt = CurveSimMCMC.add_new_best_delta(o.tt.measured_tt, steps_done)
             CurveSimMCMC.tt_delta_plot(p, steps_done, "tt_delta.png", o.tt.measured_tt)
             self.tt_multi_delta_plot(steps_done, "tt_multi_delta.png", o.tt.measured_tt)
         # self.calc_maxlikelihood_avg_residual_in_std(p)
         self.high_density_intervals(p)
 
-        if p.flux_file:
-            median_residuals_flux_sum_squared, _ = CurveSimMCMC.residuals_flux_sum_squared(self.median_params, bodies, o, p)
-            mean_residuals_flux_sum_squared, _ = CurveSimMCMC.residuals_flux_sum_squared(self.mean_params, bodies, o, p)
-            self.flux_mean_avg_residual_in_std.append(math.sqrt(mean_residuals_flux_sum_squared / o.sim.iterations))  # obsolete? use chi_square instead?
-            self.flux_median_avg_residual_in_std.append(math.sqrt(median_residuals_flux_sum_squared / o.sim.iterations))
+        # if p.flux_file:
+        #     median_residuals_flux_sum_squared, _ = CurveSimMCMC.residuals_flux_sum_squared(self.median_params, bodies, o, p)
+        #     mean_residuals_flux_sum_squared, _ = CurveSimMCMC.residuals_flux_sum_squared(self.mean_params, bodies, o, p)
+        #     self.flux_mean_avg_residual_in_std.append(math.sqrt(mean_residuals_flux_sum_squared / o.sim.iterations))  # obsolete? use chi_square instead?
+        #     self.flux_median_avg_residual_in_std.append(math.sqrt(median_residuals_flux_sum_squared / o.sim.iterations))
         # self.average_residual_in_std_plot(p, steps_done, "avg_residual.png")
 
-        bodies = CurveSimMCMC.bodies_from_fitting_params(bodies, p.fitting_params[:p.body_fparams_count], param_type="max_likelihood")
+        bodies = CurveSimMCMC.bodies_from_fitting_params(bodies, p.fitting_params[:p.body_fparams_count], param_type="max_likelihood_scaled")
         bodies.save(directory=p.results_directory, prefix="", suffix="_maxL")
         CurveSimMCMC.single_run(p, bodies, o)  # creates o vs. c, chi^2 and residuals plots.
+        self.update_reduced_chi_squared_over_time_lists(o)
+        self.reduced_chi_squared_over_time_plot(o, p, steps_done, "reduced_chi^2_over_time.png")
 
         self.integrated_autocorrelation_time.append(list(self.sampler.get_autocorr_time(tol=0)))
-        self.integrated_autocorrelation_time_plot(steps_done, "int_autocorr_time.png", "steps_per_i_ac_time.png", p)
-        if chunk % 10 == 0:
+        if chunk % 100 == 0:
+            self.integrated_autocorrelation_time_plot(steps_done, "int_autocorr_time.png", "steps_per_i_ac_time.png", p)
+        if chunk % 100000 == 0:
             self.autocorrelation_function_plot(steps_done, "autocorrelation.png", p)
-
-        for bins in p.bins:
-            self.mcmc_histograms(steps_done, bins, f"histograms_{bins}.png", p)
-
+        if chunk % 100 == 0:
+            for bins in p.bins:
+                self.mcmc_histograms(steps_done, bins, f"histograms_{bins}.png", p)
         self.save_mcmc_results(p, bodies, steps_done, o.tt.measured_tt)
-        if chunk % 5 == 0:
+        if chunk % 50000 == 0:
             self.trace_plots(steps_done, "traces.png", p)
-        if chunk % 10 == 0:
+        if chunk % 100000 == 0:
             flat_thin_samples = self.sampler.get_chain(discard=p.burn_in, thin=self.thin_samples_plot, flat=True)
             self.scale_samples(flat_thin_samples, p)
             self.mcmc_corner_plot(steps_done, "corner.png", p)
@@ -928,7 +905,7 @@ class CurveSimLMfit:
         # best?                                     powell: Powell’s method
         # fine                                      nelder: Nelder-Mead simplex
         # fine                                      differential_evolution: Differential Evolution (global optimization)
-        # n params, n<8 because 7.5*n*20**n bytes memory, slow  brute: Brute force grid search
+        # only n<8 params                           brute: Brute force grid search (n<8 because uses 7.5*n*20**n bytes memory, very slow)
 
         # needs Jacobian                            newton: Newton-CG
         # needs Jacobian                            dogleg	Dogleg
@@ -954,7 +931,7 @@ class CurveSimLMfit:
         # measured_tt: pandas DataFrame with columns eclipser, tt, tt_err
         for body_index, param_name in param_references:
             bodies[body_index].__dict__[param_name] = params[bodies[body_index].name + "_" + param_name].value  # update all params from params
-        _, o.sim.simflux, rebound_sim = bodies.calc_physics(p, o.sim.time_s0)  # run simulation
+        _, o.sim.simflux, rebound_sim = bodies.calc_physics(o.sim.time_s0, p)  # run simulation
         residuals_tt_sum_squared, _ = CurveSimMCMC.match_transit_times(p, rebound_sim, o)
         return residuals_tt_sum_squared
 
@@ -981,158 +958,3 @@ class CurveSimLMfit:
                 print(f"{Fore.RED}\nERROR: Could not write best fit to `lmfit_best_fits.txt`: {e}{Style.RESET_ALL}")
         runtime = CurveSimMCMC.seconds2readable(time.perf_counter() - self.start_timestamp)
         print(f"{color}Runtime: {runtime}   max_delta: {max_delta:7.4f} days  mean_delta: {mean_delta:7.4f} days{Style.RESET_ALL}    ", end="")
-
-    # def save_lmfit_results(self, p):
-    #     results = {}
-    #     results["CurveSimulator Documentation"] = "https://github.com/lichtgestalter/curvesimulator/wiki"
-    #     results["LMfit Performance"] = {}
-    #     results["LMfit Performance"]["comment"] = getattr(p, "comment", None)
-    #
-    #     results["LMfit Performance"]["start_realtime"] = self.start_real_time + " [DD.MM.YY hh:mm:ss]"
-    #     results["LMfit Performance"]["end_realtime"] = time.strftime("%d.%m.%y %H:%M:%S") + " [DD.MM.YY hh:mm:ss]"
-    #     runtime = time.perf_counter() - self.start_timestamp
-    #     results["LMfit Performance"]["run_time"] = CurveSimMCMC.seconds2readable(runtime)
-    #
-    #     results["LMfit Performance"]["results_directory"] = self.results_directory
-    #
-    #     if p.flux_file:
-    #         results["LMfit Performance"]["flux_file"] = p.flux_file
-    #         results["LMfit Performance"]["mean_avg_residual_in_std"] = self.flux_mean_avg_residual_in_std[-1]
-    #         results["LMfit Performance"]["median_avg_residual_in_std"] = self.flux_median_avg_residual_in_std[-1]
-    #     if p.tt_file:
-    #         results["LMfit Performance"]["tt_file"] = p.tt_file
-    #         # results["LMfit Performance"]["tt_data_points"] = p.tt_datasize
-    #
-    #     result_copy = copy.deepcopy(self.result)
-    #     result_copy.last_internal_values = list(result_copy.last_internal_values)
-    #     result_copy.residual = list(result_copy.residual)
-    #     result_copy.x = list(result_copy.x)
-    #     result_copy.params = json.loads(result_copy.params.dumps())
-    #
-    #     # results["LMfitParameters"] = find_ndarrays(result_copy.__dict__)
-    #
-    #     self.lmfit_results2json(results, p)
-    #
-    # @staticmethod
-    # def check_for_fit_improvement(residual):
-    #     try:
-    #         with open("residual.tmp", "r", encoding="utf8") as file:
-    #             best_residual = float(file.read().strip())
-    #     except (FileNotFoundError, ValueError):
-    #         best_residual = float("inf")
-    #     improvement = residual < best_residual
-    #     if improvement:
-    #         with open("residual.tmp", "w", encoding="utf8") as file:
-    #             file.write(str(residual))
-    #     return improvement
-    #
-    # @staticmethod
-    # def get_iteration_from_file():
-    #     try:
-    #         with open("iteration.tmp", "r", encoding="utf8") as file:
-    #             iteration = int(file.read().strip())
-    #     except (FileNotFoundError, ValueError):
-    #         iteration = 0
-    #     with open("iteration.tmp", "w", encoding="utf8") as file:
-    #         file.write(str(iteration + 1))
-    #     return iteration
-    #
-    # @staticmethod
-    # def save_intermediate_lmfit_results(p, bodies, measured_tt):
-    #     results = {}
-    #     results["CurveSimulator Documentation"] = "https://github.com/lichtgestalter/curvesimulator/wiki"
-    #     results["LMfit Performance"] = {}
-    #     results["LMfit Performance"]["comment"] = getattr(p, "comment", None)
-    #     results["LMfit Performance"]["end_realtime"] = time.strftime("%d.%m.%y %H:%M:%S") + " [DD.MM.YY hh:mm:ss]"
-    #
-    #     if p.flux_file:
-    #         results["LMfit Performance"]["flux_file"] = p.flux_file
-    #     if p.tt_file:
-    #         results["LMfit Performance"]["tt_file"] = p.tt_file
-    #         # results["LMfit Performance"]["tt_data_points"] = p.tt_datasize
-    #         # results["LMfit Performance"]["rv_file"] = p.rv_file
-    #     # if p.tt_file:
-    #     #     results["LMfit Performance"]["tt_measured"] = list(p.best_tt_df["tt"])
-    #     #     results["LMfit Performance"]["tt_best_sim"] = list(p.best_tt_df["nearest_sim"])
-    #
-    #     results["Bodies"] = {}
-    #     params = (["body_type", "primary", "mass", "radius", "luminosity", "rv_offset", "rv_jitter"]
-    #               + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
-    #               + ["e", "i", "P", "a", "Omega", "omega", "pomega"]
-    #               + ["L", "ma", "ea", "ea_deg", "nu", "T"])
-    #
-    #     for i, body in enumerate(bodies):
-    #         results["Bodies"][body.name] = {}
-    #         for key in params:
-    #             attr = getattr(body, key)
-    #             if attr is not None:
-    #                 if key in p.scale:
-    #                     scale = p.scale[key]
-    #                 else:
-    #                     scale = 1
-    #                 results["Bodies"][body.name][key] = attr * scale
-    #
-    #     fitting_params = copy.deepcopy(p.fitting_params)
-    #     for fp in fitting_params:
-    #         fp.startvalue *= fp.scale
-    #         fp.lower *= fp.scale
-    #         fp.upper *= fp.scale
-    #         fp.last_value = bodies[fp.body_index].__dict__[fp.param_name]
-    #         fp.last_value *= fp.scale
-    #         # width = 25 - len(fp.body_param_name)
-    #         # print(f"{fp.body_param_name}:{fp.last_value:{width}.5f}")
-    #
-    #     results["Fitting Parameters"] = {fp.body_param_name: fp.__dict__ for fp in fitting_params}
-    #
-    #     results["measured_tt_list"] = measured_tt.to_dict(orient="list")  # Convert measured_tt DataFrame to a serializable format
-    #
-    #     p_copy = copy.deepcopy(p)
-    #     del p_copy.fitting_params
-    #     del p_copy.standard_sections
-    #     del p_copy.eclipsers
-    #     del p_copy.eclipsees
-    #     del p_copy.tt_file
-    #     del p_copy.walkers
-    #     del p_copy.moves
-    #     del p_copy.burn_in
-    #     del p_copy.thin_samples
-    #     # del p_copy.tt_datasize
-    #     del p_copy.comment
-    #     del p_copy.epoch
-    #     del p_copy.results_directory
-    #     del p_copy.sim_start
-    #     del p_copy.sim_end
-    #     results["ProgramParameters"] = p_copy.__dict__
-    #
-    #     filename = p.results_directory + f"/lmfit_results.tmp.json"
-    #     with open(filename, "w", encoding="utf8") as file:
-    #         json.dump(results, file, indent=4, ensure_ascii=False)
-    #     if p.verbose:
-    #         print(f" Saved intermediate LMfit results to {filename}")
-    #
-    # def lmfit_results2json(self, results, p):
-    #     """Converts results to JSON and saves it."""
-    #     filename = self.results_directory + f"/lmfit_results.json"
-    #     with open(filename, "w", encoding="utf8") as file:
-    #         json.dump(results, file, indent=4, ensure_ascii=False)
-    #     if p.verbose:
-    #         print(f" Saved LMfit results to {filename}")
-
-
-# def find_ndarrays(obj, path="root"):
-#     if isinstance(obj, np.ndarray):
-#         print(f"{path}: numpy.ndarray, shape={obj.shape}, dtype={obj.dtype}")
-#         return obj.tolist()
-#     elif isinstance(obj, dict):
-#         for k, v in obj.items():
-#             obj[k] = find_ndarrays(v, f"{path}[{repr(k)}]")
-#         return obj
-#     elif isinstance(obj, list):
-#         for i, v in enumerate(obj):
-#             obj[i] = find_ndarrays(v, f"{path}[{i}]")
-#         return obj
-#     elif hasattr(obj, "__dict__"):
-#         obj.__dict__ = find_ndarrays(obj.__dict__, f"{path}.__dict__")
-#         return obj
-#     else:
-#         return obj

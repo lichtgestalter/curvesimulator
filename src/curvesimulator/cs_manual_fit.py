@@ -20,7 +20,7 @@ class FittingGUI:
         self.flux_time_d = o.flux.time_d
         self.measured_tt = o.tt.measured_tt
 
-        self.residuals_tt_sum_squared, self.measured_tt = self.run_simulation(p, o)
+        self.residuals_tt_sum_squared, self.measured_tt = self.run_simulation(o, p)
 
         self.root = root
         self.root.title("CurveSimulator Manual Fitter")
@@ -38,7 +38,7 @@ class FittingGUI:
         self._initialize_grid_weights()
         self._initialize_param_data(p)
         self._create_widgets(p)
-        self._setup_bindings(p, o)
+        self._setup_bindings(o, p)
 
         self.update_plot(self.measured_tt)  # Initial plot
         self.activate_param(self.active_param_index)  # Initial highlighting
@@ -146,11 +146,11 @@ class FittingGUI:
         self.canvas_widget = self.canvas.get_tk_widget()
         self.canvas_widget.grid(row=0, column=0, sticky="nsew")
 
-    def _setup_bindings(self, p, o):
+    def _setup_bindings(self, o, p):
         """Bind some keys to the root window, passing "p" to the handler."""
         for key in ["<Up>", "<Down>", "<Left>", "<Right>"]:
             # for key in ["<Up>", "<Down>", "<Left>", "<Right>", "<Escape>"]:
-            self.root.bind(key, lambda event, p=p: self.handle_key(p, o, event))
+            self.root.bind(key, lambda event, p=p: self.handle_key(o, p, event))
 
     @staticmethod
     def _get_format(number):
@@ -171,7 +171,7 @@ class FittingGUI:
         self.param_frames[self.active_param_index]["style"] = "Active.TFrame"
         self.root.focus_set()  # Crucially, set focus back to the root window so arrow key bindings work
 
-    def handle_key(self, p, o, event):
+    def handle_key(self, o, p, event):
         """Processes arrow key presses to modify the active param's value or delta."""
         if self.active_param_index is None:
             return
@@ -190,17 +190,17 @@ class FittingGUI:
         #     param["delta"] = 1.0
         self.update_entry_fields(p)
         self.update_fitting_params(p)
-        self.residuals_tt_sum_squared, self.measured_tt = self.run_simulation(p, o)
+        self.residuals_tt_sum_squared, self.measured_tt = self.run_simulation(o, p)
         max_delta = max(np.abs(self.measured_tt["delta"]))
         mean_delta = np.mean(np.abs(self.measured_tt["delta"]))
         print(f"\n{max_delta=:2.4f}   {mean_delta=:2.4f}    [days] ")
         self.update_plot(self.measured_tt)
 
-    def run_simulation(self, p, o):
+    def run_simulation(self, o, p):
         param_references = [(fp.body_index, fp.param_name) for fp in p.fitting_params]
         for (body_index, param_name), fp in zip(param_references, p.fitting_params):
             self.bodies[body_index].__dict__[param_name] = fp.startvalue
-        sim_rv, sim_flux, rebound_sim = self.bodies.calc_physics(p, self.flux_time_s0)  # run simulation
+        sim_rv, sim_flux, rebound_sim = self.bodies.calc_physics(self.flux_time_s0, p)  # run simulation
         return CurveSimMCMC.match_transit_times(p, rebound_sim, o)
 
     def update_entry_fields(self, p):

@@ -346,7 +346,7 @@ class CurveSimBodies(list):
         sim_flux /= lightcurve_max  # Normalize flux.
         return sim_rv, sim_flux, self, simulation, energy_change
 
-    def calc_physics(self, p, time_s0):
+    def calc_physics(self, time_s0, p):
         iterations = len(time_s0)
 
         for body in self:
@@ -391,7 +391,7 @@ class CurveSimBodies(list):
                 body.circle_right = matplotlib.patches.Circle((0, 0), radius=body.radius * extrascale_right / p.scope_right)  # Matplotlib patch for right view
                 body.circle_left = matplotlib.patches.Circle((0, 0), radius=body.radius * extrascale_left / p.scope_left)  # Matplotlib patch for left view
 
-    def find_transits(self, rebound_sim, p, o):
+    def find_transits(self, rebound_sim, o, p):
         print()
         iterations = o.sim.observation_count
         rebound_sim.dt = p.dt
@@ -408,7 +408,7 @@ class CurveSimBodies(list):
                         #     results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["TT"] = i * p.dt / p.day + p.epoch
                         #     print(f"myintegration transit at {i * p.dt / p.day + p.epoch:.2f}")
                         # else:
-                        tt, impact, depth, close_enough, inclination = eclipsee.find_tt(eclipser, i - 1, rebound_sim, p, o, 0)
+                        tt, impact, depth, close_enough, inclination = eclipsee.find_tt(eclipser, i - 1, rebound_sim, o, p, 0)
                         if close_enough:  # eclipser and eclipsee are close enough at actual TT
                             tt_s0 = rebound_sim.t
                             t1 = eclipsee.find_t1234(eclipser, tt_s0, i, rebound_sim, o, 0, iterations, p, transittimetype="T1")
@@ -433,7 +433,7 @@ class CurveSimBodies(list):
         return results
 
     @staticmethod
-    def find_tts(rebound_sim, p, o):
+    def find_tts(rebound_sim, o, p):
         iterations = o.sim.observation_count
         tts = []
         rebound_sim.dt = p.dt
@@ -446,7 +446,7 @@ class CurveSimBodies(list):
                         # if p.myintegration:  # debug
                         #     tts.append([eclipser.name, eclipsee.name, i * p.dt / p.day + p.epoch])
                         # else:
-                        tt, b, depth, close_enough, inclination = eclipsee.find_tt(eclipser, i - 1, rebound_sim, p, o, 0)
+                        tt, b, depth, close_enough, inclination = eclipsee.find_tt(eclipser, i - 1, rebound_sim, o, p, 0)
                         if close_enough:
                             tts.append([eclipser.name, eclipsee.name, tt])
         return tts

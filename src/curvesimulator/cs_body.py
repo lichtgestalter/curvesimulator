@@ -197,7 +197,7 @@ class CurveSimBody:
         relative_radius = (self.radius + self.d - other.h) / (2 * self.radius)  # Relative distance between approximated center C of eclipsed area and center of self
         return area, relative_radius
 
-    def find_tt(self, other, iteration, rebound_sim, p, o, start_index):
+    def find_tt(self, other, iteration, rebound_sim, o, p, start_index):
         """other eclipses self. Find the exact time of transit (TT).
             iteration should be the last one before TT. """
         end_index = o.sim.observation_count
@@ -371,7 +371,7 @@ class CurveSimBody:
             return relative_depth
         return None
 
-    def calc_frames_per_orbit(self, p, o):
+    def calc_frames_per_orbit(self, o, p):
         """Calculates for each body how many video frames are needed to complete one orbit.
            FFmpeg (or the video display program?) tends to omit the last few frames.
            Therefore add a handful of extra frames."""

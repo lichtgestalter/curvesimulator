@@ -179,7 +179,7 @@ class CurveSimResults(dict):
     #     return offset_map, jitter_map, sector_params
 
     @staticmethod
-    def save_sim_flux_with_observation_timeline(p, o):
+    def save_sim_flux_with_observation_timeline(o, p):
         df = pd.DataFrame({"time": o.flux.time_d, "flux": o.flux.computed})
         # df = pd.DataFrame({"time": o.flux.time_d, "flux": o.sim.simflux})
         df.to_csv(p.computed_flux_file, index=False)
@@ -253,13 +253,13 @@ class CurveSimResults(dict):
         return means
 
     @staticmethod
-    def rv_plots(p, o):
+    def rv_plots(o, p):
         CurveSimResults.sim_rv_plot(p, "rv_computed", o)  # plot computed RV
         CurveSimResults.rv_observed_computed_plot(p, "rv_o_vs_c", o)  # plot computed and observed RV
         CurveSimResults.rv_residuals_plot(p, "rv_residuals", o)  # plot RV residuals
 
     @staticmethod
-    def flux_plots(p, o):
+    def flux_plots(o, p):
         CurveSimResults.flux_observed_computed_plots_time(p, "flux_o_vs_c_x=time", o)  # plot computed and observed flux
         CurveSimResults.flux_observed_computed_plot_data(p, "flux_o_vs_c_x=data", o)  # plot computed and observed flux
         CurveSimResults.flux_chi_squared_plot_data(p, "flux_chi2_x=data", o)  # plot flux chi squared per datapoint
@@ -364,7 +364,7 @@ class CurveSimResults(dict):
         return param_list
 
     @staticmethod
-    def ttv_to_date_plot_TOI4504_specific(p, o, amplitude, period, x_offset, osc_per):
+    def ttv_to_date_plot_TOI4504_specific(o, p, amplitude, period, x_offset, osc_per):
         tt_tess = np.array(o.tt.measured_tt["tt"][:13], dtype=float)
         transit_numbers = np.array(o.tt.measured_tt["nr"][:13], dtype=float)
         ttv_to_date = [tt - tt_tess[0] - n * osc_per for n, tt in zip(transit_numbers, tt_tess)]

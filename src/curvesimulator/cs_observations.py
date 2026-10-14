@@ -40,7 +40,7 @@ class Simulation:
 class ObservationType:
     def __init__(self):
         if type(self) is not ObservationType:
-            self.corrected, self.total_error, self.computed = (None,) * 3
+            self.corrected, self.total_error, self.computed, self.reduced_chi_squared = (None,) * 4
             self.residuals, self.time_d, self.time_s0, self.p_value = (None,) * 4
             self.chi_squared, self.log_norm_term, self.observation_count, self.log_maxlikelihood = (0,) * 4
 
@@ -57,6 +57,13 @@ class ObservationType:
         self.chi_squared_vector = x * x
         self.chi_squared = self.chi_squared_vector.sum()
         return self.chi_squared
+
+    def calc_reduced_chi_squared(self, p):
+        if p.free_parameters is not None and p.free_parameters < self.observation_count:
+            self.reduced_chi_squared = self.chi_squared / (self.observation_count - p.free_parameters)
+        else:
+            self.reduced_chi_squared = None
+        return self.reduced_chi_squared
 
     def calc_p_value(self, free_parameters):
         """
@@ -110,6 +117,7 @@ class TotalObservations(ObservationType):
         self.observation_count = self.tt.observation_count + self.rv.observation_count + self.flux.observation_count
         self.log_norm_term = self.tt.log_norm_term + self.rv.log_norm_term + self.flux.log_norm_term
         self.chi_squared = self.tt.chi_squared + self.rv.chi_squared + self.flux.chi_squared
+        self.calc_reduced_chi_squared(p)  # from chi^2 and degrees of freedom
         self.log_maxlikelihood = self.tt.log_maxlikelihood + self.rv.log_maxlikelihood + self.flux.log_maxlikelihood
         self.calc_p_value(p.free_parameters)
 
@@ -128,6 +136,11 @@ class TotalObservations(ObservationType):
         results["Fit"]["chi_squared_rv"] = self.rv.chi_squared
         results["Fit"]["chi_squared_flux"] = self.flux.chi_squared
         results["Fit"]["chi_squared_total"] = self.chi_squared
+
+        results["Fit"]["reduced_chi_squared_tt"] = self.tt.reduced_chi_squared
+        results["Fit"]["reduced_chi_squared_rv"] = self.rv.reduced_chi_squared
+        results["Fit"]["reduced_chi_squared_flux"] = self.flux.reduced_chi_squared
+        results["Fit"]["reduced_chi_squared_total"] = self.reduced_chi_squared
 
         results["Fit"]["pvalue_tt"] = self.tt.p_value
         results["Fit"]["pvalue_rv"] = self.rv.p_value
@@ -186,6 +199,7 @@ class RVObservations(ObservationType):
         self.calc_computed(p, rebound_sim)          # from bodies
         self.calc_residuals()                       # corrected - computed
         self.calc_chi_squared()                     # from residuals and total_error
+        self.calc_reduced_chi_squared(p)            # from chi^2 and degrees of freedom
         self.calc_p_value(p.free_parameters)        # from free_parameters and observation_count
         self.calc_log_maxlikelihood()               # from chi_squared and log_norm_term
 
@@ -236,7 +250,7 @@ class FluxObservations(ObservationType):
         return self.total_error
 
     def calc_computed(self, bodies, p):
-        _, self.computed, _ = bodies.calc_physics(p, self.time_s0)  # run simulation
+        _, self.computed, _ = bodies.calc_physics(self.time_s0, p)  # run simulation
         return self.computed
 
     def update(self, bodies, p):
@@ -248,6 +262,7 @@ class FluxObservations(ObservationType):
         self.calc_computed(bodies, p)                    # from bodies
         self.calc_residuals()                            # corrected - computed
         self.calc_chi_squared()                          # from residuals and total_error
+        self.calc_reduced_chi_squared(p)                 # from chi^2 and degrees of freedom
         self.calc_p_value(p.free_parameters)             # from free_parameters and observation_count
         self.calc_log_maxlikelihood()                    # from chi_squared and log_norm_term
 
@@ -283,6 +298,7 @@ class TTObservations(ObservationType):
         self.calc_log_norm_term()                           # from total_error
         self.calc_residuals()                               # convert self.measured_tt["delta"]
         self.calc_chi_squared()                             # from residuals and total_error
+        self.calc_reduced_chi_squared(p)                    # from chi^2 and degrees of freedom
         self.calc_p_value(p.free_parameters)                # from free_parameters and observation_count
         self.calc_log_maxlikelihood()                       # from chi_squared and log_norm_term
 
