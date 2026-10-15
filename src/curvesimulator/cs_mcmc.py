@@ -115,9 +115,9 @@ class CurveSimMCMC:
         self.start_real_time = time.strftime("%d.%m.%y %H:%M:%S")
         self.start_timestamp = time.perf_counter()
 
-        # self.max_likelihood_avg_residual_in_std = []
         self.debug_max_likelihood_idx = []
-
+        # self.chi_squared_over_time = []
+        # self.chi_squared_over_time_flux = []
 
         self.reduced_chi_squared_over_time = []
         self.reduced_chi_squared_over_time_flux = []
@@ -153,7 +153,8 @@ class CurveSimMCMC:
             self.mcmc_fit(p, bodies, o, steps_done)
 
     def mcmc_fit(self, p, bodies, o, steps_done, pool=None):
-        self.sampler = emcee.EnsembleSampler(p.walkers, p.fparams_count, CurveSimMCMC.log_probability, pool=pool, moves=self.moves, args=self.args, backend=self.backend)
+        self.sampler = emcee.EnsembleSampler(p.walkers, p.fparams_count, CurveSimMCMC.log_probability_debug, pool=pool, moves=self.moves, args=self.args, backend=self.backend)
+        # self.sampler = emcee.EnsembleSampler(p.walkers, p.fparams_count, CurveSimMCMC.log_probability, pool=pool, moves=self.moves, args=self.args, backend=self.backend)
         if not p.load_backend:
             self.theta = self.sampler.run_mcmc(self.theta0, p.burn_in, progress=True)
         else:
@@ -238,6 +239,14 @@ class CurveSimMCMC:
         return lp + CurveSimMCMC.log_likelihood(theta, bodies, o, p)
 
     @staticmethod
+    def log_probability_debug(theta, bodies, o, p):
+        lp = CurveSimMCMC.log_prior(theta, p.fitting_params)
+        if not np.isfinite(lp):
+            return -np.inf, np.nan, np.nan
+        ll, chi_squared, log_norm_term = CurveSimMCMC.log_likelihood_debug(theta, bodies, o, p)
+        return lp + ll, chi_squared, log_norm_term
+
+    @staticmethod
     def log_prior(theta, fitting_params):
         lp = 0.0
         for val, fp in zip(theta, fitting_params):
@@ -246,6 +255,20 @@ class CurveSimMCMC:
             if fp.prior_mu is not None:
                 lp += -0.5 * ((val - fp.prior_mu) / fp.prior_sigma) ** 2 - math.log(fp.prior_sigma * math.sqrt(2 * math.pi))
         return lp
+
+    @staticmethod
+    def log_likelihood_debug(theta, bodies, o, p):
+        residuals_sum_squared, log_norm_term = 0, 0
+        if p.flux_file:
+            residuals_sum_squared, log_norm_term = CurveSimMCMC.residuals_flux_sum_squared(theta, bodies, o, p)
+        if p.tt_file:
+            residuals_sum_squared += CurveSimMCMC.residuals_tt_sum_squared(theta, bodies, o, p)
+        if p.rv_file:
+            rss, lntr = CurveSimMCMC.residuals_rv_sum_squared(theta, bodies, o, p)
+            residuals_sum_squared += rss
+            log_norm_term += lntr
+        chi_squared = residuals_sum_squared
+        return -0.5 * (residuals_sum_squared + log_norm_term), chi_squared, log_norm_term
 
     @staticmethod
     def log_likelihood(theta, bodies, o, p):
@@ -431,10 +454,10 @@ class CurveSimMCMC:
             max_likelihood_idx = np.argmax(log_prob_samples)
 
             self.debug_max_likelihood_idx.append(max_likelihood_idx)
-            print(f"{len(self.debug_max_likelihood_idx)}:  ", end="")
-            for index in self.debug_max_likelihood_idx:
-                print(f"{index}:{log_prob_samples[index]:.3f}, ", end="")
-            print()
+            # print(f"{len(self.debug_max_likelihood_idx)}:  ", end="")
+            # for index in self.debug_max_likelihood_idx:
+            #     print(f"{index}:{log_prob_samples[index]:.3f}, ", end="")
+            # print()
 
             self.max_likelihood_params_scaled = self.scaled_samples[max_likelihood_idx]
             self.max_likelihood_params = flat_thin_samples[max_likelihood_idx]
@@ -653,16 +676,37 @@ class CurveSimMCMC:
                 self.acceptance_plot_ok = False
 
     def update_reduced_chi_squared_over_time_lists(self, o):
+        # self.chi_squared_over_time.append(o.chi_squared)
+        # self.chi_squared_over_time_flux.append(o.flux.chi_squared)
         self.reduced_chi_squared_over_time.append(o.reduced_chi_squared)
         self.reduced_chi_squared_over_time_flux.append(o.flux.reduced_chi_squared)
         self.reduced_chi_squared_over_time_rv.append(o.rv.reduced_chi_squared)
         self.reduced_chi_squared_over_time_tt.append(o.tt.reduced_chi_squared)
 
     # @stopwatch()
-    def reduced_chi_squared_over_time_plot(self, o, p, steps_done, plot_filename):
+    # def chi_squared_over_time_plot(self, p, steps_done, plot_filename):
+    #     plot_filename = self.results_directory + plot_filename
+    #     steps = [step for step in range(p.chunk_size + self.loaded_steps, steps_done + 1, p.chunk_size)]
+    #     fig, ax = plt.subplots(figsize=(10, 6))
+    #     ax.plot(steps, self.chi_squared_over_time, label="Total", marker="o", markersize=2, color="xkcd:black")
+    #     ax.plot(steps, self.chi_squared_over_time_flux, label="Flux", marker="o", markersize=2, color="xkcd:tomato")
+    #     ax.set_xlabel("Steps after burn-in")
+    #     ax.ticklabel_format(useOffset=False, style="plain", axis="y")  # show y-labels as they are
+    #     ax.set_title(f"Chi^2: development during {steps_done} steps of fitting")
+    #     ax.legend(loc="upper right")
+    #     plt.tight_layout()
+    #     try:
+    #         plt.savefig(plot_filename)
+    #     except:
+    #         print(f"{Fore.RED}\nERROR: Saving Chi^2 over time plot failed.{Style.RESET_ALL}")
+    #     plt.close(fig)
+
+    # @stopwatch()
+    def reduced_chi_squared_over_time_plot(self, p, steps_done, plot_filename):
         plot_filename = self.results_directory + plot_filename
         steps = [step for step in range(p.chunk_size + self.loaded_steps, steps_done + 1, p.chunk_size)]
         fig, ax = plt.subplots(figsize=(10, 6))
+        print(f"red_chi^2 (from observation update): {self.reduced_chi_squared_over_time[-1]:.3f}")
         ax.plot(steps, self.reduced_chi_squared_over_time, label="Total", marker="o", markersize=2, color="xkcd:black")
         ax.plot(steps, self.reduced_chi_squared_over_time_flux, label="Flux", marker="o", markersize=2, color="xkcd:tomato")
         ax.plot(steps, self.reduced_chi_squared_over_time_rv, label="RV", marker="o", markersize=2, color="xkcd:nice blue")
@@ -675,7 +719,7 @@ class CurveSimMCMC:
         try:
             plt.savefig(plot_filename)
         except:
-            print(f"{Fore.RED}\nERROR: Saving Chi^2 over time plot failed.{Style.RESET_ALL}")
+            print(f"{Fore.RED}\nERROR: Saving Reduced Chi^2 over time plot failed.{Style.RESET_ALL}")
         plt.close(fig)
 
     # @stopwatch()
@@ -833,8 +877,16 @@ class CurveSimMCMC:
         if chunk % 5 == 0:
             self.acceptance_fraction_plot(steps_done, "acceptance.png", p)
         self.scale_samples(flat_thin_samples, p)
+
+
         self.max_likelihood_parameters(flat_thin_samples, p)
         # self.save_max_likelihood_bodies()
+        logprob, chi_squared, log_norm_term = CurveSimMCMC.log_probability_debug(self.max_likelihood_params, bodies, o, p)
+        reduced_chi_squared = chi_squared / (o.observation_count - p.free_parameters)
+        # print(f"(log_probability_debug) index: {self.max_likelihood_params} log_prob: {logprob:.3f} chi^2: {reduced_chi_squared:.3f}")
+        print(f"(log_probability_debug) log_prob: {logprob:.3f} red_chi^2: {reduced_chi_squared:.3f} log_norm_term:{log_norm_term:.3f}")
+        # print(f"index: {self.max_likelihood_params} log_probability: {CurveSimMCMC.log_probability(self.max_likelihood_params, bodies, o, p):.3f}")
+
         if p.tt_file:
             max_likelihood_bodies = self.get_max_likelihood_bodies(bodies, p)
             o.tt.measured_tt = CurveSimMCMC.max_likelihood_tt(max_likelihood_bodies, o, p)
@@ -854,18 +906,21 @@ class CurveSimMCMC:
         bodies = CurveSimMCMC.bodies_from_fitting_params(bodies, p.fitting_params[:p.body_fparams_count], param_type="max_likelihood_scaled")
         bodies.save(directory=p.results_directory, prefix="", suffix="_maxL")
         CurveSimMCMC.single_run(p, bodies, o)  # creates o vs. c, chi^2 and residuals plots.
+
         self.update_reduced_chi_squared_over_time_lists(o)
-        self.reduced_chi_squared_over_time_plot(o, p, steps_done, "reduced_chi^2_over_time.png")
+        # self.chi_squared_over_time_plot(p, steps_done, "chi^2_over_time.png")
+        self.reduced_chi_squared_over_time_plot(p, steps_done, "reduced_chi^2_over_time.png")
 
         self.integrated_autocorrelation_time.append(list(self.sampler.get_autocorr_time(tol=0)))
         if chunk % 100 == 0:
             self.integrated_autocorrelation_time_plot(steps_done, "int_autocorr_time.png", "steps_per_i_ac_time.png", p)
         if chunk % 100000 == 0:
             self.autocorrelation_function_plot(steps_done, "autocorrelation.png", p)
-        if chunk % 100 == 0:
+        if chunk % 1 == 0:
             for bins in p.bins:
                 self.mcmc_histograms(steps_done, bins, f"histograms_{bins}.png", p)
-        self.save_mcmc_results(p, bodies, steps_done, o.tt.measured_tt)
+        if chunk % 1 == 0:
+            self.save_mcmc_results(p, bodies, steps_done, o.tt.measured_tt)
         if chunk % 50000 == 0:
             self.trace_plots(steps_done, "traces.png", p)
         if chunk % 100000 == 0:
