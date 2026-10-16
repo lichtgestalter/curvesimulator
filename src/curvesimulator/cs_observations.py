@@ -92,6 +92,9 @@ class TotalObservations(ObservationType):
         self.flux = FluxObservations(p)
         self.rv = RVObservations(p)
         self.tt = TTObservations(p)
+        self.update(p)
+        if p.verbose:
+            print(self)
         # self.rvflux = RVFluxObservations(self)
 
     def __repr__(self):

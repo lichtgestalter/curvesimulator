@@ -1,6 +1,12 @@
 {
     "CurveSimulator Documentation": "https://github.com/lichtgestalter/curvesimulator/wiki",
     "ProgramParameters": {
+        "body_param_names": [
+            "InnerPlanet.ma"
+        ],
+        "body_param_unit_names": [
+            "InnerPlanet.ma[deg]"
+        ],
         "PARAMS": [
             "body_type",
             "primary",
@@ -40,7 +46,7 @@
         "m_earth": 5.972e+24,
         "hour": 3600,
         "day": 86400,
-        "year": 31556925.216,
+        "year": 31557600.0,
         "rad2deg": 57.29577951308232,
         "results_directory": "./0000/",
         "result_file": "./0000/results_single_run.json",
@@ -51,12 +57,10 @@
         "epoch": 2460000,
         "sim_start": 2460001.9,
         "sim_end": 2460003.9,
-        "sim_start_s0": 164159.99999195337,
-        "sim_end_s0": 336959.9999919534,
-        "iterations": 35,
         "sim_flux_err": 0.0,
         "comment": "No comment",
         "verbose": false,
+        "print_initial_body_states": false,
         "transit_precision": 1,
         "flux_data_directory": ".",
         "max_interval_extensions": 5,
@@ -76,7 +80,9 @@
             "nu": "deg",
             "T": "s",
             "rv_offset": "m/s",
-            "rv_jitter": "m/s"
+            "rv_jitter": "m/s",
+            "u": "1",
+            "v": "1"
         },
         "scale": {
             "mass": 5.268358041405712e-28,
@@ -94,7 +100,9 @@
             "nu": 57.29577951308232,
             "T": 1,
             "rv_offset": 1,
-            "rv_jitter": 1
+            "rv_jitter": 1,
+            "u": 1,
+            "v": 1
         },
         "tt_padding": 0.3,
         "bins": [
@@ -103,7 +111,7 @@
         ],
         "flux_plots_top": 1.015,
         "flux_plots_bottom": 0.97,
-        "free_parameters": 2,
+        "free_parameters": 1,
         "mcmc_multi_processing": true,
         "sector_params_fit": false,
         "tt_file": "tt.csv",
@@ -117,7 +125,7 @@
         "best_residuals_tt_sum_squared": 1e+99,
         "lmfit_method": "powell",
         "ls_chunk_size": 1000,
-        "ls_steps": 10000,
+        "ls_steps": 1000000,
         "ls_thresholds": [
             1.0,
             0.1,
@@ -125,10 +133,6 @@
             0.001,
             0.0001
         ],
-        "ls_max_tt_delta": 1.1574074074074073e-05,
-        "flux_weight": 1,
-        "tt_weight": 1,
-        "rv_weight": 1,
         "load_backend": false,
         "walkers": 32,
         "steps": 888,
@@ -136,15 +140,30 @@
         "burn_in": 80,
         "chunk_size": 80,
         "thin_samples": 1,
-        "fitting_body_parameters": 2,
-        "frames": 150,
-        "fps": 30,
+        "convert_e_omega_2_u_v": true,
+        "body_fparams_count": 1,
+        "e_omega_to_u_v_conversion_list": [],
+        "param_references": [
+            [
+                1,
+                "ma"
+            ]
+        ],
+        "sector_fparams_count": 0,
+        "derived_params_count": 0,
+        "fparams_count": 1,
+        "fparams_count_plus": 1,
+        "frames": 250,
+        "fps": 25,
         "clockwise": false,
-        "sampling_rate": 0.23333333333333334,
+        "offset_x_left": 0,
+        "offset_y_left": 0,
         "scope_left": 149597870700.0,
         "scale_bar_length_left": 149597870700.0,
         "star_scale_left": 1.0,
         "planet_scale_left": 1.0,
+        "offset_x_right": 0,
+        "offset_y_right": 0,
         "scope_right": 149597870700.0,
         "scale_bar_length_right": 149597870700.0,
         "star_scale_right": 1.0,
@@ -168,12 +187,12 @@
         "left_title_fontsize": 10,
         "left_title_y_coord": 0.9,
         "show_left_scale_bar": true,
-        "right_title": "View from Earth",
+        "right_title": "View from above",
         "right_title_fontsize": 10,
         "right_title_y_coord": 0.9,
         "show_right_scale_bar": true,
-        "dot_height": 0.077,
-        "dot_width": 0.005,
+        "dot_height": 0.044117647058823525,
+        "dot_width": 0.0034482758620689655,
         "x_ticks_fontsize": 8,
         "x_label": "BJD (TDB)",
         "x_label_fontsize": 8,
@@ -193,7 +212,6 @@
         "figure_height": 8,
         "xlim": 1.25,
         "ylim": 1.0,
-        "myintegration": false,
         "jacobi_coordinates": true
     },
     "Bodies": {
@@ -213,7 +231,9 @@
                 "limb_darkening_u1": 0.45,
                 "limb_darkening_u2": 0.23,
                 "mean_intensity": 0.8116668553772325,
-                "intensity": 251754968.1428863
+                "intensity": 251754968.1428863,
+                "mass_m_jup": 1047.5971914594015,
+                "radius_r_jup": 9.73115873104683
             },
             "Transits": []
         },
@@ -233,31 +253,34 @@
                 "intensity": 0.0,
                 "e": 0.0,
                 "i": 1.5533430342749532,
-                "i_deg": 89.0,
                 "a": 14959787070.0,
                 "Omega": 0.0,
-                "Omega_deg": 0.0,
                 "omega": 0.0,
+                "ma": 0.10505547469958831,
+                "mass_m_jup": 0.009438790266982473,
+                "radius_r_jup": 0.133822001063056,
+                "i_deg": 89.0,
+                "a_AU": 0.09999999999999999,
+                "Omega_deg": 0.0,
                 "omega_deg": 0.0,
-                "ma": 0.10504694570887887,
-                "ma_deg": 6.018746639858653
+                "ma_deg": 6.01923531502981
             },
             "Transits": [
                 {
                     "Transit_params": {
                         "EclipsedBody": "SomeStar",
-                        "T1": 2460002.6138980305,
-                        "T2": 2460002.6164373127,
-                        "TT": 2460002.694453091,
-                        "T3": 2460002.7724589156,
-                        "T4": 2460002.774994646,
-                        "T12": 0.002539282198995352,
-                        "T23": 0.1560216029174626,
-                        "T34": 0.0025357306003570557,
-                        "T14": 0.161096615716815,
-                        "b": 0.37528286214779494,
-                        "depth": 0.00022504622035471553,
-                        "i": 89.0000000061748
+                        "T1": 2460002.613883076,
+                        "T2": 2460002.6164219994,
+                        "TT": 2460002.6944389623,
+                        "T3": 2460002.772437119,
+                        "T4": 2460002.7749731224,
+                        "T12": 0.002538923639804125,
+                        "T23": 0.1560151195153594,
+                        "T34": 0.002536003477871418,
+                        "T14": 0.16109004663303494,
+                        "b": 0.3752828656448855,
+                        "depth": 0.0002250462201951712,
+                        "i": 89.00000000617509
                     }
                 }
             ]
@@ -278,31 +301,34 @@
                 "intensity": 0.0,
                 "e": 0.045,
                 "i": 1.5742869852988852,
-                "i_deg": 90.2,
                 "a": 149597870700.0,
                 "Omega": 0.0,
-                "Omega_deg": 0.0,
                 "omega": 0.0,
+                "ma": 1.4311699866353502,
+                "mass_m_jup": 0.003146263422327491,
+                "radius_r_jup": 0.08921466737537066,
+                "i_deg": 90.2,
+                "a_AU": 0.9999999999999999,
+                "Omega_deg": 0.0,
                 "omega_deg": 0.0,
-                "ma": 1.4311979547187446,
-                "ma_deg": 82.00160245313957
+                "ma_deg": 82.0
             },
             "Transits": [
                 {
                     "Transit_params": {
                         "EclipsedBody": "SomeStar",
-                        "T1": 2460002.7023249594,
-                        "T2": 2460002.7098090844,
-                        "TT": 2460002.884990155,
-                        "T3": 2460003.060102359,
-                        "T4": 2460003.06757996,
-                        "T12": 0.007484124973416328,
-                        "T23": 0.35029327450320125,
-                        "T34": 0.007477601058781147,
-                        "T14": 0.3652550005353987,
-                        "b": 0.7490789552380132,
-                        "depth": 8.511232408655662e-05,
-                        "i": 90.19999999982598
+                        "T1": 2460002.703961231,
+                        "T2": 2460002.711423553,
+                        "TT": 2460002.8866149336,
+                        "T3": 2460003.061733771,
+                        "T4": 2460003.069200484,
+                        "T12": 0.007462322246283293,
+                        "T23": 0.3503102180548012,
+                        "T34": 0.0074667129665613174,
+                        "T14": 0.36523925326764584,
+                        "b": 0.7490789548895075,
+                        "depth": 8.511232411125514e-05,
+                        "i": 90.19999999982565
                     }
                 }
             ]
@@ -317,13 +343,17 @@
         "log_norm_term_rv": 0,
         "log_norm_term_flux": 0,
         "log_norm_term_total": -18.58556736724631,
-        "chi_squared_tt": 0.9856115034488595,
+        "chi_squared_tt": 1.246425288009867,
         "chi_squared_rv": 0,
         "chi_squared_flux": 0,
-        "chi_squared_total": 0.9856115034488595,
-        "log_maxlikelihood_tt": 8.799977931898725,
+        "chi_squared_total": 1.246425288009867,
+        "reduced_chi_squared_tt": 1.246425288009867,
+        "reduced_chi_squared_total": 1.246425288009867,
+        "pvalue_tt": 0.26423632777548806,
+        "pvalue_total": 0.26423632777548806,
+        "log_maxlikelihood_tt": 8.669571039618221,
         "log_maxlikelihood_rv": 0,
         "log_maxlikelihood_flux": 0,
-        "log_maxlikelihood_total": 8.799977931898725
+        "log_maxlikelihood_total": 8.669571039618221
     }
 }

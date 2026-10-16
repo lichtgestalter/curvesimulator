@@ -212,7 +212,7 @@ class CurveSimParameters:
         self.upper_curve_dot_color = CurveSimParameters.get_color_param(config, section, "upper_curve_dot_color", "xkcd:bright red")
 
         self.lower_curve_color = CurveSimParameters.get_color_param(config, section, "lower_curve_color", "xkcd:white")
-        self.lower_curve_y_label = self.read_param(config, section, "lower_curve_y_label", "Relative Flux", evaluate=False, forced_type=str, lower=None, upper=None)
+        self.lower_curve_y_label = self.read_param(config, section, "lower_curve_y_label", "Radial Velocity [m/s]", evaluate=False, forced_type=str, lower=None, upper=None)
         self.lower_curve_y_label_fontsize = self.read_param(config, section, "lower_curve_y_label_fontsize", "8", evaluate=True, forced_type=int, lower=1, upper=1000)
         self.lower_curve_y_tick_fontsize = self.read_param(config, section, "lower_curve_y_tick_fontsize", "8", evaluate=True, forced_type=int, lower=1, upper=1000)
         self.lower_curve_dot_color = CurveSimParameters.get_color_param(config, section, "lower_curve_dot_color", "xkcd:green apple")
@@ -430,7 +430,8 @@ class CurveSimParameters:
         fitting_params, derived_fitting_params, body_index = self.read_fitting_body_params(config)
         if self.sector_params_fit:  # append sector params to fitting_params
             fitting_params = self.read_fitting_sector_params(fitting_params, body_index)
-        self.free_parameters = len(fitting_params)
+        if len(fitting_params):
+            self.free_parameters = len(fitting_params)  # change only when actually fitting, otherwise use value from config file
         fitting_params_plus = fitting_params + derived_fitting_params
         return fitting_params, fitting_params_plus
 
@@ -444,8 +445,8 @@ class CurveSimParameters:
         body_index = 0
         fitting_params = []
         derived_params = []
-        if self.verbose:
-            print(f"Running MCMC with these fitting params:")
+        if self.verbose and self.action in ["mcmc", "lmfit"]:
+            print(f"Fitting params:")
         for section in config.sections():
             if section not in self.standard_sections:  # section describes a physical object
                 param_names_in_use = []
