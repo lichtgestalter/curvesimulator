@@ -153,7 +153,6 @@ class CurveSimMCMC:
             self.mcmc_fit(p, bodies, o, steps_done)
 
     def mcmc_fit(self, p, bodies, o, steps_done, pool=None):
-        # self.sampler = emcee.EnsembleSampler(p.walkers, p.fparams_count, CurveSimMCMC.log_probability_debug, pool=pool, moves=self.moves, args=self.args, backend=self.backend)
         self.sampler = emcee.EnsembleSampler(p.walkers, p.fparams_count, CurveSimMCMC.log_probability, pool=pool, moves=self.moves, args=self.args, backend=self.backend)
         if not p.load_backend:
             self.theta = self.sampler.run_mcmc(self.theta0, p.burn_in, progress=True)
@@ -162,7 +161,8 @@ class CurveSimMCMC:
         for chunk in range(1, p.steps // p.chunk_size + 1):
             self.theta = self.sampler.run_mcmc(self.theta, p.chunk_size, progress=True)
             steps_done += p.chunk_size
-            self.mcmc_results(p, bodies, o, steps_done, chunk)
+            commands = CurveSimMCMC.read_result_control()
+            self.mcmc_results(p, bodies, o, steps_done, commands)
 
     def __repr__(self):
         return f"CurveSimMCMC object"
@@ -235,15 +235,8 @@ class CurveSimMCMC:
     def log_probability(theta, bodies, o, p):
         lp = CurveSimMCMC.log_prior(theta, p.fitting_params)
         if not np.isfinite(lp):
-            return -np.inf
-        return lp + CurveSimMCMC.log_likelihood(theta, bodies, o, p)
-
-    @staticmethod
-    def log_probability_debug(theta, bodies, o, p):
-        lp = CurveSimMCMC.log_prior(theta, p.fitting_params)
-        if not np.isfinite(lp):
             return -np.inf, np.nan, np.nan
-        ll, chi_squared, log_norm_term = CurveSimMCMC.log_likelihood_debug(theta, bodies, o, p)
+        ll, chi_squared, log_norm_term = CurveSimMCMC.log_likelihood(theta, bodies, o, p)
         return lp + ll, chi_squared, log_norm_term
 
     @staticmethod
@@ -257,43 +250,17 @@ class CurveSimMCMC:
         return lp
 
     @staticmethod
-    def log_likelihood_debug(theta, bodies, o, p):
-        residuals_sum_squared, log_norm_term = 0, 0
-        if p.flux_file:
-            residuals_sum_squared, log_norm_term = CurveSimMCMC.residuals_flux_sum_squared(theta, bodies, o, p)
-        if p.tt_file:
-            residuals_sum_squared += CurveSimMCMC.residuals_tt_sum_squared(theta, bodies, o, p)
-        if p.rv_file:
-            rss, lntr = CurveSimMCMC.residuals_rv_sum_squared(theta, bodies, o, p)
-            residuals_sum_squared += rss
-            log_norm_term += lntr
-        chi_squared = residuals_sum_squared
-        return -0.5 * (residuals_sum_squared + log_norm_term), chi_squared, log_norm_term
-
-    @staticmethod
     def log_likelihood(theta, bodies, o, p):
-        """
-        theta:
-            List containing the current numerical values of the `param_references` (see below).
-            It is automatically modified by the MCMC process.
-            Before the simulated lightcurve is recalculated in `log_likelihood()`,
-            the params are updated using the values from `theta`.
-
-        param_references:
-            List containing the names of the params to be fitted.
-            For example: ["Tmin_pri", "P_days", "incl_deg", "R1a", "R2R1"]
-        """
-        # rebound_sim = CurveSimBodies.init_rebound(bodies, p)
-        residuals_sum_squared, log_norm_term = 0, 0
+        chi_squared, log_norm_term = 0, 0
         if p.flux_file:
-            residuals_sum_squared, log_norm_term = CurveSimMCMC.residuals_flux_sum_squared(theta, bodies, o, p)
+            chi_squared, log_norm_term = CurveSimMCMC.residuals_flux_sum_squared(theta, bodies, o, p)
         if p.tt_file:
-            residuals_sum_squared += CurveSimMCMC.residuals_tt_sum_squared(theta, bodies, o, p)
+            chi_squared += CurveSimMCMC.residuals_tt_sum_squared(theta, bodies, o, p)
         if p.rv_file:
             rss, lntr = CurveSimMCMC.residuals_rv_sum_squared(theta, bodies, o, p)
-            residuals_sum_squared += rss
+            chi_squared += rss
             log_norm_term += lntr
-        return -0.5 * (residuals_sum_squared + log_norm_term)
+        return -0.5 * (chi_squared + log_norm_term), chi_squared, log_norm_term
 
     @staticmethod
     def u_v_to_e_omega(u, v):
@@ -797,6 +764,46 @@ class CurveSimMCMC:
         secs = seconds % 60
         return f"{days:02d}:{hours:02d}:{minutes:02d}:{secs:02.0f} [dd:hh:mm:ss]"
 
+    @staticmethod
+    # def read_mcmc_result_commands():
+    #     """Read the textfile "mcmc_commands.txt" in the current directory.
+    #     Remove all whitespace characters from each line (no splitting).
+    #     Add each remaining non-empty string to the variable commands.
+    #     Stop when you read a line that starts with "#"."""
+    #     commands = []
+    #     file = "mcmc_results.txt"
+    #     with open(file, "r") as f:
+    #         for line in f:
+    #             line = "".join(line.split())  # removes spaces, tabs, \r, \n, etc.
+    #             if not line:
+    #                 continue  # skip empty or whitespace-only lines
+    #             if line.startswith("#"):
+    #                 break
+    #             commands.append(line)
+    #     return commands
+    def read_result_control():
+        """Read the textfile "result_control.txt" in the current directory.
+        Remove all whitespace characters and inline comments from each line.
+        Add each remaining non-empty string to the variable commands.
+        Stop when you read a line that contains no command but starts with "#".
+        If the file cannot be opened, return ["all"]."""
+        commands = []
+        file = "result_control.txt"
+        try:
+            f = open(file, "r", encoding="utf-8")
+        except OSError:
+            return ["all"]
+        with f:
+            for line in f:
+                line = "".join(line.split())  # removes spaces, tabs, \r, \n, etc.
+                if line.startswith("#"):
+                    break
+                line = line.split("#", 1)[0]  # strip inline comments
+                if not line:
+                    continue
+                commands.append(line)
+        return commands
+
     def save_mcmc_results(self, p, bodies, steps_done, measured_tt):
         mcmc_results = {}
         mcmc_results["CurveSimulator Documentation"] = "https://github.com/lichtgestalter/curvesimulator/wiki"
@@ -847,43 +854,52 @@ class CurveSimMCMC:
             print(f"{Fore.YELLOW}Printed Results to console because saving failed.{Style.RESET_ALL}")
 
     @stopwatch()
-    def mcmc_results(self, p, bodies, o, steps_done, chunk):
+    def mcmc_results(self, p, bodies, o, steps_done, commands):
+        print(f"{commands=}")
         print(f"{steps_done} steps done.  ")
         flat_thin_samples = self.make_flat_thin_samples(p)  # includes derived params
         self.acceptance_fractions.append(self.sampler.acceptance_fraction)
-        if chunk % 5 == 0:
+        if "acceptance" in commands or "all" in commands:
             self.acceptance_fraction_plot(steps_done, "acceptance.png", p)
         self.scale_samples(flat_thin_samples, p)
         self.max_likelihood_parameters(flat_thin_samples, p)
-        logprob, chi_squared, log_norm_term = CurveSimMCMC.log_probability_debug(self.max_likelihood_params, bodies, o, p)
+        logprob, chi_squared, log_norm_term = CurveSimMCMC.log_probability(self.max_likelihood_params, bodies, o, p)
         reduced_chi_squared = chi_squared / (o.observation_count - p.free_parameters)
-        print(f"(log_probability_debug) log_prob: {logprob:.3f} red_chi^2: {reduced_chi_squared:.3f} log_norm_term:{log_norm_term:.3f}")
+        print(f"Current best fit: log probability: {logprob:.3f},  reduced chi squared: {reduced_chi_squared:.3f},  log_norm_term:{log_norm_term:.3f}")
 
         if p.tt_file:
             max_likelihood_bodies = self.get_max_likelihood_bodies(bodies, p)
             o.tt.measured_tt = CurveSimMCMC.max_likelihood_tt(max_likelihood_bodies, o, p)
             o.tt.measured_tt = CurveSimMCMC.add_new_best_delta(o.tt.measured_tt, steps_done)
-            CurveSimMCMC.tt_delta_plot(p, steps_done, "tt_delta.png", o.tt.measured_tt)
-            self.tt_multi_delta_plot(steps_done, "tt_multi_delta.png", o.tt.measured_tt)
-        self.high_density_intervals(p)
+            if "tt_delta" in commands or "all" in commands:
+                CurveSimMCMC.tt_delta_plot(p, steps_done, "tt_delta.png", o.tt.measured_tt)
+            if "tt_multi_delta" in commands or "all" in commands:
+                self.tt_multi_delta_plot(steps_done, "tt_multi_delta.png", o.tt.measured_tt)
 
+        self.high_density_intervals(p)
         bodies = CurveSimMCMC.bodies_from_fitting_params(bodies, p.fitting_params[:p.body_fparams_count], param_type="max_likelihood_scaled")
-        bodies.save(directory=p.results_directory, prefix="", suffix="_maxL")
-        CurveSimMCMC.single_run(p, bodies, o)  # creates o vs. c, chi^2 and residuals plots.
+        if "save_bodies" in commands or "all" in commands:
+            bodies.save(directory=p.results_directory, prefix="", suffix="_maxL")
+        if "single_run" in commands or "all" in commands:
+            CurveSimMCMC.single_run(p, bodies, o)  # creates o vs. c, chi^2 and residuals plots.
 
         self.update_reduced_chi_squared_over_time_lists(o)
         self.integrated_autocorrelation_time.append(list(self.sampler.get_autocorr_time(tol=0)))
 
-        if chunk % 1 == 0:
+        if "chi_squared" in commands or "all" in commands:
             self.reduced_chi_squared_over_time_plot(p, steps_done, "reduced_chi^2_over_time.png")
+        if "histogram" in commands or "all" in commands:
             for bins in p.bins:
                 self.mcmc_histograms(steps_done, bins, f"histograms_{bins}.png", p)
+        if "mcmc_results" in commands or "all" in commands:
             self.save_mcmc_results(p, bodies, steps_done, o.tt.measured_tt)
-        if chunk % 5 == 0:
+        if "trace" in commands or "all" in commands:
             self.trace_plots(steps_done, "traces.png", p)
-        if chunk % 10 == 0:
+        if "integrated_autocorrelation_time" in commands:
             self.integrated_autocorrelation_time_plot(steps_done, "int_autocorr_time.png", "steps_per_i_ac_time.png", p)
+        if "autocorrelation_function" in commands or "all" in commands:
             self.autocorrelation_function_plot(steps_done, "autocorrelation.png", p)
+        if "corner" in commands or "all" in commands:
             flat_thin_samples = self.sampler.get_chain(discard=p.burn_in, thin=self.thin_samples_plot, flat=True)
             self.scale_samples(flat_thin_samples, p)
             self.mcmc_corner_plot(steps_done, "corner.png", p)
