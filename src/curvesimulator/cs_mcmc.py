@@ -776,9 +776,9 @@ class CurveSimMCMC:
         try:
             f = open(file, "r", encoding="utf-8")
         except OSError:
-            print(f"{Fore.YELLOW}\nWARNING: result_control.txt is missing. This may result in unnecessary long result generating times between chunks.")
-            print(f"{Fore.YELLOW}\nYou can still add and edit the file now, while the fitting is running.")
-            print(f"{Fore.YELLOW}\nSee http {Style.RESET_ALL}")
+            print(f"{Fore.YELLOW}\nWARNING: result_control.txt is missing. This may result in unnecessarily long result generation times between chunks.")
+            print(f"{Fore.YELLOW}You can still add and edit the file now, while the fitting is running.")
+            print(f"{Fore.YELLOW}See https://github.com/lichtgestalter/curvesimulator/wiki/MCMC-Results {Style.RESET_ALL}")
             return ["all"]
         with f:
             for line in f:
