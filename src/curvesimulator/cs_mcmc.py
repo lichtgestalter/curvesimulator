@@ -765,22 +765,6 @@ class CurveSimMCMC:
         return f"{days:02d}:{hours:02d}:{minutes:02d}:{secs:02.0f} [dd:hh:mm:ss]"
 
     @staticmethod
-    # def read_mcmc_result_commands():
-    #     """Read the textfile "mcmc_commands.txt" in the current directory.
-    #     Remove all whitespace characters from each line (no splitting).
-    #     Add each remaining non-empty string to the variable commands.
-    #     Stop when you read a line that starts with "#"."""
-    #     commands = []
-    #     file = "mcmc_results.txt"
-    #     with open(file, "r") as f:
-    #         for line in f:
-    #             line = "".join(line.split())  # removes spaces, tabs, \r, \n, etc.
-    #             if not line:
-    #                 continue  # skip empty or whitespace-only lines
-    #             if line.startswith("#"):
-    #                 break
-    #             commands.append(line)
-    #     return commands
     def read_result_control():
         """Read the textfile "result_control.txt" in the current directory.
         Remove all whitespace characters and inline comments from each line.
@@ -792,6 +776,9 @@ class CurveSimMCMC:
         try:
             f = open(file, "r", encoding="utf-8")
         except OSError:
+            print(f"{Fore.YELLOW}\nWARNING: result_control.txt is missing. This may result in unnecessary long result generating times between chunks.")
+            print(f"{Fore.YELLOW}\nYou can still add and edit the file now, while the fitting is running.")
+            print(f"{Fore.YELLOW}\nSee http {Style.RESET_ALL}")
             return ["all"]
         with f:
             for line in f:
@@ -893,7 +880,7 @@ class CurveSimMCMC:
                 self.mcmc_histograms(steps_done, bins, f"histograms_{bins}.png", p)
         if "mcmc_results" in commands or "all" in commands:
             self.save_mcmc_results(p, bodies, steps_done, o.tt.measured_tt)
-        if "trace" in commands or "all" in commands:
+        if "traces" in commands or "all" in commands:
             self.trace_plots(steps_done, "traces.png", p)
         if "integrated_autocorrelation_time" in commands:
             self.integrated_autocorrelation_time_plot(steps_done, "int_autocorr_time.png", "steps_per_i_ac_time.png", p)
