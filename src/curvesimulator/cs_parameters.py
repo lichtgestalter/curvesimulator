@@ -2,6 +2,7 @@ import ast
 from colorama import Fore, Style
 import configparser
 import copy
+from datetime import datetime
 import json
 from matplotlib import colors as mcolors
 import numpy as np
@@ -62,7 +63,7 @@ class CurveSimParameters:
         log_file = open(self.results_directory + "console.txt", "w", encoding="utf-8")  # use "a" to append instead
         sys.stdout = Tee(sys.__stdout__, log_file)
         sys.stderr = Tee(sys.__stderr__, log_file)  # also captures tracebacks
-
+        print(datetime.now().astimezone().strftime("%d.%m.%Y %H:%M:%S UTC%z"))
 
         self.result_file = "results_single_run.json"
         self.result_file = CurveSimParameters.check_filename_and_add_path(self.result_file, "result_file", self.results_directory)

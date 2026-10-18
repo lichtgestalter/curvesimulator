@@ -1,6 +1,7 @@
 from colorama import Fore, Style
 import copy
 import corner
+from datetime import datetime
 import emcee
 import emcee.autocorr
 from functools import wraps
@@ -27,10 +28,9 @@ def stopwatch():
             result = func(self, *args, **kwargs)
             toc = time.perf_counter()
             print(f" {func.__name__}: {toc - tic:6.1f} seconds")
+            wrapper.tictoc = toc - tic
             return result
-
         return wrapper
-
     return decorator
 
 
@@ -105,32 +105,34 @@ class CurveSimMCMC:
             os.remove("residual.tmp")
         if os.path.exists("iteration.tmp"):
             os.remove("iteration.tmp")
+
         self.thin_samples_plot = max(p.thin_samples, 10)  # avoid unnecessary memory usage for some plots
         self.credible_mass = 0.68
         self.theta0 = p.random_initial_values()
-        self.args = (bodies, o, p)  # theta, fitting_params, param_references, bodies, o, p
+        self.args = (bodies, o, p)
         self.moves = eval(p.moves)
+
         self.acceptance_fractions = []
         self.integrated_autocorrelation_time = []
         self.start_real_time = time.strftime("%d.%m.%y %H:%M:%S")
         self.start_timestamp = time.perf_counter()
-
-        # self.debug_max_likelihood_idx = []
-        # self.chi_squared_over_time = []
-        # self.chi_squared_over_time_flux = []
+        self.result_time = 0
 
         self.reduced_chi_squared_over_time = []
         self.reduced_chi_squared_over_time_flux = []
         self.reduced_chi_squared_over_time_rv = []
         self.reduced_chi_squared_over_time_tt = []
+
         self.trace_plot_ok = True
         self.corner_plot_ok = True
         self.autocorrelation_function_plot_ok = True
         self.acceptance_plot_ok = True
+        self.iterations_from_backend = 0
 
         if p.backend:
             self.backend = emcee.backends.HDFBackend(p.backend)
             if p.load_backend:
+                self.iterations_from_backend = self.backend.iteration
                 print(f"Loading backend from {p.backend}. Contains {self.backend.iteration} iterations.")
                 steps_done = self.backend.iteration - p.burn_in
                 self.loaded_steps = steps_done
@@ -163,6 +165,7 @@ class CurveSimMCMC:
             steps_done += p.chunk_size
             commands = CurveSimMCMC.read_result_control()
             self.mcmc_results(p, bodies, o, steps_done, commands)
+            self.result_time += self.mcmc_results.tictoc  # reads tictoc from underlying decorator of mcmc_results
 
     def __repr__(self):
         return f"CurveSimMCMC object"
@@ -800,15 +803,23 @@ class CurveSimMCMC:
         mcmc_results["MCMC Performance"]["start_realtime"] = self.start_real_time + " [DD.MM.YY hh:mm:ss]"
         mcmc_results["MCMC Performance"]["end_realtime"] = time.strftime("%d.%m.%y %H:%M:%S") + " [DD.MM.YY hh:mm:ss]"
         runtime = time.perf_counter() - self.start_timestamp
-        mcmc_results["MCMC Performance"]["run_time"] = CurveSimMCMC.seconds2readable(runtime)
-        mcmc_results["MCMC Performance"]["run_time_per_iteration"] = f"{runtime / (p.burn_in + steps_done):.3f} [s]"
-        mcmc_results["MCMC Performance"]["simulations_per_second"] = f"{(p.burn_in + steps_done) * p.walkers / runtime:.0f} [iterations*walkers/runtime]"
-        mcmc_results["MCMC Performance"]["steps_after_burn_in"] = int(steps_done)
+        fitting_time = runtime - self.result_time
+        mcmc_results["MCMC Performance"]["run_time_this_run"] = CurveSimMCMC.seconds2readable(runtime)
+        mcmc_results["MCMC Performance"]["fitting_time_this_run"] = CurveSimMCMC.seconds2readable(fitting_time)
+        mcmc_results["MCMC Performance"]["result_generation_time_this_run"] = CurveSimMCMC.seconds2readable(self.result_time)  # does not include the result generation time after the last chunk
+        # steps_done = self.backend.iteration - p.burn_in
+        mcmc_results["MCMC Performance"]["total_steps"] = int(steps_done) + p.burn_in
+        mcmc_results["MCMC Performance"]["total_steps_after_burn_in"] = int(steps_done)
+        steps_this_run = steps_done - self.iterations_from_backend + p.burn_in
+        mcmc_results["MCMC Performance"]["steps_this_run"] = steps_this_run
+        mcmc_results["MCMC Performance"]["fitting_time_per_step_this_run"] = f"{fitting_time / steps_this_run:.3f} [s]"
+        mcmc_results["MCMC Performance"]["steps_this_run_per_second"] = f"{steps_this_run / fitting_time:.0f} [steps/s]"
+        mcmc_results["MCMC Performance"]["simulations_this_run_per_second"] = f"{steps_this_run * p.walkers / fitting_time:.0f} [steps*walkers/s]"
 
         if p.tt_file:
-            mcmc_results["MCMC Performance"]["tt_mean_delta"] = float(np.mean(np.abs(measured_tt["delta"])))
-            mcmc_results["MCMC Performance"]["tt_max_delta"] = float(np.max(np.abs(measured_tt["delta"])))
-            mcmc_results["MCMC Performance"]["tt_param_json"] = bodies.bodies2param_json(measured_tt, p)
+            mcmc_results["MCMC Performance"]["tt_mean_residual"] = float(np.mean(np.abs(measured_tt["delta"])))
+            mcmc_results["MCMC Performance"]["tt_max_residual"] = float(np.max(np.abs(measured_tt["delta"])))
+            mcmc_results["MCMC Performance"]["tt_maxL_parameters"] = bodies.bodies2param_json(measured_tt, p)
             mcmc_results["measured_tt_list"] = measured_tt.to_dict(orient="list")  # Convert measured_tt DataFrame to a serializable format
 
         # Fitting Parameters Section
@@ -843,7 +854,7 @@ class CurveSimMCMC:
     @stopwatch()
     def mcmc_results(self, p, bodies, o, steps_done, commands):
         # print(f"{commands=}")
-        print(f"{steps_done} steps done.  ")
+        print(f"{datetime.now().astimezone().strftime("%H:%M:%S UTC%z")}: {steps_done} steps done.  ")
         flat_thin_samples = self.make_flat_thin_samples(p)  # includes derived params
         self.acceptance_fractions.append(self.sampler.acceptance_fraction)
         if "acceptance" in commands or "all" in commands:
