@@ -56,6 +56,14 @@ class CurveSimParameters:
         section = "Results"
         self.results_directory = self.read_param(config, section, "results_directory", ".", evaluate=False, forced_type=str, lower=None, upper=None)
         self.results_directory = self.find_results_subdirectory()
+
+
+        # After these 3 lines, every print() goes to the console and to console.txt
+        log_file = open(self.results_directory + "console.txt", "w", encoding="utf-8")  # use "a" to append instead
+        sys.stdout = Tee(sys.__stdout__, log_file)
+        sys.stderr = Tee(sys.__stderr__, log_file)  # also captures tracebacks
+
+
         self.result_file = "results_single_run.json"
         self.result_file = CurveSimParameters.check_filename_and_add_path(self.result_file, "result_file", self.results_directory)
 
@@ -706,3 +714,22 @@ class FittingParameter:
             if self.lower <= sample <= self.upper:
                 result.append(sample)
         return np.array(result)
+
+class Tee:
+    """Write everything to the original stream and to a log file."""
+
+    def __init__(self, stream, file):
+        self.stream = stream
+        self.file = file
+
+    def write(self, data):
+        self.stream.write(data)
+        self.file.write(data)
+        self.file.flush()  # keep the file current even if the program crashes
+
+    def flush(self):
+        self.stream.flush()
+        self.file.flush()
+
+    def __getattr__(self, name):  # avoids run time errors when libraries try to access attributes or methods of sys.stdout that have not been defined here
+        return getattr(self.stream, name)

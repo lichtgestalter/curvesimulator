@@ -92,10 +92,10 @@ class TotalObservations(ObservationType):
         self.flux = FluxObservations(p)
         self.rv = RVObservations(p)
         self.tt = TTObservations(p)
+        # self.rvflux = RVFluxObservations(self)
         self.update(p)
         if p.verbose:
             print(self)
-        # self.rvflux = RVFluxObservations(self)
 
     def __repr__(self):
         return f"CurveSimObservations: flux {self.flux.observation_count}, rv {self.rv.observation_count}, tt {self.tt.observation_count}, sim {self.sim.observation_count}"
@@ -306,20 +306,18 @@ class TTObservations(ObservationType):
         self.calc_log_maxlikelihood()                       # from chi_squared and log_norm_term
 
 
-class RVFluxObservations(ObservationType):
-    def __init__(self, o):
-        super().__init__()
-        if o.rv.observation_count > 0 and o.flux.observation_count > 0 :
-            self.time_d = np.sort(np.concatenate([o.flux.time_d, o.rv.time_d]))  # chronologically ordered array with all flux and rv observation times
-            self.time_s0 = np.sort(np.concatenate([o.flux.time_s0, o.rv.time_s0]))
-            if len(self.time_s0) == 0:
-                self.time_d = o.sim.time_d
-                self.time_s0 = o.sim.time_s0
-            self.observation_count = len(self.time_s0)
-            self.rv_observation_count = len(o.rv.time_s0)
-            self.flux_observation_count = len(o.flux.time_s0)
-
-    def __repr__(self):
-        return f"RVFluxObservations: {self.observation_count} observations ({self.rv_observation_count} rv and {self.flux_observation_count} flux"
-
-
+# class RVFluxObservations(ObservationType):
+#     def __init__(self, o):
+#         super().__init__()
+#         if o.rv.observation_count > 0 and o.flux.observation_count > 0 :
+#             self.time_d = np.sort(np.concatenate([o.flux.time_d, o.rv.time_d]))  # chronologically ordered array with all flux and rv observation times
+#             self.time_s0 = np.sort(np.concatenate([o.flux.time_s0, o.rv.time_s0]))
+#             if len(self.time_s0) == 0:
+#                 self.time_d = o.sim.time_d
+#                 self.time_s0 = o.sim.time_s0
+#             self.observation_count = len(self.time_s0)
+#             self.rv_observation_count = len(o.rv.time_s0)
+#             self.flux_observation_count = len(o.flux.time_s0)
+#
+#     def __repr__(self):
+#         return f"RVFluxObservations: {self.observation_count} observations ({self.rv_observation_count} rv and {self.flux_observation_count} flux"

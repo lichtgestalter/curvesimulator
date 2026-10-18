@@ -1,8 +1,9 @@
-single_run                       # Plot observed vs. computed, chi squared, and residuals for all observations and save results_single_run.json.
 chi_squared                      # Plot the development of reduced chi squared during fitting: reduced_chi^2_over_time.png
+single_run                       # Plot observed vs. computed, chi squared, and residuals for all observations and save results_single_run.json.
 
 # All lines after the first line that starts with # are ignored.
 
+all                              # Generates all results!
 integrated_autocorrelation_time  # Plot the integrated autocorrelation time per fitting parameter: int_autocorr_time.png and steps_per_i_ac_time.png.
 mcmc_results                     # Save results_mcmc.json.
 save_bodies                      # Save the maximum-likelihood parameters of each body as a separate file with the extension .bdy.

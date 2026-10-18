@@ -155,11 +155,11 @@ class CurveSimMCMC:
     def mcmc_fit(self, p, bodies, o, steps_done, pool=None):
         self.sampler = emcee.EnsembleSampler(p.walkers, p.fparams_count, CurveSimMCMC.log_probability, pool=pool, moves=self.moves, args=self.args, backend=self.backend)
         if not p.load_backend:
-            self.theta = self.sampler.run_mcmc(self.theta0, p.burn_in, progress=True)
+            self.theta = self.sampler.run_mcmc(self.theta0, p.burn_in, progress=True, progress_kwargs={"file": sys.__stderr__})  # progress_kwargs bypasses Tee, so not logged
         else:
             self.theta = self.backend.get_last_sample()  # resume from the last walker positions stored in the backend
         for chunk in range(1, p.steps // p.chunk_size + 1):
-            self.theta = self.sampler.run_mcmc(self.theta, p.chunk_size, progress=True)
+            self.theta = self.sampler.run_mcmc(self.theta, p.chunk_size, progress=True, progress_kwargs={"file": sys.__stderr__})
             steps_done += p.chunk_size
             commands = CurveSimMCMC.read_result_control()
             self.mcmc_results(p, bodies, o, steps_done, commands)
@@ -842,7 +842,7 @@ class CurveSimMCMC:
 
     @stopwatch()
     def mcmc_results(self, p, bodies, o, steps_done, commands):
-        print(f"{commands=}")
+        # print(f"{commands=}")
         print(f"{steps_done} steps done.  ")
         flat_thin_samples = self.make_flat_thin_samples(p)  # includes derived params
         self.acceptance_fractions.append(self.sampler.acceptance_fraction)
@@ -851,6 +851,7 @@ class CurveSimMCMC:
         self.scale_samples(flat_thin_samples, p)
         self.max_likelihood_parameters(flat_thin_samples, p)
         logprob, chi_squared, log_norm_term = CurveSimMCMC.log_probability(self.max_likelihood_params, bodies, o, p)
+        o.update(p)
         reduced_chi_squared = chi_squared / (o.observation_count - p.free_parameters)
         print(f"Current best fit: log probability: {logprob:.3f},  reduced chi squared: {reduced_chi_squared:.3f},  log_norm_term:{log_norm_term:.3f}")
 
@@ -890,7 +891,6 @@ class CurveSimMCMC:
             flat_thin_samples = self.sampler.get_chain(discard=p.burn_in, thin=self.thin_samples_plot, flat=True)
             self.scale_samples(flat_thin_samples, p)
             self.mcmc_corner_plot(steps_done, "corner.png", p)
-
 
 class CurveSimLMfit:
 
