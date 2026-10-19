@@ -795,6 +795,8 @@ class CurveSimMCMC:
         return commands
 
     def save_mcmc_results(self, p, bodies, steps_done, measured_tt):
+        steps_done = int(steps_done)
+        self.iterations_from_backend = int(self.iterations_from_backend)
         mcmc_results = {}
         mcmc_results["CurveSimulator Documentation"] = "https://github.com/lichtgestalter/curvesimulator/wiki"
 
@@ -808,8 +810,8 @@ class CurveSimMCMC:
         mcmc_results["MCMC Performance"]["fitting_time_this_run"] = CurveSimMCMC.seconds2readable(fitting_time)
         mcmc_results["MCMC Performance"]["result_generation_time_this_run"] = CurveSimMCMC.seconds2readable(self.result_time)  # does not include the result generation time after the last chunk
         # steps_done = self.backend.iteration - p.burn_in
-        mcmc_results["MCMC Performance"]["total_steps"] = int(steps_done) + p.burn_in
-        mcmc_results["MCMC Performance"]["total_steps_after_burn_in"] = int(steps_done)
+        mcmc_results["MCMC Performance"]["total_steps"] = steps_done + p.burn_in
+        mcmc_results["MCMC Performance"]["total_steps_after_burn_in"] = steps_done
         steps_this_run = steps_done - self.iterations_from_backend + p.burn_in
         mcmc_results["MCMC Performance"]["steps_this_run"] = steps_this_run
         mcmc_results["MCMC Performance"]["fitting_time_per_step_this_run"] = f"{fitting_time / steps_this_run:.3f} [s]"
