@@ -91,10 +91,41 @@ class CurveSimParameters:
         self.transit_precision = self.read_param(config, section, "transit_precision", "1", evaluate=True, forced_type=float, lower=0, upper=None)
         self.flux_data_directory = self.read_param(config, section, "flux_data_directory", ".", evaluate=False, forced_type=str, lower=None, upper=None)
         self.max_interval_extensions = self.read_param(config, section, "max_interval_extensions", "10", evaluate=True, forced_type=int, lower=0, upper=None)
+
+        # Astronomical Constants
+        # g = 6.67430e-11                         # [m^3 / (kg * s^2)] Gravitational constant
+        au = 1.495978707e11                     # [m]   Astronomical unit
+        # l_sun = 3.828e26                        # [W]   Solar luminosity
+        r_sun = 6.957e8                         # [m]   Solar radius R⊙
+        m_sun = 1.98847e30                      # [kg]  Solar mass M⊙
+        r_jup = 7.1492e7                        # [m]   Jupiter radius
+        m_jup = 1.8981246e27                    # [kg]  Jupiter mass
+        r_nep = 2.4622e7                        # [m]   Neptune radius
+        m_nep = 1.024092e26                     # [kg]  Neptune mass
+        r_earth = 6.378135e6                    # [m]   Earth radius R⊕
+        m_earth = 5.9720e24                     # [kg]  Earth mass M⊕
+        hour = 60 * 60                          # [s]   One hour in seconds
+        day = 60 * 60 * 24                      # [s]   One day in seconds
+        year = 60 * 60 * 24 * 365.25            # [s] Julian year
+        rad2deg = 57.29577951308232             # Conversion factor: radians to degrees (180 / π)
+
+        # ACCEPTED_UNITS = {"mass": ("kg", "m_sun", "m_jup", "m_nep", "m_earth"), "radius": ("m", "r_sun", "r_jup", "r_nep", "r_earth"), "P": ("s", "h", "d", "y"), "a": ("m", "AU",), "T": ("s", "h", "d", "y")}
+        SCALE_FROM_UNIT = {"kg": 1, "m_sun": 1/m_sun, "m_jup": 1/m_jup, "m_nep": 1/m_nep, "m_earth": 1/m_earth,
+                           "m": 1, "r_sun": 1/r_sun, "r_jup": 1/r_jup, "r_nep": 1/r_nep, "r_earth": 1/r_earth, "AU": 1/au,
+                           "s": 1, "h": 1/hour, "d": 1/day, "y": 1/year,
+                           "1": 1, "deg": rad2deg, "m/s": 1}
         default_unit = '{"mass": "m_jup", "radius": "r_jup", "e": "1", "i": "deg", "P": "d", "a": "AU", "Omega": "deg", "omega": "deg", "pomega": "deg", "L": "deg", "ma": "deg", "ea": "deg", "nu": "deg", "T": "s", "rv_offset": "m/s", "rv_jitter": "m/s", "u": "1", "v": "1"}'
         self.unit = self.read_param(config, section, "unit", default_unit, evaluate=True, forced_type=dict, lower=None, upper=None)
-        default_scale = '{"mass": 1/m_jup, "radius": 1/r_jup, "e": 1, "i": rad2deg, "P": 1/day, "a": 1/au, "Omega": rad2deg, "omega": rad2deg, "pomega": rad2deg, "L": rad2deg, "ma": rad2deg, "ea": rad2deg, "nu": rad2deg, "T": 1, "rv_offset": 1, "rv_jitter": 1, "u": 1, "v": 1}'
-        self.scale = self.read_param(config, section, "scale", default_scale, evaluate=True, forced_type=dict, lower=None, upper=None)
+        self.scale = {param: SCALE_FROM_UNIT[unit] for param, unit in self.unit.items()}
+
+        # new_scale_dic = {}
+        # for param, unit in self.unit.items():
+        #     print(f"{param=}, {unit=}")
+        #     new_scale_dic[param] = SCALE_FROM_UNIT[unit]
+
+        # default_scale = '{"mass": 1/m_jup, "radius": 1/r_jup, "e": 1, "i": rad2deg, "P": 1/day, "a": 1/au, "Omega": rad2deg, "omega": rad2deg, "pomega": rad2deg, "L": rad2deg, "ma": rad2deg, "ea": rad2deg, "nu": rad2deg, "T": 1, "rv_offset": 1, "rv_jitter": 1, "u": 1, "v": 1}'
+        # self.scale = self.read_param(config, section, "scale", default_scale, evaluate=True, forced_type=dict, lower=None, upper=None)
+
         self.tt_padding = self.read_param(config, section, "tt_padding", "0.3", evaluate=True, forced_type=float, lower=0, upper=None)
         self.bins = tuple([eval(x) for x in config.get(section, "bins", fallback="60").split("#")[0].split(",")])
         self.flux_plots_top = self.read_param(config, section, "flux_plots_top", "1.015", evaluate=True, forced_type=float, lower=0, upper=None)
