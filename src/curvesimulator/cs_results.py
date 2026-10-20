@@ -35,9 +35,9 @@ class CurveSimResults(dict):
                 if key not in exclude:
                     self["Bodies"][body.name]["BodyParameters"][key] = getattr(body, key)
 
-            for param, unit in p.unit.items():
+            for param, unit in body.unit.items():
                 value = getattr(body, param, None)
-                scale = p.scale[param]
+                scale = body.scale[param]
                 if value is not None and scale != 1:
                     self["Bodies"][body.name]["BodyParameters"][f"{param}_{unit}"] = value * scale
 

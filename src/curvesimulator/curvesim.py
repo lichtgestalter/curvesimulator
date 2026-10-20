@@ -80,6 +80,7 @@ class CurveSimulator:
         mandatory_params = p.find_mandatory_params()
         p.check_for_missing_params(mandatory_params)
         bodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
+        p.update_fitting_params_units(bodies)
         o = TotalObservations(p)
         if p.free_parameters is not None and p.free_parameters >= o.observation_count:
             print(f"{Fore.YELLOW}\nWARNING: There are {p.free_parameters} free parameters but only {o.observation_count} observations.{Style.RESET_ALL}")

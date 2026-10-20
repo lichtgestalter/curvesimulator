@@ -20,12 +20,6 @@ class CurveSimParameters:
 
     def __init__(self, config_file):
         """Read program params and properties of the physical bodies from config file."""
-        self.body_param_names = None
-        self.body_param_unit_names = None
-        self.PARAMS = (["body_type", "primary", "mass", "radius", "luminosity", "rv_offset", "rv_jitter"]
-                       + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
-                       + ["e", "i", "P", "a", "Omega", "omega", "pomega"]
-                       + ["L", "ma", "ea", "nu", "T"])
         self.standard_sections = ["Astronomical Constants", "Results", "Simulation", "Fitting", "Video", "VideoPlot", "VideoScale", "Debug"]  # These sections must be present in the config file.
         config = configparser.ConfigParser(inline_comment_prefixes="#")  # Inline comments in the config file start with "#".
         config.optionxform = str  # Preserve case of the keys.
@@ -54,10 +48,24 @@ class CurveSimParameters:
         self.r_jup, self.m_jup, self.r_nep, self.m_nep, self.r_earth, self.m_earth = r_jup, m_jup, r_nep, m_nep, r_earth, m_earth
         self.hour, self.day, self.year, self.rad2deg = hour, day, year, rad2deg
 
+        self.PARAMS = (["body_type", "primary", "mass", "radius", "luminosity", "rv_offset", "rv_jitter"]
+                       + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
+                       + ["e", "i", "P", "a", "Omega", "omega", "pomega"]
+                       + ["L", "ma", "ea", "nu", "T"])
+        self.ACCEPTED_PARAMS4UNITS = ["mass", "radius", "e", "i", "P", "a", "Omega", "omega", "pomega", "L", "ma", "ea", "nu", "T", "rv_offset", "rv_jitter", "u", "v"]
+        self.ACCEPTED_UNITS = ["kg", "m_sun", "m_jup", "m_nep", "m_earth", "m", "r_sun", "r_jup", "r_nep", "r_earth", "s", "h", "d", "y", "AU", "1", "deg", "m/s"]
+        self.SCALE_FROM_UNIT = {"kg": 1, "m_sun": 1 / m_sun, "m_jup": 1 / m_jup, "m_nep": 1 / m_nep, "m_earth": 1 / m_earth,
+                                "m": 1, "r_sun": 1 / r_sun, "r_jup": 1 / r_jup, "r_nep": 1 / r_nep, "r_earth": 1 / r_earth, "AU": 1 / au,
+                                "s": 1, "h": 1 / hour, "d": 1 / day, "y": 1 / year,
+                                "1": 1, "deg": rad2deg, "m/s": 1}
+        self.DEFAULT_UNIT = '{"mass": "m_jup", "radius": "r_jup", "e": "1", "i": "deg", "P": "d", "a": "AU", "Omega": "deg", "omega": "deg", "pomega": "deg", "L": "deg", "ma": "deg", "ea": "deg", "nu": "deg", "T": "s", "rv_offset": "m/s", "rv_jitter": "m/s", "u": "1", "v": "1"}'
+
+        self.body_param_names = None
+        self.body_param_unit_names = None
+
         section = "Results"
         self.results_directory = self.read_param(config, section, "results_directory", ".", evaluate=False, forced_type=str, lower=None, upper=None)
         self.results_directory = self.find_results_subdirectory()
-
 
         # After these 3 lines, every print() goes to the console and to console.txt
         log_file = open(self.results_directory + "console.txt", "w", encoding="utf-8")  # use "a" to append instead
@@ -92,39 +100,9 @@ class CurveSimParameters:
         self.flux_data_directory = self.read_param(config, section, "flux_data_directory", ".", evaluate=False, forced_type=str, lower=None, upper=None)
         self.max_interval_extensions = self.read_param(config, section, "max_interval_extensions", "10", evaluate=True, forced_type=int, lower=0, upper=None)
 
-        # Astronomical Constants
-        # g = 6.67430e-11                         # [m^3 / (kg * s^2)] Gravitational constant
-        au = 1.495978707e11                     # [m]   Astronomical unit
-        # l_sun = 3.828e26                        # [W]   Solar luminosity
-        r_sun = 6.957e8                         # [m]   Solar radius R⊙
-        m_sun = 1.98847e30                      # [kg]  Solar mass M⊙
-        r_jup = 7.1492e7                        # [m]   Jupiter radius
-        m_jup = 1.8981246e27                    # [kg]  Jupiter mass
-        r_nep = 2.4622e7                        # [m]   Neptune radius
-        m_nep = 1.024092e26                     # [kg]  Neptune mass
-        r_earth = 6.378135e6                    # [m]   Earth radius R⊕
-        m_earth = 5.9720e24                     # [kg]  Earth mass M⊕
-        hour = 60 * 60                          # [s]   One hour in seconds
-        day = 60 * 60 * 24                      # [s]   One day in seconds
-        year = 60 * 60 * 24 * 365.25            # [s] Julian year
-        rad2deg = 57.29577951308232             # Conversion factor: radians to degrees (180 / π)
-
-        # ACCEPTED_UNITS = {"mass": ("kg", "m_sun", "m_jup", "m_nep", "m_earth"), "radius": ("m", "r_sun", "r_jup", "r_nep", "r_earth"), "P": ("s", "h", "d", "y"), "a": ("m", "AU",), "T": ("s", "h", "d", "y")}
-        SCALE_FROM_UNIT = {"kg": 1, "m_sun": 1/m_sun, "m_jup": 1/m_jup, "m_nep": 1/m_nep, "m_earth": 1/m_earth,
-                           "m": 1, "r_sun": 1/r_sun, "r_jup": 1/r_jup, "r_nep": 1/r_nep, "r_earth": 1/r_earth, "AU": 1/au,
-                           "s": 1, "h": 1/hour, "d": 1/day, "y": 1/year,
-                           "1": 1, "deg": rad2deg, "m/s": 1}
-        default_unit = '{"mass": "m_jup", "radius": "r_jup", "e": "1", "i": "deg", "P": "d", "a": "AU", "Omega": "deg", "omega": "deg", "pomega": "deg", "L": "deg", "ma": "deg", "ea": "deg", "nu": "deg", "T": "s", "rv_offset": "m/s", "rv_jitter": "m/s", "u": "1", "v": "1"}'
-        self.unit = self.read_param(config, section, "unit", default_unit, evaluate=True, forced_type=dict, lower=None, upper=None)
-        self.scale = {param: SCALE_FROM_UNIT[unit] for param, unit in self.unit.items()}
-
-        # new_scale_dic = {}
-        # for param, unit in self.unit.items():
-        #     print(f"{param=}, {unit=}")
-        #     new_scale_dic[param] = SCALE_FROM_UNIT[unit]
-
-        # default_scale = '{"mass": 1/m_jup, "radius": 1/r_jup, "e": 1, "i": rad2deg, "P": 1/day, "a": 1/au, "Omega": rad2deg, "omega": rad2deg, "pomega": rad2deg, "L": rad2deg, "ma": rad2deg, "ea": rad2deg, "nu": rad2deg, "T": 1, "rv_offset": 1, "rv_jitter": 1, "u": 1, "v": 1}'
-        # self.scale = self.read_param(config, section, "scale", default_scale, evaluate=True, forced_type=dict, lower=None, upper=None)
+        self.unit = self.read_param(config, section, "unit", self.DEFAULT_UNIT, evaluate=True, forced_type=dict, lower=None, upper=None)
+        self.check_unit(self.unit, section)
+        self.scale = {param: self.SCALE_FROM_UNIT[unit] for param, unit in self.unit.items()}
 
         self.tt_padding = self.read_param(config, section, "tt_padding", "0.3", evaluate=True, forced_type=float, lower=0, upper=None)
         self.bins = tuple([eval(x) for x in config.get(section, "bins", fallback="60").split("#")[0].split(",")])
@@ -311,6 +289,17 @@ class CurveSimParameters:
             value = getattr(self, attribute)
             if value is None:
                 print(f"{Fore.RED}\nERROR: Parameter {attribute} has to be specified in {self.config_file}.{Style.RESET_ALL}")
+                sys.exit(1)
+
+    def check_unit(self, unit, section):
+        for param, unit in unit.items():
+            if param not in self.ACCEPTED_PARAMS4UNITS:
+                print(f"{Fore.RED}ERROR: {param} in parameter unit of section {section} in the configuartion file is not an accepted parameter.")
+                print(f"{Fore.RED}Accepted parameters are {self.ACCEPTED_PARAMS4UNITS}{Style.RESET_ALL}")
+                sys.exit(1)
+            if unit not in self.ACCEPTED_UNITS:
+                print(f"{Fore.RED}ERROR: {unit} in parameter unit of section {section} in the configuartion file is not an accepted unit.")
+                print(f"{Fore.RED}Accepted units are {self.ACCEPTED_UNITS}{Style.RESET_ALL}")
                 sys.exit(1)
 
     @staticmethod
@@ -704,7 +693,16 @@ class CurveSimParameters:
             fp.body_param_unit_name = f"{fp.body_name}.{fp.param_unit_name}"
             self.body_param_names.append(fp.body_param_name)
             self.body_param_unit_names.append(fp.body_param_unit_name)
+            # self.param_reference = (fp.body_index, fp.param_name)
+        # self.param_references = [fp.param_reference for fp in self.fitting_params]  # list of names of fitting params. Needed so these params can be updated inside log_likelihood().
         self.param_references = [(fp.body_index, fp.param_name) for fp in self.fitting_params]  # list of names of fitting params. Needed so these params can be updated inside log_likelihood().
+
+    def update_fitting_params_units(self, bodies):
+        for fp in self.fitting_params:
+            if fp.body_index < len(bodies) and fp.param_name in bodies[fp.body_index].unit:
+                fp.unit = bodies[fp.body_index].unit[fp.param_name]
+                fp.param_unit_name = f"{fp.param_name}[{fp.unit}]"
+                fp.scale = bodies[fp.body_index].scale[fp.param_name]
 
     def random_initial_values(self):
         """return randomized initial values of the fitting params"""
@@ -746,6 +744,7 @@ class FittingParameter:
             if self.lower <= sample <= self.upper:
                 result.append(sample)
         return np.array(result)
+
 
 class Tee:
     """Write everything to the original stream and to a log file."""

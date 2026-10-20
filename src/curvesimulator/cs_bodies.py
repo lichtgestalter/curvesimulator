@@ -76,6 +76,7 @@ class CurveSimBodies(list):
                         "ea": p.read_body_param(config, section, "ea", fallback=None),
                         "nu": p.read_body_param(config, section, "nu", fallback=None),
                         "T": p.read_body_param(config, section, "T", fallback=None),
+                        "unit": p.read_param(config, section, "unit", "{}", evaluate=True, forced_type=dict, lower=None, upper=None),
                     }
                     body = CurveSimBody(**kwargs)
                 else:
