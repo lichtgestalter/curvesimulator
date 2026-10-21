@@ -85,6 +85,7 @@ class CurveSimParameters:
         self.epoch = self.read_param(config, section, "epoch", "0.0", evaluate=True, forced_type=float, lower=None, upper=None)
         self.sim_start = self.read_param(config, section, "sim_start", "None", evaluate=True, forced_type=float, lower=None, upper=None)
         self.sim_end = self.read_param(config, section, "sim_end", "None", evaluate=True, forced_type=float, lower=self.sim_start, upper=None)
+        self.epoch_index = 0
         self.sim_flux_file = self.read_param(config, section, "sim_flux_file", None, evaluate=False, forced_type=str, lower=None, upper=None)
         self.sim_flux_file = CurveSimParameters.check_filename_and_add_path(self.sim_flux_file, "sim_flux_file", self.results_directory)
         self.computed_flux_file = self.read_param(config, section, "computed_flux_file", None, evaluate=False, forced_type=str, lower=None, upper=None)
@@ -334,22 +335,22 @@ class CurveSimParameters:
         print(f"{Fore.RED}\nERROR in config file: {name} has an invalid color. It is neither a string or a tuple/list")
         error()
 
-    def check_sim_interval(self):
-        """Checks if params sim_start and sim_end are well defined.
-           Calculates the indices for flux_time_s0, flux_time_d and sim_flux where the intervals start and end.
-           Calculates the total number of iterations for which body positions and flux will be simulated and stored.
-           Creates alternative params starts_s0, ends_s0 in seconds instead of days and starting with 0 at epoch.
-         """
-        if self.sim_start is None or self.sim_end is None:
-            print(f"{Fore.RED}\nERROR in configuration file: At least one of the params sim_start and sim_end is missing.{Style.RESET_ALL}")
-            sys.exit(1)
-        if self.sim_start > self.sim_end:
-            print(f"{Fore.RED}\nERROR in configuration file: sim_start > sim_end.{Style.RESET_ALL}")
-            sys.exit(1)
-        self.sim_start_s0 = (self.sim_start - self.epoch) * self.day  # convert BJD to seconds and start at zero
-        self.sim_end_s0 = (self.sim_end - self.epoch) * self.day  # convert BJD to seconds and start at zero
-        sim_iterations = int((self.sim_end_s0 - self.sim_start_s0) / self.dt) + 1  # number of iterations
-        return sim_iterations
+    # def check_sim_interval(self):
+    #     """Checks if params sim_start and sim_end are well defined.
+    #        Calculates the indices for flux_time_s0, flux_time_d and sim_flux where the intervals start and end.
+    #        Calculates the total number of iterations for which body positions and flux will be simulated and stored.
+    #        Creates alternative params starts_s0, ends_s0 in seconds instead of days and starting with 0 at epoch.
+    #      """
+    #     if self.sim_start is None or self.sim_end is None:
+    #         print(f"{Fore.RED}\nERROR in configuration file: At least one of the params sim_start and sim_end is missing.{Style.RESET_ALL}")
+    #         sys.exit(1)
+    #     if self.sim_start > self.sim_end:
+    #         print(f"{Fore.RED}\nERROR in configuration file: sim_start > sim_end.{Style.RESET_ALL}")
+    #         sys.exit(1)
+    #     self.sim_start_s0 = (self.sim_start - self.epoch) * self.day  # convert BJD to seconds and start at zero
+    #     self.sim_end_s0 = (self.sim_end - self.epoch) * self.day  # convert BJD to seconds and start at zero
+    #     sim_iterations = int((self.sim_end_s0 - self.sim_start_s0) / self.dt) + 1  # number of iterations
+    #     return sim_iterations
 
     @staticmethod
     def find_and_check_config_file(config_file):

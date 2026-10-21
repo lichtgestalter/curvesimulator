@@ -136,7 +136,8 @@ class CurveSimAnimation:
         # build tick positions in relative days and corresponding absolute-time labels (BJD)
         n_ticks = max(1, int(round(float(x[-1]) / x_listtickdelta)))
         xvalues = [i * x_listtickdelta for i in range(n_ticks + 1)]
-        xlabels = [f"{round(val + p.epoch + o.sim.sim_start_s0 / p.day, 4):.{digits}f}" for val in xvalues]
+        xlabels = [f"{round(val + p.sim_start, 4):.{digits}f}" for val in xvalues]
+        # xlabels = [f"{round(val + p.epoch + o.sim.sim_start_s0 / p.day, 4):.{digits}f}" for val in xvalues]  # old version, but using sim_start iso epoch is better
         ax_curve.set_xticks(xvalues, labels=xlabels, color=p.video_text_color, fontsize=p.x_ticks_fontsize)
         ax_curve.set_xlim(float(x[0]), float(x[-1]))
 

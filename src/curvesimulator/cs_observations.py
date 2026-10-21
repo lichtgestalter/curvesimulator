@@ -6,13 +6,15 @@ import sys
 
 class Simulation:
     def __init__(self, p):
-        self.sim_start_s0 = (p.sim_start - p.epoch) * p.day  # convert BJD to seconds and start at zero
+        self.sim_start_s0 = (p.sim_start - p.epoch) * p.day  # sim_start converted from BJD to seconds and relative to epoch
         self.sim_end_s0 = (p.sim_end - p.epoch) * p.day
         self.iterations = int((self.sim_end_s0 - self.sim_start_s0) / p.dt) + 1  # number of iterations
 
         self.time_s0 = np.empty(self.iterations)
         for i in range(self.iterations):
             self.time_s0[i] = self.sim_start_s0 + i * p.dt
+        self.epoch_index = int(np.argmin(np.abs(self.time_s0)))  # Find epoch_index, the list index for which self.time_s0[] is closest to zero.
+        p.epoch_index = self.epoch_index
         self.time_d = self.time_s0 / p.day + p.epoch
         self.simflux = np.empty(self.iterations)
         self.simrv = np.empty(self.iterations)
@@ -163,7 +165,7 @@ class RVObservations(ObservationType):
             df = pd.read_csv(p.rv_file)
             self.corrected, self.total_error, self.log_norm_term = None, None, None
             TotalObservations.check_required_columns({"time", "rv", "rv_err"}, df, p.rv_file)
-            df = df[(df["time"] >= p.epoch) & (df["time"] <= p.sim_end)].copy()
+            df = df[(df["time"] >= p.sim_start) & (df["time"] <= p.sim_end)].copy()
             self.observation_count = len(df["time"])
             self.time_d = df["time"].to_numpy(dtype=float)
             self.time_s0 = (self.time_d - p.epoch) * p.day
@@ -217,7 +219,7 @@ class FluxObservations(ObservationType):
             # self.corrected, self.total_error, self.log_norm_term = None, None, None
 
             TotalObservations.check_required_columns({"time", "flux", "flux_err"}, df, p.flux_file)
-            df = df[(df["time"] >= p.epoch) & (df["time"] <= p.sim_end)].copy()
+            df = df[(df["time"] >= p.sim_start) & (df["time"] <= p.sim_end)].copy()
 
             if p.sector_params_file:  # params offset and jitter for each observed sector exist
                 TotalObservations.check_required_columns({"sector"}, df, p.flux_file)
@@ -277,7 +279,7 @@ class TTObservations(ObservationType):
         if p.tt_file:
             df = pd.read_csv(p.tt_file)
             TotalObservations.check_required_columns({"eclipser", "tt", "tt_err", "nr"}, df, p.tt_file)
-            self.measured_tt = df[(df["tt"] >= p.epoch) & (df["tt"] <= p.sim_end)].copy()
+            self.measured_tt = df[(df["tt"] >= p.sim_start) & (df["tt"] <= p.sim_end)].copy()
             self.observation_count = len(df["tt"])
         else:
             self.measured_tt = None

@@ -52,10 +52,10 @@ class CurveSimResults(dict):
                 string += f"{body:15} {len(self["Bodies"][body]["Transits"]):3} transits\n"
         return "CurveSimResults:\n" + string[:-1]
 
-    @staticmethod
-    def iteration2time(iteration, p):
-        """Calculate the date of an iteration in BJD"""
-        return p.epoch + iteration * p.dt / p.day
+    # @staticmethod
+    # def iteration2time(iteration, p):
+    #     """Calculate the date of an iteration in BJD"""
+    #     return p.epoch + iteration * p.dt / p.day
 
     def remove_null_values(self):
         """Crawls through self's hierarchy of dictionaries and lists and removes
@@ -89,23 +89,23 @@ class CurveSimResults(dict):
         if p.verbose:
             print(filename, "saved")
 
-    @staticmethod
-    def check_resultfilename(resultfilename):
-        """Check if resultfilename already exists and attach a number if it does."""
-        if not os.path.exists(resultfilename):
-            return resultfilename
-        base, ext = os.path.splitext(resultfilename)
-        match = re.search(r"\.v(\d+)$", base)
-        if match:
-            num = int(match.group(1)) + 1
-            base = base[:match.start()]
-        else:
-            num = 1
-        new_resultfilename = f"{base}.v{num:04}{ext}"
-        while os.path.exists(new_resultfilename):
-            num += 1
-            new_resultfilename = f"{base}.v{num:04}{ext}"
-        return new_resultfilename
+    # @staticmethod
+    # def check_resultfilename(resultfilename):
+    #     """Check if resultfilename already exists and attach a number if it does."""
+    #     if not os.path.exists(resultfilename):
+    #         return resultfilename
+    #     base, ext = os.path.splitext(resultfilename)
+    #     match = re.search(r"\.v(\d+)$", base)
+    #     if match:
+    #         num = int(match.group(1)) + 1
+    #         base = base[:match.start()]
+    #     else:
+    #         num = 1
+    #     new_resultfilename = f"{base}.v{num:04}{ext}"
+    #     while os.path.exists(new_resultfilename):
+    #         num += 1
+    #         new_resultfilename = f"{base}.v{num:04}{ext}"
+    #     return new_resultfilename
 
     def save_results(self, p):
         p_copy = copy.deepcopy(p)
@@ -147,18 +147,18 @@ class CurveSimResults(dict):
         results.update(data)
         return results
 
-    @staticmethod
-    def chi_squared_pvalue(chi_squared, n_measurements, n_params):
-        """
-        Calculate the p-value for a chi-squared test.
-        This is the probability of observing a chi-squared value >= your observed value.
-        chi_square :     The chi-squared test statistic
-        n_measurements : Number of measurements/observations
-        n_params :   Number of free params in the model
-        """
-        degrees_of_freedom = n_measurements - n_params
-        p_value = stats.chi2.sf(chi_squared, degrees_of_freedom)  # survival function = 1 - cumulative distribution function
-        return p_value
+    # @staticmethod
+    # def chi_squared_pvalue(chi_squared, n_measurements, n_params):
+    #     """
+    #     Calculate the p-value for a chi-squared test.
+    #     This is the probability of observing a chi-squared value >= your observed value.
+    #     chi_square :     The chi-squared test statistic
+    #     n_measurements : Number of measurements/observations
+    #     n_params :   Number of free params in the model
+    #     """
+    #     degrees_of_freedom = n_measurements - n_params
+    #     p_value = stats.chi2.sf(chi_squared, degrees_of_freedom)  # survival function = 1 - cumulative distribution function
+    #     return p_value
 
     @staticmethod
     def save_sim_flux_with_observation_timeline(o, p):

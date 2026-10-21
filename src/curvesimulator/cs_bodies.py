@@ -315,7 +315,7 @@ class CurveSimBodies(list):
 
         if p.print_initial_body_states:
             self.print_simulation_particles(p, simulation, message="\n\n######## Simulation particles at epoch: ########")
-            simulation.integrate(time_s0[0])
+            simulation.integrate(time_s0[p.epoch_index])
             self.print_simulation_particles(p, simulation, message="\n\n######## Simulation particles at sim_start: ########")
             print("\nExited after succesful print of initial body params.")
             print("Set param print_initial_body_states = False in order to run the full simulation instead.\n")
