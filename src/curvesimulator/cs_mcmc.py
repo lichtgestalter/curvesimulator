@@ -182,7 +182,7 @@ class CurveSimMCMC:
             _, o.tt.measured_tt = CurveSimMCMC.match_transit_times(p, rebound_sim, o)
             o.tt.update(p)  # store chi squared and p-value and more in results and in o.tt as attributes
             if p.action != "mcmc":
-                CurveSimMCMC.tt_delta_plot(p, 0, "tt_o_vs_c.png", o.tt.measured_tt)  # compare observed vs. computed TT
+                CurveSimMCMC.tt_residual_plot(p, 0, "tt_o_vs_c.png", o.tt.measured_tt)  # compare observed vs. computed TT
         if p.rv_file:
             o.rv.update(p, rebound_sim)  # update with new rv offset and jitter from theta
             results.rv_plots(o, p)
@@ -374,16 +374,16 @@ class CurveSimMCMC:
             derived_columns.extend([e, omega])  # collect every pair, not just the last one
         return np.column_stack([flat_thin_samples] + derived_columns)
 
-    def scale_samples(self, flat_thin_samples, p):
+    def scale_samples(self, flat_thin_samples, bodies, p):
         self.scaled_samples = np.copy(flat_thin_samples)
         self.scales = []
-        for fpn, ss in zip(p.body_param_names, self.scaled_samples.T):
-            param = fpn.split(".")[-1]
-            if "offset_" in param or "jitter_" in param:
+        for fp, ss in zip(p.fitting_params, self.scaled_samples.T):
+            if "offset_" in fp.param_name or "jitter_" in fp.param_name:
                 self.scales.append(1)
             else:
-                ss *= p.scale[param]
-                self.scales.append(p.scale[param])
+                factor = bodies[fp.body_index].scale[fp.param_name]
+                ss *= factor
+                self.scales.append(factor)
 
     # @stopwatch()
     def trace_plots(self, steps_done, plot_filename, p):
@@ -671,7 +671,7 @@ class CurveSimMCMC:
 
     # @stopwatch()
     @staticmethod
-    def tt_delta_plot(p, steps_done, plot_filename, measured_tt):
+    def tt_residual_plot(p, steps_done, plot_filename, measured_tt):
         plot_filename = p.results_directory + plot_filename
         unique_eclipsers = measured_tt["eclipser"].unique()
         n_eclipsers = len(unique_eclipsers)
@@ -697,18 +697,18 @@ class CurveSimMCMC:
             ax.ticklabel_format(useOffset=False, style="plain", axis="x")
         axes[-1].set_xlabel("Transit Time [BJD]")
         if steps_done > 0:
-            fig.suptitle(f"TT Delta. {steps_done} steps after burn-in.", fontsize=14)
+            fig.suptitle(f"TT residuals: {steps_done} steps after burn-in.", fontsize=14)
         else:
-            fig.suptitle(f"TT Delta", fontsize=14)
+            fig.suptitle(f"TT residuals", fontsize=14)
         plt.tight_layout(rect=(0, 0, 1, 0.97))
         try:
             plt.savefig(plot_filename)
         except:
-            print(f"{Fore.RED}\nERROR: Saving TT delta plot failed.{Style.RESET_ALL}")
+            print(f"{Fore.RED}\nERROR: Saving TT residual plot failed.{Style.RESET_ALL}")
         plt.close(fig)
 
     # @stopwatch()
-    def tt_multi_delta_plot(self, steps_done, plot_filename, measured_tt):
+    def tt_multi_residual_plot(self, steps_done, plot_filename, measured_tt):
         plot_filename = self.results_directory + plot_filename
         unique_eclipsers = measured_tt["eclipser"].unique()
         n_eclipsers = len(unique_eclipsers)
@@ -740,13 +740,13 @@ class CurveSimMCMC:
                     color = gray_shades[i]  # shades of gray
                 ax.plot(df["tt"], df[col], marker="o", linestyle="-", alpha=0.7, label=col, color=color)
             ax.axhline(0, color="xkcd:warm grey", linestyle="dashed", linewidth=1)
-            ax.set_ylabel(f"TT Delta [days]")
+            ax.set_ylabel(f"TT Residual [days]")
             ax.set_title(f"Eclipser: {eclipser}")
             ax.tick_params(labelbottom=True)
             ax.set_ylim(ylim)
 
         axes[-1].set_xlabel("Transit Time [BJD]")
-        fig.suptitle(f"TT Delta. {steps_done} steps after burn-in.", fontsize=14)
+        fig.suptitle(f"TT Residual: {steps_done} steps after burn-in.", fontsize=14)
         plt.tight_layout(rect=(0, 0.12, 1, 0.97))  # leave 12% at bottom
         fig.canvas.draw()  # Draw the figure first to avoid clipping bugs
         handles, labels = axes[0].get_legend_handles_labels()  # Since all subplots have identical handles/labels, get from only first subplot
@@ -756,7 +756,7 @@ class CurveSimMCMC:
         try:
             plt.savefig(plot_filename)
         except:
-            print(f"{Fore.RED}\nERROR: Saving TT delta plot failed.{Style.RESET_ALL}")
+            print(f"{Fore.RED}\nERROR: Saving TT multi residual plot failed.{Style.RESET_ALL}")
         plt.close(fig)
 
     @staticmethod
@@ -861,7 +861,7 @@ class CurveSimMCMC:
         self.acceptance_fractions.append(self.sampler.acceptance_fraction)
         if "acceptance" in commands or "all" in commands:
             self.acceptance_fraction_plot(steps_done, "acceptance.png", p)
-        self.scale_samples(flat_thin_samples, p)
+        self.scale_samples(flat_thin_samples, bodies, p)
         self.max_likelihood_parameters(flat_thin_samples, p)
         logprob, chi_squared, log_norm_term = CurveSimMCMC.log_probability(self.max_likelihood_params, bodies, o, p)
         o.update(p)
@@ -873,9 +873,9 @@ class CurveSimMCMC:
             o.tt.measured_tt = CurveSimMCMC.max_likelihood_tt(max_likelihood_bodies, o, p)
             o.tt.measured_tt = CurveSimMCMC.add_new_best_delta(o.tt.measured_tt, steps_done)
             if "tt_delta" in commands or "all" in commands:
-                CurveSimMCMC.tt_delta_plot(p, steps_done, "tt_delta.png", o.tt.measured_tt)
+                CurveSimMCMC.tt_residual_plot(p, steps_done, "tt_delta.png", o.tt.measured_tt)
             if "tt_multi_delta" in commands or "all" in commands:
-                self.tt_multi_delta_plot(steps_done, "tt_multi_delta.png", o.tt.measured_tt)
+                self.tt_multi_residual_plot(steps_done, "tt_multi_delta.png", o.tt.measured_tt)
 
         self.high_density_intervals(p)
         bodies = CurveSimMCMC.bodies_from_fitting_params(bodies, p.fitting_params[:p.body_fparams_count], param_type="max_likelihood_scaled")
@@ -902,7 +902,7 @@ class CurveSimMCMC:
             self.autocorrelation_function_plot(steps_done, "autocorrelation.png", p)
         if "corner" in commands or "all" in commands:
             flat_thin_samples = self.sampler.get_chain(discard=p.burn_in, thin=self.thin_samples_plot, flat=True)
-            self.scale_samples(flat_thin_samples, p)
+            self.scale_samples(flat_thin_samples, bodies, p)
             self.mcmc_corner_plot(steps_done, "corner.png", p)
 
 class CurveSimLMfit:

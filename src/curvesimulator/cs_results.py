@@ -147,15 +147,6 @@ class CurveSimResults(dict):
         results.update(data)
         return results
 
-    # def calc_total_chi_squared(self, free_parameters):
-    #     rv = 0 if self["Fit"]["chi_squared_rv"] is None else self["Fit"]["chi_squared_rv"]
-    #     fl = 0 if self["Fit"]["chi_squared_flux"] is None else self["Fit"]["chi_squared_flux"]
-    #     tt = 0 if self["Fit"]["chi_squared_tt"] is None else self["Fit"]["chi_squared_tt"]
-    #     self["Fit"]["chi_squared_total"] = rv + fl + tt
-    #     self["Fit"]["measurements_total"] = self["Fit"]["measurements_rv"] + self["Fit"]["measurements_flux"] + self["Fit"]["measurements_tt"]
-    #     if free_parameters is not None:
-    #         self["Fit"]["pvalue_total"] = CurveSimResults.chi_squared_pvalue(self["Fit"]["chi_squared_total"], self["Fit"]["measurements_total"], free_parameters)
-
     @staticmethod
     def chi_squared_pvalue(chi_squared, n_measurements, n_params):
         """
@@ -169,28 +160,11 @@ class CurveSimResults(dict):
         p_value = stats.chi2.sf(chi_squared, degrees_of_freedom)  # survival function = 1 - cumulative distribution function
         return p_value
 
-    # @staticmethod
-    # def get_sector_params(p):
-    #     sector_params = pd.read_csv(p.sector_params_file)
-    #     CurveSimObservations.check_required_columns({"sector", "offset", "offset_low", "offset_up", "offset_spread", "jitter", "jitter_low", "jitter_high", "jitter_spread"}, sector_params, p.sector_params_file)
-    #     offset_map = sector_params.set_index("sector")["offset"]
-    #     jitter_map = sector_params.set_index("sector")["jitter"]
-    #     # How to change the offset_value for sector s: offset_map.loc[s] = 4.2
-    #     return offset_map, jitter_map, sector_params
-
     @staticmethod
     def save_sim_flux_with_observation_timeline(o, p):
         df = pd.DataFrame({"time": o.flux.time_d, "flux": o.flux.computed})
         # df = pd.DataFrame({"time": o.flux.time_d, "flux": o.sim.simflux})
         df.to_csv(p.computed_flux_file, index=False)
-
-    # @staticmethod
-    # def get_measured_tt(p):
-    #     df = pd.read_csv(p.tt_file)
-    #     CurveSimObservations.check_required_columns({"eclipser", "tt", "tt_err", "nr"}, df, p.tt_file)
-    #     df = df[(df["tt"] >= p.epoch) & (df["tt"] <= p.sim_end)].copy()
-    #     p.tt_datasize = len(df["tt"])
-    #     return df
 
     @staticmethod
     def _to_list(val, default):
@@ -378,6 +352,41 @@ class CurveSimResults(dict):
             x_label="Transit Times [BJD]",
             y_label="TTV to date [days]",
             x_lists=    [tt_tess,       x4sine],
+            y_lists=    [ttv_to_date,   sine_curve],
+            data_labels=["TTV to date", "Sine Curve"],
+            linestyles= ["",            "-"],
+            markersizes=[4,             0],
+            colors=     ["xkcd:tomato",         "xkcd:black"],
+            linewidths= [0,             1],
+            grid=True,
+            legend=True,
+            plot_file=f"TTV_to_date_{osc_per:.4f}.png",
+        )
+
+    @staticmethod
+    def ttv_to_date_plot(o, eclipser=None, amplitude=None, period=None, x_offset=None, osc_per=None):
+        """ unused and untested
+            This is a generalized version of ttv_to_date_plot_TOI4504_specific()
+            To use this meaningfully, you need reasonable values for amplitude, period, x_offset and osc_per
+            Getting those would require a simple but completely new fitting process.
+            I do not think that is worth the effort right now.
+            """
+        tt_df = o.tt.measured_tt.copy()
+        tt_df = tt_df[tt_df["eclipser"] == eclipser]
+        tt_df = tt_df.sort_values("tt")
+        tt_observed = np.array(tt_df["tt"], dtype=float)
+        transit_numbers = np.array(tt_df["nr"], dtype=float)
+        ttv_to_date = [tt - tt_observed[0] - n * osc_per for n, tt in zip(transit_numbers, tt_observed)]
+
+        x4sine = np.linspace(tt_observed[0], tt_observed[-1], 300)
+        sine_curve = amplitude * np.sin(2 * np.pi * (x4sine - tt_observed[0] - x_offset) / period)
+        sine_curve -= sine_curve[0]
+
+        CurveSimResults.plot_this(
+            title=f"Observed transit midpoints of {eclipser} vs. mean osculating Period\nOsc.per.={osc_per:.2f} d, Amplitude={amplitude:.2f} d, x-Offset={x_offset:.2f} d, Super Period={period:.2f})",
+            x_label="Transit Times [BJD]",
+            y_label="TTV to date [days]",
+            x_lists=    [tt_observed,       x4sine],
             y_lists=    [ttv_to_date,   sine_curve],
             data_labels=["TTV to date", "Sine Curve"],
             linestyles= ["",            "-"],
