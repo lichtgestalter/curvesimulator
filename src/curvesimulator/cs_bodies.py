@@ -293,42 +293,11 @@ class CurveSimBodies(list):
                 print(f"{round(iteration / iterations * 10) * 10:3d}% ", end="")
                 # print(self.energy(iteration, p))
 
-    def calc_positions_eclipses_luminosity(self, p, time_s0):
-        """Calculate distances, forces, accelerations, velocities of the bodies for each iteration.
-        The resulting body positions and the lightcurve are stored for later use in the animation."""
-        iterations = len(time_s0)
-        # if p.myintegration:  # debug
-        #     simulation = MyIntegration(p)
-        #     self.init_myintegration(simulation)
-        # else:
+    def integrate(self, iterations, observations, p, sim_flux, sim_rv, stars, step, stop):
         simulation = self.init_rebound(p)
-
-        stars = [body for body in self if body.body_type == "star"]
-        sim_flux = np.zeros(iterations)
-        # sim_flux = CurveSimLightcurve(iterations)  # Initialize lightcurve (essentially a np.ndarray)
-        if p.show_lower_curve or p.rv_file:
-            sim_rv = np.full(iterations, np.nan, dtype=float)
-        else:
-            sim_rv = None
-        # if not p.myintegration:
         initial_sim_state = CurveSimRebound(simulation)
-
-        if p.print_initial_body_states:
-            self.print_simulation_particles(p, simulation, message="\n\n######## Simulation particles at epoch: ########")
-            simulation.integrate(time_s0[p.epoch_index])
-            self.print_simulation_particles(p, simulation, message="\n\n######## Simulation particles at sim_start: ########")
-            print("\nExited after succesful print of initial body params.")
-            print("Set param print_initial_body_states = False in order to run the full simulation instead.\n")
-            sys.exit(0)
-
-        for iteration in range(iterations):
-            # if p.myintegration:
-            #     if iteration == 0:
-            #         E0 = simulation.total_energy()
-            #     E = simulation.total_energy()
-            #     rel_error = (E - E0) / abs(E0)
-
-            simulation.integrate(time_s0[iteration])
+        for iteration in range(observations.epoch_index, stop, step):
+            simulation.integrate(observations.time_s0[iteration])
             for body in self:
                 CurveSimBodies.update_position(body, iteration, simulation)
             sim_flux[iteration] = self.total_luminosity(stars, iteration, p)  # Update sim_flux.
@@ -336,18 +305,41 @@ class CurveSimBodies(list):
                 sim_rv[iteration] = -simulation.particles[p.rv_body_name].vz
             if p.verbose:
                 CurveSimBodies.progress_bar(iteration, iterations, p)
-        # if not p.myintegration:
         new_sim_state = CurveSimRebound(simulation)
         energy_change = initial_sim_state.sim_check_deltas(new_sim_state)
-        # else:
-        #     energy_change = None
+        return simulation, energy_change
+
+    def calc_positions_eclipses_luminosity(self, p, observations):
+        """Calculate distances, forces, accelerations, velocities of the bodies for each iteration.
+        The resulting body positions and the lightcurve are stored for later use in the animation."""
+        iterations = len(observations.time_s0)
+        stars = [body for body in self if body.body_type == "star"]
+        sim_flux = np.zeros(iterations)
+        if p.show_lower_curve or p.rv_file:
+            sim_rv = np.full(iterations, np.nan, dtype=float)
+        else:
+            sim_rv = None
+
+        if p.print_initial_body_states:
+            simulation = self.init_rebound(p)
+            self.print_simulation_particles(p, simulation, message="\n\n######## Simulation particles at epoch: ########")
+            simulation.integrate(observations.time_s0[0])
+            self.print_simulation_particles(p, simulation, message="\n\n######## Simulation particles at sim_start: ########")
+            print("\nExited after succesful print of initial body params.")
+            print("Set param print_initial_body_states = False in order to run the full simulation instead.\n")
+            sys.exit(0)
+
+        stop, step = -1, -1
+        simulation_backwards, energy_change_backwards = self.integrate(iterations, observations, p, sim_flux, sim_rv, stars, step, stop)
+        stop, step = iterations, 1
+        simulation_forwards, energy_change_forwards = self.integrate(iterations, observations, p, sim_flux, sim_rv, stars, step, stop)
 
         lightcurve_max = float(sim_flux.max(initial=None))
         sim_flux /= lightcurve_max  # Normalize flux.
-        return sim_rv, sim_flux, self, simulation, energy_change
+        return sim_rv, sim_flux, self, simulation_backwards, simulation_forwards, energy_change_backwards, energy_change_forwards
 
-    def calc_physics(self, time_s0, p):
-        iterations = len(time_s0)
+    def calc_physics(self, observations, p):
+        iterations = len(observations.time_s0)
 
         for body in self:
             body.positions = np.ndarray((iterations, 3), dtype=float)
@@ -358,14 +350,14 @@ class CurveSimBodies(list):
                 print(f"Generating {p.frames} frames for a {p.frames / p.fps:.0f} seconds long video.")
             print(f"Calculating {iterations:,} iterations ", end="")
             tic = time.perf_counter()
-        sim_rv, sim_flux, bodies, rebound_sim, energy_change = self.calc_positions_eclipses_luminosity(p, time_s0)
+        sim_rv, sim_flux, bodies, rebound_sim_backwards, rebound_sim_forwards, energy_change_backwards, energy_change_forwards = self.calc_positions_eclipses_luminosity(p, observations)
         if p.verbose:
             toc = time.perf_counter()
             print(f" {toc - tic:7.3f} seconds  ({iterations / (toc - tic):.0f} iterations/second)")
-            print(f"Log10 of the relative change of energy during simulation: {energy_change:.0f}")
-            if energy_change > -6:
+            print(f"Log10 of the relative change of energy during simulation: {energy_change_forwards:.0f}")
+            if energy_change_forwards > -6:
                 print(f"{Fore.YELLOW}The energy must not change significantly! Consider using a smaller time step (dt).{Style.RESET_ALL}")
-        return sim_rv, sim_flux, rebound_sim
+        return sim_rv, sim_flux, rebound_sim_forwards
 
     def calc_patch_radii(self, p):
         """If autoscaling is on, this function calculates the radii of the circles (matplotlib patches) of the animation."""

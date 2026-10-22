@@ -14,7 +14,7 @@ class Simulation:
         for i in range(self.iterations):
             self.time_s0[i] = self.sim_start_s0 + i * p.dt
         self.epoch_index = int(np.argmin(np.abs(self.time_s0)))  # Find epoch_index, the list index for which self.time_s0[] is closest to zero.
-        p.epoch_index = self.epoch_index
+        # p.epoch_index = self.epoch_index
         self.time_d = self.time_s0 / p.day + p.epoch
         self.simflux = np.empty(self.iterations)
         self.simrv = np.empty(self.iterations)
@@ -44,7 +44,7 @@ class ObservationType:
         if type(self) is not ObservationType:
             self.corrected, self.total_error, self.computed, self.reduced_chi_squared = (None,) * 4
             self.residuals, self.time_d, self.time_s0, self.p_value = (None,) * 4
-            self.chi_squared, self.log_norm_term, self.observation_count, self.log_maxlikelihood = (0,) * 4
+            self.chi_squared, self.log_norm_term, self.observation_count, self.log_maxlikelihood, self.epoch_index = (0,) * 5
 
     def calc_log_norm_term(self):
         self.log_norm_term = np.sum(np.log(2 * np.pi * self.total_error ** 2))  # logarithm of the summed Gaussian normalization term
@@ -169,6 +169,7 @@ class RVObservations(ObservationType):
             self.observation_count = len(df["time"])
             self.time_d = df["time"].to_numpy(dtype=float)
             self.time_s0 = (self.time_d - p.epoch) * p.day
+            self.epoch_index = int(np.argmin(np.abs(self.time_s0)))
             self.observed = df["rv"].to_numpy(dtype=float)
             self.calc_corrected(p.rv_body.rv_offset)
             self.error = df["rv_err"].to_numpy(dtype=float)
@@ -229,6 +230,7 @@ class FluxObservations(ObservationType):
             self.observation_count = len(df["time"])
             self.time_d = df["time"].to_numpy(dtype=float)
             self.time_s0 = (self.time_d - p.epoch) * p.day
+            self.epoch_index = int(np.argmin(np.abs(self.time_s0)))
             self.observed = df["flux"].to_numpy(dtype=float)
             self.calc_corrected(p.sector_params_file)
             self.error = df["flux_err"].to_numpy(dtype=float)
@@ -255,7 +257,7 @@ class FluxObservations(ObservationType):
         return self.total_error
 
     def calc_computed(self, bodies, p):
-        _, self.computed, _ = bodies.calc_physics(self.time_s0, p)  # run simulation
+        _, self.computed, _ = bodies.calc_physics(self, p)  # run simulation
         return self.computed
 
     def update(self, bodies, p):

@@ -172,7 +172,7 @@ class CurveSimMCMC:
 
     @staticmethod
     def single_run(p, bodies, o):
-        o.sim.simrv, o.sim.simflux, rebound_sim = bodies.calc_physics(o.sim.time_s0, p)  # Calculate all body positions and the resulting flux and rv
+        o.sim.simrv, o.sim.simflux, rebound_sim = bodies.calc_physics(o.sim, p)  # Calculate all body positions and the resulting flux and rv
         if p.sim_flux_file:  # save simulated flux, regular spaced with p.dt
             o.sim.save_sim_flux(p)
         results = bodies.find_transits(rebound_sim, o, p)
@@ -310,7 +310,7 @@ class CurveSimMCMC:
     @staticmethod
     def residuals_tt_sum_squared(theta, bodies, o, p):
         CurveSimMCMC.update_bodies_from_theta(bodies, p, theta)
-        sim_rv, sim_flux, rebound_sim = bodies.calc_physics(o.sim.time_s0, p)  # run simulation
+        sim_rv, sim_flux, rebound_sim = bodies.calc_physics(o.sim, p)  # run simulation
         residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(p, rebound_sim, o)
         return residuals_tt_sum_squared
 
@@ -458,7 +458,7 @@ class CurveSimMCMC:
 
     @staticmethod
     def max_likelihood_tt(max_likelihood_bodies, o, p):
-        sim_rv, sim_flux, rebound_sim = max_likelihood_bodies.calc_physics(o.sim.time_s0, p)  # run simulation
+        sim_rv, sim_flux, rebound_sim = max_likelihood_bodies.calc_physics(o.sim, p)  # run simulation
         _, measured_tt = CurveSimMCMC.match_transit_times(p, rebound_sim, o)
         return measured_tt
 
@@ -963,7 +963,7 @@ class CurveSimLMfit:
         # measured_tt: pandas DataFrame with columns eclipser, tt, tt_err
         for body_index, param_name in param_references:
             bodies[body_index].__dict__[param_name] = params[bodies[body_index].name + "_" + param_name].value  # update all params from params
-        _, o.sim.simflux, rebound_sim = bodies.calc_physics(o.sim.time_s0, p)  # run simulation
+        _, o.sim.simflux, rebound_sim = bodies.calc_physics(o.sim, p)  # run simulation
         residuals_tt_sum_squared, _ = CurveSimMCMC.match_transit_times(p, rebound_sim, o)
         return residuals_tt_sum_squared
 
