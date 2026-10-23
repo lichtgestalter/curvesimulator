@@ -354,8 +354,8 @@ class CurveSimBodies(list):
         if p.verbose:
             toc = time.perf_counter()
             print(f" {toc - tic:7.3f} seconds  ({iterations / (toc - tic):.0f} iterations/second)")
-            print(f"Log10 of the relative change of energy during simulation: {energy_change_forwards:.0f}")
-            if energy_change_forwards > -6:
+            print(f"Log10 of the relative change of energy during simulation: backwards: {energy_change_backwards:.0f}, forwards: {energy_change_forwards:.0f}")
+            if energy_change_backwards > -6 or energy_change_forwards > -6:
                 print(f"{Fore.YELLOW}The energy must not change significantly! Consider using a smaller time step (dt).{Style.RESET_ALL}")
         return sim_rv, sim_flux, rebound_sim_forwards
 
