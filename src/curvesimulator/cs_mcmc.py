@@ -172,19 +172,19 @@ class CurveSimMCMC:
 
     @staticmethod
     def single_run(p, bodies, o):
-        o.sim.simrv, o.sim.simflux, rebound_sim = bodies.calc_physics(o.sim, p)  # Calculate all body positions and the resulting flux and rv
+        o.sim.simrv, o.sim.simflux, _, rebound_sim_forwards = bodies.calc_physics(o.sim, p)  # Calculate all body positions and the resulting flux and rv
         if p.sim_flux_file:  # save simulated flux, regular spaced with p.dt
             o.sim.save_sim_flux(p)
-        results = bodies.find_transits(rebound_sim, o, p)
+        results = bodies.find_transits(rebound_sim_forwards, o, p)
         if p.video_file and p.action == "single_run":
             CurveSimAnimation(p, bodies, o)  # Create a video
         if p.tt_file:
-            _, o.tt.measured_tt = CurveSimMCMC.match_transit_times(p, rebound_sim, o)
+            _, o.tt.measured_tt = CurveSimMCMC.match_transit_times(p, rebound_sim_forwards, o)
             o.tt.update(p)  # store chi squared and p-value and more in results and in o.tt as attributes
             if p.action != "mcmc":
                 CurveSimMCMC.tt_residual_plot(p, 0, "tt_o_vs_c.png", o.tt.measured_tt)  # compare observed vs. computed TT
         if p.rv_file:
-            o.rv.update(p, rebound_sim)  # update with new rv offset and jitter from theta
+            o.rv.update(p, rebound_sim_forwards)  # update with new rv offset and jitter from theta
             results.rv_plots(o, p)
         if p.flux_file:
             o.flux.update(bodies, p)
@@ -210,7 +210,7 @@ class CurveSimMCMC:
 
             # measured_tt = CurveSimMCMC.get_measured_tt(p)
             # p.bodynames2bodies(bodies)
-            # _, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, sim_flux, flux_time_d, flux_time_s0)
+            # _, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim_forwards, sim_flux, flux_time_d, flux_time_s0)
             # dummy_mcmc = CurveSimMCMC(None, None, None, None, None, None, None, dummy_object=True)
             # dummy_mcmc.tt_delta_plot(1, "Vitkova_MaxL_tt_delta.png", measured_tt)
         return bodies, o, results
@@ -310,8 +310,8 @@ class CurveSimMCMC:
     @staticmethod
     def residuals_tt_sum_squared(theta, bodies, o, p):
         CurveSimMCMC.update_bodies_from_theta(bodies, p, theta)
-        sim_rv, sim_flux, rebound_sim = bodies.calc_physics(o.sim, p)  # run simulation
-        residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(p, rebound_sim, o)
+        sim_rv, sim_flux, _, rebound_sim_forwards = bodies.calc_physics(o.sim, p)  # run simulation
+        residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(p, rebound_sim_forwards, o)
         return residuals_tt_sum_squared
 
     @staticmethod
@@ -458,8 +458,8 @@ class CurveSimMCMC:
 
     @staticmethod
     def max_likelihood_tt(max_likelihood_bodies, o, p):
-        sim_rv, sim_flux, rebound_sim = max_likelihood_bodies.calc_physics(o.sim, p)  # run simulation
-        _, measured_tt = CurveSimMCMC.match_transit_times(p, rebound_sim, o)
+        sim_rv, sim_flux, _, rebound_sim_forwards = max_likelihood_bodies.calc_physics(o.sim, p)  # run simulation
+        _, measured_tt = CurveSimMCMC.match_transit_times(p, rebound_sim_forwards, o)
         return measured_tt
 
     @staticmethod
@@ -963,8 +963,8 @@ class CurveSimLMfit:
         # measured_tt: pandas DataFrame with columns eclipser, tt, tt_err
         for body_index, param_name in param_references:
             bodies[body_index].__dict__[param_name] = params[bodies[body_index].name + "_" + param_name].value  # update all params from params
-        _, o.sim.simflux, rebound_sim = bodies.calc_physics(o.sim, p)  # run simulation
-        residuals_tt_sum_squared, _ = CurveSimMCMC.match_transit_times(p, rebound_sim, o)
+        _, o.sim.simflux, _, rebound_sim_forwards = bodies.calc_physics(o.sim, p)  # run simulation
+        residuals_tt_sum_squared, _ = CurveSimMCMC.match_transit_times(p, rebound_sim_forwards, o)
         return residuals_tt_sum_squared
 
     def save_best_fit(self, p, bodies, measured_tt):

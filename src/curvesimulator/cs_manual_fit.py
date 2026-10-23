@@ -200,7 +200,7 @@ class FittingGUI:
         param_references = [(fp.body_index, fp.param_name) for fp in p.fitting_params]
         for (body_index, param_name), fp in zip(param_references, p.fitting_params):
             self.bodies[body_index].__dict__[param_name] = fp.startvalue
-        sim_rv, sim_flux, rebound_sim = self.bodies.calc_physics(o.flux, p)  # Bug? o.sim iso o.flux?
+        sim_rv, sim_flux, _, rebound_sim = self.bodies.calc_physics(o.flux, p)  # Bug? o.sim iso o.flux?
         return CurveSimMCMC.match_transit_times(p, rebound_sim, o)
 
     def update_entry_fields(self, p):

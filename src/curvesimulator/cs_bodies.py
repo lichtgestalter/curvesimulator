@@ -293,10 +293,10 @@ class CurveSimBodies(list):
                 print(f"{round(iteration / iterations * 10) * 10:3d}% ", end="")
                 # print(self.energy(iteration, p))
 
-    def integrate(self, iterations, observations, p, sim_flux, sim_rv, stars, step, stop):
+    def integrate(self, iterations, observations, p, sim_flux, sim_rv, stars, start, step, stop):
         simulation = self.init_rebound(p)
         initial_sim_state = CurveSimRebound(simulation)
-        for iteration in range(observations.epoch_index, stop, step):
+        for iteration in range(start, stop, step):
             simulation.integrate(observations.time_s0[iteration])
             for body in self:
                 CurveSimBodies.update_position(body, iteration, simulation)
@@ -329,10 +329,13 @@ class CurveSimBodies(list):
             print("Set param print_initial_body_states = False in order to run the full simulation instead.\n")
             sys.exit(0)
 
-        stop, step = -1, -1
-        simulation_backwards, energy_change_backwards = self.integrate(iterations, observations, p, sim_flux, sim_rv, stars, step, stop)
-        stop, step = iterations, 1
-        simulation_forwards, energy_change_forwards = self.integrate(iterations, observations, p, sim_flux, sim_rv, stars, step, stop)
+        start, stop, step = observations.epoch_index, -1, -1
+        simulation_backwards, energy_change_backwards = self.integrate(iterations, observations, p, sim_flux, sim_rv, stars, start, step, stop)
+        start, stop, step = observations.epoch_index, iterations, 1
+        simulation_forwards, energy_change_forwards = self.integrate(iterations, observations, p, sim_flux, sim_rv, stars, start, step, stop)
+        # start, stop, step = 0, iterations, 1  # classic mode: epoch <= sim_start
+        # simulation_forwards, energy_change_forwards = self.integrate(iterations, observations, p, sim_flux, sim_rv, stars, start, step, stop)
+        # simulation_backwards = simulation_forwards
 
         lightcurve_max = float(sim_flux.max(initial=None))
         sim_flux /= lightcurve_max  # Normalize flux.
@@ -357,7 +360,7 @@ class CurveSimBodies(list):
             print(f"Log10 of the relative change of energy during simulation: backwards: {energy_change_backwards:.0f}, forwards: {energy_change_forwards:.0f}")
             if energy_change_backwards > -6 or energy_change_forwards > -6:
                 print(f"{Fore.YELLOW}The energy must not change significantly! Consider using a smaller time step (dt).{Style.RESET_ALL}")
-        return sim_rv, sim_flux, rebound_sim_forwards
+        return sim_rv, sim_flux, rebound_sim_backwards, rebound_sim_forwards
 
     def calc_patch_radii(self, p):
         """If autoscaling is on, this function calculates the radii of the circles (matplotlib patches) of the animation."""

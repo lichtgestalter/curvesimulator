@@ -14,7 +14,6 @@ class Simulation:
         for i in range(self.iterations):
             self.time_s0[i] = self.sim_start_s0 + i * p.dt
         self.epoch_index = int(np.argmin(np.abs(self.time_s0)))  # Find epoch_index, the list index for which self.time_s0[] is closest to zero.
-        # p.epoch_index = self.epoch_index
         self.time_d = self.time_s0 / p.day + p.epoch
         self.simflux = np.empty(self.iterations)
         self.simrv = np.empty(self.iterations)
@@ -257,7 +256,7 @@ class FluxObservations(ObservationType):
         return self.total_error
 
     def calc_computed(self, bodies, p):
-        _, self.computed, _ = bodies.calc_physics(self, p)  # run simulation
+        _, self.computed, _, _ = bodies.calc_physics(self, p)  # run simulation
         return self.computed
 
     def update(self, bodies, p):
