@@ -1,9 +1,9 @@
 chi_squared                      # Plot the development of reduced chi squared during fitting: reduced_chi^2_over_time.png
-single_run                       # Plot observed vs. computed, chi squared, and residuals for all observations and save results_single_run.json.
 histogram                        # Plot one or more histograms per fitting parameter (see configuration parameter bins): histograms_{bins}.png.
 
 # All lines after the first line that starts with # are ignored.
 
+single_run                       # Plot observed vs. computed, chi squared, and residuals for all observations and save results_single_run.json.
 all                              # Generates all results!
 integrated_autocorrelation_time  # Plot the integrated autocorrelation time per fitting parameter: int_autocorr_time.png and steps_per_i_ac_time.png.
 mcmc_results                     # Save results_mcmc.json.

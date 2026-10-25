@@ -82,9 +82,9 @@ class CurveSimParameters:
         self.jacobi_masses = self.read_param(config, section, "jacobi_masses", "True", evaluate=True, forced_type=bool, lower=None, upper=None)
         self.rebound_warnings = self.read_param(config, section, "rebound_warnings", "True", evaluate=True, forced_type=bool, lower=None, upper=None)
         self.dt = self.read_param(config, section, "dt", "1000", evaluate=True, forced_type=float, lower=0, upper=None)
-        self.epoch = self.read_param(config, section, "epoch", "0.0", evaluate=True, forced_type=float, lower=None, upper=None)
         self.sim_start = self.read_param(config, section, "sim_start", "None", evaluate=True, forced_type=float, lower=None, upper=None)
         self.sim_end = self.read_param(config, section, "sim_end", "None", evaluate=True, forced_type=float, lower=self.sim_start, upper=None)
+        self.epoch = self.read_param(config, section, "epoch", "0.0", evaluate=True, forced_type=float, lower=None, upper=self.sim_end)
         self.epoch_index = 0
         self.sim_flux_file = self.read_param(config, section, "sim_flux_file", None, evaluate=False, forced_type=str, lower=None, upper=None)
         self.sim_flux_file = CurveSimParameters.check_filename_and_add_path(self.sim_flux_file, "sim_flux_file", self.results_directory)

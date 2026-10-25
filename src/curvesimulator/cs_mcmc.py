@@ -172,19 +172,19 @@ class CurveSimMCMC:
 
     @staticmethod
     def single_run(p, bodies, o):
-        o.sim.simrv, o.sim.simflux, _, rebound_sim_forwards = bodies.calc_physics(o.sim, p)  # Calculate all body positions and the resulting flux and rv
+        o.sim.simrv, o.sim.simflux, _, rebound_sim = bodies.calc_physics(o.sim, p)  # Calculate all body positions and the resulting flux and rv
         if p.sim_flux_file:  # save simulated flux, regular spaced with p.dt
             o.sim.save_sim_flux(p)
-        results = bodies.find_transits(rebound_sim_forwards, o, p)
+        results = bodies.find_transits(rebound_sim, o, p)
         if p.video_file and p.action == "single_run":
             CurveSimAnimation(p, bodies, o)  # Create a video
         if p.tt_file:
-            _, o.tt.measured_tt = CurveSimMCMC.match_transit_times(p, rebound_sim_forwards, o)
+            _, o.tt.measured_tt = CurveSimMCMC.match_transit_times(p, rebound_sim, o)
             o.tt.update(p)  # store chi squared and p-value and more in results and in o.tt as attributes
             if p.action != "mcmc":
                 CurveSimMCMC.tt_residual_plot(p, 0, "tt_o_vs_c.png", o.tt.measured_tt)  # compare observed vs. computed TT
         if p.rv_file:
-            o.rv.update(p, rebound_sim_forwards)  # update with new rv offset and jitter from theta
+            o.rv.update(p, rebound_sim)  # update with new rv offset and jitter from theta
             results.rv_plots(o, p)
         if p.flux_file:
             o.flux.update(bodies, p)
@@ -210,7 +210,7 @@ class CurveSimMCMC:
 
             # measured_tt = CurveSimMCMC.get_measured_tt(p)
             # p.bodynames2bodies(bodies)
-            # _, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim_forwards, sim_flux, flux_time_d, flux_time_s0)
+            # _, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, sim_flux, flux_time_d, flux_time_s0)
             # dummy_mcmc = CurveSimMCMC(None, None, None, None, None, None, None, dummy_object=True)
             # dummy_mcmc.tt_delta_plot(1, "Vitkova_MaxL_tt_delta.png", measured_tt)
         return bodies, o, results

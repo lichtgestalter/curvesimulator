@@ -352,8 +352,9 @@ class CurveSimAnimation:
             lower_dot.center = x_rel, o.sim.simrv[frame_number]
         # if frame > 10:
         #     bodies[0].circle_left.set_color((1.0, 0.2, 0.2))  # Example code for changing circle color during animation
-        if frame >= 10 and frame % int(round(p.frames / 10)) == 0:  # Inform user about program"s progress.
-            print(f"{round(frame / p.frames * 10) * 10:3d}% ", end="")
+        if p.frames > 10:
+            if frame >= 5 and frame % int(round(p.frames / 10)) == 0:  # Inform user about program"s progress.
+                print(f"{round(frame / p.frames * 10) * 10:3d}% ", end="")
 
         # Collect the artists that changed this frame. render() uses these to blit
         # only the changed regions instead of redrawing the whole figure.
@@ -387,7 +388,7 @@ class CurveSimAnimation:
         """
         frames = int(len(o.sim.simflux) // o.sim.sampling_rate)
         if p.verbose:
-            print(f"Animating {p.frames:8d} frames:     ", end="")
+            print(f"Animating {p.frames:8d} frames:                              ", end="")
             tic = time.perf_counter()
 
         fig = self.fig
