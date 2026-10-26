@@ -126,7 +126,8 @@ class CurveSimulator:
 
         elif p.action == "single_run":
             self.bodies, self.observations, self.results = CurveSimMCMC.single_run(p, bodies, o)
-
+            if p.verbose:
+                print(f"Results have been saved in {p.results_directory}")
         elif p.action == "results_only":
             p.eclipsers = ["TOI4504c"]
             p.eclipsees = ["TOI4504"]
@@ -147,8 +148,5 @@ class CurveSimulator:
             sys.exit(1)
 
     def __repr__(self):
-        print("CurveSimulator object created with attributes: ", end="")
-        for key in self.__dict__:
-            print(key, end=", ")
-        # print(self.__dict__.keys())
-        return ""
+        attrs = ", ".join(self.__dict__)
+        return f"CurveSimulator object created with attributes: {attrs}"

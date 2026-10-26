@@ -211,33 +211,6 @@ class CurveSimBodies(list):
                 print(f"                 e={orbit.e:<18.4f} i={math.degrees(orbit.inc):<17.4f}  P[d]={orbit.P / p.day:<14.4f}  a[au]={orbit.a / p.au:<13.4f}  Omega[°]={math.degrees(orbit.Omega):<10.4f}  omega[°]={math.degrees(orbit.omega):<10.4f}  ma[°]={math.degrees(orbit.M):<10.4f}")
         print(f"{Style.RESET_ALL}")
 
-    @staticmethod
-    def print_simulation_particles_debug_jm(p, simulation, message=""):
-        print(f"{Fore.YELLOW}")
-        bjd = p.epoch + simulation.t / p.day
-        print(f"debug_jm  {message} t={simulation.t:.0f} [s], t={bjd:.4f} BJD [d]")
-        orbits = simulation.orbits(jacobi_masses=p.jacobi_masses)
-        for orbit in orbits:
-            print(
-                f"e={orbit.e:<18.4f} "
-                f"i={math.degrees(orbit.inc):<17.4f} "
-                f"P[d]={orbit.P / p.day:<14.4f} "
-                f"a[au]={orbit.a / p.au:<13.4f} "
-                f"Omega[°]={math.degrees(orbit.Omega):<10.4f} "
-                f"omega[°]={math.degrees(orbit.omega):<10.4f} "
-                f"ma[°]={math.degrees(orbit.M):<10.4f}"
-            )
-        print(f"{Style.RESET_ALL}")
-
-    @staticmethod
-    def print_simulation_particles_debug(p, simulation, message=""):
-        bjd = p.epoch + simulation.t / p.day
-        print(f"debug    {message} t={simulation.t:.0f} [s], t={bjd:.4f} BJD [d]")
-
-        for particle in simulation.particles[1:]:
-            orbit = particle.orbit()
-            print(f"e={orbit.e:<18.4f} i={math.degrees(orbit.inc):<17.4f}  P[d]={orbit.P / p.day:<14.4f}  a[au]={orbit.a / p.au:<13.4f}  Omega[°]={math.degrees(orbit.Omega):<10.4f}  omega[°]={math.degrees(orbit.omega):<10.4f}  ma[°]={math.degrees(orbit.M):<10.4f}")
-
     def get_body_from_name(self, bodyname):
         for body in self:
             if body.name == bodyname:
@@ -324,10 +297,6 @@ class CurveSimBodies(list):
 
     def integrate_this(self, iterations, observations, p, sim_flux, sim_rv, stars, start, step, stop):
         simulation = self.init_rebound(p)
-        # self.print_simulation_particles_debug_jm(p, simulation, message="\n\nstart integrate_this: ")
-        # exit(43)
-        # print(f"{observations.time_s0[start]=},   {observations.time_d[start]=}")
-        # print(f"{observations.time_s0[stop-1]=}, {observations.time_d[stop-1]=}")
         if p.verbose:
             initial_sim_state = CurveSimRebound(simulation)
         for iteration in range(start, stop, step):
@@ -346,29 +315,6 @@ class CurveSimBodies(list):
             energy_change = 0
         return simulation, energy_change
 
-    def integrate_debug1(self, o, p, start, stop, step, simulation=None):
-        if simulation is None:
-            simulation = self.init_rebound(p)
-        # print(f"{simulation.t=}")
-        self.print_simulation_particles_debug(p, simulation, message="\n\nstart debug1: ")
-        for iteration in range(start, stop, step):
-            simulation.integrate(o.time_s0[iteration])
-        # print(f"{simulation.t=}")
-        return simulation
-
-    def integrate_debug2(self, o, p, start, stop, step, forwards=True, simulation=None):
-        if simulation is None:
-            simulation = self.init_rebound(p)
-        # print(f"{simulation.t=}")
-        self.print_simulation_particles_debug(p, simulation, message="\n\nstart debug2: ")
-        for iteration in range(start, stop, step):
-            if forwards:
-                simulation.integrate(o.time_s0[iteration])
-            else:
-                simulation.integrate(-o.time_s0[iteration])
-        # print(f"{simulation.t=}")
-        return simulation
-
     @staticmethod
     def clone_simulation(old_simulation, p):
         new_simulation = rebound.Simulation()
@@ -383,8 +329,6 @@ class CurveSimBodies(list):
     def calc_positions_eclipses_luminosity(self, p, o):
         """Calculate distances, forces, accelerations, velocities of the bodies for each iteration.
         The resulting body positions and the lightcurve are stored for later use in the animation."""
-        DEBUG1 = False
-        DEBUG2 = False
         iterations = len(o.time_s0)
         stars = [body for body in self if body.body_type == "star"]
         sim_flux = np.zeros(iterations)
@@ -402,60 +346,30 @@ class CurveSimBodies(list):
             print("Set param print_initial_body_states = False in order to run the full simulation instead.\n")
             sys.exit(0)
 
-        if DEBUG1:
-            # for body in self:
-            #     print(body.__dict__)
-            # exit(1)
-            start, stop, step = 0, iterations, 1  # integrate forward from sim_start to sim_end
-            simulation_forwards = self.integrate_debug1(o, p, start, stop, step)
-            self.print_simulation_particles_debug(p, simulation_forwards, message="\nafter forwards: ")
-
-            start, stop, step = iterations-1, -1, -1  # integrate backwards from sim_end to sim_start
-            simulation_backwards = self.integrate_debug1(o, p, start, stop, step, simulation=simulation_forwards)
-            self.print_simulation_particles_debug(p, simulation_backwards, message="\nafter backwards: ")
-            exit(40)
-
-        elif DEBUG2:
-            start, stop, step = 0, iterations, 1  # integrate forward from sim_start to sim_end
-            simulation_forwards = self.integrate_debug2(o, p, start, stop, step)
-            self.print_simulation_particles_debug(p, simulation_forwards, message="\nafter forwards: ")
-
-            simulation_backwards = CurveSimBodies.clone_simulation(simulation_forwards, p)
-
-            start, stop, step = 0, iterations, 1  # same as in forwards, but keyword argument forwards makes the integration go backwards
-            simulation_backwards = self.integrate_debug2(o, p, start, stop, step, forwards=False, simulation=simulation_backwards)
-            self.print_simulation_particles_debug(p, simulation_backwards, message="\nafter backwards: ")
-            exit(41)
+        start, stop, step = o.epoch_index, -1, -1  # integrate backwards from epoch to sim_start
+        if start > stop + 1:
+            if p.verbose:
+                print(f"\nIntegrating {start - stop - 1} steps backwards. ", end="")
+            simulation_backwards, energy_change_backwards = self.integrate_this(start - stop, o, p, sim_flux, sim_rv, stars, start, step, stop)
+            # self.print_simulation_particles(p, simulation_backwards, message="\n\n######## Simulation particles at sim_start: ########", print_in_config_format=True)
         else:
-            start, stop, step = o.epoch_index, -1, -1  # integrate backwards from epoch to sim_start
-            if start > stop + 1:
-                if p.verbose:
-                    print("\nIntegrating backwards. ", end="")
-                simulation_backwards, energy_change_backwards = self.integrate_this(start - stop, o, p, sim_flux, sim_rv, stars, start, step, stop)
-                self.print_simulation_particles(p, simulation_backwards, message="\n\n######## Simulation particles at sim_start: ########", print_in_config_format=False)
-                # self.print_simulation_particles(p, simulation_backwards, message="\n\n######## Simulation particles at sim_start: ########", print_in_config_format=False)
-                # self.print_simulation_particles_debug_jm(p, simulation_backwards, message="\nafter backwards: ")
-            else:
-                simulation_backwards, energy_change_backwards = None, 0
+            simulation_backwards, energy_change_backwards = None, 0
 
-            start, stop, step = o.epoch_index, iterations, 1  # integrate forward from epoch to sim_end
-            if stop > start + 1:
-                if p.verbose:
-                    print("\nIntegrating forwards.  ", end="")
-                simulation_forwards, energy_change_forwards = self.integrate_this(stop - start, o, p, sim_flux, sim_rv, stars, start, step, stop)
-                self.print_simulation_particles(p, simulation_forwards, message="\n\n######## Simulation particles at sim_end: ########", print_in_config_format=False)
-                # self.print_simulation_particles(p, simulation_forwards, message="\n\n######## Simulation particles at sim_end: ########", print_in_config_format=False)
-                # self.print_simulation_particles_debug_jm(p, simulation_forwards, message="\nafter forwards: ")
-            else:
-                simulation_forwards, energy_change_forwards = None, 0
+        start, stop, step = o.epoch_index, iterations, 1  # integrate forward from epoch to sim_end
+        if stop > start + 1:
+            if p.verbose:
+                print(f"\nIntegrating {stop - start} steps forwards.  ", end="")
+            simulation_forwards, energy_change_forwards = self.integrate_this(stop - start, o, p, sim_flux, sim_rv, stars, start, step, stop)
+            # self.print_simulation_particles(p, simulation_forwards, message="\n\n######## Simulation particles at sim_end: ########", print_in_config_format=False)
+        else:
+            simulation_forwards, energy_change_forwards = None, 0
 
-            # start, stop, step = 0, iterations, 1  # classic mode: epoch <= sim_start, integrate from sim_start to sim_end
-            # simulation_forwards, energy_change_forwards = self.integrate(iterations, observations, p, sim_flux, sim_rv, stars, start, step, stop)
-            # simulation_backwards = simulation_forwards
+        # start, stop, step = 0, iterations, 1  # classic mode: epoch <= sim_start, integrate from sim_start to sim_end
+        # simulation_forwards, energy_change_forwards = self.integrate(iterations, observations, p, sim_flux, sim_rv, stars, start, step, stop)
+        # simulation_backwards = simulation_forwards
 
         lightcurve_max = float(sim_flux.max(initial=None))
         sim_flux /= lightcurve_max  # Normalize flux.
-        exit(42)
         return sim_rv, sim_flux, self, simulation_backwards, simulation_forwards, energy_change_backwards, energy_change_forwards
 
     def calc_physics(self, observations, p):
@@ -468,13 +382,13 @@ class CurveSimBodies(list):
         if p.verbose:
             if p.video_file and p.flux_file is None:
                 print(f"Generating {p.frames} frames for a {p.frames / p.fps:.0f} seconds long video.")
-            print(f"Calculating {iterations:,} iterations. ", end="")
+            print(f"Calculating {iterations:,} steps: ", end="")
             tic = time.perf_counter()
         sim_rv, sim_flux, bodies, rebound_sim_backwards, rebound_sim_forwards, energy_change_backwards, energy_change_forwards = self.calc_positions_eclipses_luminosity(p, observations)
         if p.verbose:
             toc = time.perf_counter()
             print(f" {toc - tic:7.3f} seconds  ({iterations / (toc - tic):.0f} iterations/second)")
-            print(f"Log10 of the relative change of energy during simulation: backwards: {energy_change_backwards:.3f}, forwards: {energy_change_forwards:.3f}")
+            print(f"Relative change of energy during simulation: backwards: {energy_change_backwards:.1f}, forwards: {energy_change_forwards:.1f} (Log10)")
             if 0 > energy_change_backwards > -6 or 0 > energy_change_forwards > -6:
                 print(f"{Fore.YELLOW}The energy must not change significantly! Consider using a smaller time step (dt).{Style.RESET_ALL}")
         return sim_rv, sim_flux, rebound_sim_backwards, rebound_sim_forwards

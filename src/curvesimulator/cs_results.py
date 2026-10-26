@@ -86,8 +86,8 @@ class CurveSimResults(dict):
         filename = p.result_file
         with open(filename, "w", encoding="utf8") as file:
             json.dump(self, file, indent=4, ensure_ascii=False)
-        if p.verbose:
-            print(filename, "saved")
+        # if p.verbose:
+        #     print(filename, "saved")
 
     # @staticmethod
     # def check_resultfilename(resultfilename):

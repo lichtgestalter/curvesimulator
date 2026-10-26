@@ -475,7 +475,7 @@ class CurveSimParameters:
         body_index = 0
         fitting_params = []
         derived_params = []
-        if self.verbose and self.action in ["mcmc", "lmfit"]:
+        if self.verbose and self.action in ["lmfit", "guifit", "mcmc"]:
             print(f"Fitting params:")
         for section in config.sections():
             if section not in self.standard_sections:  # section describes a physical object
@@ -488,7 +488,7 @@ class CurveSimParameters:
                             sys.exit(1)
                         if sigma > (upper - lower) * 5:
                             print(f"{Fore.YELLOW}\nWARNING: Body {section}, Parameter {param_name}: startvalue spread very large compared to lower and upper bound interval size.{Style.RESET_ALL}")
-                        if self.verbose:
+                        if self.verbose and self.action in ["mcmc", "lmfit"]:
                             print(f"body {body_index}: {param_name}")
                         if param_name in ["i", "Omega", "omega", "pomega", "ma", "nu", "ea", "L"]:
                             value, lower, upper, sigma = np.radians(value), np.radians(lower), np.radians(upper), np.radians(sigma)

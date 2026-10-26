@@ -10,7 +10,7 @@ def main():
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/T200/TOI-4504_T200.ini")
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/Trifon_22.03.26/Trifon_22.03.26.ini")
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/Trifon_2026.07.15/trifon_mcmc.ini")
-    curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/Trifon_2026.07.15/trifon_debug0.ini")
+    # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/Trifon_2026.07.15/trifon_debug0.ini")
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/Trifon_2026.07.15/trifon_debug1.ini")
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/Trifon_2026.07.15/trifon_debug2.ini")
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/Trifon_2026.07.15/trifon_debug3.ini")
@@ -19,8 +19,9 @@ def main():
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/configurations/TOI4504/jacobimassesFalse/TOI-4504_V004.ini")
 
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/Almenara_AppendixA1/Almenara_AppendixA1.ini")
-    # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/Almenara/Almenara_2458400.ini")
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/Almenara/Almenara.ini")
+    curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/Almenara/Almenara_mcmc.ini")
+    # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/Almenara/Almenara_2458400.ini")
 
     # WASP-94
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/WASP-94/WASP-94_1_B_Period.ini")
