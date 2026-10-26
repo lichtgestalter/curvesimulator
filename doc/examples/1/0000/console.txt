@@ -1,15 +1,16 @@
-21.10.2026 23:05:42 UTC+0200
+26.10.2026 19:43:25 UTC+0100
 CurveSimObservations: flux 346, rv 7, tt 2, sim 2881
 CurveSimParameters from config1.ini
-Calculating 2,881 iterations using Rebound integrator whfast:  0%  10%  20%  30%  40%  50%  60%  70%  80%  90% 100%    0.059 seconds  (48533 iterations/second)
-Log10 of the relative change of energy during simulation: -14
+Calculating 2,881 steps: 
+Integrating 2881 steps forwards.  Using Rebound integrator whfast.  10%  20%  30%  40%  50%  60%  70%  80%  90% 100%    0.051 seconds  (56455 steps/second)
+Relative change of energy during simulation: backwards: 0.0, forwards: -14.5 (Log10)
 Saved simulated flux to ./0000/flux_sim.csv including white noise with standard deviation 0.0004
-
-Animating      500 frames:      10%  20%  30%  40%  50%  60%  70%  80%  90%     2.96 seconds  (169 frames/second)
+Animating      500 frames:  10%  20%  30%  40%  50%  60%  70%  80%  90%     2.47 seconds  (202 frames/second)
 ./0000/video.mp4 saved.
-Calculating 346 iterations using Rebound integrator whfast:  0%  10%  20%  30%  40%  50%  60%  70%  80%  90%    0.013 seconds  (26641 iterations/second)
-Log10 of the relative change of energy during simulation: -14
-./0000/results_single_run.json saved
+Calculating 346 steps: 
+Integrating 346 steps forwards.  Using Rebound integrator whfast.  10%  20%  30%  40%  50%  60%  70%  80%  90%    0.011 seconds  (31004 steps/second)
+Relative change of energy during simulation: backwards: 0.0, forwards: -13.7 (Log10)
 CurveSimResults:
 InnerPlanet       1 transit
 OuterPlanet       1 transit
+Results have been saved in ./0000/

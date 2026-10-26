@@ -388,7 +388,7 @@ class CurveSimAnimation:
         """
         frames = int(len(o.sim.simflux) // o.sim.sampling_rate)
         if p.verbose:
-            print(f"Animating {p.frames:8d} frames:                              ", end="")
+            print(f"Animating {p.frames:8d} frames: ", end="")
             tic = time.perf_counter()
 
         fig = self.fig

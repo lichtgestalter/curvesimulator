@@ -387,7 +387,7 @@ class CurveSimBodies(list):
         sim_rv, sim_flux, bodies, rebound_sim_backwards, rebound_sim_forwards, energy_change_backwards, energy_change_forwards = self.calc_positions_eclipses_luminosity(p, observations)
         if p.verbose:
             toc = time.perf_counter()
-            print(f" {toc - tic:7.3f} seconds  ({iterations / (toc - tic):.0f} iterations/second)")
+            print(f" {toc - tic:7.3f} seconds  ({iterations / (toc - tic):.0f} steps/second)")
             print(f"Relative change of energy during simulation: backwards: {energy_change_backwards:.1f}, forwards: {energy_change_forwards:.1f} (Log10)")
             if 0 > energy_change_backwards > -6 or 0 > energy_change_forwards > -6:
                 print(f"{Fore.YELLOW}The energy must not change significantly! Consider using a smaller time step (dt).{Style.RESET_ALL}")

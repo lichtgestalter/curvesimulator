@@ -52,13 +52,13 @@ class CurveSimParameters:
                        + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
                        + ["e", "i", "P", "a", "Omega", "omega", "pomega"]
                        + ["L", "ma", "ea", "nu", "T"])
-        self.ACCEPTED_PARAMS4UNITS = ["mass", "radius", "e", "i", "P", "a", "Omega", "omega", "pomega", "L", "ma", "ea", "nu", "T", "rv_offset", "rv_jitter", "u", "v"]
+        self.ACCEPTED_PARAMS4UNITS = ["mass", "radius", "e", "i", "P", "a", "Omega", "omega", "pomega", "L", "ma", "ea", "nu", "T", "rv_offset", "rv_jitter", "u", "v", "limb_darkening_1", "limb_darkening_2"]
         self.ACCEPTED_UNITS = ["kg", "m_sun", "m_jup", "m_nep", "m_earth", "m", "r_sun", "r_jup", "r_nep", "r_earth", "s", "h", "d", "y", "AU", "1", "deg", "m/s"]
         self.SCALE_FROM_UNIT = {"kg": 1, "m_sun": 1 / m_sun, "m_jup": 1 / m_jup, "m_nep": 1 / m_nep, "m_earth": 1 / m_earth,
                                 "m": 1, "r_sun": 1 / r_sun, "r_jup": 1 / r_jup, "r_nep": 1 / r_nep, "r_earth": 1 / r_earth, "AU": 1 / au,
                                 "s": 1, "h": 1 / hour, "d": 1 / day, "y": 1 / year,
-                                "1": 1, "deg": rad2deg, "m/s": 1}
-        self.DEFAULT_UNIT = '{"mass": "m_jup", "radius": "r_jup", "e": "1", "i": "deg", "P": "d", "a": "AU", "Omega": "deg", "omega": "deg", "pomega": "deg", "L": "deg", "ma": "deg", "ea": "deg", "nu": "deg", "T": "s", "rv_offset": "m/s", "rv_jitter": "m/s", "u": "1", "v": "1"}'
+                                "1": 1, "deg": rad2deg, "m/s": 1, "limb_darkening_1": 1, "limb_darkening_2": 1}
+        self.DEFAULT_UNIT = '{"mass": "m_jup", "radius": "r_jup", "e": "1", "i": "deg", "P": "d", "a": "AU", "Omega": "deg", "omega": "deg", "pomega": "deg", "L": "deg", "ma": "deg", "ea": "deg", "nu": "deg", "T": "s", "rv_offset": "m/s", "rv_jitter": "m/s", "u": "1", "v": "1", "limb_darkening_1": "1", "limb_darkening_2": "1"}'
 
         self.body_param_names = None
         self.body_param_unit_names = None
