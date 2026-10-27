@@ -85,8 +85,8 @@ class CurveSimBody:
     #     body = CurveSimBody()
     #     return body
 
-    def save(self, directory=".", prefix="", suffix=""):
-        """Saves attributes of self in a simple text file (key = repr(value)).
+    def save(self, directory="./", prefix="", suffix=""):
+        """Saves attributes of self in a simple text file.
         Excludes large/non-serializable/derived attributes listed in `exclude`.
         """
         filename = directory + prefix + self.name + suffix + ".bdy"
@@ -94,14 +94,11 @@ class CurveSimBody:
         try:
             with open(filename, "w", encoding="utf-8") as f:
                 for key, val in self.__dict__.items():
-                    if key in exclude:
+                    if key in exclude or key.startswith("_") or callable(val):
                         continue
-                    if key.startswith("_"):
-                        continue
-                    # skip callables and methods
-                    if callable(val):
-                        continue
-                    f.write(f"{key} = {repr(val)}\n")
+                    if isinstance(val, np.generic):  # np.float64, np.int32, np.bool_, ...
+                        val = val.item()
+                    f.write(f"{key} = {val}\n")
         except Exception as e:
             print(f"Error saving body to {filename}: {e}")
 

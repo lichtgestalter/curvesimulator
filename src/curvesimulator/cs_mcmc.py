@@ -878,9 +878,12 @@ class CurveSimMCMC:
                 self.tt_multi_residual_plot(steps_done, "tt_multi_delta.png", o.tt.measured_tt)
 
         self.high_density_intervals(p)
-        bodies = CurveSimMCMC.bodies_from_fitting_params(bodies, p.fitting_params[:p.body_fparams_count], param_type="max_likelihood_scaled")
         if "save_bodies" in commands or "all" in commands:
+            bodies = CurveSimMCMC.bodies_from_fitting_params(bodies, p.fitting_params[:p.body_fparams_count], param_type="max_likelihood_scaled")
             bodies.save(directory=p.results_directory, prefix="", suffix="_maxL")
+            bodies = CurveSimMCMC.bodies_from_fitting_params(bodies, p.fitting_params[:p.body_fparams_count], param_type="mean")
+            bodies.save(directory=p.results_directory, prefix="", suffix="_mean")
+        bodies = CurveSimMCMC.bodies_from_fitting_params(bodies, p.fitting_params[:p.body_fparams_count], param_type="max_likelihood_scaled")
         if "single_run" in commands or "all" in commands:
             CurveSimMCMC.single_run(p, bodies, o)  # creates o vs. c, chi^2 and residuals plots.
 

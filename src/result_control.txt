@@ -1,3 +1,4 @@
+save_bodies                      # Save the maximum-likelihood parameters of each body as a separate file with the extension .bdy.
 chi_squared                      # Plot the development of reduced chi squared during fitting: reduced_chi^2_over_time.png
 
 # All lines after the first line that starts with # are ignored.
