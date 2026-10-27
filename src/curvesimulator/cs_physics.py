@@ -62,21 +62,34 @@ class CurveSimPhysics:
 
     @staticmethod
     def get_limbdarkening_params(param_1, param_2, param_type):
-        """converts limb darkening params to quadratic law params u1,u2 if necessary"""
+        """Converts limb darkening params to quadratic law params u1,u2 if necessary
+           u1, u2 are much faster for calculating intensity than q1, q2 """
         if param_type == "u":
+            if not (param_1 > 0 and (param_1 + param_2) < 1 and (param_1 + 2 * param_2) > 0):
+                print(f"{Fore.RED}\nERROR in config file: limb darkening parameters u1={param_1} and u2={param_2} for type u (quadratic) are out of range.")
+                print(f"                      Constraints: u1 > 0 and (u1 + u2) < 1 and (u1 + 2 * u2) > 0.{Style.RESET_ALL}")
+                sys.exit(1)
             return param_1, param_2
         if param_type == "a":
+            if not (param_1 > 0 and (param_1 + param_2) < 1 and (param_1 + 2 * param_2) > 0):
+                print(f"{Fore.RED}\nERROR in config file: limb darkening parameters a1={param_1} and a2={param_2} for type a (polynomial) are out of range.")
+                print(f"                      Constraints: a1 > 0 and (a1 + a2) < 1 and (a1 + 2 * a2) > 0.{Style.RESET_ALL}")
+                sys.exit(1)
             u1 = param_1 + 2 * param_2
             u2 = -param_2
             return u1, u2
         if param_type == "q":
+            if not (0 < param_1 < 1 and 0 < param_2 < 1):
+                print(f"{Fore.RED}\nERROR in config file: limb darkening parameters q1={param_1} and q2={param_2} for type q (Kipping) are out of range.")
+                print(f"                      Constraints: 0 < q1 < 1 and 0 < q2 < 1.{Style.RESET_ALL}")
+                sys.exit(1)
             u1 = 2 * math.sqrt(param_1) * param_2
-            u2 = np.sqrt(param_1) * (1 - 2 * param_2)
+            u2 = math.sqrt(param_1) * (1 - 2 * param_2)
             return u1, u2
         if param_type is None:
             return None, None
         print(f"{Fore.RED}\nERROR in config file: limb_darkening_parameter_type must be a or u or q.")
-        print(f"                      limb_darkening must be [a0,a1,a2] or [u1,u2] or [q1,q2] correspondingly.")
+        print(f"                      limb_darkening must be [a1,a2] or [u1,u2] or [q1,q2] correspondingly.")
         print(f"                      But config file contains: limb_darkening_parameter_type = {param_type}{Style.RESET_ALL}")
         sys.exit(1)
 
@@ -109,7 +122,7 @@ class CurveSimPhysics:
         limb_darkening_params: list of coefficients for the limb darkening model.
 
         Returns:
-        float: intensity relative to the intensity at the midlle of the star at the given relative radius.
+        float: intensity relative to the intensity at the middle of the star at the given relative radius.
         """
         if relative_radius < 0:  # handling rounding errors
             relative_radius = 0.0
