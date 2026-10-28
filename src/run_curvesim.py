@@ -20,7 +20,7 @@ def main():
 
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/Almenara_AppendixA1/Almenara_AppendixA1.ini")
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/Almenara/Almenara.ini")
-    curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/Almenara/Almenara_mcmc.ini")
+    # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/Almenara/Almenara_mcmc.ini")
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/Almenara/Almenara_2458400.ini")
 
     # WASP-94
@@ -36,7 +36,7 @@ def main():
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/SolarSystem/Inner_Planets_2026.ini")
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/SolarSystem/Earth_Transit_2026.ini")
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/SolarSystem/Earth_Transit_2027.ini")
-    # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/SolarSystem/All_Planets_2026-35.ini")
+    curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/SolarSystem/All_Planets_2026-35.ini")
 
     print(curvesimulation)
 
