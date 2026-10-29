@@ -82,10 +82,6 @@ class CurveSimulator:
         bodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
         p.update_fitting_params_units(bodies)
         o = TotalObservations(p)
-        if p.free_parameters is not None and p.free_parameters >= o.observation_count:
-            print(f"{Fore.YELLOW}\nWARNING: There are {p.free_parameters} free parameters but only {o.observation_count} observations.{Style.RESET_ALL}")
-        if p.free_parameters is None and o.observation_count > 0:
-            print(f"{Fore.YELLOW}\nWARNING: p-values will not be calculated because the parameter free_parameters is missing in the configuration file.{Style.RESET_ALL}")
         if not p.rebound_warnings:
             warnings.filterwarnings("ignore", module="rebound")
         self.params, self.bodies, self.observations = p, bodies, o  # grants access from the executed script by making it an attribute of the CurveSimulator object
@@ -96,9 +92,12 @@ class CurveSimulator:
             if _is_multiprocessing_child_import():
                 return
 
-            # p.init_fitting_param_dic()
             p.enrich_fitting_params()
             print(f"Fitting {p.free_parameters} params.")
+            if p.free_parameters is not None and p.free_parameters >= o.observation_count:
+                print(f"{Fore.YELLOW}\nWARNING: There are {p.free_parameters} free parameters but only {o.observation_count} observations.{Style.RESET_ALL}")
+            if p.free_parameters is None and o.observation_count > 0:
+                print(f"{Fore.YELLOW}\nWARNING: p-values will not be calculated because the parameter free_parameters is missing in the configuration file.{Style.RESET_ALL}")
 
             if p.action == "guifit":
                 self.guifit = CurveSimManualFit(p, bodies, o)

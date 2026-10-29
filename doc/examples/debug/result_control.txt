@@ -1,0 +1,25 @@
+chi_squared                      # Plot the development of reduced chi squared during fitting: reduced_chi^2_over_time.png
+all
+
+# All lines after the first line that starts with # are ignored.
+
+all                              # Generates all results!
+histogram                        # Plot one or more histograms per fitting parameter (see configuration parameter bins): histograms_{bins}.png.
+single_run                       # Plot observed vs. computed, chi squared, and residuals for all observations and save results_single_run.json.
+traces                           # Plot the traces/walkers per fitting parameter: traces.png.
+integrated_autocorrelation_time  # Plot the integrated autocorrelation time per fitting parameter: int_autocorr_time.png and steps_per_i_ac_time.png.
+mcmc_results                     # Save results_mcmc.json.
+save_bodies                      # Save the maximum-likelihood parameters of each body as a separate file with the extension .bdy.
+tt_delta                         # Plot observed vs. computed transit midpoints: tt_delta.png.
+tt_multi_delta                   # Plot the development of computed transit midpoints during fitting: tt_delta_delta.png.
+acceptance                       # Plot the acceptance fraction: acceptance.png.
+autocorrelation_function         # Plot the autocorrelation function per fitting parameter: autocorrelation.png.
+corner                           # Plot the pairwise relation of the fitting parameters in a scatter-plot matrix: corner.png.
+
+Place this file into your working directory (where the python script is, that you are executing).
+You can modify this file while the fitting is running.
+After an MCMC chunk has finished being calculated, this file is re-read.
+All lines containing a valid command cause the creation of specific result files/plots.
+All lines after the first line that starts with `#` are ignored.
+If the file is empty, or if a line starting with `#` appears before any command lines, no results are generated.
+If the file does not exist or contains the command `all`, all results are generated.
