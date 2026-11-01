@@ -1,4 +1,5 @@
 from colorama import Fore, Style
+import itertools
 import numpy as np
 import math
 import sys
@@ -61,6 +62,49 @@ class CurveSimPhysics:
         return math.sqrt((dx ** 2 + dy ** 2))
 
     @staticmethod
+    def q_to_u(q1, q2):
+        """Vectorized Kipping q -> quadratic u conversion."""
+        s = np.sqrt(q1)
+        return 2 * s * q2, s * (1 - 2 * q2)
+
+    @staticmethod
+    def a_to_u(a1, a2):
+        return a1 + 2 * a2, -a2
+
+    @staticmethod
+    def convert_limb_darkening_fitting_params(paramtype, fp1, fp2):
+        """Convert bounds, spread and normal prior from type a/q to u.
+        Spread and sigma are propagated with the delta method (linearization,
+        independent parameters, truncation at the bounds ignored).
+        """
+        if paramtype == "u":
+            return
+
+        to_u = {"a": CurveSimPhysics.a_to_u, "q": CurveSimPhysics.q_to_u}[paramtype]
+
+        def propagate(p1, p2, s1, s2):
+            """Std of u1, u2 for independent Gaussian p1, p2 (central differences)."""
+            h1, h2 = 1e-6 * max(abs(p1), 1e-3), 1e-6 * max(abs(p2), 1e-3)
+            u1_a, u2_a = to_u(p1 + h1, p2)
+            u1_b, u2_b = to_u(p1 - h1, p2)
+            u1_c, u2_c = to_u(p1, p2 + h2)
+            u1_d, u2_d = to_u(p1, p2 - h2)
+            d1_dp1, d2_dp1 = (u1_a - u1_b) / (2 * h1), (u2_a - u2_b) / (2 * h1)
+            d1_dp2, d2_dp2 = (u1_c - u1_d) / (2 * h2), (u2_c - u2_d) / (2 * h2)
+            return (math.hypot(d1_dp1 * s1, d1_dp2 * s2),
+                    math.hypot(d2_dp1 * s1, d2_dp2 * s2))
+
+        c1, c2 = zip(*(to_u(x, y) for x, y in itertools.product((fp1.lower, fp1.upper), (fp2.lower, fp2.upper))))  # Bounds: min/max over the 4 corners of the box (exact for a and q)
+        fp1.lower, fp2.lower = min(c1), min(c2)
+        fp1.upper, fp2.upper = max(c1), max(c2)
+        fp1.sigma, fp2.sigma = propagate(fp1.startvalue, fp2.startvalue, fp1.sigma, fp2.sigma)
+        fp1.startvalue, fp2.startvalue = to_u(fp1.startvalue, fp2.startvalue)
+        if all(x is not None for x in (fp1.prior_mu, fp2.prior_mu, fp1.prior_sigma, fp2.prior_sigma)):
+            fp1.prior_sigma, fp2.prior_sigma = propagate(fp1.prior_mu, fp2.prior_mu, fp1.prior_sigma, fp2.prior_sigma)
+            fp1.prior_mu, fp2.prior_mu = to_u(fp1.prior_mu, fp2.prior_mu)
+
+
+    @staticmethod
     def get_limbdarkening_params(param_1, param_2, param_type):
         """Converts limb darkening params to quadratic law params u1,u2 if necessary
            u1, u2 are much faster for calculating intensity than q1, q2 """
@@ -75,17 +119,19 @@ class CurveSimPhysics:
                 print(f"{Fore.RED}\nERROR in config file: limb darkening parameters a1={param_1} and a2={param_2} for type a (polynomial) are out of range.")
                 print(f"                      Constraints: a1 > 0 and (a1 + a2) < 1 and (a1 + 2 * a2) > 0.{Style.RESET_ALL}")
                 sys.exit(1)
-            u1 = param_1 + 2 * param_2
-            u2 = -param_2
-            return u1, u2
+            # u1 = param_1 + 2 * param_2
+            # u2 = -param_2
+            # return u1, u2
+            return CurveSimPhysics.a_to_u(param_1, param_2)
         if param_type == "q":
             if not (0 < param_1 < 1 and 0 < param_2 < 1):
                 print(f"{Fore.RED}\nERROR in config file: limb darkening parameters q1={param_1} and q2={param_2} for type q (Kipping) are out of range.")
                 print(f"                      Constraints: 0 < q1 < 1 and 0 < q2 < 1.{Style.RESET_ALL}")
                 sys.exit(1)
-            u1 = 2 * math.sqrt(param_1) * param_2
-            u2 = math.sqrt(param_1) * (1 - 2 * param_2)
-            return u1, u2
+            # u1 = 2 * math.sqrt(param_1) * param_2
+            # u2 = math.sqrt(param_1) * (1 - 2 * param_2)
+            # return u1, u2
+            return CurveSimPhysics.q_to_u(param_1, param_2)
         if param_type is None:
             return None, None
         print(f"{Fore.RED}\nERROR in config file: limb_darkening_parameter_type must be a or u or q.")

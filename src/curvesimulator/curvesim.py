@@ -92,7 +92,7 @@ class CurveSimulator:
             if _is_multiprocessing_child_import():
                 return
 
-            p.enrich_fitting_params()
+            p.enrich_fitting_params(bodies)
             print(f"Fitting {p.free_parameters} params.")
             if p.free_parameters is not None and p.free_parameters >= o.observation_count:
                 print(f"{Fore.YELLOW}\nWARNING: There are {p.free_parameters} free parameters but only {o.observation_count} observations.{Style.RESET_ALL}")
