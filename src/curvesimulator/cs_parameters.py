@@ -594,7 +594,7 @@ class CurveSimParameters:
             item = {
                 "index": fp.index,
                 "body_name": fp.body_name,
-                # hier (oder in enrich funktion?) lesbare (also mit scale multiplizierte) attribute erzeugen
+                # hier (oder in enrich funktion?) menschenlesbare (also mit scale multiplizierte) attribute erzeugen
                 "body_index": fp.body_index,
                 "param_name": fp.param_name,
                 "unit": fp.unit,

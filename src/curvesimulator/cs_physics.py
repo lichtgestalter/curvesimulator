@@ -73,6 +73,11 @@ class CurveSimPhysics:
         return a1 + 2 * a2, -a2
 
     @staticmethod
+    def is_valid_u(u1, u2, tol=1e-9):
+        """Quadratic law: positive and monotonically decreasing intensity profile."""
+        return u1 >= -tol and u1 + u2 <= 1 + tol and u1 + 2 * u2 >= -tol
+
+    @staticmethod
     def convert_limb_darkening_fitting_params(paramtype, fp1, fp2):
         """Convert bounds, spread and normal prior from type a/q to u.
         Spread and sigma are propagated with the delta method (linearization,
@@ -97,26 +102,15 @@ class CurveSimPhysics:
 
         # Bounds: min/max of u over the four corners of the (p1, p2) box (exact for a and q, since the mappings are monotonic per corner).
         corners = [(fp1.lower, fp2.lower), (fp1.lower, fp2.upper), (fp1.upper, fp2.lower), (fp1.upper, fp2.upper)]
-        corner_u = [to_u(p1, p2) for p1, p2 in corners]
-
-        for u1, u2 in corner_u:
-            print(u1, u2, CurveSimPhysics.is_valid_u(u1, u2))
-            hier weiter: macht das Sinn, was ausgedruckt wird?
-        exit(1111)
-
-        corner_u1, corner_u2 = zip(*corner_u)
-        fp1.lower, fp1.upper = min(corner_u1), max(corner_u1)
-        fp2.lower, fp2.upper = min(corner_u2), max(corner_u2)
+        corners_u = [to_u(p1, p2) for p1, p2 in corners]
+        corners_u1, corners_u2 = zip(*corners_u)
+        fp1.lower, fp1.upper = min(corners_u1), max(corners_u1)
+        fp2.lower, fp2.upper = min(corners_u2), max(corners_u2)
         fp1.sigma, fp2.sigma = propagate(fp1.startvalue, fp2.startvalue, fp1.sigma, fp2.sigma)
         fp1.startvalue, fp2.startvalue = to_u(fp1.startvalue, fp2.startvalue)
         if all(x is not None for x in (fp1.prior_mu, fp2.prior_mu, fp1.prior_sigma, fp2.prior_sigma)):
             fp1.prior_sigma, fp2.prior_sigma = propagate(fp1.prior_mu, fp2.prior_mu, fp1.prior_sigma, fp2.prior_sigma)
             fp1.prior_mu, fp2.prior_mu = to_u(fp1.prior_mu, fp2.prior_mu)
-
-    @staticmethod
-    def is_valid_u(u1, u2, tol=1e-9):
-        """Quadratic law: positive and monotonically decreasing intensity profile."""
-        return u1 >= -tol and u1 + u2 <= 1 + tol and u1 + 2 * u2 >= -tol
 
     @staticmethod
     def get_limbdarkening_params(param_1, param_2, param_type):

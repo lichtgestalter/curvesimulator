@@ -1,9 +1,9 @@
-chi_squared                      # Plot the development of reduced chi squared during fitting: reduced_chi^2_over_time.png
-all
+histogram                        # Plot one or more histograms per fitting parameter (see configuration parameter bins): histograms_{bins}.png.
 
 # All lines after the first line that starts with # are ignored.
 
 all                              # Generates all results!
+chi_squared                      # Plot the development of reduced chi squared during fitting: reduced_chi^2_over_time.png
 histogram                        # Plot one or more histograms per fitting parameter (see configuration parameter bins): histograms_{bins}.png.
 single_run                       # Plot observed vs. computed, chi squared, and residuals for all observations and save results_single_run.json.
 traces                           # Plot the traces/walkers per fitting parameter: traces.png.
