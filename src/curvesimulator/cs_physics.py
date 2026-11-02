@@ -63,12 +63,13 @@ class CurveSimPhysics:
 
     @staticmethod
     def q_to_u(q1, q2):
-        """Vectorized Kipping q -> quadratic u conversion."""
+        """Limb darkening: Vectorized Kipping q -> quadratic u conversion."""
         s = np.sqrt(q1)
         return 2 * s * q2, s * (1 - 2 * q2)
 
     @staticmethod
     def a_to_u(a1, a2):
+        """Limb darkening: Polynomial a -> quadratic u conversion."""
         return a1 + 2 * a2, -a2
 
     @staticmethod
@@ -94,22 +95,35 @@ class CurveSimPhysics:
             return (math.hypot(d1_dp1 * s1, d1_dp2 * s2),
                     math.hypot(d2_dp1 * s1, d2_dp2 * s2))
 
-        c1, c2 = zip(*(to_u(x, y) for x, y in itertools.product((fp1.lower, fp1.upper), (fp2.lower, fp2.upper))))  # Bounds: min/max over the 4 corners of the box (exact for a and q)
-        fp1.lower, fp2.lower = min(c1), min(c2)
-        fp1.upper, fp2.upper = max(c1), max(c2)
+        # Bounds: min/max of u over the four corners of the (p1, p2) box (exact for a and q, since the mappings are monotonic per corner).
+        corners = [(fp1.lower, fp2.lower), (fp1.lower, fp2.upper), (fp1.upper, fp2.lower), (fp1.upper, fp2.upper)]
+        corner_u = [to_u(p1, p2) for p1, p2 in corners]
+
+        for u1, u2 in corner_u:
+            print(u1, u2, CurveSimPhysics.is_valid_u(u1, u2))
+            hier weiter: macht das Sinn, was ausgedruckt wird?
+        exit(1111)
+
+        corner_u1, corner_u2 = zip(*corner_u)
+        fp1.lower, fp1.upper = min(corner_u1), max(corner_u1)
+        fp2.lower, fp2.upper = min(corner_u2), max(corner_u2)
         fp1.sigma, fp2.sigma = propagate(fp1.startvalue, fp2.startvalue, fp1.sigma, fp2.sigma)
         fp1.startvalue, fp2.startvalue = to_u(fp1.startvalue, fp2.startvalue)
         if all(x is not None for x in (fp1.prior_mu, fp2.prior_mu, fp1.prior_sigma, fp2.prior_sigma)):
             fp1.prior_sigma, fp2.prior_sigma = propagate(fp1.prior_mu, fp2.prior_mu, fp1.prior_sigma, fp2.prior_sigma)
             fp1.prior_mu, fp2.prior_mu = to_u(fp1.prior_mu, fp2.prior_mu)
 
+    @staticmethod
+    def is_valid_u(u1, u2, tol=1e-9):
+        """Quadratic law: positive and monotonically decreasing intensity profile."""
+        return u1 >= -tol and u1 + u2 <= 1 + tol and u1 + 2 * u2 >= -tol
 
     @staticmethod
     def get_limbdarkening_params(param_1, param_2, param_type):
         """Converts limb darkening params to quadratic law params u1,u2 if necessary
            u1, u2 are much faster for calculating intensity than q1, q2 """
         if param_type == "u":
-            if not (param_1 > 0 and (param_1 + param_2) < 1 and (param_1 + 2 * param_2) > 0):
+            if not CurveSimPhysics.is_valid_u(param_1, param_2):
                 print(f"{Fore.RED}\nERROR in config file: limb darkening parameters u1={param_1} and u2={param_2} for type u (quadratic) are out of range.")
                 print(f"                      Constraints: u1 > 0 and (u1 + u2) < 1 and (u1 + 2 * u2) > 0.{Style.RESET_ALL}")
                 sys.exit(1)
@@ -119,18 +133,12 @@ class CurveSimPhysics:
                 print(f"{Fore.RED}\nERROR in config file: limb darkening parameters a1={param_1} and a2={param_2} for type a (polynomial) are out of range.")
                 print(f"                      Constraints: a1 > 0 and (a1 + a2) < 1 and (a1 + 2 * a2) > 0.{Style.RESET_ALL}")
                 sys.exit(1)
-            # u1 = param_1 + 2 * param_2
-            # u2 = -param_2
-            # return u1, u2
             return CurveSimPhysics.a_to_u(param_1, param_2)
         if param_type == "q":
             if not (0 < param_1 < 1 and 0 < param_2 < 1):
                 print(f"{Fore.RED}\nERROR in config file: limb darkening parameters q1={param_1} and q2={param_2} for type q (Kipping) are out of range.")
                 print(f"                      Constraints: 0 < q1 < 1 and 0 < q2 < 1.{Style.RESET_ALL}")
                 sys.exit(1)
-            # u1 = 2 * math.sqrt(param_1) * param_2
-            # u2 = math.sqrt(param_1) * (1 - 2 * param_2)
-            # return u1, u2
             return CurveSimPhysics.q_to_u(param_1, param_2)
         if param_type is None:
             return None, None

@@ -716,6 +716,12 @@ class CurveSimParameters:
                         fp_ld1 = fp
                     elif fp.param_name == "limb_darkening_u2":
                         fp_ld2 = fp
+            if fp_ld1 is None or fp_ld2 is None:
+                print(f"{Fore.RED}\nERROR: Body {bodies[body_index].name}: When fitting limb darkening, both limb darkening must be fitting parameters.")
+                sys.exit(1)
+            if (fp_ld1.prior_mu is None) != (fp_ld2.prior_mu is None):
+                print(f"{Fore.RED}\nERROR: Body {bodies[body_index].name}: When fitting limb darkening, both or no limb darkening parameters must have normal priors.")
+                sys.exit(1)
             triples.append((bodies[body_index], fp_ld1, fp_ld2))
         print(triples)
         print(type(triples[0]))
@@ -763,6 +769,9 @@ class FittingParameter:
         # self.indices = indices  # For derived params only. Indices of the fitting params to be used in the function.
         # self.constants = constants  # For derived params only. Constants to be used in the function.
         # self.function = function  # For derived params only. A lambda function, using the above indices and constants as arguments.
+
+    def __repr__(self):
+        return f"{self.body_name}.{self.param_unit_name}"
 
     def initial_values(self, rng, size):
         result = []
