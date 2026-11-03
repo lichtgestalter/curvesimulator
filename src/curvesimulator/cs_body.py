@@ -19,7 +19,7 @@ def multiple_transit_error():
 # noinspection NonAsciiCharacters,PyPep8Naming,PyUnusedLocal
 class CurveSimBody:
     def __init__(self, p, primary, name, body_type, mass, radius, luminosity, rv_offset, rv_jitter, startposition, velocity, P, a, e, i, Omega, omega, pomega, L, ma, ea,
-                 nu, T, limb_darkening_u1, limb_darkening_u2, limb_darkening_parameter_type, unit, color, image_file_left, image_file_right):
+                 nu, T, ld_u1, ld_u2, limb_darkening_parameter_type, unit, color, image_file_left, image_file_right):
         """Initialize instance of physical body."""
         # For ease of use of constants in the config file they are additionally defined here without the prefix "p.".
         g, au, r_sun, m_sun, l_sun = p.g, p.au, p.r_sun, p.m_sun, p.l_sun
@@ -38,9 +38,9 @@ class CurveSimBody:
         self.luminosity = luminosity  # [W]
         self.rv_offset = rv_offset  # [m/s]
         self.rv_jitter = rv_jitter  # [m/s]
-        self.limb_darkening_u1, self.limb_darkening_u2 = CurveSimPhysics.get_limbdarkening_params(limb_darkening_u1, limb_darkening_u2, limb_darkening_parameter_type)
+        self.ld_u1, self.ld_u2 = CurveSimPhysics.get_limbdarkening_params(ld_u1, ld_u2, limb_darkening_parameter_type)
         self.limb_darkening_parameter_type = limb_darkening_parameter_type  # original type from config file. Gets changed to "u" when limb darkening fitting parameters get converted to type u.
-        self.mean_intensity = CurveSimPhysics.calc_mean_intensity(self.limb_darkening_u1, self.limb_darkening_u2)
+        self.mean_intensity = CurveSimPhysics.calc_mean_intensity(self.ld_u1, self.ld_u2)
         self.intensity = luminosity / self.area_2d  # luminosity per (apparent) area [W/m**2]
         self.e = e  # [1] eccentricity
         self.i = i  # [rad] inclination
@@ -124,9 +124,9 @@ class CurveSimBody:
             print(f"Error loading body from {path}: {e}")
             return None
 
-        # if "limb_darkening_u1" not in data.keys():
-        #     data["limb_darkening_u1"] = data.get("limb_darkening_u1")
-        #     data["limb_darkening_u2"] = data.get("limb_darkening_u2")
+        # if "ld_u1" not in data.keys():
+        #     data["ld_u1"] = data.get("ld_u1")
+        #     data["ld_u2"] = data.get("ld_u2")
         #     data["limb_darkening_parameter_type"] = "u"
 
         missing = []
@@ -162,8 +162,8 @@ class CurveSimBody:
             data.get("ea"),
             data.get("nu"),
             data.get("T"),
-            data.get("limb_darkening_u1"),
-            data.get("limb_darkening_u2"),
+            data.get("ld_u1"),
+            data.get("ld_u2"),
             data.get("limb_darkening_parameter_type"),
             data.get("color"),
             data.get("image_file_left"),
@@ -370,7 +370,7 @@ class CurveSimBody:
     def depth_at_tt(self, other, eclipser, eclipsee):
         eclipsed_area, relative_radius = self.eclipsed_by_at_tt(other, eclipser, eclipsee)
         if eclipsed_area is not None:
-            limbdarkening = CurveSimPhysics.limbdarkening(relative_radius, self.limb_darkening_u1, self.limb_darkening_u2)
+            limbdarkening = CurveSimPhysics.limbdarkening(relative_radius, self.ld_u1, self.ld_u2)
             relative_depth = (self.intensity * eclipsed_area * limbdarkening / self.mean_intensity) / self.luminosity
             return relative_depth
         return None

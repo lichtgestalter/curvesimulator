@@ -55,16 +55,16 @@ class CurveSimParameters:
         self.hour, self.day, self.year, self.rad2deg = hour, day, year, rad2deg
 
         self.PARAMS = (["body_type", "primary", "mass", "radius", "luminosity", "rv_offset", "rv_jitter"]
-                       + ["limb_darkening_u1", "limb_darkening_u2", "mean_intensity", "intensity"]
+                       + ["ld_u1", "ld_u2", "mean_intensity", "intensity"]
                        + ["e", "i", "P", "a", "Omega", "omega", "pomega"]
                        + ["L", "ma", "ea", "nu", "T"])
-        self.ACCEPTED_PARAMS4UNITS = ["mass", "radius", "e", "i", "P", "a", "Omega", "omega", "pomega", "L", "ma", "ea", "nu", "T", "rv_offset", "rv_jitter", "u", "v", "limb_darkening_u1", "limb_darkening_u2"]
+        self.ACCEPTED_PARAMS4UNITS = ["mass", "radius", "e", "i", "P", "a", "Omega", "omega", "pomega", "L", "ma", "ea", "nu", "T", "rv_offset", "rv_jitter", "u", "v", "ld_u1", "ld_u2"]
         self.ACCEPTED_UNITS = ["kg", "m_sun", "m_jup", "m_nep", "m_earth", "m", "r_sun", "r_jup", "r_nep", "r_earth", "s", "h", "d", "y", "AU", "1", "deg", "m/s"]
         self.SCALE_FROM_UNIT = {"kg": 1, "m_sun": 1 / m_sun, "m_jup": 1 / m_jup, "m_nep": 1 / m_nep, "m_earth": 1 / m_earth,
                                 "m": 1, "r_sun": 1 / r_sun, "r_jup": 1 / r_jup, "r_nep": 1 / r_nep, "r_earth": 1 / r_earth, "AU": 1 / au,
                                 "s": 1, "h": 1 / hour, "d": 1 / day, "y": 1 / year,
-                                "1": 1, "deg": rad2deg, "m/s": 1, "limb_darkening_u1": 1, "limb_darkening_u2": 1}
-        self.DEFAULT_UNIT = '{"mass": "m_jup", "radius": "r_jup", "e": "1", "i": "deg", "P": "d", "a": "AU", "Omega": "deg", "omega": "deg", "pomega": "deg", "L": "deg", "ma": "deg", "ea": "deg", "nu": "deg", "T": "s", "rv_offset": "m/s", "rv_jitter": "m/s", "u": "1", "v": "1", "limb_darkening_u1": "1", "limb_darkening_u2": "1"}'
+                                "1": 1, "deg": rad2deg, "m/s": 1, "ld_u1": 1, "ld_u2": 1}
+        self.DEFAULT_UNIT = '{"mass": "m_jup", "radius": "r_jup", "e": "1", "i": "deg", "P": "d", "a": "AU", "Omega": "deg", "omega": "deg", "pomega": "deg", "L": "deg", "ma": "deg", "ea": "deg", "nu": "deg", "T": "s", "rv_offset": "m/s", "rv_jitter": "m/s", "u": "1", "v": "1", "ld_u1": "1", "ld_u2": "1"}'
 
         self.body_param_names = None
         self.body_param_unit_names = None
@@ -482,7 +482,7 @@ class CurveSimParameters:
                         if self.verbose and self.action in ["mcmc", "lmfit"]:
                             print(f"body {body_index}: {param_name}")
                         if "limb_darkening" in param_name:
-                            param_name = "limb_darkening_u" + param_name[-1]
+                            param_name = "ld_u" + param_name[-1]
                         fitting_params.append(FittingParameter(self, section, body_index, param_name, value, lower, upper, sigma, prior_mu, prior_sigma))
                         fitting_params[-1].index = len(fitting_params) - 1
                         param_names_in_use.append(param_name)
@@ -629,9 +629,9 @@ class CurveSimParameters:
                 eclipsers.append(body)
             if body.name in self.eclipsees_names:
                 eclipsees.append(body)
-                if any([body.luminosity == 0, body.limb_darkening_u1 is None, body.limb_darkening_u2 is None]):
+                if any([body.luminosity == 0, body.ld_u1 is None, body.ld_u2 is None]):
                     print(f"{Fore.RED}\nERROR: Eclipsees must have luminosity > 0 and limb darkening params.{Style.RESET_ALL}")
-                    print(f"{Fore.RED}\n{body.name} has {body.luminosity=}, {body.limb_darkening_u1=}, {body.limb_darkening_u2=}.{Style.RESET_ALL}")
+                    print(f"{Fore.RED}\n{body.name} has {body.luminosity=}, {body.ld_u1=}, {body.ld_u2=}.{Style.RESET_ALL}")
                     sys.exit(1)
         self.eclipsers, self.eclipsees = eclipsers, eclipsees
 
@@ -672,7 +672,7 @@ class CurveSimParameters:
            If limb darkening is in fitting params, convert to u1, u2"""
         bodies_indices_with_ld_fitting = set()
         for fp in self.fitting_params:
-            if "limb_darkening" in fp.param_name:
+            if "ld_u" in fp.param_name:
                 # fp.param_name = "limb_darkening_u" + fp.param_name[-1]
                 bodies_indices_with_ld_fitting.add(fp.body_index)
 
@@ -692,9 +692,9 @@ class CurveSimParameters:
             fp_ld1, fp_ld2 = None, None
             for fp in self.fitting_params:
                 if fp.body_index == body_index:
-                    if fp.param_name == "limb_darkening_u1":
+                    if fp.param_name == "ld_u1":
                         fp_ld1 = fp
-                    elif fp.param_name == "limb_darkening_u2":
+                    elif fp.param_name == "ld_u2":
                         fp_ld2 = fp
             if fp_ld1 is None or fp_ld2 is None:
                 print(f"{Fore.RED}\nERROR: Body {bodies[body_index].name}: When fitting limb darkening, both limb darkening must be fitting parameters.")
@@ -703,8 +703,6 @@ class CurveSimParameters:
                 print(f"{Fore.RED}\nERROR: Body {bodies[body_index].name}: When fitting limb darkening, both or no limb darkening parameters must have normal priors.")
                 sys.exit(1)
             triples.append((bodies[body_index], fp_ld1, fp_ld2))
-        print(triples)
-        print(type(triples[0]))
 
         # adjust upper, lower, sigma, prior_mu and prior_sigma for limb darkening fitting parameters if they were given as type a or q in config file
         for body, fp_ld1, fp_ld2 in triples:

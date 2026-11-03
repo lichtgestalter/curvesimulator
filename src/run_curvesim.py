@@ -1,7 +1,6 @@
 # This file is for developers only
 # import cProfile
 # import pstats
-import itertools
 from curvesimulator import CurveSimulator
 
 def main():

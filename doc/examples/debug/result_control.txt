@@ -1,5 +1,5 @@
 histogram                        # Plot one or more histograms per fitting parameter (see configuration parameter bins): histograms_{bins}.png.
-
+all
 # All lines after the first line that starts with # are ignored.
 
 all                              # Generates all results!

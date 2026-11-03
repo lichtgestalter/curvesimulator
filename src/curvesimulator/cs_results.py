@@ -5,8 +5,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import os
-import re
-import scipy.stats as stats
+# import re
+# import scipy.stats as stats
+
+from curvesimulator.cs_physics import CurveSimPhysics
+
 
 class Transit(dict):
     def __init__(self, eclipsed_body):
@@ -28,6 +31,9 @@ class CurveSimResults(dict):
         self["Bodies"] = {}
         exclude = ["positions", "velocity", "circle_left", "circle_right", "acceleration", "d", "h", "angle", "eclipsed_area", "patch_radius"]
         for body in bodies:
+            if body.ld_u1 is not None and body.ld_u2 is not None:
+                body.ld_a1, body.ld_a2 = CurveSimPhysics.u_to_a(body.ld_u1, body.ld_u2)
+                body.ld_q1, body.ld_q2 = CurveSimPhysics.u_to_q(body.ld_u1, body.ld_u2)
             self["Bodies"][body.name] = {}
             self["Bodies"][body.name]["BodyParameters"] = {}
             self["Bodies"][body.name]["Transits"] = []

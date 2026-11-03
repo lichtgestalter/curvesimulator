@@ -59,8 +59,8 @@ class CurveSimBodies(list):
                         "luminosity": p.read_body_param(config, section, "luminosity", fallback="0.0"),
                         "rv_offset": p.read_body_param(config, section, "rv_offset", fallback=None),
                         "rv_jitter": p.read_body_param(config, section, "rv_jitter", fallback=None),
-                        "limb_darkening_u1": p.read_body_param(config, section, "limb_darkening_1", fallback=None),
-                        "limb_darkening_u2": p.read_body_param(config, section, "limb_darkening_2", fallback=None),
+                        "ld_u1": p.read_body_param(config, section, "limb_darkening_1", fallback=None),
+                        "ld_u2": p.read_body_param(config, section, "limb_darkening_2", fallback=None),
                         "limb_darkening_parameter_type": config.get(section, "limb_darkening_parameter_type", fallback=None),
                         "startposition": config.get(section, "startposition", fallback=None),
                         "velocity": config.get(section, "velocity", fallback=None),
@@ -242,7 +242,7 @@ class CurveSimBodies(list):
             if body.luminosity < 0:
                 print(f"{Fore.RED}\nERROR in config file: {body.name} has invalid luminosity {body.luminosity=}.")
                 sys.exit(1)
-            if body.luminosity > 0 and (body.limb_darkening_u1 is None or body.limb_darkening_u2 is None):  # if body.luminosity > 0 and limb darkening params are missing
+            if body.luminosity > 0 and (body.ld_u1 is None or body.ld_u2 is None):  # if body.luminosity > 0 and limb darkening params are missing
                 print(f"{Fore.RED}\nERROR in config file: {body.name} has luminosity but invalid limb darkening params.")
                 sys.exit(1)
             if body.a is not None and body.P is not None:
@@ -278,7 +278,7 @@ class CurveSimBodies(list):
                 if body != star:  # an object cannot eclipse itself :)
                     eclipsed_area, relative_radius = star.eclipsed_by(body, iteration)
                     if eclipsed_area is not None:
-                        absolute_depth = star.intensity * eclipsed_area * CurveSimPhysics.limbdarkening(relative_radius, star.limb_darkening_u1, star.limb_darkening_u2) / star.mean_intensity
+                        absolute_depth = star.intensity * eclipsed_area * CurveSimPhysics.limbdarkening(relative_radius, star.ld_u1, star.ld_u2) / star.mean_intensity
                         luminosity -= absolute_depth
                         # results["Bodies"][body.name]["Transits"][-1]["impacts_and_depths"][-1].depth = absolute_depth  # this depth is caused by this particular body eclipsing this particular star
         return luminosity

@@ -63,7 +63,7 @@ class CurveSimPhysics:
 
     @staticmethod
     def q_to_u(q1, q2):
-        """Limb darkening: Vectorized Kipping q -> quadratic u conversion."""
+        """Limb darkening: Kipping q -> quadratic u conversion."""
         s = np.sqrt(q1)
         return 2 * s * q2, s * (1 - 2 * q2)
 
@@ -73,9 +73,22 @@ class CurveSimPhysics:
         return a1 + 2 * a2, -a2
 
     @staticmethod
-    def is_valid_u(u1, u2, tol=1e-9):
+    def u_to_q(u1, u2):
+        """Limb darkening: Quadratic u -> Kipping q conversion."""
+        s = u1 + u2  # equals sqrt(q1)
+        if s == 0:  # q2 is undefined when s == 0 (q1 = 0); returns nan/inf there
+            return 0, None
+        return s ** 2, u1 / (2 * s)
+
+    @staticmethod
+    def u_to_a(u1, u2):
+        """Limb darkening: Quadratic u -> polynomial a conversion."""
+        return u1 + 2 * u2, -u2
+
+    @staticmethod
+    def is_valid_ld_u_or_a(u1, u2, tolerance=1e-9):
         """Quadratic law: positive and monotonically decreasing intensity profile."""
-        return u1 >= -tol and u1 + u2 <= 1 + tol and u1 + 2 * u2 >= -tol
+        return u1 >= -tolerance and u1 + u2 <= 1 + tolerance and u1 + 2 * u2 >= -tolerance
 
     @staticmethod
     def convert_limb_darkening_fitting_params(paramtype, fp1, fp2):
@@ -117,13 +130,13 @@ class CurveSimPhysics:
         """Converts limb darkening params to quadratic law params u1,u2 if necessary
            u1, u2 are much faster for calculating intensity than q1, q2 """
         if param_type == "u":
-            if not CurveSimPhysics.is_valid_u(param_1, param_2):
+            if not CurveSimPhysics.is_valid_ld_u_or_a(param_1, param_2):
                 print(f"{Fore.RED}\nERROR in config file: limb darkening parameters u1={param_1} and u2={param_2} for type u (quadratic) are out of range.")
                 print(f"                      Constraints: u1 > 0 and (u1 + u2) < 1 and (u1 + 2 * u2) > 0.{Style.RESET_ALL}")
                 sys.exit(1)
             return param_1, param_2
         if param_type == "a":
-            if not (param_1 > 0 and (param_1 + param_2) < 1 and (param_1 + 2 * param_2) > 0):
+            if not CurveSimPhysics.is_valid_ld_u_or_a(param_1, param_2):
                 print(f"{Fore.RED}\nERROR in config file: limb darkening parameters a1={param_1} and a2={param_2} for type a (polynomial) are out of range.")
                 print(f"                      Constraints: a1 > 0 and (a1 + a2) < 1 and (a1 + 2 * a2) > 0.{Style.RESET_ALL}")
                 sys.exit(1)
@@ -147,20 +160,20 @@ class CurveSimPhysics:
         return 1 - u1 * (1 - mu) - u2 * (1 - mu) ** 2
 
     @staticmethod
-    def calc_mean_intensity(limb_darkening_u1, limb_darkening_u2):
+    def calc_mean_intensity(ld_u1, ld_u2):
         """Calculates the ratio of the mean intensity to the central intensity of a star based on
         the given quadratic law params for limb darkening by integrating the intensity over the stellar disk"""
-        if limb_darkening_u1 is None or limb_darkening_u2 is None:
+        if ld_u1 is None or ld_u2 is None:
             return None
         mu_values = np.linspace(0, 1, 1000)
-        intensities = CurveSimPhysics.intensity(mu_values, limb_darkening_u1, limb_darkening_u2)
+        intensities = CurveSimPhysics.intensity(mu_values, ld_u1, ld_u2)
         if hasattr(np, "trapezoid"):
             return 2 * np.trapezoid(intensities * mu_values, mu_values)
         else:
             return 2 * np.trapz(intensities * mu_values, mu_values)  # compatibility fallback
 
     @staticmethod
-    def limbdarkening(relative_radius, limb_darkening_u1, limb_darkening_u2):
+    def limbdarkening(relative_radius, ld_u1, ld_u2):
         """
         Approximates the flux of a star at a point on the star seen from a very large distance.
         The point's apparent distance from the star's center is relative_radius * radius.
@@ -177,7 +190,7 @@ class CurveSimPhysics:
         if relative_radius > 1:
             relative_radius = 1.0
         mu = math.sqrt(1 - relative_radius ** 2)
-        return CurveSimPhysics.intensity(mu, limb_darkening_u1, limb_darkening_u2)
+        return CurveSimPhysics.intensity(mu, ld_u1, ld_u2)
 
     # @staticmethod
     # def distance_3d(point1, point2):
