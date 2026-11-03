@@ -235,6 +235,37 @@ class CurveSimMCMC:
         return residuals_tt_sum_squared, o.tt.measured_tt
 
     @staticmethod
+    def match_transit_times2(p, rebound_sim, o):
+        # https://claude.ai/chat/8baa1c98-63c5-4492-be77-ee812fe6abfe
+        sim_tt = CurveSimBodies.find_tts(rebound_sim, o, p)  # list of (eclipser, eclipsee, tt)
+        measured = o.tt.measured_tt
+
+        # Group simulated transit times per eclipser, sorted once
+        sim_by_eclipser = {}
+        for eclipser, _, tt in sim_tt:
+            sim_by_eclipser.setdefault(eclipser, []).append(tt)
+        sim_by_eclipser = {k: np.sort(v) for k, v in sim_by_eclipser.items()}
+
+        nearest_sim = np.zeros(len(measured))  # 0 where no match found (as before)
+        tt_values = measured["tt"].to_numpy()
+
+        for eclipser, idx in measured.groupby("eclipser").indices.items():
+            sim = sim_by_eclipser.get(eclipser)
+            if sim is None:
+                continue
+            t = tt_values[idx]
+            # Find nearest sim value for each measured value
+            pos = np.searchsorted(sim, t)
+            left = sim[np.clip(pos - 1, 0, len(sim) - 1)]
+            right = sim[np.clip(pos, 0, len(sim) - 1)]
+            nearest_sim[idx] = np.where(np.abs(t - left) <= np.abs(right - t), left, right)
+
+        measured["nearest_sim"] = nearest_sim
+        measured["delta"] = measured["nearest_sim"] - measured["tt"]
+        residuals_tt = measured["delta"] / measured["tt_err"]
+        return (np.sum(residuals_tt ** 2), measured
+
+    @staticmethod)
     def log_probability(theta, bodies, o, p):
         lp = CurveSimMCMC.log_prior(theta, p.fitting_params)
         if not np.isfinite(lp):
