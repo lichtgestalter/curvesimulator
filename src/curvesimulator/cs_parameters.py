@@ -341,23 +341,6 @@ class CurveSimParameters:
         print(f"{Fore.RED}\nERROR in config file: {name} has an invalid color. It is neither a string or a tuple/list")
         error()
 
-    # def check_sim_interval(self):
-    #     """Checks if params sim_start and sim_end are well defined.
-    #        Calculates the indices for flux_time_s0, flux_time_d and sim_flux where the intervals start and end.
-    #        Calculates the total number of iterations for which body positions and flux will be simulated and stored.
-    #        Creates alternative params starts_s0, ends_s0 in seconds instead of days and starting with 0 at epoch.
-    #      """
-    #     if self.sim_start is None or self.sim_end is None:
-    #         print(f"{Fore.RED}\nERROR in configuration file: At least one of the params sim_start and sim_end is missing.{Style.RESET_ALL}")
-    #         sys.exit(1)
-    #     if self.sim_start > self.sim_end:
-    #         print(f"{Fore.RED}\nERROR in configuration file: sim_start > sim_end.{Style.RESET_ALL}")
-    #         sys.exit(1)
-    #     self.sim_start_s0 = (self.sim_start - self.epoch) * self.day  # convert BJD to seconds and start at zero
-    #     self.sim_end_s0 = (self.sim_end - self.epoch) * self.day  # convert BJD to seconds and start at zero
-    #     sim_iterations = int((self.sim_end_s0 - self.sim_start_s0) / self.dt) + 1  # number of iterations
-    #     return sim_iterations
-
     @staticmethod
     def find_and_check_config_file(config_file):
         """Check if config file can be opened and contains all standard sections."""
@@ -382,11 +365,6 @@ class CurveSimParameters:
         if not config_file.endswith(".ini"):
             print(f"{Fore.RED}Please only use config files with the .ini extension. (You tried to use {config_file}.){Style.RESET_ALL}")
             sys.exit(1)
-
-        # for section in standard_sections:  # Does the config file contain all standard sections?
-        #     if section not in config.sections() and section != "Debug":
-        #         print(f"{Fore.RED}Section {section} missing in config file.{Style.RESET_ALL}")
-        #         sys.exit(1)
 
     def read_param(self, config, section, param, fallback, evaluate=True, forced_type=None, lower=None, upper=None):
         value = config.get(section, param, fallback=fallback)
@@ -503,6 +481,8 @@ class CurveSimParameters:
                                     sys.exit(1)
                         if self.verbose and self.action in ["mcmc", "lmfit"]:
                             print(f"body {body_index}: {param_name}")
+                        if "limb_darkening" in param_name:
+                            param_name = "limb_darkening_u" + param_name[-1]
                         fitting_params.append(FittingParameter(self, section, body_index, param_name, value, lower, upper, sigma, prior_mu, prior_sigma))
                         fitting_params[-1].index = len(fitting_params) - 1
                         param_names_in_use.append(param_name)
@@ -693,7 +673,7 @@ class CurveSimParameters:
         bodies_indices_with_ld_fitting = set()
         for fp in self.fitting_params:
             if "limb_darkening" in fp.param_name:
-                fp.param_name = "limb_darkening_u" + fp.param_name[-1]
+                # fp.param_name = "limb_darkening_u" + fp.param_name[-1]
                 bodies_indices_with_ld_fitting.add(fp.body_index)
 
         self.fitting_param_dic = {(fp.body_index, fp.param_name): fp.index for fp in self.fitting_params}

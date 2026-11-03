@@ -6,18 +6,6 @@ from curvesimulator import CurveSimulator
 
 def main():
 
-    generator = ((x, y) for x, y in itertools.product((1, 2), (3, 4)))
-    # for g in generator:
-    #     print(g)
-    # print(*generator)
-    zipgen = zip(*generator)
-    for g in zipgen:
-        print(g)
-
-    # c1, c2 = zip(*((x, y) for x, y in itertools.product((1, 2), (3, 4))))
-    # c1, c2 = zip(*((x, y) for x, y in itertools.product((1, 2), (3, 4))))
-    exit(1111)
-
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/debug/debug.ini")
 
     # TOI-4504
