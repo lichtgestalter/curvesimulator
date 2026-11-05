@@ -1,3 +1,4 @@
+from collections import defaultdict
 from colorama import Fore, Style
 import copy
 import corner
@@ -236,36 +237,42 @@ class CurveSimMCMC:
 
     @staticmethod
     def match_transit_times2(p, rebound_sim, o):
-        # https://claude.ai/chat/8baa1c98-63c5-4492-be77-ee812fe6abfe
         sim_tt = CurveSimBodies.find_tts(rebound_sim, o, p)  # list of (eclipser, eclipsee, tt)
-        measured = o.tt.measured_tt
 
-        # Group simulated transit times per eclipser, sorted once
-        sim_by_eclipser = {}
-        for eclipser, _, tt in sim_tt:
-            sim_by_eclipser.setdefault(eclipser, []).append(tt)
-        sim_by_eclipser = {k: np.sort(v) for k, v in sim_by_eclipser.items()}
+        # Simulated transit times per eclipser, sorted ascending
+        sim_times_by_eclipser = defaultdict(list)  # dictionary that automatically creates a missing entry the first time you access a key. The argument (list) is a factory function that is called with no arguments to produce the default value. Here list() returns an empty list.
+        for eclipser, _, transit_time in sim_tt:
+            sim_times_by_eclipser[eclipser].append(transit_time)
+        sorted_sim_times_by_eclipser = {eclipser: np.sort(transit_times) for eclipser, transit_times in sim_times_by_eclipser.items()}
 
-        nearest_sim = np.zeros(len(measured))  # 0 where no match found (as before)
-        tt_values = measured["tt"].to_numpy()
+        measured_times = o.tt.measured_tt["tt"].to_numpy()
+        nearest_sim_times = np.zeros(len(o.tt.measured_tt))  # 0 where no match found (as before)
 
-        for eclipser, idx in measured.groupby("eclipser").indices.items():
-            sim = sim_by_eclipser.get(eclipser)
-            if sim is None:
+        # Row positions of the measured transits, grouped by eclipser
+        rows_by_eclipser = o.tt.measured_tt.groupby("eclipser").indices
+
+        for eclipser, rows in rows_by_eclipser.items():
+            sim_times = sorted_sim_times_by_eclipser.get(eclipser)
+            if sim_times is None:
                 continue
-            t = tt_values[idx]
-            # Find nearest sim value for each measured value
-            pos = np.searchsorted(sim, t)
-            left = sim[np.clip(pos - 1, 0, len(sim) - 1)]
-            right = sim[np.clip(pos, 0, len(sim) - 1)]
-            nearest_sim[idx] = np.where(np.abs(t - left) <= np.abs(right - t), left, right)
+            nearest_sim_times[rows] = CurveSimMCMC._nearest_values(sim_times, measured_times[rows])
 
-        measured["nearest_sim"] = nearest_sim
-        measured["delta"] = measured["nearest_sim"] - measured["tt"]
-        residuals_tt = measured["delta"] / measured["tt_err"]
-        return (np.sum(residuals_tt ** 2), measured
+        o.tt.measured_tt["nearest_sim"] = nearest_sim_times
+        o.tt.measured_tt["delta"] = o.tt.measured_tt["nearest_sim"] - o.tt.measured_tt["tt"]
+        residuals_tt = o.tt.measured_tt["delta"] / o.tt.measured_tt["tt_err"]  # weighted with uncertainty
+        return np.sum(residuals_tt ** 2), o.tt.measured_tt
 
-    @staticmethod)
+    @staticmethod
+    def _nearest_values(sorted_values, targets):
+        """For each target, return the closest element of sorted_values."""
+        insert_pos = np.searchsorted(sorted_values, targets)
+        last = len(sorted_values) - 1
+        left_neighbour = sorted_values[np.clip(insert_pos - 1, 0, last)]
+        right_neighbour = sorted_values[np.clip(insert_pos, 0, last)]
+        left_is_closer = np.abs(targets - left_neighbour) <= np.abs(right_neighbour - targets)
+        return np.where(left_is_closer, left_neighbour, right_neighbour)
+
+    @staticmethod
     def log_probability(theta, bodies, o, p):
         lp = CurveSimMCMC.log_prior(theta, p.fitting_params)
         if not np.isfinite(lp):
