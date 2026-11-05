@@ -233,7 +233,6 @@ class CurveSimMCMC:
         o.tt.measured_tt["delta"] = o.tt.measured_tt["nearest_sim"] - o.tt.measured_tt["tt"]
         residuals_tt = o.tt.measured_tt["delta"] / o.tt.measured_tt["tt_err"]  # residuals are weighted with uncertainty!
         residuals_tt_sum_squared = np.sum(residuals_tt ** 2)
-        print(o.tt.measured_tt["delta"])
         return residuals_tt_sum_squared, o.tt.measured_tt
 
     @staticmethod

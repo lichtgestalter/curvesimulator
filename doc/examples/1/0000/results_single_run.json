@@ -25,8 +25,8 @@
             "luminosity",
             "rv_offset",
             "rv_jitter",
-            "limb_darkening_u1",
-            "limb_darkening_u2",
+            "ld_u1",
+            "ld_u2",
             "mean_intensity",
             "intensity",
             "e",
@@ -60,7 +60,9 @@
             "rv_offset",
             "rv_jitter",
             "u",
-            "v"
+            "v",
+            "ld_u1",
+            "ld_u2"
         ],
         "ACCEPTED_UNITS": [
             "kg",
@@ -100,9 +102,11 @@
             "y": 3.168808781402895e-08,
             "1": 1,
             "deg": 57.29577951308232,
-            "m/s": 1
+            "m/s": 1,
+            "ld_u1": 1,
+            "ld_u2": 1
         },
-        "DEFAULT_UNIT": "{\"mass\": \"m_jup\", \"radius\": \"r_jup\", \"e\": \"1\", \"i\": \"deg\", \"P\": \"d\", \"a\": \"AU\", \"Omega\": \"deg\", \"omega\": \"deg\", \"pomega\": \"deg\", \"L\": \"deg\", \"ma\": \"deg\", \"ea\": \"deg\", \"nu\": \"deg\", \"T\": \"s\", \"rv_offset\": \"m/s\", \"rv_jitter\": \"m/s\", \"u\": \"1\", \"v\": \"1\"}",
+        "DEFAULT_UNIT": "{\"mass\": \"m_jup\", \"radius\": \"r_jup\", \"e\": \"1\", \"i\": \"deg\", \"P\": \"d\", \"a\": \"AU\", \"Omega\": \"deg\", \"omega\": \"deg\", \"pomega\": \"deg\", \"L\": \"deg\", \"ma\": \"deg\", \"ea\": \"deg\", \"nu\": \"deg\", \"T\": \"s\", \"rv_offset\": \"m/s\", \"rv_jitter\": \"m/s\", \"u\": \"1\", \"v\": \"1\", \"ld_u1\": \"1\", \"ld_u2\": \"1\"}",
         "results_directory": "./0000/",
         "result_file": "./0000/results_single_run.json",
         "action": "single_run",
@@ -288,8 +292,13 @@
                 "luminosity": 3.828e+26,
                 "rv_offset": 100.0,
                 "rv_jitter": 0.2,
-                "limb_darkening_u1": 0.45,
-                "limb_darkening_u2": 0.23,
+                "ld_u1": 0.45,
+                "ld_u2": 0.23,
+                "ld_a1": 0.91,
+                "ld_a2": -0.23,
+                "ld_q1": 0.4624000000000001,
+                "ld_q2": 0.33088235294117646,
+                "limb_darkening_parameter_type": "u",
                 "mean_intensity": 0.8116668553772325,
                 "intensity": 251754968.1428863,
                 "unit": {

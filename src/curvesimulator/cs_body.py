@@ -39,6 +39,7 @@ class CurveSimBody:
         self.rv_offset = rv_offset  # [m/s]
         self.rv_jitter = rv_jitter  # [m/s]
         self.ld_u1, self.ld_u2 = CurveSimPhysics.get_limbdarkening_params(ld_u1, ld_u2, limb_darkening_parameter_type)
+        self.ld_a1, self.ld_a2, self.ld_q1, self.ld_q2 = (None,) * 4
         self.limb_darkening_parameter_type = limb_darkening_parameter_type  # original type from config file. Gets changed to "u" when limb darkening fitting parameters get converted to type u.
         self.mean_intensity = CurveSimPhysics.calc_mean_intensity(self.ld_u1, self.ld_u2)
         self.intensity = luminosity / self.area_2d  # luminosity per (apparent) area [W/m**2]
