@@ -220,9 +220,9 @@ class CurveSimMCMC:
     def match_transit_times(p, rebound_sim, o):
         sim_tt = CurveSimBodies.find_tts(rebound_sim, o, p)  # sim_tt is a list of tuples (eclipser, eclipsee, tt)
         nearest_sim_tt = []
-        for idx, row in o.tt.measured_tt.iterrows():
-            eclipser = row["eclipser"]
-            o.tt.measured_tt_val = row["tt"]
+        for row in o.tt.measured_tt.itertuples(index=False):
+            eclipser = row.eclipser
+            o.tt.measured_tt_val = row.tt
             sim_tt_filtered = [tt for tt in sim_tt if tt[0] == eclipser]  # Filter sim_tt for matching eclipser
             if sim_tt_filtered:
                 closest_tt = min(sim_tt_filtered, key=lambda x: abs(x[2] - o.tt.measured_tt_val))  # Find sim_tt with minimal |o.tt.measured_tt - sim_tt|
@@ -233,34 +233,8 @@ class CurveSimMCMC:
         o.tt.measured_tt["delta"] = o.tt.measured_tt["nearest_sim"] - o.tt.measured_tt["tt"]
         residuals_tt = o.tt.measured_tt["delta"] / o.tt.measured_tt["tt_err"]  # residuals are weighted with uncertainty!
         residuals_tt_sum_squared = np.sum(residuals_tt ** 2)
+        print(o.tt.measured_tt["delta"])
         return residuals_tt_sum_squared, o.tt.measured_tt
-
-    @staticmethod
-    def match_transit_times2(p, rebound_sim, o):
-        sim_tt = CurveSimBodies.find_tts(rebound_sim, o, p)  # list of (eclipser, eclipsee, tt)
-
-        # Simulated transit times per eclipser, sorted ascending
-        sim_times_by_eclipser = defaultdict(list)  # dictionary that automatically creates a missing entry the first time you access a key. The argument (list) is a factory function that is called with no arguments to produce the default value. Here list() returns an empty list.
-        for eclipser, _, transit_time in sim_tt:
-            sim_times_by_eclipser[eclipser].append(transit_time)
-        sorted_sim_times_by_eclipser = {eclipser: np.sort(transit_times) for eclipser, transit_times in sim_times_by_eclipser.items()}
-
-        measured_times = o.tt.measured_tt["tt"].to_numpy()
-        nearest_sim_times = np.zeros(len(o.tt.measured_tt))  # 0 where no match found (as before)
-
-        # Row positions of the measured transits, grouped by eclipser
-        rows_by_eclipser = o.tt.measured_tt.groupby("eclipser").indices
-
-        for eclipser, rows in rows_by_eclipser.items():
-            sim_times = sorted_sim_times_by_eclipser.get(eclipser)
-            if sim_times is None:
-                continue
-            nearest_sim_times[rows] = CurveSimMCMC._nearest_values(sim_times, measured_times[rows])
-
-        o.tt.measured_tt["nearest_sim"] = nearest_sim_times
-        o.tt.measured_tt["delta"] = o.tt.measured_tt["nearest_sim"] - o.tt.measured_tt["tt"]
-        residuals_tt = o.tt.measured_tt["delta"] / o.tt.measured_tt["tt_err"]  # weighted with uncertainty
-        return np.sum(residuals_tt ** 2), o.tt.measured_tt
 
     @staticmethod
     def _nearest_values(sorted_values, targets):

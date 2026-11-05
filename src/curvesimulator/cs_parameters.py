@@ -256,7 +256,7 @@ class CurveSimParameters:
 
     @staticmethod
     def section_name_valid(section):
-        if not section.isascii() or section[:1].isdigit() or ' ' in section or '-' in section:  # [:1] handles the empty-string case safely
+        if not section.isascii() or section[:1].isdigit() or " " in section or "-" in section:  # [:1] handles the empty-string case safely
             print(f"{Fore.RED}\nERROR: Illegal section name in config file: {section}{Style.RESET_ALL}")
             print(f"{Fore.RED}\nBody names must be pure ASCII, no leading number, no spaces, no dashes.{Style.RESET_ALL}")
             sys.exit(1)

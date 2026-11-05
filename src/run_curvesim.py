@@ -16,7 +16,7 @@ def main():
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/Trifon_2026.07.15/trifon_debug2.ini")
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/Trifon_2026.07.15/trifon_debug3.ini")
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/Trifon_2026.07.15/trifon_debug4.ini")
-    # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/Trifon_2026.07.15/trifon_single_run.ini")
+    curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/Trifon_2026.07.15/trifon_single_run.ini")
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/configurations/TOI4504/jacobimassesFalse/TOI-4504_V004.ini")
 
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/Almenara_AppendixA1/Almenara_AppendixA1.ini")
@@ -37,7 +37,7 @@ def main():
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/SolarSystem/Inner_Planets_2026.ini")
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/SolarSystem/Earth_Transit_2026.ini")
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/SolarSystem/Earth_Transit_2027.ini")
-    curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/SolarSystem/All_Planets_2026-35.ini")
+    # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/SolarSystem/All_Planets_2026-35.ini")
 
     print(curvesimulation)
 
@@ -49,4 +49,4 @@ if __name__ == "__main__":
     # stats = pstats.Stats(pr)
     # stats.sort_stats(pstats.SortKey.TIME)
     # stats.print_stats()
-    # stats.dump_stats(filename='profiling.prof')
+    # stats.dump_stats(filename="profiling.prof")
