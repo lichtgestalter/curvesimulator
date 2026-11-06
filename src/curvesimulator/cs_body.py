@@ -376,15 +376,6 @@ class CurveSimBody:
             return relative_depth
         return None
 
-    def calc_frames_per_orbit(self, o, p):
-        """Calculates for each body how many video frames are needed to complete one orbit.
-           FFmpeg (or the video display program?) tends to omit the last few frames.
-           Therefore add a handful of extra frames."""
-        if self.P is not None:
-            return self.P / (p.dt * o.sim.sampling_rate)
-        else:
-            return None
-
     def print_particle(self, simulation):
         particle = simulation.particles[self.name]
         print(f"\n{self.name}:")

@@ -324,32 +324,32 @@ class CurveSimAnimation:
 
     @staticmethod
     def next_frame(frame, p, bodies, lower_dot, upper_dot, o):
-        frame_number = int(frame * o.sim.sampling_rate)
+        step = int(frame * o.sim.sampling_rate)
         """Update patches. Send new circle positions to animation function.
         First param comes from iterator frames (a param of FuncAnimation).
         The other params are given to this function via the param fargs of FuncAnimation."""
         for body in bodies:  # left view: projection (x,y,z) -> (x,-z), order = y (y-axis points to viewer)
             if body.image_file_left is None or body.image_file_right is None:
-                body.circle_left.set(zorder=body.positions_left[frame_number][1])
-                body.circle_left.center = body.positions_left[frame_number][0] / p.scope_left, -body.positions_left[frame_number][2] / p.scope_left
+                body.circle_left.set(zorder=body.positions_left[step][1])
+                body.circle_left.center = body.positions_left[step][0] / p.scope_left, -body.positions_left[step][2] / p.scope_left
             else:
-                body.ab_left.set_zorder(body.positions_left[frame_number][1])
-                body.ab_left.xybox = (body.positions_left[frame_number][0] / p.scope_left, -body.positions_left[frame_number][2] / p.scope_left)
+                body.ab_left.set_zorder(body.positions_left[step][1])
+                body.ab_left.xybox = (body.positions_left[step][0] / p.scope_left, -body.positions_left[step][2] / p.scope_left)
 
         for body in bodies:  # right view: projection (x,y,z) -> (x,y), order = z (z-axis points to viewer)
             if body.image_file_left is None or body.image_file_right is None:
-                body.circle_right.set(zorder=body.positions_right[frame_number][2])
-                body.circle_right.center = body.positions_right[frame_number][0] / p.scope_right, body.positions_right[frame_number][1] / p.scope_right
+                body.circle_right.set(zorder=body.positions_right[step][2])
+                body.circle_right.center = body.positions_right[step][0] / p.scope_right, body.positions_right[step][1] / p.scope_right
             else:
-                body.ab_right.set_zorder(body.positions_right[frame_number][2])
-                body.ab_right.xybox = (body.positions_right[frame_number][0] / p.scope_right, body.positions_right[frame_number][1] / p.scope_right)
+                body.ab_right.set_zorder(body.positions_right[step][2])
+                body.ab_right.xybox = (body.positions_right[step][0] / p.scope_right, body.positions_right[step][1] / p.scope_right)
 
         # Use relative x (days since o.sim.sim_start_s0[0]) for both dots so they align with plotted curves
-        x_rel = (o.sim.time_s0[frame_number] - o.sim.sim_start_s0) / p.day
+        x_rel = (o.sim.time_s0[step] - o.sim.sim_start_s0) / p.day
         if p.show_upper_curve:
-            upper_dot.center = x_rel, o.sim.simflux[frame_number]
+            upper_dot.center = x_rel, o.sim.simflux[step]
         if p.show_lower_curve:
-            lower_dot.center = x_rel, o.sim.simrv[frame_number]
+            lower_dot.center = x_rel, o.sim.simrv[step]
         # if frame > 10:
         #     bodies[0].circle_left.set_color((1.0, 0.2, 0.2))  # Example code for changing circle color during animation
         if p.frames > 10:

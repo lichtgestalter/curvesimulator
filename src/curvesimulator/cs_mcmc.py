@@ -176,6 +176,7 @@ class CurveSimMCMC:
         o.sim.simrv, o.sim.simflux, _, rebound_sim = bodies.calc_physics(o.sim, p)  # Calculate all body positions and the resulting flux and rv
         if p.sim_flux_file:  # save simulated flux, regular spaced with p.dt
             o.sim.save_sim_flux(p)
+        bodies.calc_video_frames_per_orbit(o, p)
         results = bodies.find_transits(rebound_sim, o, p)
         if p.video_file and p.action == "single_run":
             CurveSimAnimation(p, bodies, o)  # Create a video
