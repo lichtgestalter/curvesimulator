@@ -36,7 +36,6 @@ class CurveSimRebound:
         else:
             return math.log10(abs(relative_energy_change))
 
-
     def calc_total_momentum(self):
         """
         Returns the total linear momentum vector of the system.

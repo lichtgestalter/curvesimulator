@@ -32,7 +32,7 @@ class CurveSimBodies(list):
             # For ease of use of these constants in the config file are additionally defined here without the prefix "p.".
             g, au, r_sun, m_sun, l_sun = p.g, p.au, p.r_sun, p.m_sun, p.l_sun
             r_jup, m_jup, r_nep, m_nep, r_earth, m_earth = p.r_jup, p.m_jup, p.r_nep, p.m_nep, p.r_earth, p.m_earth
-            hour, day, year, rad2deg = p.hour, p.day, p.year, p.rad2deg
+            hour, day, year, rad2deg, deg2rad = p.hour, p.day, p.year, p.rad2deg, p.deg2rad
         except AttributeError:
             print(f"{Fore.YELLOW}\nWARNING: Section <Astronomical Constants> in the configuration file is incomplete.")
             print(f"See https://github.com/lichtgestalter/curvesimulator/wiki.{Style.RESET_ALL}")
@@ -99,7 +99,6 @@ class CurveSimBodies(list):
         simulation.G = p.g  # gravitational constant
         star_count = sum(1 for body in self if body.body_type == "star")
         if star_count == 1:
-            # simulation.integrator = "ias15"  # default integrator
             simulation.integrator = "whfast"
             simulation.dt = p.dt
         if p.integrator is not None:
@@ -110,14 +109,16 @@ class CurveSimBodies(list):
             print(f"{Fore.RED}\nERROR: No body in config file has body type star.{Style.RESET_ALL}")
             sys.exit(1)
 
-        # Check if bodies are defined in Jacobi coordinates or astrocentric.
+        names = [body.name for body in self]
         primaries = [body.primary for body in self]
-        p.jacobi_coordinates = all(x is None for x in primaries)
-        if all(x is not None for x in primaries) and primaries[0] != "self":
-            print(f"{Fore.RED}\nERROR: Primaries are ill defined.{Style.RESET_ALL}")
-            print(f"{Fore.RED}\nJacobi coordinates: No body has a primary.{Style.RESET_ALL}")
-            print(f"{Fore.RED}\nAstrocentric: 1st body has primary 'self'. All other bodies have the name of an already defined body as primary.{Style.RESET_ALL}")
-            sys.exit(1)
+        p.jacobi_coordinates = all(x is None for x in primaries)  # Jacobi coordinates: no body has a primary.
+        if not p.jacobi_coordinates:
+            if primaries[0] is not None:
+                print(f"{Fore.RED}\nPrimaries are ill defined: first body must not have a primary.{Style.RESET_ALL}")
+            for i, primary in enumerate(primaries[1:], start=1):
+                if primary is None or primary not in names[:i]:
+                    print(f"{Fore.RED}\nERROR: Primaries are ill defined: body {names[i]} has primary {primary}, which is not an earlier-defined body.{Style.RESET_ALL}")
+                    sys.exit(1)
 
         for body in self[0:1]:
             simulation.add(m=body.mass, r=body.radius, name=body.name)
@@ -136,11 +137,10 @@ class CurveSimBodies(list):
                 kwargs["a"] = body.a
             if body.pomega is not None:
                 kwargs["pomega"] = body.pomega
-            else:
-                if body.Omega is not None:
-                    kwargs["Omega"] = body.Omega
-                if body.omega is not None:
-                    kwargs["omega"] = body.omega
+            if body.Omega is not None:
+                kwargs["Omega"] = body.Omega
+            if body.omega is not None:
+                kwargs["omega"] = body.omega
             if body.ma is not None:
                 kwargs["M"] = body.ma
             if body.nu is not None:
@@ -193,23 +193,37 @@ class CurveSimBodies(list):
 
         return com
 
-    @staticmethod
-    def print_simulation_particles(p, simulation, message="", print_in_config_format=False):
+    def print_simulation_particles(self, p, simulation, message="", print_in_config_format=True):
         print(f"{Fore.GREEN}")
+        end = "\n" if print_in_config_format else "  "
         bjd = p.epoch + simulation.t / p.day
         print(f"{message} t={simulation.t:.0f} [s], t={bjd:.4f} BJD [d]")
-        for particle, orbit in zip(simulation.particles[1:], simulation.orbits(jacobi_masses=p.jacobi_masses)):
-            print(f"\n{particle.name:15}: m[m_jup]={particle.m / p.m_jup:<10.4f}  r[r_jup]={particle.r / p.r_jup:<10.4f}  ", end="")
-            print(f"xyz[au]={particle.x/p.au:<10.4f}  {particle.y/p.au:10.4f}  {particle.z/p.au:10.4f}  ", end="")
-            print(f"velocity[m/s]={particle.vx:<6.0f}  {particle.vy:6.0f}  {particle.vz:6.0f}")
-            # orbit = particle.orbit()  # Orbital elements relative to the primary, which was either explicitly given in init_rebound() or is the Center of Mass of the inner bodies (Jacobi coordinates)
-            # orbit = particle.orbit(primary=simulation.particles[0])  # Alternative 1: Define a primary here. Not necessarily the same as in init_rebound().
-            # orbit = particle.orbit(primary=CurveSimBodies.get_com_particle(simulation, range(i)))  # Alternative 2: Manually computed COM-primary. Results are in Jacobi Coordinates."
-            if print_in_config_format:
-                print(f"e = {orbit.e:.6f}\ni = {math.degrees(orbit.inc):.6f}\nP = {orbit.P / p.day:.4f}\na = {orbit.a / p.au:.6f}\nOmega = {math.degrees(orbit.Omega):.6f}\nomega = {math.degrees(orbit.omega):.6f}\nma = {math.degrees(orbit.M):.6f}")
-            else:
-                print(f"                 e={orbit.e:<18.4f} i={math.degrees(orbit.inc):<17.4f}  P[d]={orbit.P / p.day:<14.4f}  a[au]={orbit.a / p.au:<13.4f}  Omega[°]={math.degrees(orbit.Omega):<10.4f}  omega[°]={math.degrees(orbit.omega):<10.4f}  ma[°]={math.degrees(orbit.M):<10.4f}")
+        for particle, orbit, body in zip(simulation.particles[1:], simulation.orbits(jacobi_masses=p.jacobi_masses), self):
+            print(f"[{particle.name}]", end=end)
+            print(f"mass = {particle.m * body.scale["mass"]:.6f} * {body.unit["mass"]}", end=end)
+            print(f"radius = {particle.r * body.scale["radius"]:.6f} * {body.unit["radius"]}", end=end)
+            # print(f"xyz[au]={particle.x/p.au:<10.4f}  {particle.y/p.au:10.4f}  {particle.z/p.au:10.4f}  ", end="")
+            # print(f"velocity[m/s]={particle.vx:<6.0f}  {particle.vy:6.0f}  {particle.vz:6.0f}")
+            for cs_name, r_name in p.REBOUND_NAME.items():
+                value = getattr(orbit, r_name)
+                line = f"{cs_name} = {value * body.scale[cs_name]:.6f}"
+                unit = body.unit[cs_name]
+                if unit in p.CONFIG_UNITS:
+                    unit = p.CONFIG_UNITS[unit]
+                if unit not in ["1", "deg", "s", "m", "kg"]:
+                    line += f" * {unit}"
+                print(line, end=end)
+            print()
         print(f"{Style.RESET_ALL}")
+
+    def calc_redundant_params(self, p):
+        """ Init a temporary rebound simulation. (Or integrate the current simulation to t=0?)
+            Read all body parameters with print_simulation_particles() or reuse some of its code here.
+            Write the redundant parameters into the bodies
+            Then these bodies can be used for saving results.
+            Reuse the limb darkening code in calc_redundant_params in class body!
+            The bodies and the temporary simulation cannot be used for integration because rebound does not accept redundancy."""
+        pass
 
     def get_body_from_name(self, bodyname):
         for body in self:
@@ -326,6 +340,16 @@ class CurveSimBodies(list):
         # new_simulation.move_to_com()               # Is this a good idea???
         return new_simulation        
 
+    def print_initial_body_states(self, o, p):
+        if p.print_initial_body_states:
+            simulation = self.init_rebound(p)
+            self.print_simulation_particles(p, simulation, message=f"\nSimulation particles at epoch: ({p.jacobi_coordinates=} {p.jacobi_masses=})")
+            # simulation.integrate(o.time_s0[0])
+            # self.print_simulation_particles(p, simulation, message="\nSimulation particles at sim_start:")
+            print("\nExited after succesful print of initial body params.")
+            print("Set param print_initial_body_states = False in order to run the full simulation instead.\n")
+            sys.exit(0)
+
     def calc_positions_eclipses_luminosity(self, p, o):
         """Calculate distances, forces, accelerations, velocities of the bodies for each iteration.
         The resulting body positions and the lightcurve are stored for later use in the animation."""
@@ -337,14 +361,7 @@ class CurveSimBodies(list):
         else:
             sim_rv = None
 
-        if p.print_initial_body_states:
-            simulation = self.init_rebound(p)
-            self.print_simulation_particles(p, simulation, message="\n\n######## Simulation particles at epoch: ########")
-            simulation.integrate(o.time_s0[0])
-            self.print_simulation_particles(p, simulation, message="\n\n######## Simulation particles at sim_start: ########")
-            print("\nExited after succesful print of initial body params.")
-            print("Set param print_initial_body_states = False in order to run the full simulation instead.\n")
-            sys.exit(0)
+        self.print_initial_body_states(o, p)  # prints particles and exits program if config parameter print_initial_body_states = True
 
         start, stop, step = o.epoch_index, -1, -1  # integrate backwards from epoch to sim_start
         if start > stop + 1:

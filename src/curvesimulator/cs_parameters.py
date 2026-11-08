@@ -50,22 +50,25 @@ class CurveSimParameters:
         day = self.read_param(config, section, "day", "None", evaluate=True, forced_type=int, lower=0, upper=None)
         year = self.read_param(config, section, "year", "None", evaluate=True, forced_type=float, lower=0, upper=None)
         rad2deg = self.read_param(config, section, "rad2deg", "None", evaluate=True, forced_type=float, lower=0, upper=None)
+        deg2rad = 1 / rad2deg
+
         self.g, self.au, self.r_sun, self.m_sun, self.l_sun = g, au, r_sun, m_sun, l_sun,
         self.r_jup, self.m_jup, self.r_nep, self.m_nep, self.r_earth, self.m_earth = r_jup, m_jup, r_nep, m_nep, r_earth, m_earth
-        self.hour, self.day, self.year, self.rad2deg = hour, day, year, rad2deg
+        self.hour, self.day, self.year, self.rad2deg, self.deg2rad = hour, day, year, rad2deg, deg2rad
 
         self.PARAMS = (["body_type", "primary", "mass", "radius", "luminosity", "rv_offset", "rv_jitter"]
                        + ["ld_u1", "ld_u2", "mean_intensity", "intensity"]
                        + ["e", "i", "P", "a", "Omega", "omega", "pomega"]
                        + ["L", "ma", "ea", "nu", "T"])
         self.ACCEPTED_PARAMS4UNITS = ["mass", "radius", "e", "i", "P", "a", "Omega", "omega", "pomega", "L", "ma", "ea", "nu", "T", "rv_offset", "rv_jitter", "u", "v", "ld_u1", "ld_u2"]
-        self.ACCEPTED_UNITS = ["kg", "m_sun", "m_jup", "m_nep", "m_earth", "m", "r_sun", "r_jup", "r_nep", "r_earth", "s", "h", "d", "y", "AU", "1", "deg", "m/s"]
+        self.ACCEPTED_UNITS = ["kg", "m_sun", "m_jup", "m_nep", "m_earth", "m", "r_sun", "r_jup", "r_nep", "r_earth", "s", "h", "d", "y", "au", "1", "deg", "m/s"]
         self.SCALE_FROM_UNIT = {"kg": 1, "m_sun": 1 / m_sun, "m_jup": 1 / m_jup, "m_nep": 1 / m_nep, "m_earth": 1 / m_earth,
-                                "m": 1, "r_sun": 1 / r_sun, "r_jup": 1 / r_jup, "r_nep": 1 / r_nep, "r_earth": 1 / r_earth, "AU": 1 / au,
+                                "m": 1, "r_sun": 1 / r_sun, "r_jup": 1 / r_jup, "r_nep": 1 / r_nep, "r_earth": 1 / r_earth, "au": 1 / au,
                                 "s": 1, "h": 1 / hour, "d": 1 / day, "y": 1 / year,
                                 "1": 1, "deg": rad2deg, "m/s": 1, "ld_u1": 1, "ld_u2": 1}
-        self.DEFAULT_UNIT = '{"mass": "m_jup", "radius": "r_jup", "e": "1", "i": "deg", "P": "d", "a": "AU", "Omega": "deg", "omega": "deg", "pomega": "deg", "L": "deg", "ma": "deg", "ea": "deg", "nu": "deg", "T": "s", "rv_offset": "m/s", "rv_jitter": "m/s", "u": "1", "v": "1", "ld_u1": "1", "ld_u2": "1"}'
-
+        self.DEFAULT_UNIT = '{"mass": "m_jup", "radius": "r_jup", "e": "1", "i": "deg", "P": "d", "a": "au", "Omega": "deg", "omega": "deg", "pomega": "deg", "L": "deg", "ma": "deg", "ea": "deg", "nu": "deg", "T": "s", "rv_offset": "m/s", "rv_jitter": "m/s", "u": "1", "v": "1", "ld_u1": "1", "ld_u2": "1"}'
+        self.REBOUND_NAME = {"e": "e", "i": "inc", "P": "P", "a": "a", "Omega": "Omega", "omega": "omega", "pomega": "pomega", "L": "l", "ma": "M", "ea": "E", "nu": "f", "T": "T"}
+        self.CONFIG_UNITS = {"d": "day", "h": "hour", "y": "year"}
         self.body_param_names = None
         self.body_param_unit_names = None
 
@@ -375,7 +378,7 @@ class CurveSimParameters:
                 # For ease of use of these constants in the config file they are additionally defined here without the prefix "self.".
                 g, au, r_sun, m_sun, l_sun = self.g, self.au, self.r_sun, self.m_sun, self.l_sun
                 r_jup, m_jup, r_nep, m_nep, r_earth, m_earth = self.r_jup, self.m_jup, self.r_nep, self.m_nep, self.r_earth, self.m_earth
-                hour, day, year, rad2deg = self.hour, self.day, self.year, self.rad2deg
+                hour, day, year, rad2deg, deg2rad = self.hour, self.day, self.year, self.rad2deg, self.deg2rad
             try:
                 value = eval(value)
             except NameError, ValueError:
@@ -412,7 +415,7 @@ class CurveSimParameters:
         # For ease of use of these constants in the config file they are additionally defined here without the prefix "self.".
         g, au, r_sun, m_sun, l_sun = self.g, self.au, self.r_sun, self.m_sun, self.l_sun
         r_jup, m_jup, r_nep, m_nep, r_earth, m_earth = self.r_jup, self.m_jup, self.r_nep, self.m_nep, self.r_earth, self.m_earth
-        hour, day, year, rad2deg = self.hour, self.day, self.year, self.rad2deg
+        hour, day, year, rad2deg, deg2rad = self.hour, self.day, self.year, self.rad2deg, self.deg2rad
         line = config.get(section, param, fallback=fallback)
         if line is None:
             return None
@@ -425,7 +428,7 @@ class CurveSimParameters:
         # For ease of use of these constants in the config file they are additionally defined here without the prefix "self.".
         g, au, r_sun, m_sun, l_sun = self.g, self.au, self.r_sun, self.m_sun, self.l_sun
         r_jup, m_jup, r_nep, m_nep, r_earth, m_earth = self.r_jup, self.m_jup, self.r_nep, self.m_nep, self.r_earth, self.m_earth
-        hour, day, year, rad2deg = self.hour, self.day, self.year, self.rad2deg
+        hour, day, year, rad2deg, deg2rad = self.hour, self.day, self.year, self.rad2deg, self.deg2rad
         line = config.get(section, param, fallback=None)
         if line is None:  # param not in config file
             return (None,) * 6
