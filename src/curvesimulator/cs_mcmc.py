@@ -196,6 +196,8 @@ class CurveSimMCMC:
         o.update(p)
         o.observations_to_results(results)
         if p.result_file:
+            bodies.calc_redundant_params(p)
+            results.bodies2results(bodies)
             results.save_results(p)
         # self.sim_flux = sim_flux
         # self.results = results

@@ -29,10 +29,12 @@ class CurveSimResults(dict):
         self["CurveSimulator Documentation"] = "https://github.com/lichtgestalter/curvesimulator/wiki"
         self["ProgramParameters"] = {}
         self["Bodies"] = {}
-        exclude = ["positions", "velocity", "circle_left", "circle_right", "acceleration", "d", "h", "angle", "eclipsed_area", "patch_radius"]
+        self.bodies2results(bodies)
+        self["Fit"] = {}
 
+    def bodies2results(self, bodies):
+        exclude = ["area_2d", "color", "positions", "positions_left", "positions_right", "velocity", "circle_left", "circle_right", "acceleration", "d", "h", "angle", "eclipsed_area", "patch_radius"]
         for body in bodies:
-            # body.calc_redundant_params()
             self["Bodies"][body.name] = {}
             self["Bodies"][body.name]["BodyParameters"] = {}
             self["Bodies"][body.name]["Transits"] = []
@@ -45,8 +47,6 @@ class CurveSimResults(dict):
                 scale = body.scale[param]
                 if value is not None and scale != 1:
                     self["Bodies"][body.name]["BodyParameters"][f"{param}_{unit}"] = value * scale
-
-        self["Fit"] = {}
 
     def __repr__(self):
         string = ""

@@ -217,13 +217,37 @@ class CurveSimBodies(list):
         print(f"{Style.RESET_ALL}")
 
     def calc_redundant_params(self, p):
-        """ Init a temporary rebound simulation. (Or integrate the current simulation to t=0?)
-            Read all body parameters with print_simulation_particles() or reuse some of its code here.
+        """ Read all body parameters with print_simulation_particles() or reuse some of its code here.
             Write the redundant parameters into the bodies
             Then these bodies can be used for saving results.
             Reuse the limb darkening code in calc_redundant_params in class body!
             The bodies and the temporary simulation cannot be used for integration because rebound does not accept redundancy."""
-        pass
+        simulation = self.init_rebound(p)  # Init a temporary rebound simulation
+        for particle, orbit, body in zip(simulation.particles[1:], simulation.orbits(jacobi_masses=p.jacobi_masses), self[1:]):
+            body.mass = particle.m
+            body.radius = particle.r
+            body.x = particle.x
+            body.y = particle.y
+            body.z = particle.z
+            body.vx = particle.vx
+            body.vy = particle.vy
+            body.vz = particle.vz
+            # body.mass = f"{particle.m * body.scale["mass"]:.10f} [{body.unit["mass"]}]"
+            # body.radius = f"{particle.r * body.scale["radius"]:.10f} [{body.unit["radius"]}]"
+            # body.x = f"{particle.x / p.au:.10f} [au]"
+            # body.y = f"{particle.y / p.au:.10f} [au]"
+            # body.z = f"{particle.z / p.au:.10f} [au]"
+            # body.vx = f"{particle.vx:.10f} [m/s]"
+            # body.vy = f"{particle.vy:.10f} [m/s]"
+            # body.vz = f"{particle.vz:.10f} [m/s]"
+            for cs_name, r_name in p.REBOUND_NAME.items():
+                value = getattr(orbit, r_name)
+                # unit = body.unit[cs_name]
+                # if unit in p.CONFIG_UNITS:
+                #     unit = p.CONFIG_UNITS[unit]
+                # setattr(body, f"{cs_name} = {value * body.scale[cs_name]:.6f} [{unit}]")
+                setattr(body, cs_name, value)
+
 
     def get_body_from_name(self, bodyname):
         for body in self:
@@ -338,7 +362,7 @@ class CurveSimBodies(list):
         for particle in old_simulation.particles:
             new_simulation.add(particle.copy())
         # new_simulation.move_to_com()               # Is this a good idea???
-        return new_simulation        
+        return new_simulation
 
     def print_initial_body_states(self, o, p):
         if p.print_initial_body_states:
