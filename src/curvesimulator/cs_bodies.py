@@ -202,8 +202,6 @@ class CurveSimBodies(list):
             print(f"[{particle.name}]", end=end)
             print(f"mass = {particle.m * body.scale["mass"]:.6f} * {body.unit["mass"]}", end=end)
             print(f"radius = {particle.r * body.scale["radius"]:.6f} * {body.unit["radius"]}", end=end)
-            # print(f"xyz[au]={particle.x/p.au:<10.4f}  {particle.y/p.au:10.4f}  {particle.z/p.au:10.4f}  ", end="")
-            # print(f"velocity[m/s]={particle.vx:<6.0f}  {particle.vy:6.0f}  {particle.vz:6.0f}")
             for cs_name, r_name in p.REBOUND_NAME.items():
                 value = getattr(orbit, r_name)
                 line = f"{cs_name} = {value * body.scale[cs_name]:.6f}"
@@ -217,37 +215,21 @@ class CurveSimBodies(list):
         print(f"{Style.RESET_ALL}")
 
     def calc_redundant_params(self, p):
-        """ Read all body parameters with print_simulation_particles() or reuse some of its code here.
-            Write the redundant parameters into the bodies
-            Then these bodies can be used for saving results.
-            Reuse the limb darkening code in calc_redundant_params in class body!
-            The bodies and the temporary simulation cannot be used for integration because rebound does not accept redundancy."""
-        simulation = self.init_rebound(p)  # Init a temporary rebound simulation
+        """ Inits a temporary rebound simulation.
+            Reads all body parameters from rebound and writes them into the bodies.
+            Then these bodies cannot be used for can be used for saving results,
+            but not for integration because rebound does not accept redundancy."""
+        simulation = self.init_rebound(p)
+        for particle, body in zip(simulation.particles, self):
+            body.mass, body.radius = particle.m, particle.r
+            body.x, body.y, body.z = particle.x, particle.y, particle.z
+            body.vx, body.vy, body.vz = particle.vx, particle.vy, particle.vz
+            if body.ld_u1 is not None and body.ld_u2 is not None:  # limb darkening: polynomial and Kipping form from quadratic law
+                body.ld_a1, body.ld_a2 = CurveSimPhysics.u_to_a(body.ld_u1, body.ld_u2)
+                body.ld_q1, body.ld_q2 = CurveSimPhysics.u_to_q(body.ld_u1, body.ld_u2)
         for particle, orbit, body in zip(simulation.particles[1:], simulation.orbits(jacobi_masses=p.jacobi_masses), self[1:]):
-            body.mass = particle.m
-            body.radius = particle.r
-            body.x = particle.x
-            body.y = particle.y
-            body.z = particle.z
-            body.vx = particle.vx
-            body.vy = particle.vy
-            body.vz = particle.vz
-            # body.mass = f"{particle.m * body.scale["mass"]:.10f} [{body.unit["mass"]}]"
-            # body.radius = f"{particle.r * body.scale["radius"]:.10f} [{body.unit["radius"]}]"
-            # body.x = f"{particle.x / p.au:.10f} [au]"
-            # body.y = f"{particle.y / p.au:.10f} [au]"
-            # body.z = f"{particle.z / p.au:.10f} [au]"
-            # body.vx = f"{particle.vx:.10f} [m/s]"
-            # body.vy = f"{particle.vy:.10f} [m/s]"
-            # body.vz = f"{particle.vz:.10f} [m/s]"
             for cs_name, r_name in p.REBOUND_NAME.items():
-                value = getattr(orbit, r_name)
-                # unit = body.unit[cs_name]
-                # if unit in p.CONFIG_UNITS:
-                #     unit = p.CONFIG_UNITS[unit]
-                # setattr(body, f"{cs_name} = {value * body.scale[cs_name]:.6f} [{unit}]")
-                setattr(body, cs_name, value)
-
+                setattr(body, cs_name, getattr(orbit, r_name))
 
     def get_body_from_name(self, bodyname):
         for body in self:

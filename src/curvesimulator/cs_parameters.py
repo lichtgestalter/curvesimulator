@@ -60,13 +60,13 @@ class CurveSimParameters:
                        + ["ld_u1", "ld_u2", "mean_intensity", "intensity"]
                        + ["e", "i", "P", "a", "Omega", "omega", "pomega"]
                        + ["L", "ma", "ea", "nu", "T"])
-        self.ACCEPTED_PARAMS4UNITS = ["mass", "radius", "e", "i", "P", "a", "Omega", "omega", "pomega", "L", "ma", "ea", "nu", "T", "rv_offset", "rv_jitter", "u", "v", "ld_u1", "ld_u2"]
-        self.ACCEPTED_UNITS = ["kg", "m_sun", "m_jup", "m_nep", "m_earth", "m", "r_sun", "r_jup", "r_nep", "r_earth", "s", "h", "d", "y", "au", "1", "deg", "m/s"]
-        self.SCALE_FROM_UNIT = {"kg": 1, "m_sun": 1 / m_sun, "m_jup": 1 / m_jup, "m_nep": 1 / m_nep, "m_earth": 1 / m_earth,
+        self.ACCEPTED_PARAMS4UNITS = ["mass", "radius", "e", "i", "P", "a", "Omega", "omega", "pomega", "L", "ma", "ea", "nu", "T", "rv_offset", "rv_jitter", "u", "v", "ld_u1", "ld_u2", "luminosity"]
+        self.ACCEPTED_UNITS = ["W", "l_sun", "kg", "m_sun", "m_jup", "m_nep", "m_earth", "m", "r_sun", "r_jup", "r_nep", "r_earth", "s", "h", "d", "y", "au", "1", "deg", "m/s"]
+        self.SCALE_FROM_UNIT = {"W": 1, "l_sun": 1 / l_sun, "kg": 1, "m_sun": 1 / m_sun, "m_jup": 1 / m_jup, "m_nep": 1 / m_nep, "m_earth": 1 / m_earth,
                                 "m": 1, "r_sun": 1 / r_sun, "r_jup": 1 / r_jup, "r_nep": 1 / r_nep, "r_earth": 1 / r_earth, "au": 1 / au,
                                 "s": 1, "h": 1 / hour, "d": 1 / day, "y": 1 / year,
                                 "1": 1, "deg": rad2deg, "m/s": 1, "ld_u1": 1, "ld_u2": 1}
-        self.DEFAULT_UNIT = '{"mass": "m_jup", "radius": "r_jup", "e": "1", "i": "deg", "P": "d", "a": "au", "Omega": "deg", "omega": "deg", "pomega": "deg", "L": "deg", "ma": "deg", "ea": "deg", "nu": "deg", "T": "s", "rv_offset": "m/s", "rv_jitter": "m/s", "u": "1", "v": "1", "ld_u1": "1", "ld_u2": "1"}'
+        self.DEFAULT_UNIT = '{"mass": "m_jup", "radius": "r_jup", "e": "1", "i": "deg", "P": "d", "a": "au", "Omega": "deg", "omega": "deg", "pomega": "deg", "L": "deg", "ma": "deg", "ea": "deg", "nu": "deg", "T": "s", "rv_offset": "m/s", "rv_jitter": "m/s", "u": "1", "v": "1", "ld_u1": "1", "ld_u2": "1", "luminosity": "l_sun"}'
         self.REBOUND_NAME = {"e": "e", "i": "inc", "P": "P", "a": "a", "Omega": "Omega", "omega": "omega", "pomega": "pomega", "L": "l", "ma": "M", "ea": "E", "nu": "f", "T": "T"}
         self.CONFIG_UNITS = {"d": "day", "h": "hour", "y": "year"}
         self.body_param_names = None

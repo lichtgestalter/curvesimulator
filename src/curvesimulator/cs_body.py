@@ -397,46 +397,46 @@ class CurveSimBody:
     #         print(f"Omega: {particle.Omega:14.6e}")
     #         print(f"omega: {particle.omega:14.6e}")
     #         print(f"ma:    {particle.M:14.6e}")
-
-    @staticmethod
-    def kepler_equation(ea, e, ma):
-        """Kepler equation residual f(ea) = ea - e*sin(ea) - ma.
-        ea: eccentric anomaly [rad], e: eccentricity, ma: mean anomaly [rad].
-        Pure function: only e is validated. Range checks on angles are done once
-        on the inputs of kepler_equation_root, so Newton iterates may leave ]-2π;2π[."""
-        if not 0 <= e < 1:
-            raise ValueError("eccentricity e is outside of the range [0;1[")
-        return ea - e * math.sin(ea) - ma
-
-    @staticmethod
-    def kepler_equation_derivative(ea, e):
-        """ea: eccentric anomaly [rad], e: eccentricity"""
-        return 1.0 - e * math.cos(ea)
-
-    @staticmethod
-    def kepler_equation_root(e, ma, ea_guess=None, tolerance=1e-10, max_steps=50):
-        """Calculate the root of the Kepler equation with the Newton-Raphson method.
-        e: eccentricity, ma: mean anomaly [rad],
-        ea_guess: start value for the eccentric anomaly [rad].
-                  If None: ma for e < 0.8, otherwise pi (more robust for high e)."""
-        if not 0 <= e < 1:
-            raise ValueError("eccentricity e is outside of the range [0;1[")
-        if not -2 * math.pi < ma < 2 * math.pi:
-            raise ValueError("mean anomaly ma must be in radians but is outside of the range ]-2π;2π[")
-        if ea_guess is None:
-            ea_guess = ma if e < 0.8 else math.pi
-        elif not -2 * math.pi < ea_guess < 2 * math.pi:
-            raise ValueError("eccentric anomaly guess must be in radians but is outside of the range ]-2π;2π[")
-
-        ea = ea_guess
-        for _ in range(max_steps):
-            # derivative >= 1 - e > 0, so no division by zero for e in [0;1[
-            delta = CurveSimBody.kepler_equation(ea, e, ma) / CurveSimBody.kepler_equation_derivative(ea, e)
-            ea -= delta
-            if abs(delta) < tolerance:
-                return ea
-        raise RuntimeError("Newton's root solver did not converge.")
-
+    #
+    # @staticmethod
+    # def kepler_equation(ea, e, ma):
+    #     """Kepler equation residual f(ea) = ea - e*sin(ea) - ma.
+    #     ea: eccentric anomaly [rad], e: eccentricity, ma: mean anomaly [rad].
+    #     Pure function: only e is validated. Range checks on angles are done once
+    #     on the inputs of kepler_equation_root, so Newton iterates may leave ]-2π;2π[."""
+    #     if not 0 <= e < 1:
+    #         raise ValueError("eccentricity e is outside of the range [0;1[")
+    #     return ea - e * math.sin(ea) - ma
+    #
+    # @staticmethod
+    # def kepler_equation_derivative(ea, e):
+    #     """ea: eccentric anomaly [rad], e: eccentricity"""
+    #     return 1.0 - e * math.cos(ea)
+    #
+    # @staticmethod
+    # def kepler_equation_root(e, ma, ea_guess=None, tolerance=1e-10, max_steps=50):
+    #     """Calculate the root of the Kepler equation with the Newton-Raphson method.
+    #     e: eccentricity, ma: mean anomaly [rad],
+    #     ea_guess: start value for the eccentric anomaly [rad].
+    #               If None: ma for e < 0.8, otherwise pi (more robust for high e)."""
+    #     if not 0 <= e < 1:
+    #         raise ValueError("eccentricity e is outside of the range [0;1[")
+    #     if not -2 * math.pi < ma < 2 * math.pi:
+    #         raise ValueError("mean anomaly ma must be in radians but is outside of the range ]-2π;2π[")
+    #     if ea_guess is None:
+    #         ea_guess = ma if e < 0.8 else math.pi
+    #     elif not -2 * math.pi < ea_guess < 2 * math.pi:
+    #         raise ValueError("eccentric anomaly guess must be in radians but is outside of the range ]-2π;2π[")
+    #
+    #     ea = ea_guess
+    #     for _ in range(max_steps):
+    #         # derivative >= 1 - e > 0, so no division by zero for e in [0;1[
+    #         delta = CurveSimBody.kepler_equation(ea, e, ma) / CurveSimBody.kepler_equation_derivative(ea, e)
+    #         ea -= delta
+    #         if abs(delta) < tolerance:
+    #             return ea
+    #     raise RuntimeError("Newton's root solver did not converge.")
+    #
     # @staticmethod
     # def gravitational_param(bodies, g):
     #     """Calculate the gravitational param of masses orbiting a common barycenter
@@ -446,78 +446,3 @@ class CurveSimBody:
     #         mass += body.mass
     #     # print(f"Gravitational param {g * mass:.3f}")
     #     return g * mass
-
-    def calc_redundant_params(self):
-        # Only half done.
-        # Does not handle the 3 cases
-        #   - astrocentric
-        #   - jacobi coords with jacobi masses
-        #   - jacobi coords without jacobi masses
-        # Instead I will write calc_redundant_params() in class CurveSimBodies
-
-        two_pi = 2 * math.pi
-
-        # limb darkening: polynomial and Kipping form from quadratic law
-        if self.ld_u1 is not None and self.ld_u2 is not None:
-            self.ld_a1, self.ld_a2 = CurveSimPhysics.u_to_a(self.ld_u1, self.ld_u2)
-            self.ld_q1, self.ld_q2 = CurveSimPhysics.u_to_q(self.ld_u1, self.ld_u2)
-
-        # P <-> a (Kepler's third law)
-        if self.P is None and self.a is not None:
-            if self.mu is None:
-                raise ValueError("mu is required to calculate P from a")
-            self.P = two_pi * math.sqrt(self.a ** 3 / self.mu)
-        elif self.a is None and self.P is not None:
-            if self.mu is None:
-                raise ValueError("mu is required to calculate a from P")
-            self.a = (self.mu * self.P ** 2 / (4 * math.pi ** 2)) ** (1 / 3)
-
-        # pomega = Omega + omega
-        if self.pomega is None and self.Omega is not None and self.omega is not None:
-            self.pomega = (self.Omega + self.omega) % two_pi
-        elif self.omega is None and self.Omega is not None and self.pomega is not None:
-            self.omega = (self.pomega - self.Omega) % two_pi
-        elif self.Omega is None and self.omega is not None and self.pomega is not None:
-            self.Omega = (self.pomega - self.omega) % two_pi
-
-        # L, ma, ea, nu, T
-        # Step 1: obtain the mean anomaly ma from whichever attribute is available
-        if self.ma is None:
-            if self.ea is not None:
-                ma = self.ea - self.e * math.sin(self.ea)
-            elif self.nu is not None:
-                ea = 2 * math.atan2(math.sqrt(1 - self.e) * math.sin(self.nu / 2),
-                                    math.sqrt(1 + self.e) * math.cos(self.nu / 2))
-                ma = ea - self.e * math.sin(ea)
-            elif self.L is not None and self.pomega is not None:
-                ma = self.L - self.pomega
-            elif self.T is not None and self.P is not None:
-                ma = -two_pi * self.T / self.P  # ma = n * (t - T) with t = 0
-            else:
-                raise ValueError("Not enough parameters to determine the mean anomaly")
-            self.ma = ma % two_pi
-
-        # Step 2: derive the remaining attributes from ma
-        if self.ea is None:
-            self.ea = CurveSimBody.kepler_equation_root(self.e, self.ma)
-        if self.nu is None:
-            self.nu = (2 * math.atan2(math.sqrt(1 + self.e) * math.sin(self.ea / 2),
-                                      math.sqrt(1 - self.e) * math.cos(self.ea / 2))) % two_pi
-        if self.L is None and self.pomega is not None:
-            self.L = (self.pomega + self.ma) % two_pi
-        if self.T is None and self.P is not None:
-            self.T = -self.ma / two_pi * self.P  # periapsis time relative to t = 0
-
-# Complete this function
-# Missing attributes are None
-# Calculate a from P or P from a, depending on which one is missing.
-# Likewise calculate the missing attribute of Omega, omega, pomega
-# Likewise calculate the missing attribute of L, ma, ea, nu, T
-
-# Notes:
-# Computing P/a inside calc_redundant_params requires mu to be set first. Make sure the caller does that before this method runs.
-# Conventions [certain]: pomega = Omega + omega and L = pomega + ma are the standard definitions.
-# Time of periapsis [uncertain]: I assumed ma = n·(t − T) with t = 0, so T = −ma·P/2π. If your simulation uses a different reference epoch or sign, change the two T lines.
-# Anomaly range [likely]: angles are wrapped to [0, 2π). This stays inside the ]-2π; 2π[ check in kepler_equation. If ea arrives outside that range, ma is still wrapped correctly, but ea itself is not re-wrapped.
-# Existing values: only None attributes are filled in. Inconsistent inputs, for example both ma and nu given but contradicting each other, are not detected.
-# Missing inputs: L or T stay None when pomega or P is missing, instead of raising an error. If you want an error there, add one.
