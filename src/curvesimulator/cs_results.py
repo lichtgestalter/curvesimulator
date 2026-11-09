@@ -39,10 +39,14 @@ class CurveSimResults(dict):
             self["Bodies"][body.name]["BodyParameters"] = {}
             self["Bodies"][body.name]["Transits"] = []
             for key in body.__dict__.keys():
+                if body.body_type == "planet" and key in ["luminosity", "intensity"]:
+                    continue
                 if key not in exclude:
                     self["Bodies"][body.name]["BodyParameters"][key] = getattr(body, key)
 
             for param, unit in body.unit.items():
+                if body.body_type == "planet" and param in ["luminosity", "intensity"]:
+                    continue
                 value = getattr(body, param, None)
                 scale = body.scale[param]
                 if value is not None and scale != 1:
