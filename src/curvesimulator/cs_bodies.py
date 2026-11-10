@@ -23,7 +23,6 @@ class CurveSimBodies(list):
 
     # noinspection PyUnusedLocal
     def __init__(self, p):
-        # p.myintegration = False  # if True, instead of Rebound, use a simple adhoc integration provided in this code
         """Initialize instances of physical bodies.
         Read program params and properties of the bodies from config file.
         Initialize the circles in the animation (matplotlib patches)"""
@@ -440,7 +439,8 @@ class CurveSimBodies(list):
                 body.circle_right = matplotlib.patches.Circle((0, 0), radius=body.radius * extrascale_right / p.scope_right)  # Matplotlib patch for right view
                 body.circle_left = matplotlib.patches.Circle((0, 0), radius=body.radius * extrascale_left / p.scope_left)  # Matplotlib patch for left view
 
-    def find_transits(self, rebound_sim, o, p):
+    def find_transits(self, rebound_sim: rebound.Simulation, o, p: CurveSimParameters) -> CurveSimResults:
+    # def find_transits(self, rebound_sim, o, p):
         iterations = o.sim.observation_count
         rebound_sim.dt = p.dt
         results = CurveSimResults(self, p=p)
@@ -450,12 +450,6 @@ class CurveSimBodies(list):
                     eclipser_before_eclipsee = eclipser.positions[i][2] > eclipsee.positions[i][2]
                     transit_between_iterations = (eclipser.positions[i][0] - eclipsee.positions[i][0]) * (eclipser.positions[i - 1][0] - eclipsee.positions[i - 1][0]) <= 0  # transit between i-1 and i?
                     if eclipser_before_eclipsee and transit_between_iterations:
-                        # if p.myintegration:  # debug
-                        #     results["Bodies"][eclipser.name]["Transits"].append(Transit(eclipsee))
-                        #     results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["EclipsedBody"] = eclipsee.name
-                        #     results["Bodies"][eclipser.name]["Transits"][-1]["Transit_params"]["TT"] = i * p.dt / p.day + p.epoch
-                        #     print(f"myintegration transit at {i * p.dt / p.day + p.epoch:.2f}")
-                        # else:
                         tt, impact, depth, close_enough, inclination = eclipsee.find_tt(eclipser, i - 1, rebound_sim, o, p, 0)
                         if close_enough:  # eclipser and eclipsee are close enough at actual TT
                             tt_s0 = rebound_sim.t
@@ -491,9 +485,6 @@ class CurveSimBodies(list):
                     eclipser_before_eclipsee = eclipser.positions[i][2] > eclipsee.positions[i][2]
                     transit_between_iterations = (eclipser.positions[i][0] - eclipsee.positions[i][0]) * (eclipser.positions[i - 1][0] - eclipsee.positions[i - 1][0]) <= 0  # transit between i-1 and i?
                     if eclipser_before_eclipsee and transit_between_iterations:
-                        # if p.myintegration:  # debug
-                        #     tts.append([eclipser.name, eclipsee.name, i * p.dt / p.day + p.epoch])
-                        # else:
                         tt, b, depth, close_enough, inclination = eclipsee.find_tt(eclipser, i - 1, rebound_sim, o, p, 0)
                         if close_enough:
                             tts.append([eclipser.name, eclipsee.name, tt])
@@ -525,251 +516,3 @@ class CurveSimBodies(list):
                 body.video_frames_per_orbit = body.P / (p.dt * o.sim.sampling_rate)
             else:
                 body.video_frames_per_orbit = None
-
-    # def init_myintegration(self, simulation):
-    #     import numpy as np
-    #
-    #     def get_com(n):
-    #         m_tot = 0.0
-    #         r = np.zeros(3)
-    #         v = np.zeros(3)
-    #
-    #         for i in range(n):
-    #             p = simulation._particles_list[i]
-    #             m_tot += p.m
-    #             r += p.m * np.array([p.x, p.y, p.z])
-    #             v += p.m * np.array([p.vx, p.vy, p.vz])
-    #
-    #         return m_tot, r / m_tot, v / m_tot
-    #
-    #     def rotate(x, y, Omega, inc, omega):
-    #         cosO, sinO = np.cos(Omega), np.sin(Omega)
-    #         cosi, sini = np.cos(inc), np.sin(inc)
-    #         cosw, sinw = np.cos(omega), np.sin(omega)
-    #
-    #         X = (cosO * cosw - sinO * sinw * cosi) * x + (-cosO * sinw - sinO * cosw * cosi) * y
-    #         Y = (sinO * cosw + cosO * sinw * cosi) * x + (-sinO * sinw + cosO * cosw * cosi) * y
-    #         Z = (sini * sinw) * x + (sini * cosw) * y
-    #
-    #         return np.array([X, Y, Z])
-    #
-    #     # --- star ---
-    #     star = self[0]
-    #     simulation.add(
-    #         name=star.name,
-    #         m=star.mass,
-    #         r=star.radius,
-    #         x=0.0, y=0.0, z=0.0,
-    #         vx=0.0, vy=0.0, vz=0.0
-    #     )
-    #
-    #     # --- planets ---
-    #     for i, body in enumerate(self[1:], start=1):
-    #         m_com, r_com, v_com = get_com(i)
-    #         mu = simulation.G * (m_com + body.mass)
-    #         e = body.e
-    #         inc = body.i
-    #         Omega = body.Omega or 0.0
-    #         omega = body.omega or 0.0
-    #
-    #         # --- derive mean anomaly ma from whichever anomaly type is provided ---
-    #         ma = 0.0  # default; overridden below if any anomaly is specified
-    #         if body.ma is not None:
-    #             ma = body.ma
-    #         elif body.ea is not None:
-    #             ma = body.ea - e * np.sin(body.ea)
-    #         elif body.nu is not None:
-    #             ea_from_nu = 2 * np.arctan(np.sqrt((1 - e) / (1 + e)) * np.tan(body.nu / 2))
-    #             ma = ea_from_nu - e * np.sin(ea_from_nu)
-    #         elif body.L is not None:
-    #             ma = body.L - (omega + Omega)
-    #         elif body.T is not None:
-    #             pass
-    #         else:
-    #             ma = 0.0
-    #
-    #         if body.a is not None:
-    #             a = body.a
-    #         elif body.P is not None:
-    #             a = (mu * body.P ** 2 / (4 * np.pi ** 2)) ** (1 / 3)
-    #         else:
-    #             raise ValueError(f"{body.name}: need a or P")
-    #
-    #         # --- handle T (time of periapsis) now that a is known ---
-    #         if body.T is not None and body.ma is None and body.ea is None and body.nu is None and body.L is None:
-    #             n = np.sqrt(mu / a ** 3)
-    #             ma = n * body.T
-    #         elif body.T is not None and ma is None:  # fallback
-    #             ma = 0.0
-    #
-    #         # --- solve Kepler ---
-    #         E = ma
-    #         for _ in range(50):
-    #             E -= (E - e * np.sin(E) - ma) / (1 - e * np.cos(E))
-    #
-    #         # --- position in perifocal frame ---
-    #         x_orb = a * (np.cos(E) - e)
-    #         y_orb = a * np.sqrt(1 - e ** 2) * np.sin(E)
-    #
-    #         # --- velocity ---
-    #         n = np.sqrt(mu / a ** 3)
-    #         vx_orb = -a * n * np.sin(E) / (1 - e * np.cos(E))
-    #         vy_orb = a * n * np.sqrt(1 - e ** 2) * np.cos(E) / (1 - e * np.cos(E))
-    #
-    #         # --- rotate ---
-    #         r_vec = rotate(x_orb, y_orb, Omega, inc, omega)
-    #         v_vec = rotate(vx_orb, vy_orb, Omega, inc, omega)
-    #
-    #         # --- convert Jacobi -> inertial ---
-    #         r_vec += r_com
-    #         v_vec += v_com
-    #         print(f"debug {body.name}:  {v_vec=} {r_vec=}")
-    #         simulation.add(
-    #             name=body.name,
-    #             m=body.mass,
-    #             r=body.radius,
-    #             x=r_vec[0], y=r_vec[1], z=r_vec[2],
-    #             vx=v_vec[0], vy=v_vec[1], vz=v_vec[2])
-    #
-    #     simulation.move_to_com()  # shift COM to origin (same as init_rebound's simulation.move_to_com())
-#
-#
-# class MyParticle:
-#     def __init__(self, name, m, r):
-#         self.name = name
-#         self.m = m
-#         self.r = r
-#
-#         self.x = 0.0
-#         self.y = 0.0
-#         self.z = 0.0
-#
-#         self.vx = 0.0
-#         self.vy = 0.0
-#         self.vz = 0.0
-#
-#         self.ax = 0.0
-#         self.ay = 0.0
-#         self.az = 0.0
-#
-#
-# class MyIntegration:
-#     def __init__(self, p):
-#         self.G = p.g
-#         self.dt = p.dt
-#         self.t = 0.0
-#
-#         self.particles = {}  # name -> particle
-#         self._particles_list = []  # ordered list (needed for COM)
-#
-#     def add(self, name, m, r, x, y, z, vx, vy, vz):
-#         p = MyParticle(name, m, r)
-#
-#         p.x, p.y, p.z = x, y, z
-#         p.vx, p.vy, p.vz = vx, vy, vz
-#
-#         self.particles[name] = p
-#         self._particles_list.append(p)
-#
-#     def move_to_com(self):
-#         """Shift positions and velocities so the center of mass is at the origin with zero net momentum."""
-#         plist = self._particles_list
-#         m_tot = sum(p.m for p in plist)
-#         rx = sum(p.m * p.x for p in plist) / m_tot
-#         ry = sum(p.m * p.y for p in plist) / m_tot
-#         rz = sum(p.m * p.z for p in plist) / m_tot
-#         vx = sum(p.m * p.vx for p in plist) / m_tot
-#         vy = sum(p.m * p.vy for p in plist) / m_tot
-#         vz = sum(p.m * p.vz for p in plist) / m_tot
-#         for p in plist:
-#             p.x -= rx
-#             p.y -= ry
-#             p.z -= rz
-#             p.vx -= vx
-#             p.vy -= vy
-#             p.vz -= vz
-#
-#     def compute_accelerations(self):
-#         plist = self._particles_list
-#
-#         # reset
-#         for p in plist:
-#             p.ax = p.ay = p.az = 0.0
-#
-#         # pairwise gravity
-#         for i in range(len(plist)):
-#             pi = plist[i]
-#             for j in range(i + 1, len(plist)):
-#                 pj = plist[j]
-#
-#                 dx = pj.x - pi.x
-#                 dy = pj.y - pi.y
-#                 dz = pj.z - pi.z
-#
-#                 r2 = dx * dx + dy * dy + dz * dz + 1e-12
-#                 r = np.sqrt(r2)
-#
-#                 factor = self.G / (r2 * r)
-#
-#                 fx = factor * dx
-#                 fy = factor * dy
-#                 fz = factor * dz
-#
-#                 pi.ax += pj.m * fx
-#                 pi.ay += pj.m * fy
-#                 pi.az += pj.m * fz
-#
-#                 pj.ax -= pi.m * fx
-#                 pj.ay -= pi.m * fy
-#                 pj.az -= pi.m * fz
-#
-#     def integrate(self, t_target):
-#         while self.t < t_target:
-#             dt = min(self.dt, t_target - self.t)
-#
-#             # --- kick ---
-#             self.compute_accelerations()
-#             for p in self._particles_list:
-#                 p.vx += 0.5 * p.ax * dt
-#                 p.vy += 0.5 * p.ay * dt
-#                 p.vz += 0.5 * p.az * dt
-#
-#             # --- drift ---
-#             for p in self._particles_list:
-#                 p.x += p.vx * dt
-#                 p.y += p.vy * dt
-#                 p.z += p.vz * dt
-#
-#             # --- kick ---
-#             self.compute_accelerations()
-#             for p in self._particles_list:
-#                 p.vx += 0.5 * p.ax * dt
-#                 p.vy += 0.5 * p.ay * dt
-#                 p.vz += 0.5 * p.az * dt
-#
-#             self.t += dt
-#
-#     def total_energy(self):
-#         plist = self._particles_list
-#
-#         kinetic = 0.0
-#         potential = 0.0
-#
-#         for p in plist:
-#             v2 = p.vx ** 2 + p.vy ** 2 + p.vz ** 2
-#             kinetic += 0.5 * p.m * v2
-#
-#         for i in range(len(plist)):
-#             for j in range(i + 1, len(plist)):
-#                 pi = plist[i]
-#                 pj = plist[j]
-#
-#                 dx = pj.x - pi.x
-#                 dy = pj.y - pi.y
-#                 dz = pj.z - pi.z
-#
-#                 r = np.sqrt(dx * dx + dy * dy + dz * dz + 1e-12)
-#                 potential -= self.G * pi.m * pj.m / r
-#
-#         return kinetic + potential
-#

@@ -1,6 +1,6 @@
 single_run                       # Plot observed vs. computed, chi squared, and residuals for all observations and save results_single_run.json.
 chi_squared                      # Plot the development of reduced chi squared during fitting: reduced_chi^2_over_time.png
-
+all
 # All lines after the first line that starts with # are ignored.
 
 integrated_autocorrelation_time  # Plot the integrated autocorrelation time per fitting parameter: int_autocorr_time.png and steps_per_i_ac_time.png.

@@ -70,7 +70,17 @@ class CurveSimBody:
         self.d, self.h, self.angle, self.eclipsed_area = 0.0, 0.0, 0.0, 0.0  # Used for calculation of eclipsed area in function eclipsed_by
 
     def __repr__(self):
-        return f"CurveSimBody: {self.name}"
+        repr = f"CurveSimBody: "
+        exclude = ["limb_darkening_parameter_type", "luminosity", "intensity", "video_frames_per_orbit", "scale", "unit", "body_type", "primary", "color", "image_file_left", "image_file_right", "positions", "velocity", "circle_left", "circle_right", "acceleration", "area_2d", "d", "h", "angle", "eclipsed_area", "patch_radius"]
+        for key, val in self.__dict__.items():
+            if key in exclude or key.startswith("_") or callable(val):
+                continue
+            if isinstance(val, np.generic):  # np.float64, np.int32, np.bool_, ...
+                val = val.item()
+            if val is not None:
+                repr += f"{key} = {val} "
+        return repr
+
     #
     # def save2(self, p, prefix="", suffix=""):
     #     """Saves attributes of self in a file"""

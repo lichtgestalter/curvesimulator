@@ -335,7 +335,7 @@ class CurveSimMCMC:
         #         bodies[fp.body_index].__dict__[fp.param_name] = fp.startvalue
         # elif param_type == "max_likelihood":
         #     for fp in fitting_params:
-        #         bodies[fp.body_index].__dict__[fp.param_name] = fp.max_likelihood_scaled / fp.scale
+        #         bodies[fp.body_index].__dict__[fp.param_name] = fp.max_likelihood / fp.scale
         # elif param_type == "mean":
         #     for fp in fitting_params:
         #         bodies[fp.body_index].__dict__[fp.param_name] = fp.mean / fp.scale
@@ -459,7 +459,7 @@ class CurveSimMCMC:
             fp.std = std
             fp.mean = mean
             fp.median = median
-            fp.max_likelihood_scaled = self.max_likelihood_params_scaled[i]
+            fp.max_likelihood = self.max_likelihood_params_scaled[i]
             # self.mean_params.append(mean)
             # self.median_params.append(median)
 
@@ -497,7 +497,7 @@ class CurveSimMCMC:
             fp.densities, fp.bin_edges, _ = ax.hist(sample, bins=bins, density=True, alpha=0.7, color="xkcd:light blue", edgecolor="xkcd:black")
             ax.axvline(fp.hdi_min, color="xkcd:tree green", linestyle="dashed", label="HDI Lower Bound")
             ax.axvline(fp.mean - fp.std, color="xkcd:warm grey", linestyle="dotted", label="Mean - Std")
-            ax.axvline(fp.max_likelihood_scaled, color="xkcd:tomato", linestyle="solid", label="Max Likelihood")
+            ax.axvline(fp.max_likelihood, color="xkcd:tomato", linestyle="solid", label="Max Likelihood")
             ax.axvline(fp.mean, color="xkcd:black", linestyle="solid", label="Mean")
             ax.axvline(fp.hdi_max, color="xkcd:tree green", linestyle="dashed", label="HDI Upper Bound")
             ax.axvline(fp.mean + fp.std, color="xkcd:warm grey", linestyle="dotted", label="Mean + Std")
@@ -893,11 +893,11 @@ class CurveSimMCMC:
 
         self.high_density_intervals(p)
         if "save_bodies" in commands or "all" in commands:
-            bodies = CurveSimMCMC.bodies_from_fitting_params(bodies, p.fitting_params[:p.body_fparams_count], param_type="max_likelihood_scaled")
+            bodies = CurveSimMCMC.bodies_from_fitting_params(bodies, p.fitting_params[:p.body_fparams_count], param_type="max_likelihood")
             bodies.save(directory=p.results_directory, prefix="", suffix="_maxL")
             bodies = CurveSimMCMC.bodies_from_fitting_params(bodies, p.fitting_params[:p.body_fparams_count], param_type="mean")
             bodies.save(directory=p.results_directory, prefix="", suffix="_mean")
-        bodies = CurveSimMCMC.bodies_from_fitting_params(bodies, p.fitting_params[:p.body_fparams_count], param_type="max_likelihood_scaled")
+        bodies = CurveSimMCMC.bodies_from_fitting_params(bodies, p.fitting_params[:p.body_fparams_count], param_type="max_likelihood")
         if "single_run" in commands or "all" in commands:
             CurveSimMCMC.single_run(p, bodies, o)  # creates o vs. c, chi^2 and residuals plots.
 

@@ -29,15 +29,25 @@ class CurveSimResults(dict):
         self["CurveSimulator Documentation"] = "https://github.com/lichtgestalter/curvesimulator/wiki"
         self["ProgramParameters"] = {}
         self["Bodies"] = {}
-        self.bodies2results(bodies)
-        self["Fit"] = {}
-
-    def bodies2results(self, bodies):
-        exclude = ["area_2d", "color", "positions", "positions_left", "positions_right", "velocity", "circle_left", "circle_right", "acceleration", "d", "h", "angle", "eclipsed_area", "patch_radius"]
         for body in bodies:
             self["Bodies"][body.name] = {}
             self["Bodies"][body.name]["BodyParameters"] = {}
             self["Bodies"][body.name]["Transits"] = []
+        # self.bodies2results(bodies)
+        self["Fit"] = {}
+
+    def __repr__(self):
+        string = ""
+        for body in self["Bodies"]:
+            if len(self["Bodies"][body]["Transits"]) == 1:
+                string += f"{body:15} {len(self["Bodies"][body]["Transits"]):3} transit\n"
+            elif len(self["Bodies"][body]["Transits"]) > 1:
+                string += f"{body:15} {len(self["Bodies"][body]["Transits"]):3} transits\n"
+        return "CurveSimResults:\n" + string[:-1]
+
+    def bodies2results(self, bodies):
+        exclude = ["area_2d", "color", "positions", "positions_left", "positions_right", "velocity", "circle_left", "circle_right", "acceleration", "d", "h", "angle", "eclipsed_area", "patch_radius"]
+        for body in bodies:
             for key in body.__dict__.keys():
                 if body.body_type == "planet" and key in ["luminosity", "intensity"]:
                     continue
@@ -51,15 +61,6 @@ class CurveSimResults(dict):
                 scale = body.scale[param]
                 if value is not None and scale != 1:
                     self["Bodies"][body.name]["BodyParameters"][f"{param}_{unit}"] = value * scale
-
-    def __repr__(self):
-        string = ""
-        for body in self["Bodies"]:
-            if len(self["Bodies"][body]["Transits"]) == 1:
-                string += f"{body:15} {len(self["Bodies"][body]["Transits"]):3} transit\n"
-            elif len(self["Bodies"][body]["Transits"]) > 1:
-                string += f"{body:15} {len(self["Bodies"][body]["Transits"]):3} transits\n"
-        return "CurveSimResults:\n" + string[:-1]
 
     def remove_null_values(self):
         """Crawls through self's hierarchy of dictionaries and lists and removes
