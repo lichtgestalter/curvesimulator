@@ -1,4 +1,3 @@
-from collections import defaultdict
 from colorama import Fore, Style
 import copy
 import corner
@@ -196,13 +195,14 @@ class CurveSimMCMC:
         o.update(p)
         o.observations_to_results(results)
         if p.result_file:
-            bodies.calc_redundant_params(p)
-            results.bodies2results(bodies)
+            bodies_tmp = copy.deepcopy(bodies)
+            bodies_tmp.calc_redundant_params(p)
+            results.bodies2results(bodies_tmp)
             results.save_results(p)
         # self.sim_flux = sim_flux
         # self.results = results
-        vitkova_debug = False
-        if vitkova_debug:
+        trifon = False
+        if trifon:
             p.eclipsers = ["TOI4504d"]
             p.eclipsees = ["TOI4504"]
             # results.plot_param("TOI4504c", "TOI4504", "T14", flux_time_d[0], flux_time_d[-1],
