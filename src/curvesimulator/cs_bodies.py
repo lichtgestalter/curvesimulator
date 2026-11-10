@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from colorama import Fore, Style
 import configparser
 import json
@@ -9,6 +11,7 @@ import numpy as np
 import rebound
 import sys
 import time
+from typing import Any, TYPE_CHECKING
 
 from curvesimulator.cs_body import CurveSimBody
 # from curvesimulator.cs_lightcurve import CurveSimLightcurve
@@ -18,11 +21,13 @@ from curvesimulator.cs_rebound import CurveSimRebound
 from curvesimulator.cs_results import CurveSimResults
 from curvesimulator.cs_results import Transit
 
+if TYPE_CHECKING:
+    from curvesimulator.cs_observations import TotalObservations
 
 class CurveSimBodies(list):
 
     # noinspection PyUnusedLocal
-    def __init__(self, p):
+    def __init__(self, p: CurveSimParameters) -> None:
         """Initialize instances of physical bodies.
         Read program params and properties of the bodies from config file.
         Initialize the circles in the animation (matplotlib patches)"""
@@ -45,7 +50,7 @@ class CurveSimBodies(list):
                 file = config.get(section, "file", fallback=None)
                 if file is None:
                     color = CurveSimParameters.get_color_param(config, section, "color", "xkcd:eggshell")
-                    kwargs = {
+                    kwargs: dict[str, Any] = {
                         "p": p,
                         "primary": config.get(section, "primary", fallback=None),
                         "name": section,
@@ -87,13 +92,13 @@ class CurveSimBodies(list):
         if p.action == "single_run":
             self.generate_patches(p)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         names = "CurveSimBodies: "
         for body in self:
             names += body.name + ", "
         return names[:-2]
 
-    def init_rebound(self, p):
+    def init_rebound(self, p: CurveSimParameters) -> rebound.Simulation:
         simulation = rebound.Simulation()
         simulation.G = p.g  # gravitational constant
         star_count = sum(1 for body in self if body.body_type == "star")
@@ -123,7 +128,7 @@ class CurveSimBodies(list):
             simulation.add(m=body.mass, r=body.radius, name=body.name)
 
         for i, body in enumerate(self[1:], start=1):
-            kwargs = {}
+            kwargs: dict[str, Any] = {}
             kwargs["jacobi_masses"] = p.jacobi_masses
             kwargs["m"] = body.mass
             kwargs["r"] = body.radius
@@ -164,7 +169,7 @@ class CurveSimBodies(list):
         return simulation
 
     @staticmethod
-    def get_com_particle(simulation, indices):
+    def get_com_particle(simulation: rebound.Simulation, indices: Any) -> rebound.Particle:
         """Returns a temporary particle representing the center of mass
         of the given particle indices."""
         m_tot = 0.0
@@ -192,7 +197,7 @@ class CurveSimBodies(list):
 
         return com
 
-    def print_simulation_particles(self, p, simulation, message="", print_in_config_format=True):
+    def print_simulation_particles(self, p: CurveSimParameters, simulation: rebound.Simulation, message: str = "", print_in_config_format: bool = True) -> None:
         print(f"{Fore.GREEN}")
         end = "\n" if print_in_config_format else "  "
         bjd = p.epoch + simulation.t / p.day
@@ -213,7 +218,7 @@ class CurveSimBodies(list):
             print()
         print(f"{Style.RESET_ALL}")
 
-    def calc_redundant_params(self, p):
+    def calc_redundant_params(self, p: CurveSimParameters) -> None:
         """ Inits a temporary rebound simulation.
             Reads all body parameters from rebound and writes them into the bodies.
             Then these bodies cannot be used for can be used for saving results,
@@ -230,20 +235,20 @@ class CurveSimBodies(list):
             for cs_name, r_name in p.REBOUND_NAME.items():
                 setattr(body, cs_name, getattr(orbit, r_name))
 
-    def get_body_from_name(self, bodyname):
+    def get_body_from_name(self, bodyname: str) -> CurveSimBody | None:
         for body in self:
             if body.name == bodyname:
                 return body
         return None
 
-    def get_rv_offset_and_jitter(self, p):
+    def get_rv_offset_and_jitter(self, p: CurveSimParameters) -> tuple[CurveSimBody | None, Any, Any]:
         rv_body = self.get_body_from_name(p.rv_body_name)
         if rv_body is None:
             return None, None, None
         else:
             return rv_body, rv_body.rv_offset, rv_body.rv_jitter
 
-    def check_body_params(self):
+    def check_body_params(self) -> None:
         """Checking params of physical bodies in the config file"""
         if len(self) == 0:
             print(f"{Fore.RED}\nERROR in config file: No physical bodies have been specified.")
@@ -283,11 +288,11 @@ class CurveSimBodies(list):
                 print(f"{Fore.YELLOW}\nWARNING: more than one anomaly (L, ma, ea, nu, T) has been specified in config file for {body.name}.")
                 print(f"Check for contradictions and/or remove superflous anomalies.{Style.RESET_ALL}")
 
-    def save(self, directory=".", prefix="", suffix=""):
+    def save(self, directory: str = ".", prefix: str = "", suffix: str = "") -> None:
         for body in self:
             body.save(directory, prefix, suffix)
 
-    def total_luminosity(self, stars, iteration, p):
+    def total_luminosity(self, stars: list[CurveSimBody], iteration: int, p: CurveSimParameters) -> float:
         """Add luminosity of all stars in the system while checking for eclipses.
         Does not yet work correctly for eclipsed eclipses (three or more bodies in line of sight at the same time)."""
         luminosity = 0.0
@@ -303,18 +308,18 @@ class CurveSimBodies(list):
         return luminosity
 
     @staticmethod
-    def update_position(body, iteration, rebound_sim):
+    def update_position(body: CurveSimBody, iteration: int, rebound_sim: rebound.Simulation) -> None:
         particle = rebound_sim.particles[body.name]
         body.positions[iteration] = np.array([particle.x, particle.y, particle.z])
 
     @staticmethod
-    def progress_bar(i, iterations):
+    def progress_bar(i: int, iterations: int) -> None:
         if iterations > 5:  # prevent DIV/0 in next line
             if i % int(round(iterations / 10)) == 0:  # Inform user about program"s progress.
                 if i >= int(round(iterations / 10)):  # Do not print 0%
                     print(f"{round(i / iterations * 10) * 10:3d}% ", end="")
 
-    def integrate_this(self, iterations, observations, p, sim_flux, sim_rv, stars, start, step, stop):
+    def integrate_this(self, iterations: int, observations: TotalObservations, p: CurveSimParameters, sim_flux: np.ndarray, sim_rv: np.ndarray | None, stars: list[CurveSimBody], start: int, step: int, stop: int) -> tuple[rebound.Simulation, float]:
         simulation = self.init_rebound(p)
         if p.verbose:
             initial_sim_state = CurveSimRebound(simulation)
@@ -335,7 +340,7 @@ class CurveSimBodies(list):
         return simulation, relative_energy_change
 
     @staticmethod
-    def clone_simulation(old_simulation, p):
+    def clone_simulation(old_simulation: rebound.Simulation, p: CurveSimParameters) -> rebound.Simulation:
         new_simulation = rebound.Simulation()
         new_simulation.G = p.g
         new_simulation.integrator = p.integrator
@@ -345,7 +350,7 @@ class CurveSimBodies(list):
         # new_simulation.move_to_com()               # Is this a good idea???
         return new_simulation
 
-    def print_initial_body_states(self, o, p):
+    def print_initial_body_states(self, o: TotalObservations, p: CurveSimParameters) -> None:
         if p.print_initial_body_states:
             simulation = self.init_rebound(p)
             self.print_simulation_particles(p, simulation, message=f"\nSimulation particles at epoch: ({p.jacobi_coordinates=} {p.jacobi_masses=})")
@@ -355,7 +360,7 @@ class CurveSimBodies(list):
             print("Set param print_initial_body_states = False in order to run the full simulation instead.\n")
             sys.exit(0)
 
-    def calc_positions_eclipses_luminosity(self, p, o):
+    def calc_positions_eclipses_luminosity(self, p: CurveSimParameters, o: TotalObservations) -> tuple[np.ndarray | None, np.ndarray, CurveSimBodies, rebound.Simulation | None, rebound.Simulation | None, float, float]:
         """Calculate distances, forces, accelerations, velocities of the bodies for each iteration.
         The resulting body positions and the lightcurve are stored for later use in the animation."""
         iterations = len(o.time_s0)
@@ -394,7 +399,7 @@ class CurveSimBodies(list):
         sim_flux /= lightcurve_max  # Normalize flux.
         return sim_rv, sim_flux, self, simulation_backwards, simulation_forwards, energy_change_backwards, energy_change_forwards
 
-    def calc_physics(self, observations, p):
+    def calc_physics(self, observations: TotalObservations, p: CurveSimParameters) -> tuple[np.ndarray | None, np.ndarray, rebound.Simulation | None, rebound.Simulation | None]:
         iterations = len(observations.time_s0)
 
         for body in self:
@@ -415,7 +420,7 @@ class CurveSimBodies(list):
                 print(f"{Fore.YELLOW}The energy must not change significantly! Consider using a smaller time step (dt).{Style.RESET_ALL}")
         return sim_rv, sim_flux, rebound_sim_backwards, rebound_sim_forwards
 
-    def calc_patch_radii(self, p):
+    def calc_patch_radii(self, p: CurveSimParameters) -> None:
         """If autoscaling is on, this function calculates the radii of the circles (matplotlib patches) of the animation."""
         logs = [math.log10(body.radius) for body in self]  # log10 of all radii
         radii_out = [(p.max_radius - p.min_radius) * (i - min(logs)) / (max(logs) - min(logs)) + p.min_radius for i in logs]  # linear transformation to match the desired minmum and maximum radii
@@ -423,7 +428,7 @@ class CurveSimBodies(list):
         for body, radius in zip(self, radii_out):
             body.patch_radius = radius
 
-    def generate_patches(self, p):
+    def generate_patches(self, p: CurveSimParameters) -> None:
         """Generates the circles (matplotlib patches) of the animation."""
         if p.autoscaling:
             self.calc_patch_radii(p)
@@ -439,7 +444,7 @@ class CurveSimBodies(list):
                 body.circle_right = matplotlib.patches.Circle((0, 0), radius=body.radius * extrascale_right / p.scope_right)  # Matplotlib patch for right view
                 body.circle_left = matplotlib.patches.Circle((0, 0), radius=body.radius * extrascale_left / p.scope_left)  # Matplotlib patch for left view
 
-    def find_transits(self, rebound_sim: rebound.Simulation, o, p: CurveSimParameters) -> CurveSimResults:
+    def find_transits(self, rebound_sim: rebound.Simulation, o: TotalObservations, p: CurveSimParameters) -> CurveSimResults:
     # def find_transits(self, rebound_sim, o, p):
         iterations = o.sim.observation_count
         rebound_sim.dt = p.dt
@@ -475,9 +480,9 @@ class CurveSimBodies(list):
         return results
 
     @staticmethod
-    def find_tts(rebound_sim, o, p):
+    def find_tts(rebound_sim: rebound.Simulation, o: TotalObservations, p: CurveSimParameters) -> list[list[Any]]:
         iterations = o.sim.observation_count
-        tts = []
+        tts: list[list[Any]] = []
         rebound_sim.dt = p.dt
         for i in range(0, iterations):
             for eclipser in p.eclipsers:
@@ -490,8 +495,8 @@ class CurveSimBodies(list):
                             tts.append([eclipser.name, eclipsee.name, tt])
         return tts
 
-    def bodies2param_json(self, measured_tt, p):
-        result = {}
+    def bodies2param_json(self, measured_tt: Any, p: CurveSimParameters) -> str:
+        result: dict[str, Any] = {}
         result["max_delta"] = float(np.max(np.abs(measured_tt["delta"])))
         result["mean_delta"] = float(np.mean(np.abs(measured_tt["delta"])))
         for i, body in enumerate(self):
@@ -507,7 +512,7 @@ class CurveSimBodies(list):
         line = json.dumps(result)
         return line
 
-    def calc_video_frames_per_orbit(self, o, p):
+    def calc_video_frames_per_orbit(self, o: TotalObservations, p: CurveSimParameters) -> None:
         """Calculates for each body how many video frames are needed to complete one orbit.
            FFmpeg (or the video display program?) tends to omit the last few frames.
            Therefore add a handful of extra frames."""

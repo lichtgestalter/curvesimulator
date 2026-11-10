@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from colorama import Fore, Style
 from multiprocessing import Process, JoinableQueue, current_process, parent_process
 # import numpy as np
@@ -5,6 +7,7 @@ import os
 import sys
 import time
 import warnings
+from typing import Any
 
 from .cs_bodies import CurveSimBodies
 from .cs_parameters import CurveSimParameters
@@ -14,9 +17,15 @@ from .cs_results import CurveSimResults
 from .cs_observations import TotalObservations
 
 
-def _lmfit_worker_queue(task_queue, result_queue):
+def _lmfit_worker_queue(task_queue: JoinableQueue, result_queue: JoinableQueue) -> None:
     for task in iter(task_queue.get, None):
+        config_file: str
+        o: TotalObservations
+        p: CurveSimParameters
+        run_id: int
         config_file, o, p, run_id = task
+        bodies_local: CurveSimBodies
+        lmfit_run: CurveSimLMfit
         p.randomize_startvalues_uniform()
         # p.TOI4504_startvalue_hack()
         bodies_local = CurveSimBodies(p)
@@ -29,11 +38,11 @@ def _lmfit_worker_queue(task_queue, result_queue):
         task_queue.task_done()  # Mark as processed
 
 
-def run_all_queue(tasks, max_workers):
-    task_queue = JoinableQueue()
-    result_queue = JoinableQueue()
-    total = len(tasks)
-    next_index = 0
+def run_all_queue(tasks: list[tuple[str, TotalObservations, CurveSimParameters, int]], max_workers: int) -> None:
+    task_queue: JoinableQueue = JoinableQueue()
+    result_queue: JoinableQueue = JoinableQueue()
+    total: int = len(tasks)
+    next_index: int = 0
 
     # start workers
     workers = [Process(target=_lmfit_worker_queue, args=(task_queue, result_queue))
@@ -67,7 +76,7 @@ def run_all_queue(tasks, max_workers):
         w.join()
 
 
-def _is_multiprocessing_child_import():
+def _is_multiprocessing_child_import() -> bool:
     try:
         return current_process().name != "MainProcess" and parent_process() is not None
     except Exception:
@@ -75,15 +84,22 @@ def _is_multiprocessing_child_import():
 
 
 class CurveSimulator:
-    def __init__(self, config_file=""):
-        p = CurveSimParameters(config_file)  # Read program params from config file.
+    def __init__(self, config_file: str = "") -> None:
+        p: CurveSimParameters = CurveSimParameters(config_file)  # Read program params from config file.
         mandatory_params = p.find_mandatory_params()
         p.check_for_missing_params(mandatory_params)
-        bodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
+        bodies: CurveSimBodies = CurveSimBodies(p)  # Read physical bodies from config file and initialize them, calculate their state vectors and generate their patches for the animation
         p.update_fitting_params_units(bodies)
-        o = TotalObservations(p)
+        o: TotalObservations = TotalObservations(p)
         if not p.rebound_warnings:
             warnings.filterwarnings("ignore", module="rebound")
+        self.params: CurveSimParameters
+        self.bodies: CurveSimBodies
+        self.observations: TotalObservations
+        self.guifit: CurveSimManualFit
+        self.sampler: Any
+        self.theta: Any
+        self.results: CurveSimResults
         self.params, self.bodies, self.observations = p, bodies, o  # grants access from the executed script by making it an attribute of the CurveSimulator object
         if p.verbose:
             print(p)
@@ -146,6 +162,6 @@ class CurveSimulator:
             print(f"{Fore.RED}\nERROR: Invalid value for param <action> in configuration file {Style.RESET_ALL}")
             sys.exit(1)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         attrs = ", ".join(self.__dict__)
         return f"CurveSimulator object created with attributes: {attrs}"

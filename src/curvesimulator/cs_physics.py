@@ -1,7 +1,15 @@
+from __future__ import annotations
+
 from colorama import Fore, Style
 import numpy as np
 import math
 import sys
+from typing import Callable, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import rebound
+    from curvesimulator.cs_body import CurveSimBody
+    from curvesimulator.cs_parameters import FittingParameter
 
 class CurveSimPhysics:
 
@@ -43,7 +51,7 @@ class CurveSimPhysics:
     #     return g * mass
 
     @staticmethod
-    def distance_2d_body(body1, body2, i):
+    def distance_2d_body(body1: CurveSimBody, body2: CurveSimBody, i: int) -> float:
         """Return distance of the centers of 2 physical bodies as seen by a viewer (projection x->0)."""
         # dy = body1.positions[i][1] - body2.positions[i][1]
         # dz = body1.positions[i][2] - body2.positions[i][2]
@@ -54,25 +62,25 @@ class CurveSimPhysics:
         return math.sqrt((dx ** 2 + dy ** 2))
 
     @staticmethod
-    def distance_2d_particle(particle1, particle2):
+    def distance_2d_particle(particle1: rebound.Particle, particle2: rebound.Particle) -> float:
         """Return distance of the centers of 2 rebound simulation particles (projection z->0)."""
         dx = particle1.x - particle2.x
         dy = particle1.y - particle2.y
         return math.sqrt((dx ** 2 + dy ** 2))
 
     @staticmethod
-    def q_to_u(q1, q2):
+    def q_to_u(q1: float, q2: float) -> tuple[float, float]:
         """Limb darkening: Kipping q -> quadratic u conversion."""
         s = np.sqrt(q1)
         return 2 * s * q2, s * (1 - 2 * q2)
 
     @staticmethod
-    def a_to_u(a1, a2):
+    def a_to_u(a1: float, a2: float) -> tuple[float, float]:
         """Limb darkening: Polynomial a -> quadratic u conversion."""
         return a1 + 2 * a2, -a2
 
     @staticmethod
-    def u_to_q(u1, u2):
+    def u_to_q(u1: float, u2: float) -> tuple[float, float | None]:
         """Limb darkening: Quadratic u -> Kipping q conversion."""
         s = u1 + u2  # equals sqrt(q1)
         if s == 0:  # q2 is undefined when s == 0 (q1 = 0); returns nan/inf there
@@ -80,17 +88,17 @@ class CurveSimPhysics:
         return s ** 2, u1 / (2 * s)
 
     @staticmethod
-    def u_to_a(u1, u2):
+    def u_to_a(u1: float, u2: float) -> tuple[float, float]:
         """Limb darkening: Quadratic u -> polynomial a conversion."""
         return u1 + 2 * u2, -u2
 
     @staticmethod
-    def is_valid_ld_u_or_a(u1, u2, tolerance=1e-9):
+    def is_valid_ld_u_or_a(u1: float, u2: float, tolerance: float = 1e-9) -> bool:
         """Quadratic law: positive and monotonically decreasing intensity profile."""
         return u1 >= -tolerance and u1 + u2 <= 1 + tolerance and u1 + 2 * u2 >= -tolerance
 
     @staticmethod
-    def convert_limb_darkening_fitting_params(paramtype, fp1, fp2):
+    def convert_limb_darkening_fitting_params(paramtype: str, fp1: FittingParameter, fp2: FittingParameter) -> None:
         """Convert bounds, spread and normal prior from type a/q to u.
         Spread and sigma are propagated with the delta method (linearization,
         independent parameters, truncation at the bounds ignored).
@@ -98,9 +106,9 @@ class CurveSimPhysics:
         if paramtype == "u":
             return
 
-        to_u = {"a": CurveSimPhysics.a_to_u, "q": CurveSimPhysics.q_to_u}[paramtype]
+        to_u: Callable[[float, float], tuple[float, float | None]] = {"a": CurveSimPhysics.a_to_u, "q": CurveSimPhysics.q_to_u}[paramtype]
 
-        def propagate(p1, p2, s1, s2):
+        def propagate(p1: float, p2: float, s1: float, s2: float) -> tuple[float, float]:
             """Std of u1, u2 for independent Gaussian p1, p2 (central differences)."""
             h1, h2 = 1e-6 * max(abs(p1), 1e-3), 1e-6 * max(abs(p2), 1e-3)
             u1_a, u2_a = to_u(p1 + h1, p2)
@@ -125,7 +133,7 @@ class CurveSimPhysics:
             fp1.prior_mu, fp2.prior_mu = to_u(fp1.prior_mu, fp2.prior_mu)
 
     @staticmethod
-    def get_limbdarkening_params(param_1, param_2, param_type):
+    def get_limbdarkening_params(param_1: float | None, param_2: float | None, param_type: str | None) -> tuple[float | None, float | None]:
         """Converts limb darkening params to quadratic law params u1,u2 if necessary
            u1, u2 are much faster for calculating intensity than q1, q2 """
         if param_type == "u":
@@ -154,12 +162,12 @@ class CurveSimPhysics:
         sys.exit(1)
 
     @staticmethod
-    def intensity(mu, u1, u2):
+    def intensity(mu: float | np.ndarray, u1: float, u2: float) -> float | np.ndarray:
         """Apply quadratic limb darkening law"""
         return 1 - u1 * (1 - mu) - u2 * (1 - mu) ** 2
 
     @staticmethod
-    def calc_mean_intensity(ld_u1, ld_u2):
+    def calc_mean_intensity(ld_u1: float | None, ld_u2: float | None) -> float | None:
         """Calculates the ratio of the mean intensity to the central intensity of a star based on
         the given quadratic law params for limb darkening by integrating the intensity over the stellar disk"""
         if ld_u1 is None or ld_u2 is None:
@@ -172,7 +180,7 @@ class CurveSimPhysics:
             return 2 * np.trapz(intensities * mu_values, mu_values)  # compatibility fallback
 
     @staticmethod
-    def limbdarkening(relative_radius, ld_u1, ld_u2):
+    def limbdarkening(relative_radius: float, ld_u1: float, ld_u2: float) -> float:
         """
         Approximates the flux of a star at a point on the star seen from a very large distance.
         The point's apparent distance from the star's center is relative_radius * radius.
@@ -198,7 +206,7 @@ class CurveSimPhysics:
     #     return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2)
 
     @staticmethod
-    def calc_transit_intervals(t1, t2, t3, t4):
+    def calc_transit_intervals(t1: float | None, t2: float | None, t3: float | None, t4: float | None) -> tuple[float | None, float | None, float | None, float | None]:
         t12 = None if t2 is None or t1 is None else t2 - t1
         t23 = None if t3 is None or t2 is None else t3 - t2
         t34 = None if t4 is None or t3 is None else t4 - t3

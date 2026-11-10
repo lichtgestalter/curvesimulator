@@ -1,15 +1,23 @@
+from __future__ import annotations
+
 import ast
 from colorama import Fore, Style
 import math
 import numpy as np
 import sys
+from typing import Any, NoReturn, TYPE_CHECKING
 
 from curvesimulator.cs_physics import CurveSimPhysics
 # from curvesimulator.cs_results import Transit
 # from curvesimulator.cs_results import CurveSimResults
 
+if TYPE_CHECKING:
+    import rebound
+    from curvesimulator.cs_observations import TotalObservations
+    from curvesimulator.cs_parameters import CurveSimParameters
 
-def multiple_transit_error():
+
+def multiple_transit_error() -> NoReturn:
     print(f"{Fore.RED}\nERROR: Ambiguous transit constellation.")
     print("CurveSimulator can not handle multiple synchronous transits correctly yet.")
     print(f"Please send your config file to CurveSimulator's developers.{Style.RESET_ALL}")
@@ -18,8 +26,8 @@ def multiple_transit_error():
 
 # noinspection NonAsciiCharacters,PyPep8Naming,PyUnusedLocal
 class CurveSimBody:
-    def __init__(self, p, primary, name, body_type, mass, radius, luminosity, rv_offset, rv_jitter, startposition, velocity, P, a, e, i, Omega, omega, pomega, L, ma, ea,
-                 nu, T, ld_u1, ld_u2, limb_darkening_parameter_type, unit, color, image_file_left, image_file_right):
+    def __init__(self, p: CurveSimParameters, primary: str | None, name: str, body_type: str | None, mass: float, radius: float, luminosity: float, rv_offset: float | None, rv_jitter: float | None, startposition: Any, velocity: Any, P: float | None, a: float | None, e: float | None, i: float | None, Omega: float | None, omega: float | None, pomega: float | None, L: float | None, ma: float | None, ea: float | None,
+                 nu: float | None, T: float | None, ld_u1: float | None, ld_u2: float | None, limb_darkening_parameter_type: str | None, unit: dict[str, str], color: Any, image_file_left: str | None, image_file_right: str | None) -> None:
         """Initialize instance of physical body."""
         # For ease of use of constants in the config file they are additionally defined here without the prefix "p.".
         g, au, r_sun, m_sun, l_sun = p.g, p.au, p.r_sun, p.m_sun, p.l_sun
@@ -30,7 +38,7 @@ class CurveSimBody:
         self.color = color  # (R, G, B)  each between 0 and 1
         self.image_file_left = image_file_left
         self.image_file_right = image_file_right
-        self.positions = None
+        self.positions: np.ndarray | None = None
 
         self.mass = mass  # [kg]
         self.radius = radius  # [m]
@@ -59,7 +67,7 @@ class CurveSimBody:
         self.nu = nu  # [rad] true anomaly
         self.T = T  # [s] Time of periapsis
 
-        self.mu = None  # Gravitational Parameter. Depends on the masses of at least 2 bodies.
+        self.mu: float | None = None  # Gravitational Parameter. Depends on the masses of at least 2 bodies.
 
         self.unit = p.unit.copy()
         for param, unit_ in unit.items():
@@ -69,7 +77,7 @@ class CurveSimBody:
 
         self.d, self.h, self.angle, self.eclipsed_area = 0.0, 0.0, 0.0, 0.0  # Used for calculation of eclipsed area in function eclipsed_by
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         repr = f"CurveSimBody: "
         exclude = ["limb_darkening_parameter_type", "luminosity", "intensity", "video_frames_per_orbit", "scale", "unit", "body_type", "primary", "color", "image_file_left", "image_file_right", "positions", "velocity", "circle_left", "circle_right", "acceleration", "area_2d", "d", "h", "angle", "eclipsed_area", "patch_radius"]
         for key, val in self.__dict__.items():
@@ -97,7 +105,7 @@ class CurveSimBody:
     #     body = CurveSimBody()
     #     return body
 
-    def save(self, directory="./", prefix="", suffix=""):
+    def save(self, directory: str = "./", prefix: str = "", suffix: str = "") -> None:
         """Saves attributes of self in a simple text file.
         Excludes large/non-serializable/derived attributes listed in `exclude`.
         """
@@ -115,12 +123,12 @@ class CurveSimBody:
             print(f"Error saving body to {filename}: {e}")
 
     @staticmethod
-    def load(filename, p, directory="."):
+    def load(filename: str, p: CurveSimParameters, directory: str = ".") -> CurveSimBody | None:
         """Loads a body from `../bodies/<filename>.bdy`,
         assembles the constructor args in the original __init__ order,
         calls CurveSimBody(*args)"""
         path = directory + "/" + filename + ".bdy"
-        data = {}
+        data: dict[str, Any] = {}
         try:
             with open(path, "r", encoding="utf-8") as f:
                 for raw in f:
@@ -140,7 +148,7 @@ class CurveSimBody:
         #     data["ld_u2"] = data.get("ld_u2")
         #     data["limb_darkening_parameter_type"] = "u"
 
-        missing = []
+        missing: list[str] = []
         for param in p.PARAMS:
             if param not in data.keys():
                 data[param] = None
@@ -149,7 +157,7 @@ class CurveSimBody:
             print(f"{Fore.YELLOW}\nWARNING: Missing params in {filename + ".bdy"}: {missing} {Style.RESET_ALL}")
 
         # Build args in the same order as __init__ signature:
-        args = [
+        args: list[Any] = [
             p,
             data.get("primary", False),
             data.get("name"),
@@ -187,7 +195,7 @@ class CurveSimBody:
             return None
         return body
 
-    def full_eclipse(self, other, d):
+    def full_eclipse(self, other: CurveSimBody, d: float) -> tuple[float, float]:
         if self.radius < other.radius:  # Total eclipse
             area = self.area_2d
             relative_radius = 0
@@ -197,7 +205,7 @@ class CurveSimBody:
             relative_radius = d / self.radius
             return area, relative_radius
 
-    def partial_eclipse(self, other, d):
+    def partial_eclipse(self, other: CurveSimBody, d: float) -> tuple[float, float]:
         # Eclipsed area is the sum of a circle segment of self + a circle segment of other
         # https://de.wikipedia.org/wiki/Kreissegment  https://de.wikipedia.org/wiki/Schnittpunkt#Schnittpunkte_zweier_Kreise
         self.d = (self.radius ** 2 - other.radius ** 2 + d ** 2) / (2 * d)  # Distance of center from self to radical axis
@@ -212,7 +220,7 @@ class CurveSimBody:
         relative_radius = (self.radius + self.d - other.h) / (2 * self.radius)  # Relative distance between approximated center C of eclipsed area and center of self
         return area, relative_radius
 
-    def find_tt(self, other, iteration, rebound_sim, o, p, start_index):
+    def find_tt(self, other: CurveSimBody, iteration: int, rebound_sim: rebound.Simulation, o: TotalObservations, p: CurveSimParameters, start_index: int) -> tuple[float, float, float | None, bool, float | None]:
         """other eclipses self. Find the exact time of transit (TT).
             iteration should be the last one before TT. """
         end_index = o.sim.observation_count
@@ -286,7 +294,7 @@ class CurveSimBody:
                 print(f"{iteration=}  {o.sim.time_d[iteration]=} {interval_extensions=}")
             return -1, -1, -1, False, -1
 
-    def find_t1234(self, other, tt_s0, iteration, rebound_sim, o, start_index, end_index, p, transittimetype):
+    def find_t1234(self, other: CurveSimBody, tt_s0: float, iteration: int, rebound_sim: rebound.Simulation, o: TotalObservations, start_index: int, end_index: int, p: CurveSimParameters, transittimetype: str) -> float | None:
         """other eclipses self. Find where ingress starts (T1) or egress ends (T4)."""
         eclipser = rebound_sim.particles[other.name]
         eclipsee = rebound_sim.particles[self.name]
@@ -331,7 +339,7 @@ class CurveSimBody:
         else:
             return rebound_sim.t / p.day + p.epoch  # should also work if sim_start < epoch, because rebound_sim.t can be negative
 
-    def eclipsed_by(self, other, iteration):
+    def eclipsed_by(self, other: CurveSimBody, iteration: int) -> tuple[float | None, float | None]:
         """Returns area, relative_radius
         area: Area of self which is eclipsed by other.
         relative_radius: The distance of the approximated center of the eclipsed area from the center of self as a percentage of self.radius (used for limb darkening)."""
@@ -356,7 +364,7 @@ class CurveSimBody:
         else:  # No eclipse because, seen from viewer, the bodies are not close enough to each other
             return None, None
 
-    def eclipsed_by_at_tt(self, other, eclipser, eclipsee):
+    def eclipsed_by_at_tt(self, other: CurveSimBody, eclipser: rebound.Particle, eclipsee: rebound.Particle) -> tuple[float | None, float | None]:
         """ self, other: body
         eclipser, eclipsee: Rebound Particle
         eclipser is the Rebound Particle of self
@@ -378,7 +386,7 @@ class CurveSimBody:
         else:  # No eclipse because, seen from viewer, the bodies are not close enough to each eclipser
             return None, None
 
-    def depth_at_tt(self, other, eclipser, eclipsee):
+    def depth_at_tt(self, other: CurveSimBody, eclipser: rebound.Particle, eclipsee: rebound.Particle) -> float | None:
         eclipsed_area, relative_radius = self.eclipsed_by_at_tt(other, eclipser, eclipsee)
         if eclipsed_area is not None:
             limbdarkening = CurveSimPhysics.limbdarkening(relative_radius, self.ld_u1, self.ld_u2)

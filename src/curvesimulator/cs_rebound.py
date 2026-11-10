@@ -1,9 +1,17 @@
+from __future__ import annotations
+
 import math
+from typing import TYPE_CHECKING
+
 import numpy as np
 
+if TYPE_CHECKING:
+    import rebound
+
+
 class CurveSimRebound:
-    def __init__(self, rebound_sim):
-        self.sim = rebound_sim
+    def __init__(self, rebound_sim: rebound.Simulation) -> None:
+        self.sim: rebound.Simulation = rebound_sim
         self.energy = rebound_sim.energy()
         self.total_momentum = self.calc_total_momentum()
         self.total_angular_momentum = self.calc_total_angular_momentum()
@@ -15,7 +23,7 @@ class CurveSimRebound:
         self.momentum_scale = self.calc_momentum_scale()
         self.angular_momentum_scale = self.calc_angular_momentum_scale()
 
-    def sim_check_deltas(self, newer):
+    def sim_check_deltas(self, newer: CurveSimRebound) -> float:
         relative_energy_change = (newer.energy - self.energy) / self.energy
         # print(f"Energy at Start: {self.energy=:.1e}   End: {newer.energy=:.1e}")
 
@@ -36,7 +44,7 @@ class CurveSimRebound:
         else:
             return math.log10(abs(relative_energy_change))
 
-    def calc_total_momentum(self):
+    def calc_total_momentum(self) -> np.ndarray:
         """
         Returns the total linear momentum vector of the system.
         """
@@ -47,7 +55,7 @@ class CurveSimRebound:
             momentum_z += p.m * p.vz
         return np.array([momentum_x, momentum_y, momentum_z], dtype=float)
 
-    def calc_total_angular_momentum(self):
+    def calc_total_angular_momentum(self) -> np.ndarray:
         """
         Returns the total angular momentum vector of the system.
         """
@@ -65,7 +73,7 @@ class CurveSimRebound:
             Lz += L[2]
         return np.array([Lx, Ly, Lz], dtype=float)
 
-    def calc_momentum_scale(self):
+    def calc_momentum_scale(self) -> float:
         """
         Returns a characteristic (nonzero) momentum magnitude of the system,
         i.e. the sum of each body's individual momentum magnitude |m_i * v_i|.
@@ -78,7 +86,7 @@ class CurveSimRebound:
             scale += p.m * np.linalg.norm(v)
         return scale
 
-    def calc_angular_momentum_scale(self):
+    def calc_angular_momentum_scale(self) -> float:
         """
         Returns a characteristic (nonzero) angular momentum magnitude of the system,
         i.e. the sum of each body's individual angular momentum magnitude |r_i x m_i * v_i|.
@@ -93,7 +101,7 @@ class CurveSimRebound:
             scale += np.linalg.norm(np.cross(r, p.m * v))
         return scale
 
-    def calc_center_of_mass_position(self):
+    def calc_center_of_mass_position(self) -> np.ndarray | int:
         """
         Returns the position vector of the center of mass.
         """

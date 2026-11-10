@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import copy
 import json
 import math
@@ -5,14 +7,19 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import os
-# import re
-# import scipy.stats as stats
+from typing import Any, TYPE_CHECKING
 
 from curvesimulator.cs_physics import CurveSimPhysics
 
+if TYPE_CHECKING:
+    from .cs_bodies import CurveSimBodies
+    from .cs_body import CurveSimBody
+    from .cs_observations import TotalObservations
+    from .cs_parameters import CurveSimParameters
+
 
 class Transit(dict):
-    def __init__(self, eclipsed_body):
+    def __init__(self, eclipsed_body: CurveSimBody) -> None:
         super().__init__()
         self["Transit_params"] = {}
         transit_params = ["EclipsedBody", "T1", "T2", "TT", "T3", "T4", "T12", "T23", "T34", "T14", "b"]
@@ -22,7 +29,7 @@ class Transit(dict):
 
 
 class CurveSimResults(dict):
-    def __init__(self, bodies, p, empty=False):
+    def __init__(self, bodies: CurveSimBodies | None, p: CurveSimParameters | None, empty: bool = False) -> None:
         super().__init__()
         if empty:
             return
@@ -36,7 +43,7 @@ class CurveSimResults(dict):
         # self.bodies2results(bodies)
         self["Fit"] = {}
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         string = ""
         for body in self["Bodies"]:
             if len(self["Bodies"][body]["Transits"]) == 1:
@@ -45,7 +52,7 @@ class CurveSimResults(dict):
                 string += f"{body:15} {len(self["Bodies"][body]["Transits"]):3} transits\n"
         return "CurveSimResults:\n" + string[:-1]
 
-    def bodies2results(self, bodies):
+    def bodies2results(self, bodies: CurveSimBodies) -> None:
         exclude = ["area_2d", "color", "positions", "positions_left", "positions_right", "velocity", "circle_left", "circle_right", "acceleration", "d", "h", "angle", "eclipsed_area", "patch_radius"]
         for body in bodies:
             for key in body.__dict__.keys():
@@ -62,18 +69,18 @@ class CurveSimResults(dict):
                 if value is not None and scale != 1:
                     self["Bodies"][body.name]["BodyParameters"][f"{param}_{unit}"] = value * scale
 
-    def remove_null_values(self):
+    def remove_null_values(self) -> None:
         """Crawls through self's hierarchy of dictionaries and lists and removes
         every item whose value is None or NaN. Mutates self in place."""
 
-        def is_null(value):
+        def is_null(value: Any) -> bool:
             if value is None:
                 return True
             if isinstance(value, float) and math.isnan(value):
                 return True
             return False
 
-        def clean(o):
+        def clean(o: Any) -> None:
             if isinstance(o, dict):
                 for key in [k for k, v in o.items() if is_null(v)]:
                     del o[key]
@@ -86,13 +93,13 @@ class CurveSimResults(dict):
 
         clean(self)
 
-    def results2json(self, p):
+    def results2json(self, p: CurveSimParameters) -> None:
         """Converts self to JSON and saves it."""
         filename = p.result_file
         with open(filename, "w", encoding="utf8") as file:
             json.dump(self, file, indent=4, ensure_ascii=False)
 
-    def save_results(self, p):
+    def save_results(self, p: CurveSimParameters) -> None:
         p_copy = copy.deepcopy(p)
         to_remove = [
             "fitting_params", "fitting_params_plus", "standard_sections", "eclipsers", "eclipsees",
@@ -116,7 +123,7 @@ class CurveSimResults(dict):
             print(self)
 
     @staticmethod
-    def load_results(resultfilename):
+    def load_results(resultfilename: str) -> CurveSimResults:
         """Load JSON results from `resultfilename` and return a CurveSimResults object."""
         if not os.path.exists(resultfilename):
             raise FileNotFoundError(resultfilename)
@@ -133,13 +140,13 @@ class CurveSimResults(dict):
         return results
 
     @staticmethod
-    def save_sim_flux_with_observation_timeline(o, p):
+    def save_sim_flux_with_observation_timeline(o: TotalObservations, p: CurveSimParameters) -> None:
         df = pd.DataFrame({"time": o.flux.time_d, "flux": o.flux.computed})
         # df = pd.DataFrame({"time": o.flux.time_d, "flux": o.sim.simflux})
         df.to_csv(p.computed_flux_file, index=False)
 
     @staticmethod
-    def _to_list(val, default):
+    def _to_list(val: Any, default: Any) -> list[Any]:
         if val is None:
             return [default]
         if isinstance(val, (list, tuple)):
@@ -147,7 +154,7 @@ class CurveSimResults(dict):
         return [val]
 
     @staticmethod
-    def _expand_param(lst, name, n):
+    def _expand_param(lst: list[Any], name: str, n: int) -> list[Any]:
         if len(lst) == 1:
             return lst * n
         if len(lst) == n:
@@ -155,7 +162,7 @@ class CurveSimResults(dict):
         raise ValueError(f"{name} must have length 1 or {n}")
 
     @staticmethod
-    def bin_time_window(time, value, half_window_size):
+    def bin_time_window(time: Any, value: Any, half_window_size: float) -> np.ndarray:
         """
         Vectorized binning: for each time[i], compute mean of values within
         [time[i] - half_window_size, time[i] + half_window_size].
@@ -199,13 +206,13 @@ class CurveSimResults(dict):
         return means
 
     @staticmethod
-    def rv_plots(o, p):
+    def rv_plots(o: TotalObservations, p: CurveSimParameters) -> None:
         CurveSimResults.sim_rv_plot(p, "rv_computed", o)  # plot computed RV
         CurveSimResults.rv_observed_computed_plot(p, "rv_o_vs_c", o)  # plot computed and observed RV
         CurveSimResults.rv_residuals_plot(p, "rv_residuals", o)  # plot RV residuals
 
     @staticmethod
-    def flux_plots(o, p):
+    def flux_plots(o: TotalObservations, p: CurveSimParameters) -> None:
         CurveSimResults.flux_observed_computed_plots_time(p, "flux_o_vs_c_x=time", o)  # plot computed and observed flux
         CurveSimResults.flux_observed_computed_plot_data(p, "flux_o_vs_c_x=data", o)  # plot computed and observed flux
         CurveSimResults.flux_chi_squared_plot_data(p, "flux_chi2_x=data", o)  # plot flux chi squared per datapoint
@@ -214,25 +221,25 @@ class CurveSimResults(dict):
 
     @staticmethod
     def plot_this(
-            x_lists,            # positions of data points on x-axis
+            x_lists: Any,                       # positions of data points on x-axis
             y_lists: list,      # each list item is a list or numpy array which will be displayed as a curve
-            data_labels=None,   # each list item is a string representing the label of a curve
-            title=None,         # plot title
-            x_label=None,       # label of x-axis
-            y_label=None,       # label of y-axis
-            markers=None,       # single marker or list/tuple of markers
-            markersizes=None,   # single markersize or list/tuple of markersizes
-            linestyles=None,    # single linestyle or list/tuple of linestyles
-            colors=None,        # single color or list/tuple of colors
-            linewidths=None,    # single linewidt or list/tuple of linewidts
-            left=None,          # cut off x-axis
-            right=None,         # cut off x-axis
-            bottom=None,        # cut off y-axis
-            top=None,           # cut off y-axis
-            legend=None,        # bool: display legend?
-            grid=None,          # bool: display grid?
-            show_plot=False,    # bool: show plot?
-            plot_file=None,     # file name if the plot shall be saved as .png
+            data_labels: list[str] | None = None,   # each list item is a string representing the label of a curve
+            title: str | None = None,         # plot title
+            x_label: str | None = None,       # label of x-axis
+            y_label: str | None = None,       # label of y-axis
+            markers: Any = None,       # single marker or list/tuple of markers
+            markersizes: Any = None,   # single markersize or list/tuple of markersizes
+            linestyles: Any = None,    # single linestyle or list/tuple of linestyles
+            colors: Any = None,        # single color or list/tuple of colors
+            linewidths: Any = None,    # single linewidt or list/tuple of linewidts
+            left: float | None = None,          # cut off x-axis
+            right: float | None = None,         # cut off x-axis
+            bottom: float | None = None,        # cut off y-axis
+            top: float | None = None,           # cut off y-axis
+            legend: bool | None = None,        # bool: display legend?
+            grid: bool | None = None,          # bool: display grid?
+            show_plot: bool = False,    # bool: show plot?
+            plot_file: str | None = None,     # file name if the plot shall be saved as .png
     ) -> None:
         if data_labels is None:
             data_labels = [f"data{i}" for i in range(len(y_lists))]
@@ -284,7 +291,7 @@ class CurveSimResults(dict):
             plt.show()
         plt.close()
 
-    def plot_param(self, eclipser, eclipsee, param, start, end, filename="", title=None):
+    def plot_param(self, eclipser: str, eclipsee: str, param: str, start: float | None, end: float | None, filename: str = "", title: str | None = None) -> None:
         if not title:
             title = f"{os.path.splitext(os.path.basename(filename))[0]}, {self["ProgramParameters"]["comment"]} (dt={self["ProgramParameters"]["dt"]})"
         transit_times = self.get_transit_data(eclipser, eclipsee, "TT")
@@ -304,13 +311,13 @@ class CurveSimResults(dict):
             plot_file=filename,
         )
 
-    def get_transit_data(self, eclipser, eclipsee, param):
+    def get_transit_data(self, eclipser: str, eclipsee: str, param: str) -> list[Any]:
         transits = self["Bodies"][eclipser]["Transits"]
         param_list = [transit["Transit_params"][param] for transit in transits if transit["Transit_params"]["EclipsedBody"] == eclipsee]
         return param_list
 
     @staticmethod
-    def ttv_to_date_plot_TOI4504_specific(o, p, amplitude, period, x_offset, osc_per):
+    def ttv_to_date_plot_TOI4504_specific(o: TotalObservations, p: CurveSimParameters, amplitude: float, period: float, x_offset: float, osc_per: float) -> None:
         tt_tess = np.array(o.tt.measured_tt["tt"][:13], dtype=float)
         transit_numbers = np.array(o.tt.measured_tt["nr"][:13], dtype=float)
         ttv_to_date = [tt - tt_tess[0] - n * osc_per for n, tt in zip(transit_numbers, tt_tess)]
@@ -336,7 +343,7 @@ class CurveSimResults(dict):
         )
 
     @staticmethod
-    def ttv_to_date_plot(o, eclipser=None, amplitude=None, period=None, x_offset=None, osc_per=None):
+    def ttv_to_date_plot(o: TotalObservations, eclipser: str | None = None, amplitude: float | None = None, period: float | None = None, x_offset: float | None = None, osc_per: float | None = None) -> None:
         """ unused and untested
             This is a generalized version of ttv_to_date_plot_TOI4504_specific()
             To use this meaningfully, you need reasonable values for amplitude, period, x_offset and osc_per
@@ -371,7 +378,7 @@ class CurveSimResults(dict):
         )
 
     @staticmethod
-    def sim_rv_plot(p, plot_filename, o):
+    def sim_rv_plot(p: CurveSimParameters, plot_filename: str, o: TotalObservations) -> None:
         CurveSimResults.plot_this(
             title=f"Simulated Radial Velocity",
             x_label="Time [BJD]",
@@ -389,7 +396,7 @@ class CurveSimResults(dict):
         )
 
     @staticmethod
-    def rv_observed_computed_plot(p, plot_filename, o):
+    def rv_observed_computed_plot(p: CurveSimParameters, plot_filename: str, o: TotalObservations) -> None:
         min_t = np.min(o.rv.time_d)
         max_t = np.max(o.rv.time_d)
         min_time = min_t - 0.03 * (max_t - min_t)  # 3% padding to make sure that datapoints at the edges are visible
@@ -413,7 +420,7 @@ class CurveSimResults(dict):
         )
 
     @staticmethod
-    def flux_observed_computed_plots_time(p, plot_filename, o):
+    def flux_observed_computed_plots_time(p: CurveSimParameters, plot_filename: str, o: TotalObservations) -> None:
         left = np.min(o.flux.time_d)
         right = np.max(o.flux.time_d)
         left -= (right - left) * 0.02
@@ -463,7 +470,7 @@ class CurveSimResults(dict):
                 )
 
     @staticmethod
-    def flux_observed_computed_plot_data(p, plot_filename, o):
+    def flux_observed_computed_plot_data(p: CurveSimParameters, plot_filename: str, o: TotalObservations) -> None:
         CurveSimResults.plot_this(
             title=f"Flux: observed vs. computed",
             x_label="Datapoints",
@@ -481,7 +488,7 @@ class CurveSimResults(dict):
         )
 
     @staticmethod
-    def flux_chi_squared_plot_data(p, plot_filename, o):
+    def flux_chi_squared_plot_data(p: CurveSimParameters, plot_filename: str, o: TotalObservations) -> None:
         CurveSimResults.plot_this(
             title=f"Flux: Chi Squared per data point",
             x_label="Datapoints",
@@ -499,7 +506,7 @@ class CurveSimResults(dict):
         )
 
     @staticmethod
-    def rv_residuals_plot(p, plot_filename, o):
+    def rv_residuals_plot(p: CurveSimParameters, plot_filename: str, o: TotalObservations) -> None:
         title = f"Radial Velocity: Residuals (observed minus computed)"
         x_label = "Time [BJD]"
         y_label = "RV [m/s]"
@@ -540,7 +547,7 @@ class CurveSimResults(dict):
         plt.close()
 
     @staticmethod
-    def flux_residuals_all_plots_time(p, plot_filename, o):
+    def flux_residuals_all_plots_time(p: CurveSimParameters, plot_filename: str, o: TotalObservations) -> None:
         CurveSimResults.flux_residuals_plot_time(p, plot_filename, o)
         if o.tt.measured_tt is not None:
             subdirectory = "fluxresiduals_per_transit/"
@@ -553,7 +560,7 @@ class CurveSimResults(dict):
                 CurveSimResults.flux_residuals_plot_time(p, plot_file, o, left=left, right=right, title=title, subdirectory=subdirectory)
 
     @staticmethod
-    def flux_residuals_plot_time(p, plot_filename, o, left=None, right=None, title=None, subdirectory=""):
+    def flux_residuals_plot_time(p: CurveSimParameters, plot_filename: str, o: TotalObservations, left: float | None = None, right: float | None = None, title: str | None = None, subdirectory: str = "") -> None:
         if title is None:
             title = f"Flux Residuals (observed minus computed)"
         x_label = "Time [BJD]"
@@ -592,7 +599,7 @@ class CurveSimResults(dict):
         plt.close()
 
     @staticmethod
-    def flux_residuals_plot_data(p, plot_filename, o):
+    def flux_residuals_plot_data(p: CurveSimParameters, plot_filename: str, o: TotalObservations) -> None:
         title = f"Flux Residuals (observed minus computed)"
         x_label = "Datapoints"
         y_label = "Normalized Flux"
