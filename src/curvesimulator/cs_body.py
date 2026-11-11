@@ -38,7 +38,7 @@ class CurveSimBody:
         self.color = color  # (R, G, B)  each between 0 and 1
         self.image_file_left = image_file_left
         self.image_file_right = image_file_right
-        self.positions: np.ndarray | None = None
+        self.positions = np.ndarray()
 
         self.mass = mass  # [kg]
         self.radius = radius  # [m]

@@ -55,6 +55,7 @@ class CurveSimRebound:
             momentum_z += p.m * p.vz
         return np.array([momentum_x, momentum_y, momentum_z], dtype=float)
 
+    # noinspection pep8-naming
     def calc_total_angular_momentum(self) -> np.ndarray:
         """
         Returns the total angular momentum vector of the system.

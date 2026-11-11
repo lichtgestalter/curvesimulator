@@ -10,7 +10,6 @@ from typing import Any, TYPE_CHECKING
 if TYPE_CHECKING:
     import rebound
     from .cs_bodies import CurveSimBodies
-    from .cs_body import CurveSimBody
     from .cs_parameters import CurveSimParameters
 
 class Simulation:
@@ -183,6 +182,9 @@ class TotalObservations(ObservationType):
 class RVObservations(ObservationType):
     def __init__(self, p: CurveSimParameters) -> None:
         super().__init__()
+        assert p.rv_body is not None
+        assert p.rv_body.rv_offset is not None
+        assert p.rv_body.rv_jitter is not None
         self.observed: np.ndarray
         self.error: np.ndarray
         if p.rv_file:

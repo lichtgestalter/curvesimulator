@@ -9,8 +9,6 @@ import pandas as pd
 import os
 from typing import Any, TYPE_CHECKING
 
-from curvesimulator.cs_physics import CurveSimPhysics
-
 if TYPE_CHECKING:
     from .cs_bodies import CurveSimBodies
     from .cs_body import CurveSimBody
@@ -29,7 +27,7 @@ class Transit(dict):
 
 
 class CurveSimResults(dict):
-    def __init__(self, bodies: CurveSimBodies | None, p: CurveSimParameters | None, empty: bool = False) -> None:
+    def __init__(self, bodies: CurveSimBodies, empty: bool = False) -> None:
         super().__init__()
         if empty:
             return
@@ -121,23 +119,6 @@ class CurveSimResults(dict):
         self.results2json(p_copy)
         if p.verbose:
             print(self)
-
-    @staticmethod
-    def load_results(resultfilename: str) -> CurveSimResults:
-        """Load JSON results from `resultfilename` and return a CurveSimResults object."""
-        if not os.path.exists(resultfilename):
-            raise FileNotFoundError(resultfilename)
-        try:
-            with open(resultfilename, "r", encoding="utf8") as f:
-                data = json.load(f)
-        except Exception as e:
-            raise RuntimeError(f"Failed to read or parse {resultfilename}: {e}")
-        if not isinstance(data, dict):
-            raise ValueError(f"Invalid results file {resultfilename}: top-level JSON must be an object")
-        results = CurveSimResults(None, p=None, empty=True)
-        results.clear()
-        results.update(data)
-        return results
 
     @staticmethod
     def save_sim_flux_with_observation_timeline(o: TotalObservations, p: CurveSimParameters) -> None:
@@ -244,9 +225,12 @@ class CurveSimResults(dict):
         if data_labels is None:
             data_labels = [f"data{i}" for i in range(len(y_lists))]
         plt.figure(figsize=(10, 6))
-        plt.xlabel(x_label)
-        plt.ylabel(y_label)
-        plt.title(title)
+        if x_label is not None:
+            plt.xlabel(x_label)
+        if y_label is not None:
+            plt.ylabel(y_label)
+        if title is not None:
+            plt.title(title)
         plt.ticklabel_format(useOffset=False, style="plain", axis="x")   # show x-labels as they are
 
         n = len(y_lists)
@@ -316,8 +300,10 @@ class CurveSimResults(dict):
         param_list = [transit["Transit_params"][param] for transit in transits if transit["Transit_params"]["EclipsedBody"] == eclipsee]
         return param_list
 
+    # noinspection pep8-naming
     @staticmethod
-    def ttv_to_date_plot_TOI4504_specific(o: TotalObservations, p: CurveSimParameters, amplitude: float, period: float, x_offset: float, osc_per: float) -> None:
+    def ttv_to_date_plot_TOI4504_specific(o: TotalObservations, amplitude: float, period: float, x_offset: float, osc_per: float) -> None:
+        assert isinstance(o.tt.measured_tt, pd.DataFrame)
         tt_tess = np.array(o.tt.measured_tt["tt"][:13], dtype=float)
         transit_numbers = np.array(o.tt.measured_tt["nr"][:13], dtype=float)
         ttv_to_date = [tt - tt_tess[0] - n * osc_per for n, tt in zip(transit_numbers, tt_tess)]
@@ -343,13 +329,14 @@ class CurveSimResults(dict):
         )
 
     @staticmethod
-    def ttv_to_date_plot(o: TotalObservations, eclipser: str | None = None, amplitude: float | None = None, period: float | None = None, x_offset: float | None = None, osc_per: float | None = None) -> None:
+    def ttv_to_date_plot(o: TotalObservations, eclipser: str, amplitude: float, period: float, x_offset: float, osc_per: float) -> None:
         """ unused and untested
             This is a generalized version of ttv_to_date_plot_TOI4504_specific()
             To use this meaningfully, you need reasonable values for amplitude, period, x_offset and osc_per
             Getting those would require a simple but completely new fitting process.
             I do not think that is worth the effort right now.
             """
+        assert isinstance(o.tt.measured_tt, pd.DataFrame)
         tt_df = o.tt.measured_tt.copy()
         tt_df = tt_df[tt_df["eclipser"] == eclipser]
         tt_df = tt_df.sort_values("tt")

@@ -106,7 +106,7 @@ class CurveSimPhysics:
         if paramtype == "u":
             return
 
-        to_u: Callable[[float, float], tuple[float, float | None]] = {"a": CurveSimPhysics.a_to_u, "q": CurveSimPhysics.q_to_u}[paramtype]
+        to_u: Callable[[float, float], tuple[float, float]] = {"a": CurveSimPhysics.a_to_u, "q": CurveSimPhysics.q_to_u}[paramtype]
 
         def propagate(p1: float, p2: float, s1: float, s2: float) -> tuple[float, float]:
             """Std of u1, u2 for independent Gaussian p1, p2 (central differences)."""
@@ -122,20 +122,21 @@ class CurveSimPhysics:
 
         # Bounds: min/max of u over the four corners of the (p1, p2) box (exact for a and q, since the mappings are monotonic per corner).
         corners = [(fp1.lower, fp2.lower), (fp1.lower, fp2.upper), (fp1.upper, fp2.lower), (fp1.upper, fp2.upper)]
-        corners_u = [to_u(p1, p2) for p1, p2 in corners]
+        corners_u = [to_u(p1, p2) for p1, p2 in corners]  # type: ignore[union-attr]
         corners_u1, corners_u2 = zip(*corners_u)
         fp1.lower, fp1.upper = min(corners_u1), max(corners_u1)
         fp2.lower, fp2.upper = min(corners_u2), max(corners_u2)
-        fp1.sigma, fp2.sigma = propagate(fp1.startvalue, fp2.startvalue, fp1.sigma, fp2.sigma)
-        fp1.startvalue, fp2.startvalue = to_u(fp1.startvalue, fp2.startvalue)
+        fp1.sigma, fp2.sigma = propagate(fp1.startvalue, fp2.startvalue, fp1.sigma, fp2.sigma)  # type: ignore[union-attr]
+        fp1.startvalue, fp2.startvalue = to_u(fp1.startvalue, fp2.startvalue)  # type: ignore[union-attr]
         if all(x is not None for x in (fp1.prior_mu, fp2.prior_mu, fp1.prior_sigma, fp2.prior_sigma)):
-            fp1.prior_sigma, fp2.prior_sigma = propagate(fp1.prior_mu, fp2.prior_mu, fp1.prior_sigma, fp2.prior_sigma)
-            fp1.prior_mu, fp2.prior_mu = to_u(fp1.prior_mu, fp2.prior_mu)
+            fp1.prior_sigma, fp2.prior_sigma = propagate(fp1.prior_mu, fp2.prior_mu, fp1.prior_sigma, fp2.prior_sigma)  # type: ignore[union-attr]
+            fp1.prior_mu, fp2.prior_mu = to_u(fp1.prior_mu, fp2.prior_mu)  # type: ignore[union-attr]
 
     @staticmethod
     def get_limbdarkening_params(param_1: float | None, param_2: float | None, param_type: str | None) -> tuple[float | None, float | None]:
         """Converts limb darkening params to quadratic law params u1,u2 if necessary
            u1, u2 are much faster for calculating intensity than q1, q2 """
+        assert param_1 is not None and param_2 is not None, "caller must guarantee param_1 and param_2 are not None"
         if param_type == "u":
             if not CurveSimPhysics.is_valid_ld_u_or_a(param_1, param_2):
                 print(f"{Fore.RED}\nERROR in config file: limb darkening parameters u1={param_1} and u2={param_2} for type u (quadratic) are out of range.")
@@ -175,8 +176,9 @@ class CurveSimPhysics:
         mu_values = np.linspace(0, 1, 1000)
         intensities = CurveSimPhysics.intensity(mu_values, ld_u1, ld_u2)
         if hasattr(np, "trapezoid"):
-            return 2 * np.trapezoid(intensities * mu_values, mu_values)
+            return 2 * np.trapezoid(intensities * mu_values, mu_values)  # type: ignore[union-attr]
         else:
+            # noinspection unresolved-references
             return 2 * np.trapz(intensities * mu_values, mu_values)  # compatibility fallback
 
     @staticmethod
@@ -197,7 +199,9 @@ class CurveSimPhysics:
         if relative_radius > 1:
             relative_radius = 1.0
         mu = math.sqrt(1 - relative_radius ** 2)
-        return CurveSimPhysics.intensity(mu, ld_u1, ld_u2)
+        intensity = CurveSimPhysics.intensity(mu, ld_u1, ld_u2)
+        assert isinstance(intensity, float)
+        return intensity
 
     # @staticmethod
     # def distance_3d(point1, point2):
@@ -212,4 +216,3 @@ class CurveSimPhysics:
         t34 = None if t4 is None or t3 is None else t4 - t3
         t14 = None if t4 is None or t1 is None else t4 - t1
         return t12, t23, t34, t14
-

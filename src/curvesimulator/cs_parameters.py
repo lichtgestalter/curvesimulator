@@ -76,8 +76,8 @@ class CurveSimParameters:
         self.DEFAULT_UNIT = '{"mass": "m_jup", "radius": "r_jup", "e": "1", "i": "deg", "P": "d", "a": "au", "Omega": "deg", "omega": "deg", "pomega": "deg", "L": "deg", "ma": "deg", "ea": "deg", "nu": "deg", "T": "s", "rv_offset": "m/s", "rv_jitter": "m/s", "u": "1", "v": "1", "ld_u1": "1", "ld_u2": "1", "luminosity": "l_sun"}'
         self.REBOUND_NAME = {"e": "e", "i": "inc", "P": "P", "a": "a", "Omega": "Omega", "omega": "omega", "pomega": "pomega", "L": "l", "ma": "M", "ea": "E", "nu": "f", "T": "T"}
         self.CONFIG_UNITS = {"d": "day", "h": "hour", "y": "year"}
-        self.body_param_names: list[str] | None = None
-        self.body_param_unit_names: list[str] | None = None
+        self.body_param_names: list[str] = []
+        self.body_param_unit_names: list[str] = []
 
         section = "Results"
         self.results_directory: str = self.read_param(config, section, "results_directory", ".", evaluate=False, forced_type=str, lower=None, upper=None)
@@ -85,8 +85,8 @@ class CurveSimParameters:
 
         # After these 3 lines, every print() goes to the console and to console.txt
         log_file: TextIO = open(self.results_directory + "console.txt", "w", encoding="utf-8")  # use "a" to append instead
-        sys.stdout = Tee(sys.__stdout__, log_file)
-        sys.stderr = Tee(sys.__stderr__, log_file)  # also captures tracebacks
+        sys.stdout = Tee(sys.__stdout__, log_file)  # type: ignore[union-attr]
+        sys.stderr = Tee(sys.__stderr__, log_file)  # type: ignore[union-attr]  # also captures tracebacks
         print(datetime.now().astimezone().strftime("%d.%m.%Y %H:%M:%S UTC%z"))
 
         self.result_file = "results_single_run.json"
@@ -264,6 +264,7 @@ class CurveSimParameters:
         self.eclipsers: list[CurveSimBody] | None
         self.eclipsees: list[CurveSimBody] | None
         self.eclipsers, self.eclipsees = (None,) * 2
+        self.rv_body: CurveSimBody | None
         self.copy_config_file()
 
     def __repr__(self) -> str:
@@ -290,7 +291,7 @@ class CurveSimParameters:
         mandatory_list = ["g", "au", "l_sun", "r_sun", "m_sun", "r_jup", "m_jup", "r_nep", "m_nep", "r_earth", "m_earth", "hour", "day", "year", "rad2deg"]  # astronomical_units
         mandatory_list += ["action"]
         if self.rv_file is not None:
-            mandatory_list += ["rv_body_name"]  # "rv_offset", "rv_jitter" move to def find_mandatory_body_params()
+            mandatory_list += ["rv_body_name"]
         if self.tt_file is not None:
             mandatory_list += ["eclipsers_names", "eclipsees_names"]
         if self.action in ["mcmc", "lmfit"]:
@@ -298,13 +299,6 @@ class CurveSimParameters:
         mandatory = set(mandatory_list)
         # print(mandatory)
         return mandatory
-
-    def find_mandatory_body_params(self, body: CurveSimBody) -> None:  # debug Baustelle!
-        mandatory_list: list[str] = []
-        if self.rv_file is not None:
-            mandatory_list += ["rv_offset", "rv_jitter"]
-        body.mandatory = set(mandatory_list)
-        print(body.mandatory)
 
     def check_for_missing_params(self, mandatory_params: set[str]) -> None:
         for attribute in mandatory_params:
@@ -355,6 +349,7 @@ class CurveSimParameters:
                 error()
         print(f"{Fore.RED}\nERROR in config file: {name} has an invalid color. It is neither a string or a tuple/list")
         error()
+        return None  # TypeCheckerPleasing
 
     @staticmethod
     def find_and_check_config_file(config_file: str) -> None:
@@ -381,19 +376,19 @@ class CurveSimParameters:
             print(f"{Fore.RED}Please only use config files with the .ini extension. (You tried to use {config_file}.){Style.RESET_ALL}")
             sys.exit(1)
 
+    # noinspection unused-local
     def read_param(self, config: configparser.ConfigParser, section: str, param: str, fallback: str | None, evaluate: bool = True, forced_type: type | None = None, lower: float | None = None, upper: float | None = None) -> Any:
         value = config.get(section, param, fallback=fallback)
-        # if value is None:
-        #     return None
         if evaluate:
+            # noinspection unused-local
             if section != "Astronomical Constants":
                 # For ease of use of these constants in the config file they are additionally defined here without the prefix "self.".
                 g, au, r_sun, m_sun, l_sun = self.g, self.au, self.r_sun, self.m_sun, self.l_sun
                 r_jup, m_jup, r_nep, m_nep, r_earth, m_earth = self.r_jup, self.m_jup, self.r_nep, self.m_nep, self.r_earth, self.m_earth
                 hour, day, year, rad2deg, deg2rad = self.hour, self.day, self.year, self.rad2deg, self.deg2rad
             try:
-                value = eval(value)
-            except (NameError, ValueError):
+                value = eval(value)  # type: ignore[union-attr]
+            except (NameError, ValueError, SyntaxError):
                 print(f"{Fore.RED}\nERROR in Configuration: Parameter {param} in section {section} has value {value}, which cannot be evaluated. {Style.RESET_ALL}")
                 if forced_type is not None:
                     print(f"{Fore.RED}Must have type {forced_type.__name__}. {Style.RESET_ALL}")
@@ -401,8 +396,8 @@ class CurveSimParameters:
         if value is None:
             return None
         if forced_type in (bool, str, int, dict, tuple, list):
-            if not isinstance(value, forced_type):
-                print(f"{Fore.RED}\nERROR in Configuration: Parameter {param} in section {section} must have type {forced_type.__name__}. {Style.RESET_ALL}")
+            if not isinstance(value, forced_type):  # type: ignore[union-attr]
+                print(f"{Fore.RED}\nERROR in Configuration: Parameter {param} in section {section} must have type {forced_type.__name__}. {Style.RESET_ALL}")  # type: ignore[union-attr]
                 sys.exit(1)
         if forced_type == float:
             if not isinstance(value, (int, float)) or isinstance(value, bool):
@@ -410,19 +405,21 @@ class CurveSimParameters:
                 sys.exit(1)
         if lower is not None:
             if upper is not None:
-                ok = lower <= value <= upper
+                ok = lower <= value <= upper  # type: ignore[union-attr]
             else:
-                ok = lower <= value
+                ok = lower <= value  # type: ignore[union-attr]
         else:
             if upper is not None:
-                ok = value <= upper
+                ok = value <= upper  # type: ignore[union-attr]
             else:
                 ok = True
         if not ok:
+            # noinspection string-conversion-without-dunder-method
             print(f"{Fore.RED}\nERROR in Configuration: Parameter {param} in section {section} has value {value}, which is out of bounds. {lower=}, {upper=}. {Style.RESET_ALL}")
             sys.exit(1)
         return value
 
+    # noinspection unused-local
     def read_body_param(self, config: configparser.ConfigParser, section: str, param: str, fallback: str | None) -> Any:
         # For ease of use of these constants in the config file they are additionally defined here without the prefix "self.".
         g, au, r_sun, m_sun, l_sun = self.g, self.au, self.r_sun, self.m_sun, self.l_sun
@@ -436,7 +433,8 @@ class CurveSimParameters:
             value = np.radians(value)
         return value
 
-    def read_param_priors(self, config: configparser.ConfigParser, section: str, param: str) -> tuple[Any, Any, Any, Any, Any, Any]:
+    # noinspection unused-local
+    def read_param_priors(self, config: configparser.ConfigParser, section: str, param: str) -> tuple[float | None, float | None, float | None, float | None, float | None, float | None]:
         # For ease of use of these constants in the config file they are additionally defined here without the prefix "self.".
         g, au, r_sun, m_sun, l_sun = self.g, self.au, self.r_sun, self.m_sun, self.l_sun
         r_jup, m_jup, r_nep, m_nep, r_earth, m_earth = self.r_jup, self.m_jup, self.r_nep, self.m_nep, self.r_earth, self.m_earth
@@ -482,10 +480,10 @@ class CurveSimParameters:
                 for param_name in ["mass", "radius", "luminosity", "rv_offset", "rv_jitter", "limb_darkening_1", "limb_darkening_2", "e", "i", "a", "P", "Omega", "pomega", "omega", "L", "nu", "ma", "ea", "T"]:
                     value, lower, upper, sigma, prior_mu, prior_sigma = self.read_param_priors(config, section, param_name)
                     if value is not None:
-                        if not lower <= value <= upper:
+                        if not lower <= value <= upper:  # type: ignore[union-attr]
                             print(f"{Fore.RED}\nERROR: Body {section}, Parameter {param_name}: startvalue not inside lower and upper bound.{Style.RESET_ALL}")
                             sys.exit(1)
-                        if sigma > (upper - lower) * 5:
+                        if sigma > (upper - lower) * 5:  # type: ignore[union-attr]
                             print(f"{Fore.YELLOW}\nWARNING: Body {section}, Parameter {param_name}: startvalue spread very large compared to lower and upper bound interval size.{Style.RESET_ALL}")
                         if param_name in ["i", "Omega", "omega", "pomega", "ma", "nu", "ea", "L"]:
                             value, lower, upper, sigma = np.radians(value), np.radians(lower), np.radians(upper), np.radians(sigma)
@@ -498,7 +496,7 @@ class CurveSimParameters:
                             print(f"body {body_index}: {param_name}")
                         if "limb_darkening" in param_name:
                             param_name = "ld_u" + param_name[-1]
-                        fitting_params.append(FittingParameter(self, section, body_index, param_name, value, lower, upper, sigma, prior_mu, prior_sigma))
+                        fitting_params.append(FittingParameter(self, section, body_index, param_name, value, lower, upper, sigma, prior_mu, prior_sigma))  # type: ignore[union-attr]
                         fitting_params[-1].index = len(fitting_params) - 1
                         param_names_in_use.append(param_name)
                 if self.convert_e_omega_2_u_v and "e" in param_names_in_use and "omega" in param_names_in_use:
@@ -543,16 +541,16 @@ class CurveSimParameters:
 
         start_u, start_v = CurveSimParameters.e_omega_to_u_v(fp_e.startvalue, fp_o.startvalue)
         mu_u, mu_v = CurveSimParameters.e_omega_to_u_v(fp_e.prior_mu, fp_o.prior_mu)
-        sigma_u, sigma_v = CurveSimParameters.propagate_sigma(fp_e.startvalue, fp_o.startvalue, fp_e.sigma, fp_o.sigma)
-        prior_sigma_u, prior_sigma_v = CurveSimParameters.propagate_sigma(fp_e.prior_mu, fp_o.prior_mu, fp_e.prior_sigma, fp_o.prior_sigma)
+        sigma_u, sigma_v = CurveSimParameters.propagate_sigma(fp_e.startvalue, fp_o.startvalue, fp_e.sigma, fp_o.sigma)  # type: ignore[union-attr]
+        prior_sigma_u, prior_sigma_v = CurveSimParameters.propagate_sigma(fp_e.prior_mu, fp_o.prior_mu, fp_e.prior_sigma, fp_o.prior_sigma)  # type: ignore[union-attr]
         r = np.sqrt(fp_e.upper)  # Bounds: u, v lie in a disc of radius sqrt(e_upper), so use its bounding box
 
         fp_e.startvalue, fp_o.startvalue = start_u, start_v
         fp_e.prior_mu, fp_o.prior_mu = mu_u, mu_v
         fp_e.sigma, fp_o.sigma = sigma_u, sigma_v
         fp_e.prior_sigma, fp_o.prior_sigma = prior_sigma_u, prior_sigma_v
-        fp_e.lower, fp_o.lower = -r, -r
-        fp_e.upper, fp_o.upper = r, r
+        fp_e.lower, fp_o.lower = -r, -r  # type: ignore[union-attr]
+        fp_e.upper, fp_o.upper = r, r  # type: ignore[union-attr]
 
     def convert_fitting_params_e_omega_to_u_v(self, body_index: int, section: str, fitting_params: list[FittingParameter], derived_fitting_params: list[FittingParameter]) -> None:
         e_index: int | None
@@ -563,12 +561,14 @@ class CurveSimParameters:
         for i, fp in enumerate(fitting_params):
             if fp.body_name == section and fp.param_name == "e":
                 e_index = i
-                fp_e = fitting_params[e_index]
             if fp.body_name == section and fp.param_name == "omega":
                 omega_index = i
-                fp_o = fitting_params[omega_index]
+        # assert e_index is not None and omega_index is not None, "caller must guarantee e and omega exist"
+        fp_e = fitting_params[e_index]  # type: ignore[union-attr]
+        fp_o = fitting_params[omega_index]  # type: ignore[union-attr]
+        # assert fp_e is not None and fp_o is not None, "caller must guarantee e and omega exist"
         derived_fitting_params += [copy.deepcopy(fp_e), copy.deepcopy(fp_o)]
-        CurveSimParameters.convert_e_omega_to_u_v(fp_e, fp_o)
+        CurveSimParameters.convert_e_omega_to_u_v(fp_e, fp_o)  # type: ignore[union-attr]
         self.e_omega_to_u_v_conversion_list.append((body_index, e_index, omega_index))  # used to recalculate e and omega from u and v
 
     def read_fitting_sector_params(self, fitting_params: list[FittingParameter], body_index: int) -> list[FittingParameter]:
@@ -576,9 +576,9 @@ class CurveSimParameters:
         _, _, sector_params = TotalObservations.get_sector_params(self)  # sector_params is a DataFrame from a csv file.
         sector_count = 0
         for row in sector_params.itertuples(index=False):
-            fitting_params.append(FittingParameter(self, "Sector", body_index, f"offset_{row.sector}", row.offset, row.offset_low, row.offset_up, row.offset_spread))
+            fitting_params.append(FittingParameter(self, "Sector", body_index, f"offset_{row.sector}", row.offset, row.offset_low, row.offset_up, row.offset_spread))  # type: ignore[union-attr]
             fitting_params[-1].index = len(fitting_params) - 1
-            fitting_params.append(FittingParameter(self, "Sector", body_index, f"jitter_{row.sector}", row.jitter, row.jitter_low, row.jitter_high, row.jitter_spread))
+            fitting_params.append(FittingParameter(self, "Sector", body_index, f"jitter_{row.sector}", row.jitter, row.jitter_low, row.jitter_high, row.jitter_spread))  # type: ignore[union-attr]
             fitting_params[-1].index = len(fitting_params) - 1
             sector_count += 1
         self.sector_fparams_count = 2 * sector_count
@@ -657,32 +657,32 @@ class CurveSimParameters:
 
     def randomize_startvalues_uniform(self) -> None:
         for fp in self.fitting_params:
-            fp.startvalue = fp.lower + random.random() * (fp.upper - fp.lower)
+            fp.startvalue = fp.lower + random.random() * (fp.upper - fp.lower)  # type: ignore[union-attr]
 
-    def TOI4504_startvalue_hack(self) -> None:
-        d_P = self.get_fitting_param(1, "P")
-        c_P = self.get_fitting_param(2, "P")
-        c_P.startvalue = (-2.3493 * d_P.startvalue * d_P.scale + 178.93) / c_P.scale
-
-        d_o = self.get_fitting_param(1, "omega")
-        d_o.startvalue = (-211.26 * d_P.startvalue * d_P.scale + 9104) / d_o.scale
-
-        d_ma = self.get_fitting_param(1, "ma")
-        d_ma.startvalue = (-2.1489 * d_o.startvalue * d_o.scale + 572.04) / d_ma.scale
-
-        c_o = self.get_fitting_param(2, "omega")
-        c_ma = self.get_fitting_param(2, "ma")
-        c_ma.startvalue = (-1.0343 * c_o.startvalue * c_o.scale + 79.427) / c_ma.scale
-
-        d_m = self.get_fitting_param(1, "mass")
-        c_m = self.get_fitting_param(2, "mass")
-        c_m.startvalue = (0.3517 * d_m.startvalue * d_m.scale + 1.8837) / c_m.scale
-
-        # a_m = self.get_fitting_param(0, "mass")
-        # d_m = self.get_fitting_param(1, "mass")
-        # c_m = self.get_fitting_param(2, "mass")
-        # d_m.startvalue = (-0.002505 * a_m.startvalue * a_m.scale + 0.131838) / d_m.scale
-        # c_m.startvalue = (-0.002919 * a_m.startvalue * a_m.scale + 0.007444) / c_m.scale
+    # def TOI4504_startvalue_hack(self) -> None:
+    #     d_P = self.get_fitting_param(1, "P")
+    #     c_P = self.get_fitting_param(2, "P")
+    #     c_P.startvalue = (-2.3493 * d_P.startvalue * d_P.scale + 178.93) / c_P.scale
+    #
+    #     d_o = self.get_fitting_param(1, "omega")
+    #     d_o.startvalue = (-211.26 * d_P.startvalue * d_P.scale + 9104) / d_o.scale
+    #
+    #     d_ma = self.get_fitting_param(1, "ma")
+    #     d_ma.startvalue = (-2.1489 * d_o.startvalue * d_o.scale + 572.04) / d_ma.scale
+    #
+    #     c_o = self.get_fitting_param(2, "omega")
+    #     c_ma = self.get_fitting_param(2, "ma")
+    #     c_ma.startvalue = (-1.0343 * c_o.startvalue * c_o.scale + 79.427) / c_ma.scale
+    #
+    #     d_m = self.get_fitting_param(1, "mass")
+    #     c_m = self.get_fitting_param(2, "mass")
+    #     c_m.startvalue = (0.3517 * d_m.startvalue * d_m.scale + 1.8837) / c_m.scale
+    #
+    #     # a_m = self.get_fitting_param(0, "mass")
+    #     # d_m = self.get_fitting_param(1, "mass")
+    #     # c_m = self.get_fitting_param(2, "mass")
+    #     # d_m.startvalue = (-0.002505 * a_m.startvalue * a_m.scale + 0.131838) / d_m.scale
+    #     # c_m.startvalue = (-0.002919 * a_m.startvalue * a_m.scale + 0.007444) / c_m.scale
 
     def get_fitting_param(self, body_index: int, param_name: str) -> FittingParameter:
         return self.fitting_params[self.fitting_param_dic[(body_index, param_name)]]
@@ -697,8 +697,8 @@ class CurveSimParameters:
                 bodies_indices_with_ld_fitting.add(fp.body_index)
 
         self.fitting_param_dic = {(fp.body_index, fp.param_name): fp.index for fp in self.fitting_params}
-        self.body_param_names = []
-        self.body_param_unit_names = []
+        # self.body_param_names = []
+        # self.body_param_unit_names = []
         for i, fp in enumerate(self.fitting_params_plus):
             fp.body_param_name = f"{fp.body_name}.{fp.param_name}"
             fp.body_param_unit_name = f"{fp.body_name}.{fp.param_unit_name}"
@@ -728,7 +728,7 @@ class CurveSimParameters:
 
         # adjust upper, lower, sigma, prior_mu and prior_sigma for limb darkening fitting parameters if they were given as type a or q in config file
         for body, fp_ld1, fp_ld2 in triples:
-            CurveSimPhysics.convert_limb_darkening_fitting_params(body.limb_darkening_parameter_type, fp_ld1, fp_ld2)
+            CurveSimPhysics.convert_limb_darkening_fitting_params(body.limb_darkening_parameter_type, fp_ld1, fp_ld2)  # type: ignore[union-attr]
 
     def update_fitting_params_units(self, bodies: CurveSimBodies) -> None:
         for fp in self.fitting_params:
@@ -783,8 +783,8 @@ class FittingParameter:
         result: list[float] = []
         while len(result) < size:
             sample = rng.normal(self.startvalue, self.sigma)
-            if self.lower <= sample <= self.upper:
-                result.append(sample)
+            if self.lower <= sample <= self.upper:  # type: ignore[union-attr]
+                result.append(sample)  # type: ignore[union-attr]
         return np.array(result)
 
 

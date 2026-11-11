@@ -22,7 +22,7 @@ from curvesimulator.cs_results import CurveSimResults
 from curvesimulator.cs_results import Transit
 
 if TYPE_CHECKING:
-    from curvesimulator.cs_observations import TotalObservations
+    from curvesimulator.cs_observations import TotalObservations, ObservationType
 
 class CurveSimBodies(list):
 
@@ -399,7 +399,7 @@ class CurveSimBodies(list):
         sim_flux /= lightcurve_max  # Normalize flux.
         return sim_rv, sim_flux, self, simulation_backwards, simulation_forwards, energy_change_backwards, energy_change_forwards
 
-    def calc_physics(self, observations: TotalObservations, p: CurveSimParameters) -> tuple[np.ndarray | None, np.ndarray, rebound.Simulation | None, rebound.Simulation | None]:
+    def calc_physics(self, observations: ObservationType, p: CurveSimParameters) -> tuple[np.ndarray | None, np.ndarray, rebound.Simulation | None, rebound.Simulation | None]:
         iterations = len(observations.time_s0)
 
         for body in self:
