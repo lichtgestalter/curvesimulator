@@ -756,6 +756,11 @@ class FittingParameter:
         self.scale: float
         self.body_param_name: str
         self.body_param_unit_name: str
+        self.hdi_min: float
+        self.hdi_max: float
+        self.std: float
+        self.mean: float
+        self.median: float
 
         if param_name in p.unit:
             self.unit = p.unit[param_name]

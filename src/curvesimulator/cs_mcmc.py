@@ -25,10 +25,9 @@ from .cs_bodies import CurveSimBodies
 if TYPE_CHECKING:
     import pandas as pd
     import rebound
-    from .cs_body import CurveSimBody
+    from multiprocessing.pool import Pool as PoolType
     from .cs_observations import TotalObservations
     from .cs_parameters import CurveSimParameters, FittingParameter
-
 
 def stopwatch() -> Callable[..., Any]:
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
@@ -153,16 +152,16 @@ class CurveSimMCMC:
         if p.backend:
             self.backend = emcee.backends.HDFBackend(p.backend)
             if p.load_backend:
-                self.iterations_from_backend = self.backend.iteration
-                print(f"Loading backend from {p.backend}. Contains {self.backend.iteration} iterations.")
-                steps_done = self.backend.iteration - p.burn_in
+                self.iterations_from_backend = self.backend.iteration  # type: ignore[union-attr]
+                print(f"Loading backend from {p.backend}. Contains {self.backend.iteration} iterations.")  # type: ignore[union-attr]
+                steps_done = self.backend.iteration - p.burn_in  # type: ignore[union-attr]
                 self.loaded_steps = steps_done
                 if steps_done < 0:
                     print(f"{Fore.RED}\nERROR: Backend contains less iterations than burn-in. Uncomment load_backend in the config file to start from scratch.{Style.RESET_ALL}")
                     sys.exit(1)
             else:
                 print("Ignoring and resetting backend.")
-                self.backend.reset(p.walkers, p.fparams_count)  # clear/reset the backend in case the file already exists
+                self.backend.reset(p.walkers, p.fparams_count)  # type: ignore[union-attr]  # clear/reset the backend in case the file already exists
                 steps_done, self.loaded_steps = 0, 0
         else:
             print("Running without backend.")
@@ -175,12 +174,13 @@ class CurveSimMCMC:
         else:
             self.mcmc_fit(p, bodies, o, steps_done)
 
-    def mcmc_fit(self, p: CurveSimParameters, bodies: CurveSimBodies, o: TotalObservations, steps_done: int, pool: Pool | None = None) -> None:
-        self.sampler = emcee.EnsembleSampler(p.walkers, p.fparams_count, CurveSimMCMC.log_probability, pool=pool, moves=self.moves, args=self.args, backend=self.backend)
+    # def mcmc_fit(self, p: CurveSimParameters, bodies: CurveSimBodies, o: TotalObservations, steps_done: int, pool: Pool | None = None) -> None:
+    def mcmc_fit(self, p: CurveSimParameters, bodies: CurveSimBodies, o: TotalObservations, steps_done: int, pool: PoolType | None = None) -> None:
+        self.sampler = emcee.EnsembleSampler(p.walkers, p.fparams_count, CurveSimMCMC.log_probability, pool=pool, moves=self.moves, args=self.args, backend=self.backend)  # type: ignore[union-attr]
         if not p.load_backend:
             self.theta = self.sampler.run_mcmc(self.theta0, p.burn_in, progress=True, progress_kwargs={"file": sys.__stderr__})  # progress_kwargs bypasses Tee, so not logged
         else:
-            self.theta = self.backend.get_last_sample()  # resume from the last walker positions stored in the backend
+            self.theta = self.backend.get_last_sample()  # type: ignore[union-attr]  # resume from the last walker positions stored in the backend
         for chunk in range(1, p.steps // p.chunk_size + 1):
             self.theta = self.sampler.run_mcmc(self.theta, p.chunk_size, progress=True, progress_kwargs={"file": sys.__stderr__})
             steps_done += p.chunk_size
@@ -194,7 +194,7 @@ class CurveSimMCMC:
     @staticmethod
     def single_run(p: CurveSimParameters, bodies: CurveSimBodies, o: TotalObservations) -> tuple[CurveSimBodies, TotalObservations, CurveSimResults]:
         rebound_sim: rebound.Simulation
-        o.sim.simrv, o.sim.simflux, _, rebound_sim = bodies.calc_physics(o.sim, p)  # Calculate all body positions and the resulting flux and rv
+        o.sim.simrv, o.sim.simflux, _, rebound_sim = bodies.calc_physics(o.sim, p)  # type: ignore[union-attr]  # Calculate all body positions and the resulting flux and rv
         if p.sim_flux_file:  # save simulated flux, regular spaced with p.dt
             o.sim.save_sim_flux(p)
         bodies.calc_video_frames_per_orbit(o, p)
@@ -205,7 +205,7 @@ class CurveSimMCMC:
             _, o.tt.measured_tt = CurveSimMCMC.match_transit_times(p, rebound_sim, o)
             o.tt.update(p)  # store chi squared and p-value and more in results and in o.tt as attributes
             if p.action != "mcmc":
-                CurveSimMCMC.tt_residual_plot(p, 0, "tt_o_vs_c.png", o.tt.measured_tt)  # compare observed vs. computed TT
+                CurveSimMCMC.tt_residual_plot(p, 0, "tt_o_vs_c.png", o.tt.measured_tt)  # type: ignore[union-attr]  # compare observed vs. computed TT
         if p.rv_file:
             o.rv.update(p, rebound_sim)  # update with new rv offset and jitter from theta
             results.rv_plots(o, p)
@@ -223,16 +223,14 @@ class CurveSimMCMC:
             results.save_results(p)
         # self.sim_flux = sim_flux
         # self.results = results
-        trifon = False
-        if trifon:
-            p.eclipsers = ["TOI4504d"]
-            p.eclipsees = ["TOI4504"]
+        # trifon = True
+        # if trifon:
+        #     p.eclipsers = ["TOI4504d"]
+        #     p.eclipsees = ["TOI4504"]
             # results.plot_param("TOI4504c", "TOI4504", "T14", flux_time_d[0], flux_time_d[-1],
             #                         filename=f"TOI4504c_i={bodies[2].i*p.rad2deg:.2f}_T14.png")
-            results.plot_param("TOI4504d", "TOI4504", "T14", o.flux.time_d[0], o.flux.time_d[-1],
-                                   filename=f"TOI4504d_i={bodies[1].i * p.rad2deg:.2f}_T14.png")
-            results.plot_param("TOI4504d", "TOI4504", "depth", o.flux.time_d[0], o.flux.time_d[-1],
-                                   filename=f"TOI4504d_i={bodies[1].i * p.rad2deg:.2f}_depth.png")
+            # results.plot_param("TOI4504d", "TOI4504", "T14", o.flux.time_d[0], o.flux.time_d[-1], filename=f"TOI4504d_i={bodies[1].i * p.rad2deg:.2f}_T14.png")  # type: ignore[union-attr]
+            # results.plot_param("TOI4504d", "TOI4504", "depth", o.flux.time_d[0], o.flux.time_d[-1], filename=f"TOI4504d_i={bodies[1].i * p.rad2deg:.2f}_depth.png")  # type: ignore[union-attr]
 
             # measured_tt = CurveSimMCMC.get_measured_tt(p)
             # p.bodynames2bodies(bodies)
@@ -245,7 +243,7 @@ class CurveSimMCMC:
     def match_transit_times(p: CurveSimParameters, rebound_sim: rebound.Simulation, o: TotalObservations) -> tuple[float, pd.DataFrame]:
         sim_tt = CurveSimBodies.find_tts(rebound_sim, o, p)  # sim_tt is a list of tuples (eclipser, eclipsee, tt)
         nearest_sim_tt: list[float] = []
-        for row in o.tt.measured_tt.itertuples(index=False):
+        for row in o.tt.measured_tt.itertuples(index=False):  # type: ignore[union-attr]
             eclipser = row.eclipser
             o.tt.measured_tt_val = row.tt
             sim_tt_filtered = [tt for tt in sim_tt if tt[0] == eclipser]  # Filter sim_tt for matching eclipser
@@ -254,9 +252,9 @@ class CurveSimMCMC:
                 nearest_sim_tt.append(closest_tt[2])
             else:
                 nearest_sim_tt.append(0)  # No match found
-        o.tt.measured_tt["nearest_sim"] = nearest_sim_tt  # add 2 columns to data frame
-        o.tt.measured_tt["delta"] = o.tt.measured_tt["nearest_sim"] - o.tt.measured_tt["tt"]
-        residuals_tt = o.tt.measured_tt["delta"] / o.tt.measured_tt["tt_err"]  # residuals are weighted with uncertainty!
+        o.tt.measured_tt["nearest_sim"] = nearest_sim_tt  # type: ignore[union-attr]  # add 2 columns to data frame
+        o.tt.measured_tt["delta"] = o.tt.measured_tt["nearest_sim"] - o.tt.measured_tt["tt"]  # type: ignore[union-attr]
+        residuals_tt = o.tt.measured_tt["delta"] / o.tt.measured_tt["tt_err"]  # type: ignore[union-attr]  # residuals are weighted with uncertainty!
         residuals_tt_sum_squared = np.sum(residuals_tt ** 2)
         return residuals_tt_sum_squared, o.tt.measured_tt
 
@@ -286,7 +284,7 @@ class CurveSimMCMC:
             if not (fp.lower < val < fp.upper):
                 return -np.inf
             if fp.prior_mu is not None:
-                lp += -0.5 * ((val - fp.prior_mu) / fp.prior_sigma) ** 2 - math.log(fp.prior_sigma * math.sqrt(2 * math.pi))
+                lp += -0.5 * ((val - fp.prior_mu) / fp.prior_sigma) ** 2 - math.log(fp.prior_sigma * math.sqrt(2 * math.pi))  # type: ignore[union-attr]
         return lp
 
     @staticmethod
@@ -324,9 +322,9 @@ class CurveSimMCMC:
     @staticmethod
     def update_sector_params_from_theta(first_sector_param_index: int, o: TotalObservations, theta: np.ndarray) -> None:
         i = first_sector_param_index
-        for sector in o.flux.offset_map.index:
-            o.flux.offset_map.loc[sector] = theta[i]
-            o.flux.jitter_map.loc[sector] = theta[i + 1]
+        for sector in o.flux.offset_map.index:  # type: ignore[union-attr]
+            o.flux.offset_map.loc[sector] = theta[i]  # type: ignore[union-attr]
+            o.flux.jitter_map.loc[sector] = theta[i + 1]  # type: ignore[union-attr]
             i += 2
 
     @staticmethod
@@ -348,7 +346,7 @@ class CurveSimMCMC:
     def residuals_tt_sum_squared(theta: np.ndarray, bodies: CurveSimBodies, o: TotalObservations, p: CurveSimParameters) -> float:
         CurveSimMCMC.update_bodies_from_theta(bodies, p, theta)
         sim_rv, sim_flux, _, rebound_sim_forwards = bodies.calc_physics(o.sim, p)  # run simulation
-        residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(p, rebound_sim_forwards, o)
+        residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(p, rebound_sim_forwards, o)  # type: ignore[union-attr]
         return residuals_tt_sum_squared
 
     @staticmethod
@@ -485,21 +483,21 @@ class CurveSimMCMC:
             fp.std = std
             fp.mean = mean
             fp.median = median
-            fp.max_likelihood = self.max_likelihood_params_scaled[i]
+            fp.max_likelihood = self.max_likelihood_params_scaled[i]  # type: ignore[union-attr]
             # self.mean_params.append(mean)
             # self.median_params.append(median)
 
     def get_max_likelihood_bodies(self, bodies: CurveSimBodies, p: CurveSimParameters) -> CurveSimBodies:
         i = 0
         for body_index, param_name in p.param_references:
-            bodies[body_index].__dict__[param_name] = self.max_likelihood_params[i]  # update all params from theta
+            bodies[body_index].__dict__[param_name] = self.max_likelihood_params[i]  # type: ignore[union-attr]  # update all params from theta
             i += 1
         return bodies
 
     @staticmethod
     def max_likelihood_tt(max_likelihood_bodies: CurveSimBodies, o: TotalObservations, p: CurveSimParameters) -> pd.DataFrame:
-        sim_rv, sim_flux, _, rebound_sim_forwards = max_likelihood_bodies.calc_physics(o.sim, p)  # run simulation
-        _, measured_tt = CurveSimMCMC.match_transit_times(p, rebound_sim_forwards, o)
+        sim_rv, sim_flux, _, rebound_sim_forwards = max_likelihood_bodies.calc_physics(o.sim, p)  # type: ignore[union-attr]  # run simulation
+        _, measured_tt = CurveSimMCMC.match_transit_times(p, rebound_sim_forwards, o)  # type: ignore[union-attr]
         return measured_tt
 
     @staticmethod
@@ -516,7 +514,7 @@ class CurveSimMCMC:
         fig, axes = plt.subplots(p.fparams_count + p.derived_params_count, figsize=(10, (p.fparams_count + p.derived_params_count) * 2))
         y_position = min(0.998, 0.99 + (p.fparams_count + p.derived_params_count) / 7500)
         fig.text(0.02, y_position, f"Histograms, {steps_done} steps after burn-in.", ha="left", va="top", fontsize=14, transform=fig.transFigure)
-        startvalues: list[float] = [fp.startvalue * fp.scale for fp in p.fitting_params_plus]
+        startvalues: list[float] = [fp.startvalue * fp.scale for fp in p.fitting_params_plus]  # type: ignore[union-attr]
         if p.fparams_count == 1:
             axes = [axes]
         fp: FittingParameter
@@ -552,7 +550,7 @@ class CurveSimMCMC:
                     fig = corner.corner(
                         self.scaled_samples[:, :p.body_fparams_count],
                         labels=p.body_param_unit_names,
-                        truths=self.max_likelihood_params_scaled[:p.body_fparams_count],
+                        truths=self.max_likelihood_params_scaled[:p.body_fparams_count],  # type: ignore[union-attr]
                         title_fmt=".4f",
                         quiet=True
                     )
@@ -684,10 +682,10 @@ class CurveSimMCMC:
                 self.acceptance_plot_ok = False
 
     def update_reduced_chi_squared_over_time_lists(self, o: TotalObservations) -> None:
-        self.reduced_chi_squared_over_time.append(o.reduced_chi_squared)
-        self.reduced_chi_squared_over_time_flux.append(o.flux.reduced_chi_squared)
-        self.reduced_chi_squared_over_time_rv.append(o.rv.reduced_chi_squared)
-        self.reduced_chi_squared_over_time_tt.append(o.tt.reduced_chi_squared)
+        self.reduced_chi_squared_over_time.append(o.reduced_chi_squared)  # type: ignore[union-attr]
+        self.reduced_chi_squared_over_time_flux.append(o.flux.reduced_chi_squared)  # type: ignore[union-attr]
+        self.reduced_chi_squared_over_time_rv.append(o.rv.reduced_chi_squared)  # type: ignore[union-attr]
+        self.reduced_chi_squared_over_time_tt.append(o.tt.reduced_chi_squared)  # type: ignore[union-attr]
 
     # @stopwatch()
     def reduced_chi_squared_over_time_plot(self, p: CurveSimParameters, steps_done: int, plot_filename: str) -> None:
@@ -869,10 +867,10 @@ class CurveSimMCMC:
         fitting_params: list[FittingParameter] = copy.deepcopy(p.fitting_params_plus)
         fp: FittingParameter
         for fp in fitting_params:
-            fp.startvalue *= fp.scale
-            fp.lower *= fp.scale
-            fp.upper *= fp.scale
-            fp.sigma *= fp.scale
+            fp.startvalue *= fp.scale  # type: ignore[union-attr]
+            fp.lower *= fp.scale  # type: ignore[union-attr]
+            fp.upper *= fp.scale  # type: ignore[union-attr]
+            fp.sigma *= fp.scale  # type: ignore[union-attr]
             for name in ("densities", "bin_edges"):  # List names of list-attributes here, in order to convert them to something JSON can understand
                 if hasattr(fp, name):
                     orig = getattr(fp, name)
@@ -905,19 +903,19 @@ class CurveSimMCMC:
             self.acceptance_fraction_plot(steps_done, "acceptance.png", p)
         self.scale_samples(flat_thin_samples, bodies, p)
         self.max_likelihood_parameters(flat_thin_samples, p)
-        logprob, chi_squared, log_norm_term = CurveSimMCMC.log_probability(self.max_likelihood_params, bodies, o, p)
+        logprob, chi_squared, log_norm_term = CurveSimMCMC.log_probability(self.max_likelihood_params, bodies, o, p)  # type: ignore[union-attr]
         o.update(p)
         reduced_chi_squared = chi_squared / (o.observation_count - p.free_parameters)
-        print(f"Current best fit: log probability: {logprob:.3f},  reduced chi squared: {reduced_chi_squared:.3f},  log_norm_term:{log_norm_term:.3f}")
+        print(f"Current best fit: log probability: {logprob:.3f},  reduced chi squared: {reduced_chi_squared:.3f},  log_norm_term:{log_norm_term:.3f}")  # type: ignore[union-attr]
 
         if p.tt_file:
             max_likelihood_bodies = self.get_max_likelihood_bodies(bodies, p)
             o.tt.measured_tt = CurveSimMCMC.max_likelihood_tt(max_likelihood_bodies, o, p)
-            o.tt.measured_tt = CurveSimMCMC.add_new_best_delta(o.tt.measured_tt, steps_done)
+            o.tt.measured_tt = CurveSimMCMC.add_new_best_delta(o.tt.measured_tt, steps_done)  # type: ignore[union-attr]
             if "tt_delta" in commands or "all" in commands:
-                CurveSimMCMC.tt_residual_plot(p, steps_done, "tt_delta.png", o.tt.measured_tt)
+                CurveSimMCMC.tt_residual_plot(p, steps_done, "tt_delta.png", o.tt.measured_tt)  # type: ignore[union-attr]
             if "tt_multi_delta" in commands or "all" in commands:
-                self.tt_multi_residual_plot(steps_done, "tt_multi_delta.png", o.tt.measured_tt)
+                self.tt_multi_residual_plot(steps_done, "tt_multi_delta.png", o.tt.measured_tt)  # type: ignore[union-attr]
 
         self.high_density_intervals(p)
         if "save_bodies" in commands or "all" in commands:
@@ -938,7 +936,7 @@ class CurveSimMCMC:
             for bins in p.bins:
                 self.mcmc_histograms(steps_done, bins, f"histograms_{bins}.png", p)
         if "mcmc_results" in commands or "all" in commands:
-            self.save_mcmc_results(p, bodies, steps_done, o.tt.measured_tt)
+            self.save_mcmc_results(p, bodies, steps_done, o.tt.measured_tt)  # type: ignore[union-attr]
         if "traces" in commands or "all" in commands:
             self.trace_plots(steps_done, "traces.png", p)
         if "integrated_autocorrelation_time" in commands:
@@ -961,7 +959,7 @@ class CurveSimLMfit:
         if os.path.exists("iteration.tmp"):
             os.remove("iteration.tmp")
         p.index_from_bodyparamname = {bpn: fp.index for bpn, fp in zip(p.body_param_names, p.fitting_params)}
-        self.param_bounds: list[tuple[float, float]] = [(fp.lower, fp.upper) for fp in p.fitting_params]
+        self.param_bounds: list[tuple[float, float]] = [(fp.lower, fp.upper) for fp in p.fitting_params]  # type: ignore[union-attr]
         self.args: tuple[list[tuple[int, str]], CurveSimBodies, TotalObservations, CurveSimParameters] = (p.param_references, bodies, o, p)
         self.start_real_time: str = time.strftime("%d.%m.%y %H:%M:%S")
         self.start_timestamp: float = time.perf_counter()
@@ -1010,7 +1008,7 @@ class CurveSimLMfit:
         for body_index, param_name in param_references:
             bodies[body_index].__dict__[param_name] = params[bodies[body_index].name + "_" + param_name].value  # update all params from params
         _, o.sim.simflux, _, rebound_sim_forwards = bodies.calc_physics(o.sim, p)  # run simulation
-        residuals_tt_sum_squared, _ = CurveSimMCMC.match_transit_times(p, rebound_sim_forwards, o)
+        residuals_tt_sum_squared, _ = CurveSimMCMC.match_transit_times(p, rebound_sim_forwards, o)  # type: ignore[union-attr]
         return residuals_tt_sum_squared
 
     def save_best_fit(self, p: CurveSimParameters, bodies: CurveSimBodies, measured_tt: pd.DataFrame) -> None:

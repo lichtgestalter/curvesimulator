@@ -189,7 +189,7 @@ class RVObservations(ObservationType):
         self.error: np.ndarray
         if p.rv_file:
             df = pd.read_csv(p.rv_file)
-            self.corrected, self.total_error, self.log_norm_term = None, None, None
+            self.corrected, self.total_error, self.log_norm_term = None, None, 0
             TotalObservations.check_required_columns({"time", "rv", "rv_err"}, df, p.rv_file)
             df = df[(df["time"] >= p.sim_start) & (df["time"] <= p.sim_end)].copy()
             self.observation_count = len(df["time"])
@@ -220,13 +220,13 @@ class RVObservations(ObservationType):
             return -bdy.vz
 
         body = rebound_sim.particles[p.rv_body_name]
-        self.computed = [rv_at_t(t, rebound_sim, body) for t in self.time_s0]
+        self.computed = [rv_at_t(t, rebound_sim, body) for t in self.time_s0]  # type: ignore[union-attr]
         return self.computed
 
     def update(self, p: CurveSimParameters, rebound_sim: rebound.Simulation) -> None:
         # update rv observations with new rv offset and jitter, then calc computed and residuals.
-        self.calc_corrected(p.rv_body.rv_offset)    # observed - offset
-        self.calc_total_error(p.rv_body.rv_jitter)  # sqrt(error^2 + jitter^2)
+        self.calc_corrected(p.rv_body.rv_offset)    # type: ignore[union-attr]  # observed - offset
+        self.calc_total_error(p.rv_body.rv_jitter)  # type: ignore[union-attr]  # sqrt(error^2 + jitter^2)
         self.calc_log_norm_term()                   # from total_error
         self.calc_computed(p, rebound_sim)          # from bodies
         self.calc_residuals()                       # corrected - computed
@@ -273,7 +273,7 @@ class FluxObservations(ObservationType):
 
     def calc_corrected(self, sector_params_file: str) -> np.ndarray:
         if sector_params_file:  # params offset and jitter for each observed sector exist
-            offset = pd.Series(self.sector).map(self.offset_map).to_numpy(dtype=float)
+            offset = pd.Series(self.sector).map(self.offset_map).to_numpy(dtype=float)  # type: ignore[union-attr]
         else:
             offset = 0
         self.corrected = self.observed - offset
@@ -281,7 +281,7 @@ class FluxObservations(ObservationType):
 
     def calc_total_error(self, sector_params_file: str) -> np.ndarray:
         if sector_params_file:  # params offset and jitter for each observed sector exist
-            jitter = pd.Series(self.sector).map(self.jitter_map).to_numpy(dtype=float)
+            jitter = pd.Series(self.sector).map(self.jitter_map).to_numpy(dtype=float)  # type: ignore[union-attr]
         else:
             jitter = 0
         self.total_error = np.sqrt(self.error ** 2 + jitter ** 2)
@@ -324,15 +324,15 @@ class TTObservations(ObservationType):
         return f"TTObservations: {self.observation_count} observations"
 
     def calc_total_error(self) -> np.ndarray:
-        self.total_error = self.measured_tt["tt_err"].to_numpy(dtype=float)
+        self.total_error = self.measured_tt["tt_err"].to_numpy(dtype=float)  # type: ignore[union-attr]
         return self.total_error
 
     def calc_residuals(self) -> np.ndarray:
-        self.residuals = self.measured_tt["delta"].to_numpy(dtype=float)
+        self.residuals = self.measured_tt["delta"].to_numpy(dtype=float)  # type: ignore[union-attr]
         return self.residuals
 
     def update(self, p: CurveSimParameters) -> None:
-        self.observation_count = self.measured_tt.shape[0]
+        self.observation_count = self.measured_tt.shape[0]  # type: ignore[union-attr]
         self.calc_total_error()                             # convert measured_tt["tt_err"]
         self.calc_log_norm_term()                           # from total_error
         self.calc_residuals()                               # convert self.measured_tt["delta"]
