@@ -1,9 +1,11 @@
 # This file is for developers only
+from __future__ import annotations
+
 # import cProfile
 # import pstats
 from curvesimulator import CurveSimulator
 
-def main():
+def main() -> None:
 
     # curvesimulation = CurveSimulator(config_file="../../curvesimulator.internal/results/debug/debug.ini")
 

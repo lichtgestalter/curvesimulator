@@ -1,6 +1,9 @@
-from importlib import import_module
+from __future__ import annotations
 
-_EXPORTS = {
+from importlib import import_module
+from typing import Any
+
+_EXPORTS: dict[str, tuple[str, str]] = {
 	"CurveSimulator": (".curvesim", "CurveSimulator"),
 	"CurveSimAnimation": (".cs_animation", "CurveSimAnimation"),
 	"CurveSimBodies": (".cs_bodies", "CurveSimBodies"),
@@ -19,7 +22,7 @@ _EXPORTS = {
 __all__ = list(_EXPORTS)
 
 
-def __getattr__(name):
+def __getattr__(name: str) -> Any:
 	try:
 		module_name, attribute_name = _EXPORTS[name]
 	except KeyError as exc:
