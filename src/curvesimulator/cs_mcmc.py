@@ -18,6 +18,8 @@ import time
 from .cs_animation import CurveSimAnimation
 from .cs_results import CurveSimResults
 from .cs_bodies import CurveSimBodies
+from .cs_observations import TotalObservations
+from .cs_parameters import CurveSimParameters, FittingParameter
 
 
 def stopwatch():
@@ -93,7 +95,7 @@ def append_line_locked(filename, line, wait=0.1):
 
 
 class CurveSimMCMC:
-    def __init__(self, p, bodies, o, dummy_object=False):
+    def __init__(self, p: CurveSimParameters, bodies: CurveSimBodies, o: TotalObservations, dummy_object=False):
         self.results_directory = p.results_directory
         if dummy_object:
             return
@@ -112,16 +114,16 @@ class CurveSimMCMC:
         self.args = (bodies, o, p)
         self.moves = eval(p.moves)
 
-        self.acceptance_fractions = []
-        self.integrated_autocorrelation_time = []
+        self.acceptance_fractions: list[np.ndarray] = []
+        self.integrated_autocorrelation_time: list[list[float]] = []
         self.start_real_time = time.strftime("%d.%m.%y %H:%M:%S")
         self.start_timestamp = time.perf_counter()
         self.result_time = 0
 
-        self.reduced_chi_squared_over_time = []
-        self.reduced_chi_squared_over_time_flux = []
-        self.reduced_chi_squared_over_time_rv = []
-        self.reduced_chi_squared_over_time_tt = []
+        self.reduced_chi_squared_over_time: list[float] = []
+        self.reduced_chi_squared_over_time_flux: list[float] = []
+        self.reduced_chi_squared_over_time_rv: list[float] = []
+        self.reduced_chi_squared_over_time_tt: list[float] = []
 
         self.trace_plot_ok = True
         self.corner_plot_ok = True
@@ -129,6 +131,7 @@ class CurveSimMCMC:
         self.acceptance_plot_ok = True
         self.iterations_from_backend = 0
 
+        self.backend: emcee.backends.HDFBackend
         if p.backend:
             self.backend = emcee.backends.HDFBackend(p.backend)
             if p.load_backend:
@@ -145,7 +148,7 @@ class CurveSimMCMC:
                 steps_done, self.loaded_steps = 0, 0
         else:
             print("Running without backend.")
-            self.backend = None
+            # self.backend = None
             steps_done, self.loaded_steps = 0, 0
 
         if p.mcmc_multi_processing:
@@ -154,7 +157,7 @@ class CurveSimMCMC:
         else:
             self.mcmc_fit(p, bodies, o, steps_done)
 
-    def mcmc_fit(self, p, bodies, o, steps_done, pool=None):
+    def mcmc_fit(self, p: CurveSimParameters, bodies: CurveSimBodies, o: TotalObservations, steps_done, pool=None):
         self.sampler = emcee.EnsembleSampler(p.walkers, p.fparams_count, CurveSimMCMC.log_probability, pool=pool, moves=self.moves, args=self.args, backend=self.backend)
         if not p.load_backend:
             self.theta = self.sampler.run_mcmc(self.theta0, p.burn_in, progress=True, progress_kwargs={"file": sys.__stderr__})  # progress_kwargs bypasses Tee, so not logged
@@ -171,7 +174,7 @@ class CurveSimMCMC:
         return f"CurveSimMCMC object"
 
     @staticmethod
-    def single_run(p, bodies, o):
+    def single_run(p: CurveSimParameters, bodies: CurveSimBodies, o: TotalObservations):
         o.sim.simrv, o.sim.simflux, _, rebound_sim = bodies.calc_physics(o.sim, p)  # Calculate all body positions and the resulting flux and rv
         if p.sim_flux_file:  # save simulated flux, regular spaced with p.dt
             o.sim.save_sim_flux(p)
@@ -207,10 +210,8 @@ class CurveSimMCMC:
             p.eclipsees = ["TOI4504"]
             # results.plot_param("TOI4504c", "TOI4504", "T14", flux_time_d[0], flux_time_d[-1],
             #                         filename=f"TOI4504c_i={bodies[2].i*p.rad2deg:.2f}_T14.png")
-            results.plot_param("TOI4504d", "TOI4504", "T14", o.flux.time_d[0], o.flux.time_d[-1],
-                                   filename=f"TOI4504d_i={bodies[1].i * p.rad2deg:.2f}_T14.png")
-            results.plot_param("TOI4504d", "TOI4504", "depth", o.flux.time_d[0], o.flux.time_d[-1],
-                                   filename=f"TOI4504d_i={bodies[1].i * p.rad2deg:.2f}_depth.png")
+            results.plot_param("TOI4504d", "TOI4504", "T14", o.flux.time_d[0], o.flux.time_d[-1], filename=f"TOI4504d_i={bodies[1].i * p.rad2deg:.2f}_T14.png")
+            results.plot_param("TOI4504d", "TOI4504", "depth", o.flux.time_d[0], o.flux.time_d[-1], filename=f"TOI4504d_i={bodies[1].i * p.rad2deg:.2f}_depth.png")
 
             # measured_tt = CurveSimMCMC.get_measured_tt(p)
             # p.bodynames2bodies(bodies)
@@ -220,9 +221,9 @@ class CurveSimMCMC:
         return bodies, o, results
 
     @staticmethod
-    def match_transit_times(p, rebound_sim, o):
+    def match_transit_times(p: CurveSimParameters, rebound_sim, o: TotalObservations):
         sim_tt = CurveSimBodies.find_tts(rebound_sim, o, p)  # sim_tt is a list of tuples (eclipser, eclipsee, tt)
-        nearest_sim_tt = []
+        nearest_sim_tt: list[float] = []
         for row in o.tt.measured_tt.itertuples(index=False):
             eclipser = row.eclipser
             o.tt.measured_tt_val = row.tt
@@ -249,7 +250,7 @@ class CurveSimMCMC:
         return np.where(left_is_closer, left_neighbour, right_neighbour)
 
     @staticmethod
-    def log_probability(theta, bodies, o, p):
+    def log_probability(theta, bodies: CurveSimBodies, o: TotalObservations, p: CurveSimParameters):
         lp = CurveSimMCMC.log_prior(theta, p.fitting_params)
         if not np.isfinite(lp):
             return -np.inf, np.nan, np.nan
@@ -257,7 +258,7 @@ class CurveSimMCMC:
         return lp + ll, chi_squared, log_norm_term
 
     @staticmethod
-    def log_prior(theta, fitting_params):
+    def log_prior(theta, fitting_params: list[FittingParameter]):
         lp = 0.0
         for val, fp in zip(theta, fitting_params):
             if not (fp.lower < val < fp.upper):
@@ -267,7 +268,7 @@ class CurveSimMCMC:
         return lp
 
     @staticmethod
-    def log_likelihood(theta, bodies, o, p):
+    def log_likelihood(theta, bodies: CurveSimBodies, o: TotalObservations, p: CurveSimParameters):
         chi_squared, log_norm_term = 0, 0
         if p.flux_file:
             chi_squared, log_norm_term = CurveSimMCMC.residuals_flux_sum_squared(theta, bodies, o, p)
@@ -280,7 +281,7 @@ class CurveSimMCMC:
         return -0.5 * (chi_squared + log_norm_term), chi_squared, log_norm_term
 
     @staticmethod
-    def u_v_to_e_omega(u, v):
+    def u_v_to_e_omega(u: float | None, v: float | None):
         if u is None or v is None:
             return None, None
         e = u**2 + v**2
@@ -288,7 +289,7 @@ class CurveSimMCMC:
         return e, omega
 
     @staticmethod
-    def update_bodies_from_theta(bodies, p, theta):
+    def update_bodies_from_theta(bodies: CurveSimBodies, p: CurveSimParameters, theta):
         i = 0
         for body_index, param_name in p.param_references[:p.body_fparams_count]:
             bodies[body_index].__dict__[param_name] = theta[i]
@@ -299,7 +300,7 @@ class CurveSimMCMC:
         return i
 
     @staticmethod
-    def update_sector_params_from_theta(first_sector_param_index, o, theta):
+    def update_sector_params_from_theta(first_sector_param_index, o: TotalObservations, theta):
         i = first_sector_param_index
         for sector in o.flux.offset_map.index:
             o.flux.offset_map.loc[sector] = theta[i]
@@ -307,7 +308,7 @@ class CurveSimMCMC:
             i += 2
 
     @staticmethod
-    def residuals_flux_sum_squared(theta, bodies, o, p):
+    def residuals_flux_sum_squared(theta, bodies: CurveSimBodies, o: TotalObservations, p: CurveSimParameters):
         first_sector_param_index = CurveSimMCMC.update_bodies_from_theta(bodies, p, theta)
         if p.sector_params_fit:
             CurveSimMCMC.update_sector_params_from_theta(first_sector_param_index, o, theta)
@@ -315,21 +316,21 @@ class CurveSimMCMC:
         return o.flux.chi_squared, o.flux.log_norm_term
 
     @staticmethod
-    def residuals_rv_sum_squared(theta, bodies, o, p):
+    def residuals_rv_sum_squared(theta, bodies: CurveSimBodies, o: TotalObservations, p: CurveSimParameters):
         CurveSimMCMC.update_bodies_from_theta(bodies, p, theta)
         rebound_sim = bodies.init_rebound(p)
         o.rv.update(p, rebound_sim)  # update rv observations with new rv offset and jitter, then calc computed and residuals.
         return o.rv.chi_squared, o.rv.log_norm_term
 
     @staticmethod
-    def residuals_tt_sum_squared(theta, bodies, o, p):
+    def residuals_tt_sum_squared(theta, bodies: CurveSimBodies, o: TotalObservations, p: CurveSimParameters):
         CurveSimMCMC.update_bodies_from_theta(bodies, p, theta)
         sim_rv, sim_flux, _, rebound_sim_forwards = bodies.calc_physics(o.sim, p)  # run simulation
         residuals_tt_sum_squared, measured_tt = CurveSimMCMC.match_transit_times(p, rebound_sim_forwards, o)
         return residuals_tt_sum_squared
 
     @staticmethod
-    def bodies_from_fitting_params(bodies, fitting_params, param_type=None):
+    def bodies_from_fitting_params(bodies: CurveSimBodies, fitting_params: list[FittingParameter], param_type=None):
         # if param_type == "startvalue":
         #     for fp in fitting_params:
         #         bodies[fp.body_index].__dict__[fp.param_name] = fp.startvalue
@@ -372,7 +373,7 @@ class CurveSimMCMC:
         median = np.median(data)
         return hdi_min, hdi_max, std, mean, median
 
-    def make_flat_thin_samples(self, p):
+    def make_flat_thin_samples(self, p: CurveSimParameters):
         """Discard the first p.burn_in steps of each chain (to keep only samples from the equilibrium
             distribution), keep every p.thin_samples-th sample (to reduce autocorrelation and array size),
             and flatten all chains into one 2D array.
@@ -380,7 +381,7 @@ class CurveSimMCMC:
             Returns an array of shape (n_samples, n_params + 2 * n_pairs); the derived columns are
             ordered e1, omega1, e2, omega2, ..."""
         flat_thin_samples = self.sampler.get_chain(discard=p.burn_in, thin=p.thin_samples, flat=True)
-        derived_columns = []
+        derived_columns: list[np.ndarray] = []
         for u_v_pair in p.e_omega_to_u_v_conversion_list:
             _, e_index, omega_index = u_v_pair
             e, omega = CurveSimMCMC.u_v_to_e_omega(flat_thin_samples[:, e_index], flat_thin_samples[:, omega_index])
@@ -388,9 +389,9 @@ class CurveSimMCMC:
             derived_columns.extend([e, omega])  # collect every pair, not just the last one
         return np.column_stack([flat_thin_samples] + derived_columns)
 
-    def scale_samples(self, flat_thin_samples, bodies, p):
+    def scale_samples(self, flat_thin_samples, bodies: CurveSimBodies, p: CurveSimParameters):
         self.scaled_samples = np.copy(flat_thin_samples)
-        self.scales = []
+        self.scales: list[float] = []
         for fp, ss in zip(p.fitting_params, self.scaled_samples.T):
             if "offset_" in fp.param_name or "jitter_" in fp.param_name:
                 self.scales.append(1)
@@ -400,7 +401,7 @@ class CurveSimMCMC:
                 self.scales.append(factor)
 
     # @stopwatch()
-    def trace_plots(self, steps_done, plot_filename, p):
+    def trace_plots(self, steps_done, plot_filename, p: CurveSimParameters):
         if self.trace_plot_ok:
             try:
                 plot_filename = self.results_directory + plot_filename
@@ -432,7 +433,7 @@ class CurveSimMCMC:
                 print(f"{Fore.RED}\nERROR: Trace Plot failed.{Style.RESET_ALL}")
                 self.trace_plot_ok = False
 
-    def max_likelihood_parameters(self, flat_thin_samples, p):
+    def max_likelihood_parameters(self, flat_thin_samples, p: CurveSimParameters):
         log_prob_samples = self.sampler.get_log_prob(flat=True, discard=p.burn_in, thin=p.thin_samples)
         if len(log_prob_samples):
             max_likelihood_idx = np.argmax(log_prob_samples)
@@ -448,10 +449,10 @@ class CurveSimMCMC:
             self.max_likelihood_params = None
             self.max_log_prob = None
 
-    def high_density_intervals(self, p):
+    def high_density_intervals(self, p: CurveSimParameters):
         # Calculate HDI and other mcmc results.
-        self.mean_params = []
-        self.median_params = []
+        self.mean_params: list[float] = []
+        self.median_params: list[float] = []
         for i, fp in enumerate(p.fitting_params_plus):
             hdi_min, hdi_max, std, mean, median = CurveSimMCMC.hdi_std_mean(self.scaled_samples[:, i], self.credible_mass)
             fp.hdi_min = hdi_min
@@ -463,7 +464,7 @@ class CurveSimMCMC:
             # self.mean_params.append(mean)
             # self.median_params.append(median)
 
-    def get_max_likelihood_bodies(self, bodies, p):
+    def get_max_likelihood_bodies(self, bodies: CurveSimBodies, p: CurveSimParameters):
         i = 0
         for body_index, param_name in p.param_references:
             bodies[body_index].__dict__[param_name] = self.max_likelihood_params[i]  # update all params from theta
@@ -471,7 +472,7 @@ class CurveSimMCMC:
         return bodies
 
     @staticmethod
-    def max_likelihood_tt(max_likelihood_bodies, o, p):
+    def max_likelihood_tt(max_likelihood_bodies: CurveSimBodies, o: TotalObservations, p: CurveSimParameters):
         sim_rv, sim_flux, _, rebound_sim_forwards = max_likelihood_bodies.calc_physics(o.sim, p)  # run simulation
         _, measured_tt = CurveSimMCMC.match_transit_times(p, rebound_sim_forwards, o)
         return measured_tt
@@ -485,7 +486,7 @@ class CurveSimMCMC:
         return measured_tt
 
     # @stopwatch()
-    def mcmc_histograms(self, steps_done, bins, plot_filename, p):
+    def mcmc_histograms(self, steps_done, bins, plot_filename, p: CurveSimParameters):
         plot_filename = self.results_directory + plot_filename
         fig, axes = plt.subplots(p.fparams_count + p.derived_params_count, figsize=(10, (p.fparams_count + p.derived_params_count) * 2))
         y_position = min(0.998, 0.99 + (p.fparams_count + p.derived_params_count) / 7500)
@@ -517,7 +518,7 @@ class CurveSimMCMC:
         plt.close(fig)
 
     # @stopwatch()
-    def mcmc_corner_plot(self, steps_done, plot_filename, p):
+    def mcmc_corner_plot(self, steps_done, plot_filename, p: CurveSimParameters):
         if self.corner_plot_ok:
             try:
                 plot_filename = self.results_directory + plot_filename
@@ -540,7 +541,7 @@ class CurveSimMCMC:
                 self.corner_plot_ok = False
 
     # @stopwatch()
-    def autocorrelation_function_plot(self, steps_done, plot_filename, p):
+    def autocorrelation_function_plot(self, steps_done, plot_filename, p: CurveSimParameters):
         if self.autocorrelation_function_plot_ok:
             try:
                 plot_filename = self.results_directory + plot_filename
@@ -606,7 +607,7 @@ class CurveSimMCMC:
             print(f"{Fore.RED}\nERROR: Saving plot '{plot_filename}' failed.{Style.RESET_ALL}")
         plt.close(fig)
 
-    def integrated_autocorrelation_time_plot(self, steps_done, plot_filename1, plot_filename2, p):
+    def integrated_autocorrelation_time_plot(self, steps_done, plot_filename1, plot_filename2, p: CurveSimParameters):
         plot_filename1 = self.results_directory + plot_filename1
         plot_filename2 = self.results_directory + plot_filename2
         integrated_autocorrelation_time = np.array(self.integrated_autocorrelation_time).T
@@ -634,7 +635,7 @@ class CurveSimMCMC:
                                       plot_filename=plot_filename2)
 
     # @stopwatch()
-    def acceptance_fraction_plot(self, steps_done, plot_filename, p):
+    def acceptance_fraction_plot(self, steps_done, plot_filename, p: CurveSimParameters):
         if self.acceptance_plot_ok:
             try:
                 plot_filename = self.results_directory + plot_filename
@@ -656,14 +657,14 @@ class CurveSimMCMC:
                 print(f"{Fore.RED}\nERROR: Acceptance plot failed.{Style.RESET_ALL}")
                 self.acceptance_plot_ok = False
 
-    def update_reduced_chi_squared_over_time_lists(self, o):
+    def update_reduced_chi_squared_over_time_lists(self, o: TotalObservations):
         self.reduced_chi_squared_over_time.append(o.reduced_chi_squared)
         self.reduced_chi_squared_over_time_flux.append(o.flux.reduced_chi_squared)
         self.reduced_chi_squared_over_time_rv.append(o.rv.reduced_chi_squared)
         self.reduced_chi_squared_over_time_tt.append(o.tt.reduced_chi_squared)
 
     # @stopwatch()
-    def reduced_chi_squared_over_time_plot(self, p, steps_done, plot_filename):
+    def reduced_chi_squared_over_time_plot(self, p: CurveSimParameters, steps_done, plot_filename):
         plot_filename = self.results_directory + plot_filename
         steps = [step for step in range(p.chunk_size + self.loaded_steps, steps_done + 1, p.chunk_size)]
         fig, ax = plt.subplots(figsize=(10, 6))
@@ -685,7 +686,7 @@ class CurveSimMCMC:
 
     # @stopwatch()
     @staticmethod
-    def tt_residual_plot(p, steps_done, plot_filename, measured_tt):
+    def tt_residual_plot(p: CurveSimParameters, steps_done, plot_filename, measured_tt):
         plot_filename = p.results_directory + plot_filename
         unique_eclipsers = measured_tt["eclipser"].unique()
         n_eclipsers = len(unique_eclipsers)
@@ -788,7 +789,7 @@ class CurveSimMCMC:
         Add each remaining non-empty string to the variable commands.
         Stop when you read a line that contains no command but starts with "#".
         If the file cannot be opened, return ["all"]."""
-        commands = []
+        commands: list[str] = []
         file = "result_control.txt"
         try:
             f = open(file, "r", encoding="utf-8")
@@ -808,10 +809,10 @@ class CurveSimMCMC:
                 commands.append(line)
         return commands
 
-    def save_mcmc_results(self, p, bodies, steps_done, measured_tt):
+    def save_mcmc_results(self, p: CurveSimParameters, bodies: CurveSimBodies, steps_done, measured_tt):
         steps_done = int(steps_done)
         self.iterations_from_backend = int(self.iterations_from_backend)
-        mcmc_results = {}
+        mcmc_results: dict = {}
         mcmc_results["CurveSimulator Documentation"] = "https://github.com/lichtgestalter/curvesimulator/wiki"
 
         # Simulation Parameters Section
@@ -853,7 +854,7 @@ class CurveSimMCMC:
 
         self.mcmc_results2json(mcmc_results, p)
 
-    def mcmc_results2json(self, mcmc_results, p):
+    def mcmc_results2json(self, mcmc_results, p: CurveSimParameters):
         """Converts results to JSON and saves it."""
         CurveSimResults.remove_null_values(mcmc_results)
         filename = self.results_directory + "results_mcmc.json"
@@ -868,7 +869,7 @@ class CurveSimMCMC:
             print(f"{Fore.YELLOW}Printed Results to console because saving failed.{Style.RESET_ALL}")
 
     @stopwatch()
-    def mcmc_results(self, p, bodies, o, steps_done, commands):
+    def mcmc_results(self, p: CurveSimParameters, bodies: CurveSimBodies, o: TotalObservations, steps_done, commands):
         # print(f"{commands=}")
         print(f"{datetime.now().astimezone().strftime("%H:%M:%S UTC%z")}: {steps_done} steps done.  ")
         flat_thin_samples = self.make_flat_thin_samples(p)  # includes derived params
@@ -924,7 +925,7 @@ class CurveSimMCMC:
 
 class CurveSimLMfit:
 
-    def __init__(self, p, bodies, o):
+    def __init__(self, p: CurveSimParameters, bodies: CurveSimBodies, o: TotalObservations):
         if not (p.flux_file or p.tt_file or p.rv_file):
             print(f"{Fore.RED}\nERROR: No measurements for fitting hve been provided.{Style.RESET_ALL}")
             sys.exit(1)
@@ -976,7 +977,7 @@ class CurveSimLMfit:
         # does not find minimum + needs more residual than params  leastsq: Levenberg-Marquardt (default, for least-squares problems)
 
     @staticmethod
-    def lmfit_residual_tt(params, param_references, bodies, o, p):
+    def lmfit_residual_tt(params, param_references, bodies: CurveSimBodies, o: TotalObservations, p: CurveSimParameters):
         # measured_tt: pandas DataFrame with columns eclipser, tt, tt_err
         for body_index, param_name in param_references:
             bodies[body_index].__dict__[param_name] = params[bodies[body_index].name + "_" + param_name].value  # update all params from params
@@ -984,7 +985,7 @@ class CurveSimLMfit:
         residuals_tt_sum_squared, _ = CurveSimMCMC.match_transit_times(p, rebound_sim_forwards, o)
         return residuals_tt_sum_squared
 
-    def save_best_fit(self, p, bodies, measured_tt):
+    def save_best_fit(self, p: CurveSimParameters, bodies: CurveSimBodies, measured_tt):
         max_delta = float(np.max(np.abs(measured_tt["delta"])))
         mean_delta = float(np.mean(np.abs(measured_tt["delta"])))
 

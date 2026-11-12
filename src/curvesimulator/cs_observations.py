@@ -1,11 +1,20 @@
+from __future__ import annotations
 from colorama import Fore, Style
 import numpy as np
 import pandas as pd
+import rebound
 import scipy.stats as stats
 import sys
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from curvesimulator.cs_bodies import CurveSimBodies
+    from curvesimulator.cs_parameters import CurveSimParameters
+    from curvesimulator.cs_results import CurveSimResults
+
 
 class Simulation:
-    def __init__(self, p):
+    def __init__(self, p: CurveSimParameters):
         self.sim_start_s0 = (p.sim_start - p.epoch) * p.day  # sim_start converted from BJD to seconds and relative to epoch
         self.sim_end_s0 = (p.sim_end - p.epoch) * p.day
         self.iterations = int((self.sim_end_s0 - self.sim_start_s0) / p.dt) + 1  # number of iterations
@@ -29,7 +38,7 @@ class Simulation:
     def __repr__(self):
         return f"Simulated Flux: {self.observation_count} observations"
 
-    def save_sim_flux(self, p):
+    def save_sim_flux(self, p: CurveSimParameters):
         noisy_flux = self.simflux + np.random.normal(0, p.sim_flux_err, self.simflux.shape)
         flux_err = np.full(self.simflux.shape, p.sim_flux_err)
         data = np.column_stack((self.time_d, noisy_flux, flux_err))
@@ -59,7 +68,7 @@ class ObservationType:
         self.chi_squared = self.chi_squared_vector.sum()
         return self.chi_squared
 
-    def calc_reduced_chi_squared(self, p):
+    def calc_reduced_chi_squared(self, p: CurveSimParameters):
         if p.free_parameters is not None and p.free_parameters < self.observation_count:
             self.reduced_chi_squared = self.chi_squared / (self.observation_count - p.free_parameters)
         else:
@@ -87,7 +96,7 @@ class ObservationType:
 
 
 class TotalObservations(ObservationType):
-    def __init__(self, p):
+    def __init__(self, p: CurveSimParameters):
         super().__init__()
         self.sim = Simulation(p)
         self.flux = FluxObservations(p)
@@ -109,7 +118,7 @@ class TotalObservations(ObservationType):
             sys.exit(1)
 
     @staticmethod
-    def get_sector_params(p):
+    def get_sector_params(p: CurveSimParameters):
         sector_params = pd.read_csv(p.sector_params_file)
         TotalObservations.check_required_columns({"sector", "offset", "offset_low", "offset_up", "offset_spread", "jitter", "jitter_low", "jitter_high", "jitter_spread"}, sector_params, p.sector_params_file)
         offset_map = sector_params.set_index("sector")["offset"]
@@ -117,7 +126,7 @@ class TotalObservations(ObservationType):
         # How to change the offset_value for sector s: offset_map.loc[s] = 4.2
         return offset_map, jitter_map, sector_params
 
-    def update(self, p):
+    def update(self, p: CurveSimParameters):
         self.observation_count = self.tt.observation_count + self.rv.observation_count + self.flux.observation_count
         self.log_norm_term = self.tt.log_norm_term + self.rv.log_norm_term + self.flux.log_norm_term
         self.chi_squared = self.tt.chi_squared + self.rv.chi_squared + self.flux.chi_squared
@@ -125,7 +134,7 @@ class TotalObservations(ObservationType):
         self.log_maxlikelihood = self.tt.log_maxlikelihood + self.rv.log_maxlikelihood + self.flux.log_maxlikelihood
         self.calc_p_value(p.free_parameters)
 
-    def observations_to_results(self, results):
+    def observations_to_results(self, results: CurveSimResults):
         results["Fit"]["measurements_tt"] = self.tt.observation_count
         results["Fit"]["measurements_rv"] = self.rv.observation_count
         results["Fit"]["measurements_flux"] = self.flux.observation_count
@@ -158,7 +167,7 @@ class TotalObservations(ObservationType):
 
 
 class RVObservations(ObservationType):
-    def __init__(self, p):
+    def __init__(self, p: CurveSimParameters):
         super().__init__()
         if p.rv_file:
             df = pd.read_csv(p.rv_file)
@@ -186,7 +195,7 @@ class RVObservations(ObservationType):
         self.total_error = np.sqrt(self.error ** 2 + jitter ** 2)
         return self.total_error
 
-    def calc_computed(self, p, rebound_sim):
+    def calc_computed(self, p: CurveSimParameters, rebound_sim: rebound.Simulation):
 
         def rv_at_t(t, sim, bdy):
             sim.integrate(t)
@@ -196,7 +205,7 @@ class RVObservations(ObservationType):
         self.computed = [rv_at_t(t, rebound_sim, body) for t in self.time_s0]
         return self.computed
 
-    def update(self, p, rebound_sim):
+    def update(self, p: CurveSimParameters, rebound_sim: rebound.Simulation):
         # update rv observations with new rv offset and jitter, then calc computed and residuals.
         self.calc_corrected(p.rv_body.rv_offset)    # observed - offset
         self.calc_total_error(p.rv_body.rv_jitter)  # sqrt(error^2 + jitter^2)
@@ -210,9 +219,11 @@ class RVObservations(ObservationType):
 
 
 class FluxObservations(ObservationType):
-    def __init__(self, p):
+    def __init__(self, p: CurveSimParameters):
         super().__init__()
-        self.offset_map, self.jitter_map = (None,) * 2
+        self.offset_map: pd.Series
+        self.jitter_map: pd.Series
+        # self.offset_map, self.jitter_map = (None,) * 2
 
         if p.flux_file:
             df = pd.read_csv(p.flux_file)
@@ -255,11 +266,11 @@ class FluxObservations(ObservationType):
         self.total_error = np.sqrt(self.error ** 2 + jitter ** 2)
         return self.total_error
 
-    def calc_computed(self, bodies, p):
+    def calc_computed(self, bodies: CurveSimBodies, p: CurveSimParameters):
         _, self.computed, _, _ = bodies.calc_physics(self, p)  # run simulation
         return self.computed
 
-    def update(self, bodies, p):
+    def update(self, bodies: CurveSimBodies, p: CurveSimParameters):
         # update flux observations with new rv offset and jitter, then calc computed and residuals.
         if p.sector_params_file:
             self.calc_corrected(p.sector_params_file)    # observed - offset
@@ -274,8 +285,9 @@ class FluxObservations(ObservationType):
 
 
 class TTObservations(ObservationType):
-    def __init__(self, p):
+    def __init__(self, p: CurveSimParameters):
         super().__init__()
+        self.measured_tt: pd.DataFrame
 
         if p.tt_file:
             df = pd.read_csv(p.tt_file)
@@ -283,7 +295,7 @@ class TTObservations(ObservationType):
             self.measured_tt = df[(df["tt"] >= p.sim_start) & (df["tt"] <= p.sim_end)].copy()
             self.observation_count = len(df["tt"])
         else:
-            self.measured_tt = None
+            # self.measured_tt = None
             self.observation_count = 0
         # p.tt_datasize = self.observation_count  # legacy, can soon be deleted
 
@@ -298,7 +310,7 @@ class TTObservations(ObservationType):
         self.residuals = self.measured_tt["delta"].to_numpy(dtype=float)
         return self.residuals
 
-    def update(self, p):
+    def update(self, p: CurveSimParameters):
         self.observation_count = self.measured_tt.shape[0]
         self.calc_total_error()                             # convert measured_tt["tt_err"]
         self.calc_log_norm_term()                           # from total_error

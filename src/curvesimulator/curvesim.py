@@ -10,7 +10,7 @@ from .cs_bodies import CurveSimBodies
 from .cs_parameters import CurveSimParameters
 from .cs_mcmc import CurveSimMCMC, CurveSimLMfit
 from .cs_manual_fit import CurveSimManualFit
-from .cs_results import CurveSimResults
+# from .cs_results import CurveSimResults
 from .cs_observations import TotalObservations
 
 
@@ -105,7 +105,8 @@ class CurveSimulator:
                 sys.exit(0)
 
             elif p.action == "lmfit":
-                num_workers = max(1, os.cpu_count() - 1)  # number of parallel lmfit runs (multiprocessing). Leave one CPU availabe for other programs
+                cpu_count = os.cpu_count()
+                num_workers = max(1, (cpu_count if cpu_count is not None else 1) - 1)  # number of parallel lmfit runs (multiprocessing). Leave one CPU availabe for other programs
                 run_counter = 0
                 print(f"{num_workers=}, {p.ls_chunk_size=}, {run_counter=}, {p.ls_steps=}")
                 while run_counter < p.ls_steps:
@@ -127,21 +128,21 @@ class CurveSimulator:
             self.bodies, self.observations, self.results = CurveSimMCMC.single_run(p, bodies, o)
             if p.verbose:
                 print(f"Results have been saved in {p.results_directory}")
-        elif p.action == "results_only":
-            p.eclipsers = ["TOI4504c"]
-            p.eclipsees = ["TOI4504"]
-            results = CurveSimResults.load_results(p.result_file)
-            tt_sim = results.get_transit_data("TOI4504c", "TOI4504", "TT")
-            print(tt_sim)
-            CurveSimResults.ttv_to_date_plot_TOI4504_specific(o, p, amplitude=2.1, period=965, x_offset=-340, osc_per=82.97213)
-            CurveSimResults.ttv_to_date_plot_TOI4504_specific(o, p, amplitude=2.1, period=965, x_offset=-450, osc_per=82.83)
-            CurveSimResults.ttv_to_date_plot_TOI4504_specific(o, p, amplitude=2.08, period=965, x_offset=-449, osc_per=82.834)
-            CurveSimResults.ttv_to_date_plot_TOI4504_specific(o, p, amplitude=2.0, period=946.5, x_offset=-393, osc_per=82.5438)
-            sys.exit(0)
-        # elif p.action == "get_tess_data":
-        #     CurveSimFluxData.get_tess_flux(p)
-        # elif p.action == "process_tess_data":
-        #     CurveSimFluxData.process_tess_flux(p)
+        # elif p.action == "results_only":
+        #     p.eclipsers = ["TOI4504c"]
+        #     p.eclipsees = ["TOI4504"]
+        #     results = CurveSimResults.load_results(p.result_file)
+        #     tt_sim = results.get_transit_data("TOI4504c", "TOI4504", "TT")
+        #     print(tt_sim)
+        #     CurveSimResults.ttv_to_date_plot_TOI4504_specific(o, p, amplitude=2.1, period=965, x_offset=-340, osc_per=82.97213)
+        #     CurveSimResults.ttv_to_date_plot_TOI4504_specific(o, p, amplitude=2.1, period=965, x_offset=-450, osc_per=82.83)
+        #     CurveSimResults.ttv_to_date_plot_TOI4504_specific(o, p, amplitude=2.08, period=965, x_offset=-449, osc_per=82.834)
+        #     CurveSimResults.ttv_to_date_plot_TOI4504_specific(o, p, amplitude=2.0, period=946.5, x_offset=-393, osc_per=82.5438)
+        #     sys.exit(0)
+        # # elif p.action == "get_tess_data":
+        # #     CurveSimFluxData.get_tess_flux(p)
+        # # elif p.action == "process_tess_data":
+        # #     CurveSimFluxData.process_tess_flux(p)
         else:
             print(f"{Fore.RED}\nERROR: Invalid value for param <action> in configuration file {Style.RESET_ALL}")
             sys.exit(1)

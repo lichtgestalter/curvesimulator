@@ -1,3 +1,4 @@
+from __future__ import annotations
 import ast
 from colorama import Fore, Style
 import configparser
@@ -12,9 +13,14 @@ import random
 import shutil
 import sys
 import time
+from typing import TYPE_CHECKING
 
 from .cs_observations import TotalObservations
 from curvesimulator.cs_physics import CurveSimPhysics
+
+if TYPE_CHECKING:
+    from curvesimulator.cs_bodies import CurveSimBodies
+    from curvesimulator.cs_body import CurveSimBody
 
 
 class CurveSimParameters:
@@ -69,8 +75,8 @@ class CurveSimParameters:
         self.DEFAULT_UNIT = '{"mass": "m_jup", "radius": "r_jup", "e": "1", "i": "deg", "P": "d", "a": "au", "Omega": "deg", "omega": "deg", "pomega": "deg", "L": "deg", "ma": "deg", "ea": "deg", "nu": "deg", "T": "s", "rv_offset": "m/s", "rv_jitter": "m/s", "u": "1", "v": "1", "ld_u1": "1", "ld_u2": "1", "luminosity": "l_sun"}'
         self.REBOUND_NAME = {"e": "e", "i": "inc", "P": "P", "a": "a", "Omega": "Omega", "omega": "omega", "pomega": "pomega", "L": "l", "ma": "M", "ea": "E", "nu": "f", "T": "T"}
         self.CONFIG_UNITS = {"d": "day", "h": "hour", "y": "year"}
-        self.body_param_names = None
-        self.body_param_unit_names = None
+        self.body_param_names: list[str] = []
+        self.body_param_unit_names: list[str] = []
 
         section = "Results"
         self.results_directory = self.read_param(config, section, "results_directory", ".", evaluate=False, forced_type=str, lower=None, upper=None)
@@ -101,6 +107,7 @@ class CurveSimParameters:
         self.computed_flux_file = CurveSimParameters.check_filename_and_add_path(self.computed_flux_file, "computed_flux_file", self.results_directory)
         self.sim_flux_err = self.read_param(config, section, "sim_flux_err", "0.0", evaluate=True, forced_type=float, lower=0, upper=None)
         self.rv_body_name = self.read_param(config, section, "rv_body_name", None, evaluate=False, forced_type=str, lower=None, upper=None)
+        self.rv_body: CurveSimBody | None
 
         section = "Results"
         self.comment = self.read_param(config, section, "comment", "No comment", evaluate=False, forced_type=str, lower=None, upper=None)
@@ -158,8 +165,8 @@ class CurveSimParameters:
         self.thin_samples = int(self.read_param(config, section, "thin_samples", "1", evaluate=True, forced_type=float, lower=1, upper=None))
         self.convert_e_omega_2_u_v = self.read_param(config, section, "convert_e_omega_2_u_v", "True", evaluate=True, forced_type=bool, lower=None, upper=None)
         self.body_fparams_count = 0  # Number of fitting params that are body params. Used to handle body params and other (e.g. sector) params differently.
-        self.e_omega_to_u_v_conversion_list = []
-        self.param_references = []
+        self.e_omega_to_u_v_conversion_list: list[tuple[int, int, int]] = []
+        self.param_references: list[tuple[int, str]] = []
         self.body_fparams_count = 0
         self.sector_fparams_count = 0
         self.derived_params_count = 0
@@ -252,6 +259,7 @@ class CurveSimParameters:
         self.ylim = self.read_param(config, section, "xlim", "1.0", evaluate=True, forced_type=float, lower=0, upper=None)
 
         self.eclipsers, self.eclipsees = (None,) * 2
+        self.jacobi_coordinates: bool
         self.copy_config_file()
 
     def __repr__(self):
@@ -288,7 +296,7 @@ class CurveSimParameters:
         return mandatory
 
     def find_mandatory_body_params(self, body):  # debug Baustelle!
-        mandatory_list = []
+        mandatory_list: list[str] = []
         if self.rv_file is not None:
             mandatory_list += ["rv_offset", "rv_jitter"]
         body.mandatory = set(mandatory_list)
@@ -460,13 +468,13 @@ class CurveSimParameters:
         5. mean and 6. standard deviation of an optional Gaussian (normal) prior placed on a fitting param
         i.e., prior domain knowledge about that param, independent of the current observation data."""
         body_index = 0
-        fitting_params = []
-        derived_params = []
+        fitting_params: list[FittingParameter] = []
+        derived_params: list[FittingParameter] = []
         if self.verbose and self.action in ["lmfit", "guifit", "mcmc"]:
             print(f"Fitting params:")
         for section in config.sections():
             if section not in self.standard_sections:  # section describes a physical object
-                param_names_in_use = []
+                param_names_in_use: list[str] = []
                 for param_name in ["mass", "radius", "luminosity", "rv_offset", "rv_jitter", "limb_darkening_1", "limb_darkening_2", "e", "i", "a", "P", "Omega", "pomega", "omega", "L", "nu", "ma", "ea", "T"]:
                     value, lower, upper, sigma, prior_mu, prior_sigma = self.read_param_priors(config, section, param_name)
                     if value is not None:
@@ -524,7 +532,7 @@ class CurveSimParameters:
         return sigma_u, sigma_v
 
     @staticmethod
-    def convert_e_omega_to_u_v(fp_e, fp_o):
+    def convert_e_omega_to_u_v(fp_e: FittingParameter, fp_o: FittingParameter):
         fp_e.param_name, fp_o.param_name = "u", "v"
         fp_e.param_unit_name, fp_o.param_unit_name = "u[1]", "v[1]"
         fp_e.scale, fp_o.scale = 1, 1
@@ -542,20 +550,20 @@ class CurveSimParameters:
         fp_e.lower, fp_o.lower = -r, -r
         fp_e.upper, fp_o.upper = r, r
 
-    def convert_fitting_params_e_omega_to_u_v(self, body_index, section, fitting_params, derived_fitting_params):
-        e_index, omega_index, fp_e, fp_o = (None,) * 4
+    def convert_fitting_params_e_omega_to_u_v(self, body_index, section, fitting_params: list[FittingParameter], derived_fitting_params: list[FittingParameter]):
+        e_index, omega_index = 999999, 999999
         for i, fp in enumerate(fitting_params):
             if fp.body_name == section and fp.param_name == "e":
                 e_index = i
-                fp_e = fitting_params[e_index]
             if fp.body_name == section and fp.param_name == "omega":
                 omega_index = i
-                fp_o = fitting_params[omega_index]
+        fp_e = fitting_params[e_index]
+        fp_o = fitting_params[omega_index]
         derived_fitting_params += [copy.deepcopy(fp_e), copy.deepcopy(fp_o)]
         CurveSimParameters.convert_e_omega_to_u_v(fp_e, fp_o)
         self.e_omega_to_u_v_conversion_list.append((body_index, e_index, omega_index))  # used to recalculate e and omega from u and v
 
-    def read_fitting_sector_params(self, fitting_params, body_index):
+    def read_fitting_sector_params(self, fitting_params: list[FittingParameter], body_index):
         """All sector params belong to a fictional extra body with index body_index"""
         _, _, sector_params = TotalObservations.get_sector_params(self)  # sector_params is a DataFrame from a csv file.
         sector_count = 0
@@ -569,10 +577,10 @@ class CurveSimParameters:
         return fitting_params
 
     @staticmethod
-    def save_fitting_params(fitting_params, directory=".", prefix="", suffix=""):
+    def save_fitting_params(fitting_params: list[FittingParameter], directory=".", prefix="", suffix=""):
         """ fitting_params is as list of FittingParameter
         Save it in JSON format"""
-        data = []
+        data: list[dict] = []
         for fp in fitting_params:
             item = {
                 "index": fp.index,
@@ -623,10 +631,11 @@ class CurveSimParameters:
         """Copy the file self.config_file into the directory self.results_directory"""
         shutil.copy(self.config_file, self.results_directory)
 
-    def init_eclipsers_eclipsees(self, bodies):
+    def init_eclipsers_eclipsees(self, bodies: CurveSimBodies):
         """ Generates 2 lists of bodies (self.eclipsers, self.eclipsees)
          based on 2 lists of strings (self.eclipsers_names, self.eclipsees_names)"""
-        eclipsers, eclipsees = [], []
+        eclipsers: list[CurveSimBody] = []
+        eclipsees: list[CurveSimBody] = []
         for body in bodies:
             if body.name in self.eclipsers_names:
                 eclipsers.append(body)
@@ -670,10 +679,10 @@ class CurveSimParameters:
     def get_fitting_param(self, body_index, param_name):
         return self.fitting_params[self.fitting_param_dic[(body_index, param_name)]]
 
-    def enrich_fitting_params(self, bodies):
+    def enrich_fitting_params(self, bodies: CurveSimBodies):
         """Add several attributes to each FittingParameter.
            If limb darkening is in fitting params, convert to u1, u2"""
-        bodies_indices_with_ld_fitting = set()
+        bodies_indices_with_ld_fitting: set[int] = set()
         for fp in self.fitting_params:
             if "ld_u" in fp.param_name:
                 # fp.param_name = "limb_darkening_u" + fp.param_name[-1]
@@ -690,7 +699,7 @@ class CurveSimParameters:
         self.param_references = [(fp.body_index, fp.param_name) for fp in self.fitting_params]  # list of names of fitting params. Needed so these params can be updated inside log_likelihood().
 
         # generate a list of tuples (body, ld_fitting_param_1, ld_fitting_param_2)
-        triples = []
+        triples: list[tuple[CurveSimBody, FittingParameter, FittingParameter]] = []
         for body_index in bodies_indices_with_ld_fitting:
             fp_ld1, fp_ld2 = None, None
             for fp in self.fitting_params:
@@ -711,7 +720,7 @@ class CurveSimParameters:
         for body, fp_ld1, fp_ld2 in triples:
             CurveSimPhysics.convert_limb_darkening_fitting_params(body.limb_darkening_parameter_type, fp_ld1, fp_ld2)
 
-    def update_fitting_params_units(self, bodies):
+    def update_fitting_params_units(self, bodies: CurveSimBodies):
         for fp in self.fitting_params:
             if fp.body_index < len(bodies) and fp.param_name in bodies[fp.body_index].unit:
                 fp.unit = bodies[fp.body_index].unit[fp.param_name]
@@ -727,7 +736,7 @@ class CurveSimParameters:
 
 
 class FittingParameter:
-    def __init__(self, p, body_name, body_index, param_name, startvalue, lower, upper, sigma, prior_mu=None, prior_sigma=None):  # , indices=None, constants=None, function=None):
+    def __init__(self, p: CurveSimParameters, body_name, body_index, param_name, startvalue, lower, upper, sigma, prior_mu=None, prior_sigma=None):  # , indices=None, constants=None, function=None):
         self.body_name = body_name
         self.body_index = body_index
         self.param_name = param_name
@@ -755,7 +764,7 @@ class FittingParameter:
         return f"{self.body_name}.{self.param_unit_name}"
 
     def initial_values(self, rng, size):
-        result = []
+        result: list[float] = []
         while len(result) < size:
             sample = rng.normal(self.startvalue, self.sigma)
             if self.lower <= sample <= self.upper:

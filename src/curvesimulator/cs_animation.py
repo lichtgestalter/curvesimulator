@@ -10,10 +10,14 @@ import subprocess
 import sys
 import time
 
+from curvesimulator.cs_bodies import CurveSimBodies
+from curvesimulator.cs_observations import TotalObservations
+from curvesimulator.cs_parameters import CurveSimParameters
+
 
 class CurveSimAnimation:
 
-    def __init__(self, p, bodies, o):
+    def __init__(self, p: CurveSimParameters, bodies: CurveSimBodies, o: TotalObservations):
         CurveSimAnimation.check_ffmpeg()  # is FFmpeg installed?
         self.fig, ax_right, ax_left, ax_lightcurve, self.lower_dot, self.upper_dot = CurveSimAnimation.init_plot(o, p)  # Adjust constants in section [Plot] of config file to fit your screen.
         # lower_dot/upper_dot change every frame. Mark them "animated" so the initial full draw
@@ -89,7 +93,7 @@ class CurveSimAnimation:
             return delta
 
     @staticmethod
-    def init_starsystem_plot(colspan, loc, p, rowspan, shape, title, title_fontsize, title_y_coord, show_scale_bar, scale_bar_length, scope):
+    def init_starsystem_plot(colspan, loc, p: CurveSimParameters, rowspan, shape, title, title_fontsize, title_y_coord, show_scale_bar, scale_bar_length, scope):
         ax = plt.subplot2grid(shape=shape, loc=loc, rowspan=rowspan, colspan=colspan)
         ax.set_xlim(-p.xlim, p.xlim)
         ax.set_ylim(-p.ylim, p.ylim)
@@ -115,17 +119,17 @@ class CurveSimAnimation:
         return ax
 
     @staticmethod
-    def init_left_plot(p, shape, loc, rowspan, colspan):  # overhead view
+    def init_left_plot(p: CurveSimParameters, shape, loc, rowspan, colspan):  # overhead view
         ax_left = CurveSimAnimation.init_starsystem_plot(colspan, loc, p, rowspan, shape, p.left_title, p.left_title_fontsize, p.left_title_y_coord, p.show_left_scale_bar, p.scale_bar_length_left, p.scope_left)
         return ax_left
 
     @staticmethod
-    def init_right_plot(p, shape, loc, rowspan, colspan):  # edge-on view
+    def init_right_plot(p: CurveSimParameters, shape, loc, rowspan, colspan):  # edge-on view
         ax_right = CurveSimAnimation.init_starsystem_plot(colspan, loc, p, rowspan, shape, p.right_title, p.right_title_fontsize, p.right_title_y_coord, p.show_right_scale_bar, p.scale_bar_length_right, p.scope_right)
         return ax_right
 
     @staticmethod
-    def init_curve_plot_x_axis(ax_curve, o, p):
+    def init_curve_plot_x_axis(ax_curve, o: TotalObservations, p: CurveSimParameters):
         ax_curve.text(p.x_label_x_coord, p.x_label_y_coord, p.x_label, color=p.video_text_color, fontsize=p.x_label_fontsize, ha="right", va="bottom", transform=ax_curve.transAxes)
         # rv_curve x-ticks, x-labels
         ax_curve.tick_params(axis="x", colors="xkcd:light gray")
@@ -142,7 +146,7 @@ class CurveSimAnimation:
         ax_curve.set_xlim(float(x[0]), float(x[-1]))
 
     @staticmethod
-    def animated_dot(ax_curve, p, scope, o, color):
+    def animated_dot(ax_curve, p: CurveSimParameters, scope, o: TotalObservations, color):
         upper_dot = patches.Ellipse((0, 0), (o.sim.time_s0[-1] - o.sim.time_s0[0]) * p.dot_width / p.day, scope * p.dot_height)  # matplotlib patch
         upper_dot.set(zorder=2)  # Dot in front of lightcurve.
         upper_dot.set_color(color)
@@ -150,7 +154,7 @@ class CurveSimAnimation:
         return upper_dot
 
     @staticmethod
-    def init_curve_plot(colspan, loc, p, rowspan, shape, o, y_data, y_label_type, curve_y_label, curve_y_label_fontsize, curve_y_tick_fontsize, curve_color, curve_dot_color):
+    def init_curve_plot(colspan, loc, p: CurveSimParameters, rowspan, shape, o: TotalObservations, y_data, y_label_type, curve_y_label, curve_y_label_fontsize, curve_y_tick_fontsize, curve_color, curve_dot_color):
         ax = plt.subplot2grid(shape=shape, loc=loc, rowspan=rowspan, colspan=colspan)
         ax.set_facecolor(p.video_background_color)  # background color
 
@@ -195,20 +199,20 @@ class CurveSimAnimation:
         return ax, dot
 
     @staticmethod
-    def init_upper_curve_plot(o, p, shape, loc, rowspan, colspan):
+    def init_upper_curve_plot(o: TotalObservations, p: CurveSimParameters, shape, loc, rowspan, colspan):
         ax_upper_curve, upper_dot = CurveSimAnimation.init_curve_plot(colspan, loc, p, rowspan, shape, o, o.sim.simflux, "flux", p.upper_curve_y_label, p.upper_curve_y_label_fontsize, p.upper_curve_y_tick_fontsize, p.upper_curve_color, p.upper_curve_dot_color)
         if not p.show_lower_curve:  # no x-ticks/-labels when the lower curve plot is present below because it uses the same x-ticks/-labels
             CurveSimAnimation.init_curve_plot_x_axis(ax_upper_curve, o, p)
         return ax_upper_curve, upper_dot
 
     @staticmethod
-    def init_lower_curve_plot(o, p, shape, loc, rowspan, colspan):
+    def init_lower_curve_plot(o: TotalObservations, p: CurveSimParameters, shape, loc, rowspan, colspan):
         ax_lower_curve, lower_dot = CurveSimAnimation.init_curve_plot(colspan, loc, p, rowspan, shape, o, o.sim.simrv, "rv", p.lower_curve_y_label, p.lower_curve_y_label_fontsize, p.lower_curve_y_tick_fontsize, p.lower_curve_color, p.lower_curve_dot_color)
         CurveSimAnimation.init_curve_plot_x_axis(ax_lower_curve, o, p)
         return ax_lower_curve, lower_dot
 
     @staticmethod
-    def init_plot(o, p):
+    def init_plot(o: TotalObservations, p: CurveSimParameters):
         """Initialize the matplotlib figure containing up to 4 axis:
         Top left: overhead view
         Top right: edge-on view
@@ -323,7 +327,7 @@ class CurveSimAnimation:
         return fig, ax_right, ax_left, ax_lightcurve, lower_dot, upper_dot
 
     @staticmethod
-    def next_frame(frame, p, bodies, lower_dot, upper_dot, o):
+    def next_frame(frame, p: CurveSimParameters, bodies: CurveSimBodies, lower_dot, upper_dot, o: TotalObservations):
         step = int(frame * o.sim.sampling_rate)
         """Update patches. Send new circle positions to animation function.
         First param comes from iterator frames (a param of FuncAnimation).
@@ -375,7 +379,7 @@ class CurveSimAnimation:
 
         return artists
 
-    def render(self, p, bodies, o):
+    def render(self, p: CurveSimParameters, bodies: CurveSimBodies, o: TotalObservations):
         """Calls next_frame() for each frame and saves the video.
 
         Note: matplotlib's animation.Animation.save() hard-codes blit=False for every frame
@@ -428,7 +432,7 @@ class CurveSimAnimation:
                 artists = CurveSimAnimation.next_frame(frame, p, bodies, self.lower_dot, self.upper_dot, o)
                 canvas.restore_region(background)
                 # Group by axes and sort by zorder, then draw only the changed artists on top of the cached background.
-                by_axes = {}
+                by_axes: dict = {}
                 for artist in artists:
                     if artist is None:
                         continue

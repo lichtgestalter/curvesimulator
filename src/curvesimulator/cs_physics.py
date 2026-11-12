@@ -125,7 +125,7 @@ class CurveSimPhysics:
             fp1.prior_mu, fp2.prior_mu = to_u(fp1.prior_mu, fp2.prior_mu)
 
     @staticmethod
-    def get_limbdarkening_params(param_1, param_2, param_type):
+    def get_limbdarkening_params(param_1, param_2, param_type: str | None):
         """Converts limb darkening params to quadratic law params u1,u2 if necessary
            u1, u2 are much faster for calculating intensity than q1, q2 """
         if param_type == "u":
@@ -204,4 +204,3 @@ class CurveSimPhysics:
         t34 = None if t4 is None or t3 is None else t4 - t3
         t14 = None if t4 is None or t1 is None else t4 - t1
         return t12, t23, t34, t14
-

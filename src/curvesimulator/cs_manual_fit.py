@@ -6,7 +6,10 @@ import numpy as np
 import tkinter as tk
 from tkinter import ttk, StringVar
 
+from .cs_bodies import CurveSimBodies
 from .cs_mcmc import CurveSimMCMC
+from .cs_observations import TotalObservations
+from .cs_parameters import CurveSimParameters
 
 class FittingGUI:
     """
@@ -14,7 +17,7 @@ class FittingGUI:
     and a real-time Matplotlib plot.
     Activation of an param is handled via a mouse click on the param.
     """
-    def __init__(self, root, p, bodies, o):
+    def __init__(self, root: tk.Tk, p: CurveSimParameters, bodies: CurveSimBodies, o: TotalObservations):
         self.bodies = bodies
         self.flux_time_s0 = o.flux.time_s0
         self.flux_time_d = o.flux.time_d
@@ -27,8 +30,8 @@ class FittingGUI:
         self.root.state("zoomed")  # Maximize the window
 
         # Internal state for the self.number_of_params params: value, delta, and Tkinter variables
-        self.params = []
-        self.param_frames = []
+        self.params: list[dict] = []
+        self.param_frames: list[ttk.Frame] = []
         self.active_param_index = 0  # First param is active by default
         self.param_rows = 2
         self.params_per_row = (p.free_parameters + 1) // 2
@@ -54,7 +57,7 @@ class FittingGUI:
         for i in range(self.params_per_row):
             self.root.grid_columnconfigure(i, weight=1)  # self.params_per_row columns for the self.params_per_row params per row
 
-    def _initialize_param_data(self, p):
+    def _initialize_param_data(self, p: CurveSimParameters):
         """Initialize internal data model and Tkinter variables for all self.number_of_params params."""
         for fp in p.fitting_params:
             value = fp.startvalue * fp.scale
@@ -69,7 +72,7 @@ class FittingGUI:
             }
             self.params.append(param_data)
 
-    def _create_widgets(self, p):
+    def _create_widgets(self, p: CurveSimParameters):
         """
         Create and place all self.number_of_params control params and the Matplotlib plot.
         The activation is triggered by a mouse click on the param frame or its contents.
@@ -146,7 +149,7 @@ class FittingGUI:
         self.canvas_widget = self.canvas.get_tk_widget()
         self.canvas_widget.grid(row=0, column=0, sticky="nsew")
 
-    def _setup_bindings(self, o, p):
+    def _setup_bindings(self, o: TotalObservations, p: CurveSimParameters):
         """Bind some keys to the root window, passing "p" to the handler."""
         for key in ["<Up>", "<Down>", "<Left>", "<Right>"]:
             # for key in ["<Up>", "<Down>", "<Left>", "<Right>", "<Escape>"]:
@@ -171,7 +174,7 @@ class FittingGUI:
         self.param_frames[self.active_param_index]["style"] = "Active.TFrame"
         self.root.focus_set()  # Crucially, set focus back to the root window so arrow key bindings work
 
-    def handle_key(self, o, p, event):
+    def handle_key(self, o: TotalObservations, p: CurveSimParameters, event: tk.Event):
         """Processes arrow key presses to modify the active param's value or delta."""
         if self.active_param_index is None:
             return
@@ -196,14 +199,14 @@ class FittingGUI:
         print(f"\n{max_delta=:2.4f}   {mean_delta=:2.4f}    [days] ")
         self.update_plot(self.measured_tt)
 
-    def run_simulation(self, o, p):
+    def run_simulation(self, o: TotalObservations, p: CurveSimParameters):
         param_references = [(fp.body_index, fp.param_name) for fp in p.fitting_params]
         for (body_index, param_name), fp in zip(param_references, p.fitting_params):
             self.bodies[body_index].__dict__[param_name] = fp.startvalue
         sim_rv, sim_flux, _, rebound_sim = self.bodies.calc_physics(o.flux, p)  # Bug? o.sim iso o.flux?
         return CurveSimMCMC.match_transit_times(p, rebound_sim, o)
 
-    def update_entry_fields(self, p):
+    def update_entry_fields(self, p: CurveSimParameters):
         """Update the Tkinter entry variables from the internal data model."""
         for param, fp in zip(self.params, p.fitting_params):
             fmt_value = FittingGUI._get_format(param["value"])
@@ -211,14 +214,14 @@ class FittingGUI:
             param["value_var"].set(f"{param["value"]:{fmt_value}}")
             param["delta_var"].set(f"{param["delta"]:{fmt_delta}}")
 
-    def update_fitting_params(self, p):
+    def update_fitting_params(self, p: CurveSimParameters):
         for param, fp in zip(self.params, p.fitting_params):
             fp.startvalue = param["value"] / fp.scale
 
     def update_plot(self, measured_tt):
         colors = ["blue", "black", "gray", "lightgrey"]
         if not hasattr(self, "plot_lines"):
-            self.plot_lines = [[] for _ in self.axes]
+            self.plot_lines: list[list] = [[] for _ in self.axes]
 
         abs_min = abs(min(measured_tt["delta"].min(), 0))
         abs_max = abs(max(measured_tt["delta"].max(), 0))
@@ -238,11 +241,11 @@ class FittingGUI:
         self.canvas.draw_idle()
 
 class CurveSimManualFit:
-    def __init__(self, p, bodies, o):
+    def __init__(self, p: CurveSimParameters, bodies: CurveSimBodies, o: TotalObservations):
         root = tk.Tk()
         app = FittingGUI(root, p, bodies, o)
         root.focus_set()  # Give focus to the main window so key presses are immediately captured
         root.mainloop()
 
-    def save_lmfit_results(self, p):
+    def save_lmfit_results(self, p: CurveSimParameters):
         pass
