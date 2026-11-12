@@ -295,12 +295,12 @@ class CurveSimParameters:
         # print(mandatory)
         return mandatory
 
-    def find_mandatory_body_params(self, body):  # debug Baustelle!
-        mandatory_list: list[str] = []
-        if self.rv_file is not None:
-            mandatory_list += ["rv_offset", "rv_jitter"]
-        body.mandatory = set(mandatory_list)
-        print(body.mandatory)
+    # def find_mandatory_body_params(self, body):  # debug Baustelle!
+    #     mandatory_list: list[str] = []
+    #     if self.rv_file is not None:
+    #         mandatory_list += ["rv_offset", "rv_jitter"]
+    #     body.mandatory = set(mandatory_list)
+    #     print(body.mandatory)
 
     def check_for_missing_params(self, mandatory_params):
         for attribute in mandatory_params:
