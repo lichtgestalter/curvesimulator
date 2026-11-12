@@ -242,9 +242,9 @@ class FluxObservations(ObservationType):
         self.observed: np.ndarray
         self.error: np.ndarray
         self.sector: np.ndarray
-        self.offset_map: pd.Series | None
-        self.jitter_map: pd.Series | None
-        self.offset_map, self.jitter_map = (None,) * 2
+        self.offset_map: pd.Series
+        self.jitter_map: pd.Series
+        # self.offset_map, self.jitter_map = (None,) * 2
 
         if p.flux_file:
             df = pd.read_csv(p.flux_file)
@@ -273,7 +273,7 @@ class FluxObservations(ObservationType):
 
     def calc_corrected(self, sector_params_file: str) -> np.ndarray:
         if sector_params_file:  # params offset and jitter for each observed sector exist
-            offset = pd.Series(self.sector).map(self.offset_map).to_numpy(dtype=float)  # type: ignore[union-attr]
+            offset = pd.Series(self.sector).map(self.offset_map).to_numpy(dtype=float)
         else:
             offset = 0
         self.corrected = self.observed - offset

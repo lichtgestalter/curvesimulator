@@ -322,9 +322,9 @@ class CurveSimMCMC:
     @staticmethod
     def update_sector_params_from_theta(first_sector_param_index: int, o: TotalObservations, theta: np.ndarray) -> None:
         i = first_sector_param_index
-        for sector in o.flux.offset_map.index:  # type: ignore[union-attr]
-            o.flux.offset_map.loc[sector] = theta[i]  # type: ignore[union-attr]
-            o.flux.jitter_map.loc[sector] = theta[i + 1]  # type: ignore[union-attr]
+        for sector in o.flux.offset_map.index:
+            o.flux.offset_map.loc[sector] = theta[i]
+            o.flux.jitter_map.loc[sector] = theta[i + 1]
             i += 2
 
     @staticmethod
