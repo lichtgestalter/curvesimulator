@@ -297,7 +297,6 @@ class TTObservations(ObservationType):
         else:
             # self.measured_tt = None
             self.observation_count = 0
-        # p.tt_datasize = self.observation_count  # legacy, can soon be deleted
 
     def __repr__(self):
         return f"TTObservations: {self.observation_count} observations"
