@@ -4,6 +4,7 @@ import json
 import math
 import matplotlib
 import matplotlib.animation
+import matplotlib.patches
 import numpy as np
 # import pandas
 import rebound
@@ -124,6 +125,7 @@ class CurveSimBodies(list[CurveSimBody]):
             simulation.add(m=body.mass, r=body.radius, name=body.name)
 
         for i, body in enumerate(self[1:], start=1):
+            # noinspection dict-creation
             kwargs: dict = {}
             kwargs["jacobi_masses"] = p.jacobi_masses
             kwargs["m"] = body.mass
@@ -317,8 +319,7 @@ class CurveSimBodies(list[CurveSimBody]):
 
     def integrate_this(self, iterations, observations: Simulation | FluxObservations, p: CurveSimParameters, sim_flux, sim_rv, stars: list[CurveSimBody], start, step, stop):
         simulation = self.init_rebound(p)
-        if p.verbose:
-            initial_sim_state = CurveSimRebound(simulation)
+        initial_sim_state = CurveSimRebound(simulation)
         for iteration in range(start, stop, step):
             simulation.integrate(observations.time_s0[iteration])
             for body in self:
@@ -407,7 +408,7 @@ class CurveSimBodies(list[CurveSimBody]):
             if p.video_file and p.flux_file is None:
                 print(f"Generating {p.frames} frames for a {p.frames / p.fps:.0f} seconds long video.")
             print(f"Calculating {iterations:,} steps: ", end="")
-            tic = time.perf_counter()
+        tic = time.perf_counter()
         sim_rv, sim_flux, bodies, rebound_sim_backwards, rebound_sim_forwards, energy_change_backwards, energy_change_forwards = self.calc_positions_eclipses_luminosity(p, observations)
         if p.verbose:
             toc = time.perf_counter()
@@ -492,6 +493,7 @@ class CurveSimBodies(list[CurveSimBody]):
         return tts
 
     def bodies2param_json(self, measured_tt, p: CurveSimParameters):
+        # noinspection dict-creation
         result: dict = {}
         result["max_delta"] = float(np.max(np.abs(measured_tt["delta"])))
         result["mean_delta"] = float(np.mean(np.abs(measured_tt["delta"])))
@@ -515,5 +517,3 @@ class CurveSimBodies(list[CurveSimBody]):
         for body in self:
             if body.P is not None:
                 body.video_frames_per_orbit = body.P / (p.dt * o.sim.sampling_rate)
-            else:
-                body.video_frames_per_orbit = None

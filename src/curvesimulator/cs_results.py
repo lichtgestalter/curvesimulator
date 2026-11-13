@@ -316,7 +316,7 @@ class CurveSimResults(dict):
         return param_list
 
     @staticmethod
-    def ttv_to_date_plot_TOI4504_specific(o: TotalObservations, p: CurveSimParameters, amplitude, period, x_offset, osc_per):
+    def ttv_to_date_plot_TOI4504_specific(o: TotalObservations, amplitude, period, x_offset, osc_per):
         tt_tess = np.array(o.tt.measured_tt["tt"][:13], dtype=float)
         transit_numbers = np.array(o.tt.measured_tt["nr"][:13], dtype=float)
         ttv_to_date = [tt - tt_tess[0] - n * osc_per for n, tt in zip(transit_numbers, tt_tess)]

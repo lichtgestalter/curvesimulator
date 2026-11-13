@@ -1,6 +1,5 @@
 from colorama import Fore, Style
 from multiprocessing import Process, JoinableQueue, current_process, parent_process
-# import numpy as np
 import os
 import sys
 import time
@@ -10,7 +9,6 @@ from .cs_bodies import CurveSimBodies
 from .cs_parameters import CurveSimParameters
 from .cs_mcmc import CurveSimMCMC, CurveSimLMfit
 from .cs_manual_fit import CurveSimManualFit
-# from .cs_results import CurveSimResults
 from .cs_observations import TotalObservations
 
 
@@ -23,7 +21,7 @@ def _lmfit_worker_queue(task_queue, result_queue):
         lmfit_run = CurveSimLMfit(p, bodies_local, o)
         try:
             lmfit_run.save_best_fit(p, bodies_local, o.tt.measured_tt)
-        except Exception:
+        except Exception(RuntimeError):
             pass
         result_queue.put(run_id)
         task_queue.task_done()  # Mark as processed
@@ -70,7 +68,7 @@ def run_all_queue(tasks, max_workers):
 def _is_multiprocessing_child_import():
     try:
         return current_process().name != "MainProcess" and parent_process() is not None
-    except Exception:
+    except Exception(AssertionError, ValueError):
         return current_process().name != "MainProcess"
 
 
@@ -134,10 +132,10 @@ class CurveSimulator:
         #     results = CurveSimResults.load_results(p.result_file)
         #     tt_sim = results.get_transit_data("TOI4504c", "TOI4504", "TT")
         #     print(tt_sim)
-        #     CurveSimResults.ttv_to_date_plot_TOI4504_specific(o, p, amplitude=2.1, period=965, x_offset=-340, osc_per=82.97213)
-        #     CurveSimResults.ttv_to_date_plot_TOI4504_specific(o, p, amplitude=2.1, period=965, x_offset=-450, osc_per=82.83)
-        #     CurveSimResults.ttv_to_date_plot_TOI4504_specific(o, p, amplitude=2.08, period=965, x_offset=-449, osc_per=82.834)
-        #     CurveSimResults.ttv_to_date_plot_TOI4504_specific(o, p, amplitude=2.0, period=946.5, x_offset=-393, osc_per=82.5438)
+        #     CurveSimResults.ttv_to_date_plot_TOI4504_specific(o, amplitude=2.1, period=965, x_offset=-340, osc_per=82.97213)
+        #     CurveSimResults.ttv_to_date_plot_TOI4504_specific(o, amplitude=2.1, period=965, x_offset=-450, osc_per=82.83)
+        #     CurveSimResults.ttv_to_date_plot_TOI4504_specific(o, amplitude=2.08, period=965, x_offset=-449, osc_per=82.834)
+        #     CurveSimResults.ttv_to_date_plot_TOI4504_specific(o, amplitude=2.0, period=946.5, x_offset=-393, osc_per=82.5438)
         #     sys.exit(0)
         # # elif p.action == "get_tess_data":
         # #     CurveSimFluxData.get_tess_flux(p)

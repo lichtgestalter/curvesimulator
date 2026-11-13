@@ -82,6 +82,14 @@ class CurveSimBody:
         self.image_right: OffsetImage
         self.ab_left: AnnotationBbox
         self.ab_right: AnnotationBbox
+        self.x: float
+        self.y: float
+        self.z: float
+        self.vx: float
+        self.vy: float
+        self.vz: float
+        self.patch_radius: float
+        self.video_frames_per_orbit: float
 
     def __repr__(self):
         string = f"CurveSimBody: "

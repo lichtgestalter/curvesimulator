@@ -3,12 +3,15 @@ import math
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 from matplotlib import patches
+from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
+from matplotlib.axes import Axes
 import numpy as np
 import shutil
 import subprocess
 import sys
 import time
+from typing import IO, cast
 
 from curvesimulator.cs_bodies import CurveSimBodies
 from curvesimulator.cs_observations import TotalObservations
@@ -20,6 +23,8 @@ class CurveSimAnimation:
     def __init__(self, p: CurveSimParameters, bodies: CurveSimBodies, o: TotalObservations):
         CurveSimAnimation.check_ffmpeg()  # is FFmpeg installed?
         self.fig, ax_right, ax_left, ax_lightcurve, self.lower_dot, self.upper_dot = CurveSimAnimation.init_plot(o, p)  # Adjust constants in section [Plot] of config file to fit your screen.
+        ax_left = cast(Axes, ax_left)
+        ax_right = cast(Axes, ax_right)
         # lower_dot/upper_dot change every frame. Mark them "animated" so the initial full draw
         # (used to cache the static background for blitting) does NOT bake them in.
         if self.lower_dot is not None:
@@ -393,10 +398,12 @@ class CurveSimAnimation:
         frames = int(len(o.sim.simflux) // o.sim.sampling_rate)
         if p.verbose:
             print(f"Animating {p.frames:8d} frames: ", end="")
-            tic = time.perf_counter()
+        tic: float = time.perf_counter()
 
         fig = self.fig
         canvas = fig.canvas
+        if not isinstance(canvas, FigureCanvasAgg):
+            raise TypeError(f"Expected an Agg-based canvas, got {type(canvas).__name__}")
         canvas.draw()  # Full initial draw of everything NOT marked animated -> the static background.
         renderer = canvas.get_renderer()
         background = canvas.copy_from_bbox(fig.bbox)
@@ -426,7 +433,8 @@ class CurveSimAnimation:
             str(p.video_file),
         ]
         proc = subprocess.Popen(ffmpeg_cmd, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-
+        stdin = cast(IO[bytes], proc.stdin)
+        stderr = cast(IO[bytes], proc.stderr)
         try:
             for frame in range(frames):
                 artists = CurveSimAnimation.next_frame(frame, p, bodies, self.lower_dot, self.upper_dot, o)
@@ -447,16 +455,16 @@ class CurveSimAnimation:
                 canvas.blit(fig.bbox)
                 frame_buf = np.asarray(renderer.buffer_rgba())[:height, :width]
                 try:
-                    proc.stdin.write(frame_buf.tobytes())
+                    stdin.write(frame_buf.tobytes())
                 except BrokenPipeError:
                     break  # FFmpeg died; stop feeding it and report its stderr below.
         finally:
             try:
-                proc.stdin.close()
+                stdin.close()
             except OSError:
                 pass
-            stderr_output = proc.stderr.read()
-            proc.stderr.close()
+            stderr_output = stderr.read()
+            stderr.close()
             proc.wait()
             if proc.returncode != 0:
                 print(f"{Fore.RED}\nERROR: FFmpeg exited with code {proc.returncode} while writing {p.video_file}.{Style.RESET_ALL}")
@@ -464,6 +472,7 @@ class CurveSimAnimation:
                     print(f"{Fore.RED}FFmpeg output:\n{stderr_output.decode(errors="replace")}{Style.RESET_ALL}")
 
         if p.verbose:
-            toc = time.perf_counter()
+            toc: float = time.perf_counter()
+            # noinspection string-format
             print(f" {toc - tic:7.2f} seconds  ({p.frames / (toc - tic):.0f} frames/second)")
             print(f"{p.video_file} saved.")

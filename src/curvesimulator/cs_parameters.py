@@ -27,11 +27,6 @@ class CurveSimParameters:
 
     def __init__(self, config_file):
         """Read program params and properties of the physical bodies from config file."""
-        # print(f"q2u {CurveSimPhysics.q_to_u(0.4, 0.4)=}")
-        # print(f"q2u {CurveSimPhysics.q_to_u(0.64, 0.25)=}")
-        # print(f"a2u {CurveSimPhysics.a_to_u(0.4, 0.4)=}")
-        # print(f"a2u {CurveSimPhysics.a_to_u(1.2, -0.4)=}")
-        # exit(111)
         self.standard_sections = ["Astronomical Constants", "Results", "Simulation", "Fitting", "Video", "VideoPlot", "VideoScale", "Debug"]  # These sections must be present in the config file.
         config = configparser.ConfigParser(inline_comment_prefixes="#")  # Inline comments in the config file start with "#".
         config.optionxform = str  # Preserve case of the keys.
@@ -377,6 +372,7 @@ class CurveSimParameters:
             print(f"{Fore.RED}Please only use config files with the .ini extension. (You tried to use {config_file}.){Style.RESET_ALL}")
             sys.exit(1)
 
+    # noinspection unused-local
     def read_param(self, config, section, param, fallback, evaluate=True, forced_type=None, lower=None, upper=None):
         value = config.get(section, param, fallback=fallback)
         # if value is None:
@@ -419,6 +415,7 @@ class CurveSimParameters:
             sys.exit(1)
         return value
 
+    # noinspection unused-local
     def read_body_param(self, config, section, param, fallback):
         # For ease of use of these constants in the config file they are additionally defined here without the prefix "self.".
         g, au, r_sun, m_sun, l_sun = self.g, self.au, self.r_sun, self.m_sun, self.l_sun
@@ -432,6 +429,7 @@ class CurveSimParameters:
             value = np.radians(value)
         return value
 
+    # noinspection unused-local
     def read_param_priors(self, config, section, param):
         # For ease of use of these constants in the config file they are additionally defined here without the prefix "self.".
         g, au, r_sun, m_sun, l_sun = self.g, self.au, self.r_sun, self.m_sun, self.l_sun
@@ -759,6 +757,9 @@ class FittingParameter:
         # self.indices = indices  # For derived params only. Indices of the fitting params to be used in the function.
         # self.constants = constants  # For derived params only. Constants to be used in the function.
         # self.function = function  # For derived params only. A lambda function, using the above indices and constants as arguments.
+        self.index: int
+        self.body_param_name: str
+        self.body_param_unit_name: str
 
     def __repr__(self):
         return f"{self.body_name}.{self.param_unit_name}"
