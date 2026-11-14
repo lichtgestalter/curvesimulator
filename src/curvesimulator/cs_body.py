@@ -24,7 +24,7 @@ def multiple_transit_error():
 
 # noinspection PyPep8Naming,PyUnusedLocal
 class CurveSimBody:
-    def __init__(self, p: CurveSimParameters, primary, name, body_type, mass, radius, luminosity, rv_offset, rv_jitter, startposition, velocity, P, a, e, i, Omega, omega, pomega, L, ma, ea,
+    def __init__(self, p: CurveSimParameters, primary, name, body_type, mass, radius, luminosity, rv_offset, rv_jitter, startposition, startvelocity, P, a, e, i, Omega, omega, pomega, L, ma, ea,
                  nu, T, ld_u1, ld_u2, limb_darkening_parameter_type, unit, color, image_file_left, image_file_right):
         """Initialize instance of physical body."""
         # For ease of use of constants in the config file they are additionally defined here without the prefix "p.".
@@ -47,6 +47,7 @@ class CurveSimBody:
         self.limb_darkening_parameter_type = limb_darkening_parameter_type  # original type from config file. Gets changed to "u" when limb darkening fitting parameters get converted to type u.
         self.mean_intensity = CurveSimPhysics.calc_mean_intensity(self.ld_u1, self.ld_u2)
         self.intensity = luminosity / self.area_2d  # luminosity per (apparent) area [W/m**2]
+
         self.e = e  # [1] eccentricity
         self.i = i  # [rad] inclination
 
@@ -64,6 +65,13 @@ class CurveSimBody:
         self.T = T  # [s] Time of periapsis
 
         self.mu = None  # Gravitational Parameter. Depends on the masses of at least 2 bodies.
+
+        # if startposition is not None:
+        #     self.x, self.y, self.z = startposition
+        # if startvelocity is not None:
+        #     self.x, self.y, self.z = startvelocity
+        self.startposition = startposition
+        self.startvelocity = startvelocity
 
         self.unit = p.unit.copy()
         for param, unit_ in unit.items():
@@ -234,6 +242,17 @@ class CurveSimBody:
         relative_radius = (self.radius + self.d - other.h) / (2 * self.radius)  # Relative distance between approximated center C of eclipsed area and center of self
         return area, relative_radius
 
+    @staticmethod
+    def warning_interval_extensions(interval_extensions: int, iteration, o: TotalObservations, p: CurveSimParameters):
+        if p.verbose:
+            print(f"{Fore.YELLOW}\nWARNING in function find_tt: Maximum acceptable interval extension exceeded.")
+            print(f"This is due to a too large iteration time step param <dt>{Style.RESET_ALL}   ", end="")
+            print(f"or due to an unstable star system.{Style.RESET_ALL}   ", end="")
+            print(f"Try again with half the iteration time step param <dt>{Style.RESET_ALL}   ", end="")
+            print(f"or choose more plausible start values and more restrictive upper/lower limits for the body params{Style.RESET_ALL}  ", end="")
+            print(f"Consider moving the time intervals a bit.{Style.RESET_ALL}   ", end="")
+            print(f"{iteration=}  {o.sim.time_d[iteration]=} {interval_extensions=}")
+
     def find_tt(self, other: CurveSimBody, iteration, rebound_sim: rebound.Simulation, o: TotalObservations, p: CurveSimParameters, start_index):
         """other eclipses self. Find the exact time of transit (TT).
             iteration should be the last one before TT. """
@@ -258,14 +277,7 @@ class CurveSimBody:
             dx_right = eclipser.x - eclipsee.x
             interval_extensions += 1
             if interval_extensions > p.max_interval_extensions:
-                if p.verbose:
-                    print(f"{Fore.YELLOW}\nWARNING in function find_tt: Maximum acceptable interval extension exceeded.")
-                    print(f"This is due to a too large iteration time step param <dt>{Style.RESET_ALL}   ", end="")
-                    print(f"or due to an unstable star system.{Style.RESET_ALL}   ", end="")
-                    print(f"Try again with half the iteration time step param <dt>{Style.RESET_ALL}   ", end="")
-                    print(f"or choose more plausible start values and more restrictive upper/lower limits for the body params{Style.RESET_ALL}  ", end="")
-                    print(f"Consider moving the time intervals a bit.{Style.RESET_ALL}   ", end="")
-                    print(f"{iteration=}  {o.sim.time_d[iteration]=} {interval_extensions=}")
+                self.warning_interval_extensions(interval_extensions, iteration, o, p)
                 return -1, -1, -1, False, -1
             if iteration - interval_extensions <= start_index or iteration + interval_extensions >= end_index:
                 if p.verbose:
@@ -298,14 +310,7 @@ class CurveSimBody:
                 inclination = None
             return tt, impact, depth, close_enough, inclination
         else:
-            if p.verbose:
-                print(f"{Fore.YELLOW}\nWARNING in function find_tt: Eclipser not in front of eclipsee at expected TT.")
-                print(f"This is due to a too large iteration time step param <dt>{Style.RESET_ALL}   ", end="")
-                print(f"or due to an unstable star system.{Style.RESET_ALL}   ", end="")
-                print(f"Try again with half the iteration time step param <dt>{Style.RESET_ALL}   ", end="")
-                print(f"or choose more plausible start values and more restrictive upper/lower limits for the body params{Style.RESET_ALL}  ", end="")
-                print(f"Consider moving the time intervals a bit.{Style.RESET_ALL}   ", end="")
-                print(f"{iteration=}  {o.sim.time_d[iteration]=} {interval_extensions=}")
+            self.warning_interval_extensions(interval_extensions, iteration, o, p)
             return -1, -1, -1, False, -1
 
     def find_t1234(self, other: CurveSimBody, tt_s0, iteration, rebound_sim: rebound.Simulation, o: TotalObservations, start_index, end_index, p: CurveSimParameters, transittimetype):
@@ -353,6 +358,16 @@ class CurveSimBody:
         else:
             return rebound_sim.t / p.day + p.epoch  # should also work if sim_start < epoch, because rebound_sim.t can be negative
 
+    def area_radius_from_eclipse(self, d, other: CurveSimBody):
+        if d < self.radius + other.radius:  # Does other eclipse self?
+            if d <= abs(self.radius - other.radius):  # Annular (i.e. ring) eclipse or total eclipse
+                area, relative_radius = self.full_eclipse(other, d)
+            else:  # Partial eclipse
+                area, relative_radius = self.partial_eclipse(other, d)
+            return area, relative_radius
+        else:  # No eclipse because, seen from viewer, the bodies are not close enough to each other
+            return None, None
+
     def eclipsed_by(self, other: CurveSimBody, iteration):
         """Returns area, relative_radius
         area: Area of self which is eclipsed by other.
@@ -369,14 +384,7 @@ class CurveSimBody:
             return None, None  # difference in y-coordinate too large
         # print(f"{iteration=:5d}: YAY!!!")
         d = CurveSimPhysics.distance_2d_body(other, self, iteration)
-        if d < self.radius + other.radius:  # Does other eclipse self?
-            if d <= abs(self.radius - other.radius):  # Annular (i.e. ring) eclipse or total eclipse
-                area, relative_radius = self.full_eclipse(other, d)
-            else:  # Partial eclipse
-                area, relative_radius = self.partial_eclipse(other, d)
-            return area, relative_radius
-        else:  # No eclipse because, seen from viewer, the bodies are not close enough to each other
-            return None, None
+        return self.area_radius_from_eclipse(d, other)
 
     def eclipsed_by_at_tt(self, other: CurveSimBody, eclipser: rebound.Particle, eclipsee: rebound.Particle):
         """ self, other: body
@@ -391,14 +399,15 @@ class CurveSimBody:
         if eclipser.z < eclipsee.z:  # Is eclipser nearer to viewpoint than eclipsee? (i.e. its position has a larger z-coordinate)
             return None, None  # eclipser cannot eclipse eclipsee, because eclipsee is nearer to viewer than eclipser
         d = CurveSimPhysics.distance_2d_particle(eclipser, eclipsee)
-        if d < self.radius + other.radius:  # Does other eclipse self?
-            if d <= abs(self.radius - other.radius):  # Annular (i.e. ring) eclipse or total eclipse
-                area, relative_radius = self.full_eclipse(other, d)
-            else:  # Partial eclipse
-                area, relative_radius = self.partial_eclipse(other, d)
-            return area, relative_radius
-        else:  # No eclipse because, seen from viewer, the bodies are not close enough to each eclipser
-            return None, None
+        return self.area_radius_from_eclipse(d, other)
+        # if d < self.radius + other.radius:  # Does other eclipse self?
+        #     if d <= abs(self.radius - other.radius):  # Annular (i.e. ring) eclipse or total eclipse
+        #         area, relative_radius = self.full_eclipse(other, d)
+        #     else:  # Partial eclipse
+        #         area, relative_radius = self.partial_eclipse(other, d)
+        #     return area, relative_radius
+        # else:  # No eclipse because, seen from viewer, the bodies are not close enough to each eclipser
+        #     return None, None
 
     def depth_at_tt(self, other: CurveSimBody, eclipser: rebound.Particle, eclipsee: rebound.Particle):
         eclipsed_area, relative_radius = self.eclipsed_by_at_tt(other, eclipser, eclipsee)

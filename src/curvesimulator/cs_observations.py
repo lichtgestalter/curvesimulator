@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from curvesimulator.cs_bodies import CurveSimBodies
+    from curvesimulator.cs_body import CurveSimBody
     from curvesimulator.cs_parameters import CurveSimParameters
     from curvesimulator.cs_results import CurveSimResults
 
@@ -51,7 +52,7 @@ class ObservationType:
     def __init__(self):
         if type(self) is not ObservationType:
             self.corrected, self.total_error, self.computed, self.reduced_chi_squared = (None,) * 4
-            self.residuals, self.time_d, self.time_s0, self.p_value = (None,) * 4
+            self.chi_squared_vector, self.residuals, self.time_d, self.time_s0, self.p_value = (None,) * 5
             self.chi_squared, self.log_norm_term, self.observation_count, self.log_maxlikelihood, self.epoch_index = (0,) * 5
 
     def calc_log_norm_term(self):
@@ -179,6 +180,7 @@ class RVObservations(ObservationType):
             self.time_s0 = (self.time_d - p.epoch) * p.day
             self.epoch_index = int(np.argmin(np.abs(self.time_s0)))
             self.observed = df["rv"].to_numpy(dtype=float)
+            assert isinstance(p.rv_body, CurveSimBody)
             self.calc_corrected(p.rv_body.rv_offset)
             self.error = df["rv_err"].to_numpy(dtype=float)
             self.calc_total_error(p.rv_body.rv_jitter)
@@ -207,6 +209,7 @@ class RVObservations(ObservationType):
 
     def update(self, p: CurveSimParameters, rebound_sim: rebound.Simulation):
         # update rv observations with new rv offset and jitter, then calc computed and residuals.
+        assert isinstance(p.rv_body, CurveSimBody)
         self.calc_corrected(p.rv_body.rv_offset)    # observed - offset
         self.calc_total_error(p.rv_body.rv_jitter)  # sqrt(error^2 + jitter^2)
         self.calc_log_norm_term()                   # from total_error

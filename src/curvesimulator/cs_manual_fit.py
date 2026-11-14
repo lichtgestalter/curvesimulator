@@ -1,5 +1,4 @@
 import math
-# from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np
@@ -45,6 +44,7 @@ class FittingGUI:
 
         self.update_plot(self.measured_tt)  # Initial plot
         self.activate_param(self.active_param_index)  # Initial highlighting
+        self.plot_lines: list[list]
 
     def _initialize_grid_weights(self):
         """Set grid weights for main window to achieve proportional sizing."""
@@ -221,7 +221,7 @@ class FittingGUI:
     def update_plot(self, measured_tt):
         colors = ["blue", "black", "gray", "lightgrey"]
         if not hasattr(self, "plot_lines"):
-            self.plot_lines: list[list] = [[] for _ in self.axes]
+            self.plot_lines = [[] for _ in self.axes]
 
         abs_min = abs(min(measured_tt["delta"].min(), 0))
         abs_max = abs(max(measured_tt["delta"].max(), 0))

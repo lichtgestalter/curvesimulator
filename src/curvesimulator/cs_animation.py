@@ -278,6 +278,7 @@ class CurveSimAnimation:
         elif not p.show_left_plot and p.show_right_plot and p.show_upper_curve and p.show_lower_curve:
             ax_left = None
             ax_right = CurveSimAnimation.init_right_plot(p, shape=(6, 1), loc=(0, 0), rowspan=4, colspan=1)
+            # noinspection DuplicatedCode
             ax_lightcurve, upper_dot = CurveSimAnimation.init_upper_curve_plot(o, p, shape=(6, 1), loc=(4, 0), rowspan=1, colspan=1)
             ax_rv_curve, lower_dot = CurveSimAnimation.init_lower_curve_plot(o, p, shape=(6, 1), loc=(5, 0), rowspan=1, colspan=1)
         # left plot only
@@ -302,6 +303,7 @@ class CurveSimAnimation:
         elif p.show_left_plot and not p.show_right_plot and p.show_upper_curve and p.show_lower_curve:
             ax_left = CurveSimAnimation.init_left_plot(p, shape=(6, 1), loc=(0, 0), rowspan=4, colspan=1)
             ax_right = None
+            # noinspection DuplicatedCode
             ax_lightcurve, upper_dot = CurveSimAnimation.init_upper_curve_plot(o, p, shape=(6, 1), loc=(4, 0), rowspan=1, colspan=1)
             ax_rv_curve, lower_dot = CurveSimAnimation.init_lower_curve_plot(o, p, shape=(6, 1), loc=(5, 0), rowspan=1, colspan=1)
         # light curve only
@@ -395,7 +397,7 @@ class CurveSimAnimation:
         the whole figure every frame) we drive the rendering manually here and pipe the raw
         pixel data straight into FFmpeg, instead of going through FuncAnimation/anim.save().
         """
-        frames = int(len(o.sim.simflux) // o.sim.sampling_rate)
+        # frames = int(len(o.sim.simflux) // o.sim.sampling_rate)
         if p.verbose:
             print(f"Animating {p.frames:8d} frames: ", end="")
         tic: float = time.perf_counter()
@@ -436,7 +438,7 @@ class CurveSimAnimation:
         stdin = cast(IO[bytes], proc.stdin)
         stderr = cast(IO[bytes], proc.stderr)
         try:
-            for frame in range(frames):
+            for frame in range(p.frames):
                 artists = CurveSimAnimation.next_frame(frame, p, bodies, self.lower_dot, self.upper_dot, o)
                 canvas.restore_region(background)
                 # Group by axes and sort by zorder, then draw only the changed artists on top of the cached background.
@@ -473,6 +475,6 @@ class CurveSimAnimation:
 
         if p.verbose:
             toc: float = time.perf_counter()
-            # noinspection string-format
-            print(f" {toc - tic:7.2f} seconds  ({p.frames / (toc - tic):.0f} frames/second)")
+            frames_per_second: float = float(p.frames) / (toc - tic)
+            print(f" {toc - tic:7.2f} seconds  ({frames_per_second:.0f} frames/second)")
             print(f"{p.video_file} saved.")

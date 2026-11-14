@@ -169,6 +169,7 @@ class CurveSimPhysics:
         if hasattr(np, "trapezoid"):
             return 2 * np.trapezoid(intensities * mu_values, mu_values)
         else:
+            # noinspection unresolved-references
             return 2 * np.trapz(intensities * mu_values, mu_values)  # compatibility fallback
 
     @staticmethod

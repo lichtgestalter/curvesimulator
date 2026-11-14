@@ -51,52 +51,55 @@ def append_line_locked(filename, line, wait=0.1):
     while True:
         if os.name == "nt":
             import msvcrt
-            try:
-                with open(filename, "a", encoding="utf8") as f:
-                    fd = f.fileno()
+            with open(filename, "a", encoding="utf8") as f:
+                fd = f.fileno()
+                try:
+                    msvcrt.locking(fd, msvcrt.LK_NBLCK, 1)  # try non-blocking lock of 1 byte
+                except OSError:
+                    time.sleep(wait)
+                    continue
+                try:
+                    f.write(line + "\n")
+                    f.flush()
+                    os.fsync(fd)
+                finally:
                     try:
-                        msvcrt.locking(fd, msvcrt.LK_NBLCK, 1)  # try non-blocking lock of 1 byte
+                        msvcrt.locking(fd, msvcrt.LK_UNLCK, 1)
                     except OSError:
-                        time.sleep(wait)
-                        continue
-                    try:
-                        f.write(line + "\n")
-                        f.flush()
-                        os.fsync(fd)
-                    finally:
-                        try:
-                            msvcrt.locking(fd, msvcrt.LK_UNLCK, 1)
-                        except Exception:
-                            pass
-                    return
-            except Exception:
-                raise  # propagate unexpected errors (e.g., permission issues)
+                        pass
+                return
         else:
             import fcntl
-            try:
-                with open(filename, "a", encoding="utf8") as f:
+            with open(filename, "a", encoding="utf8") as f:
+                try:
+                    fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)  # try non-blocking exclusive lock
+                except (BlockingIOError, OSError):
+                    time.sleep(wait)
+                    continue
+                try:
+                    f.write(line + "\n")
+                    f.flush()
+                    os.fsync(f.fileno())
+                finally:
                     try:
-                        fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)  # try non-blocking exclusive lock
-                    except (BlockingIOError, OSError):
-                        time.sleep(wait)
-                        continue
-                    try:
-                        f.write(line + "\n")
-                        f.flush()
-                        os.fsync(f.fileno())
-                    finally:
-                        try:
-                            fcntl.flock(f, fcntl.LOCK_UN)
-                        except Exception:
-                            pass
-                    return
-            except Exception:
-                raise
+                        fcntl.flock(f, fcntl.LOCK_UN)
+                    except OSError:
+                        pass
+                return
 
 
 class CurveSimMCMC:
     def __init__(self, p: CurveSimParameters, bodies: CurveSimBodies, o: TotalObservations, dummy_object=False):
         self.results_directory = p.results_directory
+        self.max_likelihood_params_scaled: np.ndarray = np.empty(0)
+        self.max_likelihood_params: np.ndarray = np.empty(0)
+        self.max_log_prob: float = float("nan")
+        self.mean_params: list[float] = []
+        self.median_params: list[float] = []
+        self.sampler: emcee.EnsembleSampler
+        self.scaled_samples: np.ndarray
+        self.theta: np.ndarray
+        self.scales: list[float] = []
         if dummy_object:
             return
         os.environ["OMP_NUM_THREADS"] = "1"  # Some builds of NumPy automatically parallelize some operations. This can cause problems when multi processing inside emcee is enabled. Turn that off by setting the environment variable OMP_NUM_THREADS=1.
@@ -158,7 +161,8 @@ class CurveSimMCMC:
             self.mcmc_fit(p, bodies, o, steps_done)
 
     def mcmc_fit(self, p: CurveSimParameters, bodies: CurveSimBodies, o: TotalObservations, steps_done, pool=None):
-        self.sampler = emcee.EnsembleSampler(p.walkers, p.fparams_count, CurveSimMCMC.log_probability, pool=pool, moves=self.moves, args=self.args, backend=self.backend)
+        # noinspection PyTypeChecker
+        self.sampler = emcee.EnsembleSampler(p.walkers, p.fparams_count, CurveSimMCMC.log_probability, pool=pool, moves=self.moves, args=self.args, backend=self.backend)  # wrong/missing type hints in emcee
         if not p.load_backend:
             self.theta = self.sampler.run_mcmc(self.theta0, p.burn_in, progress=True, progress_kwargs={"file": sys.__stderr__})  # progress_kwargs bypasses Tee, so not logged
         else:
@@ -168,6 +172,7 @@ class CurveSimMCMC:
             steps_done += p.chunk_size
             commands = CurveSimMCMC.read_result_control()
             self.mcmc_results(p, bodies, o, steps_done, commands)
+            # noinspection PyUnresolvedReferences
             self.result_time += self.mcmc_results.tictoc  # reads tictoc from underlying decorator of mcmc_results
 
     def __repr__(self):
@@ -204,7 +209,7 @@ class CurveSimMCMC:
             results.save_results(p)
         # self.sim_flux = sim_flux
         # self.results = results
-        trifon = False
+        trifon = 42 * 0
         if trifon:
             p.eclipsers = ["TOI4504d"]
             p.eclipsees = ["TOI4504"]
@@ -391,7 +396,7 @@ class CurveSimMCMC:
 
     def scale_samples(self, flat_thin_samples, bodies: CurveSimBodies, p: CurveSimParameters):
         self.scaled_samples = np.copy(flat_thin_samples)
-        self.scales: list[float] = []
+        self.scales = []
         for fp, ss in zip(p.fitting_params, self.scaled_samples.T):
             if "offset_" in fp.param_name or "jitter_" in fp.param_name:
                 self.scales.append(1)
@@ -405,6 +410,7 @@ class CurveSimMCMC:
         if self.trace_plot_ok:
             try:
                 plot_filename = self.results_directory + plot_filename
+                # noinspection DuplicatedCode
                 fig, axes = plt.subplots(p.fparams_count, figsize=(10, p.fparams_count * 2), sharex=True)
                 y_position1 = min(0.998, 0.99 + p.fparams_count / 7500)
                 y_position2 = min(0.985, y_position1 - 1 / (7 * p.fparams_count))
@@ -426,11 +432,16 @@ class CurveSimMCMC:
                         ax.set_xlabel("Steps including burn-in (red line)")  # Only last subplot
                 try:
                     plt.savefig(plot_filename)
-                except:
-                    print(f"{Fore.RED}\nERROR: Saving Trace Plot failed.{Style.RESET_ALL}")
+                # except:
+                #     print(f"{Fore.RED}\nERROR: Saving Trace Plot failed.{Style.RESET_ALL}")
+                except (OSError, ValueError) as e:
+                    print(f"{Fore.RED}\nERROR: Saving Trace Plot failed. ({type(e).__name__}): {e}{Style.RESET_ALL}")
                 plt.close(fig)
-            except:
-                print(f"{Fore.RED}\nERROR: Trace Plot failed.{Style.RESET_ALL}")
+
+            # except:
+            #     print(f"{Fore.RED}\nERROR: Trace Plot failed.{Style.RESET_ALL}")
+            except (ValueError, IndexError, TypeError, RuntimeError, OSError) as e:
+                print(f"{Fore.RED}\nERROR: Trace Plot failed. ({type(e).__name__}): {e}{Style.RESET_ALL}")
                 self.trace_plot_ok = False
 
     def max_likelihood_parameters(self, flat_thin_samples, p: CurveSimParameters):
@@ -445,14 +456,17 @@ class CurveSimMCMC:
             self.max_likelihood_params = flat_thin_samples[max_likelihood_idx]
             self.max_log_prob = log_prob_samples[max_likelihood_idx]
         else:
-            self.max_likelihood_params_scaled = None
-            self.max_likelihood_params = None
-            self.max_log_prob = None
+            self.max_likelihood_params_scaled = np.empty(0)
+            self.max_likelihood_params = np.empty(0)
+            self.max_log_prob = float("nan")
+            # self.max_likelihood_params_scaled = None
+            # self.max_likelihood_params = None
+            # self.max_log_prob = None
 
     def high_density_intervals(self, p: CurveSimParameters):
         # Calculate HDI and other mcmc results.
-        self.mean_params: list[float] = []
-        self.median_params: list[float] = []
+        # self.mean_params: list[float] = []
+        # self.median_params: list[float] = []
         for i, fp in enumerate(p.fitting_params_plus):
             hdi_min, hdi_max, std, mean, median = CurveSimMCMC.hdi_std_mean(self.scaled_samples[:, i], self.credible_mass)
             fp.hdi_min = hdi_min
@@ -513,8 +527,10 @@ class CurveSimMCMC:
         plt.tight_layout()
         try:
             plt.savefig(plot_filename)
-        except:
-            print(f"{Fore.RED}\nERROR: Saving histogram plot failed.{Style.RESET_ALL}")
+        except (OSError, ValueError) as e:
+            print(f"{Fore.RED}\nERROR: Saving Trace Plot failed. ({type(e).__name__}): {e}{Style.RESET_ALL}")
+        # except:
+        #     print(f"{Fore.RED}\nERROR: Saving histogram plot failed.{Style.RESET_ALL}")
         plt.close(fig)
 
     # @stopwatch()
@@ -533,11 +549,15 @@ class CurveSimMCMC:
                     fig.suptitle(f"Corner plot. {steps_done} steps after burn-in.", fontsize=16)
                     try:
                         plt.savefig(plot_filename)
-                    except:
-                        print(f"{Fore.RED}\nERROR: Saving corner plot failed.{Style.RESET_ALL}")
+                    # except:
+                    #     print(f"{Fore.RED}\nERROR: Saving corner plot failed.{Style.RESET_ALL}")
+                    except (OSError, ValueError) as e:
+                        print(f"{Fore.RED}\nERROR: Saving corner Plot failed. ({type(e).__name__}): {e}{Style.RESET_ALL}")
                     plt.close(fig)
-            except:
-                print(f"{Fore.RED}\nERROR: Corner plot failed.{Style.RESET_ALL}")
+            # except:
+            #     print(f"{Fore.RED}\nERROR: Corner plot failed.{Style.RESET_ALL}")
+            except (ValueError, IndexError, TypeError, RuntimeError, OSError) as e:
+                print(f"{Fore.RED}\nERROR: Corner Plot failed. ({type(e).__name__}): {e}{Style.RESET_ALL}")
                 self.corner_plot_ok = False
 
     # @stopwatch()
@@ -548,6 +568,7 @@ class CurveSimMCMC:
                 samples = self.sampler.get_chain(discard=0, flat=False, thin=self.thin_samples_plot)  # shape: (steps, walkers, fparams_count)
                 nsteps = samples.shape[0]
                 nwalkers = samples.shape[1]
+                # noinspection DuplicatedCode
                 fig, axes = plt.subplots(p.fparams_count, figsize=(10, p.fparams_count * 2), sharex=True)
                 y_position1 = min(0.998, 0.99 + p.fparams_count / 7500)
                 y_position2 = min(0.985, y_position1 - 1 / (7 * p.fparams_count))
@@ -569,11 +590,15 @@ class CurveSimMCMC:
                         ax.set_xlabel("Steps including burn-in (red line)")  # Only last subplot
                 try:
                     plt.savefig(plot_filename)
-                except:
-                    print(f"{Fore.RED}\nERROR: Saving autocorrelation plot failed.{Style.RESET_ALL}")
+                # except:
+                #     print(f"{Fore.RED}\nERROR: Saving autocorrelation plot failed.{Style.RESET_ALL}")
+                except (OSError, ValueError) as e:
+                    print(f"{Fore.RED}\nERROR: Saving Trace Plot failed. ({type(e).__name__}): {e}{Style.RESET_ALL}")
                 plt.close(fig)
-            except:
-                print(f"{Fore.RED}\nERROR: Autocorrelation plot failed.{Style.RESET_ALL}")
+            # except:
+            #     print(f"{Fore.RED}\nERROR: Autocorrelation plot failed.{Style.RESET_ALL}")
+            except (ValueError, IndexError, TypeError, RuntimeError, OSError) as e:
+                print(f"{Fore.RED}\nERROR: Autocorrelation Plot failed. ({type(e).__name__}): {e}{Style.RESET_ALL}")
                 self.autocorrelation_function_plot_ok = False
 
     @staticmethod
@@ -603,8 +628,10 @@ class CurveSimMCMC:
 
         try:
             plt.savefig(plot_filename, bbox_inches="tight")  # prevents cutting off the legend
-        except Exception:
-            print(f"{Fore.RED}\nERROR: Saving plot '{plot_filename}' failed.{Style.RESET_ALL}")
+        # except Exception:
+        #     print(f"{Fore.RED}\nERROR: Saving plot '{plot_filename}' failed.{Style.RESET_ALL}")
+        except (OSError, ValueError) as e:
+            print(f"{Fore.RED}\nERROR: Saving Trace Plot failed. ({type(e).__name__}): {e}{Style.RESET_ALL}")
         plt.close(fig)
 
     def integrated_autocorrelation_time_plot(self, steps_done, plot_filename1, plot_filename2, p: CurveSimParameters):
@@ -617,8 +644,12 @@ class CurveSimMCMC:
         #           "xkcd:purply blue", "xkcd:sepia", "xkcd:wine", "xkcd:ocean", "xkcd:light grey",
         #           "xkcd:forest", "xkcd:pale violet", "xkcd:robin's egg", "xkcd:pinkish purple", "xkcd:azure",
         #           "xkcd:hot pink", "xkcd:mango", "xkcd:baby pink", "xkcd:fluorescent green", "xkcd:medium grey"]
-        colors = [c for i, c in enumerate(plt.get_cmap("tab20").colors) if i % 2 == 0]  # darker colors in tab20
-        colors += [c for i, c in enumerate(plt.get_cmap("tab20").colors) if i % 2 == 1]  # lighter colors in tab20
+
+        # colors = [c for i, c in enumerate(plt.get_cmap("tab20").colors) if i % 2 == 0]  # darker colors in tab20
+        # colors += [c for i, c in enumerate(plt.get_cmap("tab20").colors) if i % 2 == 1]  # lighter colors in tab20
+
+        colors = [plt.get_cmap("tab20")(i) for i in range(0, 20, 2)]  # darker colors in tab20
+        colors += [plt.get_cmap("tab20")(i) for i in range(1, 20, 2)]  # lighter colors in tab20
 
         linestyles = ["solid", "dashed", "dashdot", "dotted"]
         labels = p.body_param_unit_names
@@ -650,11 +681,15 @@ class CurveSimMCMC:
                 plt.tight_layout()
                 try:
                     plt.savefig(plot_filename)
-                except:
-                    print(f"{Fore.RED}\nERROR: Saving acceptance plot failed.{Style.RESET_ALL}")
+                # except:
+                #     print(f"{Fore.RED}\nERROR: Saving acceptance plot failed.{Style.RESET_ALL}")
+                except (OSError, ValueError) as e:
+                    print(f"{Fore.RED}\nERROR: Saving Trace Plot failed. ({type(e).__name__}): {e}{Style.RESET_ALL}")
                 plt.close(fig)
-            except:
-                print(f"{Fore.RED}\nERROR: Acceptance plot failed.{Style.RESET_ALL}")
+            # except:
+            #     print(f"{Fore.RED}\nERROR: Acceptance plot failed.{Style.RESET_ALL}")
+            except (ValueError, IndexError, TypeError, RuntimeError, OSError) as e:
+                print(f"{Fore.RED}\nERROR: Acceptance Plot failed. ({type(e).__name__}): {e}{Style.RESET_ALL}")
                 self.acceptance_plot_ok = False
 
     def update_reduced_chi_squared_over_time_lists(self, o: TotalObservations):
@@ -680,8 +715,10 @@ class CurveSimMCMC:
         plt.tight_layout()
         try:
             plt.savefig(plot_filename)
-        except:
-            print(f"{Fore.RED}\nERROR: Saving Reduced Chi^2 over time plot failed.{Style.RESET_ALL}")
+        # except:
+        #     print(f"{Fore.RED}\nERROR: Saving Reduced Chi^2 over time plot failed.{Style.RESET_ALL}")
+        except (OSError, ValueError) as e:
+            print(f"{Fore.RED}\nERROR: Saving Trace Plot failed. ({type(e).__name__}): {e}{Style.RESET_ALL}")
         plt.close(fig)
 
     # @stopwatch()
@@ -718,8 +755,10 @@ class CurveSimMCMC:
         plt.tight_layout(rect=(0, 0, 1, 0.97))
         try:
             plt.savefig(plot_filename)
-        except:
-            print(f"{Fore.RED}\nERROR: Saving TT residual plot failed.{Style.RESET_ALL}")
+        # except:
+        #     print(f"{Fore.RED}\nERROR: Saving TT residual plot failed.{Style.RESET_ALL}")
+        except (OSError, ValueError) as e:
+            print(f"{Fore.RED}\nERROR: Saving Trace Plot failed. ({type(e).__name__}): {e}{Style.RESET_ALL}")
         plt.close(fig)
 
     # @stopwatch()
@@ -770,8 +809,10 @@ class CurveSimMCMC:
                    ncol=5, mode="expand", fontsize="small", frameon=False)
         try:
             plt.savefig(plot_filename)
-        except:
-            print(f"{Fore.RED}\nERROR: Saving TT multi residual plot failed.{Style.RESET_ALL}")
+        # except:
+        #     print(f"{Fore.RED}\nERROR: Saving TT multi residual plot failed.{Style.RESET_ALL}")
+        except (OSError, ValueError) as e:
+            print(f"{Fore.RED}\nERROR: Saving Trace Plot failed. ({type(e).__name__}): {e}{Style.RESET_ALL}")
         plt.close(fig)
 
     @staticmethod
@@ -812,6 +853,7 @@ class CurveSimMCMC:
     def save_mcmc_results(self, p: CurveSimParameters, bodies: CurveSimBodies, steps_done, measured_tt):
         steps_done = int(steps_done)
         self.iterations_from_backend = int(self.iterations_from_backend)
+        # noinspection dict-creation
         mcmc_results: dict = {}
         mcmc_results["CurveSimulator Documentation"] = "https://github.com/lichtgestalter/curvesimulator/wiki"
 
@@ -829,6 +871,8 @@ class CurveSimMCMC:
         mcmc_results["MCMC Performance"]["total_steps_after_burn_in"] = steps_done
         steps_this_run = steps_done - self.iterations_from_backend + p.burn_in
         mcmc_results["MCMC Performance"]["steps_this_run"] = steps_this_run
+        assert isinstance(steps_this_run, float)
+        assert isinstance(p.walkers, float)
         mcmc_results["MCMC Performance"]["fitting_time_per_step_this_run"] = f"{fitting_time / steps_this_run:.3f} [s]"
         mcmc_results["MCMC Performance"]["steps_this_run_per_second"] = f"{steps_this_run / fitting_time:.0f} [steps/s]"
         mcmc_results["MCMC Performance"]["simulations_this_run_per_second"] = f"{steps_this_run * p.walkers / fitting_time:.0f} [steps*walkers/s]"
@@ -863,8 +907,8 @@ class CurveSimMCMC:
                 json.dump(mcmc_results, file, indent=4, ensure_ascii=False)
             if p.verbose:
                 print(f" Saved MCMC results to {filename}")
-        except:
-            print(f"{Fore.RED}\nERROR: Saving MCMC Results JSON failed.{Style.RESET_ALL}")
+        except (OSError, TypeError, ValueError) as e:
+            print(f"{Fore.RED}\nERROR: Saving MCMC Results JSON failed. ({type(e).__name__}): {e}{Style.RESET_ALL}")
             print(mcmc_results)
             print(f"{Fore.YELLOW}Printed Results to console because saving failed.{Style.RESET_ALL}")
 

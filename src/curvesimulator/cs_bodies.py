@@ -1,3 +1,5 @@
+from typing import Any
+
 from colorama import Fore, Style
 import configparser
 import json
@@ -6,13 +8,11 @@ import matplotlib
 import matplotlib.animation
 import matplotlib.patches
 import numpy as np
-# import pandas
 import rebound
 import sys
 import time
 
 from curvesimulator.cs_body import CurveSimBody
-# from curvesimulator.cs_lightcurve import CurveSimLightcurve
 from curvesimulator.cs_observations import FluxObservations, Simulation, TotalObservations
 from curvesimulator.cs_parameters import CurveSimParameters
 from curvesimulator.cs_physics import CurveSimPhysics
@@ -64,7 +64,7 @@ class CurveSimBodies(list[CurveSimBody]):
                         "ld_u2": p.read_body_param(config, section, "limb_darkening_2", fallback=None),
                         "limb_darkening_parameter_type": config.get(section, "limb_darkening_parameter_type", fallback=None),
                         "startposition": config.get(section, "startposition", fallback=None),
-                        "velocity": config.get(section, "velocity", fallback=None),
+                        "startvelocity": config.get(section, "startvelocity", fallback=None),
                         "e": p.read_body_param(config, section, "e", fallback=None),
                         "i": p.read_body_param(config, section, "i", fallback=None),
                         "P": p.read_body_param(config, section, "P", fallback=None),
@@ -131,32 +131,37 @@ class CurveSimBodies(list[CurveSimBody]):
             kwargs["m"] = body.mass
             kwargs["r"] = body.radius
             kwargs["name"] = body.name
-            kwargs["inc"] = body.i
-            kwargs["e"] = body.e
-            if body.P is not None:
-                kwargs["P"] = body.P
-            if body.a is not None:
-                kwargs["a"] = body.a
-            if body.pomega is not None:
-                kwargs["pomega"] = body.pomega
-            if body.Omega is not None:
-                kwargs["Omega"] = body.Omega
-            if body.omega is not None:
-                kwargs["omega"] = body.omega
-            if body.ma is not None:
-                kwargs["M"] = body.ma
-            if body.nu is not None:
-                kwargs["f"] = body.nu
-            if body.ea is not None:
-                kwargs["E"] = body.ea
-            if body.T is not None:
-                kwargs["T"] = body.T
-            if body.L is not None:
-                kwargs["l"] = body.L
-            if not p.jacobi_coordinates:
-                primary = simulation.particles[body.primary]
-                # primary = CurveSimBodies.get_com_particle(simulation, range(i))  # Setting no primary has the same result as setting the primary as the center of mass of all up to now defined bodies: params are in Jacobi coordinates
-                kwargs["primary"] = primary
+
+            if body.startposition is not None and body.startvelocity is not None:
+                kwargs["x"], kwargs["y"], kwargs["z"] = body.startposition
+                kwargs["vx"], kwargs["vy"], kwargs["vz"] = body.startvelocity
+            else:
+                kwargs["inc"] = body.i
+                kwargs["e"] = body.e
+                if body.P is not None:
+                    kwargs["P"] = body.P
+                if body.a is not None:
+                    kwargs["a"] = body.a
+                if body.pomega is not None:
+                    kwargs["pomega"] = body.pomega
+                if body.Omega is not None:
+                    kwargs["Omega"] = body.Omega
+                if body.omega is not None:
+                    kwargs["omega"] = body.omega
+                if body.ma is not None:
+                    kwargs["M"] = body.ma
+                if body.nu is not None:
+                    kwargs["f"] = body.nu
+                if body.ea is not None:
+                    kwargs["E"] = body.ea
+                if body.T is not None:
+                    kwargs["T"] = body.T
+                if body.L is not None:
+                    kwargs["l"] = body.L
+                if not p.jacobi_coordinates:
+                    primary = simulation.particles[body.primary]
+                    # primary = CurveSimBodies.get_com_particle(simulation, range(i))  # Setting no primary has the same result as setting the primary as the center of mass of all up to now defined bodies: params are in Jacobi coordinates
+                    kwargs["primary"] = primary
             simulation.add(**kwargs)
         simulation.move_to_com()  # move origin to center of mass before integrating -> better numerical stability
         # CurveSimBodies.print_simulation_particles(p, simulation)
@@ -442,6 +447,12 @@ class CurveSimBodies(list[CurveSimBody]):
                 body.circle_right = matplotlib.patches.Circle((0, 0), radius=body.radius * extrascale_right / p.scope_right)  # Matplotlib patch for right view
                 body.circle_left = matplotlib.patches.Circle((0, 0), radius=body.radius * extrascale_left / p.scope_left)  # Matplotlib patch for left view
 
+    @staticmethod
+    def is_near_transit(eclipsee, eclipser, i: int) -> tuple[Any, Any]:
+        eclipser_before_eclipsee = eclipser.positions[i][2] > eclipsee.positions[i][2]
+        transit_between_iterations = (eclipser.positions[i][0] - eclipsee.positions[i][0]) * (eclipser.positions[i - 1][0] - eclipsee.positions[i - 1][0]) <= 0  # transit between i-1 and i?
+        return eclipser_before_eclipsee and transit_between_iterations
+
     def find_transits(self, rebound_sim: rebound.Simulation, o: TotalObservations, p: CurveSimParameters) -> CurveSimResults:
         iterations = o.sim.observation_count
         rebound_sim.dt = p.dt
@@ -449,9 +460,8 @@ class CurveSimBodies(list[CurveSimBody]):
         for i in range(iterations):
             for eclipser in p.eclipsers:
                 for eclipsee in p.eclipsees:
-                    eclipser_before_eclipsee = eclipser.positions[i][2] > eclipsee.positions[i][2]
-                    transit_between_iterations = (eclipser.positions[i][0] - eclipsee.positions[i][0]) * (eclipser.positions[i - 1][0] - eclipsee.positions[i - 1][0]) <= 0  # transit between i-1 and i?
-                    if eclipser_before_eclipsee and transit_between_iterations:
+                    near_transit = CurveSimBodies.is_near_transit(eclipsee, eclipser, i)
+                    if near_transit:
                         tt, impact, depth, close_enough, inclination = eclipsee.find_tt(eclipser, i - 1, rebound_sim, o, p, 0)
                         if close_enough:  # eclipser and eclipsee are close enough at actual TT
                             tt_s0 = rebound_sim.t
@@ -484,9 +494,8 @@ class CurveSimBodies(list[CurveSimBody]):
         for i in range(0, iterations):
             for eclipser in p.eclipsers:
                 for eclipsee in p.eclipsees:
-                    eclipser_before_eclipsee = eclipser.positions[i][2] > eclipsee.positions[i][2]
-                    transit_between_iterations = (eclipser.positions[i][0] - eclipsee.positions[i][0]) * (eclipser.positions[i - 1][0] - eclipsee.positions[i - 1][0]) <= 0  # transit between i-1 and i?
-                    if eclipser_before_eclipsee and transit_between_iterations:
+                    near_transit = CurveSimBodies.is_near_transit(eclipsee, eclipser, i)
+                    if near_transit:
                         tt, b, depth, close_enough, inclination = eclipsee.find_tt(eclipser, i - 1, rebound_sim, o, p, 0)
                         if close_enough:
                             tts.append([eclipser.name, eclipsee.name, tt])

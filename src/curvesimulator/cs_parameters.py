@@ -13,7 +13,7 @@ import random
 import shutil
 import sys
 import time
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from .cs_observations import TotalObservations
 from curvesimulator.cs_physics import CurveSimPhysics
@@ -113,6 +113,7 @@ class CurveSimParameters:
         self.max_interval_extensions = self.read_param(config, section, "max_interval_extensions", "10", evaluate=True, forced_type=int, lower=0, upper=None)
 
         self.unit = self.read_param(config, section, "unit", self.DEFAULT_UNIT, evaluate=True, forced_type=dict, lower=None, upper=None)
+        self.unit = cast(dict, self.unit)
         self.check_unit(self.unit, section)
         self.scale = {param: self.SCALE_FROM_UNIT[unit] for param, unit in self.unit.items()}
 
@@ -255,6 +256,9 @@ class CurveSimParameters:
 
         self.eclipsers, self.eclipsees = (None,) * 2
         self.jacobi_coordinates: bool
+        self.fitting_param_dic: dict[tuple[int, str], int]
+        self.index_from_bodyparamname: dict[str, int]
+
         self.copy_config_file()
 
     def __repr__(self):
@@ -372,7 +376,7 @@ class CurveSimParameters:
             print(f"{Fore.RED}Please only use config files with the .ini extension. (You tried to use {config_file}.){Style.RESET_ALL}")
             sys.exit(1)
 
-    # noinspection unused-local
+    # noinspection unused-local,DuplicatedCode
     def read_param(self, config, section, param, fallback, evaluate=True, forced_type=None, lower=None, upper=None):
         value = config.get(section, param, fallback=fallback)
         # if value is None:
@@ -390,8 +394,8 @@ class CurveSimParameters:
                 if forced_type is not None:
                     print(f"{Fore.RED}Must have type {forced_type.__name__}. {Style.RESET_ALL}")
                 sys.exit(1)
-        if value is None:
-            return None
+        if value == fallback:
+            return value
         if forced_type in (bool, str, int, dict, tuple, list):
             if not isinstance(value, forced_type):
                 print(f"{Fore.RED}\nERROR in Configuration: Parameter {param} in section {section} must have type {forced_type.__name__}. {Style.RESET_ALL}")
@@ -415,7 +419,7 @@ class CurveSimParameters:
             sys.exit(1)
         return value
 
-    # noinspection unused-local
+    # noinspection unused-local,DuplicatedCode
     def read_body_param(self, config, section, param, fallback):
         # For ease of use of these constants in the config file they are additionally defined here without the prefix "self.".
         g, au, r_sun, m_sun, l_sun = self.g, self.au, self.r_sun, self.m_sun, self.l_sun
@@ -429,7 +433,7 @@ class CurveSimParameters:
             value = np.radians(value)
         return value
 
-    # noinspection unused-local
+    # noinspection unused-local,DuplicatedCode
     def read_param_priors(self, config, section, param):
         # For ease of use of these constants in the config file they are additionally defined here without the prefix "self.".
         g, au, r_sun, m_sun, l_sun = self.g, self.au, self.r_sun, self.m_sun, self.l_sun
@@ -649,7 +653,8 @@ class CurveSimParameters:
         for fp in self.fitting_params:
             fp.startvalue = fp.lower + random.random() * (fp.upper - fp.lower)
 
-    def TOI4504_startvalue_hack(self):
+    # noinspection pep8-naming
+    def toi4504_startvalue_hack(self):
         d_P = self.get_fitting_param(1, "P")
         c_P = self.get_fitting_param(2, "P")
         c_P.startvalue = (-2.3493 * d_P.startvalue * d_P.scale + 178.93) / c_P.scale
