@@ -443,7 +443,8 @@ class CurveSimResults(dict):
             # bottom=p.flux_plots_bottom,
             plot_file=p.results_directory + plot_filename,
         )
-        if o.tt.measured_tt is not None:
+        if not o.tt.measured_tt.empty:
+        # if o.tt.measured_tt is not None:
             directory = p.results_directory + "flux_per_transit/"
             os.makedirs(directory)
             for transit in o.tt.measured_tt.itertuples(index=False):
@@ -547,7 +548,7 @@ class CurveSimResults(dict):
     @staticmethod
     def flux_residuals_all_plots_time(p: CurveSimParameters, plot_filename, o: TotalObservations):
         CurveSimResults.flux_residuals_plot_time(p, plot_filename, o)
-        if o.tt.measured_tt is not None:
+        if not o.tt.measured_tt.empty:
             subdirectory = "fluxresiduals_per_transit/"
             os.makedirs(p.results_directory + subdirectory)
             for transit in o.tt.measured_tt.itertuples(index=False):

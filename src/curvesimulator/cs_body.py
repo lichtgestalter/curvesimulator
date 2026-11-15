@@ -24,6 +24,8 @@ def multiple_transit_error():
 
 # noinspection PyPep8Naming,PyUnusedLocal
 class CurveSimBody:
+    rv_offset: object
+
     def __init__(self, p: CurveSimParameters, primary, name, body_type, mass, radius, luminosity, rv_offset, rv_jitter, startposition, startvelocity, P, a, e, i, Omega, omega, pomega, L, ma, ea,
                  nu, T, ld_u1, ld_u2, limb_darkening_parameter_type, unit, color, image_file_left, image_file_right):
         """Initialize instance of physical body."""

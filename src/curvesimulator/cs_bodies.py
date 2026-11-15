@@ -47,6 +47,8 @@ class CurveSimBodies(list[CurveSimBody]):
                 file = config.get(section, "file", fallback=None)
                 if file is None:
                     color = CurveSimParameters.get_color_param(config, section, "color", "xkcd:eggshell")
+                    startposition = CurveSimParameters.get_tuple(config, section, "startposition", None, 3)
+                    startvelocity = CurveSimParameters.get_tuple(config, section, "startvelocity", None, 3)
                     kwargs = {
                         "p": p,
                         "primary": config.get(section, "primary", fallback=None),
@@ -205,6 +207,11 @@ class CurveSimBodies(list[CurveSimBody]):
         end = "\n" if print_in_config_format else "  "
         bjd = p.epoch + simulation.t / p.day
         print(f"{message} t={simulation.t:.0f} [s], t={bjd:.4f} BJD [d]")
+        for particle, body in zip(simulation.particles, self):
+            line = f"[{particle.name}] "
+            line += f"xyz: {particle.x:.0f}, {particle.y:.0f}, {particle.z:.0f} "
+            line += f"vxyz: {particle.vx:.0f}, {particle.vy:.0f}, {particle.vz:.0f} "
+            print(line)
         for particle, orbit, body in zip(simulation.particles[1:], simulation.orbits(jacobi_masses=p.jacobi_masses), self):
             print(f"[{particle.name}]", end=end)
             print(f"mass = {particle.m * body.scale["mass"]:.6f} * {body.unit["mass"]}", end=end)

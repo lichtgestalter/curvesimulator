@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from curvesimulator.cs_bodies import CurveSimBodies
-    from curvesimulator.cs_body import CurveSimBody
     from curvesimulator.cs_parameters import CurveSimParameters
     from curvesimulator.cs_results import CurveSimResults
 
@@ -180,7 +179,7 @@ class RVObservations(ObservationType):
             self.time_s0 = (self.time_d - p.epoch) * p.day
             self.epoch_index = int(np.argmin(np.abs(self.time_s0)))
             self.observed = df["rv"].to_numpy(dtype=float)
-            assert isinstance(p.rv_body, CurveSimBody)
+            assert p.rv_body is not None
             self.calc_corrected(p.rv_body.rv_offset)
             self.error = df["rv_err"].to_numpy(dtype=float)
             self.calc_total_error(p.rv_body.rv_jitter)
@@ -209,7 +208,7 @@ class RVObservations(ObservationType):
 
     def update(self, p: CurveSimParameters, rebound_sim: rebound.Simulation):
         # update rv observations with new rv offset and jitter, then calc computed and residuals.
-        assert isinstance(p.rv_body, CurveSimBody)
+        assert p.rv_body is not None
         self.calc_corrected(p.rv_body.rv_offset)    # observed - offset
         self.calc_total_error(p.rv_body.rv_jitter)  # sqrt(error^2 + jitter^2)
         self.calc_log_norm_term()                   # from total_error
@@ -298,7 +297,7 @@ class TTObservations(ObservationType):
             self.measured_tt = df[(df["tt"] >= p.sim_start) & (df["tt"] <= p.sim_end)].copy()
             self.observation_count = len(df["tt"])
         else:
-            # self.measured_tt = None
+            self.measured_tt = pd.DataFrame()
             self.observation_count = 0
 
     def __repr__(self):

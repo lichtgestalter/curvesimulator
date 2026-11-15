@@ -151,7 +151,8 @@ class CurveSimMCMC:
                 steps_done, self.loaded_steps = 0, 0
         else:
             print("Running without backend.")
-            # self.backend = None
+            # noinspection bad-assignment
+            self.backend = None
             steps_done, self.loaded_steps = 0, 0
 
         if p.mcmc_multi_processing:
@@ -871,8 +872,8 @@ class CurveSimMCMC:
         mcmc_results["MCMC Performance"]["total_steps_after_burn_in"] = steps_done
         steps_this_run = steps_done - self.iterations_from_backend + p.burn_in
         mcmc_results["MCMC Performance"]["steps_this_run"] = steps_this_run
-        assert isinstance(steps_this_run, float)
-        assert isinstance(p.walkers, float)
+        assert isinstance(steps_this_run, (int, float))
+        assert isinstance(p.walkers, (int, float))
         mcmc_results["MCMC Performance"]["fitting_time_per_step_this_run"] = f"{fitting_time / steps_this_run:.3f} [s]"
         mcmc_results["MCMC Performance"]["steps_this_run_per_second"] = f"{steps_this_run / fitting_time:.0f} [steps/s]"
         mcmc_results["MCMC Performance"]["simulations_this_run_per_second"] = f"{steps_this_run * p.walkers / fitting_time:.0f} [steps*walkers/s]"

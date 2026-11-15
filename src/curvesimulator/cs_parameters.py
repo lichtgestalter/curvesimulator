@@ -352,6 +352,38 @@ class CurveSimParameters:
         error()
 
     @staticmethod
+    def get_tuple(config, section, name, fallback, length):
+
+        def error():
+            print(f"{Fore.RED}Must be a string known to matplotlib or a tuple/list with exactly 3 values, each between 0 and 1, but {name} = {value} .")
+            print(f"{Fore.RED}Tuples must NOT have parentheses. Strings must NOT have quotation marks.")
+            print(f"{Fore.RED}Examples of correct values: {Fore.WHITE}0.3, 0.8, 0.4{Fore.RED} or {Fore.WHITE}green{Fore.RED} or {Fore.WHITE}xkcd:light gray.\n")
+            # return value  # debug
+            sys.exit(1)
+
+        value = config.get(section, name, fallback=fallback)
+        if value is None:
+            return value
+        elif "," in value:
+            items = value.split(",")
+            value = tuple([ast.literal_eval(x) for x in items])
+            if isinstance(value, (list, tuple)):
+                if len(value) == 3 and all(0 <= c <= 1 for c in value):
+                    return value  # correct tuple
+                else:
+                    print(f"{Fore.RED}\nERROR in config file: {name} has an invalid color tuple or list.")
+                    error()
+        elif isinstance(value, str):
+            value = value.replace('"', '').replace("'", "")  # remove ' and "
+            if value in mcolors.get_named_colors_mapping():
+                return value  # color name is accepted by matplotlib
+            else:
+                print(f"{Fore.RED}\nERROR in config file: {name} has an invalid color string.")
+                error()
+        print(f"{Fore.RED}\nERROR in config file: {name} has an invalid color. It is neither a string or a tuple/list")
+        error()
+
+    @staticmethod
     def find_and_check_config_file(config_file):
         """Check if config file can be opened and contains all standard sections."""
         # Check program params and extract config file name from them.
@@ -377,16 +409,56 @@ class CurveSimParameters:
             sys.exit(1)
 
     # noinspection unused-local,DuplicatedCode
+    def read_param_new(self, config, section, param, fallback, evaluate=True, forced_type=None, lower=None, upper=None):
+        value = config.get(section, param, fallback=fallback)
+        if value != fallback:
+            if evaluate:
+                if section != "Astronomical Constants":
+                    # For ease of use of these constants in the config file they are additionally defined here without the prefix "self.".
+                    g, au, r_sun, m_sun, l_sun = self.g, self.au, self.r_sun, self.m_sun, self.l_sun
+                    r_jup, m_jup, r_nep, m_nep, r_earth, m_earth = self.r_jup, self.m_jup, self.r_nep, self.m_nep, self.r_earth, self.m_earth
+                    hour, day, year, rad2deg, deg2rad = self.hour, self.day, self.year, self.rad2deg, self.deg2rad
+                try:
+                    value = eval(value)
+                except NameError, ValueError:
+                    print(f"{Fore.RED}\nERROR in Configuration: Parameter {param} in section {section} has value {value}, which cannot be evaluated. {Style.RESET_ALL}")
+                    if forced_type is not None:
+                        print(f"{Fore.RED}Must have type {forced_type.__name__}. {Style.RESET_ALL}")
+                    sys.exit(1)
+                if value == fallback:
+                    return eval(value)
+            if forced_type in (bool, str, int, dict, tuple, list):
+                if not isinstance(value, forced_type):
+                    print(f"{Fore.RED}\nERROR in Configuration: Parameter {param} in section {section} must have type {forced_type.__name__}. {Style.RESET_ALL}")
+                    sys.exit(1)
+            if forced_type == float:
+                if not isinstance(value, (int, float)) or isinstance(value, bool):
+                    print(f"{Fore.RED}\nERROR in Configuration: Parameter {param} in section {section} must be a number. {Style.RESET_ALL}")
+                    sys.exit(1)
+            if lower is not None:
+                if upper is not None:
+                    ok = lower <= value <= upper
+                else:
+                    ok = lower <= value
+            else:
+                if upper is not None:
+                    ok = value <= upper
+                else:
+                    ok = True
+            if not ok:
+                print(f"{Fore.RED}\nERROR in Configuration: Parameter {param} in section {section} has value {value}, which is out of bounds. {lower=}, {upper=}. {Style.RESET_ALL}")
+                sys.exit(1)
+        return value
+
+    # noinspection unused-local,DuplicatedCode
     def read_param(self, config, section, param, fallback, evaluate=True, forced_type=None, lower=None, upper=None):
         value = config.get(section, param, fallback=fallback)
-        # if value is None:
-        #     return None
         if evaluate:
             if section != "Astronomical Constants":
                 # For ease of use of these constants in the config file they are additionally defined here without the prefix "self.".
                 g, au, r_sun, m_sun, l_sun = self.g, self.au, self.r_sun, self.m_sun, self.l_sun
                 r_jup, m_jup, r_nep, m_nep, r_earth, m_earth = self.r_jup, self.m_jup, self.r_nep, self.m_nep, self.r_earth, self.m_earth
-                hour, day, year, rad2deg, deg2rad = self.hour, self.day, self.year, self.rad2deg, self.deg2rad
+                hour, day, year, rad2deg = self.hour, self.day, self.year, self.rad2deg
             try:
                 value = eval(value)
             except NameError, ValueError:
@@ -394,29 +466,28 @@ class CurveSimParameters:
                 if forced_type is not None:
                     print(f"{Fore.RED}Must have type {forced_type.__name__}. {Style.RESET_ALL}")
                 sys.exit(1)
-        if value == fallback:
-            return value
-        if forced_type in (bool, str, int, dict, tuple, list):
-            if not isinstance(value, forced_type):
-                print(f"{Fore.RED}\nERROR in Configuration: Parameter {param} in section {section} must have type {forced_type.__name__}. {Style.RESET_ALL}")
-                sys.exit(1)
-        if forced_type == float:
-            if not isinstance(value, (int, float)) or isinstance(value, bool):
-                print(f"{Fore.RED}\nERROR in Configuration: Parameter {param} in section {section} must be a number. {Style.RESET_ALL}")
-                sys.exit(1)
-        if lower is not None:
-            if upper is not None:
-                ok = lower <= value <= upper
+        if value is not None:
+            if forced_type in (bool, str, int, dict, tuple, list):
+                if not isinstance(value, forced_type):
+                    print(f"{Fore.RED}\nERROR in Configuration: Parameter {param} in section {section} must have type {forced_type.__name__}. {Style.RESET_ALL}")
+                    sys.exit(1)
+            if forced_type == float:
+                if not isinstance(value, (int, float)) or isinstance(value, bool):
+                    print(f"{Fore.RED}\nERROR in Configuration: Parameter {param} in section {section} must be a number. {Style.RESET_ALL}")
+                    sys.exit(1)
+            if lower is not None:
+                if upper is not None:
+                    ok = lower <= value <= upper
+                else:
+                    ok = lower <= value
             else:
-                ok = lower <= value
-        else:
-            if upper is not None:
-                ok = value <= upper
-            else:
-                ok = True
-        if not ok:
-            print(f"{Fore.RED}\nERROR in Configuration: Parameter {param} in section {section} has value {value}, which is out of bounds. {lower=}, {upper=}. {Style.RESET_ALL}")
-            sys.exit(1)
+                if upper is not None:
+                    ok = value <= upper
+                else:
+                    ok = True
+            if not ok:
+                print(f"{Fore.RED}\nERROR in Configuration: Parameter {param} in section {section} has value {value}, which is out of bounds. {lower=}, {upper=}. {Style.RESET_ALL}")
+                sys.exit(1)
         return value
 
     # noinspection unused-local,DuplicatedCode
