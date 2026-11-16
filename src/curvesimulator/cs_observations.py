@@ -69,7 +69,7 @@ class ObservationType:
         return self.chi_squared
 
     def calc_reduced_chi_squared(self, p: CurveSimParameters):
-        if p.free_parameters is not None and p.free_parameters < self.observation_count:
+        if 0 < p.free_parameters < self.observation_count:
             self.reduced_chi_squared = self.chi_squared / (self.observation_count - p.free_parameters)
         else:
             self.reduced_chi_squared = None
@@ -179,7 +179,7 @@ class RVObservations(ObservationType):
             self.time_s0 = (self.time_d - p.epoch) * p.day
             self.epoch_index = int(np.argmin(np.abs(self.time_s0)))
             self.observed = df["rv"].to_numpy(dtype=float)
-            assert p.rv_body is not None
+            # assert p.rv_body is not None
             self.calc_corrected(p.rv_body.rv_offset)
             self.error = df["rv_err"].to_numpy(dtype=float)
             self.calc_total_error(p.rv_body.rv_jitter)
@@ -208,7 +208,7 @@ class RVObservations(ObservationType):
 
     def update(self, p: CurveSimParameters, rebound_sim: rebound.Simulation):
         # update rv observations with new rv offset and jitter, then calc computed and residuals.
-        assert p.rv_body is not None
+        # assert p.rv_body is not None
         self.calc_corrected(p.rv_body.rv_offset)    # observed - offset
         self.calc_total_error(p.rv_body.rv_jitter)  # sqrt(error^2 + jitter^2)
         self.calc_log_norm_term()                   # from total_error

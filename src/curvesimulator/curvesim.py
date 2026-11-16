@@ -92,9 +92,9 @@ class CurveSimulator:
 
             p.enrich_fitting_params(bodies)
             print(f"Fitting {p.free_parameters} params.")
-            if p.free_parameters is not None and p.free_parameters >= o.observation_count:
+            if p.free_parameters >= o.observation_count:
                 print(f"{Fore.YELLOW}\nWARNING: There are {p.free_parameters} free parameters but only {o.observation_count} observations.{Style.RESET_ALL}")
-            if p.free_parameters is None and o.observation_count > 0:
+            if p.free_parameters == 0 and o.observation_count > 0:
                 print(f"{Fore.YELLOW}\nWARNING: p-values will not be calculated because the parameter free_parameters is missing in the configuration file.{Style.RESET_ALL}")
 
             if p.action == "guifit":

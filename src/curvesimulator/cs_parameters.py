@@ -36,21 +36,21 @@ class CurveSimParameters:
 
         section = "Astronomical Constants"
         # For ease of use of these constants in the config file they are additionally defined here without the prefix "self.".
-        g = self.read_param(config, section, "g", "None", evaluate=True, forced_type=float, lower=0, upper=None)
-        au = self.read_param(config, section, "au", "None", evaluate=True, forced_type=float, lower=0, upper=None)
-        r_sun = self.read_param(config, section, "r_sun", "None", evaluate=True, forced_type=float, lower=0, upper=None)
-        m_sun = self.read_param(config, section, "m_sun", "None", evaluate=True, forced_type=float, lower=0, upper=None)
-        l_sun = self.read_param(config, section, "l_sun", "None", evaluate=True, forced_type=float, lower=0, upper=None)
-        r_jup = self.read_param(config, section, "r_jup", "None", evaluate=True, forced_type=float, lower=0, upper=None)
-        m_jup = self.read_param(config, section, "m_jup", "None", evaluate=True, forced_type=float, lower=0, upper=None)
-        r_nep = self.read_param(config, section, "r_nep", "None", evaluate=True, forced_type=float, lower=0, upper=None)
-        m_nep = self.read_param(config, section, "m_nep", "None", evaluate=True, forced_type=float, lower=0, upper=None)
-        r_earth = self.read_param(config, section, "r_earth", "None", evaluate=True, forced_type=float, lower=0, upper=None)
-        m_earth = self.read_param(config, section, "m_earth", "None", evaluate=True, forced_type=float, lower=0, upper=None)
-        hour = self.read_param(config, section, "hour", "None", evaluate=True, forced_type=int, lower=0, upper=None)
-        day = self.read_param(config, section, "day", "None", evaluate=True, forced_type=int, lower=0, upper=None)
-        year = self.read_param(config, section, "year", "None", evaluate=True, forced_type=float, lower=0, upper=None)
-        rad2deg = self.read_param(config, section, "rad2deg", "None", evaluate=True, forced_type=float, lower=0, upper=None)
+        g = self.read_param(config, section, "g", "None", evaluate=True, forced_type=float, lower=0)
+        au = self.read_param(config, section, "au", "None", evaluate=True, forced_type=float, lower=0)
+        r_sun = self.read_param(config, section, "r_sun", "None", evaluate=True, forced_type=float, lower=0)
+        m_sun = self.read_param(config, section, "m_sun", "None", evaluate=True, forced_type=float, lower=0)
+        l_sun = self.read_param(config, section, "l_sun", "None", evaluate=True, forced_type=float, lower=0)
+        r_jup = self.read_param(config, section, "r_jup", "None", evaluate=True, forced_type=float, lower=0)
+        m_jup = self.read_param(config, section, "m_jup", "None", evaluate=True, forced_type=float, lower=0)
+        r_nep = self.read_param(config, section, "r_nep", "None", evaluate=True, forced_type=float, lower=0)
+        m_nep = self.read_param(config, section, "m_nep", "None", evaluate=True, forced_type=float, lower=0)
+        r_earth = self.read_param(config, section, "r_earth", "None", evaluate=True, forced_type=float, lower=0)
+        m_earth = self.read_param(config, section, "m_earth", "None", evaluate=True, forced_type=float, lower=0)
+        hour = self.read_param(config, section, "hour", "None", evaluate=True, forced_type=int, lower=0)
+        day = self.read_param(config, section, "day", "None", evaluate=True, forced_type=int, lower=0)
+        year = self.read_param(config, section, "year", "None", evaluate=True, forced_type=float, lower=0)
+        rad2deg = self.read_param(config, section, "rad2deg", "None", evaluate=True, forced_type=float, lower=0)
         deg2rad = 1 / rad2deg
 
         self.g, self.au, self.r_sun, self.m_sun, self.l_sun = g, au, r_sun, m_sun, l_sun,
@@ -74,7 +74,7 @@ class CurveSimParameters:
         self.body_param_unit_names: list[str] = []
 
         section = "Results"
-        self.results_directory = self.read_param(config, section, "results_directory", ".", evaluate=False, forced_type=str, lower=None, upper=None)
+        self.results_directory = self.read_param(config, section, "results_directory", ".", evaluate=False, forced_type=str)
         self.results_directory = self.find_results_subdirectory()
 
         # After these 3 lines, every print() goes to the console and to console.txt
@@ -87,52 +87,54 @@ class CurveSimParameters:
         self.result_file = CurveSimParameters.check_filename_and_add_path(self.result_file, "result_file", self.results_directory)
 
         section = "Simulation"
-        self.action = self.read_param(config, section, "action", None, evaluate=False, forced_type=str, lower=None, upper=None)
-        self.integrator = self.read_param(config, section, "integrator", None, evaluate=False, forced_type=str, lower=None, upper=None)
-        self.jacobi_masses = self.read_param(config, section, "jacobi_masses", "True", evaluate=True, forced_type=bool, lower=None, upper=None)
-        self.rebound_warnings = self.read_param(config, section, "rebound_warnings", "True", evaluate=True, forced_type=bool, lower=None, upper=None)
-        self.dt = self.read_param(config, section, "dt", "1000", evaluate=True, forced_type=float, lower=0, upper=None)
-        self.sim_start = self.read_param(config, section, "sim_start", "None", evaluate=True, forced_type=float, lower=None, upper=None)
-        self.sim_end = self.read_param(config, section, "sim_end", "None", evaluate=True, forced_type=float, lower=self.sim_start, upper=None)
-        self.epoch = self.read_param(config, section, "epoch", "0.0", evaluate=True, forced_type=float, lower=None, upper=self.sim_end)
+        self.action = self.read_param(config, section, "action", "NoAction", evaluate=False, forced_type=str)
+        self.integrator = self.read_param(config, section, "integrator", "NoIntegrator", evaluate=False, forced_type=str)
+        self.jacobi_masses = self.read_param(config, section, "jacobi_masses", "True", evaluate=True, forced_type=bool)
+        self.rebound_warnings = self.read_param(config, section, "rebound_warnings", "True", evaluate=True, forced_type=bool)
+        self.dt = self.read_param(config, section, "dt", "1000", evaluate=True, forced_type=float, lower=0)
+        self.sim_start = self.read_param(config, section, "sim_start", "0", evaluate=True, forced_type=float)
+        self.sim_end = self.read_param(config, section, "sim_end", "0", evaluate=True, forced_type=float, lower=self.sim_start)
+        self.epoch = self.read_param(config, section, "epoch", "0", evaluate=True, forced_type=float, upper=self.sim_end)
         self.epoch_index = 0
-        self.sim_flux_file = self.read_param(config, section, "sim_flux_file", None, evaluate=False, forced_type=str, lower=None, upper=None)
+        self.sim_flux_file = self.read_param(config, section, "sim_flux_file", "", evaluate=False, forced_type=str)
         self.sim_flux_file = CurveSimParameters.check_filename_and_add_path(self.sim_flux_file, "sim_flux_file", self.results_directory)
-        self.computed_flux_file = self.read_param(config, section, "computed_flux_file", None, evaluate=False, forced_type=str, lower=None, upper=None)
+        self.computed_flux_file = self.read_param(config, section, "computed_flux_file", "", evaluate=False, forced_type=str)
         self.computed_flux_file = CurveSimParameters.check_filename_and_add_path(self.computed_flux_file, "computed_flux_file", self.results_directory)
-        self.sim_flux_err = self.read_param(config, section, "sim_flux_err", "0.0", evaluate=True, forced_type=float, lower=0, upper=None)
-        self.rv_body_name = self.read_param(config, section, "rv_body_name", None, evaluate=False, forced_type=str, lower=None, upper=None)
-        self.rv_body: CurveSimBody | None
+        self.sim_flux_err = self.read_param(config, section, "sim_flux_err", "0.0", evaluate=True, forced_type=float, lower=0)
+        self.rv_body_name = self.read_param(config, section, "rv_body_name", "NoRvBodyName", evaluate=False, forced_type=str)
+        self.rv_body: CurveSimBody
+        # self.rv_body: CurveSimBody | None
 
         section = "Results"
-        self.comment = self.read_param(config, section, "comment", "No comment", evaluate=False, forced_type=str, lower=None, upper=None)
-        self.verbose = self.read_param(config, section, "verbose", "False", evaluate=True, forced_type=bool, lower=None, upper=None)
-        self.print_initial_body_states = self.read_param(config, section, "print_initial_body_states", "False", evaluate=True, forced_type=bool, lower=None, upper=None)
-        self.transit_precision = self.read_param(config, section, "transit_precision", "1", evaluate=True, forced_type=float, lower=0, upper=None)
-        self.flux_data_directory = self.read_param(config, section, "flux_data_directory", ".", evaluate=False, forced_type=str, lower=None, upper=None)
-        self.max_interval_extensions = self.read_param(config, section, "max_interval_extensions", "10", evaluate=True, forced_type=int, lower=0, upper=None)
+        self.comment = self.read_param(config, section, "comment", "No comment", evaluate=False, forced_type=str)
+        self.verbose = self.read_param(config, section, "verbose", "False", evaluate=True, forced_type=bool)
+        self.print_initial_body_states = self.read_param(config, section, "print_initial_body_states", "False", evaluate=True, forced_type=bool)
+        self.transit_precision = self.read_param(config, section, "transit_precision", "1", evaluate=True, forced_type=float, lower=0)
+        self.flux_data_directory = self.read_param(config, section, "flux_data_directory", ".", evaluate=False, forced_type=str)
+        self.max_interval_extensions = self.read_param(config, section, "max_interval_extensions", "10", evaluate=True, forced_type=int, lower=0)
 
-        self.unit = self.read_param(config, section, "unit", self.DEFAULT_UNIT, evaluate=True, forced_type=dict, lower=None, upper=None)
+        self.unit = self.read_param(config, section, "unit", self.DEFAULT_UNIT, evaluate=True, forced_type=dict)
         self.unit = cast(dict, self.unit)
         self.check_unit(self.unit, section)
         self.scale = {param: self.SCALE_FROM_UNIT[unit] for param, unit in self.unit.items()}
 
-        self.tt_padding = self.read_param(config, section, "tt_padding", "0.3", evaluate=True, forced_type=float, lower=0, upper=None)
+        self.tt_padding = self.read_param(config, section, "tt_padding", "0.3", evaluate=True, forced_type=float, lower=0)
         self.bins = tuple([eval(x) for x in config.get(section, "bins", fallback="60").split("#")[0].split(",")])
-        self.flux_plots_top = self.read_param(config, section, "flux_plots_top", "1.015", evaluate=True, forced_type=float, lower=0, upper=None)
-        self.flux_plots_bottom = self.read_param(config, section, "flux_plots_bottom", "0.97", evaluate=True, forced_type=float, lower=0, upper=None)
-        self.free_parameters = self.read_param(config, section, "free_parameters", "None", evaluate=True, forced_type=int, lower=0, upper=None)  # Gets overwritten when fitting.
+        self.flux_plots_top = self.read_param(config, section, "flux_plots_top", "1.015", evaluate=True, forced_type=float, lower=0)
+        self.flux_plots_bottom = self.read_param(config, section, "flux_plots_bottom", "0.97", evaluate=True, forced_type=float, lower=0)
+        self.free_parameters = self.read_param(config, section, "free_parameters", "0", evaluate=True, forced_type=int, lower=0)  # Gets overwritten when fitting.
 
         section = "Fitting"
-        self.mcmc_multi_processing = self.read_param(config, section, "mcmc_multi_processing", "True", evaluate=True, forced_type=bool, lower=None, upper=None)
-        self.flux_file = self.read_param(config, section, "flux_file", None, evaluate=False, forced_type=str, lower=None, upper=None)
-        self.sector_params_file = self.read_param(config, section, "sector_params_file", None, evaluate=False, forced_type=str, lower=None, upper=None)
-        if self.sector_params_file is None:
+        self.mcmc_multi_processing = self.read_param(config, section, "mcmc_multi_processing", "True", evaluate=True, forced_type=bool)
+        self.flux_file = self.read_param(config, section, "flux_file", "", evaluate=False, forced_type=str)
+        self.sector_params_file = self.read_param(config, section, "sector_params_file", "", evaluate=False, forced_type=str)
+        if not self.sector_params_file:
             self.sector_params_fit = False
         else:
-            self.sector_params_fit = self.read_param(config, section, "sector_params_fit", "False", evaluate=True, forced_type=bool, lower=None, upper=None)
-        self.tt_file = self.read_param(config, section, "tt_file", None, evaluate=False, forced_type=str, lower=None, upper=None)
-        self.rv_file = self.read_param(config, section, "rv_file", None, evaluate=False, forced_type=str, lower=None, upper=None)
+            self.sector_params_fit = self.read_param(config, section, "sector_params_fit", "False", evaluate=True, forced_type=bool)
+        ab hier weiter None Fallbacks entfernen
+        self.tt_file = self.read_param(config, section, "tt_file", None, evaluate=False, forced_type=str)
+        self.rv_file = self.read_param(config, section, "rv_file", None, evaluate=False, forced_type=str)
 
         raw = config.get(section, "eclipsers_names", fallback="None").split("#")[0]
         self.eclipsers_names = [x.strip() for x in raw.split(",")]
@@ -140,9 +142,9 @@ class CurveSimParameters:
         self.eclipsees_names = [x.strip() for x in raw.split(",")]
 
         self.best_residuals_tt_sum_squared = 1e99
-        self.lmfit_method = self.read_param(config, section, "lmfit_method", "powell", evaluate=False, forced_type=str, lower=None, upper=None)
-        self.ls_chunk_size = int(self.read_param(config, section, "ls_chunk_size", "1000", evaluate=True, forced_type=float, lower=1, upper=None))
-        self.ls_steps = int(self.read_param(config, section, "ls_steps", "1000000", evaluate=True, forced_type=float, lower=1, upper=None))
+        self.lmfit_method = self.read_param(config, section, "lmfit_method", "powell", evaluate=False, forced_type=str)
+        self.ls_chunk_size = int(self.read_param(config, section, "ls_chunk_size", "1000", evaluate=True, forced_type=float, lower=1))
+        self.ls_steps = int(self.read_param(config, section, "ls_steps", "1000000", evaluate=True, forced_type=float, lower=1))
         ls_thresholds = config.get(section, "ls_thresholds", fallback=None)
         if ls_thresholds is None:
             self.ls_thresholds = (1.0, 0.1, 0.01, 0.001, 0.0001)
@@ -151,15 +153,15 @@ class CurveSimParameters:
             if len(self.ls_thresholds) != 5:
                 print(f"{Fore.RED}\nERROR: Parameter ls_thresholds must have exactly 5 items, separated by comma, but {self.ls_thresholds=}{Style.RESET_ALL}")
                 sys.exit(1)
-        self.backend = self.read_param(config, section, "backend", None, evaluate=False, forced_type=str, lower=None, upper=None)  # e.g. emcee_backend.h5
-        self.load_backend = self.read_param(config, section, "load_backend", "False", evaluate=True, forced_type=bool, lower=None, upper=None)
-        self.walkers = int(self.read_param(config, section, "walkers", "32", evaluate=True, forced_type=float, lower=1, upper=None))
-        self.steps = int(self.read_param(config, section, "steps", "1000000", evaluate=True, forced_type=float, lower=1, upper=None))
-        self.moves = self.read_param(config, section, "moves", "(emcee.moves.StretchMove(a=2.0))", evaluate=False, forced_type=str, lower=None, upper=None)
-        self.burn_in = int(self.read_param(config, section, "burn_in", "1000", evaluate=True, forced_type=float, lower=1, upper=None))
-        self.chunk_size = int(self.read_param(config, section, "chunk_size", "500", evaluate=True, forced_type=float, lower=1, upper=None))
-        self.thin_samples = int(self.read_param(config, section, "thin_samples", "1", evaluate=True, forced_type=float, lower=1, upper=None))
-        self.convert_e_omega_2_u_v = self.read_param(config, section, "convert_e_omega_2_u_v", "True", evaluate=True, forced_type=bool, lower=None, upper=None)
+        self.backend = self.read_param(config, section, "backend", None, evaluate=False, forced_type=str)  # e.g. emcee_backend.h5
+        self.load_backend = self.read_param(config, section, "load_backend", "False", evaluate=True, forced_type=bool)
+        self.walkers = int(self.read_param(config, section, "walkers", "32", evaluate=True, forced_type=float, lower=1))
+        self.steps = int(self.read_param(config, section, "steps", "1000000", evaluate=True, forced_type=float, lower=1))
+        self.moves = self.read_param(config, section, "moves", "(emcee.moves.StretchMove(a=2.0))", evaluate=False, forced_type=str)
+        self.burn_in = int(self.read_param(config, section, "burn_in", "1000", evaluate=True, forced_type=float, lower=1))
+        self.chunk_size = int(self.read_param(config, section, "chunk_size", "500", evaluate=True, forced_type=float, lower=1))
+        self.thin_samples = int(self.read_param(config, section, "thin_samples", "1", evaluate=True, forced_type=float, lower=1))
+        self.convert_e_omega_2_u_v = self.read_param(config, section, "convert_e_omega_2_u_v", "True", evaluate=True, forced_type=bool)
         self.body_fparams_count = 0  # Number of fitting params that are body params. Used to handle body params and other (e.g. sector) params differently.
         self.e_omega_to_u_v_conversion_list: list[tuple[int, int, int]] = []
         self.param_references: list[tuple[int, str]] = []
@@ -172,30 +174,30 @@ class CurveSimParameters:
         self.fparams_count_plus = self.fparams_count + self.derived_params_count
 
         section = "Video"
-        self.video_file = self.read_param(config, section, "video_file", None, evaluate=False, forced_type=str, lower=None, upper=None)
+        self.video_file = self.read_param(config, section, "video_file", None, evaluate=False, forced_type=str)
         self.video_file = CurveSimParameters.check_filename_and_add_path(self.video_file, "video_file", self.results_directory)
-        self.frames = self.read_param(config, section, "frames", "250", evaluate=True, forced_type=int, lower=1, upper=None)
-        self.fps = self.read_param(config, section, "fps", "25", evaluate=True, forced_type=int, lower=1, upper=None)
-        self.clockwise = self.read_param(config, section, "clockwise", "False", evaluate=True, forced_type=bool, lower=None, upper=None)
+        self.frames = self.read_param(config, section, "frames", "250", evaluate=True, forced_type=int, lower=1)
+        self.fps = self.read_param(config, section, "fps", "25", evaluate=True, forced_type=int, lower=1)
+        self.clockwise = self.read_param(config, section, "clockwise", "False", evaluate=True, forced_type=bool)
 
         section = "VideoScale"
-        self.offset_x_left = self.read_param(config, section, "offset_x_left", "0", evaluate=True, forced_type=float, lower=None, upper=None)
-        self.offset_y_left = self.read_param(config, section, "offset_y_left", "0", evaluate=True, forced_type=float, lower=None, upper=None)
-        self.scope_left = self.read_param(config, section, "scope_left", "au", evaluate=True, forced_type=float, lower=0, upper=None)
-        self.scale_bar_length_left = self.read_param(config, section, "scale_bar_length_left", "au", evaluate=True, forced_type=float, lower=0, upper=None)
-        self.star_scale_left = self.read_param(config, section, "star_scale_left", "1.0", evaluate=True, forced_type=float, lower=0, upper=None)
-        self.planet_scale_left = self.read_param(config, section, "planet_scale_left", "1.0", evaluate=True, forced_type=float, lower=0, upper=None)
+        self.offset_x_left = self.read_param(config, section, "offset_x_left", "0", evaluate=True, forced_type=float)
+        self.offset_y_left = self.read_param(config, section, "offset_y_left", "0", evaluate=True, forced_type=float)
+        self.scope_left = self.read_param(config, section, "scope_left", "au", evaluate=True, forced_type=float, lower=0)
+        self.scale_bar_length_left = self.read_param(config, section, "scale_bar_length_left", "au", evaluate=True, forced_type=float, lower=0)
+        self.star_scale_left = self.read_param(config, section, "star_scale_left", "1.0", evaluate=True, forced_type=float, lower=0)
+        self.planet_scale_left = self.read_param(config, section, "planet_scale_left", "1.0", evaluate=True, forced_type=float, lower=0)
 
-        self.offset_x_right = self.read_param(config, section, "offset_x_right", "0", evaluate=True, forced_type=float, lower=None, upper=None)
-        self.offset_y_right = self.read_param(config, section, "offset_y_right", "0", evaluate=True, forced_type=float, lower=None, upper=None)
-        self.scope_right = self.read_param(config, section, "scope_right", "au", evaluate=True, forced_type=float, lower=0, upper=None)
-        self.scale_bar_length_right = self.read_param(config, section, "scale_bar_length_right", "au", evaluate=True, forced_type=float, lower=0, upper=None)
-        self.star_scale_right = self.read_param(config, section, "star_scale_right", "1.0", evaluate=True, forced_type=float, lower=0, upper=None)
-        self.planet_scale_right = self.read_param(config, section, "planet_scale_right", "1.0", evaluate=True, forced_type=float, lower=0, upper=None)
+        self.offset_x_right = self.read_param(config, section, "offset_x_right", "0", evaluate=True, forced_type=float)
+        self.offset_y_right = self.read_param(config, section, "offset_y_right", "0", evaluate=True, forced_type=float)
+        self.scope_right = self.read_param(config, section, "scope_right", "au", evaluate=True, forced_type=float, lower=0)
+        self.scale_bar_length_right = self.read_param(config, section, "scale_bar_length_right", "au", evaluate=True, forced_type=float, lower=0)
+        self.star_scale_right = self.read_param(config, section, "star_scale_right", "1.0", evaluate=True, forced_type=float, lower=0)
+        self.planet_scale_right = self.read_param(config, section, "planet_scale_right", "1.0", evaluate=True, forced_type=float, lower=0)
 
-        self.autoscaling = self.read_param(config, section, "autoscaling", "True", evaluate=True, forced_type=bool, lower=None, upper=None)
-        self.min_radius = self.read_param(config, section, "min_radius", "0.4", evaluate=True, forced_type=float, lower=0, upper=None) / 100.0
-        self.max_radius = self.read_param(config, section, "max_radius", "2.0", evaluate=True, forced_type=float, lower=0, upper=None) / 100.0
+        self.autoscaling = self.read_param(config, section, "autoscaling", "True", evaluate=True, forced_type=bool)
+        self.min_radius = self.read_param(config, section, "min_radius", "0.4", evaluate=True, forced_type=float, lower=0) / 100.0
+        self.max_radius = self.read_param(config, section, "max_radius", "2.0", evaluate=True, forced_type=float, lower=0) / 100.0
 
         section = "VideoPlot"
         self.video_background_color = CurveSimParameters.get_color_param(config, section, "video_background_color", "xkcd:black")
@@ -204,26 +206,26 @@ class CurveSimParameters:
         self.scale_bar_fontsize = self.read_param(config, section, "scale_bar_fontsize", "8", evaluate=True, forced_type=int, lower=1, upper=1000)
         self.scale_bar_end_x = self.read_param(config, section, "scale_bar_end_x", "0.95", evaluate=True, forced_type=float, lower=0, upper=1.25)
 
-        self.show_left_plot = self.read_param(config, section, "show_left_plot", "True", evaluate=True, forced_type=bool, lower=None, upper=None)
-        self.show_right_plot = self.read_param(config, section, "show_right_plot", "True", evaluate=True, forced_type=bool, lower=None, upper=None)
-        self.show_upper_curve = self.read_param(config, section, "show_upper_curve", "True", evaluate=True, forced_type=bool, lower=None, upper=None)
-        self.show_lower_curve = self.read_param(config, section, "show_lower_curve", "False", evaluate=True, forced_type=bool, lower=None, upper=None)  # False per default, because that way rv_body_name is not necessary per default
+        self.show_left_plot = self.read_param(config, section, "show_left_plot", "True", evaluate=True, forced_type=bool)
+        self.show_right_plot = self.read_param(config, section, "show_right_plot", "True", evaluate=True, forced_type=bool)
+        self.show_upper_curve = self.read_param(config, section, "show_upper_curve", "True", evaluate=True, forced_type=bool)
+        self.show_lower_curve = self.read_param(config, section, "show_lower_curve", "False", evaluate=True, forced_type=bool)  # False per default, because that way rv_body_name is not necessary per default
 
-        self.main_title = self.read_param(config, section, "main_title", "Main Title", evaluate=False, forced_type=str, lower=None, upper=None)
+        self.main_title = self.read_param(config, section, "main_title", "Main Title", evaluate=False, forced_type=str)
         self.main_title_color = CurveSimParameters.get_color_param(config, section, "main_title_color", "xkcd:white")
         self.main_title_fontsize = self.read_param(config, section, "main_title_fontsize", "14", evaluate=True, forced_type=int, lower=1, upper=1000)
 
         # left plot
-        self.left_title = self.read_param(config, section, "left_title", "View from above", evaluate=False, forced_type=str, lower=None, upper=None)
+        self.left_title = self.read_param(config, section, "left_title", "View from above", evaluate=False, forced_type=str)
         self.left_title_fontsize = self.read_param(config, section, "left_title_fontsize", "10", evaluate=True, forced_type=int, lower=1, upper=1000)
         self.left_title_y_coord = self.read_param(config, section, "left_title_y_coord", "0.9", evaluate=True, forced_type=float, lower=0, upper=1)
-        self.show_left_scale_bar = self.read_param(config, section, "show_left_scale_bar", "True", evaluate=True, forced_type=bool, lower=None, upper=None)
+        self.show_left_scale_bar = self.read_param(config, section, "show_left_scale_bar", "True", evaluate=True, forced_type=bool)
 
         # right plot
-        self.right_title = self.read_param(config, section, "right_title", "View from above", evaluate=False, forced_type=str, lower=None, upper=None)
+        self.right_title = self.read_param(config, section, "right_title", "View from above", evaluate=False, forced_type=str)
         self.right_title_fontsize = self.read_param(config, section, "right_title_fontsize", "10", evaluate=True, forced_type=int, lower=1, upper=1000)
         self.right_title_y_coord = self.read_param(config, section, "right_title_y_coord", "0.9", evaluate=True, forced_type=float, lower=0, upper=1)
-        self.show_right_scale_bar = self.read_param(config, section, "show_right_scale_bar", "True", evaluate=True, forced_type=bool, lower=None, upper=None)
+        self.show_right_scale_bar = self.read_param(config, section, "show_right_scale_bar", "True", evaluate=True, forced_type=bool)
 
         # curves
         self.dot_height = self.read_param(config, section, "dot_height", "1/17", evaluate=True, forced_type=float, lower=0, upper=1)
@@ -231,19 +233,19 @@ class CurveSimParameters:
             self.dot_height *= 0.75  # adjust dot_height if only one curve is shown
         self.dot_width = self.read_param(config, section, "dot_width", "1/290", evaluate=True, forced_type=float, lower=0, upper=1)
         self.x_ticks_fontsize = self.read_param(config, section, "x_ticks_fontsize", "8", evaluate=True, forced_type=int, lower=1, upper=1000)
-        self.x_label = self.read_param(config, section, "x_label", "BJD (TDB)", evaluate=False, forced_type=str, lower=None, upper=None)
+        self.x_label = self.read_param(config, section, "x_label", "BJD (TDB)", evaluate=False, forced_type=str)
         self.x_label_fontsize = self.read_param(config, section, "x_label_fontsize", "8", evaluate=True, forced_type=int, lower=1, upper=1000)
         self.x_label_x_coord = self.read_param(config, section, "x_label_x_coord", "0.97", evaluate=True, forced_type=float, lower=-2, upper=2)
         self.x_label_y_coord = self.read_param(config, section, "x_label_y_coord", "-0.06", evaluate=True, forced_type=float, lower=-2, upper=2)
 
         self.upper_curve_color = CurveSimParameters.get_color_param(config, section, "upper_curve_color", "xkcd:white")
-        self.upper_curve_y_label = self.read_param(config, section, "upper_curve_y_label", "Relative Flux", evaluate=False, forced_type=str, lower=None, upper=None)
+        self.upper_curve_y_label = self.read_param(config, section, "upper_curve_y_label", "Relative Flux", evaluate=False, forced_type=str)
         self.upper_curve_y_label_fontsize = self.read_param(config, section, "upper_curve_y_label_fontsize", "8", evaluate=True, forced_type=int, lower=1, upper=1000)
         self.upper_curve_y_tick_fontsize = self.read_param(config, section, "upper_curve_y_tick_fontsize", "8", evaluate=True, forced_type=int, lower=1, upper=1000)
         self.upper_curve_dot_color = CurveSimParameters.get_color_param(config, section, "upper_curve_dot_color", "xkcd:bright red")
 
         self.lower_curve_color = CurveSimParameters.get_color_param(config, section, "lower_curve_color", "xkcd:white")
-        self.lower_curve_y_label = self.read_param(config, section, "lower_curve_y_label", "Radial Velocity [m/s]", evaluate=False, forced_type=str, lower=None, upper=None)
+        self.lower_curve_y_label = self.read_param(config, section, "lower_curve_y_label", "Radial Velocity [m/s]", evaluate=False, forced_type=str)
         self.lower_curve_y_label_fontsize = self.read_param(config, section, "lower_curve_y_label_fontsize", "8", evaluate=True, forced_type=int, lower=1, upper=1000)
         self.lower_curve_y_tick_fontsize = self.read_param(config, section, "lower_curve_y_tick_fontsize", "8", evaluate=True, forced_type=int, lower=1, upper=1000)
         self.lower_curve_dot_color = CurveSimParameters.get_color_param(config, section, "lower_curve_dot_color", "xkcd:green apple")
@@ -251,8 +253,8 @@ class CurveSimParameters:
         # dimensions
         self.figure_width = self.read_param(config, section, "figure_width", "16", evaluate=True, forced_type=int, lower=1, upper=1000)
         self.figure_height = self.read_param(config, section, "figure_height", "8", evaluate=True, forced_type=int, lower=1, upper=1000)
-        self.xlim = self.read_param(config, section, "xlim", "1.25", evaluate=True, forced_type=float, lower=0, upper=None)
-        self.ylim = self.read_param(config, section, "xlim", "1.0", evaluate=True, forced_type=float, lower=0, upper=None)
+        self.xlim = self.read_param(config, section, "xlim", "1.25", evaluate=True, forced_type=float, lower=0)
+        self.ylim = self.read_param(config, section, "xlim", "1.0", evaluate=True, forced_type=float, lower=0)
 
         self.eclipsers, self.eclipsees = (None,) * 2
         self.jacobi_coordinates: bool
@@ -274,7 +276,7 @@ class CurveSimParameters:
 
     @staticmethod
     def check_filename_and_add_path(filename, param_name, results_directory):
-        if filename is None:
+        if not filename:
             return None
         if PurePath(filename).name != filename:
             print(f"{Fore.RED}\nERROR: Parameter {param_name} has value {filename} but must be a legal filename and must not contain a path.{Style.RESET_ALL}")
@@ -438,7 +440,7 @@ class CurveSimParameters:
         return value
 
     # noinspection unused-local,DuplicatedCode
-    def read_param(self, config, section, param, fallback, evaluate=True, forced_type=None, lower=None, upper=None):
+    def read_param(self, config, section, param, fallback, evaluate, forced_type, lower=float("-inf"), upper=float("inf")):
         value = config.get(section, param, fallback=fallback)
         if evaluate:
             if section != "Astronomical Constants":
@@ -462,16 +464,7 @@ class CurveSimParameters:
                 if not isinstance(value, (int, float)) or isinstance(value, bool):
                     print(f"{Fore.RED}\nERROR in Configuration: Parameter {param} in section {section} must be a number. {Style.RESET_ALL}")
                     sys.exit(1)
-            if lower is not None:
-                if upper is not None:
-                    ok = lower <= value <= upper
-                else:
-                    ok = lower <= value
-            else:
-                if upper is not None:
-                    ok = value <= upper
-                else:
-                    ok = True
+            ok = not isinstance(value, (float, int)) or lower <= value <= upper
             if not ok:
                 print(f"{Fore.RED}\nERROR in Configuration: Parameter {param} in section {section} has value {value}, which is out of bounds. {lower=}, {upper=}. {Style.RESET_ALL}")
                 sys.exit(1)

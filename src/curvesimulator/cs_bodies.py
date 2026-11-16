@@ -104,7 +104,7 @@ class CurveSimBodies(list[CurveSimBody]):
         if star_count == 1:
             simulation.integrator = "whfast"
             simulation.dt = p.dt
-        if p.integrator is not None:
+        if p.integrator != "NoIntegrator":
             simulation.integrator = p.integrator
         if p.verbose:
             print(f"Using Rebound integrator {simulation.integrator}. ", end="")
@@ -417,7 +417,7 @@ class CurveSimBodies(list[CurveSimBody]):
 
         """Calculate body positions and the resulting lightcurve."""
         if p.verbose:
-            if p.video_file and p.flux_file is None:
+            if p.video_file and not p.flux_file:
                 print(f"Generating {p.frames} frames for a {p.frames / p.fps:.0f} seconds long video.")
             print(f"Calculating {iterations:,} steps: ", end="")
         tic = time.perf_counter()
