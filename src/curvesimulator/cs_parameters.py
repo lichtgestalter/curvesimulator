@@ -356,7 +356,7 @@ class CurveSimParameters:
         # startposition = CurveSimParameters.get_tuple(config, section, "startposition", None, 3)
         value = config.get(section, name, fallback=fallback)
         if value is None:
-            return value
+            return None
         elif "," in value:
             items = value.split(",")
             value = tuple([ast.literal_eval(x) for x in items])
@@ -366,15 +366,9 @@ class CurveSimParameters:
                 else:
                     print(f"{Fore.RED}\nERROR in config file: {name} is a list/tuple but has length {len(value)} instead of {length}.")
                     sys.exit(1)
-        elif isinstance(value, str):
-            value = value.replace('"', '').replace("'", "")  # remove ' and "
-            if value in mcolors.get_named_colors_mapping():
-                return value  # color name is accepted by matplotlib
-            else:
-                print(f"{Fore.RED}\nERROR in config file: {name} has an invalid color string.")
-                error()
-        print(f"{Fore.RED}\nERROR in config file: {name} has an invalid color. It is neither a string or a tuple/list")
-        error()
+        else:
+            print(f"{Fore.RED}\nERROR in config file: {name} must be a list/tuple of length {length}.")
+            sys.exit(1)
 
     @staticmethod
     def find_and_check_config_file(config_file):
