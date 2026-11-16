@@ -353,14 +353,7 @@ class CurveSimParameters:
 
     @staticmethod
     def get_tuple(config, section, name, fallback, length):
-
-        def error():
-            print(f"{Fore.RED}Must be a string known to matplotlib or a tuple/list with exactly 3 values, each between 0 and 1, but {name} = {value} .")
-            print(f"{Fore.RED}Tuples must NOT have parentheses. Strings must NOT have quotation marks.")
-            print(f"{Fore.RED}Examples of correct values: {Fore.WHITE}0.3, 0.8, 0.4{Fore.RED} or {Fore.WHITE}green{Fore.RED} or {Fore.WHITE}xkcd:light gray.\n")
-            # return value  # debug
-            sys.exit(1)
-
+        # startposition = CurveSimParameters.get_tuple(config, section, "startposition", None, 3)
         value = config.get(section, name, fallback=fallback)
         if value is None:
             return value
@@ -368,11 +361,11 @@ class CurveSimParameters:
             items = value.split(",")
             value = tuple([ast.literal_eval(x) for x in items])
             if isinstance(value, (list, tuple)):
-                if len(value) == 3 and all(0 <= c <= 1 for c in value):
+                if len(value) == length:
                     return value  # correct tuple
                 else:
-                    print(f"{Fore.RED}\nERROR in config file: {name} has an invalid color tuple or list.")
-                    error()
+                    print(f"{Fore.RED}\nERROR in config file: {name} is a list/tuple but has length {len(value)} instead of {length}.")
+                    sys.exit(1)
         elif isinstance(value, str):
             value = value.replace('"', '').replace("'", "")  # remove ' and "
             if value in mcolors.get_named_colors_mapping():

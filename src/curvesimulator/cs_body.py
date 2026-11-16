@@ -448,7 +448,7 @@ class CurveSimBody:
     #     Pure function: only e is validated. Range checks on angles are done once
     #     on the inputs of kepler_equation_root, so Newton iterates may leave ]-2π;2π[."""
     #     if not 0 <= e < 1:
-    #         raise ValueError("eccentricity e is outside of the range [0;1[")
+    #         raise ValueError("eccentricity e is outside the range [0;1[")
     #     return ea - e * math.sin(ea) - ma
     #
     # @staticmethod
@@ -463,13 +463,13 @@ class CurveSimBody:
     #     ea_guess: start value for the eccentric anomaly [rad].
     #               If None: ma for e < 0.8, otherwise pi (more robust for high e)."""
     #     if not 0 <= e < 1:
-    #         raise ValueError("eccentricity e is outside of the range [0;1[")
+    #         raise ValueError("eccentricity e is outside the range [0;1[")
     #     if not -2 * math.pi < ma < 2 * math.pi:
-    #         raise ValueError("mean anomaly ma must be in radians but is outside of the range ]-2π;2π[")
+    #         raise ValueError("mean anomaly ma must be in radians but is outside the range ]-2π;2π[")
     #     if ea_guess is None:
     #         ea_guess = ma if e < 0.8 else math.pi
     #     elif not -2 * math.pi < ea_guess < 2 * math.pi:
-    #         raise ValueError("eccentric anomaly guess must be in radians but is outside of the range ]-2π;2π[")
+    #         raise ValueError("eccentric anomaly guess must be in radians but is outside the range ]-2π;2π[")
     #
     #     ea = ea_guess
     #     for _ in range(max_steps):
