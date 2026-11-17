@@ -470,19 +470,10 @@ class CurveSimMCMC:
             # self.max_log_prob = None
 
     def high_density_intervals(self, p: CurveSimParameters):
-        # Calculate HDI and other mcmc results.
-        # self.mean_params: list[float] = []
-        # self.median_params: list[float] = []
+        # Calculate HDI and maxL sample.
         for i, fp in enumerate(p.fitting_params_plus):
-            hdi_min, hdi_max, std, mean, median = CurveSimMCMC.hdi_std_mean(self.scaled_samples[:, i], self.credible_mass)
-            fp.hdi_min = hdi_min
-            fp.hdi_max = hdi_max
-            fp.std = std
-            fp.mean = mean
-            fp.median = median
+            fp.hdi_min, fp.hdi_max, fp.std, fp.mean, fp.median = CurveSimMCMC.hdi_std_mean(self.scaled_samples[:, i], self.credible_mass)
             fp.max_likelihood = self.max_likelihood_params_scaled[i]
-            # self.mean_params.append(mean)
-            # self.median_params.append(median)
 
     def get_max_likelihood_bodies(self, bodies: CurveSimBodies, p: CurveSimParameters):
         i = 0
@@ -890,8 +881,8 @@ class CurveSimMCMC:
             mcmc_results["measured_tt_list"] = measured_tt.to_dict(orient="list")  # Convert measured_tt DataFrame to a serializable format
 
         # Fitting Parameters Section
-        fitting_params = copy.deepcopy(p.fitting_params_plus)
-        for fp in fitting_params:
+        fitting_params_copy = copy.deepcopy(p.fitting_params_plus)
+        for fp in fitting_params_copy:
             fp.startvalue *= fp.scale
             fp.lower *= fp.scale
             fp.upper *= fp.scale
@@ -900,8 +891,7 @@ class CurveSimMCMC:
                 if hasattr(fp, name):
                     orig = getattr(fp, name)
                     fp.__dict__[name] = [float(i) for i in orig]
-        mcmc_results["Fitting Parameters"] = {fp.body_param_name: fp.__dict__ for fp in fitting_params}
-
+        mcmc_results["Fitting Parameters"] = {fp.body_param_name: fp.__dict__ for fp in fitting_params_copy}
         self.mcmc_results2json(mcmc_results, p)
 
     def mcmc_results2json(self, mcmc_results, p: CurveSimParameters):

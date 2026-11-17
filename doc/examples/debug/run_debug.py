@@ -2,7 +2,7 @@ from curvesimulator import CurveSimulator
 
 
 def main():
-    CurveSimulator(config_file="config_debug.ini")
+    CurveSimulator(config_file="debug.ini")
 
 
 if __name__ == "__main__":
