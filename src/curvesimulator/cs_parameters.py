@@ -36,21 +36,21 @@ class CurveSimParameters:
 
         section = "Astronomical Constants"
         # For ease of use of these constants in the config file they are additionally defined here without the prefix "self.".
-        g = self.read_param(config, section, "g", "None", evaluate=True, forced_type=float, lower=0)
-        au = self.read_param(config, section, "au", "None", evaluate=True, forced_type=float, lower=0)
-        r_sun = self.read_param(config, section, "r_sun", "None", evaluate=True, forced_type=float, lower=0)
-        m_sun = self.read_param(config, section, "m_sun", "None", evaluate=True, forced_type=float, lower=0)
-        l_sun = self.read_param(config, section, "l_sun", "None", evaluate=True, forced_type=float, lower=0)
-        r_jup = self.read_param(config, section, "r_jup", "None", evaluate=True, forced_type=float, lower=0)
-        m_jup = self.read_param(config, section, "m_jup", "None", evaluate=True, forced_type=float, lower=0)
-        r_nep = self.read_param(config, section, "r_nep", "None", evaluate=True, forced_type=float, lower=0)
-        m_nep = self.read_param(config, section, "m_nep", "None", evaluate=True, forced_type=float, lower=0)
-        r_earth = self.read_param(config, section, "r_earth", "None", evaluate=True, forced_type=float, lower=0)
-        m_earth = self.read_param(config, section, "m_earth", "None", evaluate=True, forced_type=float, lower=0)
-        hour = self.read_param(config, section, "hour", "None", evaluate=True, forced_type=int, lower=0)
-        day = self.read_param(config, section, "day", "None", evaluate=True, forced_type=int, lower=0)
-        year = self.read_param(config, section, "year", "None", evaluate=True, forced_type=float, lower=0)
-        rad2deg = self.read_param(config, section, "rad2deg", "None", evaluate=True, forced_type=float, lower=0)
+        g = self.read_param(config, section, "g", "float('inf')", evaluate=True, forced_type=float, lower=0)
+        au = self.read_param(config, section, "au", "float('inf')", evaluate=True, forced_type=float, lower=0)
+        r_sun = self.read_param(config, section, "r_sun", "float('inf')", evaluate=True, forced_type=float, lower=0)
+        m_sun = self.read_param(config, section, "m_sun", "float('inf')", evaluate=True, forced_type=float, lower=0)
+        l_sun = self.read_param(config, section, "l_sun", "float('inf')", evaluate=True, forced_type=float, lower=0)
+        r_jup = self.read_param(config, section, "r_jup", "float('inf')", evaluate=True, forced_type=float, lower=0)
+        m_jup = self.read_param(config, section, "m_jup", "float('inf')", evaluate=True, forced_type=float, lower=0)
+        r_nep = self.read_param(config, section, "r_nep", "float('inf')", evaluate=True, forced_type=float, lower=0)
+        m_nep = self.read_param(config, section, "m_nep", "float('inf')", evaluate=True, forced_type=float, lower=0)
+        r_earth = self.read_param(config, section, "r_earth", "float('inf')", evaluate=True, forced_type=float, lower=0)
+        m_earth = self.read_param(config, section, "m_earth", "float('inf')", evaluate=True, forced_type=float, lower=0)
+        hour = self.read_param(config, section, "hour", "float('inf')", evaluate=True, forced_type=int, lower=0)
+        day = self.read_param(config, section, "day", "float('inf')", evaluate=True, forced_type=int, lower=0)
+        year = self.read_param(config, section, "year", "float('inf')", evaluate=True, forced_type=float, lower=0)
+        rad2deg = self.read_param(config, section, "rad2deg", "float('inf')", evaluate=True, forced_type=float, lower=0)
         deg2rad = 1 / rad2deg
 
         self.g, self.au, self.r_sun, self.m_sun, self.l_sun = g, au, r_sun, m_sun, l_sun,
@@ -103,7 +103,6 @@ class CurveSimParameters:
         self.sim_flux_err = self.read_param(config, section, "sim_flux_err", "0.0", evaluate=True, forced_type=float, lower=0)
         self.rv_body_name = self.read_param(config, section, "rv_body_name", "NoRvBodyName", evaluate=False, forced_type=str)
         self.rv_body: CurveSimBody
-        # self.rv_body: CurveSimBody | None
 
         section = "Results"
         self.comment = self.read_param(config, section, "comment", "No comment", evaluate=False, forced_type=str)
@@ -132,28 +131,27 @@ class CurveSimParameters:
             self.sector_params_fit = False
         else:
             self.sector_params_fit = self.read_param(config, section, "sector_params_fit", "False", evaluate=True, forced_type=bool)
-        ab hier weiter None Fallbacks entfernen
-        self.tt_file = self.read_param(config, section, "tt_file", None, evaluate=False, forced_type=str)
-        self.rv_file = self.read_param(config, section, "rv_file", None, evaluate=False, forced_type=str)
+        self.tt_file = self.read_param(config, section, "tt_file", "", evaluate=False, forced_type=str)
+        self.rv_file = self.read_param(config, section, "rv_file", "", evaluate=False, forced_type=str)
 
-        raw = config.get(section, "eclipsers_names", fallback="None").split("#")[0]
+        raw = config.get(section, "eclipsers_names", fallback="").split("#")[0]
         self.eclipsers_names = [x.strip() for x in raw.split(",")]
-        raw = config.get(section, "eclipsees_names", fallback="None").split("#")[0]
+        raw = config.get(section, "eclipsees_names", fallback="").split("#")[0]
         self.eclipsees_names = [x.strip() for x in raw.split(",")]
 
         self.best_residuals_tt_sum_squared = 1e99
         self.lmfit_method = self.read_param(config, section, "lmfit_method", "powell", evaluate=False, forced_type=str)
         self.ls_chunk_size = int(self.read_param(config, section, "ls_chunk_size", "1000", evaluate=True, forced_type=float, lower=1))
         self.ls_steps = int(self.read_param(config, section, "ls_steps", "1000000", evaluate=True, forced_type=float, lower=1))
-        ls_thresholds = config.get(section, "ls_thresholds", fallback=None)
-        if ls_thresholds is None:
+        ls_thresholds = config.get(section, "ls_thresholds", fallback="")
+        if not ls_thresholds:
             self.ls_thresholds = (1.0, 0.1, 0.01, 0.001, 0.0001)
         else:
             self.ls_thresholds = tuple([ast.literal_eval(x) for x in ls_thresholds.split(",")])
             if len(self.ls_thresholds) != 5:
                 print(f"{Fore.RED}\nERROR: Parameter ls_thresholds must have exactly 5 items, separated by comma, but {self.ls_thresholds=}{Style.RESET_ALL}")
                 sys.exit(1)
-        self.backend = self.read_param(config, section, "backend", None, evaluate=False, forced_type=str)  # e.g. emcee_backend.h5
+        self.backend = self.read_param(config, section, "backend", "", evaluate=False, forced_type=str)  # e.g. emcee_backend.h5
         self.load_backend = self.read_param(config, section, "load_backend", "False", evaluate=True, forced_type=bool)
         self.walkers = int(self.read_param(config, section, "walkers", "32", evaluate=True, forced_type=float, lower=1))
         self.steps = int(self.read_param(config, section, "steps", "1000000", evaluate=True, forced_type=float, lower=1))
@@ -174,7 +172,7 @@ class CurveSimParameters:
         self.fparams_count_plus = self.fparams_count + self.derived_params_count
 
         section = "Video"
-        self.video_file = self.read_param(config, section, "video_file", None, evaluate=False, forced_type=str)
+        self.video_file = self.read_param(config, section, "video_file", "", evaluate=False, forced_type=str)
         self.video_file = CurveSimParameters.check_filename_and_add_path(self.video_file, "video_file", self.results_directory)
         self.frames = self.read_param(config, section, "frames", "250", evaluate=True, forced_type=int, lower=1)
         self.fps = self.read_param(config, section, "fps", "25", evaluate=True, forced_type=int, lower=1)
@@ -256,7 +254,8 @@ class CurveSimParameters:
         self.xlim = self.read_param(config, section, "xlim", "1.25", evaluate=True, forced_type=float, lower=0)
         self.ylim = self.read_param(config, section, "xlim", "1.0", evaluate=True, forced_type=float, lower=0)
 
-        self.eclipsers, self.eclipsees = (None,) * 2
+        self.eclipsers: list[CurveSimBody] = []
+        self.eclipsees: list[CurveSimBody] = []
         self.jacobi_coordinates: bool
         self.fitting_param_dic: dict[tuple[int, str], int]
         self.index_from_bodyparamname: dict[str, int]
@@ -277,7 +276,7 @@ class CurveSimParameters:
     @staticmethod
     def check_filename_and_add_path(filename, param_name, results_directory):
         if not filename:
-            return None
+            return ""
         if PurePath(filename).name != filename:
             print(f"{Fore.RED}\nERROR: Parameter {param_name} has value {filename} but must be a legal filename and must not contain a path.{Style.RESET_ALL}")
             sys.exit(1)
@@ -286,22 +285,15 @@ class CurveSimParameters:
     def find_mandatory_params(self):
         mandatory_list = ["g", "au", "l_sun", "r_sun", "m_sun", "r_jup", "m_jup", "r_nep", "m_nep", "r_earth", "m_earth", "hour", "day", "year", "rad2deg"]  # astronomical_units
         mandatory_list += ["action"]
-        if self.rv_file is not None:
+        if self.rv_file:
             mandatory_list += ["rv_body_name"]  # "rv_offset", "rv_jitter" move to def find_mandatory_body_params()
-        if self.tt_file is not None:
+        if self.tt_file:
             mandatory_list += ["eclipsers_names", "eclipsees_names"]
         if self.action in ["mcmc", "lmfit"]:
             mandatory_list += ["result_file"]
         mandatory = set(mandatory_list)
         # print(mandatory)
         return mandatory
-
-    # def find_mandatory_body_params(self, body):  # debug Baustelle!
-    #     mandatory_list: list[str] = []
-    #     if self.rv_file is not None:
-    #         mandatory_list += ["rv_offset", "rv_jitter"]
-    #     body.mandatory = set(mandatory_list)
-    #     print(body.mandatory)
 
     def check_for_missing_params(self, mandatory_params):
         for attribute in mandatory_params:
@@ -355,7 +347,6 @@ class CurveSimParameters:
 
     @staticmethod
     def get_tuple(config, section, name, fallback, length):
-        # startposition = CurveSimParameters.get_tuple(config, section, "startposition", None, 3)
         value = config.get(section, name, fallback=fallback)
         if value is None:
             return None
@@ -398,48 +389,6 @@ class CurveSimParameters:
             sys.exit(1)
 
     # noinspection unused-local,DuplicatedCode
-    def read_param_new(self, config, section, param, fallback, evaluate=True, forced_type=None, lower=None, upper=None):
-        value = config.get(section, param, fallback=fallback)
-        if value != fallback:
-            if evaluate:
-                if section != "Astronomical Constants":
-                    # For ease of use of these constants in the config file they are additionally defined here without the prefix "self.".
-                    g, au, r_sun, m_sun, l_sun = self.g, self.au, self.r_sun, self.m_sun, self.l_sun
-                    r_jup, m_jup, r_nep, m_nep, r_earth, m_earth = self.r_jup, self.m_jup, self.r_nep, self.m_nep, self.r_earth, self.m_earth
-                    hour, day, year, rad2deg, deg2rad = self.hour, self.day, self.year, self.rad2deg, self.deg2rad
-                try:
-                    value = eval(value)
-                except NameError, ValueError:
-                    print(f"{Fore.RED}\nERROR in Configuration: Parameter {param} in section {section} has value {value}, which cannot be evaluated. {Style.RESET_ALL}")
-                    if forced_type is not None:
-                        print(f"{Fore.RED}Must have type {forced_type.__name__}. {Style.RESET_ALL}")
-                    sys.exit(1)
-                if value == fallback:
-                    return eval(value)
-            if forced_type in (bool, str, int, dict, tuple, list):
-                if not isinstance(value, forced_type):
-                    print(f"{Fore.RED}\nERROR in Configuration: Parameter {param} in section {section} must have type {forced_type.__name__}. {Style.RESET_ALL}")
-                    sys.exit(1)
-            if forced_type == float:
-                if not isinstance(value, (int, float)) or isinstance(value, bool):
-                    print(f"{Fore.RED}\nERROR in Configuration: Parameter {param} in section {section} must be a number. {Style.RESET_ALL}")
-                    sys.exit(1)
-            if lower is not None:
-                if upper is not None:
-                    ok = lower <= value <= upper
-                else:
-                    ok = lower <= value
-            else:
-                if upper is not None:
-                    ok = value <= upper
-                else:
-                    ok = True
-            if not ok:
-                print(f"{Fore.RED}\nERROR in Configuration: Parameter {param} in section {section} has value {value}, which is out of bounds. {lower=}, {upper=}. {Style.RESET_ALL}")
-                sys.exit(1)
-        return value
-
-    # noinspection unused-local,DuplicatedCode
     def read_param(self, config, section, param, fallback, evaluate, forced_type, lower=float("-inf"), upper=float("inf")):
         value = config.get(section, param, fallback=fallback)
         if evaluate:
@@ -455,19 +404,18 @@ class CurveSimParameters:
                 if forced_type is not None:
                     print(f"{Fore.RED}Must have type {forced_type.__name__}. {Style.RESET_ALL}")
                 sys.exit(1)
-        if value is not None:
-            if forced_type in (bool, str, int, dict, tuple, list):
-                if not isinstance(value, forced_type):
-                    print(f"{Fore.RED}\nERROR in Configuration: Parameter {param} in section {section} must have type {forced_type.__name__}. {Style.RESET_ALL}")
-                    sys.exit(1)
-            if forced_type == float:
-                if not isinstance(value, (int, float)) or isinstance(value, bool):
-                    print(f"{Fore.RED}\nERROR in Configuration: Parameter {param} in section {section} must be a number. {Style.RESET_ALL}")
-                    sys.exit(1)
-            ok = not isinstance(value, (float, int)) or lower <= value <= upper
-            if not ok:
-                print(f"{Fore.RED}\nERROR in Configuration: Parameter {param} in section {section} has value {value}, which is out of bounds. {lower=}, {upper=}. {Style.RESET_ALL}")
+        if forced_type in (bool, str, int, dict, tuple, list):
+            if not isinstance(value, forced_type):
+                print(f"{Fore.RED}\nERROR in Configuration: Parameter {param} in section {section} must have type {forced_type.__name__}. {Style.RESET_ALL}")
                 sys.exit(1)
+        if forced_type == float:
+            if not isinstance(value, (int, float)) or isinstance(value, bool):
+                print(f"{Fore.RED}\nERROR in Configuration: Parameter {param} in section {section} must be a number. {Style.RESET_ALL}")
+                sys.exit(1)
+        ok = not isinstance(value, (float, int)) or lower <= value <= upper
+        if not ok:
+            print(f"{Fore.RED}\nERROR in Configuration: Parameter {param} in section {section} has value {value}, which is out of bounds. {lower=}, {upper=}. {Style.RESET_ALL}")
+            sys.exit(1)
         return value
 
     # noinspection unused-local,DuplicatedCode

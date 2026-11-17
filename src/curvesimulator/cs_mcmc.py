@@ -152,7 +152,7 @@ class CurveSimMCMC:
         else:
             print("Running without backend.")
             # noinspection bad-assignment
-            self.backend = None
+            self.backend = ""
             steps_done, self.loaded_steps = 0, 0
 
         if p.mcmc_multi_processing:
@@ -161,9 +161,14 @@ class CurveSimMCMC:
         else:
             self.mcmc_fit(p, bodies, o, steps_done)
 
+    # noinspection bad-argument-type
     def mcmc_fit(self, p: CurveSimParameters, bodies: CurveSimBodies, o: TotalObservations, steps_done, pool=None):
-        # noinspection PyTypeChecker
-        self.sampler = emcee.EnsembleSampler(p.walkers, p.fparams_count, CurveSimMCMC.log_probability, pool=pool, moves=self.moves, args=self.args, backend=self.backend)  # wrong/missing type hints in emcee
+        # if not self.backend:
+        #     backend = None
+        # else:
+        #     backend = self.backend
+        backend = self.backend if self.backend else None
+        self.sampler = emcee.EnsembleSampler(p.walkers, p.fparams_count, CurveSimMCMC.log_probability, pool=pool, moves=self.moves, args=self.args, backend=backend)  # wrong/missing type hints in emcee
         if not p.load_backend:
             self.theta = self.sampler.run_mcmc(self.theta0, p.burn_in, progress=True, progress_kwargs={"file": sys.__stderr__})  # progress_kwargs bypasses Tee, so not logged
         else:
@@ -210,15 +215,15 @@ class CurveSimMCMC:
             results.save_results(p)
         # self.sim_flux = sim_flux
         # self.results = results
-        trifon = 42 * 0
-        if trifon:
-            p.eclipsers = ["TOI4504d"]
-            p.eclipsees = ["TOI4504"]
-            # results.plot_param("TOI4504c", "TOI4504", "T14", flux_time_d[0], flux_time_d[-1],
-            #                         filename=f"TOI4504c_i={bodies[2].i*p.rad2deg:.2f}_T14.png")
-            results.plot_param("TOI4504d", "TOI4504", "T14", o.flux.time_d[0], o.flux.time_d[-1], filename=f"TOI4504d_i={bodies[1].i * p.rad2deg:.2f}_T14.png")
-            results.plot_param("TOI4504d", "TOI4504", "depth", o.flux.time_d[0], o.flux.time_d[-1], filename=f"TOI4504d_i={bodies[1].i * p.rad2deg:.2f}_depth.png")
-
+        # trifon = 42 * 0
+        # if trifon:
+        #     p.eclipsers = ["TOI4504d"]
+        #     p.eclipsees = ["TOI4504"]
+        #     results.plot_param("TOI4504c", "TOI4504", "T14", flux_time_d[0], flux_time_d[-1],
+        #                             filename=f"TOI4504c_i={bodies[2].i*p.rad2deg:.2f}_T14.png")
+            # results.plot_param("TOI4504d", "TOI4504", "T14", o.flux.time_d[0], o.flux.time_d[-1], filename=f"TOI4504d_i={bodies[1].i * p.rad2deg:.2f}_T14.png")
+            # results.plot_param("TOI4504d", "TOI4504", "depth", o.flux.time_d[0], o.flux.time_d[-1], filename=f"TOI4504d_i={bodies[1].i * p.rad2deg:.2f}_depth.png")
+            #
             # measured_tt = CurveSimMCMC.get_measured_tt(p)
             # p.bodynames2bodies(bodies)
             # _, measured_tt = CurveSimMCMC.match_transit_times(measured_tt, p, rebound_sim, sim_flux, flux_time_d, flux_time_s0)
