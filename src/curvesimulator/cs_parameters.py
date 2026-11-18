@@ -449,8 +449,11 @@ class CurveSimParameters:
         elif len(items) == 6:  # normal prior
             value, lower, upper, sigma, prior_mu, prior_sigma = items
             return eval(value), eval(lower), eval(upper), eval(sigma), eval(prior_mu), eval(prior_sigma)
-        else:  # param in config file but does not have 4 or 6 values
+        elif len(items) == 1:  # constant parameter
             return (None,) * 6
+        else:
+            print(f"{Fore.RED}\nERROR: Body {section}, Parameter {param} has {len(items)} values but must have 1 (constant) or 4 (uninformed prior) or 6 (informed prior).{Style.RESET_ALL}")
+            sys.exit(1)
 
     def read_fitting_params(self, config):
         fitting_params, derived_fitting_params, body_index = self.read_fitting_body_params(config)

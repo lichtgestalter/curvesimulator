@@ -887,6 +887,10 @@ class CurveSimMCMC:
             fp.lower *= fp.scale
             fp.upper *= fp.scale
             fp.sigma *= fp.scale
+            if fp.prior_mu is not None:
+                fp.prior_mu *= fp.scale
+            if fp.prior_sigma is not None:
+                fp.prior_sigma *= fp.scale
             for name in ("densities", "bin_edges"):  # List names of list-attributes here, in order to convert them to something JSON can understand
                 if hasattr(fp, name):
                     orig = getattr(fp, name)
