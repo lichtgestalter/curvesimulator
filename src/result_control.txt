@@ -1,8 +1,8 @@
-save_bodies                      # Save the maximum-likelihood parameters of each body as a separate file with the extension .bdy.
-chi_squared                      # Plot the development of reduced chi squared during fitting: reduced_chi^2_over_time.png
+mcmc_results                     # Save results_mcmc.json.
 
 # All lines after the first line that starts with # are ignored.
 
+chi_squared                      # Plot the development of reduced chi squared during fitting: reduced_chi^2_over_time.png
 all                              # Generates all results!
 histogram                        # Plot one or more histograms per fitting parameter (see configuration parameter bins): histograms_{bins}.png.
 single_run                       # Plot observed vs. computed, chi squared, and residuals for all observations and save results_single_run.json.

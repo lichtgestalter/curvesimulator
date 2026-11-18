@@ -140,6 +140,7 @@ class CurveSimMCMC:
             if p.load_backend:
                 self.iterations_from_backend = self.backend.iteration
                 print(f"Loading backend from {p.backend}. Contains {self.backend.iteration} iterations.")
+                print(f"Burn-in completed ({p.burn_in} steps). {self.backend.iteration - p.burn_in} additional steps done.")
                 steps_done = self.backend.iteration - p.burn_in
                 self.loaded_steps = steps_done
                 if steps_done < 0:
@@ -870,9 +871,9 @@ class CurveSimMCMC:
         mcmc_results["MCMC Performance"]["steps_this_run"] = steps_this_run
         assert isinstance(steps_this_run, (int, float))
         assert isinstance(p.walkers, (int, float))
-        mcmc_results["MCMC Performance"]["fitting_time_per_step_this_run"] = f"{fitting_time / steps_this_run:.3f} [s]"
-        mcmc_results["MCMC Performance"]["steps_this_run_per_second"] = f"{steps_this_run / fitting_time:.0f} [steps/s]"
-        mcmc_results["MCMC Performance"]["simulations_this_run_per_second"] = f"{steps_this_run * p.walkers / fitting_time:.0f} [steps*walkers/s]"
+        mcmc_results["MCMC Performance"]["fitting_time_per_step_this_run"] = f"{fitting_time / steps_this_run:.3f} [s/step]"
+        mcmc_results["MCMC Performance"]["steps_this_run_per_second"] = f"{steps_this_run / fitting_time:.2f} [steps/s]"
+        mcmc_results["MCMC Performance"]["simulations_this_run_per_second"] = f"{steps_this_run * p.walkers / fitting_time:.0f} [simulations/s]"
 
         if p.tt_file:
             mcmc_results["MCMC Performance"]["tt_mean_residual"] = float(np.mean(np.abs(measured_tt["delta"])))
