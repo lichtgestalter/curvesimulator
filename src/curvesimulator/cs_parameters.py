@@ -305,11 +305,11 @@ class CurveSimParameters:
     def check_unit(self, unit, section):
         for param, unit in unit.items():
             if param not in self.ACCEPTED_PARAMS4UNITS:
-                print(f"{Fore.RED}ERROR: {param} in parameter unit of section {section} in the configuartion file is not an accepted parameter.")
+                print(f"{Fore.RED}ERROR: {param} in parameter unit of section {section} in the configuration file is not an accepted parameter.")
                 print(f"{Fore.RED}Accepted parameters are {self.ACCEPTED_PARAMS4UNITS}{Style.RESET_ALL}")
                 sys.exit(1)
             if unit not in self.ACCEPTED_UNITS:
-                print(f"{Fore.RED}ERROR: {unit} in parameter unit of section {section} in the configuartion file is not an accepted unit.")
+                print(f"{Fore.RED}ERROR: {unit} in parameter unit of section {section} in the configuration file is not an accepted unit.")
                 print(f"{Fore.RED}Accepted units are {self.ACCEPTED_UNITS}{Style.RESET_ALL}")
                 sys.exit(1)
 
